@@ -1,7 +1,16 @@
 # Sonsu Marketplace
 
 개인적으로 사용하는 Codex 플러그인을 관리하는 마켓플레이스입니다.
-현재는 기본 구조만 준비되어 있으며, 등록된 플러그인은 없습니다.
+Superpowers 원본을 기준으로 개인용 워크플로를 조정합니다.
+
+## 등록된 플러그인
+
+| 플러그인 | 버전 | 상태 |
+| --- | --- | --- |
+| [Superpowers](plugins/superpowers/README.md) | 6.3.0 | 원본 스킬을 변경 없이 가져온 초기 버전 |
+
+원본 커밋과 포함 범위는 [UPSTREAM.md](plugins/superpowers/UPSTREAM.md)에 기록합니다.
+worktree, 설계 문서 작성, TDD, 리뷰 정책은 아직 원본 그대로입니다.
 
 ## 저장소 구조
 
@@ -11,7 +20,14 @@ sonsu-marketplace/
 │   └── plugins/
 │       └── marketplace.json
 ├── plugins/
-│   └── .gitkeep
+│   └── superpowers/
+│       ├── .codex-plugin/plugin.json
+│       ├── assets/
+│       ├── skills/
+│       ├── CODE_OF_CONDUCT.md
+│       ├── LICENSE
+│       ├── README.md
+│       └── UPSTREAM.md
 ├── .gitignore
 └── README.md
 ```
@@ -31,8 +47,15 @@ codex plugin list --marketplace sonsu-marketplace
 ```
 
 등록 명령에는 `marketplace.json` 파일 경로가 아닌 저장소 루트 경로를 전달합니다.
-플러그인을 추가하기 전에는 목록이 비어 있습니다. 저장소를 만드는 것만으로
-사용자의 Codex 설정에 마켓플레이스가 자동 등록되지는 않습니다.
+저장소를 만드는 것만으로 사용자의 Codex 설정에 마켓플레이스가 자동 등록되지는 않습니다.
+
+등록한 마켓플레이스에서 Superpowers를 설치하려면 실행합니다.
+
+```sh
+codex plugin add superpowers@sonsu-marketplace
+```
+
+이 저장소의 파일을 수정하거나 커밋하는 작업과, Codex에 플러그인을 설치하는 작업은 별개입니다.
 
 ## 플러그인 추가하기
 
@@ -76,3 +99,7 @@ python3 -m json.tool .agents/plugins/marketplace.json
 참조 경로를 검토하고 Codex에서 설치 및 실행까지 확인합니다.
 
 마켓플레이스 경로와 소스 형식은 [OpenAI 공식 문서](https://learn.chatgpt.com/docs/enterprise/plugin-management#supported-formats)를 따릅니다.
+
+## 라이선스
+
+Superpowers 원본의 저작권 고지와 [MIT 라이선스](plugins/superpowers/LICENSE)를 유지합니다.
