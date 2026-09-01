@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Workflow"
+  short_description: "Create atomic branches, commits, and safe pushes"
+  default_prompt: "Use $git-workflow to review this Git change and propose an atomic branch and Conventional Commit."

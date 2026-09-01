@@ -1,15 +1,15 @@
 {
   "name": "workflow",
-  "version": "0.3.0",
-  "description": "A personal Codex plugin for explicit ticket and GitHub pull request workflows.",
+  "version": "0.4.0",
+  "description": "A personal Codex plugin for explicit Git, ticket, and GitHub pull request workflows.",
   "author": {
     "name": "sonsu"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Workflow",
-    "shortDescription": "Ticket and GitHub pull request workflows",
-    "longDescription": "Turn prepared work into tracker-ready tickets or the current branch into a reviewable GitHub pull request, with explicit publication and optional visual evidence.",
+    "shortDescription": "Git, ticket, and pull request workflows",
+    "longDescription": "Prepare atomic Git changes, turn prepared work into tracker-ready tickets, or create a reviewable GitHub pull request with explicit publication boundaries.",
     "developerName": "sonsu",
     "category": "Developer Tools",
     "capabilities": [
@@ -18,6 +18,7 @@
       "Write"
     ],
     "defaultPrompt": [
+      "Review this Git change and propose an atomic branch and Conventional Commit.",
       "Turn this prepared work into tracker-ready tickets.",
       "Prepare the current branch as a reviewable GitHub pull request."
     ]
