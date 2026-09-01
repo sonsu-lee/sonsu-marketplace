@@ -1,15 +1,15 @@
 {
   "name": "workflow",
-  "version": "0.2.0",
-  "description": "A personal Codex plugin for explicit ticket and repository workflows.",
+  "version": "0.3.0",
+  "description": "A personal Codex plugin for explicit ticket and GitHub pull request workflows.",
   "author": {
     "name": "sonsu"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Workflow",
-    "shortDescription": "Ticket drafting and publishing workflows",
-    "longDescription": "Turn prepared work into tracker-ready tickets and publish them to supported trackers with explicit authorization.",
+    "shortDescription": "Ticket and GitHub pull request workflows",
+    "longDescription": "Turn prepared work into tracker-ready tickets or the current branch into a reviewable GitHub pull request, with explicit publication and optional visual evidence.",
     "developerName": "sonsu",
     "category": "Developer Tools",
     "capabilities": [
@@ -18,7 +18,8 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Turn this prepared work into tracker-ready tickets."
+      "Turn this prepared work into tracker-ready tickets.",
+      "Prepare the current branch as a reviewable GitHub pull request."
     ]
   }
 }
