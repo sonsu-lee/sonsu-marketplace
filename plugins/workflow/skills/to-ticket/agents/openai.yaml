@@ -1,0 +1,4 @@
+interface:
+  display_name: "To Ticket"
+  short_description: "Draft and publish actionable tracker tickets"
+  default_prompt: "Use $to-ticket to turn this prepared work into actionable tracker tickets."
