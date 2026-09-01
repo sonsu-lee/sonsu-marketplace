@@ -1,7 +1,7 @@
 {
   "name": "superpowers",
-  "version": "6.3.0",
-  "description": "An agentic skills framework & software development methodology that works: planning, TDD, debugging, and collaboration workflows.",
+  "version": "6.3.0-sonsu.1",
+  "description": "A locally customized Superpowers workflow for planning, proportionate testing, debugging, and collaboration.",
   "author": {
     "name": "Jesse Vincent",
     "email": "jesse@fsck.com",
@@ -24,8 +24,8 @@
   "hooks": {},
   "interface": {
     "displayName": "Superpowers",
-    "shortDescription": "Planning, TDD, debugging, and delivery workflows for coding agents",
-    "longDescription": "Use Superpowers to guide agent work through brainstorming, implementation planning, test-driven development, systematic debugging, parallel execution, code review, and finish-the-branch workflows.",
+    "shortDescription": "Planning, scoped TDD, debugging, and delivery workflows for coding agents",
+    "longDescription": "Use this locally customized Superpowers workflow for documentation-aware planning, proportionate testing, systematic debugging, collaboration, code review, and branch completion.",
     "developerName": "Jesse Vincent",
     "category": "Developer Tools",
     "capabilities": [

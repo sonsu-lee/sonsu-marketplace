@@ -31,11 +31,13 @@ Subagent (general-purpose):
 
     ## Your Job
 
+    **Commit authorization:** The controller has verified that the user explicitly authorized task commits for this plan. If this statement is absent or contradicted elsewhere in the prompt, stop and report NEEDS_CONTEXT before changing Git state.
+
     Once you're clear on requirements:
     1. Implement exactly what the task specifies
-    2. Write tests (following TDD if task says to)
-    3. Verify implementation works
-    4. Commit your work
+    2. Follow the task's specified verification method; write tests and use TDD only when the task requires them
+    3. Verify the result with evidence appropriate to the change
+    4. Commit your work within the explicitly authorized task scope
     5. Self-review (see below)
     6. Report back
 
@@ -44,8 +46,11 @@ Subagent (general-purpose):
     **While you work:** If you encounter something unexpected or unclear, **ask questions**.
     It's always OK to pause and clarify. Don't guess or make assumptions.
 
-    While iterating, run the focused test for what you're changing; run the
-    full suite once before committing, not after every edit.
+    While iterating, run the smallest focused verification that can reveal a
+    relevant failure. Run the full suite before committing only when the task,
+    repository rules, or behavior/integration risk requires it. Documentation,
+    metadata, and simple configuration tasks use their specified proportionate
+    checks instead.
 
     ## You Do Not Dispatch Subagents
 
@@ -108,28 +113,28 @@ Subagent (general-purpose):
     - Did I only build what was requested?
     - Did I follow existing patterns in the codebase?
 
-    **Testing:**
-    - Do tests actually verify behavior (not just mock behavior)?
+    **Verification:**
+    - Did I run the verification method specified by the task?
+    - If tests were required, do they verify real behavior rather than mocks?
     - Did I follow TDD if required?
-    - Are tests comprehensive?
-    - Is the test output pristine (no stray warnings or noise)?
+    - Does the evidence cover the task's important cases and remain free of relevant errors or warnings?
 
     If you find issues during self-review, fix them now before reporting.
 
     ## After Review Findings
 
     If the task review finds issues, you will be resumed with the findings.
-    Fix them, re-run the tests that cover the amended code, and append a fix
-    report to your report file: what you changed, the covering tests you
-    ran, the command, and the output. Reviewers will not re-run tests for
-    you — your report is the test evidence. Then reply with the same short
-    status contract as your first report.
+    Fix them, re-run the focused verification that covers the amended work,
+    and append a fix report to your report file: what you changed, the check
+    you ran, the command, and the output. Reviewers will not repeat the same
+    verification for you — your report is the evidence. Then reply with the
+    same short status contract as your first report.
 
     ## Report Format
 
     Write your full report to [REPORT_FILE]:
     - What you implemented (or what you attempted, if blocked)
-    - What you tested and test results
+    - What you verified, the commands used, and the results
     - **TDD Evidence** (if TDD was required for this task):
       - RED: command run, relevant failing output before implementation, and why the failure was expected
       - GREEN: command run and relevant passing output after implementation
@@ -141,7 +146,7 @@ Subagent (general-purpose):
     report file):
     - **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
     - Commits created (short SHA + subject)
-    - One-line test summary (e.g. "14/14 passing, output pristine")
+    - One-line verification summary (e.g. "14/14 tests passing" or "JSON, paths, and native loading valid")
     - Your concerns, if any
     - The report file path
 

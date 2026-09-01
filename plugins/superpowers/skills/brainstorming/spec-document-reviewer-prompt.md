@@ -1,18 +1,18 @@
-# Spec Document Reviewer Prompt Template
+# Durable Design Document Reviewer Prompt Template
 
 Use this template when dispatching a spec document reviewer subagent.
 
-**Purpose:** Verify the spec is complete, consistent, and ready for implementation planning.
+**Purpose:** Verify an approved durable design document is complete, consistent, and ready for implementation planning.
 
-**Dispatch after:** Spec document is written to docs/superpowers/specs/
+**Dispatch after:** A durable design document is created or substantially updated and an independent review would materially reduce planning risk.
 
 ```
 Subagent (general-purpose):
   description: "Review spec document"
   prompt: |
-    You are a spec document reviewer. Verify this spec is complete and ready for planning.
+    You are a design document reviewer. Verify this document is complete and ready for planning.
 
-    **Spec to review:** [SPEC_FILE_PATH]
+    **Document to review:** [DOCUMENT_FILE_PATH]
 
     ## What to Check
 

@@ -4,13 +4,13 @@
 
 ## Overview
 
-**Testing skills is just TDD applied to process documentation.**
+This is an advanced behavioral evaluation method for skill changes whose routing, permission, safety, or workflow risk warrants model-based testing. Simple metadata, wording, path, or reference maintenance should use deterministic validation instead.
 
 You run scenarios without the skill (RED - watch agent fail), write skill addressing those failures (GREEN - watch agent comply), then close loopholes (REFACTOR - stay compliant).
 
 **Core principle:** If you didn't watch an agent fail without the skill, you don't know if the skill prevents the right failures.
 
-**REQUIRED BACKGROUND:** You MUST understand superpowers:test-driven-development before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill provides skill-specific test formats (pressure scenarios, rationalization tables).
+When this method is selected, the RED-GREEN-REFACTOR analogy provides skill-specific test formats such as pressure scenarios and rationalization tables.
 
 **Complete worked example:** See examples/CLAUDE_MD_TESTING.md for a full test campaign testing CLAUDE.md documentation variants.
 
@@ -38,13 +38,13 @@ Don't test:
 | **REFACTOR** | Plug holes | Find new rationalizations, add counters |
 | **Stay GREEN** | Re-verify | Test again, ensure still compliant |
 
-Same cycle as code TDD, different test format.
+When this method is selected, it uses the same cycle as code TDD with a different test format.
 
 ## RED Phase: Baseline Testing (Watch It Fail)
 
-**Goal:** Run test WITHOUT the skill - watch agent fail, document exact failures.
+**Goal:** When attribution matters, run the scenario without the skill and document the relevant failure.
 
-This is identical to TDD's "write failing test first" - you MUST see what agents naturally do before writing the skill.
+Observe what agents naturally do before writing behavior-shaping guidance when you need to claim the guidance changed that behavior. If a baseline is unavailable or not worth its cost, state that limitation instead of claiming causal improvement.
 
 **Process:**
 
@@ -305,9 +305,9 @@ Meta-test: "Skill was clear, I should follow it"
 
 **Bulletproof achieved.**
 
-## Testing Checklist (TDD for Skills)
+## Testing Checklist for a Selected Behavioral Evaluation
 
-Before deploying skill, verify you followed RED-GREEN-REFACTOR:
+When this advanced method is selected, verify that you followed its RED-GREEN-REFACTOR cycle:
 
 **RED Phase:**
 - [ ] Created pressure scenarios (3+ combined pressures)
@@ -329,7 +329,7 @@ Before deploying skill, verify you followed RED-GREEN-REFACTOR:
 - [ ] Meta-tested to verify clarity
 - [ ] Agent follows rule under maximum pressure
 
-## Common Mistakes (Same as TDD)
+## Common Mistakes During Behavioral Evaluation
 
 **❌ Writing skill before testing (skipping RED)**
 Reveals what YOU think needs preventing, not what ACTUALLY needs preventing.
@@ -366,13 +366,11 @@ Tests pass once ≠ bulletproof.
 | **REFACTOR** | Close loopholes | Add counters for new rationalizations |
 | **Stay GREEN** | Re-verify | Agent still complies after refactoring |
 
-## The Bottom Line
+## Scope Reminder
 
-**Skill creation IS TDD. Same principles, same cycle, same benefits.**
+Behavioral evaluation can apply TDD's cycle to consequential skill behavior. It is not required for simple metadata, wording, path, or reference maintenance.
 
-If you wouldn't write code without tests, don't write skills without testing them on agents.
-
-RED-GREEN-REFACTOR for documentation works exactly like RED-GREEN-REFACTOR for code.
+Use it when static validation cannot answer the material question, and report observed evidence without overstating unrun controls or repetitions.
 
 ## Real-World Impact
 

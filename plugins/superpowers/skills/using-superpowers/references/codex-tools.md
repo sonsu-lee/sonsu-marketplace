@@ -98,11 +98,14 @@ Step 1 for how each skill uses these signals.
 ## Codex App Finishing
 
 When the sandbox blocks branch/push operations (detached HEAD in an
-externally managed worktree), the agent commits all work and informs
-the user to use the App's native controls:
+externally managed worktree), follow the Git authorization gate in
+`using-superpowers`. Commit only when the user explicitly authorized the
+current commit scope. Otherwise leave the verified changes uncommitted,
+report the diff, and tell the user which App control can continue the work:
 
-- **"Create branch"** — names the branch, then commit/push/PR via App UI
+- **"Create branch"** — names the branch, then supports separately authorized commit/push/PR actions through the App UI
 - **"Hand off to local"** — transfers work to the user's local checkout
 
-The agent can still run tests, stage files, and output suggested branch
-names, commit messages, and PR descriptions for the user to copy.
+The agent can still run proportionate verification and output suggested
+branch names, commit messages, and PR descriptions. Staging, committing,
+pushing, and creating a PR remain subject to their applicable authorization.

@@ -45,7 +45,7 @@ override it:
 - **Architectural** — new projects, new subsystems, changes that
   restructure how components fit together or alter interfaces others
   depend on. Follow the full process: questions, approaches, sectioned
-  design, written spec, then the writing-plans skill.
+  design, documentation impact review, then the writing-plans skill.
 
 When in doubt between two paths, take the heavier one. The ratchet is
 one-way: hidden complexity discovered mid-task upgrades the path —
@@ -89,7 +89,7 @@ your path and complete them in order.
 2. **Ask clarifying questions** — one at a time, the ones that matter
 3. **Present short design in chat** — approach, files touched, testing
 4. **Get approval** — STOP and wait for an explicit yes; presenting the design and starting in the same breath is skipping the gate
-5. **Implement** — proceed with the normal development workflow (TDD applies); no plan document
+5. **Implement** — proceed with the normal development workflow; use TDD for code behavior changes and proportionate verification otherwise; no plan document
 
 **Architectural:**
 1. **Explore project context** — check files, docs, recent commits
@@ -97,10 +97,12 @@ your path and complete them in order.
 3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 4. **Propose 2-3 approaches** — with trade-offs and your recommendation
 5. **Present design** — in sections scaled to their complexity, get user approval after each section
-6. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit
-7. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
-8. **User reviews written spec** — ask user to review the spec file before proceeding
-9. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+6. **Assess documentation impact** — inspect existing docs and classify the action as none, update, create, or supersede
+7. **Present the documentation action** — show the documents reviewed, proposed path, purpose, and scope; wait for approval before creating a new durable document or substantially restructuring one
+8. **Write or update approved documentation** — use the repository's established ADR, architecture, product, guide, reference, or runbook location; do not invent a dated spec path
+9. **Document self-review** — quick inline check for placeholders, contradictions, ambiguity, scope, and consistency with related docs
+10. **User reviews the written document** — when a durable document changed, ask the user to review it before planning
+11. **Transition to implementation** — invoke writing-plans to create an implementation plan; documentation approval does not authorize a commit
 
 ## Process Flow
 
@@ -118,9 +120,11 @@ digraph brainstorming {
     "Propose 2-3 approaches" [shape=box];
     "Present design sections" [shape=box];
     "User approves design?" [shape=diamond];
-    "Write design doc" [shape=box];
-    "Spec self-review\n(fix inline)" [shape=box];
-    "User reviews spec?" [shape=diamond];
+    "Assess documentation impact" [shape=box];
+    "User approves doc action?" [shape=diamond];
+    "Write/update durable docs if needed" [shape=box];
+    "Document self-review\n(fix inline)" [shape=box];
+    "User reviews written doc?" [shape=diamond];
     "Invoke writing-plans skill" [shape=doublecircle];
     "Hidden complexity? Upgrade path" [shape=box];
 
@@ -138,11 +142,14 @@ digraph brainstorming {
     "Propose 2-3 approaches" -> "Present design sections";
     "Present design sections" -> "User approves design?";
     "User approves design?" -> "Present design sections" [label="no, revise"];
-    "User approves design?" -> "Write design doc" [label="yes"];
-    "Write design doc" -> "Spec self-review\n(fix inline)";
-    "Spec self-review\n(fix inline)" -> "User reviews spec?";
-    "User reviews spec?" -> "Write design doc" [label="changes requested"];
-    "User reviews spec?" -> "Invoke writing-plans skill" [label="approved"];
+    "User approves design?" -> "Assess documentation impact" [label="yes"];
+    "Assess documentation impact" -> "User approves doc action?";
+    "User approves doc action?" -> "Assess documentation impact" [label="revise"];
+    "User approves doc action?" -> "Write/update durable docs if needed" [label="yes"];
+    "Write/update durable docs if needed" -> "Document self-review\n(fix inline)";
+    "Document self-review\n(fix inline)" -> "User reviews written doc?";
+    "User reviews written doc?" -> "Write/update durable docs if needed" [label="changes requested"];
+    "User reviews written doc?" -> "Invoke writing-plans skill" [label="approved or no durable doc"];
 }
 ```
 
@@ -165,7 +172,7 @@ is the whole process.
 
 - Check out the current project state first (files, docs, recent commits)
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
-- If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
+- If the project is too large for a single design, help the user decompose it into sub-projects: what are the independent pieces, how do they relate, and what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own approved design → plan → implementation cycle; durable documents are updated only when the documentation impact warrants it.
 - For appropriately-scoped projects, ask questions one at a time to refine the idea
 - Prefer multiple choice questions when possible, but open-ended is fine too
 - Only one question per message - if a topic needs more exploration, break it into multiple questions
@@ -201,15 +208,23 @@ is the whole process.
 
 ## After the Design (architectural path)
 
-**Documentation:**
+**Documentation impact:**
 
-- Write the validated design (spec) to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
-  - (User preferences for spec location override this default)
-- Use elements-of-style:writing-clearly-and-concisely skill if available
-- Commit the design document to git
+- Search the repository's existing `README`, `CONTEXT`, `docs`, ADR, architecture, product, guide, reference, runbook, issue, and ticket material before proposing a new file.
+- Classify the action as no documentation change, update an existing document, create a durable document, or supersede an existing decision.
+- Follow the repository's existing documentation structure. If none exists, route by the question the document answers:
+  - current system structure → architecture
+  - durable choice and trade-offs → ADR or decisions
+  - product intent and acceptance criteria → product or requirements
+  - goal-oriented procedure → guide
+  - exact contracts and configuration → reference
+  - repeatable operation with verification and recovery → runbook
+- Use stable topic names for living documents. Use the repository's decision identifier convention for ADRs or decision records. Do not create a new file merely to put the current date in its name.
+- Before creating or substantially restructuring a durable document, present the documents reviewed, proposed path, purpose, and scope, then wait for approval.
+- Writing or updating a document does not authorize `git add`, `git commit`, push, or PR creation.
 
-**Spec Self-Review:**
-After writing the spec document, look at it with fresh eyes:
+**Document Self-Review:**
+After writing or updating an approved durable document, look at it with fresh eyes:
 
 1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
 2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
@@ -219,11 +234,11 @@ After writing the spec document, look at it with fresh eyes:
 Fix any issues inline. No need to re-review — just fix and move on.
 
 **User Review Gate:**
-After the spec review loop passes, ask the user to review the written spec before proceeding:
+After the document review loop passes, ask the user to review the written document before proceeding:
 
-> "Spec written and committed to `<path>`. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."
+> "Documentation updated at `<path>`. No commit was created. Please review it and let me know if you want changes before we write the implementation plan."
 
-Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.
+Wait for the user's response. If they request changes, make them and re-run the document review loop. Only proceed once the user approves. If no durable documentation change was warranted, transition directly from the approved design to planning.
 
 **Implementation:**
 

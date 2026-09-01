@@ -1,29 +1,39 @@
 ---
 name: finishing-a-development-branch
-description: Use when implementation is complete, all tests pass, and you need to decide how to integrate the work
+description: Use when implementation is complete, required verification passes, and you need to decide how to integrate the work
 ---
 
 # Finishing a Development Branch
 
 ## Overview
 
-**Core principle:** Verify tests → Detect environment → Present options → Execute choice → Clean up.
+**Core principle:** Verify the completed change → Detect environment → Present options → Execute choice → Clean up.
 
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
 
-## Step 1: Verify Tests
+<HARD-GATE>
+This skill integrates commits that already exist. It does not turn uncommitted implementation into a commit. If the worktree contains requested changes that have not been committed, return to the execution workflow, report the diff, and obtain or apply the user's explicit commit decision before continuing.
+</HARD-GATE>
 
-Run the project's full test suite (`npm test` / `cargo test` / `pytest` / `go test ./...`).
+## Step 1: Verify the Completed Change
 
-**If tests fail**, report the failures and stop — the menu comes after a green suite:
+First confirm the implementation worktree is clean apart from explicitly preserved unrelated changes and that the commits to integrate exist. Do not stage or commit files in this skill.
+
+Run the final verification required by the approved plan and the change type.
+
+- Production behavior or integration changes normally require the relevant full test suite (`npm test` / `cargo test` / `pytest` / `go test ./...`).
+- Documentation, metadata, static data, and simple configuration changes use their specified link, syntax, path, loader, or consuming-command checks instead.
+- Repository instructions or a concrete cross-cutting risk may still require a broader suite; record why it applies.
+
+**If required verification fails**, report the failures and stop — the menu comes after current evidence passes:
 
 ```
-Tests failing (<N> failures). Must fix before completing:
+Verification failing. Must fix before completing:
 
 [Show failures]
 ```
 
-**If tests pass:** continue to Step 2.
+**If required verification passes:** continue to Step 2.
 
 ## Step 2: Detect Environment
 
@@ -95,11 +105,11 @@ git checkout <base-branch>
 git pull
 git merge <feature-branch>
 
-# Verify tests on merged result
-<test command>
+# Re-run the applicable final verification on the merged result
+<verification command>
 ```
 
-If tests fail on the merged result: stop, leave the worktree and branch in
+If verification fails on the merged result: stop, leave the worktree and branch in
 place, and investigate — nothing has been pushed, so the merge is local
 and recoverable.
 
@@ -213,7 +223,7 @@ place. If your platform provides a workspace-exit tool, use it.
 
 | Excuse | Reality |
 |--------|---------|
-| "Tests passed earlier this session" | Run the suite on the tree you are about to integrate. A green run only proves the tree it ran on. |
+| "Verification passed earlier this session" | Re-run the applicable final verification on the tree you are about to integrate. Earlier evidence proves only the tree it ran on. |
 | "They obviously want it merged" | Integration is your human partner's decision. Present the menu and wait. |
 | "They seem done with this feature — I'll offer to discard it" | The menu is complete as written. Discard happens only when your human partner asks for it in so many words. |
 | "'Yeah, get rid of it' counts as confirmation" | Only the typed word `discard` authorizes deletion. |

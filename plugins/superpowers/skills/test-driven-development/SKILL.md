@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: Use when implementing any feature or bugfix, before writing implementation code
+description: Use when changing production-code behavior, fixing a code defect, or refactoring behavior-sensitive code, before writing implementation code
 ---
 
 # Test-Driven Development (TDD)
@@ -16,23 +16,30 @@ Write the test first. Watch it fail. Write minimal code to pass.
 ## When to Use
 
 **Always:**
-- New features
-- Bug fixes
-- Refactoring
-- Behavior changes
+- New production-code behavior
+- Code bug fixes
+- Refactoring that can alter observable behavior
+- Changes to algorithms, state transitions, validation, or error handling
 
-**Exceptions (ask your human partner):**
-- Throwaway prototypes
+**Do not use by default:**
+- Documentation, prose, comments, and copy-only changes
+- Static metadata and manifest edits
 - Generated code
-- Configuration files
+- Formatting, file moves, and mechanical renames with no behavior change
+- Simple configuration where a parser or consuming command gives stronger, cheaper evidence
+- Tests that would only mirror static text, metadata, or the implementation
 
-Thinking "skip TDD just this once"? Stop. That's rationalization.
+Use proportionate verification for those changes: syntax and path checks, link and example review, a native loader, or the smallest command that consumes the changed configuration. If a configuration or metadata change controls meaningful runtime behavior, test that behavior; do not assume the file type makes it low risk.
+
+Once this skill applies to a production behavior change, thinking "skip TDD just this once" is rationalization.
 
 ## The Iron Law
 
 ```
-NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
+NO PRODUCTION BEHAVIOR CHANGE WITHOUT A FAILING TEST FIRST
 ```
+
+This law applies after the change has been classified as TDD work by the scope above.
 
 Write code before the test? Delete it. Start over.
 
@@ -227,6 +234,8 @@ When writing or changing any test, read [writing-good-tests.md](writing-good-tes
 
 ## Red Flags - STOP and Start Over
 
+For a production behavior change where TDD applies:
+
 - Code before test
 - Test after implementation
 - Test passes immediately
@@ -282,9 +291,9 @@ Extract validation for multiple fields if needed.
 
 ## Verification Checklist
 
-Before marking work complete:
+Before marking TDD-scoped work complete:
 
-- [ ] Every new function/method has a test
+- [ ] Every new or changed behavior has a test
 - [ ] Watched each test fail before implementing
 - [ ] Each test failed for expected reason (feature missing, not typo)
 - [ ] Wrote minimal code to pass each test
@@ -306,15 +315,15 @@ Can't check all boxes? You skipped TDD. Start over.
 
 ## Debugging Integration
 
-Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression.
+Code bug found? Write a failing test reproducing it. Follow the TDD cycle. The test proves the fix and prevents regression.
 
-Never fix bugs without a test.
+Do not fix a reproducible code defect without a regression test unless the environment makes automation impossible; record the limitation and run the strongest available reproduction instead.
 
 ## Final Rule
 
 ```
-Production code → test exists and failed first
-Otherwise → not TDD
+Production behavior change → test exists and failed first
+Non-behavior change → proportionate verification
 ```
 
-No exceptions without your human partner's permission.
+If the classification is unclear, inspect what consumes the changed artifact and choose the smallest verification that can fail for the right reason.

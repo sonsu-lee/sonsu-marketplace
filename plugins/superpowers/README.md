@@ -2,6 +2,13 @@
 
 Superpowers is a complete software development methodology for your coding agents, built on top of a set of composable skills and some initial instructions that make sure your agent uses them.
 
+> [!NOTE]
+> This marketplace carries a local customization, currently version `6.3.0-sonsu.1`.
+> It keeps the upstream worktree detection and creation workflow while routing durable documentation by purpose,
+> keeping implementation plans in chat or Git-ignored scratch space, requiring explicit
+> Git authorization, and applying TDD to production behavior changes. See
+> [UPSTREAM.md](UPSTREAM.md) and the local [skill-routing policy](../../docs/architecture/skill-routing.md).
+
 ## Table of Contents
 
 - [How it works](#how-it-works)
@@ -34,11 +41,11 @@ Superpowers is a complete software development methodology for your coding agent
 
 It starts from the moment you fire up your coding agent. As soon as it sees that you're building something, it *doesn't* just jump into trying to write code. Instead, it steps back and asks you what you're really trying to do. 
 
-Once it's teased a spec out of the conversation, it shows it to you in chunks short enough to actually read and digest. 
+Once it has clarified the design, it shows the proposal in sections short enough to review. Durable documentation is created or updated only after the existing docs and proposed destination have been reviewed with you.
 
-After you've signed off on the design, your agent puts together an implementation plan that's clear enough for an enthusiastic junior engineer with poor taste, no judgement, no project context, and an aversion to testing to follow. It emphasizes true red/green TDD, YAGNI (You Aren't Gonna Need It), and DRY. 
+After you've signed off on the design, your agent puts together an implementation plan in chat, or in Git-ignored scratch space when execution needs a file. Each task selects verification appropriate to its change: red/green TDD for production behavior, and syntax, path, link, loader, or consuming-command checks for documentation, metadata, and simple configuration.
 
-Next up, once you say "go", it launches a *subagent-driven-development* process, having agents work through each engineering task, inspecting and reviewing their work, and continuing forward. It's not uncommon for your agent to work autonomously for a couple hours at a time without deviating from the plan you put together.
+Next, execution stays inline unless task commits are explicitly authorized and subagent-driven development is applicable. A design, document, or implementation approval does not by itself authorize staging, committing, pushing, or creating a PR.
 
 There's a bunch more to it, but that's the core of the system. And because the skills trigger automatically, you don't need to do anything special. Your coding agent just has Superpowers.
 
@@ -215,7 +222,7 @@ Superpowers is available in Kimi Code's plugin marketplace.
   /plugins install https://github.com/obra/superpowers
   ```
 
-- Detailed docs: [docs/README.kimi.md](docs/README.kimi.md)
+- Detailed upstream docs: [docs/README.kimi.md](https://github.com/obra/superpowers/blob/b36e0829c6d0140e93cfef2ca599b1b07d4a7797/docs/README.kimi.md)
 
 ### OpenCode
 
@@ -228,7 +235,7 @@ already use it in another harness.
   Fetch and follow instructions from https://raw.githubusercontent.com/obra/superpowers/refs/heads/main/.opencode/INSTALL.md
   ```
 
-- Detailed docs: [docs/README.opencode.md](docs/README.opencode.md)
+- Detailed upstream docs: [docs/README.opencode.md](https://github.com/obra/superpowers/blob/b36e0829c6d0140e93cfef2ca599b1b07d4a7797/docs/README.opencode.md)
 
 ### Pi
 
@@ -260,19 +267,19 @@ turn loses the bootstrap — start a fresh session if skills stop triggering.
 
 ## The Basic Workflow
 
-1. **brainstorming** - Activates before writing code. Refines rough ideas through questions, explores alternatives, presents design in sections for validation. Saves design document.
+1. **brainstorming** - Activates before writing code. Refines rough ideas through questions, explores alternatives, presents design in sections, and classifies documentation impact. Durable docs change only after their destination and scope are approved.
 
 2. **using-git-worktrees** - Activates after design approval. Creates isolated workspace on new branch, runs project setup, verifies clean test baseline.
 
-3. **writing-plans** - Activates with approved design. Breaks work into bite-sized tasks (2-5 minutes each). Every task has exact file paths, complete code, verification steps.
+3. **writing-plans** - Activates with approved design. Writes the plan in chat by default, records documentation and commit authorization state, and gives every task exact files and proportionate verification.
 
-4. **subagent-driven-development** or **executing-plans** - Activates with plan. Dispatches fresh subagent per task with two-stage review (spec compliance, then code quality), or executes in batches with human checkpoints.
+4. **subagent-driven-development** or **executing-plans** - Executes inline by default. Task-based subagent execution is available only when the user explicitly authorizes its task commits.
 
-5. **test-driven-development** - Activates during implementation. Enforces RED-GREEN-REFACTOR: write failing test, watch it fail, write minimal code, watch it pass, commit. Deletes code written before tests.
+5. **test-driven-development** - Activates for production behavior changes, code defects, and behavior-sensitive refactoring. Documentation, metadata, and simple configuration use proportionate verification instead.
 
 6. **requesting-code-review** - Activates between tasks. Reviews against plan, reports issues by severity. Critical issues block progress.
 
-7. **finishing-a-development-branch** - Activates when tasks complete. Verifies tests, presents options (merge/PR/keep/discard), cleans up worktree.
+7. **finishing-a-development-branch** - Activates when tasks complete. Re-runs the applicable final verification, then presents merge, PR, or keep options. Discard is available only after an explicit request and confirmation.
 
 **The agent checks for relevant skills before any task.** Mandatory workflows, not suggestions.
 
@@ -312,7 +319,7 @@ Superpowers is built by [Jesse Vincent](https://blog.fsck.com) and the rest of t
 
 ## Philosophy
 
-- **Test-Driven Development** - Write tests first, always
+- **Scoped Test-Driven Development** - Write failing tests first for production behavior changes; use proportionate evidence for other changes
 - **Systematic over ad-hoc** - Process over guessing
 - **Complexity reduction** - Simplicity as primary goal
 - **Evidence over claims** - Verify before declaring success

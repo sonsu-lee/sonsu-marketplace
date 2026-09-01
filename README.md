@@ -7,10 +7,12 @@ Superpowers 원본을 기준으로 개인용 워크플로를 조정합니다.
 
 | 플러그인 | 버전 | 상태 |
 | --- | --- | --- |
-| [Superpowers](plugins/superpowers/README.md) | 6.3.0 | 원본 스킬을 변경 없이 가져온 초기 버전 |
+| [Superpowers](plugins/superpowers/README.md) | 6.3.0-sonsu.1 | 원본 v6.3.0 기반 개인용 워크플로 |
 
 원본 커밋과 포함 범위는 [UPSTREAM.md](plugins/superpowers/UPSTREAM.md)에 기록합니다.
-worktree, 설계 문서 작성, TDD, 리뷰 정책은 아직 원본 그대로입니다.
+worktree 감지·생성 흐름과 해당 스킬 파일은 원본을 유지합니다. 스킬 안의 commit 문구를
+포함한 모든 Git 변경은 로컬 승인 게이트를 따르며, 문서 라우팅, 계획 저장과 TDD 적용
+범위는 [저장소 문서](docs/README.md)에 정의한 개인 정책을 따릅니다.
 
 ## 저장소 구조
 
@@ -28,12 +30,21 @@ sonsu-marketplace/
 │       ├── LICENSE
 │       ├── README.md
 │       └── UPSTREAM.md
+├── docs/
+│   ├── architecture/
+│   ├── decisions/
+│   ├── guides/
+│   ├── product/
+│   ├── reference/
+│   ├── runbooks/
+│   └── README.md
 ├── .gitignore
 └── README.md
 ```
 
 - `.agents/plugins/marketplace.json`에는 마켓플레이스 정보와 플러그인 목록을 정의합니다.
 - `plugins/`에는 각 플러그인을 별도 폴더로 보관합니다.
+- `docs/`에는 장기간 유지할 아키텍처, 결정, 요구사항, 가이드, 참조와 런북을 보관합니다.
 - 마켓플레이스 식별자는 `sonsu-marketplace`, 표시 이름은 `Sonsu Marketplace`입니다.
 
 ## Codex에 등록하기
@@ -59,33 +70,8 @@ codex plugin add superpowers@sonsu-marketplace
 
 ## 플러그인 추가하기
 
-1. `plugins/<plugin-name>/` 폴더를 만들고 `.codex-plugin/plugin.json`에 플러그인 정보를 작성합니다.
-2. 필요한 구성 요소만 추가합니다. 스킬은 `skills/<skill-name>/SKILL.md`에,
-   MCP 서버 설정은 `.mcp.json`에 작성하고 플러그인 매니페스트에 연결합니다.
-3. `.agents/plugins/marketplace.json`의 `plugins` 배열에 다음 형식으로 항목을 추가합니다.
-
-```json
-{
-  "name": "my-plugin",
-  "source": {
-    "source": "local",
-    "path": "./plugins/my-plugin"
-  },
-  "policy": {
-    "installation": "AVAILABLE",
-    "authentication": "ON_INSTALL"
-  },
-  "category": "Productivity"
-}
-```
-
-`my-plugin`은 예시 이름입니다. 폴더명, 플러그인 매니페스트의 `name`,
-마켓플레이스 항목의 `name`을 같은 값으로 지정합니다.
-`source.path`는 `.agents/plugins/`가 아닌 **저장소 루트 기준 상대 경로**입니다.
-`plugins` 배열의 순서는 Codex에 표시되는 순서이므로 새 항목은 끝에 추가합니다.
-
-API 키와 토큰은 플러그인 파일에 직접 저장하지 않습니다.
-로컬 `.env` 파일은 Git에서 제외하고, 필요한 환경 변수 이름만 `.env.example`에 기록합니다.
+플러그인 디렉터리, 매니페스트와 마켓플레이스 등록 절차는
+[플러그인 추가 가이드](docs/guides/adding-a-plugin.md)를 따릅니다.
 
 ## 형식 확인
 

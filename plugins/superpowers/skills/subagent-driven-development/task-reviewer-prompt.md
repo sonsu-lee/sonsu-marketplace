@@ -5,7 +5,7 @@ reads the task's diff once and returns two verdicts: spec compliance and
 code quality.
 
 **Purpose:** Verify one task's implementation matches its requirements (nothing
-more, nothing less) and is well-built (clean, tested, maintainable)
+more, nothing less) and is well-built (clean, appropriately verified, maintainable)
 
 ```
 Subagent (general-purpose):
@@ -70,26 +70,27 @@ Subagent (general-purpose):
     implementer grading their own work. Judge the code on its merits — a
     stated rationale never downgrades a finding's severity.
 
-    ## Tests
+    ## Verification
 
-    The implementer already ran the tests and reported results with TDD
-    evidence for exactly this code. Do not re-run the suite to confirm their
-    report. Run a test only when reading the code raises a specific doubt
-    that no existing run answers — and then a focused test, never a
-    package-wide suite, race detector run, or repeated/high-count loop. If
-    heavy validation seems warranted, recommend it in your report instead of
-    running it. If you cannot run commands in this environment, name the
-    test you would run.
+    The implementer already ran the task's specified verification and reported
+    the results. TDD evidence is required only when the task changes production
+    behavior and the plan selected TDD. Do not repeat the same check merely to
+    confirm the report. Run a command only when reading the diff raises a
+    specific doubt that no existing evidence answers — and then use a focused
+    check, never an unrelated package-wide suite, race detector run, or repeated
+    high-count loop. If heavier validation seems warranted, recommend it in
+    your report instead of running it. If you cannot run commands in this
+    environment, name the check you would run.
 
-    Warnings or other noise in the implementer's reported test output are
-    findings — test output should be pristine.
+    Relevant errors, warnings, or unexplained noise in the reported output are
+    findings.
 
-    Evidence you cannot see is not evidence that doesn't exist. If the
-    report or its test evidence looks truncated, or you cannot locate the
+    Evidence you cannot see is not evidence that doesn't exist. If the report
+    or its verification evidence looks truncated, or you cannot locate the
     results it claims, re-read the file at its stated path — and if it is
     genuinely missing or garbled, report that as a gap for the controller.
-    Re-running the suite to regenerate what you failed to read is not
-    verification; illegibility of the evidence is not invalidation of it.
+    Re-running a suite to regenerate what you failed to read is not verification;
+    illegibility of the evidence is not invalidation of it.
 
     ## Part 1: Spec Compliance
 
@@ -120,9 +121,10 @@ Subagent (general-purpose):
     - DRY without premature abstraction?
     - Edge cases handled?
 
-    **Tests:**
-    - Do the new and changed tests verify real behavior, not mocks?
-    - Are the task's edge cases covered?
+    **Verification:**
+    - Does the evidence match the task's change type and specified verification method?
+    - If tests changed, do they verify real behavior rather than mocks?
+    - Are the task's material cases or invariants covered?
 
     **Structure:**
     - Does each file have one clear responsibility with a well-defined interface?

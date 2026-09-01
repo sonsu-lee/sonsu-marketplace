@@ -61,15 +61,15 @@ Subagent (general-purpose):
     does not block this task and does not extend the loop. A broad
     whole-branch review happens after all tasks are complete.
 
-    ## Tests
+    ## Verification
 
-    The implementer re-ran the tests covering the amended code and appended
-    the results to the report file. Treat the report as unverified claims:
-    confirm the fix report names the covering tests and shows their output,
-    and verify the claims against the diff. Do not re-run the suite to
-    confirm their report. Run a test only when reading the code raises a
-    specific doubt that no existing run answers — and then a focused test,
-    never a package-wide suite.
+    The implementer re-ran the focused verification covering the amended work
+    and appended the results to the report file. Treat the report as unverified
+    claims: confirm the fix report names the check and shows its output, and
+    verify the claims against the diff. Do not repeat the same verification to
+    confirm the report. Run a command only when reading the diff raises a
+    specific doubt that no existing evidence answers — and then a focused
+    check, never an unrelated package-wide suite.
 
     ## Output Format
 
