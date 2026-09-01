@@ -1,6 +1,6 @@
 ---
 name: finishing-a-development-branch
-description: Use when implementation is complete, required verification passes, and you need to decide how to integrate the work
+description: Use when verified implementation is complete and you need to choose how to integrate or preserve its existing commits. Do not use for a direct request to create a branch, commit, push, ticket, or PR artifact.
 ---
 
 # Finishing a Development Branch
@@ -10,6 +10,16 @@ description: Use when implementation is complete, required verification passes, 
 **Core principle:** Verify the completed change → Detect environment → Present options → Execute choice → Clean up.
 
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
+
+## Responsibility Boundary
+
+This skill decides how to conclude completed development work whose commits already exist. It is
+self-contained and does not require or invoke a Git, ticket, or PR skill from another plugin.
+
+A direct request to create or review a branch, commit, push, ticket, or PR artifact belongs to the
+available specialist for that artifact and should not open this integration-choice menu. A broader
+request that includes implementation and later delivery may use separate skills in sequence; that
+runtime composition does not create a dependency between them.
 
 <HARD-GATE>
 This skill integrates commits that already exist. It does not turn uncommitted implementation into a commit. If the worktree contains requested changes that have not been committed, return to the execution workflow, report the diff, and obtain or apply the user's explicit commit decision before continuing.

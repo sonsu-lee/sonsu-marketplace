@@ -3,10 +3,11 @@
 Superpowers is a complete software development methodology for your coding agents, built on top of a set of composable skills and some initial instructions that make sure your agent uses them.
 
 > [!NOTE]
-> This marketplace carries a local customization, currently version `6.3.0-sonsu.1`.
+> This marketplace carries a local customization, currently version `6.3.0-sonsu.2`.
 > It keeps the upstream worktree detection and creation workflow while routing durable documentation by purpose,
 > keeping implementation plans in chat or Git-ignored scratch space, requiring explicit
-> Git authorization, and applying TDD to production behavior changes. See
+> Git authorization, applying TDD to production behavior changes, and keeping direct Git, ticket,
+> and PR artifact requests outside its branch-integration menu. See
 > [UPSTREAM.md](UPSTREAM.md) and the local [skill-routing policy](../../docs/architecture/skill-routing.md).
 
 ## Table of Contents

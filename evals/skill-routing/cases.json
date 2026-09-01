@@ -1,0 +1,68 @@
+{
+  "schema_version": "skill-routing-cases-v1",
+  "cases": [
+    {
+      "id": "direct-commit-routes-to-workflow",
+      "installed_plugins": ["superpowers", "workflow"],
+      "prompt": "현재 변경 중 API 수정만 Conventional Commit으로 커밋해줘. push는 하지 마.",
+      "expected_sequence": ["workflow:git-workflow"],
+      "must_not_select": ["superpowers:finishing-a-development-branch"]
+    },
+    {
+      "id": "direct-pr-routes-to-workflow",
+      "installed_plugins": ["superpowers", "workflow"],
+      "prompt": "현재 branch를 확인해서 GitHub PR 초안을 작성해줘. 아직 게시하지는 마.",
+      "expected_sequence": ["workflow:to-pr"],
+      "must_not_select": ["superpowers:finishing-a-development-branch"]
+    },
+    {
+      "id": "direct-ticket-routes-to-workflow",
+      "installed_plugins": ["superpowers", "workflow"],
+      "prompt": "합의된 구현 계획을 Linear 티켓 초안으로 변환해줘.",
+      "expected_sequence": ["workflow:to-ticket"],
+      "must_not_select": ["superpowers:writing-plans"]
+    },
+    {
+      "id": "integration-choice-routes-to-superpowers",
+      "installed_plugins": ["superpowers", "workflow"],
+      "prompt": "구현과 검증이 끝났고 commit도 모두 있어. 이 개발 branch를 어떻게 마무리할지 진행해줘.",
+      "expected_sequence": ["superpowers:finishing-a-development-branch"],
+      "must_not_select": ["workflow:git-workflow", "workflow:to-pr"]
+    },
+    {
+      "id": "implementation-does-not-trigger-delivery",
+      "installed_plugins": ["superpowers", "workflow"],
+      "prompt": "토큰 갱신 기능을 구현하고 필요한 테스트를 실행해줘. Git 작업은 하지 마.",
+      "expected_plugins": ["superpowers"],
+      "must_not_select": ["workflow:git-workflow", "workflow:to-ticket", "workflow:to-pr"]
+    },
+    {
+      "id": "planning-list-is-not-a-ticket-request",
+      "installed_plugins": ["superpowers", "workflow"],
+      "prompt": "이 기능의 구현 계획을 단계별로 작성해줘. 티켓은 만들지 마.",
+      "expected_plugins": ["superpowers"],
+      "must_not_select": ["workflow:to-ticket"]
+    },
+    {
+      "id": "implementation-then-pr-composes-at-runtime",
+      "installed_plugins": ["superpowers", "workflow"],
+      "prompt": "이 기능을 구현하고 검증한 다음 현재 branch 기준 PR 초안까지 준비해줘.",
+      "expected_sequence": ["superpowers:*", "workflow:to-pr"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "workflow-only-remains-standalone",
+      "installed_plugins": ["workflow"],
+      "prompt": "현재 branch의 GitHub PR 초안을 작성해줘.",
+      "expected_sequence": ["workflow:to-pr"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "superpowers-only-remains-standalone",
+      "installed_plugins": ["superpowers"],
+      "prompt": "구현과 검증이 끝났고 commit도 모두 있어. 이 개발 branch를 어떻게 마무리할지 진행해줘.",
+      "expected_sequence": ["superpowers:finishing-a-development-branch"],
+      "must_not_assume_plugin_dependency": true
+    }
+  ]
+}

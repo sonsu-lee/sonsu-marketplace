@@ -48,5 +48,10 @@ Codex CLI `0.149.1`의 `plugin/read`로 로컬 매니페스트와 스킬을 읽�
 - 문서 작성, 구현과 Git 커밋 권한을 각각 구분합니다.
 - TDD는 코드의 동작 변경과 버그 수정에 적용하고, 문서·메타데이터·단순 설정에는 변경에 맞는 검증을 사용합니다.
 
-로컬 변경의 이유는 [결정 기록](../../docs/decisions/0002-separate-doc-and-commit-approval.md)과
+`6.3.0-sonsu.2`부터 완료된 개발 branch의 통합 결정을 일반적인 branch·commit·push·ticket·PR
+산출물 요청과 구분합니다. Superpowers는 다른 플러그인을 호출하거나 설치되었다고 가정하지
+않으며, 여러 플러그인이 필요한 요청은 Codex의 runtime routing으로 순서대로 조합합니다.
+
+로컬 변경의 이유는 [문서·커밋 승인 결정](../../docs/decisions/0002-separate-doc-and-commit-approval.md),
+[플러그인 독립성 결정](../../docs/decisions/0003-keep-plugins-independent.md)과
 [스킬 라우팅 문서](../../docs/architecture/skill-routing.md)에 기록합니다.
