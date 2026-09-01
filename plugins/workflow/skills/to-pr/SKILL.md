@@ -11,7 +11,7 @@ description: Use when 현재 Git branch를 새 GitHub Pull Request 초안이나 
 
 이 스킬은 새 PR의 초안과 게시를 담당한다. branch·worktree·commit 생성, branch rename, commit rewrite, rebase·squash, force push, merge와 기존 PR 수정은 담당하지 않는다. 코드 구현, 일반적인 작업 완료, 티켓 작성, code review 또는 push 요청만으로 자동 실행하지 않는다.
 
-`to-ticket`, Superpowers 또는 별도 planning·Git workflow가 먼저 실행되었다고 가정하지 않는다. 다른 스킬이 없어도 현재 대화, repository와 검증 가능한 티켓 정보만으로 동작한다.
+이 스킬은 현재 대화, repository와 검증 가능한 티켓 정보를 바탕으로 독립적으로 동작한다. 다른 플러그인이나 스킬이 설치되었거나 먼저 실행되었다고 가정하지 않는다.
 
 ## 모드를 정한다
 
