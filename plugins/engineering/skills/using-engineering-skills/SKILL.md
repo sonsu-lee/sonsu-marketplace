@@ -1,80 +1,80 @@
 ---
 name: using-engineering-skills
-description: Use when starting any conversation to determine which skills provided by the Engineering plugin apply before responding or acting
+description: 대화를 시작할 때 응답하거나 행동하기 전에 Engineering 플러그인이 제공하는 스킬 중 어떤 스킬을 적용해야 하는지 판단하기 위해 사용한다
 ---
 
+# using-engineering-skills: Engineering 스킬 사용하기
+
 <SUBAGENT-STOP>
-If you were dispatched as a subagent to execute a specific task, ignore this skill.
+특정 task를 실행하도록 subagent로 위임받았다면 이 스킬을 무시한다.
 </SUBAGENT-STOP>
 
 <EXTREMELY-IMPORTANT>
-If you think there is even a 1% chance an Engineering skill might apply to what you are doing, you ABSOLUTELY MUST invoke that Engineering skill.
+현재 작업에 Engineering 스킬이 적용될 가능성이 1%라도 있다고 생각한다면 해당 Engineering 스킬을 반드시 호출해야 한다.
 
-IF AN ENGINEERING SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
+ENGINEERING 스킬이 현재 TASK에 적용된다면 선택의 여지가 없다. 반드시 사용한다.
 
-This is not negotiable. You cannot rationalize your way out of this.
+이 규칙은 협상의 대상이 아니다. 합리화하여 회피할 수 없다.
 
-This mandatory rule is scoped to skills provided by Engineering. Use skills from other plugins only when the user requests them, repository instructions require them, or a concrete need in the current task makes them materially useful. Mere topical relevance is not enough to invoke every available external skill.
+이 필수 규칙은 Engineering이 제공하는 스킬에만 적용된다. 다른 플러그인의 스킬은 사용자가 요청했거나, 저장소 지침에서 요구하거나, 현재 task의 구체적인 필요 때문에 실질적으로 유용할 때만 사용한다. 주제가 관련 있다는 이유만으로 사용 가능한 모든 외부 스킬을 호출하지 않는다.
 </EXTREMELY-IMPORTANT>
 
 <GIT-AUTHORIZATION-GATE>
-No plan, skill, reference file, execution mode, worktree state, or platform limitation grants Git permission. Stage requested changes only as part of an explicitly authorized commit or when staging itself was requested. Commit only when the user explicitly authorized it for the current work. Push, PR creation, merge, deployment, and destructive Git operations require their own applicable authorization.
+어떤 plan, skill, 참고 파일, 실행 mode, worktree 상태 또는 플랫폼 제한도 Git 권한을 부여하지 않는다. 요청된 변경의 staging은 명시적으로 승인된 commit의 일부이거나 staging 자체가 요청된 경우에만 수행한다. 현재 작업에 대해 사용자가 명시적으로 승인한 경우에만 commit한다. push, PR 생성, merge, 배포와 파괴적인 Git 작업에는 각각 해당 작업에 대한 승인이 필요하다.
 
-This gate overrides downstream wording that says to commit automatically, including the ignore-file commit step in `using-git-worktrees` and platform-specific finishing guidance. When commit authorization is absent, make the workspace safe without committing if possible, then report the diff and ask for the commit decision.
+이 게이트는 `using-git-worktrees`의 ignore 파일 commit 단계와 플랫폼별 완료 지침을 포함하여 자동으로 commit하라고 하는 하위 지침보다 우선한다. commit 권한이 없으면 가능한 경우 commit하지 않은 상태로 workspace를 안전하게 만들고, `diff`를 보고한 뒤 commit 결정을 요청한다.
 </GIT-AUTHORIZATION-GATE>
 
-## The Rule
+## 규칙
 
-**Invoke applicable Engineering skills and any external skill selected under the policy above BEFORE any response or action** — including clarifying questions, exploring the codebase, or checking files. If a selected skill turns out wrong for the situation, you don't have to keep using it.
+명확화 질문, codebase 탐색 또는 파일 확인을 포함한 **모든 응답이나 행동보다 먼저 적용 가능한 Engineering 스킬과 위 정책에 따라 선택한 외부 스킬을 호출한다.** 선택한 스킬이 상황에 맞지 않는 것으로 드러나면 계속 사용할 필요는 없다.
 
-**Before entering plan mode:** if you haven't already brainstormed, invoke the brainstorming skill first.
+**plan mode로 들어가기 전:** 아직 brainstorming하지 않았다면 먼저 brainstorming 스킬을 호출한다.
 
-Then announce "Using [skill] to [purpose]" and follow the skill exactly. If it has a checklist, create a todo per item.
+그런 다음 "[skill]을 사용해 [purpose]를 진행합니다"라고 알리고 스킬을 정확히 따른다. checklist가 있으면 항목마다 todo를 만든다.
 
-## Skill Priority
+## 스킬 우선순위
 
-When multiple Engineering skills apply, process skills come first — they set the approach, then implementation skills (frontend-design, etc.) carry it out. Brainstorming and systematic-debugging are Engineering's most common process skills, but the rule holds for any Engineering skill selected for the task.
+여러 Engineering 스킬이 적용될 때에는 process 스킬이 먼저다. process 스킬이 접근 방식을 정하면 implementation 스킬(`frontend-design` 등)이 이를 실행한다. `brainstorming`과 `systematic-debugging`은 Engineering에서 가장 자주 쓰이는 process 스킬이지만, 이 규칙은 task에 선택한 모든 Engineering 스킬에 적용된다.
 
-- "Let's build X" → engineering:brainstorming first, then implementation skills.
-- "Fix this bug" → engineering:systematic-debugging first, then domain skills.
+- "Let's build X" → 먼저 `engineering:brainstorming`, 그다음 implementation 스킬.
+- "Fix this bug" → 먼저 `engineering:systematic-debugging`, 그다음 domain 스킬.
 
-## Red Flags
+## 위험 신호
 
-These thoughts mean STOP—you're rationalizing:
+다음 생각이 들면 멈춘다. 지금 합리화하고 있는 것이다.
 
-| Thought | Reality |
+| 생각 | 실제 |
 |---------|---------|
-| "This is just a simple question" | Questions are tasks. Check for applicable Engineering skills. |
-| "I need more context first" | The Engineering skill check comes BEFORE clarifying questions. |
-| "Let me explore the codebase first" | Engineering skills can define HOW to explore. Check them first. |
-| "I can check git/files quickly" | Files lack conversation context. Check applicable Engineering skills first. |
-| "Let me gather information first" | An applicable Engineering skill can define HOW to gather information. |
-| "This doesn't need a formal skill" | If an Engineering skill applies, use it. |
-| "I remember this skill" | Engineering skills evolve. Read the current version. |
-| "This doesn't count as a task" | Action = task. Check applicable Engineering skills. |
-| "The skill is overkill" | If an Engineering skill applies, follow it and scale its ceremony where it allows. |
-| "I'll just do this one thing first" | Check applicable Engineering skills BEFORE doing anything. |
-| "This feels productive" | Undisciplined action wastes time. Applicable Engineering skills prevent this. |
-| "I know what that means" | Knowing the concept ≠ using an applicable Engineering skill. Invoke it. |
+| "This is just a simple question" | 질문도 task다. 적용 가능한 Engineering 스킬을 확인한다. |
+| "I need more context first" | Engineering 스킬 확인은 명확화 질문보다 먼저다. |
+| "Let me explore the codebase first" | Engineering 스킬이 탐색 방법을 정할 수 있다. 먼저 확인한다. |
+| "I can check git/files quickly" | 파일에는 대화 맥락이 없다. 적용 가능한 Engineering 스킬을 먼저 확인한다. |
+| "Let me gather information first" | 적용 가능한 Engineering 스킬이 정보 수집 방법을 정할 수 있다. |
+| "This doesn't need a formal skill" | Engineering 스킬이 적용되면 사용한다. |
+| "I remember this skill" | Engineering 스킬은 변한다. 현재 버전을 읽는다. |
+| "This doesn't count as a task" | 행동은 task다. 적용 가능한 Engineering 스킬을 먼저 확인한다. |
+| "The skill is overkill" | Engineering 스킬이 적용되면 그 스킬을 따르고, 허용하는 범위에서 절차의 무게를 조절한다. |
+| "I'll just do this one thing first" | 어떤 작업이든 시작하기 전에 적용 가능한 Engineering 스킬을 확인한다. |
+| "This feels productive" | 규율 없는 행동은 시간을 낭비한다. 적용 가능한 Engineering 스킬이 이를 막는다. |
+| "I know what that means" | 개념을 아는 것과 적용 가능한 Engineering 스킬을 사용하는 것은 다르다. 스킬을 호출한다. |
 
-## Platform Adaptation
+## 플랫폼별 조정
 
-If your harness appears here, read its reference file for special instructions:
+사용 중인 harness가 아래에 있으면 해당 참고 파일에서 특별 지침을 읽는다.
 
 - Codex: `references/codex-tools.md`
 - Pi: `references/pi-tools.md`
 - Antigravity: `references/antigravity-tools.md`
 - Hermes Agent: `references/hermes-tools.md`
 
-## Quality Gates
+## 품질 게이트
 
-Engineering lifecycle skills use stage-owned quality gates. When a selected skill
-declares a gate, read and apply the shared
-[quality gate contract](references/quality-gates.md) before deciding whether to
-advance, retry, return to an earlier stage, or stop. The contract does not add a
-central router and does not change the Git or external-action authorization boundary
-above.
+Engineering lifecycle 스킬은 단계별 소유 품질 게이트를 사용한다. 선택한 스킬이 게이트를
+선언하면 진행, 재시도, 이전 단계로 복귀 또는 중단을 결정하기 전에 공통
+[품질 게이트 계약](references/quality-gates.md)을 읽고 적용한다. 이 계약은 중앙 router를
+추가하지 않으며 위의 Git 또는 외부 작업 권한 경계를 바꾸지 않는다.
 
-## User Instructions
+## 사용자 지침
 
-User instructions (CLAUDE.md, AGENTS.md, GEMINI.md, etc, direct requests) take precedence over skills, which in turn override default behavior. Only skip skill workflows or instructions when your human partner has explicitly told you to.
+사용자 지침(`CLAUDE.md`, `AGENTS.md`, `GEMINI.md` 등의 파일과 직접 요청)은 스킬보다 우선하고, 스킬은 다시 기본 동작보다 우선한다. 사용자가 명시적으로 지시한 경우에만 스킬 workflow 또는 지침을 생략한다.

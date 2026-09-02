@@ -3,7 +3,7 @@ name: design-product-test
 description: 제품 가정이나 가설을 반증 가능한 test plan으로 바꾸고 실행 전에 대상, 방법, 계측, 분석과 판정 기준을 정한다. 인터뷰, prototype, concierge, fake door, usability, pricing, MVP 또는 지표 실험을 설계할 때 사용한다. 실험 실행, 결과 판정과 일반 QA 테스트 설계에는 사용하지 않는다.
 ---
 
-# 제품 검증 설계
+# design-product-test: 제품 검증 설계
 
 제품 가설을 검증 가능한 주장과 관찰 계획으로 바꾸고, 결과를 보기 전에 판정 계약을 고정한다.
 고객 인터뷰나 MVP를 기본 해법으로 강제하지 않고 가설의 성격과 위험에 맞는 방법을 선택한다.

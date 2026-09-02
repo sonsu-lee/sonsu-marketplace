@@ -1,4 +1,4 @@
 interface:
   display_name: "To PR"
-  short_description: "Draft and publish ticket-aware PRs with marked visual evidence"
-  default_prompt: "Use $to-pr to prepare this branch as a reviewable GitHub pull request."
+  short_description: "티켓과 마킹된 시각 증거를 반영한 PR을 작성·게시합니다"
+  default_prompt: "$to-pr을 사용해 이 브랜치를 리뷰 가능한 GitHub Pull Request로 준비해 줘."

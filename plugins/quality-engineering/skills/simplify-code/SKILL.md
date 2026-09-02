@@ -3,7 +3,7 @@ name: simplify-code
 description: 사용자가 코드 변경이나 구현을 가장 단순한 형태로 줄이거나 YAGNI, 삭제 우선, 최소 해법을 명시적으로 요청할 때 사용한다. 일반 구현을 가로채는 지속 모드, 읽기 전용 리뷰, repository 전체 audit에는 사용하지 않는다.
 ---
 
-# Simplify code
+# simplify-code: 코드 단순화
 
 현재 요구사항을 만족하는 가장 작은 변경을 구현한다. 단순성은 줄 수 경쟁이 아니라 동작,
 개념, dependency와 미래 유지 비용을 줄이는 일이다.

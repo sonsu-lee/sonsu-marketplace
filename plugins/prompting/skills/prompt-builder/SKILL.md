@@ -1,57 +1,57 @@
 ---
 name: prompt-builder
-description: Create, rewrite, or optimize a copy-ready prompt for Codex, ChatGPT, or OpenAI API models. Use when the user requests a prompt, prompt template, system or developer instructions, or model-specific prompt adaptation. Do not use for prompt-engineering explanations that do not request a prompt artifact.
+description: Codex, ChatGPT 또는 OpenAI API 모델에서 바로 사용할 수 있는 프롬프트를 생성·재작성·최적화할 때 사용한다. 사용자가 프롬프트, 프롬프트 template, system·developer instruction 또는 특정 모델에 맞춘 프롬프트 조정을 요청할 때 호출한다. 프롬프트 산출물을 요구하지 않는 prompt engineering 개념 설명에는 사용하지 않는다.
 ---
 
-# Prompt Builder
+# prompt-builder: 프롬프트 작성
 
-Create the smallest prompt that preserves the user's intended outcome and constraints.
+사용자가 의도한 결과와 제약을 보존하는 가장 작은 프롬프트를 작성한다.
 
-## Determine the artifact
+## 산출물을 정한다
 
-- Preserve any named model, product, audience, language, role, source material, and output format.
-- If the user does not name a prompt type, produce a one-shot user or task prompt for the current chat surface.
-- Ask one focused question only when a missing choice would materially change the artifact. Otherwise infer a safe default and state it only when the user needs to know.
-- If the user names an OpenAI model, asks for model-specific optimization, or needs API placement or parameters, read [OpenAI prompt guidance](references/openai-prompt-guidance.md). For a request about the latest or current recommendation, use official OpenAI documentation instead of relying only on the snapshot in that reference.
+- 사용자가 명시한 모델, 제품, 독자, 언어, 역할, 원본 자료와 출력 형식을 보존한다.
+- 사용자가 프롬프트 종류를 지정하지 않으면 현재 chat surface에서 한 번 사용할 user prompt 또는 task prompt를 만든다.
+- 빠진 선택이 산출물을 실질적으로 바꿀 때만 하나의 집중된 질문을 한다. 그 외에는 안전한 기본값을 추론하고, 사용자가 알아야 할 때에만 그 가정을 밝힌다.
+- 사용자가 OpenAI 모델을 지정하거나, 모델별 최적화를 요청하거나, API에서의 배치 위치 또는 parameter가 필요하면 [OpenAI 프롬프트 지침](references/openai-prompt-guidance.md)을 읽는다. 최신 또는 현재 권고를 요청하면 이 참고 문서의 snapshot만 신뢰하지 말고 OpenAI 공식 문서를 사용한다.
 
-## Build the prompt
+## 프롬프트를 작성한다
 
-Start with the outcome. Add only sections that change the model's behavior.
+결과부터 제시한다. 모델의 동작을 바꾸는 섹션만 추가한다.
 
-- For a simple task, use one direct sentence or a short paragraph.
-- For a complex task, select only the useful parts of this order: role, goal, context, success criteria, constraints, tools and permissions, output, stop rules.
-- Describe what success looks like. Do not prescribe steps when the model can choose an efficient path and the path is not itself a requirement.
-- State each instruction once. Merge overlapping rules and remove generic encouragement, ceremonial wording, and examples that do not correct a known ambiguity.
-- Use `must`, `never`, `always`, and `only` only for true invariants.
-- Separate API controls such as reasoning effort, verbosity, and Structured Outputs from the prompt text when the target surface supports them.
-- Keep stable reusable instructions before dynamic user data. Delimit long or untrusted context with clear Markdown sections or XML tags.
-- Do not invent facts, permissions, tools, model capabilities, or missing business rules.
+- 단순한 작업에는 직접적인 한 문장이나 짧은 문단을 사용한다.
+- 복잡한 작업에는 다음 순서에서 유용한 부분만 선택한다: 역할, 목표, 맥락, 성공 기준, 제약, 도구와 권한, 출력, 중단 규칙.
+- 성공한 상태를 설명한다. 모델이 효율적인 경로를 선택할 수 있고 경로 자체가 요구사항이 아니라면 단계를 미리 지정하지 않는다.
+- 각 지시는 한 번만 쓴다. 겹치는 규칙은 합치고, 일반적인 격려, 의례적인 문구와 이미 알려진 모호함을 해결하지 않는 예시는 제거한다.
+- `must`, `never`, `always`, `only`는 실제 불변 조건에만 사용한다.
+- 대상 surface가 지원하면 reasoning effort, verbosity, Structured Outputs 같은 API control은 프롬프트 본문과 분리한다.
+- 안정적이고 재사용 가능한 지시는 동적인 사용자 데이터보다 앞에 둔다. 길거나 신뢰할 수 없는 맥락은 명확한 Markdown 섹션 또는 XML tag로 구분한다.
+- 사실, 권한, 도구, 모델 capability 또는 빠진 business rule을 지어내지 않는다.
 
-## Write clearly
+## 명확하게 쓴다
 
-Use the requested prompt language. Do not translate merely because the target model or source material uses another language.
+요청한 프롬프트 언어를 사용한다. 대상 모델이나 원본 자료가 다른 언어를 사용한다는 이유만으로 번역하지 않는다.
 
-When the prompt is in English:
+프롬프트가 영어라면 다음 기준을 적용한다.
 
-- Keep important actors, actions, targets, and conditions unambiguous.
-- Prefer direct verbs and familiar wording when they remain technically precise.
-- Put a selective condition before the action it governs.
-- Use one term for one concept and preserve exact product, interface, and code names.
-- Preserve evidence, uncertainty, exceptions, and useful passive voice.
-- Remove decorative wording that adds no fact, criterion, or relationship.
+- 중요한 행위자, 동작, 대상과 조건을 모호하지 않게 쓴다.
+- 기술적으로 정확한 범위에서 직접적인 동사와 익숙한 표현을 우선한다.
+- 선택적으로 적용되는 조건은 그 조건이 제어하는 동작보다 앞에 둔다.
+- 하나의 개념에는 하나의 용어를 사용하고 정확한 제품, interface와 코드 이름을 보존한다.
+- 근거, 불확실성, 예외와 의미 있는 수동태를 보존한다.
+- 사실, 기준 또는 관계를 추가하지 않는 장식적인 표현은 제거한다.
 
-## Trim before returning
+## 반환하기 전에 줄인다
 
-Remove, in this order:
+다음 순서로 제거한다.
 
-1. duplicated instructions;
-2. generic phrases such as “think step by step,” “be thorough,” or “be concise” when they add no measurable requirement;
-3. unused headings and empty placeholders;
-4. background that does not change the task;
-5. examples that do not resolve an ambiguity or encode a required behavior.
+1. 중복된 지시
+2. 측정 가능한 요구사항을 추가하지 않는 “think step by step”, “be thorough”, “be concise” 같은 일반적인 문구
+3. 사용하지 않는 제목과 빈 placeholder
+4. 작업을 바꾸지 않는 배경 정보
+5. 모호함을 해결하거나 필수 동작을 표현하지 않는 예시
 
-Do not remove safety limits, authorization boundaries, success criteria, required evidence, validation, or material caveats.
+안전 제한, 권한 경계, 성공 기준, 필수 근거, 검증과 중요한 제한사항은 제거하지 않는다.
 
-## Output
+## 출력
 
-Return the copy-ready prompt first in a fenced block. If model choice, API settings, or inferred assumptions materially affect its use, add at most three short bullets after the prompt. If the user asks for only the prompt, return only the prompt.
+바로 복사해 사용할 수 있는 프롬프트를 fenced block에 먼저 반환한다. 모델 선택, API 설정 또는 추론한 가정이 사용 방법에 실질적인 영향을 줄 때에는 프롬프트 뒤에 짧은 불릿을 최대 3개까지 추가한다. 사용자가 프롬프트만 요청하면 프롬프트만 반환한다.

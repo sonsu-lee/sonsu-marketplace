@@ -6,7 +6,7 @@ description: 사용자가 현재 diff나 지정한 코드의 도달 가능한 �
 > Modified from OpenAI's `codex-plugin-cc` adversarial review prompt under Apache-2.0.
 > See [`../../UPSTREAM.md`](../../UPSTREAM.md) and [`../../NOTICE`](../../NOTICE).
 
-# Review failure modes
+# review-failure-modes: 실패 모드 리뷰
 
 현재 entry point, caller와 data flow에서 실제로 도달 가능한 실패만 검토한다.
 

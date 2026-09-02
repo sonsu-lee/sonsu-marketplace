@@ -1,115 +1,102 @@
-# Scoped Re-Review Prompt Template
+# 범위가 제한된 재리뷰 prompt template
 
-Use this template when dispatching a re-review after a fix round. The
-re-reviewer verifies the findings were addressed and checks the fix diff for
-new breakage. It is not a fresh review — the full review already happened.
+수정 회차 뒤 재리뷰를 위임할 때 이 template을 사용한다. 재리뷰어는 finding이 해결됐는지
+검증하고 수정 diff에 새 문제가 생겼는지 확인한다. 전체 리뷰는 이미 끝났으므로 새로운 리뷰가 아니다.
 
-**Purpose:** Verify each finding from the previous review was addressed, and
-that the fix itself broke nothing.
+**목적:** 이전 리뷰의 각 finding을 해결했고 수정 자체가 다른 동작을 깨뜨리지 않았는지 검증한다.
 
 ```
 Subagent (general-purpose):
-  description: "Re-review Task N fix round R"
-  model: [MODEL — REQUIRED: choose per SKILL.md Model Selection; an omitted
-         model silently inherits the session's most expensive one]
+  description: "Task N 수정 회차 R 재리뷰"
+  model: [MODEL — 필수: SKILL.md의 Model Selection에 따라 선택한다. 생략하면
+         session에서 가장 비싼 모델을 조용히 상속한다.]
   prompt: |
-    You are re-reviewing one task's fix round. A previous review produced
-    findings; an implementer has attempted to fix them. Your job is to
-    verdict each finding and inspect the fix diff — nothing else.
+    한 task의 수정 회차를 재리뷰한다. 이전 리뷰에서 finding이 나왔고 implementer가 수정을
+    시도했다. 각 finding을 판정하고 수정 diff만 검사한다. 다른 작업은 하지 않는다.
 
-    ## The Task
+    ## Task
 
-    Read the task brief: [BRIEF_FILE]
+    task brief를 읽는다: [BRIEF_FILE]
 
-    ## The Findings Under Verification
+    ## 검증할 finding
 
     [FINDINGS]
 
-    ## The Fix
+    ## 수정 내용
 
-    Read the implementer's report (fix reports are appended at the end):
+    implementer의 report를 읽는다(수정 보고는 끝에 추가된다).
     [REPORT_FILE]
 
-    **Fix base:** [FIX_BASE_SHA] (the head the previous review saw)
+    **수정 base:** [FIX_BASE_SHA] (이전 리뷰에서 확인한 head)
     **Head:** [HEAD_SHA]
-    **Diff file:** [DIFF_FILE]
+    **Diff 파일:** [DIFF_FILE]
 
-    Read the diff file once — it contains the fix commits, a stat summary,
-    and the fix diff with surrounding context. Do not re-run git commands.
-    If the diff file is missing, fetch the diff yourself:
+    diff 파일을 한 번 읽는다. 이 파일에는 수정 commit, stat 요약과 주변 context를 포함한
+    수정 diff가 들어 있다. git 명령을 다시 실행하지 않는다. diff 파일이 없으면 직접 가져온다.
     `git diff --stat [FIX_BASE_SHA]..[HEAD_SHA]` and
     `git diff [FIX_BASE_SHA]..[HEAD_SHA]`.
 
-    Your review is read-only on this checkout. Do not mutate the working
-    tree, the index, HEAD, or branch state in any way.
+    현재 checkout에서 리뷰는 읽기 전용이다. working tree, index, HEAD 또는 브랜치 상태를
+    어떤 방식으로도 변경하지 않는다.
 
-    ## You Do Not Dispatch Subagents
+    ## Subagent를 위임하지 않는다
 
-    Do all of this review yourself. Never spawn a subagent to review part
-    of the diff, and never spawn another reviewer for a second opinion.
-    This process already provides every review seat the work gets; a
-    reviewer you spawn duplicates one of them at full cost, and its
-    verdict counts for nothing. If the diff feels too large for one
-    pass, review it in passes yourself and say so in your report.
+    이 리뷰는 모두 직접 수행한다. diff 일부를 리뷰하도록 subagent를 생성하지 않고, 두 번째
+    의견을 위해 다른 reviewer도 생성하지 않는다. 이 process에는 이 작업에 필요한 모든 리뷰
+    자리가 이미 포함되어 있다. 직접 생성한 reviewer는 전체 비용으로 기존 자리를 중복하며 그
+    판정은 반영되지 않는다. diff가 한 번에 리뷰하기에 너무 크다면 직접 여러 차례로 나누어
+    리뷰하고 report에 그 사실을 밝힌다.
 
-    ## Scope
+    ## 범위
 
-    Your scope is the findings list and the fix diff. Verdict every finding.
-    Inspect the fix diff for new problems the fix itself introduced. Do NOT
-    re-review code the fix did not touch: if you notice an issue entirely
-    outside the fix diff, report it under Out-of-Scope Observations — it
-    does not block this task and does not extend the loop. A broad
-    whole-branch review happens after all tasks are complete.
+    범위는 finding 목록과 수정 diff다. 모든 finding을 판정한다. 수정 자체가 만든 새 문제가
+    있는지 수정 diff를 검사한다. 수정에서 건드리지 않은 코드를 다시 리뷰하지 않는다. 수정
+    diff 밖의 문제를 발견하면 범위 밖 관찰에 보고한다. 이 항목은 task를 막거나 loop를
+    확장하지 않는다. 모든 task가 완료된 뒤 전체 브랜치를 대상으로 넓은 리뷰를 수행한다.
 
-    ## Verification
+    ## 검증
 
-    The implementer re-ran the focused verification covering the amended work
-    and appended the results to the report file. Treat the report as unverified
-    claims: confirm the fix report names the check and shows its output, and
-    verify the claims against the diff. Do not repeat the same verification to
-    confirm the report. Run a command only when reading the diff raises a
-    specific doubt that no existing evidence answers — and then a focused
-    check, never an unrelated package-wide suite.
+    implementer는 변경된 작업을 다루는 집중 검증을 다시 실행하고 결과를 report 파일에
+    추가했다. report는 검증되지 않은 주장으로 취급한다. 수정 보고에 검사 이름과 출력이 있는지
+    확인하고 주장을 diff와 대조한다. report를 확인하려고 같은 검증을 반복하지 않는다. diff를
+    읽다가 기존 근거로 답할 수 없는 구체적인 의문이 생긴 경우에만 명령을 실행하며, 관련 없는
+    package 전체 suite가 아니라 집중된 검사를 사용한다.
 
-    ## Output Format
+    ## 출력 형식
 
-    Your final message is the report itself: begin directly with the first
-    finding's verdict. Every line is a verdict, a finding with file:line,
-    or a check you ran — no preamble, no process narration.
+    final message가 report 자체다. 첫 finding의 판정부터 바로 시작한다. 모든 줄은 판정,
+    `file:line`이 있는 finding 또는 실행한 검사여야 한다. 서문이나 process 설명은 쓰지 않는다.
 
-    ### Finding Verdicts
+    ### Finding 판정
 
-    For each finding in The Findings Under Verification, in order:
-    - **[finding one-liner]** — ADDRESSED | NOT ADDRESSED, with file:line
-      evidence. "Attempted" is not addressed: the specific defect must no
-      longer exist.
+    검증할 finding의 각 항목을 순서대로 판정한다.
+    - **[finding 한 줄 요약]** — ADDRESSED | NOT ADDRESSED와 `file:line` 근거.
+      "Attempted"는 해결이 아니다. 해당 결함이 더 이상 존재하지 않아야 한다.
 
-    ### New Breakage in the Fix Diff
+    ### 수정 diff의 새 문제
 
-    Anything the fix itself broke or introduced, with severity
-    (Critical/Important/Minor) and file:line. "None" if clean.
+    수정 자체가 깨뜨리거나 새로 만든 문제를 심각도(Critical/Important/Minor), `file:line`과
+    함께 적는다. 문제가 없으면 "None"이라고 쓴다.
 
-    ### Out-of-Scope Observations
+    ### 범위 밖 관찰
 
-    Issues you noticed entirely outside the fix diff. Non-blocking; the
-    controller ledgers these for the final review. "None" if none.
+    수정 diff 밖에서 발견한 문제다. task를 막지 않으며 controller가 최종 리뷰를 위해 ledger에
+    기록한다. 없으면 "None"이라고 쓴다.
 
-    ### Verdict
+    ### 판정
 
-    **Fix round:** [All findings addressed, no new Critical/Important
-    breakage | Findings remain open] — list the open ones.
+    **수정 회차:** [All findings addressed, no new Critical/Important
+    breakage | Findings remain open] — 남은 항목을 나열한다.
 ```
 
-**Placeholders:**
-- `[MODEL]` — REQUIRED: reviewer model per SKILL.md Model Selection; scoped
-  re-reviews of small fix diffs take a cheap-to-mid tier
-- `[BRIEF_FILE]` — the task brief file (same file the implementer worked from)
-- `[FINDINGS]` — the Critical/Important findings and spec gaps from the
-  previous review, copied verbatim, one per bullet
-- `[REPORT_FILE]` — the implementer's report file (fix reports appended)
-- `[FIX_BASE_SHA]` — the head the previous review saw
-- `[HEAD_SHA]` — current commit
-- `[DIFF_FILE]` — the path `scripts/review-package PLAN_FILE FIX_BASE HEAD` printed
+**치환할 placeholder:**
+- `[MODEL]` — 필수: SKILL.md의 Model Selection에 따른 reviewer 모델. 작은 수정 diff의 범위가 제한된 재리뷰에는 저가에서 중간 tier를 사용한다.
+- `[BRIEF_FILE]` — task brief 파일(implementer가 작업한 파일과 동일)
+- `[FINDINGS]` — 이전 리뷰의 Critical/Important finding과 spec 공백을 불릿마다 하나씩 그대로 복사
+- `[REPORT_FILE]` — implementer의 report 파일(수정 보고가 추가됨)
+- `[FIX_BASE_SHA]` — 이전 리뷰에서 확인한 head
+- `[HEAD_SHA]` — 현재 commit
+- `[DIFF_FILE]` — `scripts/review-package PLAN_FILE FIX_BASE HEAD`가 출력한 경로
 
-**Re-reviewer returns:** per-finding verdicts (ADDRESSED / NOT ADDRESSED),
-new breakage in the fix diff, out-of-scope observations, and a round verdict.
+**Re-reviewer 반환값:** finding별 판정(ADDRESSED / NOT ADDRESSED), 수정 diff의 새 문제,
+범위 밖 관찰과 회차 판정.

@@ -71,7 +71,7 @@ hard gate를 통과한 사례만 같은 `quality_rubric_version` 안에서 비�
 6. hard gate를 통과한 후보만 평가하고, 실패한 후보도 재검색 방지를 위해 거부 이유와 rubric version을 남길 수 있다.
 7. 마지막 query family 또는 shard가 새 canonical artifact나 결론을 바꿀 근거를 더 이상 만들지 않으면 포화 이유를 기록한다.
 
-## bounded brute force
+## `bounded` brute force(범위를 제한한 완전 탐색)
 
 브루트포스는 모집단 경계와 중복 키가 있을 때만 사용한다. result cap에 걸린 동일 질의를 페이지로만 반복하지 말고 language, organization, repository, path, extension, version 또는 다른 상호 배타적인 qualifier로 shard한다. 각 shard에는 다음 정보를 남긴다.
 

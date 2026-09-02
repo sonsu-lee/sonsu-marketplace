@@ -1,9 +1,9 @@
 ---
 name: git-workflow
-description: Use when 하나의 Git 변경에 필요한 branch 이름·생성, staging, Conventional Commit과 일반 push를 수행하거나 commit 후보와 기존 commit을 읽기 전용으로 검토해야 할 때. PR·ticket·worktree 생성, rebase와 merge에는 사용하지 않는다.
+description: 하나의 Git 변경에 필요한 branch 이름·생성, staging, Conventional Commit과 일반 push를 수행하거나 commit 후보와 기존 commit을 읽기 전용으로 검토해야 할 때 사용한다. PR·ticket·worktree 생성, rebase와 merge에는 사용하지 않는다.
 ---
 
-# Git 작업 흐름
+# git-workflow: Git 작업 흐름
 
 하나의 변경을 검토 가능한 branch와 atomic commit으로 구성하고, 사용자가 요청한 경우에만 정확한 remote ref로 일반 push한다.
 

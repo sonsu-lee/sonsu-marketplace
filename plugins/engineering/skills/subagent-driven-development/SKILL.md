@@ -1,44 +1,39 @@
 ---
 name: subagent-driven-development
-description: Use when executing implementation plans with independent tasks in the current session
+description: 현재 session에서 서로 독립적인 task로 구성된 구현 plan을 실행할 때 사용한다
 ---
 
-# Subagent-Driven Development
+# subagent-driven-development: Subagent 기반 개발
 
-Execute plan by dispatching a fresh implementer subagent per task, a task review (spec compliance + code quality) after each, and a broad whole-branch review at the end.
+task마다 새로운 implementer subagent를 위임하고, 각 task 뒤에 task 리뷰(spec 준수 + 코드 품질)를 수행하고, 마지막에 전체 브랜치를 폭넓게 리뷰하여 plan을 실행한다.
 
-**Why subagents:** You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
+**Subagent를 사용하는 이유:** 격리된 context를 가진 전문 에이전트에게 task를 위임한다. 지침과 context를 정확히 구성하면 각 에이전트가 task에 집중해 완료할 수 있다. 에이전트가 현재 session의 context나 history를 상속하게 하지 않고 필요한 내용만 직접 구성한다. 이를 통해 자신의 context도 조정 작업에 사용할 수 있게 보존한다.
 
-**Core principle:** Fresh subagent per task + task review (spec + quality) + broad final review = high quality, fast iteration
+**핵심 원칙:** task마다 새로운 subagent + task 리뷰(spec + 품질) + 폭넓은 최종 리뷰 = 높은 품질과 빠른 반복
 
-Read and apply the shared [quality gate contract](../using-engineering-skills/references/quality-gates.md).
-Each task review and the final whole-branch review is a gate for one exact BASE..HEAD revision.
+공통 [품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)을 읽고 적용한다.
+각 task 리뷰와 최종 전체 브랜치 리뷰는 정확한 하나의 BASE..HEAD 리비전을 대상으로 하는 게이트다.
 
 <HARD-GATE>
-This workflow relies on task commits for recovery and exact review ranges. Start it only when the user has explicitly authorized task commits for this plan in the current conversation. A request to execute a plan, use subagents, or work autonomously does not by itself authorize commits. If task commits are not authorized, use `engineering:executing-plans` for inline execution and report the final diff before asking for a commit decision.
+이 workflow는 복구와 정확한 review range를 위해 task commit에 의존한다. 현재 대화에서 사용자가 이 plan의 task commit을 명시적으로 승인한 경우에만 시작한다. plan 실행, subagent 사용 또는 자율적인 작업 요청만으로는 commit 권한이 생기지 않는다. task commit이 승인되지 않았다면 `engineering:executing-plans`로 직접 실행하고, commit 결정을 요청하기 전에 최종 diff를 보고한다.
 </HARD-GATE>
 
-**Narration:** between tool calls, narrate at most one short line — the
-ledger and the tool results carry the record.
+**진행 설명:** 도구 호출 사이에는 짧은 한 줄만 작성한다. 기록은 ledger와 도구 결과에 남는다.
 
-**Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. The only reasons to stop are the five named below, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it.
+**연속 실행:** task 사이에 사용자 확인을 받으려고 중단하지 않는다. plan의 모든 task를 멈추지 않고 실행한다. 아래의 다섯 가지 상황 또는 모든 task 완료만 중단 사유다. "Should I continue?" 같은 질문과 진행 요약은 사용자의 시간을 낭비한다. 사용자가 plan 실행을 요청했으므로 실행한다.
 
-**Rulings, not stalls.** A running plan does not wait on a human for routine,
-reversible ambiguities that the approved spec and plan let you resolve safely.
-The spec is the binding authority, the plan is its argument, and your judgment
-settles details within those bounds. Record every decision in the ledger as
-`Ruling: <what you decided> — <why> — <what it costs if wrong>`, and keep
-going. The five stop conditions below, including an unresolved required gate at
-its cap, are exceptions and require the human partner.
+**멈추지 말고 판정한다.** 실행 중인 plan은 승인된 spec과 plan 안에서 안전하게 해결할 수 있는
+일상적이고 되돌릴 수 있는 모호함 때문에 사람을 기다리지 않는다. spec은 구속력 있는 기준이고
+plan은 그 근거이며, 그 범위 안의 세부사항은 자신의 판단으로 결정한다. 모든 결정을 ledger에
+`Ruling: <결정> — <이유> — <틀렸을 때의 비용>`으로 기록하고 계속 진행한다. 시도 횟수 상한에
+도달한 미해결 필수 게이트를 포함한 아래의 다섯 가지 중단 조건만 예외이며 사용자가 필요하다.
 
-Five things stop you, and only these: an irreversible or destructive
-operation; a security-sensitive action; a side effect outside this worktree
-that norms say you ask about first (a merge, a push to a shared branch, a
-publish); a plan so broken that every path forward is a guess; and a required
-quality gate that reaches its retry cap with a valid unresolved finding that
-only a human may accept as risk. For those, stop and ask.
+다음 다섯 가지 상황에서만 중단한다. 되돌릴 수 없거나 파괴적인 작업, security-sensitive 작업,
+관례상 먼저 확인해야 하는 worktree 밖의 side effect(merge, 공유 브랜치에 push, publish), 어떤
+경로를 선택해도 추측이 될 만큼 깨진 plan, 그리고 사람만 위험을 수용할 수 있는 유효한 미해결
+finding을 남긴 채 retry 상한에 도달한 필수 품질 게이트다. 이 경우 중단하고 질문한다.
 
-## When to Use
+## 사용 시점
 
 ```dot
 digraph when_to_use {
@@ -58,13 +53,13 @@ digraph when_to_use {
 }
 ```
 
-**vs. Executing Plans (parallel session):**
-- Same session (no context switch)
-- Fresh subagent per task (no context pollution)
-- Review after each task (spec compliance + code quality), broad review at the end
-- Faster iteration (no human-in-loop between tasks)
+**Executing Plans(parallel session)와의 차이:**
+- 같은 session을 사용한다(context 전환 없음).
+- task마다 새로운 subagent를 사용한다(context 오염 없음).
+- 각 task 뒤에 spec 준수와 코드 품질을 리뷰하고 마지막에 폭넓게 리뷰한다.
+- task 사이에 사람의 개입이 없어 더 빠르게 반복한다.
 
-## The Process
+## 절차
 
 ```dot
 digraph process {
@@ -153,413 +148,327 @@ digraph process {
 }
 ```
 
-## Setup
+## 설정
 
-Ensure the work happens in an isolated workspace: use
-engineering:using-git-worktrees to create one or verify the existing one.
-Never start implementation on a main/master branch without your human
-partner's explicit consent.
+작업이 격리된 workspace에서 수행되도록 `engineering:using-git-worktrees`로 만들거나 기존
+workspace를 확인한다. 사용자의 명시적인 동의 없이 main/master 브랜치에서 구현을 시작하지 않는다.
 
-Before creating the ledger or dispatching Task 1, record the exact user message that authorizes task commits. If the plan header says commits are authorized but the conversation does not, the plan is stale and does not grant permission; stop before dispatch.
+ledger를 만들거나 Task 1을 위임하기 전에 task commit을 승인한 정확한 사용자 메시지를 기록한다. plan header에서 commit이 승인됐다고 하더라도 대화에 승인 내용이 없으면 plan은 오래된 것이며 권한을 부여하지 않는다. 위임 전에 중단한다.
 
-Conversation memory does not survive compaction. In real sessions,
-controllers that lost their place have re-dispatched entire completed task
-sequences — the single most expensive failure observed. Track progress in
-a ledger file, not only in todos.
+대화 memory는 compaction 뒤에도 유지되지 않는다. 실제 session에서 현재 위치를 잃은 controller가
+이미 완료한 전체 task sequence를 다시 위임한 사례가 있으며, 관찰된 실패 중 비용이 가장 컸다.
+진행 상태를 todo뿐 아니라 ledger 파일에도 추적한다.
 
-- Each plan owns a workspace: at skill start, run this skill's
-  `scripts/sdd-workspace PLAN_FILE` — it prints the plan's git-ignored
-  directory (`<repo-root>/.superpowers/sdd/<plan-basename>/`), home to
-  every artifact for THIS plan: ledger, briefs, reports, review packages.
-  Another plan's directory is never yours to read or write.
-- Check for this plan's ledger at `<workspace>/progress.md`. If its first
-  line names your plan file, tasks with a `Task <N>: complete` line are DONE
-  — do not re-dispatch them; resume at the first task without one. A task
-  whose last line is a fix round is mid-loop: resume the loop at the next
-  round. A ledger whose first line names a different plan file — or a stray
-  ledger at the old flat path `.superpowers/sdd/progress.md` — is another
-  plan's progress: leave it in place and start your own, fresh.
-- Create the ledger with its identity as the first line:
-  `# SDD ledger — plan: <plan file path>`.
-- The ledger is your recovery map: the commits it names exist in git even
-  when your context no longer remembers creating them. After compaction,
-  trust the ledger and `git log` over your own recollection.
-- `git clean -fdx` will destroy the workspace (it's git-ignored scratch); if
-  that happens, recover from `git log`.
+- 각 plan은 자체 workspace를 소유한다. 스킬 시작 시 이 스킬의 `scripts/sdd-workspace PLAN_FILE`을
+  실행한다. 이 명령은 plan의 git-ignored 디렉터리(`<repo-root>/.superpowers/sdd/<plan-basename>/`)를
+  출력하며, 현재 plan의 모든 artifact인 ledger, brief, report와 review package를 이곳에 둔다.
+  다른 plan의 디렉터리는 읽거나 쓰지 않는다.
+- `<workspace>/progress.md`에서 현재 plan의 ledger를 확인한다. 첫 줄에 현재 plan 파일이 적혀
+  있으면 `Task <N>: complete` 줄이 있는 task는 DONE이다. 다시 위임하지 말고 완료 줄이 없는 첫
+  task부터 재개한다. 마지막 줄이 수정 회차인 task는 loop 진행 중이므로 다음 회차부터 재개한다.
+  첫 줄에 다른 plan 파일이 적힌 ledger 또는 이전 flat 경로 `.superpowers/sdd/progress.md`의
+  ledger는 다른 plan의 진행 상태다. 그대로 두고 현재 plan용 ledger를 새로 만든다.
+- 첫 줄에 `# SDD ledger — plan: <plan file path>` 식별자를 넣어 ledger를 만든다.
+- ledger는 복구 map이다. 자신의 context가 생성 사실을 기억하지 못해도 ledger에 적힌 commit은
+  git에 존재한다. compaction 뒤에는 기억보다 ledger와 `git log`를 신뢰한다.
+- `git clean -fdx`는 git-ignored scratch인 workspace를 삭제한다. 그런 일이 발생하면 `git log`에서 복구한다.
 
-Read the plan once, note its context and Global Constraints, and create a
-todo per task. If the plan names a Spec, read that too: the spec is the
-authority the plan argues from, and conflicts inside the plan resolve
-against it. A plan with no reachable spec gets a ledger note saying so —
-rulings made without one are provisional.
+plan을 한 번 읽고 context와 Global Constraints를 기록한 뒤 task마다 todo를 만든다. plan에서
+Spec을 지정하면 함께 읽는다. spec은 plan이 근거로 삼는 기준이며 plan 내부 충돌은 spec을
+기준으로 해결한다. 접근 가능한 spec이 없으면 ledger에 그 사실을 기록하고, spec 없이 내린
+판정은 잠정적인 것으로 취급한다.
 
-Before dispatching Task 1, scan the plan once for conflicts, writing down
-what you checked as you check it:
+Task 1을 위임하기 전에 plan의 충돌을 한 번 검사하고 확인한 내용을 그때그때 기록한다.
 
-- tasks that contradict each other or the plan's Global Constraints
-- anything the plan explicitly mandates that the review rubric treats as a
-  defect (a test that asserts nothing, verbatim duplication of a logic block)
+- 서로 충돌하거나 plan의 Global Constraints와 충돌하는 task
+- plan에서 명시적으로 요구하지만 review rubric에서는 결함으로 보는 내용(아무것도 assert하지 않는 테스트, logic block의 verbatim duplication)
 
-The scan's output is a table, not a verdict. One row for every pair of tasks
-that share a file or an interface: the two tasks, what one produces against
-what the other consumes, and what you found. One row for every task: whether
-its own text agrees with itself — the tests it specifies against the code it
-specifies, the files it creates against the files it later touches. "The scan
-is clean" without those rows is not a scan you ran.
+검사 결과는 판정이 아니라 표다. 파일 또는 interface를 공유하는 모든 task 쌍마다 한 행을 만들고,
+두 task, 한쪽이 생산하는 내용과 다른 쪽이 소비하는 내용, 발견한 내용을 적는다. 모든 task마다
+한 행을 만들어 task 본문이 내부적으로 일치하는지 확인한다. 지정된 테스트와 코드, 생성할 파일과
+나중에 수정할 파일을 대조한다. 이런 행 없이 "The scan is clean"이라고만 쓰면 실행한 검사가 아니다.
 
-Write the table to the ledger. Rule on everything you find before execution
-begins — each finding against the plan text that mandates it — and record
-each ruling in the ledger. If the scan is clean, proceed without comment.
-Rule on each conflict it surfaces — the spec is the binding authority, the
-plan is its argument — record the ruling beside its row, and dispatch
-Task 1. The review loop remains the net for conflicts that only emerge from
-implementation.
+표를 ledger에 작성한다. 실행을 시작하기 전에 발견한 모든 항목을 해당 내용을 요구한 plan
+본문과 대조해 판정하고 각 판정을 ledger에 기록한다. 검사 결과가 clean이면 별도 언급 없이
+진행한다. 발견된 각 충돌을 판정하고(spec은 구속력 있는 기준, plan은 그 근거다) 행 옆에 판정을
+기록한 뒤 Task 1을 위임한다. 구현 과정에서만 드러나는 충돌은 review loop가 계속 잡아낸다.
 
-## Model Selection
+## 모델 선택
 
-Use the least powerful model that can handle each role to conserve cost and increase speed.
+비용을 줄이고 속도를 높이도록 각 역할을 처리할 수 있는 가장 가벼운 모델을 사용한다.
 
-**Mechanical implementation tasks** (isolated functions, clear specs, 1-2 files): use a fast, cheap model. Most implementation tasks are mechanical when the plan is well-specified.
+**기계적인 구현 task**(격리된 함수, 명확한 spec, 1-2개 파일): 빠르고 저렴한 모델을 사용한다. plan이 명확하면 대부분의 구현 task는 기계적이다.
 
-**Integration and judgment tasks** (multi-file coordination, pattern matching, debugging): use a standard model.
+**통합과 판단 task**(여러 파일 조정, pattern matching, debugging): 표준 모델을 사용한다.
 
-**Architecture and design tasks**: use the most capable available model.
-The final whole-branch review is one of these — dispatch it on the most
-capable available model, not the session default.
+**Architecture와 설계 task:** 사용 가능한 가장 성능이 높은 모델을 사용한다. 최종 전체 브랜치
+리뷰도 여기에 해당한다. session 기본값이 아니라 사용 가능한 가장 성능이 높은 모델로 위임한다.
 
-**Review tasks**: choose the model with the same judgment, scaled to the
-diff's size, complexity, and risk. A small mechanical diff does not need the
-most capable model; a subtle concurrency change does. Scoped re-reviews of
-small fix diffs take a cheap-to-mid tier.
+**리뷰 task:** 같은 판단을 내릴 수 있는 모델 중 diff의 크기, 복잡성과 위험에 맞는 모델을
+선택한다. 작고 기계적인 diff에는 가장 성능이 높은 모델이 필요 없지만 미묘한 concurrency
+변경에는 필요하다. 작은 수정 diff의 범위가 제한된 재리뷰에는 저가에서 중간 tier를 사용한다.
 
-**Fix-loop escalation (rounds 4-5)**: use a model at least one tier above
-the implementer that got stuck.
+**Fix-loop 상향(4-5회차):** 막힌 implementer보다 적어도 한 tier 높은 모델을 사용한다.
 
-**Always specify the model explicitly when dispatching a subagent.** An
-omitted model inherits your session's model — often the most capable and
-most expensive — which silently defeats this section.
+**subagent를 위임할 때 항상 모델을 명시한다.** 모델을 생략하면 session의 모델을 상속하는데,
+대개 가장 성능이 높고 비싼 모델이어서 이 섹션의 목적을 조용히 무너뜨린다.
 
-**Turn count beats token price.** Wall-clock and context cost scale with how
-many turns a subagent takes, and the cheapest models routinely take 2-3× the
-turns on multi-step work — costing more overall. Use a mid-tier model as the
-floor for reviewers and for implementers working from prose descriptions.
-When the task's plan text contains the complete code to write, the
-implementation is transcription plus testing: use the cheapest tier for
-that implementer. Single-file mechanical fixes also take the cheapest tier.
+**Turn 수가 token 가격보다 중요하다.** 실제 시간과 context 비용은 subagent가 사용하는 turn
+수에 비례하며, 가장 저렴한 모델은 여러 단계의 작업에서 흔히 2-3배 많은 turn을 사용해 전체
+비용이 더 커진다. reviewer와 산문 설명을 바탕으로 작업하는 implementer에는 적어도 중간 tier
+모델을 사용한다. task의 plan 본문에 작성할 전체 코드가 있다면 구현은 옮겨 적고 테스트하는
+작업이므로 가장 저렴한 tier를 사용한다. 한 파일의 기계적인 수정에도 가장 저렴한 tier를 사용한다.
 
-**Task complexity signals (implementation tasks):**
-- Touches 1-2 files with a complete spec → cheap model
-- Touches multiple files with integration concerns → standard model
-- Requires design judgment or broad codebase understanding → most capable model
+**Task 복잡성 신호(구현 task):**
+- 완전한 spec으로 1-2개 파일 수정 → 저렴한 모델
+- 통합 문제를 포함해 여러 파일 수정 → 표준 모델
+- 설계 판단 또는 넓은 codebase 이해 필요 → 가장 성능이 높은 모델
 
-## The Task Loop
+## Task loop(작업 반복)
 
-**Batch small same-shape work.** When the plan lists several tasks that are
-each a small, independent edit of the same kind — the same one-line fix,
-constant change, or field addition repeated across files — do not dispatch
-one subagent per task. Compose ONE dispatch brief listing every file and
-its change, send the whole batch to a single subagent, and review its diff
-as one unit. Reserve one-dispatch-per-task for work that needs its own
-judgment, its own tests, or its own review surface.
+**형태가 같은 작은 작업은 batch로 묶는다.** plan에 여러 task가 있고 각 task가 여러 파일에
+반복되는 같은 한 줄 수정, constant 변경 또는 field 추가처럼 작고 독립적인 같은 종류의
+수정이라면 task마다 subagent를 하나씩 위임하지 않는다. 모든 파일과 변경을 나열한 하나의
+dispatch brief를 만들어 전체 batch를 한 subagent에게 보내고 diff를 하나의 단위로 리뷰한다.
+별도의 판단, 테스트 또는 리뷰 surface가 필요한 작업에만 task별 위임을 사용한다.
 
-Everything you paste into a dispatch prompt — and everything a subagent
-prints back — stays resident in your context for the rest of the session
-and is re-read on every later turn. Hand artifacts over as files.
+dispatch prompt에 붙여 넣은 모든 내용과 subagent가 출력한 모든 내용은 session이 끝날 때까지
+context에 남아 이후 turn마다 다시 읽힌다. artifact는 파일로 전달한다.
 
-**Waiting on dispatched subagents:** never poll a wait interface with
-short timeouts, and never sit in one silent, open-ended wait either.
-While you have local work — ledger updates, packaging the next review,
-reading reports — keep working; child results arrive on their own.
-When you are genuinely idle, wait in bounded stretches (five to ten
-minutes, where your platform allows), and between stretches post one
-line of status and reconcile your live children: list them, and chase
-any that finished without reporting. A bounded stretch keeps nearly
-all of a long wait's efficiency while guaranteeing a stuck or lost
-child is noticed within minutes, not at the end of the session.
+**위임한 subagent 기다리기:** 짧은 timeout으로 wait interface를 polling하지 않고, 조용히 끝없이
+한 번만 기다리지도 않는다. ledger 갱신, 다음 review package 생성, report 읽기처럼 로컬 작업이
+남아 있으면 계속 작업한다. child 결과는 자동으로 도착한다. 실제로 할 일이 없을 때에는 플랫폼이
+허용하는 범위에서 5-10분의 제한된 구간 동안 기다린다. 구간 사이에 상태를 한 줄로 알리고 live
+child 목록을 확인해 보고 없이 완료한 child를 찾는다. 제한된 대기는 긴 대기의 효율을 거의
+유지하면서도 막히거나 사라진 child를 session 끝이 아니라 몇 분 안에 발견하게 한다.
 
-### 1. Dispatch the implementer
+### 1. Implementer 위임
 
-Record BASE (`git rev-parse HEAD`) before dispatching — the review package
-and fix-round diffs need it.
+위임하기 전에 BASE(`git rev-parse HEAD`)를 기록한다. review package와 수정 회차 diff에 필요하다.
 
-- **Task brief:** before dispatching an implementer, run this skill's
-  `scripts/task-brief PLAN_FILE N` — it extracts the task's full text to a
-  uniquely named file and prints the path. Compose the dispatch so the
-  brief stays the single source of
-  requirements. Your dispatch should contain: (1) one line on where this
-  task fits in the project; (2) the brief path, introduced as "read this
-  first — it is your requirements, with the exact values to use verbatim";
-  (3) interfaces and decisions from earlier tasks that the brief cannot
-  know; (4) your resolution of any ambiguity you noticed in the brief;
-  (5) the report-file path and report contract. Exact values (numbers,
-  magic strings, signatures, test cases) appear only in the brief. Never
-  make a subagent read the whole plan file.
-- **Report file:** name the implementer's report file after the brief
-  (brief `…/task-N-brief.md` → report `…/task-N-report.md`) and put it in
-  the dispatch prompt. The implementer writes the full report there and
-  returns only status, commits, a one-line verification summary, and concerns.
-- A dispatch prompt describes one task, not the session's history. Do not
-  paste accumulated prior-task summaries ("state after Tasks 1-3") into
-  later dispatches — a real session's dispatch hit 42k chars of which 99%
-  was pasted history. A fresh subagent needs its task, the interfaces it
-  touches, and the global constraints. Nothing else.
-- The dispatch carries the no-subagents contract (it is in the
-  implementer template): the implementer never dispatches subagents —
-  not helpers, and never a reviewer. Review arrives from you, after the
-  report. In real sessions, every reviewer a worker spawned duplicated
-  the task review the controller dispatched anyway — a full extra
-  review seat per task.
-- If an earlier task has an accepted-risk or evidence-closed finding in the
-  area this task touches, carry a pointer to that ledger entry in the dispatch.
-- Record the implementer's agent identity from the dispatch result —
-  fix-loop rounds 1-3 resume this agent.
-- Never dispatch multiple implementation subagents in parallel (conflicts).
+- **Task brief:** implementer를 위임하기 전에 이 스킬의 `scripts/task-brief PLAN_FILE N`을
+  실행한다. task 전체 본문을 고유한 이름의 파일로 추출하고 경로를 출력한다. brief가 요구사항의
+  단일 출처가 되도록 dispatch를 구성한다. dispatch에는 다음을 포함한다. (1) project에서 이
+  task가 위치하는 곳을 설명하는 한 줄, (2) "먼저 읽을 요구사항이며 정확한 값을 그대로 사용한다"고
+  소개한 brief 경로, (3) brief에서 알 수 없는 이전 task의 interface와 결정, (4) brief에서 발견한
+  모호함에 대한 판정, (5) report 파일 경로와 report 계약. 정확한 값(숫자, magic string,
+  signature, test case)은 brief에만 둔다. subagent에게 전체 plan 파일을 읽게 하지 않는다.
+- **Report 파일:** brief 이름을 기준으로 implementer의 report 파일을 정하고(brief
+  `…/task-N-brief.md` → report `…/task-N-report.md`) dispatch prompt에 넣는다. implementer는
+  전체 report를 이 파일에 작성하고 상태, commit, 한 줄 검증 요약과 우려 사항만 반환한다.
+- dispatch prompt는 session history가 아니라 하나의 task를 설명한다. 누적된 이전 task 요약
+  ("state after Tasks 1-3")을 이후 dispatch에 붙여 넣지 않는다. 실제 session의 dispatch가
+  42k자에 도달했고 그중 99%가 붙여 넣은 history였던 사례가 있다. 새 subagent에는 task, 건드리는
+  interface와 전역 제약만 필요하다.
+- dispatch에는 subagent 금지 계약이 들어 있다(implementer template에 포함됨). implementer는
+  helper와 reviewer를 포함해 subagent를 위임하지 않는다. 리뷰는 report 이후 controller가
+  위임한다. 실제 session에서 worker가 생성한 모든 reviewer는 controller가 위임한 task 리뷰와
+  중복되어 task마다 전체 리뷰 자리 하나를 추가로 사용했다.
+- 이전 task에 현재 task가 건드리는 영역의 accepted-risk 또는 근거로 닫은 finding이 있으면
+  dispatch에 해당 ledger 항목의 pointer를 포함한다.
+- dispatch 결과에서 implementer의 agent identity를 기록한다. fix-loop 1-3회차에는 이 에이전트를 재개한다.
+- 충돌을 막기 위해 여러 구현 subagent를 병렬로 위임하지 않는다.
 
-Template: [implementer-prompt.md](implementer-prompt.md)
+템플릿: [implementer-prompt.md](implementer-prompt.md)
 
-### 2. Handle the report
+### 2. Report 처리
 
-Implementer subagents report one of four statuses. Handle each appropriately:
+Implementer subagent는 네 가지 상태 중 하나를 보고한다. 각 상태를 다음과 같이 처리한다.
 
-**DONE:** Generate the review package (`scripts/review-package PLAN_FILE BASE HEAD`, from this skill's directory — it prints the unique file path it wrote; BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task), then dispatch the task reviewer with the printed path.
+**DONE:** 이 스킬 디렉터리에서 `scripts/review-package PLAN_FILE BASE HEAD`로 review package를
+생성한다. 명령은 작성한 고유 파일 경로를 출력한다. BASE는 implementer를 위임하기 전에 기록한
+commit이며, 여러 commit으로 구성된 task에서 마지막 commit 이외를 조용히 누락하는 `HEAD~1`을
+사용하지 않는다. 출력된 경로와 함께 task reviewer를 위임한다.
 
-**DONE_WITH_CONCERNS:** The implementer completed the work but flagged doubts. Read the concerns before proceeding. If the concerns are about correctness or scope, address them before review. If they're observations (e.g., "this file is getting large"), note them and proceed to review.
+**DONE_WITH_CONCERNS:** implementer가 작업을 완료했지만 의문을 표시했다. 진행하기 전에 우려
+사항을 읽는다. 정확성 또는 범위에 관한 내용이라면 리뷰 전에 처리한다. 관찰(예: "this file is
+getting large")이라면 기록하고 리뷰로 진행한다.
 
-**NEEDS_CONTEXT:** The implementer needs information that wasn't provided. Provide the missing context and re-dispatch.
+**NEEDS_CONTEXT:** implementer에게 제공되지 않은 정보가 필요하다. 빠진 context를 제공하고 다시 위임한다.
 
-**BLOCKED:** The implementer cannot complete the task. Assess the blocker:
-1. If it's a context problem, provide more context and re-dispatch with the same model
-2. If the task requires more reasoning, re-dispatch with a more capable model
-3. If the task is too large, break it into smaller pieces
-4. If the plan itself is wrong, rule on the correction, ledger it, and re-dispatch with the ruling carried in the dispatch
+**BLOCKED:** implementer가 task를 완료할 수 없다. blocker를 평가한다.
+1. context 문제라면 context를 추가하고 같은 모델로 다시 위임한다.
+2. task에 더 많은 reasoning이 필요하면 더 성능이 높은 모델로 다시 위임한다.
+3. task가 너무 크다면 더 작은 단위로 나눈다.
+4. plan 자체가 틀렸다면 수정 방향을 판정해 ledger에 기록하고, dispatch에 판정을 포함해 다시 위임한다.
 
-**Never** ignore an escalation or force the same model to retry without changes. If the implementer said it's stuck, something needs to change.
+상위 보고를 **절대** 무시하거나 같은 모델에 변경 없이 재시도하도록 강제하지 않는다. implementer가 막혔다고 했다면 무엇인가 달라져야 한다.
 
-If the implementer asks questions — before starting or mid-task — answer
-clearly and completely, provide additional context if needed, and don't
-rush it into implementation.
+implementer가 시작 전 또는 task 도중 질문하면 명확하고 완전하게 답하고, 필요하면 context를
+추가하며, 성급하게 구현으로 밀어 넣지 않는다.
 
-### 3. Review the task
+### 3. Task 리뷰
 
-Per-task reviews are task-scoped gates. The broad review happens once, at the
-final whole-branch review. Never skip the task review, and never accept a
-report missing either verdict — spec compliance AND task quality are both
-required. Implementer self-review never replaces the task review; both are
-needed.
+task별 리뷰는 task 범위의 게이트다. 폭넓은 리뷰는 최종 전체 브랜치 리뷰에서 한 번 수행한다.
+task 리뷰를 생략하거나 두 판정 중 하나가 빠진 report를 받아들이지 않는다. spec 준수와 task
+품질이 모두 필요하다. implementer의 자체 리뷰가 task 리뷰를 대신하지 않으며 둘 다 필요하다.
 
-Before dispatch, record the gate's task artifact, BASE..HEAD revision, required
-verdicts, pass condition, task implementation return target, attempt cap, and
-decision owner. A missing required verdict is `inconclusive`, not clean.
+위임 전에 게이트의 task artifact, BASE..HEAD 리비전, 필수 판정, 통과 조건, task 구현 반환 대상,
+시도 횟수 상한과 decision owner를 기록한다. 필수 판정이 빠졌다면 clean이 아니라 `inconclusive`다.
 
-- Hand the reviewer its diff as a file: run this skill's
-  `scripts/review-package PLAN_FILE BASE HEAD` and pass the reviewer the file path
-  it prints (or, without bash: `git log --oneline`, `git diff --stat`,
-  and `git diff -U10` for the range, redirected to one uniquely named
-  file). The output never enters your own context, and the reviewer sees
-  the commit list, stat summary, and full diff with context in one Read
-  call. Use the BASE you recorded before dispatching the implementer —
-  never `HEAD~1`, which silently truncates multi-commit tasks. Never
-  dispatch a task reviewer without a diff file.
-- **Reviewer inputs:** the task reviewer gets three paths — the same brief
-  file, the report file, and the review package — plus the global
-  constraints that bind the task.
-- The global-constraints block you hand the reviewer is its attention
-  lens. Copy the binding requirements verbatim from the plan's Global
-  Constraints section or the spec: exact values, exact formats, and the
-  stated relationships between components ("same layout as X", "matches
-  Y"). The reviewer's template already carries the process rules (YAGNI,
-  test hygiene, review method) — the constraints block is for what THIS
-  project's spec demands.
-- Do not add open-ended directives like "check all uses" or "run race tests
-  if useful" without a concrete, task-specific reason
-- Do not ask a reviewer to repeat verification the implementer already ran on
-  the same work — the implementer's report carries the evidence
-- Do not pre-judge findings for the reviewer — never instruct a reviewer to
-  ignore or not flag a specific issue. If you believe a finding would be a
-  false positive, let the reviewer raise it and adjudicate it in the review
-  loop. If the prompt you are writing contains "do not flag," "don't treat X
-  as a defect," "at most Minor," or "the plan chose" — stop: you are
-  pre-judging, usually to spare yourself a review loop.
-The task reviewer may report "⚠️ Cannot verify from diff" items — requirements
-that live in unchanged code or span tasks. These do not block the rest of the
-review, but you must resolve each one yourself before marking the task
-complete: you hold the plan and cross-task context the reviewer
-lacks. If you confirm an item is a real gap, treat it as a failed spec
-review — it enters the fix loop with the other findings.
+- reviewer에게 diff를 파일로 전달한다. 이 스킬의 `scripts/review-package PLAN_FILE BASE HEAD`를
+  실행하고 출력된 파일 경로를 전달한다. bash가 없다면 해당 range의 `git log --oneline`,
+  `git diff --stat`, `git diff -U10`을 고유한 이름의 한 파일로 redirect한다. 출력은 자신의
+  context에 들어가지 않고 reviewer는 한 번의 Read 호출로 commit 목록, stat 요약과 context가
+  포함된 전체 diff를 본다. implementer를 위임하기 전에 기록한 BASE를 사용하며 여러 commit의
+  task를 조용히 잘라내는 `HEAD~1`을 사용하지 않는다. diff 파일 없이 task reviewer를 위임하지 않는다.
+- **Reviewer 입력:** task reviewer는 같은 brief 파일, report 파일, review package의 세 경로와
+  task에 적용되는 전역 제약을 받는다.
+- reviewer에게 전달하는 global-constraints block은 주의할 내용을 정하는 lens다. plan의 Global
+  Constraints 섹션 또는 spec에서 구속력 있는 요구사항을 그대로 복사한다. 정확한 값, 형식과
+  component 사이의 명시된 관계("same layout as X", "matches Y")를 포함한다. reviewer
+  template에는 process 규칙(YAGNI, test hygiene, review 방법)이 이미 있으므로 constraints
+  block에는 현재 project의 spec이 요구하는 내용을 넣는다.
+- 구체적이고 task에 한정된 이유 없이 "check all uses" 또는 "run race tests if useful" 같은 열린 지침을 추가하지 않는다.
+- implementer가 같은 작업에서 이미 실행한 검증을 reviewer에게 반복하라고 하지 않는다. implementer report가 근거를 전달한다.
+- reviewer의 finding을 미리 판정하지 않는다. 특정 문제를 무시하거나 보고하지 말라고 지시하지
+  않는다. finding이 false positive라고 생각하더라도 reviewer가 제기하게 한 뒤 review loop에서
+  판정한다. 작성 중인 prompt에 "do not flag", "don't treat X as a defect", "at most Minor" 또는
+  "the plan chose"가 있다면 중단한다. review loop를 피하려고 미리 판정하고 있을 가능성이 크다.
+task reviewer는 변경되지 않은 코드에 있거나 여러 task에 걸쳐 있는 요구사항을 "⚠️ Cannot verify
+from diff" 항목으로 보고할 수 있다. 이 항목은 나머지 리뷰를 막지 않지만 task를 완료로 표시하기
+전에 각 항목을 직접 해결해야 한다. reviewer에게 없는 plan과 task 간 context를 가지고 있기
+때문이다. 실제 공백으로 확인되면 실패한 spec 리뷰로 취급해 다른 finding과 함께 fix loop에 넣는다.
 
-Template: [task-reviewer-prompt.md](task-reviewer-prompt.md)
+템플릿: [task-reviewer-prompt.md](task-reviewer-prompt.md)
 
-### 4. The fix loop
+### 4. Fix loop(수정 반복)
 
-Classify every finding by its owner immediately after each review or re-review:
+각 리뷰 또는 재리뷰 직후 모든 finding을 소유 단계에 따라 분류한다.
 
-- Close a demonstrably invalid or out-of-scope finding with evidence. If that
-  resolves every required finding, the task may complete.
-- Send a task-detail or interface defect back to `engineering:writing-plans`.
-- Send an approved requirement or design contradiction back to
-  `engineering:brainstorming`.
-- Record a missing capability, permission, service, dependency, or external
-  state as `blocked` with the condition needed to resume.
-- Send only valid implementation findings into the bounded fix loop.
+- 명백히 유효하지 않거나 범위 밖인 finding은 근거와 함께 닫는다. 이로써 모든 필수 finding이 해결되면 task를 완료할 수 있다.
+- task 세부사항 또는 interface 결함은 `engineering:writing-plans`로 돌려보낸다.
+- 승인된 요구사항 또는 설계의 모순은 `engineering:brainstorming`으로 돌려보낸다.
+- 빠진 capability, 권한, service, dependency 또는 외부 상태는 재개에 필요한 조건과 함께 `blocked`로 기록한다.
+- 유효한 구현 finding만 범위가 제한된 fix loop에 넣는다.
 
-This owner classification is routing, not cap adjudication. It prevents code
-retries that cannot change the failing input. The loop triggers only for a valid
-implementation finding: spec ❌, any Critical or Important issue, or a ⚠️ item
-you confirmed as an implementation gap.
+이 소유 단계 분류는 routing이며 상한 도달 시의 판정이 아니다. 실패한 입력을 바꿀 수 없는 코드
+재시도를 막는다. loop는 유효한 구현 finding, 즉 spec ❌, Critical 또는 Important 문제,
+구현 공백으로 확인한 ⚠️ 항목에만 시작한다.
 
-Minor findings leave before the loop. Record them in the progress ledger as you
-go (`Task <N>: minor (deferred): <one-liner>`), and point the final whole-branch
-review at that list so it can triage which must be fixed before merge. A roll-up
-nobody reads is a silent discard. Minor findings never enter the loop. Only the
-remaining valid implementation findings enter the loop. A fix round is one fix dispatch plus one
-scoped re-review. Five rounds maximum per task:
+Minor finding은 loop 전에 제외한다. 진행하면서 progress ledger에 `Task <N>: minor (deferred):
+<one-liner>`로 기록하고 최종 전체 브랜치 리뷰가 이 목록을 보고 merge 전에 수정할 항목을
+분류하게 한다. 아무도 읽지 않는 요약은 조용한 폐기다. Minor finding은 loop에 들어가지 않고
+남은 유효한 구현 finding만 들어간다. 수정 회차는 한 번의 수정 위임과 범위가 제한된 재리뷰로
+구성하며 task마다 최대 5회다.
 
-**Rounds 1-3 — resume the original implementer.** Send it the open findings
-verbatim. Its context is intact: it knows the task, the code, and its own
-choices. If your harness cannot send another message to a live subagent,
-dispatch a fresh implementer carrying the brief path, the report-file path,
-and the findings — the report file is the persistent memory either way.
+**1-3회차 — 원래 implementer를 재개한다.** 열린 finding을 그대로 전달한다. context가 남아
+있으므로 task, 코드와 자신의 선택을 알고 있다. harness에서 실행 중인 subagent에게 추가
+메시지를 보낼 수 없다면 brief 경로, report 파일 경로와 finding을 포함해 새 implementer를
+위임한다. 어느 경우든 report 파일이 영속 memory다.
 
-**Rounds 4-5 — dispatch a fresh implementer on a more capable model** (per
-Model Selection), with the brief path, the report-file path, the open
-findings, and this framing: "A prior implementer attempted this task
-[N] times; you own it now. Read the report file for what was tried." A loop
-that survives three resumes usually means the implementer cannot see its
-own problem — fresh eyes and a capability bump in one move.
+**4-5회차 — 더 성능이 높은 모델로 새 implementer를 위임한다**(Model Selection 기준). brief
+경로, report 파일 경로, 열린 finding과 "이전 implementer가 이 task를 [N]번 시도했습니다.
+이제 이 task를 담당합니다. 시도한 내용은 report 파일을 읽으세요."라는 설명을 제공한다. 세 번
+재개한 뒤에도 loop가 남는다면 implementer가 자신의 문제를 보지 못하는 경우가 많으므로 새로운
+관점과 capability 상향을 한 번에 적용한다.
 
-**Every round, either way:** the implementer fixes, re-runs the focused
-verification covering the amended work, appends its fix report to the same report file,
-and returns the short contract. Before re-dispatching the reviewer, confirm
-the fix report contains the applicable check, the command run, and the
-output; dispatch the re-review once all three are present. For code behavior,
-name the covering test files in the fix message; documentation, metadata, and
-simple configuration fixes use their proportionate checks.
+**모든 회차:** implementer는 문제를 수정하고, 변경된 작업을 다루는 집중 검증을 다시 실행하고,
+같은 report 파일에 수정 보고를 추가하고, 짧은 계약을 반환한다. reviewer를 다시 위임하기 전에
+수정 report에 해당 검사, 실행한 명령과 출력이 모두 있는지 확인한다. 세 가지가 모두 있으면
+재리뷰를 위임한다. 코드 동작은 수정 메시지에 관련 테스트 파일을 적고, 문서, metadata와 단순
+configuration 수정에는 변경에 비례한 검사를 사용한다.
 
-**The re-review is scoped.** Run `scripts/review-package PLAN_FILE FIX_BASE HEAD`
-where FIX_BASE is the head the previous review saw, and dispatch
-[re-review-prompt.md](re-review-prompt.md) with the findings list, the
-brief, the report file, and the printed diff path. The re-reviewer verdicts
-each finding ADDRESSED or NOT ADDRESSED and flags new breakage in the fix
-diff only. New Critical/Important breakage in the fix diff joins the open
-findings list. Out-of-scope observations go to the ledger as deferred
-minors — they never extend the loop.
+**재리뷰의 범위는 제한된다.** 이전 리뷰에서 확인한 head를 FIX_BASE로 사용하여
+`scripts/review-package PLAN_FILE FIX_BASE HEAD`를 실행한다. finding 목록, brief, report 파일과
+출력된 diff 경로를 [re-review-prompt.md](re-review-prompt.md)에 넣어 위임한다. 재리뷰어는 각
+finding을 ADDRESSED 또는 NOT ADDRESSED로 판정하고 수정 diff의 새 문제만 표시한다. 수정 diff의
+새 Critical/Important 문제는 열린 finding 목록에 추가한다. 범위 밖 관찰은 deferred minor로
+ledger에 기록하며 loop를 확장하지 않는다.
 
-**After each round,** append to the ledger:
+**각 회차 뒤** ledger에 다음을 추가한다.
 `Task <N>: fix round <R>/5 (<X> addressed, <Y> open — <finding one-liners>; commits <a7>..<b7>)`
 
-Every retry must change the implementation, evidence, relevant context,
-evaluator, or available capability. Never repeat an unchanged deterministic
-check or tell the same reviewer to try again against the same package.
+재시도할 때마다 구현, 근거, 관련 context, evaluator 또는 사용 가능한 capability가 달라져야
+한다. 변경 없는 결정론적 검사를 반복하거나 같은 reviewer에게 같은 package로 다시 시도하라고
+하지 않는다.
 
-Never fix findings yourself in the controller session — your context stays
-clean for coordination, and controller fixes skip review.
+controller session에서 finding을 직접 수정하지 않는다. context를 조정 작업에 사용할 수 있게
+유지하고 controller의 수정으로 리뷰를 건너뛰지 않는다.
 
-**The breaker.** When round 5's re-review still leaves implementation findings
-open, stop dispatching. Adjudicate each residual finding with the plan, code,
-and verification evidence you hold:
+**차단기.** 5회차 재리뷰 뒤에도 구현 finding이 열려 있으면 위임을 중단한다. 가지고 있는 plan,
+코드와 검증 근거로 남은 각 finding을 판정한다.
 
-- **Demonstrably invalid or outside this gate's declared scope:** close it with
-  evidence in the ledger: `Task <N>: finding closed — <finding> — Ruling:
-  <evidence that disproves or excludes it>`. A merely contestable point is not
-  enough.
-- **Valid task implementation finding:** record the gate `failed` and
-  `decision_required`, name the task implementation as the return target, and
-  stop for a human decision on a changed tactic or `accepted_risk`.
+- **명백히 유효하지 않거나 이 게이트의 선언된 범위 밖:** ledger에 근거와 함께 닫는다.
+  `Task <N>: finding closed — <finding> — Ruling: <반증하거나 제외하는 근거>`. 단순히 논쟁의
+  여지가 있다는 것으로는 부족하다.
+- **유효한 task 구현 finding:** 게이트를 `failed`, `decision_required`로 기록하고 task 구현을
+  반환 대상으로 지정한 뒤, 변경된 전략 또는 `accepted_risk`에 대한 사람의 결정을 기다리며 중단한다.
 
-Only a named human decision-maker may accept a valid unresolved finding. If
-they explicitly do so for the exact revision, record `accepted_risk`, the
-finding, consequence, scope, and decision evidence. Reaching the cap, deciding
-that a defect is not load-bearing, or recording a controller ruling never turns
-a real finding into `passed`.
+지명된 사람인 의사결정자만 유효한 미해결 finding을 수용할 수 있다. 정확한 리비전에 대해
+명시적으로 수용하면 `accepted_risk`, finding, 결과, 범위와 결정 근거를 기록한다. 상한 도달,
+결함이 핵심이 아니라는 판단 또는 controller 판정 기록으로 실제 finding이 `passed`가 되지는 않는다.
 
-Only residual implementation-finding adjudication waits until the cap. Owner
-routing happens after every review, before any retry. Every routing decision and
-cap adjudication is a ledger entry — a silent discard is forbidden.
+남은 구현 finding의 판정만 상한까지 기다린다. 소유 단계 routing은 모든 리뷰 뒤, 재시도 전에
+수행한다. 모든 routing 결정과 상한 판정은 ledger 항목이며 조용한 폐기는 금지한다.
 
-### 5. Complete the task
+### 5. Task 완료
 
-When the review comes back clean, every residual finding is disproved with
-evidence, or a human explicitly accepts the remaining risk for the exact
-revision, append the completion line to the ledger in the same message as your
-other bookkeeping:
+리뷰가 clean이거나, 남은 모든 finding을 근거로 반증했거나, 사람이 정확한 리비전의 남은 위험을
+명시적으로 수용하면 다른 bookkeeping과 같은 메시지에서 ledger에 완료 줄을 추가한다.
 
 - `Task <N>: complete (commits <base7>..<head7>, review clean)`
 - `Task <N>: complete (commits <base7>..<head7>, accepted_risk: <decision evidence>)`
 
-Then mark the todo complete and move on. Never move to the next task while
-the review has an open valid Critical/Important issue without explicit human
-`accepted_risk` for that revision.
+그런 다음 todo를 완료로 표시하고 다음으로 넘어간다. 해당 리비전에 대해 사람의 명시적인
+`accepted_risk` 없이 리뷰에 유효한 Critical/Important 문제가 열려 있다면 다음 task로 이동하지 않는다.
 
-## Final Review
+## 최종 리뷰
 
-The final whole-branch review is another stage-owned gate. First run the final
-deterministic verification required by the plan across the whole branch and
-record its command, output, and exact HEAD. If it fails, record `failed` and
-return to the affected implementation or integration stage; do not dispatch an
-inferential reviewer yet.
+최종 전체 브랜치 리뷰는 또 다른 단계별 소유 게이트다. 먼저 전체 브랜치에서 plan이 요구하는
+최종 결정론적 검증을 실행하고 명령, 출력과 정확한 HEAD를 기록한다. 실패하면 `failed`를
+기록하고 영향을 받은 구현 또는 통합 단계로 돌아간다. 아직 추론 기반 reviewer를 위임하지 않는다.
 
-After the deterministic checks pass, record the gate's artifact,
-MERGE_BASE..HEAD revision, required verdict, evidence, findings, return target,
-attempt, and decision owner. Run
-`scripts/review-package PLAN_FILE MERGE_BASE HEAD` (MERGE_BASE = the commit the
-branch started from, e.g. `git merge-base main HEAD`) and include the
-printed path and SHA-256 revision in the final review dispatch, so the final reviewer reads
-one file instead of re-deriving the branch diff with git commands. Dispatch
-on the most capable available model (see Model Selection), using
-engineering:requesting-code-review's
-[code-reviewer.md](../requesting-code-review/code-reviewer.md). Point it at
-the ledger's deferred-minor, evidence-closed, and accepted-risk lines so it can
-triage which must be fixed before merge.
+결정론적 검사가 통과하면 게이트의 artifact, MERGE_BASE..HEAD 리비전, 필수 판정, 근거, finding,
+반환 대상, 시도 횟수와 decision owner를 기록한다. `scripts/review-package PLAN_FILE MERGE_BASE HEAD`
+(MERGE_BASE는 브랜치가 시작된 commit, 예: `git merge-base main HEAD`)를 실행하고 최종 리뷰
+dispatch에 출력된 경로와 SHA-256 리비전을 포함한다. 그러면 최종 reviewer가 git 명령으로
+브랜치 diff를 다시 만들지 않고 한 파일만 읽는다. Model Selection에 따라 사용 가능한 가장
+성능이 높은 모델로 위임하며, `engineering:requesting-code-review`의
+[code-reviewer.md](../requesting-code-review/code-reviewer.md)를 사용한다. merge 전에 수정할
+항목을 분류할 수 있도록 ledger의 deferred-minor, 근거로 닫은 finding과 accepted-risk 줄을 가리킨다.
 
-If the final whole-branch review returns findings, dispatch ONE fix subagent
-with the complete findings list — not one fixer per finding.
-Per-finding fixers each rebuild context and re-run suites; a real
-session's final-review fix wave cost more than all its tasks combined.
-Re-run the affected and required whole-change deterministic checks against the
-new HEAD. Only after they pass, run exactly one scoped re-review of the fix wave
-(`scripts/review-package PLAN_FILE FIX_BASE HEAD` over the fix range,
-[re-review-prompt.md](re-review-prompt.md)).
-Classify residual findings as in the task loop's breaker. Demonstrably invalid
-findings may close with evidence. Any valid unresolved required finding records
-`failed` plus `decision_required` and stops for a human decision; it cannot be
-parked as a passed final review. There is no second fix wave without a changed
-plan, tactic, evaluator, capability, or explicit human `accepted_risk`.
+최종 전체 브랜치 리뷰에서 finding이 나오면 finding마다 fixer를 하나씩 두지 말고 전체 finding
+목록을 하나의 수정 subagent에게 위임한다. finding별 fixer는 각각 context를 다시 만들고 suite를
+다시 실행한다. 실제 session에서 최종 리뷰의 수정 wave가 모든 task의 합보다 비용이 많이 든
+사례가 있다. 새 HEAD에서 영향을 받은 검사와 필수 전체 변경 결정론적 검사를 다시 실행한다.
+통과한 뒤에만 수정 wave의 범위가 제한된 재리뷰를 정확히 한 번 실행한다(수정 range에
+`scripts/review-package PLAN_FILE FIX_BASE HEAD`, [re-review-prompt.md](re-review-prompt.md)).
+남은 finding은 task loop의 차단기처럼 분류한다. 명백히 유효하지 않은 finding은 근거와 함께
+닫을 수 있다. 유효한 미해결 필수 finding은 `failed`와 `decision_required`를 기록하고 사람의
+결정을 기다리며 중단한다. 통과한 최종 리뷰로 보류할 수 없다. plan, 전략, evaluator, capability
+변경 또는 사람의 명시적인 `accepted_risk` 없이 두 번째 수정 wave를 실행하지 않는다.
 
-## Finish
+## 마무리
 
-Before you delete anything, collect every ledger line containing `Ruling:` —
-preflight rulings and evidence-based finding classifications — and every
-`accepted_risk` line into
-your final message under "Rulings I made", in the order you made them, each
-with what it costs if wrong. The list is exhaustive: if the ledger holds a
-ruling or accepted risk, the list holds it. That list is the only place the
-decisions and residual risks reach the human partner. A record that dies with
-the workspace was a decision made in secret.
+무엇이든 삭제하기 전에 `Ruling:`이 포함된 모든 ledger 줄(preflight 판정과 근거 기반 finding
+분류)과 모든 `accepted_risk` 줄을 내린 순서대로 final message의 "Rulings I made" 아래에 모은다.
+각 항목에는 틀렸을 때의 비용을 적는다. 이 목록은 빠짐없어야 한다. ledger에 판정 또는 수용한
+위험이 있다면 목록에도 있어야 한다. 결정과 남은 위험을 사용자에게 전달하는 유일한 장소다.
+workspace와 함께 사라지는 기록은 몰래 내린 결정이다.
 
-When the final whole-branch gate is `passed` and its fixes are merged,
-delete this plan's workspace (`rm -rf <workspace>`) — the git history is
-the record now. Sibling directories belong to other plans; leave them
-alone. If the final gate advanced under `accepted_risk`, preserve the workspace
-until the human partner chooses the branch-completion path so the evidence and
-decision record are not lost.
+최종 전체 브랜치 게이트가 `passed`이고 수정 내용이 merge되면 현재 plan의 workspace
+(`rm -rf <workspace>`)를 삭제한다. 이제 git history가 기록이다. sibling 디렉터리는 다른
+plan 소유이므로 그대로 둔다. 최종 게이트가 `accepted_risk`로 진행됐다면 근거와 결정 기록을
+잃지 않도록 사용자가 브랜치 완료 경로를 선택할 때까지 workspace를 보존한다.
 
-Use engineering:finishing-a-development-branch.
+`engineering:finishing-a-development-branch`를 사용한다.
 
-## Common Rationalizations
+## 자주 하는 합리화
 
-| Excuse | Reality |
+| 변명 | 실제 |
 |--------|---------|
-| "Close enough on spec compliance" | Reviewer found spec gaps = not done. Fix them, disprove them with evidence at the cap, or obtain explicit human `accepted_risk`. |
-| "I'll fix it myself, dispatching is overhead" | Controller fixes pollute your context and skip review. Resume the implementer. |
-| "One more round will converge" | Past the cap, automatic rounds stop. Record the actual gate status and route the decision. |
-| "The reviewer will just find something new anyway" | Scoped re-reviews verify fixes; they cannot wander. New findings on untouched code go to the ledger, not the loop. |
-| "This finding is obviously wrong, I'll drop it" | You classify only at the cap, close it only with evidence, and record every ruling. Silent discards are forbidden. |
-| "The fix was small, skip the re-review" | Unreviewed fixes are how regressions land. Every round ends with a scoped re-review. |
-| "Reviews slow the loop down" | The loop without reviews is just unverified churn. Reviews are the loop's brakes and steering. |
-| "Ledger bookkeeping is overhead" | The ledger is what survives compaction. Controllers without one have re-dispatched entire completed task sequences. |
-| "The implementer spawned its own reviewer — free extra assurance" | It's a duplicate seat reviewing the same diff; the task review is the gate. A worker-spawned reviewer is a defect to flag, not rigor. |
+| "Close enough on spec compliance" | reviewer가 spec 공백을 발견했다면 완료가 아니다. 수정하거나 상한에서 근거로 반증하거나 사람의 명시적인 `accepted_risk`를 받아야 한다. |
+| "I'll fix it myself, dispatching is overhead" | controller의 수정은 context를 오염시키고 리뷰를 건너뛴다. implementer를 재개한다. |
+| "One more round will converge" | 상한을 넘으면 자동 회차를 중단한다. 실제 게이트 상태를 기록하고 결정을 routing한다. |
+| "The reviewer will just find something new anyway" | 범위가 제한된 재리뷰는 수정 내용을 검증하며 범위를 벗어날 수 없다. 건드리지 않은 코드의 새 finding은 loop가 아니라 ledger로 보낸다. |
+| "This finding is obviously wrong, I'll drop it" | 상한에서만 판정하고 근거가 있을 때에만 닫으며 모든 판정을 기록한다. 조용한 폐기는 금지한다. |
+| "The fix was small, skip the re-review" | 리뷰하지 않은 수정으로 회귀가 반영된다. 모든 회차는 범위가 제한된 재리뷰로 끝난다. |
+| "Reviews slow the loop down" | 리뷰 없는 loop는 검증되지 않은 반복일 뿐이다. 리뷰는 loop의 제동 장치와 조향 장치다. |
+| "Ledger bookkeeping is overhead" | compaction 뒤에도 ledger가 남는다. ledger가 없던 controller가 완료한 전체 task sequence를 다시 위임한 사례가 있다. |
+| "The implementer spawned its own reviewer — free extra assurance" | 같은 diff를 리뷰하는 중복 자리이며 task 리뷰가 게이트다. worker가 생성한 reviewer는 엄밀함이 아니라 보고할 결함이다. |
 
-## Example Workflow
+## Workflow 예시
 
 ```
 You: I'm using Subagent-Driven Development to execute this plan.

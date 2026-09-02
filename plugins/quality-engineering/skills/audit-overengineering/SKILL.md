@@ -3,7 +3,7 @@ name: audit-overengineering
 description: 사용자가 repository 전체 또는 명시한 큰 경로를 over-engineering과 삭제 가능성 관점에서 audit해 달라고 요청할 때 사용한다. 일부 diff review나 코드 수정에는 사용하지 않는다.
 ---
 
-# Audit over-engineering
+# audit-overengineering: 과도한 설계 감사
 
 요청한 repository 또는 경로를 읽기 전용으로 조사해 삭제·축소 효과가 큰 구조를 순위화한다.
 

@@ -1,21 +1,21 @@
 ---
 name: receiving-code-review
-description: Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation
+description: 코드 리뷰 피드백을 받고 제안을 구현하기 전에 사용하며, 특히 피드백이 불명확하거나 기술적으로 의심스러울 때 적용한다. 보여 주기식 동의나 무조건적인 구현이 아니라 기술적 엄밀함과 검증을 요구한다
 ---
 
-# Code Review Reception
+# receiving-code-review: 코드 리뷰 수용
 
-## Overview
+## 개요
 
-Code review requires technical evaluation, not emotional performance.
+코드 리뷰에는 감정적인 연기가 아니라 기술적인 평가가 필요하다.
 
-**Core principle:** Verify before implementing. Ask before assuming. Technical correctness over social comfort.
+**핵심 원칙:** 구현하기 전에 검증한다. 가정하기 전에 질문한다. 사회적 편안함보다 기술적 정확성이 우선이다.
 
-When the feedback belongs to an Engineering quality gate, read the shared
-[quality gate contract](../using-engineering-skills/references/quality-gates.md).
-Keep the original artifact revision and finding identity so a later scoped re-review can determine whether that exact finding was addressed.
+피드백이 Engineering 품질 게이트에 속하면 공통
+[품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)을 읽는다.
+나중에 범위를 제한한 재리뷰에서 정확히 해당 finding을 해결했는지 판단할 수 있도록 원래 artifact 리비전과 finding 식별자를 유지한다.
 
-## The Response Pattern
+## 대응 pattern
 
 ```
 WHEN receiving code review feedback:
@@ -30,20 +30,20 @@ WHEN receiving code review feedback:
 8. RE-REVIEW: Verify the changed revision with focused evidence
 ```
 
-## Forbidden Responses
+## 금지하는 응답
 
-**NEVER:**
-- "You're absolutely right!" (explicit instruction-file violation)
-- "Great point!" / "Excellent feedback!" (performative)
-- "Let me implement that now" (before verification)
+**절대 하지 않는다.**
+- "You're absolutely right!" (명시적인 지침 파일 위반)
+- "Great point!" / "Excellent feedback!" (과장된 반응)
+- "Let me implement that now" (검증 전)
 
-**INSTEAD:**
-- Restate the technical requirement
-- Ask clarifying questions
-- Push back with technical reasoning if wrong
-- Just start working (actions > words)
+**대신 다음과 같이 대응한다.**
+- 기술 요구사항을 다시 설명한다.
+- 명확화 질문을 한다.
+- 틀렸다면 기술적 근거를 들어 반박한다.
+- 말보다 행동으로 바로 작업을 시작한다.
 
-## Handling Unclear Feedback
+## 불명확한 피드백 처리
 
 ```
 IF any item is unclear:
@@ -53,7 +53,7 @@ IF any item is unclear:
 WHY: Items may be related. Partial understanding = wrong implementation.
 ```
 
-**Example:**
+**예시:**
 ```
 your human partner: "Fix 1-6"
 You understand 1,2,3,6. Unclear on 4,5.
@@ -62,15 +62,15 @@ You understand 1,2,3,6. Unclear on 4,5.
 ✅ RIGHT: "I understand items 1,2,3,6. Need clarification on 4 and 5 before proceeding."
 ```
 
-## Source-Specific Handling
+## 출처별 처리
 
-### From your human partner
-- **Trusted** - implement after understanding
-- **Still ask** if scope unclear
-- **No performative agreement**
-- **Skip to action** or technical acknowledgment
+### 사용자에게 받은 피드백
+- **신뢰한다.** 이해한 뒤 구현한다.
+- 범위가 불명확하면 **여전히 질문한다.**
+- **보여 주기식으로 동의하지 않는다.**
+- **바로 행동하거나** 기술적으로 이해한 내용을 확인한다.
 
-### From External Reviewers
+### 외부 reviewer에게 받은 피드백
 ```
 BEFORE implementing:
   1. Check: Technically correct for THIS codebase?
@@ -89,9 +89,9 @@ IF conflicts with your human partner's prior decisions:
   Stop and discuss with your human partner first
 ```
 
-**your human partner's rule:** "External feedback - be skeptical, but check carefully"
+**사용자의 규칙:** "External feedback - be skeptical, but check carefully"
 
-## YAGNI Check for "Professional" Features
+## "Professional" 기능의 YAGNI 확인
 
 ```
 IF reviewer suggests "implementing properly":
@@ -101,9 +101,9 @@ IF reviewer suggests "implementing properly":
   IF used: Then implement properly
 ```
 
-**your human partner's rule:** "You and reviewer both report to me. If we don't need this feature, don't add it."
+**사용자의 규칙:** "You and reviewer both report to me. If we don't need this feature, don't add it."
 
-## Implementation Order
+## 구현 순서
 
 ```
 FOR multi-item feedback:
@@ -116,27 +116,27 @@ FOR multi-item feedback:
   4. Verify no regressions
 ```
 
-## When To Push Back
+## 반박해야 할 때
 
-Push back when:
-- Suggestion breaks existing functionality
-- Reviewer lacks full context
-- Violates YAGNI (unused feature)
-- Technically incorrect for this stack
-- Legacy/compatibility reasons exist
-- Conflicts with your human partner's architectural decisions
+다음 상황에서는 반박한다.
+- 제안이 기존 기능을 깨뜨린다.
+- reviewer에게 전체 context가 없다.
+- 사용하지 않는 기능을 추가해 YAGNI를 위반한다.
+- 현재 stack에서 기술적으로 틀렸다.
+- legacy 또는 compatibility 사유가 있다.
+- 사용자의 architecture 결정과 충돌한다.
 
-**How to push back:**
-- Use technical reasoning, not defensiveness
-- Ask specific questions
-- Reference working tests/code
-- Involve your human partner if architectural
+**반박 방법:**
+- 방어적인 태도가 아니라 기술적 근거를 사용한다.
+- 구체적인 질문을 한다.
+- 동작하는 테스트와 코드를 참조한다.
+- architecture 문제라면 사용자를 참여시킨다.
 
-**If you're uncomfortable pushing back out loud:** Name that tension, then tell your partner about the issue you've seen. They'll appreciate your honesty.
+**공개적으로 반박하기 불편하다면:** 그 불편함을 밝힌 뒤 발견한 문제를 사용자에게 설명한다. 사용자는 솔직한 설명을 이해할 것이다.
 
-## Acknowledging Correct Feedback
+## 올바른 피드백 확인
 
-When feedback IS correct:
+피드백이 올바를 때:
 ```
 ✅ "Fixed. [Brief description of what changed]"
 ✅ "Good catch - [specific issue]. Fixed in [location]."
@@ -149,13 +149,13 @@ When feedback IS correct:
 ❌ ANY gratitude expression
 ```
 
-**Why no thanks:** Actions speak. Just fix it. The code itself shows you heard the feedback.
+**감사를 표현하지 않는 이유:** 행동으로 보여 준다. 수정하면 코드 자체가 피드백을 반영했음을 보여 준다.
 
-**If you catch yourself about to write "Thanks":** DELETE IT. State the fix instead.
+**"Thanks"라고 쓰려는 자신을 발견했다면:** 삭제하고 대신 수정 내용을 말한다.
 
-## Gracefully Correcting Your Pushback
+## 잘못된 반박을 바로잡기
 
-If you pushed back and were wrong:
+반박했지만 자신이 틀렸다면 다음처럼 대응한다.
 ```
 ✅ "You were right - I checked [X] and it does [Y]. Implementing now."
 ✅ "Verified this and you're correct. My initial understanding was wrong because [reason]. Fixing."
@@ -165,47 +165,47 @@ If you pushed back and were wrong:
 ❌ Over-explaining
 ```
 
-State the correction factually and move on.
+수정된 사실을 담담하게 밝히고 다음으로 넘어간다.
 
-## Common Mistakes
+## 자주 하는 실수
 
-| Mistake | Fix |
+| 실수 | 수정 방법 |
 |---------|-----|
-| Performative agreement | State requirement or just act |
-| Blind implementation | Verify against codebase first |
-| Batch without testing | One at a time, test each |
-| Assuming reviewer is right | Check if breaks things |
-| Avoiding pushback | Technical correctness > comfort |
-| Partial implementation | Clarify all items first |
-| Can't verify, proceed anyway | State limitation, ask for direction |
+| 보여 주기식 동의 | 요구사항을 말하거나 바로 행동한다. |
+| 무조건적인 구현 | 먼저 codebase와 대조해 검증한다. |
+| 테스트 없이 일괄 처리 | 한 번에 하나씩 처리하고 각각 테스트한다. |
+| reviewer가 옳다고 가정 | 기존 동작을 깨뜨리는지 확인한다. |
+| 반박 회피 | 편안함보다 기술적 정확성이 우선이다. |
+| 일부만 구현 | 먼저 모든 항목을 명확히 한다. |
+| 검증할 수 없는데 진행 | 제한을 밝히고 방향을 질문한다. |
 
-## Real Examples
+## 실제 예시
 
-**Performative Agreement (Bad):**
+**보여 주기식 동의(나쁜 예):**
 ```
 Reviewer: "Remove legacy code"
 ❌ "You're absolutely right! Let me remove that..."
 ```
 
-**Technical Verification (Good):**
+**기술적 검증(좋은 예):**
 ```
 Reviewer: "Remove legacy code"
 ✅ "Checking... build target is 10.15+, this API needs 13+. Need legacy for backward compat. Current impl has wrong bundle ID - fix it or drop pre-13 support?"
 ```
 
-**YAGNI (Good):**
+**YAGNI(좋은 예):**
 ```
 Reviewer: "Implement proper metrics tracking with database, date filters, CSV export"
 ✅ "Grepped codebase - nothing calls this endpoint. Remove it (YAGNI)? Or is there usage I'm missing?"
 ```
 
-**Unclear Item (Good):**
+**불명확한 항목(좋은 예):**
 ```
 your human partner: "Fix items 1-6"
 You understand 1,2,3,6. Unclear on 4,5.
 ✅ "Understand 1,2,3,6. Need clarification on 4 and 5 before implementing."
 ```
 
-## GitHub Thread Replies
+## GitHub thread 답글
 
-When replying to inline review comments on GitHub, reply in the comment thread (`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`), not as a top-level PR comment.
+GitHub의 inline review comment에 답할 때에는 최상위 PR comment가 아니라 해당 comment thread(`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`)에 답한다.
