@@ -85,7 +85,7 @@ template이 section 순서를 고정하여 visual section을 마지막으로 옮
 
 `draft` 모드에서는 업로드하지 않는다. 여기서 `draft`는 로컬에서 payload만 준비하는 스킬 모드이며 GitHub의 Draft PR 상태와는 다르다. 사용자가 visual evidence가 포함된 새 PR 게시를 요청했고 final manifest와 body가 확정된 `publish` 모드에서만 GitHub native attachment를 실행한다. 이 승인은 검토한 manifest의 GitHub attachment만 포함하며 외부 storage, 다른 파일 또는 publish 시작 전에 이미 존재하던 PR의 수정으로 확대하지 않는다.
 
-`target_pr_state`와 `required_for_ready`는 publish 전에 확정하고 upload 결과에 따라 낮추지 않는다. 사용자가 명시적으로 요청했거나 PR template·`CONTRIBUTING`이 요구한 파일, 또는 PR이 주장하는 화면 동작을 입증하는 유일한 증거는 필수다. 없어도 PR의 주장과 검증 결과가 완전한 보조 diff, 추가 viewport나 대체 recording만 선택으로 둘 수 있다. 불명확하면 필수로 취급한다. 필수 항목 하나라도 annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded metadata 검사를 완료하지 못하면 PR 생성 명령 자체를 실행하지 않는다.
+`target_pr_state`는 `to-pr`의 기본 Draft 정책과 GitHub 규칙에 따라 publish 전에 확정하고 upload 결과에 따라 바꾸지 않는다. `required_for_ready`도 publish 전에 확정한다. 사용자가 명시적으로 요청했거나 PR template·`CONTRIBUTING`이 요구한 파일, 또는 PR이 주장하는 화면 동작을 입증하는 유일한 증거는 필수다. 없어도 PR의 주장과 검증 결과가 완전한 보조 diff, 추가 viewport나 대체 recording만 선택으로 둘 수 있다. 불명확하면 필수로 취급한다. 필수 항목 하나라도 annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded metadata 검사를 완료하지 못하면 PR 생성 명령 자체를 실행하지 않는다.
 
 Draft PR을 만들기 전에 전체 manifest의 로컬 파일 identity를 비교한다. realpath, hard link나 symbolic link를 통해 같은 underlying file을 가리키는 항목이 둘 이상이면, 각 파일을 별도 명령으로 올리더라도 중복으로 보고 upload를 시작하지 않는다. 내용 hash만 같은 서로 다른 파일은 자동으로 같은 파일이라고 단정하지 않는다.
 
@@ -98,7 +98,7 @@ Draft PR을 만들기 전에 전체 manifest의 로컬 파일 identity를 비교
 5. 파일 하나를 추가할 때마다 실제 body를 다시 읽어 고유한 remote URL과 render 형태를 확인하고 `upload_status`를 갱신한다. 다음 파일은 확인이 끝난 뒤에만 처리한다.
 6. repository template의 visual section이 body 끝이 아니면 확인한 remote URL을 그 section에 배치한 완성 body를 `gh pr edit --body-file`로 다시 기록한다. body를 재조회하여 append된 중복 URL이 없고 각 attachment가 지정된 위치와 예상한 순서로 렌더링될 때만 `body_status: verified`로 둔다. body 끝이 visual section이면 append 결과의 순서와 render 형태를 확인하여 같은 상태로 둔다.
 7. 필수 항목이 모두 `upload_status: uploaded`, `body_status: verified`일 때만 다음 단계로 진행한다. 하나라도 `failed`, `not_attempted`, `missing`, `wrong_render`, `unknown` 또는 `inconclusive`이면 Draft 상태를 유지한다.
-8. 원래 요청이 ready PR이면 unresolved local path와 placeholder가 없고 이미지 alt text·marker 설명, 비디오의 caption·순서와 bare URL 단독 문단까지 확인한다. `gh pr ready` 직전에 PR을 다시 읽어 `isDraft: true`, repository, base, head와 `headRefOid`가 manifest에 고정한 값과 같은지 확인한다. `headRefOid`가 달라졌으면 시각 증거를 현재 변경의 증거로 사용하지 않고 Draft 상태를 유지한다. 모두 통과했을 때만 ready로 전환하고, 이후 `isDraft: false`와 같은 `headRefOid`를 다시 확인한다. 원래 요청이 Draft PR이면 전환하지 않는다.
+8. 사용자가 ready PR을 명시한 경우에만 unresolved local path와 placeholder가 없고 이미지 alt text·marker 설명, 비디오의 caption·순서와 bare URL 단독 문단까지 확인한다. `gh pr ready` 직전에 PR을 다시 읽어 `isDraft: true`, repository, base, head와 `headRefOid`가 manifest에 고정한 값과 같은지 확인한다. `headRefOid`가 달라졌으면 시각 증거를 현재 변경의 증거로 사용하지 않고 Draft 상태를 유지한다. 모두 통과했을 때만 ready로 전환하고, 이후 `isDraft: false`와 같은 `headRefOid`를 다시 확인한다. 상태 미지정 또는 Draft 요청이면 전환하지 않는다.
 
 예시는 한 번에 한 파일만 처리한다.
 
@@ -107,7 +107,7 @@ gh pr edit "https://github.com/OWNER/REPOSITORY/pull/123" \
   --attach '/absolute/path/annotated-after.png#Marker 1 outlines the relocated navigation trigger'
 ```
 
-같은 publish 흐름에서 방금 만든 Draft PR에는 아직 확인하지 않은 manifest 첨부를 위 방식으로 추가하고 원래 요청한 ready 상태로 전환할 수 있다. title, ticket, reviewer, label과 다른 body 내용은 이 예외로 변경하지 않는다.
+같은 publish 흐름에서 방금 만든 Draft PR에는 아직 확인하지 않은 manifest 첨부를 위 방식으로 추가하고 사용자가 명시한 ready 상태로만 전환할 수 있다. title, ticket, reviewer, label과 다른 body 내용은 이 예외로 변경하지 않는다.
 
 `gh pr create --attach`는 `--web`이나 `--dry-run`과 함께 사용할 수 없다. attachment dry-run은 없으므로 첫 upload 전에 모든 로컬 검사를 마친다.
 
