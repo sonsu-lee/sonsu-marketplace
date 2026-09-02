@@ -1,0 +1,28 @@
+{
+  "name": "fluent-languages",
+  "version": "0.1.0-beta.1",
+  "description": "Personal Codex guidance for natural Korean output.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT",
+  "keywords": [
+    "korean",
+    "writing",
+    "localization",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Fluent Languages",
+    "shortDescription": "Natural Korean writing guidance",
+    "longDescription": "Uses Korean generation guidance adapted from im-not-ai while preserving technical content, structure, uncertainty, and project-controlled text.",
+    "developerName": "sonsu",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "defaultPrompt": "한국어로 자연스럽고 정확하게 설명해 줘."
+  }
+}
