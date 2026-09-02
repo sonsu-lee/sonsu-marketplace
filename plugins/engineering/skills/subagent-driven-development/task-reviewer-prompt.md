@@ -87,6 +87,10 @@ Subagent (general-purpose):
     - **Extra:** 요청하지 않은 기능, over-engineering, 필요하지 않은 "nice to haves"
     - **Misunderstood:** 올바른 기능을 잘못된 방식으로 구현했거나 다른 문제를 해결함
 
+    task가 참조하는 의사코드 flow ID를 기준으로 입력, 결과, 상태 변화, 분기·오류와 책임 경계가
+    구현에서 추적되는지 확인한다. 구현이 material하게 달라졌다면 갱신된 의사코드와 mapping이
+    brief에 있는지 확인한다. 갱신 없이 흐름이 달라졌으면 plan 소유 단계로 돌려보낼 finding이다.
+
     brief에 각자 변경 사항이 있는 여러 파일이 나열됐다면(batched dispatch) 파일별로 목록과
     diff를 대조한다. 나열된 모든 파일에 해당 hunk가 있어야 한다. 나머지 batch가 아무리
     깔끔해도 diff에서 건드리지 않은 나열된 파일은 Missing finding이다.
@@ -104,6 +108,7 @@ Subagent (general-purpose):
 
     **검증:**
     - 근거가 task의 변경 유형과 지정된 검증 방법에 맞는가?
+    - 검증 방법이 의사코드 이후에 선택됐고 task의 선택 이유 및 회귀 위험과 일치하는가?
     - 테스트가 바뀌었다면 mock이 아니라 실제 동작을 검증하는가?
     - task의 중요한 사례나 invariant를 다루는가?
 

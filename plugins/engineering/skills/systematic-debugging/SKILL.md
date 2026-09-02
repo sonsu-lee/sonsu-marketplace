@@ -169,12 +169,13 @@ NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 
 **증상이 아니라 근본 원인을 수정합니다.**
 
-1. **실패하는 test case 만들기**
+1. **수정 전 실패 재현 만들기**
    - 가능한 가장 단순한 재현
    - 가능하면 자동화 테스트
    - framework가 없다면 일회성 test script
    - 수정 전에 반드시 준비함
-   - 올바른 실패 테스트 작성에는 `engineering:test-driven-development` 스킬을 사용합니다
+   - 재현 가능한 동작 결함에 TDD가 실질적인 회귀 신호를 주면 `engineering:test-driven-development`를 사용합니다
+   - TDD가 적합하지 않다면 이유를 기록하고 가능한 가장 강한 재현·검증 절차를 사용합니다
 
 2. **하나의 수정 구현하기**
    - 식별한 근본 원인을 해결합니다
@@ -183,8 +184,8 @@ NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
    - 리팩터링을 묶어서 수행하지 않습니다
 
 3. **수정 검증하기**
-   - 이제 테스트가 통과합니까?
-   - 다른 테스트가 망가지지 않았습니까?
+   - 수정 전 실패 재현이 이제 통과합니까?
+   - 관련 회귀 검사나 다른 테스트가 망가지지 않았습니까?
    - 문제가 실제로 해결되었습니까?
    - 성공을 주장하기 전에 `engineering:verification-before-completion` 스킬을 사용합니다
 

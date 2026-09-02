@@ -178,9 +178,14 @@ Spec을 지정하면 함께 읽는다. spec은 plan이 근거로 삼는 기준�
 기준으로 해결한다. 접근 가능한 spec이 없으면 ledger에 그 사실을 기록하고, spec 없이 내린
 판정은 잠정적인 것으로 취급한다.
 
+별도 구현 plan이 필요한 작업에는 `engineering:writing-plans`가 정의한 의사코드와 flow mapping이
+있어야 한다. 각 task가 참조하는 flow ID, 파일·책임, dependency와 검증 방법·이유를 pre-flight에서
+확인하고, 이 연결이 없으면 implementer에게 빈틈을 넘기지 말고 plan 소유 단계로 돌려보낸다.
+
 Task 1을 위임하기 전에 plan의 충돌을 한 번 검사하고 확인한 내용을 그때그때 기록한다.
 
 - 서로 충돌하거나 plan의 Global Constraints와 충돌하는 task
+- 의사코드 flow와 파일, task, dependency 또는 검증 mapping이 불일치하는 task
 - plan에서 명시적으로 요구하지만 review rubric에서는 결함으로 보는 내용(아무것도 assert하지 않는 테스트, logic block의 verbatim duplication)
 
 검사 결과는 판정이 아니라 표다. 파일 또는 interface를 공유하는 모든 task 쌍마다 한 행을 만들고,
@@ -250,8 +255,8 @@ child 목록을 확인해 보고 없이 완료한 child를 찾는다. 제한된 
   실행한다. task 전체 본문을 고유한 이름의 파일로 추출하고 경로를 출력한다. brief가 요구사항의
   단일 출처가 되도록 dispatch를 구성한다. dispatch에는 다음을 포함한다. (1) project에서 이
   task가 위치하는 곳을 설명하는 한 줄, (2) "먼저 읽을 요구사항이며 정확한 값을 그대로 사용한다"고
-  소개한 brief 경로, (3) brief에서 알 수 없는 이전 task의 interface와 결정, (4) brief에서 발견한
-  모호함에 대한 판정, (5) report 파일 경로와 report 계약. 정확한 값(숫자, magic string,
+  소개한 brief 경로, (3) 이 task가 구현하는 flow ID와 brief에서 알 수 없는 이전 task의 interface·결정,
+  (4) brief에서 발견한 모호함에 대한 판정, (5) report 파일 경로와 report 계약. 정확한 값(숫자, magic string,
   signature, test case)은 brief에만 둔다. subagent에게 전체 plan 파일을 읽게 하지 않는다.
 - **Report 파일:** brief 이름을 기준으로 implementer의 report 파일을 정하고(brief
   `…/task-N-brief.md` → report `…/task-N-report.md`) dispatch prompt에 넣는다. implementer는
@@ -290,7 +295,9 @@ getting large")이라면 기록하고 리뷰로 진행한다.
 1. context 문제라면 context를 추가하고 같은 모델로 다시 위임한다.
 2. task에 더 많은 reasoning이 필요하면 더 성능이 높은 모델로 다시 위임한다.
 3. task가 너무 크다면 더 작은 단위로 나눈다.
-4. plan 자체가 틀렸다면 수정 방향을 판정해 ledger에 기록하고, dispatch에 판정을 포함해 다시 위임한다.
+4. plan 자체가 틀렸거나 구현에 material deviation이 필요하다면 `engineering:writing-plans`로
+   돌아가 차이와 이유를 기록하고 의사코드를 먼저 갱신한다. 영향을 받는 mapping, task와 검증을
+   조정하고 변경된 plan-readiness gate가 통과한 뒤 새 brief로 다시 위임한다.
 
 상위 보고를 **절대** 무시하거나 같은 모델에 변경 없이 재시도하도록 강제하지 않는다. implementer가 막혔다고 했다면 무엇인가 달라져야 한다.
 
