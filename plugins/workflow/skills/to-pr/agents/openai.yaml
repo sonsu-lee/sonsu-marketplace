@@ -1,4 +1,4 @@
 interface:
   display_name: "To PR"
-  short_description: "Draft and publish ticket-aware GitHub pull requests"
+  short_description: "Draft and publish ticket-aware PRs with marked visual evidence"
   default_prompt: "Use $to-pr to prepare this branch as a reviewable GitHub pull request."

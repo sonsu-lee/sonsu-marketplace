@@ -16,6 +16,14 @@
       "must_not_select": ["engineering:finishing-a-development-branch"]
     },
     {
+      "id": "pr-with-local-media-routes-to-workflow",
+      "installed_plugins": ["workflow"],
+      "prompt": "현재 branch로 GitHub PR을 만들면서 변경 위치를 표시한 screenshot과 로컬 demo video도 함께 첨부해줘.",
+      "expected_sequence": ["workflow:to-pr"],
+      "must_not_select": ["workflow:git-workflow", "publish-image"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
       "id": "direct-ticket-routes-to-workflow",
       "installed_plugins": ["engineering", "workflow"],
       "prompt": "합의된 구현 계획을 Linear 티켓 초안으로 변환해줘.",
