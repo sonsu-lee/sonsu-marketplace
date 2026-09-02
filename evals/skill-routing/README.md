@@ -1,8 +1,8 @@
 # 스킬 라우팅 평가
 
-`cases.json`은 Engineering, Workflow, Research와 Fluent Languages를 함께 또는 각각 설치했을
-때의 기대 라우팅을 정의합니다. 직접 산출물 요청, 비슷하지만 다른 요청, runtime 조합과 단독
-설치 사례를 포함합니다.
+`cases.json`은 Engineering, Quality Engineering, Workflow, Research, Prompting과 Fluent
+Languages를 함께 또는 각각 설치했을 때의 기대 라우팅을 정의합니다. 직접 산출물 요청,
+비슷하지만 다른 요청, runtime 조합과 단독 설치 사례를 포함합니다.
 
 `workflow:to-pr` 사례는 선택된 스킬뿐 아니라 원격 변경이 없는 준비 모드인지, publish payload의
 `target_pr_state`가 무엇인지도 선언할 수 있습니다. 이 경우에도 평가는 원격 PR을 만들지 않고

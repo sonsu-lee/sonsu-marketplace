@@ -1,0 +1,3 @@
+interface:
+  display_name: "Prompt Builder"
+  short_description: "Create lean, model-aware, copy-ready prompts"

@@ -5,7 +5,7 @@
 
 ## 플러그인 경계
 
-Engineering, Quality Engineering, Workflow, Research와 Fluent Languages는 각각 단독으로 설치하고
+Engineering, Quality Engineering, Workflow, Research, Prompting과 Fluent Languages는 각각 단독으로 설치하고
 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을 import하거나 설치·선행
 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은 Codex가 현재 설치된
 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로 선택합니다.
@@ -25,6 +25,7 @@ Engineering, Quality Engineering, Workflow, Research와 Fluent Languages는 각�
 | ticket·issue·backlog 초안 또는 게시 | `workflow:to-ticket` |
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
+| Codex·ChatGPT·OpenAI API용 프롬프트 생성·재작성·최적화 | `prompting:prompt-builder` |
 
 직접적인 산출물과 관점 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
 요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
@@ -40,6 +41,21 @@ Engineering, Quality Engineering, Workflow, Research와 Fluent Languages는 각�
 Git·ticket·PR 작업이 독립적으로 동작하고, Engineering만 설치된 환경에서는 자체 개발 및
 branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 트리거가 반복해서 확인되기
 전에는 추가하지 않습니다.
+
+## Prompting 조합
+
+Prompting은 사용자가 실제로 사용할 프롬프트 산출물을 요청했을 때 선택합니다. 프롬프트를
+생성하거나 기존 프롬프트를 재작성·최적화하는 요청은 `prompting:prompt-builder`가 담당하며,
+prompt engineering 개념만 설명해 달라는 요청에는 선택하지 않습니다.
+
+Codex용 작업 프롬프트를 작성하더라도 그 요청 자체가 구현이나 개발 계획 실행을 의미하지는
+않으므로 Engineering을 자동으로 함께 선택하지 않습니다. 반대로 구현 요청 안에 포함된 일반
+자연어 요구사항을 Prompting으로 먼저 재작성해야 한다고 가정하지 않습니다. 사용자가 프롬프트
+산출물과 구현을 모두 요청했을 때만 직접 목적에 따라 runtime에서 조합합니다.
+
+Prompting만 설치된 환경에서도 Codex, ChatGPT와 OpenAI API용 프롬프트를 독립적으로 작성할 수
+있어야 합니다. 특정 OpenAI 모델이나 제품 surface가 결과에 영향을 주면 포함된 snapshot을
+참고하고, 최신 또는 현재 권고를 요청받으면 OpenAI 공식 문서를 다시 확인합니다.
 
 ## Quality Engineering 조합
 
