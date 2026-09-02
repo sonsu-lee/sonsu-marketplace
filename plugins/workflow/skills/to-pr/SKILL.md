@@ -29,12 +29,12 @@ description: Use when 현재 Git branch를 새 GitHub Pull Request 초안이나 
 - remote, upstream, repository default branch와 요청된 base
 - merge base, base부터 head까지의 commit과 전체 diff
 - current branch의 기존 PR
-- PR template, contribution 지침, semantic title·Conventional Commit 관례
+- target repository와 owner의 public `.github` repository default branch에 있는 PR template, contribution 지침, semantic title·Conventional Commit 관례와 PR 언어
 - 관련 validation 명령과 현재 결과
 
 `gh pr create --fill`이나 commit 제목만으로 변경 내용을 추론하지 않는다. working tree의 미커밋 변경은 PR commit range에 포함되지 않으므로 별도로 보고한다. 기존 PR이 있으면 새 PR을 만들거나 기존 PR을 수정하지 않고 현재 상태와 필요한 다음 행동을 알린다.
 
-PR을 작성할 때에는 [PR 품질 기준](references/pr-quality-bar.md)을 읽는다.
+PR을 작성할 때에는 [PR 템플릿 규칙](references/pr-template.md)으로 repository template과 출력 언어를 먼저 결정하고, [PR 품질 기준](references/pr-quality-bar.md)을 읽는다. target repository template을 먼저 사용하고, 없으면 owner의 account-level default template을 사용한다. 둘 다 없다고 확인된 경우에만 스킬의 기본 템플릿을 사용한다.
 
 ## 티켓을 연결한다
 
@@ -58,7 +58,7 @@ GitHub용 payload를 작성하거나 publish할 때 [GitHub PR 규칙](reference
 
 - 정확한 repository, 인증 주체, base, head와 remote ref
 - current head SHA와 전체 commit range
-- final title, body, template, ticket link와 validation 상태
+- final title, body, 선택한 template source, PR 언어, ticket link와 validation 상태
 - screenshot이 필수이면 마킹된 최종 이미지와 게시 경로
 - 각 미디어의 ready 필수 여부, annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded metadata 검사 결과
 - 같은 head의 기존 PR 부재

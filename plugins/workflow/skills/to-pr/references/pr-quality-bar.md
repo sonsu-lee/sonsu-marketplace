@@ -15,23 +15,9 @@ PR 초안이나 게시 payload를 작성할 때 읽는다.
 
 title은 실제 결과를 한 문장으로 설명하고 repository의 semantic title 또는 Conventional Commit 관례가 있으면 따른다. 기존 commit이 관례를 어겨도 이 스킬에서 rewrite하지 않는다.
 
-PR template을 우선한다. template이 없으면 필요한 항목만 사용한다.
+[PR 템플릿 규칙](pr-template.md)에 따라 target repository의 default branch template을 먼저 사용하고, 없으면 owner의 account-level default template을 사용한다. 둘 다 없다고 확인된 경우에는 그 문서의 기본 템플릿을 사용한다. `Summary`는 변경 이유와 결과를 설명하고, `Changes`는 실제 diff에 있는 내용만 기록한다. rollout, migration, compatibility 또는 rollback 위험이 실제로 있을 때만 해당 내용을 추가한다.
 
-```markdown
-## Summary
-
-## Changes
-
-## Tickets
-
-## Validation
-
-## Risks
-
-## Visual evidence
-```
-
-빈 섹션은 만들지 않는다. `Summary`는 변경 이유와 결과를 설명하고, `Changes`는 실제 diff에 있는 내용만 기록한다. rollout, migration, compatibility 또는 rollback 위험이 실제로 있을 때만 해당 내용을 추가한다.
+repository template이 요구하는 section과 checklist는 보존한다. 기본 템플릿에서는 `Summary`, `Changes`와 `Validation`을 유지하고, `Related work`, `Risks`와 `Visual evidence`는 실제 근거가 있을 때만 포함한다. heading과 본문은 결정된 PR 언어로 작성하되 repository template의 고정 문구는 임의로 번역하지 않는다.
 
 ## 티켓과 시각 증거를 확인한다
 
@@ -39,7 +25,7 @@ PR template을 우선한다. template이 없으면 필요한 항목만 사용한
 - 같은 작업을 나타내는 동기화 티켓에 completion 신호를 중복으로 보내지 않는다.
 - branch 이름을 티켓 연결의 필수 조건으로 만들지 않는다.
 - UI 변경이 있거나 사용자가 요청한 경우에만 `Visual evidence`를 포함한다.
-- CLI attachment를 사용할 때에는 `Visual evidence`를 마지막 section으로 두어 body 밖의 로컬 파일을 안전하게 append할 수 있게 한다.
+- CLI attachment를 사용할 때에는 repository template이 허용하면 `Visual evidence`를 마지막 section으로 둔다. 고정된 template 순서를 바꿀 수 없으면 먼저 파일을 첨부해 remote URL을 얻은 뒤 지정된 visual section에 URL을 넣은 완성 body를 다시 기록하고 중복 URL을 제거한다.
 - placeholder, 로컬 미디어와 실제 업로드 URL을 구분한다.
 - PR에 첨부하는 이미지는 애니메이션 GIF를 포함하여 변경 위치를 눈에 띄게 마킹한 사본이며, marker가 가리키는 내용을 alt text에 설명한다.
 - 비디오는 alt text를 받을 수 없으므로 같은 `Visual evidence` section에서 `Video N`과 upload 순서를 명시하고, 목적, 관찰할 동작과 유용한 timestamp를 설명한다.

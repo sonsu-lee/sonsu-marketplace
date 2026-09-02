@@ -82,7 +82,7 @@ OS, browser, font, viewport, scale, animation과 동적 데이터가 안정화�
 ![Highlighted visual differences](<diff-url>)
 ```
 
-GitHub CLI의 안전한 기본 append 흐름에서는 마킹된 before와 after를 하나의 comparison image로 합치거나, `Visual evidence`를 마지막 section으로 두고 각 이미지의 순서와 marker를 text로 설명한다. local path placeholder로 비교 표를 만들지 않는다.
+GitHub CLI의 안전한 기본 append 흐름에서는 마킹된 before와 after를 하나의 comparison image로 합친다. repository template이 허용하면 `Visual evidence`를 마지막 section으로 둔다. template 순서가 고정되어 visual section이 중간에 있으면 attachment로 얻은 remote URL을 해당 section에 넣어 body를 다시 기록하고, body 끝의 중복 URL을 제거한다. 어느 경우든 각 이미지의 순서와 marker를 text로 설명하고 local path placeholder로 비교 표를 만들지 않는다.
 
 baseline이 없으면 after만 표시하고 before/after 비교를 하지 못한 이유를 적는다. 로컬 검토용 draft에는 실제 URL처럼 보이는 값을 만들지 않고 `<!-- attachment: annotated-after.png | alt: Marker 1 shows the changed navigation -->` 같은 비경로 placeholder를 사용할 수 있다. `gh pr create --draft`에 전달할 final body에서는 이를 실제 caption·순서 설명으로 바꾸거나 제거하며 원격 Draft PR에는 placeholder를 남기지 않는다.
 

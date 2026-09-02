@@ -71,7 +71,9 @@ GitHub Draft PR의 가용성은 repository visibility와 plan에 따라 다르�
 
 GitHub CLI는 body가 같은 로컬 파일을 참조하면 그 위치의 destination을 upload URL로 바꿀 수 있다. 하지만 여러 upload 중 일부만 성공해도 PR을 생성하므로 실패한 파일의 local path가 body에 남을 수 있다. `to-pr`의 기본 흐름에서는 local reference를 body에 쓰지 않는다.
 
-대신 `Visual evidence`를 body의 마지막 section으로 두고 각 marker와 video에서 확인할 내용을 text로 설명한다. body가 참조하지 않은 attachment는 flag 순서대로 끝에 추가되므로 manifest의 `display_order`와 `--attach` 순서를 일치시킨다. 여러 파일이면 설명에도 `Attachment 1`, `Video 3`처럼 같은 번호를 붙여, 나중에 append되는 각 파일과 caption이 일대일로 대응하게 한다. before와 after를 표로 비교해야 하면 가능할 때 마킹된 두 화면을 하나의 안전한 comparison image로 합친다.
+대신 repository template이 허용하면 `Visual evidence`를 body의 마지막 section으로 두고 각 marker와 video에서 확인할 내용을 text로 설명한다. body가 참조하지 않은 attachment는 flag 순서대로 끝에 추가되므로 manifest의 `display_order`와 `--attach` 순서를 일치시킨다. 여러 파일이면 설명에도 `Attachment 1`, `Video 3`처럼 같은 번호를 붙여 각 파일과 caption이 일대일로 대응하게 한다. before와 after를 표로 비교해야 하면 가능할 때 마킹된 두 화면을 하나의 안전한 comparison image로 합친다.
+
+template이 section 순서를 고정하여 visual section을 마지막으로 옮길 수 없으면 append된 상태를 최종 body로 사용하지 않는다. Draft PR에 파일을 하나씩 첨부하고 저장된 body에서 각 remote URL을 확인한 뒤, URL을 template의 지정된 visual section에 넣은 완성 body를 `gh pr edit --body-file`로 다시 기록한다. 재조회하여 body 끝의 중복 attachment와 local placeholder가 제거되었고 URL이 지정 section에만 남았는지 확인한다.
 
 이미지 인자는 shell 해석을 피하도록 전체를 quote하고 `--attach '/absolute/path/annotated-after.png#Marker 1 shows the changed navigation state'`처럼 alt text를 붙인다. 비디오는 alt text를 지원하지 않으므로 `#` 뒤의 설명을 주지 않는다. 비디오는 append되면 bare URL로 기록되어 player로 표시된다.
 
@@ -93,9 +95,10 @@ Draft PR을 만들기 전에 전체 manifest의 로컬 파일 identity를 비교
 2. 응답 URL을 다시 읽어 현재 흐름에서 생성한 정확한 PR인지, Draft인지, repository·base·head와 `headRefOid`가 고정한 값과 같은지 확인한다. 실패나 응답 불명확이면 같은 create를 반복하지 않고 같은 head의 PR을 먼저 조회한다.
 3. 실행 직전에 한 파일의 size와 SHA-256을 manifest와 다시 대조한다. 달라졌으면 중단한다.
 4. 필수 파일부터 manifest 순서대로 `gh pr edit`에 검증한 PR URL과 한 파일의 `--attach` 인자만 전달한다. `--body`나 `--body-file`을 함께 전달하지 않는다.
-5. 파일 하나를 추가할 때마다 실제 body를 다시 읽어 고유한 remote URL, 예상한 순서와 render 형태를 확인하고 `upload_status`와 `body_status`를 갱신한다. 다음 파일은 확인이 끝난 뒤에만 처리한다.
-6. 필수 항목이 모두 `upload_status: uploaded`, `body_status: verified`일 때만 다음 단계로 진행한다. 하나라도 `failed`, `not_attempted`, `missing`, `wrong_render`, `unknown` 또는 `inconclusive`이면 Draft 상태를 유지한다.
-7. 원래 요청이 ready PR이면 unresolved local path와 placeholder가 없고 이미지 alt text·marker 설명, 비디오의 caption·순서와 bare URL 단독 문단까지 확인한다. `gh pr ready` 직전에 PR을 다시 읽어 `isDraft: true`, repository, base, head와 `headRefOid`가 manifest에 고정한 값과 같은지 확인한다. `headRefOid`가 달라졌으면 시각 증거를 현재 변경의 증거로 사용하지 않고 Draft 상태를 유지한다. 모두 통과했을 때만 ready로 전환하고, 이후 `isDraft: false`와 같은 `headRefOid`를 다시 확인한다. 원래 요청이 Draft PR이면 전환하지 않는다.
+5. 파일 하나를 추가할 때마다 실제 body를 다시 읽어 고유한 remote URL과 render 형태를 확인하고 `upload_status`를 갱신한다. 다음 파일은 확인이 끝난 뒤에만 처리한다.
+6. repository template의 visual section이 body 끝이 아니면 확인한 remote URL을 그 section에 배치한 완성 body를 `gh pr edit --body-file`로 다시 기록한다. body를 재조회하여 append된 중복 URL이 없고 각 attachment가 지정된 위치와 예상한 순서로 렌더링될 때만 `body_status: verified`로 둔다. body 끝이 visual section이면 append 결과의 순서와 render 형태를 확인하여 같은 상태로 둔다.
+7. 필수 항목이 모두 `upload_status: uploaded`, `body_status: verified`일 때만 다음 단계로 진행한다. 하나라도 `failed`, `not_attempted`, `missing`, `wrong_render`, `unknown` 또는 `inconclusive`이면 Draft 상태를 유지한다.
+8. 원래 요청이 ready PR이면 unresolved local path와 placeholder가 없고 이미지 alt text·marker 설명, 비디오의 caption·순서와 bare URL 단독 문단까지 확인한다. `gh pr ready` 직전에 PR을 다시 읽어 `isDraft: true`, repository, base, head와 `headRefOid`가 manifest에 고정한 값과 같은지 확인한다. `headRefOid`가 달라졌으면 시각 증거를 현재 변경의 증거로 사용하지 않고 Draft 상태를 유지한다. 모두 통과했을 때만 ready로 전환하고, 이후 `isDraft: false`와 같은 `headRefOid`를 다시 확인한다. 원래 요청이 Draft PR이면 전환하지 않는다.
 
 예시는 한 번에 한 파일만 처리한다.
 

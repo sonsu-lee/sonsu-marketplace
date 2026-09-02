@@ -8,7 +8,7 @@ GitHub PR payload를 작성하거나 새 PR을 게시할 때 읽는다.
 - 사용자가 지정한 base를 우선하고, 없으면 branch의 `gh-merge-base` 설정과 repository default branch를 확인한다.
 - current branch, upstream, remote ref와 head SHA를 확인한다.
 - base의 merge base부터 head까지 commit과 전체 diff를 읽는다.
-- `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE/**`, `docs/pull_request_template.md`, `CONTRIBUTING`과 기존 PR 관례를 확인한다.
+- target default branch의 `.github`, repository root, `docs` 순서로 `pull_request_template.*`와 각 위치의 `PULL_REQUEST_TEMPLATE/**`를 확인한다. target repository에 유효한 template이 없으면 owner의 public `.github` repository default branch에서 같은 위치와 순서로 account-level default template을 확인한다. `CONTRIBUTING`과 기존 PR 관례도 확인한다.
 - 같은 head branch의 open·draft PR을 조회한다.
 
 필요한 객체가 로컬에 없더라도 사용자 요청 없이 fetch하거나 checkout을 바꾸지 않는다. 미커밋 변경은 원격 PR diff에 들어가지 않으므로 별도로 보고한다.
@@ -17,9 +17,9 @@ detached HEAD, head와 base가 같은 상태 또는 비어 있는 PR commit rang
 
 ## payload를 준비한다
 
-title과 body를 명시적으로 완성한다. `--fill`의 자동 생성 결과만 사용하지 않는다. ticket reference, validation과 visual evidence는 실제 근거가 있을 때만 넣는다.
+title과 body를 명시적으로 완성한다. [PR 템플릿 규칙](pr-template.md)에 따라 repository template과 언어를 결정하고 `--fill`의 자동 생성 결과만 사용하지 않는다. ticket reference, validation과 visual evidence는 실제 근거가 있을 때만 넣는다.
 
-CLI를 사용할 때에는 multiline body를 임시 파일에 기록하고 `gh pr create --body-file`로 전달한다. 실행 시점의 `gh pr create --help`, target host와 base repository 권한을 확인한다. 로컬 미디어가 있으면 `gh pr edit --help`의 `--attach` 지원도 확인하고 [미디어 첨부 규칙](media-attachments.md)에 따라 방금 만든 Draft PR에 각 파일을 하나씩 전달한다. `gh pr create --attach`는 `--web`, `--dry-run`과 함께 사용할 수 없으며, `--dry-run` 자체도 Git push를 수행할 수 있으므로 read-only 검사로 사용하지 않는다.
+CLI를 사용할 때에는 선택한 template을 채운 multiline body를 임시 파일에 기록하고 `gh pr create --body-file`로 전달한다. `--template`과 `--body-file`을 함께 사용하지 않는다. 실행 시점의 `gh pr create --help`, target host와 base repository 권한을 확인한다. 로컬 미디어가 있으면 `gh pr edit --help`의 `--attach` 지원도 확인하고 [미디어 첨부 규칙](media-attachments.md)에 따라 방금 만든 Draft PR에 각 파일을 하나씩 전달한다. `gh pr create --attach`는 `--web`, `--dry-run`과 함께 사용할 수 없으며, `--dry-run` 자체도 Git push를 수행할 수 있으므로 read-only 검사로 사용하지 않는다.
 
 공식 참고: [GitHub CLI `gh pr create`](https://cli.github.com/manual/gh_pr_create), [`gh pr edit`](https://cli.github.com/manual/gh_pr_edit)
 

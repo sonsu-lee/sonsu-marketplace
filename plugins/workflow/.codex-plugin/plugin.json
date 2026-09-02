@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A personal Codex plugin for explicit Git, ticket, and GitHub pull request workflows.",
   "author": {
     "name": "sonsu"
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Workflow",
     "shortDescription": "Git, ticket, and pull request workflows",
-    "longDescription": "Prepare atomic Git changes, turn prepared work into tracker-ready tickets, or create a reviewable GitHub pull request with explicit publication boundaries and marked visual evidence.",
+    "longDescription": "Prepare atomic Git changes, turn prepared work into tracker-ready tickets, or create a reviewable GitHub pull request with repository-aware templates, explicit publication boundaries, and marked visual evidence.",
     "developerName": "sonsu",
     "category": "Developer Tools",
     "capabilities": [

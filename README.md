@@ -9,7 +9,7 @@
 | 플러그인 | 버전 | 상태 |
 | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | 6.3.0-sonsu.3 | Superpowers v6.3.0 기반 개발 방법론 |
-| [Workflow](plugins/workflow/.codex-plugin/plugin.json) | 0.5.0 | Git, ticket와 GitHub PR workflow |
+| [Workflow](plugins/workflow/.codex-plugin/plugin.json) | 0.6.0 | Git, ticket와 GitHub PR workflow |
 | [Fluent Languages](plugins/fluent-languages/.codex-plugin/plugin.json) | 0.1.0-beta.4 | 공통 코어와 언어별 한국어·일본어·영어 출력 지침 |
 | [Research](plugins/research/README.md) | 0.7.0-sonsu.1 | 여러 출처의 탐색, 원문 검증과 인용 감사 |
 
