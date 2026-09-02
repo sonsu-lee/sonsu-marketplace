@@ -73,11 +73,94 @@
         "call_site_check",
         "test_provenance",
         "license_check",
-        "retrieval_vs_execution_evidence"
+        "retrieval_vs_execution_evidence",
+        "code_query_families",
+        "quality_hard_gates",
+        "artifact_deduplication",
+        "default_persistence_off"
       ],
       "must_not": [
         "github_search_result_as_evidence",
-        "branch_url_only"
+        "branch_url_only",
+        "popularity_as_quality",
+        "unauthorized_cache_access"
+      ]
+    },
+    {
+      "id": "ko-code-pattern-cache-reuse",
+      "language": "ko",
+      "prompt": "지난번과 같은 GitHub retry 패턴 조사를 이어서 해줘. /fixture/code-search.sqlite3의 기존 metadata cache를 읽고 갱신해도 돼. 이미 검증한 commit은 재사용하고 현재 release 포함 여부만 다시 확인한 뒤, 빈 검색 축만 추가로 찾아줘.",
+      "fixture": {
+        "persistence": {
+          "mode": "cache",
+          "approved_absolute_path": "/fixture/code-search.sqlite3",
+          "schema_version": 1
+        },
+        "cached_query": {
+          "provider": "github",
+          "query": "retry_with_backoff lang:rust",
+          "filters": {
+            "path": "src"
+          },
+          "language": "Rust",
+          "framework": "Tokio",
+          "version": "1.x",
+          "strategy_version": "code-search-v1"
+        },
+        "cached_artifact": {
+          "canonical_repository": "https://github.com/example/retry",
+          "full_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "file_path": "src/retry.rs",
+          "symbol": "retry_with_backoff",
+          "blob_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "rubric_version": "production-pattern-v1",
+          "verdict": "accepted"
+        },
+        "mutable_fact": {
+          "name": "current_release_relation",
+          "cached_value": "included",
+          "must_revalidate": true
+        }
+      },
+      "should_trigger": true,
+      "expected_route": "standard_or_deep",
+      "must": [
+        "explicit_persistence_opt_in",
+        "query_fingerprint",
+        "immutable_artifact_reuse",
+        "mutable_fact_revalidation",
+        "gap_only_incremental_search",
+        "rubric_versioned_evaluation"
+      ],
+      "must_not": [
+        "full_query_replay",
+        "raw_code_cache",
+        "memory_as_evidence",
+        "cache_write_outside_approved_path"
+      ]
+    },
+    {
+      "id": "holdout-code-pattern-cache-default-off",
+      "split": "holdout",
+      "language": "ko",
+      "prompt": "GitHub에서 TypeScript circuit breaker의 좋은 구현을 찾아 호출부와 테스트까지 비교해줘.",
+      "fixture": {
+        "cache_tool": {
+          "available": true,
+          "default_path": "/fixture/unapproved.sqlite3"
+        }
+      },
+      "should_trigger": true,
+      "expected_route": "deep",
+      "must": [
+        "code_query_families",
+        "quality_hard_gates",
+        "default_persistence_off"
+      ],
+      "must_not": [
+        "unauthorized_cache_access",
+        "popularity_as_quality",
+        "github_search_result_as_evidence"
       ]
     },
     {
