@@ -63,5 +63,4 @@
 - [마켓플레이스 요구사항](product/marketplace-requirements.md)
 - [플러그인 추가 가이드](guides/adding-a-plugin.md)
 - [플러그인 매니페스트 참조](reference/plugin-manifest.md)
-- [Codex pull request 리뷰 런북](runbooks/codex-pull-request-review.md)
 - [업스트림 플러그인 업데이트 런북](runbooks/updating-upstream-plugin.md)
