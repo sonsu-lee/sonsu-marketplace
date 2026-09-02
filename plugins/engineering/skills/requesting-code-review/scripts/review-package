@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# Freeze a committed range or the current working tree into one review artifact.
+# The package is written outside the repository by default and identified by a
+# SHA-256 digest so the reviewer can verify the exact input it received.
+set -euo pipefail
+
+usage() {
+  echo "usage: review-package range BASE HEAD [OUTFILE]" >&2
+  echo "       review-package working-tree [OUTFILE]" >&2
+  exit 2
+}
+
+[ $# -ge 1 ] || usage
+
+mode=$1
+shift
+repo_root=$(git rev-parse --show-toplevel)
+repo_root=$(cd "$repo_root" && pwd -P)
+
+new_output_path() {
+  if [ -n "${1:-}" ]; then
+    out_parent=$(cd "$(dirname "$1")" && pwd -P)
+    out="$out_parent/$(basename "$1")"
+    [ ! -e "$out" ] || {
+      echo "output already exists: $out" >&2
+      exit 2
+    }
+  else
+    temp_root=${TMPDIR:-/tmp}
+    out=$(mktemp "${temp_root%/}/engineering-review.XXXXXX")
+  fi
+}
+
+hash_package() {
+  if command -v shasum >/dev/null 2>&1; then
+    digest=$(shasum -a 256 "$out" | awk '{print $1}')
+  elif command -v sha256sum >/dev/null 2>&1; then
+    digest=$(sha256sum "$out" | awk '{print $1}')
+  else
+    echo "neither shasum nor sha256sum is available" >&2
+    exit 2
+  fi
+
+  printf 'Package: %s\nRevision: sha256:%s\n' "$out" "$digest"
+}
+
+case "$mode" in
+  range)
+    [ $# -ge 2 ] && [ $# -le 3 ] || usage
+    base=$1
+    head=$2
+    git rev-parse --verify --quiet "${base}^{commit}" >/dev/null || {
+      echo "bad BASE: $base" >&2
+      exit 2
+    }
+    git rev-parse --verify --quiet "${head}^{commit}" >/dev/null || {
+      echo "bad HEAD: $head" >&2
+      exit 2
+    }
+    if git diff --quiet "${base}..${head}" --; then
+      echo "empty review range: ${base}..${head}" >&2
+      exit 2
+    fi
+    new_output_path "${3:-}"
+
+    {
+      echo "# Review package"
+      echo "Mode: committed range"
+      echo "Base: $(git rev-parse "${base}^{commit}")"
+      echo "Head: $(git rev-parse "${head}^{commit}")"
+      echo
+      echo "## Commits"
+      git log --oneline "${base}..${head}"
+      echo
+      echo "## Files changed"
+      git diff --stat --no-ext-diff "${base}..${head}"
+      echo
+      echo "## Diff"
+      git diff --binary --no-ext-diff -U10 "${base}..${head}"
+    } > "$out"
+    ;;
+
+  working-tree)
+    [ $# -le 1 ] || usage
+    status=$(git status --short --untracked-files=all)
+    [ -n "$status" ] || {
+      echo "working tree has no changes to review" >&2
+      exit 2
+    }
+    new_output_path "${1:-}"
+    case "$out" in
+      "$repo_root"|"$repo_root"/*)
+        echo "working-tree package must be outside the repository: $out" >&2
+        exit 2
+        ;;
+    esac
+
+    untracked_files=()
+    while IFS= read -r -d '' file; do
+      untracked_files+=("$file")
+    done < <(git ls-files --others --exclude-standard -z)
+
+    {
+      echo "# Review package"
+      echo "Mode: working tree"
+      echo "Base HEAD: $(git rev-parse HEAD)"
+      echo
+      echo "## Status"
+      printf '%s\n' "$status"
+      echo
+      echo "## Tracked, staged, and unstaged diff"
+      git diff --binary --no-ext-diff -U10 HEAD --
+
+      for file in "${untracked_files[@]}"; do
+        echo
+        printf '## Untracked file: %q\n' "$file"
+        set +e
+        git diff --no-index --binary -U10 -- /dev/null "$file"
+        diff_status=$?
+        set -e
+        [ "$diff_status" -le 1 ] || exit "$diff_status"
+      done
+    } > "$out"
+    ;;
+
+  *)
+    usage
+    ;;
+esac
+
+hash_package

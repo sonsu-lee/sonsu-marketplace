@@ -60,6 +60,7 @@
 - [Research 독립성과 선택적 provider 결정](decisions/0004-keep-research-independent.md)
 - [Engineering 이름 변경 결정](decisions/0005-rename-superpowers-to-engineering.md)
 - [Prompting 독립 플러그인 결정](decisions/0006-keep-prompting-independent.md)
+- [Engineering 단계별 quality gate 결정](decisions/0007-use-stage-owned-quality-gates.md)
 - [마켓플레이스 요구사항](product/marketplace-requirements.md)
 - [플러그인 추가 가이드](guides/adding-a-plugin.md)
 - [플러그인 매니페스트 참조](reference/plugin-manifest.md)

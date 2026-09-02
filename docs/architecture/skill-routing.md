@@ -133,11 +133,11 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
 요청
   → 작업 범위 판단과 기존 코드·문서 조사
   → 문서 영향 분류
-  → 설계 제안과 사용자 검토
-  → 구현 계획
+  → 설계 제안 → 필요한 design-document gate → 사용자 검토
+  → 구현 계획 → plan-readiness gate
   → worktree 확인 또는 생성
-  → 구현
-  → 변경 성격에 맞는 검증
+  → 구현 → task gate와 targeted fix
+  → 변경 성격에 맞는 final gate
   → diff 보고
   → 명시적인 커밋 승인
   → commit
@@ -146,6 +146,36 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
 `using-git-worktrees` 파일은 기존 linked worktree를 재사용하고 일반 checkout에서 필요할 때
 worktree를 만드는 원본 정책을 유지합니다. 다만 스킬 안의 commit 문구를 포함한 모든 Git
 변경에는 `using-engineering-skills`의 전역 승인 게이트를 먼저 적용합니다.
+
+## Engineering quality gate
+
+Engineering의 공통 [quality gate 계약](../../plugins/engineering/skills/using-engineering-skills/references/quality-gates.md)은
+gate ID, artifact와 exact revision, 필수 검사, evidence, finding, status, return target,
+attempt/cap과 decision owner를 기록합니다. `passed`, `failed`, `blocked`, `inconclusive`,
+`not_run`, `not_applicable`, `accepted_risk`를 구분하며 artifact가 바뀌면 이전 pass는 stale입니다.
+quality gate는 문서 작성, 구현, commit, push, PR, merge, deploy 또는 publish 권한을 부여하지
+않습니다.
+
+각 stage가 자기 artifact의 gate와 return target을 소유합니다. 중앙 gate router나 전체 workflow의
+재귀 호출은 사용하지 않습니다.
+
+| Gate | 기본 evidence | 실패 return target |
+| --- | --- | --- |
+| design document | self-review, link/path/schema check, architectural/high-risk일 때 independent review | 영향받은 문서 section 또는 design decision |
+| implementation plan | requirement-task mapping, path/interface/verification check, cross-component·long-running·high-risk일 때 independent review | 영향받은 plan task 또는 `brainstorming` |
+| inline task | task별 test·build·parser·loader·consuming command | task implementation 또는 `systematic-debugging` |
+| subagent task review | task brief와 정확한 BASE..HEAD, spec·quality verdict | scoped fix loop; plan/design defect면 해당 소유 stage |
+| whole change와 completion | 전체 diff, 요구사항 mapping, final deterministic verification, major/high-risk일 때 independent review | 가장 가까운 implementation, plan 또는 design stage |
+
+deterministic oracle를 inferential review보다 먼저 실행합니다. retry는 artifact, hypothesis,
+implementation, evidence, context, evaluator 또는 capability 가운데 하나 이상이 바뀌어야 하며
+stage별 유한한 상한을 가집니다. 상한에 남은 실제 필수 finding은 `passed`나 `complete`로
+자동 전환하지 않습니다. 사용자 또는 확인된 human decision-maker만 exact revision의 위험을
+`accepted_risk`로 수락할 수 있고, 이 상태는 `passed`와 구분해 보고합니다.
+
+이 내부 계약은 Quality Engineering 플러그인을 필요로 하지 않습니다. 특정 quality lens를
+명시적으로 요청하면 runtime에서 Quality Engineering을 조합할 수 있지만, Engineering gate가
+그 플러그인의 설치나 skill ID를 전제로 하지는 않습니다.
 
 ## 문서 라우팅
 

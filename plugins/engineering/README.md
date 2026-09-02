@@ -1,6 +1,6 @@
 # Engineering
 
-Engineering is a documentation-aware method for planning, implementing, debugging, verifying, and reviewing software changes. It packages composable Codex skills while keeping Git delivery, external research, and output-language guidance in separate plugins.
+Engineering is a documentation-aware method for planning, implementing, debugging, verifying, and reviewing software changes. It uses stage-owned quality gates with bounded, targeted backtracking and packages composable Codex skills while keeping Git delivery, external research, and output-language guidance in separate plugins.
 
 This local plugin is based on [obra/superpowers](https://github.com/obra/superpowers) v6.3.0 and is not an official Superpowers distribution. See [UPSTREAM.md](UPSTREAM.md) for the pinned source, imported files, local revisions, and retained compatibility names.
 
@@ -13,7 +13,8 @@ Engineering owns the development method:
 - write an implementation plan without automatically creating dated documents;
 - apply TDD to production behavior changes and proportionate validation elsewhere;
 - execute the plan inline or with subagents under the applicable commit boundary;
-- debug systematically, request review, and verify completion;
+- debug systematically, request review, and verify exact artifact revisions;
+- return failed gates to the nearest owning stage without recursive workflow restarts;
 - present integration choices after a development branch is complete.
 
 The plugin does not require another plugin. Direct branch, commit, ticket, push, and pull request work belongs to the independent Workflow plugin when it is installed. Multi-source external research belongs to Research, and output-language guidance belongs to Fluent Languages. Codex can select these plugins together from their skill descriptions when a request spans more than one responsibility.
@@ -32,14 +33,16 @@ Remove an installed `superpowers` plugin before installing `engineering`; keepin
 
 ## Development flow
 
-1. **brainstorming** clarifies the problem, alternatives, design, and documentation impact before implementation.
+1. **brainstorming** clarifies the problem, alternatives, design, and documentation impact, then gates architectural or high-risk durable documents before planning.
 2. **using-git-worktrees** reuses an existing linked worktree or creates one when isolation is needed.
-3. **writing-plans** writes an in-chat plan by default and records documentation, validation, and Git authorization boundaries.
-4. **executing-plans** performs inline execution. **subagent-driven-development** is available when its file-backed plan and task commits are explicitly authorized.
+3. **writing-plans** writes an in-chat plan by default and gates plan readiness while preserving documentation, validation, and Git authorization boundaries.
+4. **executing-plans** performs inline execution with task and whole-change gates. **subagent-driven-development** adds exact per-task review gates when its file-backed plan and task commits are explicitly authorized.
 5. **test-driven-development** applies RED–GREEN–REFACTOR to production behavior changes. Documentation, metadata, and simple configuration use checks appropriate to the change.
 6. **requesting-code-review** and **receiving-code-review** handle review without treating unverified feedback as fact.
-7. **verification-before-completion** requires current evidence before a success claim.
-8. **finishing-a-development-branch** presents integration choices after applicable verification passes.
+7. **verification-before-completion** requires current evidence for the exact revision before a success claim.
+8. **finishing-a-development-branch** presents integration choices only after the final gate passes or a human explicitly accepts a documented risk.
+
+The shared [quality gate contract](skills/using-engineering-skills/references/quality-gates.md) defines evidence records, statuses, stale-revision handling, return targets, retry changes, and attempt-cap behavior. A quality result never grants document, Git, PR, merge, deployment, or publication permission.
 
 ## Skills
 
@@ -60,9 +63,11 @@ Internal references use the `engineering:*` namespace, such as `engineering:brai
 - Keep implementation plans in the conversation by default. Use Git-ignored scratch files only when execution requires a file.
 - Treat design approval, document writing, implementation, commit, push, pull request, merge, and deployment as separate authorization boundaries.
 - Use TDD for production behavior changes and defects. Use proportionate structural or consuming-command validation for documentation, metadata, and simple configuration.
+- Run deterministic checks before inferential review, bind every gate to an exact artifact revision, and retry only with changed information.
+- Do not convert a valid unresolved finding into a pass at a retry cap. Only an identified human decision-maker may record `accepted_risk`.
 - Keep Engineering, Workflow, Research, and Fluent Languages independently installable.
 
-The repository policies are recorded in the [documentation guide](../../docs/README.md), [skill-routing architecture](../../docs/architecture/skill-routing.md), and associated decision records.
+The repository policies are recorded in the [documentation guide](../../docs/README.md), [skill-routing architecture](../../docs/architecture/skill-routing.md), [quality-gate decision](../../docs/decisions/0007-use-stage-owned-quality-gates.md), and associated decision records.
 
 ## Compatibility and visual companion
 

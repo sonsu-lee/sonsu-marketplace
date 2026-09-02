@@ -58,6 +58,12 @@ routing으로 순서대로 조합합니다.
 `engineering:*`를 사용합니다. 로컬 fork의 manifest는 로컬 배포·유지관리 주체를 표시하고, 원본 저작권과
 출처는 `LICENSE`와 이 문서에 보존합니다.
 
+`6.3.0-sonsu.4`부터 공통 quality gate 상태·증거 계약과 stage-owned gate를 적용합니다.
+design document, plan, task, whole-change review와 final verification은 exact artifact revision에
+묶이며 실패하면 전체 workflow를 재귀적으로 다시 시작하지 않고 가장 가까운 소유 단계로
+되돌아갑니다. 반복에는 변경된 입력과 유한한 상한이 필요하며, 상한에 남은 실제 필수 finding은
+human `accepted_risk` 없이 pass나 complete로 바뀌지 않습니다.
+
 기존 실행 artifact와 스크립트 호환성을 위해 `.superpowers/` scratch 경로와
 `SUPERPOWERS_DISABLE_TELEMETRY` 환경 변수는 유지합니다. 새 이름인
 `ENGINEERING_DISABLE_TELEMETRY`도 같은 opt-out으로 인식합니다. 원본 아이콘 파일은 provenance
@@ -66,4 +72,5 @@ routing으로 순서대로 조합합니다.
 로컬 변경의 이유는 [문서·커밋 승인 결정](../../docs/decisions/0002-separate-doc-and-commit-approval.md),
 [플러그인 독립성 결정](../../docs/decisions/0003-keep-plugins-independent.md)과
 [이름 변경 결정](../../docs/decisions/0005-rename-superpowers-to-engineering.md),
+[quality gate 결정](../../docs/decisions/0007-use-stage-owned-quality-gates.md),
 [스킬 라우팅 문서](../../docs/architecture/skill-routing.md)에 기록합니다.
