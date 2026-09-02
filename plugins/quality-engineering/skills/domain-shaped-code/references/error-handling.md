@@ -1,0 +1,26 @@
+# Error handling policy
+
+오류는 의미를 소유하거나 실제로 복구할 수 있는 경계에서 처리한다. 모든 async call에
+`try/catch`를 두는 것은 목표가 아니다.
+
+## Ownership
+
+- 호출자가 대응할 수 없는 오류는 잡지 말고 자연스럽게 전파한다.
+- dependency 오류를 제품·도메인 오류로 번역할 책임이 있는 경계에서만 catch한다.
+- 번역할 때 원래 오류를 `cause` 또는 동등한 메커니즘으로 보존한다.
+- fallback, retry, 보상 작업 또는 부분 결과가 계약상 유효할 때만 복구한다.
+- resource 해제와 일관성 복구는 `finally` 또는 해당 runtime의 구조화된 cleanup을 사용한다.
+
+## Error shape
+
+- caller가 분기해야 하는 확인된 경우에만 별도 error class, code 또는 result variant를 만든다.
+- 메시지 문자열 parsing을 제어 흐름 계약으로 사용하지 않는다.
+- 같은 실패를 여러 계층에서 다시 감싸며 의미 없는 문맥을 누적하지 않는다.
+- 사용자에게 보여줄 메시지와 진단용 세부 정보는 필요할 때 분리한다. secret, credential과 민감한
+  payload를 오류에 포함하지 않는다.
+
+## Logging interaction
+
+같은 오류를 log하고 그대로 다시 던져 상위 계층에서도 중복 기록하게 만들지 않는다. 오류를
+최종적으로 소유하는 경계가 운영 질문에 필요한 문맥과 함께 한 번 기록한다. 자세한 기준은
+[`logging.md`](logging.md)를 따른다.

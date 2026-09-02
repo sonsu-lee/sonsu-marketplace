@@ -124,6 +124,139 @@
       "prompt": "주요 브라우저의 WebAuthn 지원 차이를 공식 문서 여러 개로 조사하고 기술 검토 결과를 한국어로 작성해줘.",
       "expected_sequence": ["research:research", "fluent-languages:fluent-korean"],
       "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "domain-shaped-implementation-routes-to-quality",
+      "installed_plugins": ["engineering", "quality-engineering"],
+      "prompt": "주문 상태의 확인된 세 가지 variant와 API 입력 경계를 타입과 제어 흐름에 반영해서 구현해줘. 미래 상태는 만들지 마.",
+      "expected_sequence": ["quality-engineering:domain-shaped-code"],
+      "must_not_select": ["domain-modeling", "architecture-decisions"]
+    },
+    {
+      "id": "explicit-minimal-implementation-routes-to-simplify",
+      "installed_plugins": ["engineering", "quality-engineering"],
+      "prompt": "이 변경은 YAGNI로 가자. 새 abstraction 없이 현재 요구사항을 만족하는 가장 작은 코드로 구현해줘.",
+      "expected_sequence": ["quality-engineering:simplify-code"],
+      "must_not_select": ["quality-engineering:review-overengineering"]
+    },
+    {
+      "id": "diff-overengineering-review-routes-to-focused-lens",
+      "installed_plugins": ["engineering", "quality-engineering"],
+      "prompt": "현재 diff만 over-engineering과 불필요한 추상화 관점에서 리뷰해줘. 수정은 하지 마.",
+      "expected_sequence": ["quality-engineering:review-overengineering"],
+      "must_not_select": ["quality-engineering:audit-overengineering", "quality-engineering:review-quality"]
+    },
+    {
+      "id": "repository-overengineering-audit-routes-to-audit",
+      "installed_plugins": ["quality-engineering"],
+      "prompt": "이 repository 전체를 over-engineering 관점에서 audit하고 삭제 효과가 큰 순서로 정리해줘.",
+      "expected_sequence": ["quality-engineering:audit-overengineering"],
+      "must_not_select": ["quality-engineering:review-overengineering"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "reader-load-review-routes-to-maintainability",
+      "installed_plugins": ["quality-engineering"],
+      "prompt": "현재 branch diff를 reader load, 중복 domain knowledge와 public surface 관점에서 유지보수성 리뷰해줘.",
+      "expected_sequence": ["quality-engineering:review-maintainability"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "reachable-failures-route-to-failure-review",
+      "installed_plugins": ["quality-engineering", "codex-security"],
+      "prompt": "이 결제 consumer 변경에서 retry, duplicate delivery, 부분 write와 cleanup의 도달 가능한 실패 경로를 리뷰해줘.",
+      "expected_sequence": ["quality-engineering:review-failure-modes"],
+      "must_not_select": ["codex-security:security-scan"]
+    },
+    {
+      "id": "error-and-logging-route-to-operability",
+      "installed_plugins": ["quality-engineering"],
+      "prompt": "이 diff의 error ownership, log-and-rethrow, 원인 보존과 민감정보 logging을 운용 가능성 관점에서 리뷰해줘.",
+      "expected_sequence": ["quality-engineering:review-operability"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "broad-quality-review-routes-to-coordinator",
+      "installed_plugins": ["quality-engineering"],
+      "prompt": "현재 commit을 단순성, 유지보수성, 실패 모드와 운용 가능성을 아우르는 quality review로 검토해줘.",
+      "expected_sequence": ["quality-engineering:review-quality"],
+      "must_not_select_all_quality_lenses": true,
+      "must_deduplicate_shared_root_causes": true
+    },
+    {
+      "id": "generic-implementation-stays-with-engineering",
+      "installed_plugins": ["engineering", "quality-engineering"],
+      "prompt": "사용자 프로필 편집 기능을 구현하고 테스트해줘.",
+      "expected_plugins": ["engineering"],
+      "must_not_select": ["quality-engineering:domain-shaped-code", "quality-engineering:simplify-code"]
+    },
+    {
+      "id": "debugging-does-not-trigger-quality-review",
+      "installed_plugins": ["engineering", "quality-engineering"],
+      "prompt": "실패하는 통합 테스트의 root cause를 찾아서 디버깅하고 수정해줘.",
+      "expected_plugins": ["engineering"],
+      "must_not_select": ["quality-engineering:review-failure-modes", "quality-engineering:review-quality"]
+    },
+    {
+      "id": "architecture-decision-does-not-trigger-quality",
+      "installed_plugins": ["engineering", "quality-engineering"],
+      "prompt": "이벤트 버스와 직접 호출 중 아직 결론이 나지 않은 아키텍처 선택을 비교해 결정 자료를 만들어줘.",
+      "must_not_select": ["quality-engineering:domain-shaped-code", "quality-engineering:review-quality"]
+    },
+    {
+      "id": "domain-glossary-does-not-trigger-domain-shaped-code",
+      "installed_plugins": ["quality-engineering"],
+      "prompt": "이 repository의 도메인 용어를 조사해서 CONTEXT.md를 작성해줘.",
+      "must_not_select": ["quality-engineering:domain-shaped-code"]
+    },
+    {
+      "id": "git-delivery-does-not-trigger-quality",
+      "installed_plugins": ["quality-engineering", "workflow"],
+      "prompt": "현재 변경을 커밋하고 push한 뒤 PR을 만들어줘.",
+      "expected_sequence": ["workflow:git-workflow", "workflow:to-pr"],
+      "must_not_select": ["quality-engineering:review-quality"]
+    },
+    {
+      "id": "deep-security-scan-does-not-trigger-quality",
+      "installed_plugins": ["quality-engineering", "codex-security"],
+      "prompt": "repository 전체를 대상으로 깊은 보안 감사를 수행하고 취약점을 검증해줘.",
+      "expected_sequence": ["codex-security:deep-security-scan"],
+      "must_not_select": ["quality-engineering:review-failure-modes", "quality-engineering:review-quality"]
+    },
+    {
+      "id": "long-file-is-not-a-maintainability-finding-by-itself",
+      "installed_plugins": ["quality-engineering"],
+      "prompt": "이 1,200줄 파일을 유지보수성 관점에서 리뷰해줘. 길다는 이유만으로 분할하지 말고 실제 reader load와 변경 이유를 확인해.",
+      "expected_sequence": ["quality-engineering:review-maintainability"],
+      "must_not_assume_finding_from_line_count": true
+    },
+    {
+      "id": "trusted-internal-flow-does-not-require-duplicate-guards",
+      "installed_plugins": ["quality-engineering"],
+      "prompt": "API 경계에서 이미 검증한 Order를 내부 helper마다 다시 검사하지 않는 형태로 리팩터링해줘.",
+      "expected_sequence": ["quality-engineering:domain-shaped-code"],
+      "must_not_require_internal_revalidation": true
+    },
+    {
+      "id": "operability-does-not-require-blanket-logging",
+      "installed_plugins": ["quality-engineering"],
+      "prompt": "이 작은 로컬 변환 함수의 operability를 리뷰해줘. 실제 운영 질문이 없다면 모든 호출과 성공을 log하라고 요구하지 마.",
+      "expected_sequence": ["quality-engineering:review-operability"],
+      "must_not_require_blanket_logging": true
+    },
+    {
+      "id": "implementation-quality-and-pr-compose-at-runtime",
+      "installed_plugins": ["engineering", "quality-engineering", "workflow"],
+      "prompt": "이 기능을 구현하고 검증한 다음 failure mode와 maintainability를 리뷰하고 현재 branch의 PR 초안까지 준비해줘.",
+      "expected_sequence": ["engineering:*", "quality-engineering:review-failure-modes", "quality-engineering:review-maintainability", "workflow:to-pr"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "quality-and-fluent-compose-orthogonally",
+      "installed_plugins": ["quality-engineering", "fluent-languages"],
+      "prompt": "현재 diff를 broad quality review로 검토하고 결과를 자연스러운 한국어로 보고해줘.",
+      "expected_sequence": ["quality-engineering:review-quality", "fluent-languages:fluent-korean"],
+      "must_not_assume_plugin_dependency": true
     }
   ]
 }
