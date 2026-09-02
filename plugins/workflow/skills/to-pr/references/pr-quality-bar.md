@@ -42,6 +42,7 @@ repository template이 요구하는 section과 checklist는 보존한다. 기본
 - current head와 본문이 같은 변경을 설명하는가?
 - 같은 head의 기존 PR이 없는가?
 - final title, body, ticket link, validation과 미디어가 권한 범위 안에 있는가?
+- 상태 미지정 publish는 Draft이고, Ready라면 사용자의 명시적인 요청 근거가 있는가?
 - 비밀, token, 개인정보, 내부 URL과 제한된 보안 정보가 제거되었는가?
 - 일반 push만 필요하며 fork, remote 변경 또는 force push가 필요하지 않은가?
 

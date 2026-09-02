@@ -9,7 +9,7 @@ description: Use when 현재 Git branch를 새 GitHub Pull Request 초안이나 
 
 ## 책임 경계를 지킨다
 
-이 스킬은 새 PR의 초안과 게시를 담당한다. branch·worktree·commit 생성, branch rename, commit rewrite, rebase·squash, force push, merge와 기존 PR 수정은 담당하지 않는다. 다만 현재 publish 흐름에서 방금 만든 GitHub Draft PR에 검토한 미디어를 첨부하고, 필수 첨부를 모두 검증한 뒤 원래 요청한 ready 상태로 전환할 수 있다. 코드 구현, 일반적인 작업 완료, 티켓 작성, code review 또는 push 요청만으로 자동 실행하지 않는다.
+이 스킬은 새 PR의 초안과 게시를 담당한다. branch·worktree·commit 생성, branch rename, commit rewrite, rebase·squash, force push, merge와 기존 PR 수정은 담당하지 않는다. 다만 현재 publish 흐름에서 방금 만든 GitHub Draft PR에 검토한 미디어를 첨부하고, 필수 첨부를 모두 검증한 뒤 사용자가 명시한 ready 상태로 전환할 수 있다. 코드 구현, 일반적인 작업 완료, 티켓 작성, code review 또는 push 요청만으로 자동 실행하지 않는다.
 
 이 스킬은 현재 대화, repository와 검증 가능한 티켓 정보를 바탕으로 독립적으로 동작한다. 다른 플러그인이나 스킬이 설치되었거나 먼저 실행되었다고 가정하지 않는다.
 
@@ -18,7 +18,25 @@ description: Use when 현재 Git branch를 새 GitHub Pull Request 초안이나 
 - `draft`: repository를 읽고 PR title, body, 티켓 연결, validation 상태와 필요한 시각 자료 계획을 완성한다. push, 미디어 업로드와 PR 생성은 하지 않는다.
 - `publish`: 사용자가 현재 대화에서 새 PR 생성을 명시적으로 요청한 경우에만 검증된 current branch를 일반 push하고 새 PR을 만든다.
 
-단순한 작성 요청은 `draft`로 처리한다. 명시적인 publish 요청은 정확한 기존 remote로 current branch를 일반 push하는 데 필요한 권한을 포함하지만, fork·remote 생성, force push, publish 시작 전에 이미 존재하던 PR의 변경 또는 merge로 확대하지 않는다. 같은 publish 흐름에서 안전 게이트로 방금 만든 GitHub Draft PR에는 검토한 manifest의 미디어만 첨부하고, 모든 필수 첨부를 검증한 뒤 원래 요청한 ready 상태로만 전환할 수 있다. 같은 권한을 반복해서 묻지 않는다.
+단순한 작성 요청은 `draft`로 처리한다. 여기서 `draft`는 원격 PR을 만들지 않는 준비 모드이며
+GitHub Draft 상태와 다르다.
+
+`publish`의 목표 GitHub 상태는 다음 순서로 정한다.
+
+1. 사용자가 Ready, non-draft 또는 즉시 review 가능한 상태를 명시하면 `ready`로 정한다.
+2. 사용자가 GitHub Draft를 명시하면 `draft`로 정한다.
+3. 상태를 명시하지 않으면 `draft`로 정한다.
+
+“PR을 만들어 줘”, “올려 줘”, “게시해 줘”와 `open a PR`은 publish 요청일 뿐 ready 요청이
+아니다. 변경이 완성됐거나 validation이 통과했고 미디어가 없다는 이유로 기본 Draft를 Ready로
+올리지 않는다. target host가 Draft PR을 지원하지 않으면 Ready로 대체하지 않고 중단하여
+제약을 보고한다. 게시 전 payload에 결정한 `target_pr_state`와 그 근거를 표시한다.
+
+명시적인 publish 요청은 정확한 기존 remote로 current branch를 일반 push하는 데 필요한 권한을
+포함하지만, fork·remote 생성, force push, publish 시작 전에 이미 존재하던 PR의 변경 또는
+merge로 확대하지 않는다. 같은 publish 흐름에서 안전 게이트로 방금 만든 GitHub Draft PR에는
+검토한 manifest의 미디어만 첨부하고, 모든 필수 첨부를 검증한 뒤 사용자가 명시적으로 요청한
+ready 상태로만 전환할 수 있다. 같은 권한을 반복해서 묻지 않는다.
 
 ## repository와 변경을 고정한다
 
@@ -59,11 +77,12 @@ GitHub용 payload를 작성하거나 publish할 때 [GitHub PR 규칙](reference
 - 정확한 repository, 인증 주체, base, head와 remote ref
 - current head SHA와 전체 commit range
 - final title, body, 선택한 template source, PR 언어, ticket link와 validation 상태
+- `target_pr_state`, 기본 Draft 또는 명시적인 Ready를 선택한 근거
 - screenshot이 필수이면 마킹된 최종 이미지와 게시 경로
 - 각 미디어의 ready 필수 여부, annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded metadata 검사 결과
 - 같은 head의 기존 PR 부재
 
-GitHub CLI attachment가 가능하면 먼저 첨부 없이 GitHub Draft PR을 생성하여 Draft 지원과 정확한 대상 PR을 확인한다. 그 Draft PR에 로컬 경로를 body에 노출하지 않은 채 검토한 파일을 `gh pr edit --attach`로 하나씩 전달하고 매번 저장된 body를 다시 읽는다. 모든 필수 첨부가 확인된 뒤에만 원래 요청한 ready 상태로 전환한다. CLI attachment를 사용할 수 없으면 browser attachment로 전환한다. 플랫폼이 Draft PR 자체를 지원하지 않으면 Draft PR 요청은 중단하고, ready PR 요청에만 browser에서 모든 첨부를 확인한 뒤 게시하는 흐름을 사용할 수 있다. 어느 경로에서도 비공식 upload endpoint를 직접 사용하지 않는다. 자동 첨부가 불가능하면 PR 작성 화면과 미디어 폴더를 준비하여 사용자가 마지막 drag-and-drop과 제출만 수행하게 한다.
+GitHub CLI attachment가 가능하면 먼저 첨부 없이 GitHub Draft PR을 생성하여 Draft 지원과 정확한 대상 PR을 확인한다. 그 Draft PR에 로컬 경로를 body에 노출하지 않은 채 검토한 파일을 `gh pr edit --attach`로 하나씩 전달하고 매번 저장된 body를 다시 읽는다. 모든 필수 첨부가 확인되고 사용자가 ready를 명시한 경우에만 ready 상태로 전환한다. CLI attachment를 사용할 수 없으면 browser attachment로 전환한다. 플랫폼이 Draft PR 자체를 지원하지 않으면 기본 또는 명시적인 Draft PR 요청은 중단하고, 사용자가 ready를 명시한 요청에만 browser에서 모든 첨부를 확인한 뒤 게시하는 흐름을 사용할 수 있다. 어느 경로에서도 비공식 upload endpoint를 직접 사용하지 않는다. 자동 첨부가 불가능하면 PR 작성 화면과 미디어 폴더를 준비하여 사용자가 마지막 drag-and-drop과 제출만 수행하게 한다.
 
 CLI로 게시할 때 본문은 임시 파일에 정확히 기록하고 `gh pr create --body-file`을 사용한다. 현재 `gh` 도움말과 repository 상태를 확인하며, push할 수 있는 `--dry-run`을 안전한 read-only 검증으로 취급하지 않는다.
 

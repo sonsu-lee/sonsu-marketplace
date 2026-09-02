@@ -33,6 +33,18 @@ Git·ticket·PR 작업이 독립적으로 동작하고, Engineering만 설치된
 branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 트리거가 반복해서 확인되기
 전에는 추가하지 않습니다.
 
+## PR 게시 상태
+
+`workflow:to-pr`의 로컬 `draft` 모드는 title과 body만 준비하며 원격 PR을 만들지 않습니다.
+사용자가 새 PR 생성·게시를 요청하면 `publish` 모드로 전환하지만, GitHub 상태를 지정하지 않은
+경우에는 Draft PR을 기본값으로 사용합니다. Ready, non-draft 또는 즉시 review 가능한 상태를
+명시한 경우에만 Ready PR을 만들거나 현재 publish 흐름에서 만든 Draft PR을 Ready로 전환합니다.
+“PR을 올려 줘”라는 게시 요청 자체는 Ready 요청으로 해석하지 않습니다.
+
+대상 repository가 Draft PR을 지원하지 않으면 상태 미지정 요청을 Ready로 대체하지 않고
+중단합니다. 미디어가 있는 publish는 목표 상태와 관계없이 Draft PR에서 첨부를 검증하며,
+명시적인 Ready 요청과 모든 필수 첨부 확인이 함께 충족된 경우에만 Ready로 전환합니다.
+
 ## Research 조합
 
 Research를 직접 요청하면 Research가 조사와 근거 보고를 단독으로 완료합니다. 설계·계획·구현
