@@ -13,7 +13,8 @@ Subagent (general-purpose):
     ## Task 설명
 
     먼저 task brief를 읽는다: [BRIEF_FILE]
-    이 파일에는 plan의 전체 task 본문이 들어 있다.
+    이 파일에는 plan header와 해당 task에 적용되는 전역 제약·행동 의사코드·flow mapping,
+    그리고 선택한 task 전체 본문이 들어 있다.
 
     ## Context
 
@@ -47,8 +48,9 @@ Subagent (general-purpose):
     언제든 중단하고 명확히 해도 된다. 추측하거나 가정하지 않는다.
 
     `engineering:writing-plans`가 정의한 material deviation이 필요하면 임의로 plan을 고치거나
-    계속 구현하지 않는다. 차이와 이유를 `NEEDS_CONTEXT`로 보고한다. controller가 의사코드를
-    먼저 갱신하고 새 brief를 제공해야 한다. material하지 않은 local 세부사항은 그대로 진행한다.
+    계속 구현하지 않는다. 차이와 이유를 `NEEDS_CONTEXT`로 보고한다. controller가 올바른
+    plan/design 소유 단계로 돌아가 필요한 사용자 재승인을 받고, 의사코드를 먼저 갱신한 새 brief를
+    제공해야 한다. material하지 않은 local 세부사항은 그대로 진행한다.
 
     반복 작업 중에는 관련 실패를 드러낼 수 있는 가장 작고 집중된 검증을 실행한다. task,
     저장소 규칙 또는 동작·통합 위험에서 요구할 때에만 commit 전에 전체 suite를 실행한다.

@@ -249,7 +249,7 @@ NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 | "Issue is simple, don't need process" | 단순한 문제에도 근본 원인이 있습니다. 단순한 버그에서는 이 절차도 빠릅니다. |
 | "Emergency, no time for process" | 체계적인 디버깅이 guess-and-check를 반복하는 것보다 빠릅니다. |
 | "Just try this first, then investigate" | 첫 수정이 pattern을 만듭니다. 처음부터 올바르게 수행합니다. |
-| "I'll write test after confirming fix works" | 테스트하지 않은 수정은 유지되지 않습니다. 테스트를 먼저 작성해 증명합니다. |
+| "I'll write test after confirming fix works" | TDD를 선택했다면 실패 테스트가 먼저다. TDD를 선택하지 않았더라도 수정 전에 재현과 검증 방법을 준비한다. |
 | "Multiple fixes at once saves time" | 무엇이 작동했는지 분리할 수 없고 새로운 버그가 생깁니다. |
 | "Reference too long, I'll adapt the pattern" | 불완전한 이해는 버그를 보장합니다. 끝까지 읽습니다. |
 | "I see the problem, let me fix it" | 증상을 보는 것과 근본 원인을 이해하는 것은 다릅니다. |
@@ -262,7 +262,7 @@ NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 | **1. 근본 원인** | error 읽기, 재현, 변경 확인, 근거 수집 | 무엇이 왜 일어났는지 이해함 |
 | **2. pattern** | 작동하는 예시 찾기와 비교 | 차이를 식별함 |
 | **3. 가설** | 가설 수립과 최소 테스트 | 가설이 확인되거나 새 가설이 생김 |
-| **4. 구현** | 테스트 작성, 수정, 검증 | 버그가 해결되고 테스트가 통과함 |
+| **4. 구현** | 선택한 재현·검증 준비, 수정, 검증 | 버그가 해결되고 수정 전 재현이 통과함 |
 
 ## 절차 결과가 "No Root Cause"일 때
 

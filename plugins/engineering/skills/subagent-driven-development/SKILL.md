@@ -164,8 +164,10 @@ ledger를 만들거나 Task 1을 위임하기 전에 task commit을 승인한 �
   출력하며, 현재 plan의 모든 artifact인 ledger, brief, report와 review package를 이곳에 둔다.
   다른 plan의 디렉터리는 읽거나 쓰지 않는다.
 - `<workspace>/progress.md`에서 현재 plan의 ledger를 확인한다. 첫 줄에 현재 plan 파일이 적혀
-  있으면 `Task <N>: complete` 줄이 있는 task는 DONE이다. 다시 위임하지 말고 완료 줄이 없는 첫
-  task부터 재개한다. 마지막 줄이 수정 회차인 task는 loop 진행 중이므로 다음 회차부터 재개한다.
+  있으면 task별 `Task <N>: complete`와 `Task <N>: reopened` 항목 가운데 가장 나중 상태를
+  기준으로 판단한다. 최신 상태가 `complete`인 task만 DONE이다. 이후의 `reopened`는 이전
+  완료·검증·리뷰를 무효화하므로 가장 이른 reopened 또는 미완료 task부터 재개한다. 마지막 줄이
+  수정 회차인 task는 loop 진행 중이므로 다음 회차부터 재개한다.
   첫 줄에 다른 plan 파일이 적힌 ledger 또는 이전 flat 경로 `.superpowers/sdd/progress.md`의
   ledger는 다른 plan의 진행 상태다. 그대로 두고 현재 plan용 ledger를 새로 만든다.
 - 첫 줄에 `# SDD ledger — plan: <plan file path>` 식별자를 넣어 ledger를 만든다.
@@ -252,12 +254,14 @@ child 목록을 확인해 보고 없이 완료한 child를 찾는다. 제한된 
 위임하기 전에 BASE(`git rev-parse HEAD`)를 기록한다. review package와 수정 회차 diff에 필요하다.
 
 - **Task brief:** implementer를 위임하기 전에 이 스킬의 `scripts/task-brief PLAN_FILE N`을
-  실행한다. task 전체 본문을 고유한 이름의 파일로 추출하고 경로를 출력한다. brief가 요구사항의
-  단일 출처가 되도록 dispatch를 구성한다. dispatch에는 다음을 포함한다. (1) project에서 이
-  task가 위치하는 곳을 설명하는 한 줄, (2) "먼저 읽을 요구사항이며 정확한 값을 그대로 사용한다"고
-  소개한 brief 경로, (3) 이 task가 구현하는 flow ID와 brief에서 알 수 없는 이전 task의 interface·결정,
-  (4) brief에서 발견한 모호함에 대한 판정, (5) report 파일 경로와 report 계약. 정확한 값(숫자, magic string,
-  signature, test case)은 brief에만 둔다. subagent에게 전체 plan 파일을 읽게 하지 않는다.
+  실행한다. 첫 Task 앞의 plan header·전역 제약·`Behavioral Flow Pseudocode`·flow mapping과
+  선택한 task 전체 본문을 고유한 이름의 파일로 추출하고 경로를 출력한다. 다른 task 본문은
+  제외한다. brief가 요구사항과 해당 task에 적용되는 흐름의 단일 출처가 되도록 dispatch를
+  구성한다. dispatch에는 다음을 포함한다. (1) project에서 이 task가 위치하는 곳을 설명하는 한 줄,
+  (2) "먼저 읽을 요구사항이며 정확한 값을 그대로 사용한다"고 소개한 brief 경로, (3) brief에서
+  알 수 없는 이전 task의 interface·결정, (4) brief에서 발견한 모호함에 대한 판정, (5) report 파일
+  경로와 report 계약. 정확한 값(숫자, magic string, signature, test case)은 brief에만 둔다.
+  subagent에게 전체 plan 파일을 읽게 하지 않는다.
 - **Report 파일:** brief 이름을 기준으로 implementer의 report 파일을 정하고(brief
   `…/task-N-brief.md` → report `…/task-N-report.md`) dispatch prompt에 넣는다. implementer는
   전체 report를 이 파일에 작성하고 상태, commit, 한 줄 검증 요약과 우려 사항만 반환한다.
@@ -295,9 +299,14 @@ getting large")이라면 기록하고 리뷰로 진행한다.
 1. context 문제라면 context를 추가하고 같은 모델로 다시 위임한다.
 2. task에 더 많은 reasoning이 필요하면 더 성능이 높은 모델로 다시 위임한다.
 3. task가 너무 크다면 더 작은 단위로 나눈다.
-4. plan 자체가 틀렸거나 구현에 material deviation이 필요하다면 `engineering:writing-plans`로
-   돌아가 차이와 이유를 기록하고 의사코드를 먼저 갱신한다. 영향을 받는 mapping, task와 검증을
-   조정하고 변경된 plan-readiness gate가 통과한 뒤 새 brief로 다시 위임한다.
+4. plan 자체가 틀렸거나 구현에 material deviation이 필요하다면 차이와 이유를 기록하고 중단한다.
+   승인된 요구사항·설계·관찰 가능한 계약을 바꾸는 차이는 `engineering:brainstorming`으로 돌아가
+   변경안을 제시하고 사용자의 명시적인 재승인을 기다린다. 승인된 설계 안의 차이이거나 재승인을
+   받은 뒤 `engineering:writing-plans`에서 의사코드를 먼저 갱신하고 영향을 받는 mapping, task와
+   검증을 조정한다. 영향받은 완료 task마다
+   `Task <N>: reopened (plan <old> -> <new>; <reason>)`를 ledger에 추가하여 이전 게이트를
+   무효화한다. 변경된 plan-readiness gate가 통과하면 가장 이른 reopened 또는 미완료 task를 새
+   brief로 다시 위임한다.
 
 상위 보고를 **절대** 무시하거나 같은 모델에 변경 없이 재시도하도록 강제하지 않는다. implementer가 막혔다고 했다면 무엇인가 달라져야 한다.
 
@@ -416,9 +425,12 @@ controller session에서 finding을 직접 수정하지 않는다. context를 �
 
 - `Task <N>: complete (commits <base7>..<head7>, review clean)`
 - `Task <N>: complete (commits <base7>..<head7>, accepted_risk: <decision evidence>)`
+- `Task <N>: reopened (plan <old> -> <new>; <reason>)`
 
-그런 다음 todo를 완료로 표시하고 다음으로 넘어간다. 해당 리비전에 대해 사람의 명시적인
-`accepted_risk` 없이 리뷰에 유효한 Critical/Important 문제가 열려 있다면 다음 task로 이동하지 않는다.
+task별 가장 나중 상태만 현재 상태다. `reopened` 뒤 새 리비전의 구현·검증·리뷰가 끝나 다시
+`complete`를 기록하기 전에는 DONE으로 취급하지 않는다. 완료 시 todo를 완료로 표시하고 다음으로
+넘어간다. 해당 리비전에 대해 사람의 명시적인 `accepted_risk` 없이 리뷰에 유효한
+Critical/Important 문제가 열려 있다면 다음 task로 이동하지 않는다.
 
 ## 최종 리뷰
 

@@ -68,7 +68,9 @@ human `accepted_risk` 없이 pass나 complete로 바뀌지 않습니다.
 제어 흐름을 먼저 정의합니다. 각 흐름을 파일, task, dependency와 검증 방법에 연결한 뒤
 동작·회귀 위험과 검증 실익에 따라 TDD 또는 다른 검증을 선택하고 이유를 기록합니다. TDD를
 선택한 task의 RED–GREEN–REFACTOR 규칙은 유지하며, plan이 필요 없는 단순 작업과 문서,
-metadata, 단순 configuration에는 긴 의사코드나 가치 없는 테스트를 강제하지 않습니다.
+metadata, 단순 configuration에는 긴 의사코드나 가치 없는 테스트를 강제하지 않습니다. 실행 중
+승인된 설계나 관찰 가능한 계약을 바꾸는 차이는 사용자 재승인을 받고, 새 plan 리비전의 영향을
+받는 완료 task는 다시 열어 구현·검증·리뷰합니다.
 
 기존 실행 artifact와 스크립트 호환성을 위해 `.superpowers/` scratch 경로와
 `SUPERPOWERS_DISABLE_TELEMETRY` 환경 변수는 유지합니다. 새 이름인

@@ -19,6 +19,9 @@ Subagent (general-purpose):
     ## 요청 내용
 
     task brief를 읽는다: [BRIEF_FILE]
+    brief에 plan header, 이 task에 적용되는 전역 제약·행동 의사코드·flow mapping과 선택한 task
+    본문이 있는지 확인한다. flow ID만 있고 실제 흐름이나 mapping이 없으면 `inconclusive`로
+    controller에게 돌려보낸다.
 
     이 task에 적용되는 spec/design의 전역 제약:
     [GLOBAL_CONSTRAINTS]
@@ -89,7 +92,10 @@ Subagent (general-purpose):
 
     task가 참조하는 의사코드 flow ID를 기준으로 입력, 결과, 상태 변화, 분기·오류와 책임 경계가
     구현에서 추적되는지 확인한다. 구현이 material하게 달라졌다면 갱신된 의사코드와 mapping이
-    brief에 있는지 확인한다. 갱신 없이 흐름이 달라졌으면 plan 소유 단계로 돌려보낼 finding이다.
+    brief에 있는지 확인한다. 승인된 요구사항·설계·관찰 가능한 계약을 바꾼 차이라면 사용자의
+    명시적인 재승인 근거도 확인한다. 갱신이나 필요한 재승인 없이 흐름이 달라졌으면 해당 plan
+    또는 design 소유 단계로 돌려보낼 finding이다. 이 task가 새 plan 리비전에서 `reopened`됐다면
+    이전 완료 근거가 아니라 새 흐름을 대상으로 구현·검증·리뷰했는지 확인한다.
 
     brief에 각자 변경 사항이 있는 여러 파일이 나열됐다면(batched dispatch) 파일별로 목록과
     diff를 대조한다. 나열된 모든 파일에 해당 hunk가 있어야 한다. 나머지 batch가 아무리

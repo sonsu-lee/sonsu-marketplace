@@ -36,7 +36,7 @@ codex plugin add engineering@sonsu-marketplace
 1. **brainstorming**은 문제, 대안, 설계와 문서 영향을 구체화하고, 계획 전에 아키텍처 또는 고위험 영속 문서의 게이트를 처리합니다.
 2. **using-git-worktrees**는 기존 linked `worktree`를 재사용하거나 격리가 필요할 때 새로 만듭니다.
 3. **writing-plans**는 기본적으로 대화 안에 계획을 작성합니다. 의사코드로 전체 흐름을 정의하고 파일·task·dependency에 연결한 뒤, 이유가 있는 검증 방법을 선택하여 계획 준비 상태를 판정합니다.
-4. **executing-plans**는 task 및 전체 변경 게이트와 함께 계획을 직접 실행합니다. **subagent-driven-development**는 파일 기반 계획과 task 커밋이 명시적으로 승인된 경우 task별 정밀 리뷰 게이트를 추가합니다.
+4. **executing-plans**는 task 및 전체 변경 게이트와 함께 계획을 직접 실행합니다. **subagent-driven-development**는 파일 기반 계획과 task 커밋이 명시적으로 승인된 경우 task별 정밀 리뷰 게이트를 추가합니다. 두 실행 경로 모두 `writing-plans`의 material deviation 규칙에 따라 설계 재승인과 영향받은 완료 task의 재개방 여부를 처리합니다.
 5. **test-driven-development**는 기능, 결함, 로직, 상태 전이와 오류 처리처럼 동작·회귀 위험이 있는 변경에서 적합성을 판단한 뒤, 선택된 task에 RED–GREEN–REFACTOR를 적용합니다. 문서, metadata와 단순 설정에는 변경에 적합한 검사를 사용합니다.
 6. **requesting-code-review**와 **receiving-code-review**는 검증되지 않은 피드백을 사실로 취급하지 않으면서 리뷰를 처리합니다.
 7. **verification-before-completion**은 성공을 주장하기 전에 정확한 리비전의 현재 근거를 요구합니다.
@@ -62,6 +62,7 @@ codex plugin add engineering@sonsu-marketplace
 - 새 영속 문서를 제안하기 전에 기존 ADR, architecture, product, guide, reference와 runbook 문서를 확인합니다.
 - 구현 계획은 기본적으로 대화 안에 유지합니다. 실행에 파일이 필요할 때에만 Git에서 무시하는 scratch 파일을 사용합니다.
 - 구현 계획이 필요하면 `writing-plans`의 의사코드가 구현 세부사항보다 먼저 오며, 각 흐름을 파일, task, dependency와 검증에 연결합니다. 계획이 필요 없는 단순 작업에는 긴 의사코드를 강제하지 않습니다.
+- 구현이 계획에서 material하게 달라지면 `writing-plans`를 canonical source로 삼습니다. 승인된 설계나 관찰 가능한 계약을 바꾸는 차이는 사용자 재승인이 필요하고, 새 흐름의 영향을 받는 완료 task는 다시 열어 검증합니다.
 - 설계 승인, 문서 작성, 구현, commit, push, PR, merge와 배포를 서로 다른 권한 경계로 취급합니다.
 - 동작과 회귀 위험, 자동화 테스트의 실익을 기준으로 TDD 적합성을 판단하고 선택 이유를 기록합니다. TDD를 선택하면 RED–GREEN–REFACTOR를 유지하며, 문서, metadata와 단순 설정에는 변경에 비례한 구조 검사 또는 실제 소비 명령을 사용합니다.
 - 추론 기반 리뷰보다 결정론적인 검사를 먼저 실행하고, 모든 게이트를 정확한 artifact 리비전에 연결하고, 정보가 달라졌을 때에만 재시도합니다.

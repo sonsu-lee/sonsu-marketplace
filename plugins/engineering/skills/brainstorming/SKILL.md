@@ -31,7 +31,9 @@ description: "기능 생성, component 구축, 기능 추가 또는 동작 변�
   `bounded`는 변경할 흐름이 이미 존재하여 읽을 수 있다는 뜻이다. 변경할 기존 흐름이 없다면
   `bounded`가 아니다. 중요한 명확화 질문을 하고, chat 안에서 몇 문장이나 짧은 몇 문단으로
   설계를 제시한 뒤 중단한다. 사용자가 설계를 승인한 뒤에만 구현을 시작한다. `bounded` task의
-  승인도 `architectural` task와 똑같이 강한 게이트다. spec 파일이나 구현 plan 문서를 만들지 않는다.
+  승인도 `architectural` task와 똑같이 강한 게이트다. spec 파일은 만들지 않는다. 설계 승인 뒤
+  `engineering:writing-plans`의 plan 필요 조건을 별도로 확인하고, 조건을 충족하면 의사코드 우선
+  plan으로 전환한다. 조건을 충족하지 않을 때에만 별도 plan 없이 직접 구현한다.
 - **Architectural** — 새 project, 새 subsystem, component 사이의 구성을 재구성하거나 다른
   대상이 의존하는 interface를 바꾸는 변경이다. 질문, 접근 방식, 섹션별 설계, 문서 영향 리뷰,
   `writing-plans` 스킬의 전체 process를 따른다.
@@ -75,7 +77,8 @@ artifact의 크기이지 승인 절차가 아니다.
 2. **명확화 질문** — 중요한 질문을 한 번에 하나씩 한다.
 3. **Chat에서 짧은 설계 제시** — 접근 방식, 예상 동작과 수정할 파일을 설명한다.
 4. **승인 받기** — 중단하고 명시적인 동의를 기다린다. 설계를 제시하면서 바로 시작하면 게이트를 건너뛴 것이다.
-5. **구현** — 별도 구현 plan이 필요 없는 범위이므로 일반 개발 workflow로 진행한다. 동작과 회귀 위험을 기준으로 TDD 적합성을 판단하고, 선택 이유와 함께 변경에 비례해 검증한다. plan 문서나 긴 의사코드를 만들지 않는다.
+5. **Plan 필요 여부 판단** — 파일 수나 `bounded` label이 아니라 여러 단계·interface·상태 전이·오류 처리·migration·회귀 위험을 조정해야 하는지 확인한다.
+6. **구현으로 전환** — plan이 필요하면 `engineering:writing-plans`를 사용한다. 필요하지 않으면 일반 개발 workflow로 진행하고, 동작과 회귀 위험을 기준으로 TDD 적합성을 판단해 이유와 함께 변경에 비례해 검증한다. 이 경우에는 plan 문서나 긴 의사코드를 만들지 않는다.
 
 **`architectural`(아키텍처 변경):**
 1. **Project context 탐색** — 파일, 문서와 최근 commit을 확인한다.
@@ -100,6 +103,7 @@ digraph brainstorming {
     "Ask clarifying questions (bounded)" [shape=box];
     "Present short design in chat" [shape=box];
     "Human approves?" [shape=diamond];
+    "Implementation plan needed?" [shape=diamond];
     "Investigate; report recommendation" [shape=doublecircle];
     "Implement via normal workflow (no plan doc)" [shape=doublecircle];
     "Explore project context" [shape=box];
@@ -123,7 +127,9 @@ digraph brainstorming {
     "Ask clarifying questions (bounded)" -> "Present short design in chat";
     "Present short design in chat" -> "Human approves?";
     "Human approves?" -> "Investigate; report recommendation" [label="spike: yes"];
-    "Human approves?" -> "Implement via normal workflow (no plan doc)" [label="bounded: yes"];
+    "Human approves?" -> "Implementation plan needed?" [label="bounded: yes"];
+    "Implementation plan needed?" -> "Invoke writing-plans skill" [label="yes"];
+    "Implementation plan needed?" -> "Implement via normal workflow (no plan doc)" [label="no"];
     "Hidden complexity? Upgrade path" -> "Classify: spike / bounded / architectural";
     "Explore project context" -> "Ask clarifying questions";
     "Ask clarifying questions" -> "Propose 2-3 approaches";
@@ -145,14 +151,16 @@ digraph brainstorming {
 
 **종료 상태는 각 경로에 종속된다.** `Architectural`에서는 brainstorming 뒤에 호출하는 유일한
 스킬이 `writing-plans`다. `frontend-design`, `mcp-builder` 또는 다른 implementation 스킬을
-호출하지 않는다. `Bounded`에서는 승인 뒤 일반 개발 workflow로 바로 구현하며 plan 문서를
-만들지 않는다. `Spike`의 종료 상태는 권고안 보고다.
+호출하지 않는다. `Bounded`에서는 승인 뒤 plan 필요 조건을 확인하고, 조건을 충족하면
+`writing-plans`로 전환하며 그렇지 않으면 일반 개발 workflow로 바로 구현한다. `Spike`의 종료
+상태는 권고안 보고다.
 
 ## 절차
 
 아래 하위 섹션은 `bounded`와 `architectural` 경로에 적용된다(`spike`는 "present the probe,
 get a nod", 즉 probe를 제시하고 동의를 받는 단계에서 끝난다). **접근 방식 탐색** 이후 섹션은 `architectural` 경로에 해당하는
-깊이다. `bounded` 작업은 context, 몇 가지 질문과 chat 안의 짧은 설계로 process가 끝난다.
+깊이다. `bounded` 작업의 설계 단계는 context, 몇 가지 질문과 chat 안의 짧은 설계로 끝나며,
+승인 뒤에는 위의 plan 필요 여부 판정을 거친다.
 
 **아이디어 이해:**
 

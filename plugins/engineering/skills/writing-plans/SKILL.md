@@ -264,9 +264,18 @@ plan을 제시하기 전에 문제를 그 자리에서 수정한다.
 - 파일·task dependency, 범위, 위험 또는 검증 전략 변경
 
 local helper 이름, 동등한 표현 또는 흐름을 바꾸지 않는 작은 배치는 material deviation이 아니다.
-material deviation이 필요하면 해당 task를 계속 구현하지 않는다. 차이와 이유를 설명하고,
-`Behavioral Flow Pseudocode`를 먼저 갱신한 다음 flow mapping, task와 검증을 새 흐름에 맞춘다.
-변경된 plan 리비전에 자체 리뷰와 plan-readiness gate를 다시 적용한 뒤 실행을 재개한다.
+material deviation이 필요하면 해당 task를 계속 구현하지 않고 차이와 이유를 설명한다.
+
+먼저 변경이 승인된 요구사항·설계·관찰 가능한 계약을 바꾸는지 판정한다. 입력, 기대 결과, 외부에
+보이는 상태·오류, interface 또는 책임 경계를 승인 내용과 다르게 만드는 변경이면
+`engineering:brainstorming`으로 돌아가 변경안을 제시하고 사용자의 명시적인 재승인을 기다린다.
+plan-readiness gate는 설계 승인이나 재승인을 대신하지 않는다.
+
+승인된 설계 안의 변경이거나 필요한 재승인을 받은 뒤에는 `Behavioral Flow Pseudocode`를 먼저
+갱신하고, 그 다음 flow mapping, task와 검증을 새 흐름에 맞춘다. 새 plan 리비전의 영향을 받는
+모든 task를 찾는다. 이미 완료한 task도 이전 완료·검증·리뷰 근거가 새 흐름을 다루지 않으면
+`reopened`로 표시하고 다시 구현·검증·리뷰한다. 변경된 plan 리비전에 자체 리뷰와
+plan-readiness gate를 다시 적용한 뒤 가장 이른 미완료 또는 reopened task부터 실행을 재개한다.
 
 ## Plan 준비 상태 게이트
 

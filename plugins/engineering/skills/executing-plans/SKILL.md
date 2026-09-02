@@ -37,8 +37,12 @@ description: 별도 session에서 review checkpoint와 함께 실행할 작성�
 6. task 게이트가 `passed`이거나 사람이 해당 리비전에 대해 `accepted_risk`를 명시적으로 기록한 경우에만 `completed`로 표시한다.
 
 구현이 plan과 달라져야 할 때에는 `engineering:writing-plans`의 material deviation 기준을 적용한다.
-그 기준에 해당하면 차이와 이유를 설명하고 의사코드를 먼저 갱신한 뒤 영향을 받는 mapping,
-task와 검증을 조정한다. material하지 않은 local 구현 세부사항은 해당 task 안에서 처리할 수 있다.
+그 기준에 해당하면 차이와 이유를 설명하고 중단한다. 승인된 요구사항·설계·관찰 가능한 계약을
+바꾸는 차이는 `engineering:brainstorming`으로 돌아가 사용자의 명시적인 재승인을 받아야 한다.
+승인된 설계 안의 차이이거나 재승인을 받은 뒤에는 의사코드를 먼저 갱신하고 영향을 받는 mapping,
+task와 검증을 조정한다. 이미 완료한 task가 새 흐름의 영향을 받으면 `reopened`로 표시하고 그
+task의 구현·검증·리뷰부터 다시 수행한다. material하지 않은 local 구현 세부사항은 해당 task
+안에서 처리할 수 있다.
 
 변경 없이 실패한 명령이나 변경 없이 같은 reviewer prompt를 반복하지 않는다. 도구, 권한, dependency 또는 외부 service가 없으면 `blocked`다. 이를 이유로 무작정 재시도하거나 계획을 다시 쓰지 않는다. task 세부사항의 모순은 `engineering:writing-plans`로, 승인된 요구사항의 모순은 `engineering:brainstorming`으로 돌려보낸다.
 
