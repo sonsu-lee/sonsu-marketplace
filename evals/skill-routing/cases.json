@@ -63,6 +63,59 @@
       "prompt": "구현과 검증이 끝났고 commit도 모두 있어. 이 개발 branch를 어떻게 마무리할지 진행해줘.",
       "expected_sequence": ["superpowers:finishing-a-development-branch"],
       "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "superpowers-only-handles-external-evidence-without-research",
+      "installed_plugins": ["superpowers"],
+      "available_fallbacks": ["web", "browser"],
+      "prompt": "OAuth 2.1의 최신 공식 문서를 확인해서 이 서비스의 인증 방식을 설계해줘. 아직 구현하지 마.",
+      "expected_sequence": ["superpowers:brainstorming"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "direct-multi-source-research-routes-to-research",
+      "installed_plugins": ["superpowers", "research"],
+      "prompt": "브라우저 cache partitioning의 현재 동작과 보안 trade-off를 표준 문서, 브라우저 공식 문서와 관련 논문을 교차 검증해서 비교해줘. 구현은 하지 마.",
+      "expected_sequence": ["research:research"],
+      "must_not_select": ["superpowers:brainstorming"]
+    },
+    {
+      "id": "development-and-research-compose-at-runtime",
+      "installed_plugins": ["superpowers", "research"],
+      "prompt": "이 서비스의 인증 방식을 설계하고 구현해줘. 설계 선택에 영향을 주는 최신 표준과 주요 라이브러리의 공식 문서를 여러 출처에서 먼저 검증해줘.",
+      "expected_sequence": ["superpowers:brainstorming", "research:research", "superpowers:*"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "local-debugging-does-not-trigger-research",
+      "installed_plugins": ["superpowers", "research"],
+      "prompt": "이 repository에서 실패하는 단위 테스트와 관련 코드를 확인해서 원인을 찾고 수정해줘. 외부 조사는 필요 없어.",
+      "expected_plugins": ["superpowers"],
+      "must_not_select": ["research:research"]
+    },
+    {
+      "id": "single-official-doc-lookup-does-not-trigger-research",
+      "installed_plugins": ["superpowers", "research"],
+      "prompt": "Node.js 공식 문서에서 --env-file option이 처음 추가된 버전 하나만 확인해줘.",
+      "expected_plugins": [],
+      "must_not_select": ["research:research"]
+    },
+    {
+      "id": "research-only-remains-standalone-with-fallbacks",
+      "installed_plugins": ["research"],
+      "available_provider_integrations": [],
+      "available_fallbacks": ["web", "browser", "local"],
+      "prompt": "세 가지 JavaScript package manager의 공급망 보안 정책을 공식 문서와 공개된 보안 자료를 교차 검증해서 비교해줘.",
+      "expected_sequence": ["research:research"],
+      "must_not_auto_install_provider": true,
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "research-and-fluent-compose-orthogonally",
+      "installed_plugins": ["research", "fluent-languages"],
+      "prompt": "주요 브라우저의 WebAuthn 지원 차이를 공식 문서 여러 개로 조사하고 기술 검토 결과를 한국어로 작성해줘.",
+      "expected_sequence": ["research:research", "fluent-languages:fluent-korean"],
+      "must_not_assume_plugin_dependency": true
     }
   ]
 }

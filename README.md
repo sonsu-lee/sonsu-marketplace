@@ -11,7 +11,7 @@
 | [Superpowers](plugins/superpowers/README.md) | 6.3.0-sonsu.2 | 원본 v6.3.0 기반 개발 방법론 |
 | [Workflow](plugins/workflow/.codex-plugin/plugin.json) | 0.4.0 | Git, ticket와 GitHub PR workflow |
 | [Fluent Languages](plugins/fluent-languages/.codex-plugin/plugin.json) | 0.1.0-beta.4 | 공통 코어와 언어별 한국어·일본어·영어 출력 지침 |
-| [Research](plugins/research/README.md) | 0.7.0-sonsu.0 | 여러 출처의 탐색, 원문 검증과 인용 감사 |
+| [Research](plugins/research/README.md) | 0.7.0-sonsu.1 | 여러 출처의 탐색, 원문 검증과 인용 감사 |
 
 Superpowers의 원본 커밋과 포함 범위는 [UPSTREAM.md](plugins/superpowers/UPSTREAM.md)에 기록합니다.
 worktree 감지·생성 흐름과 해당 스킬 파일은 원본을 유지합니다. 스킬 안의 commit 문구를

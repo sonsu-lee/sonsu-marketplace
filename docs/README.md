@@ -57,6 +57,7 @@
 - [플러그인 생명주기](architecture/plugin-lifecycle.md)
 - [스킬 라우팅](architecture/skill-routing.md)
 - [플러그인 독립성과 runtime 라우팅 결정](decisions/0003-keep-plugins-independent.md)
+- [Research 독립성과 선택적 provider 결정](decisions/0004-keep-research-independent.md)
 - [마켓플레이스 요구사항](product/marketplace-requirements.md)
 - [플러그인 추가 가이드](guides/adding-a-plugin.md)
 - [플러그인 매니페스트 참조](reference/plugin-manifest.md)

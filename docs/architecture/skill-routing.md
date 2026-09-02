@@ -5,10 +5,10 @@
 
 ## 플러그인 경계
 
-Superpowers와 Workflow는 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다.
-한 플러그인이 다른 플러그인을 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지
-않습니다. 여러 영역을 포함한 요청은 Codex가 현재 설치된 스킬의 description과 요청의 직접
-목적을 바탕으로 필요한 스킬을 순서대로 선택합니다.
+Superpowers, Workflow와 Research는 각각 단독으로 설치하고 사용할 수 있는 독립
+플러그인입니다. 한 플러그인이 다른 플러그인을 import하거나 설치·선행 실행·특정 skill ID를
+전제로 하지 않습니다. 여러 영역을 포함한 요청은 Codex가 현재 설치된 스킬의 description과
+요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로 선택합니다.
 
 | 직접 목적 | 담당 |
 | --- | --- |
@@ -16,6 +16,7 @@ Superpowers와 Workflow는 각각 단독으로 설치하고 사용할 수 있는
 | branch, staging, commit, 일반 push와 Git 변경 검토 | `workflow:git-workflow` |
 | ticket·issue·backlog 초안 또는 게시 | `workflow:to-ticket` |
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
+| 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
 
 직접적인 산출물 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
 요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
@@ -31,6 +32,29 @@ Superpowers와 Workflow는 각각 단독으로 설치하고 사용할 수 있는
 Git·ticket·PR 작업이 독립적으로 동작하고, Superpowers만 설치된 환경에서는 자체 개발 및
 branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 트리거가 반복해서 확인되기
 전에는 추가하지 않습니다.
+
+## Research 조합
+
+Research를 직접 요청하면 Research가 조사와 근거 보고를 단독으로 완료합니다. 설계·계획·구현
+중 외부의 다중 출처 근거가 결과를 좌우하면 Superpowers가 전체 개발 흐름을 유지하고 Research의
+결과를 다음 결정과 구현에 반영합니다.
+
+```text
+외부 근거가 필요한 설계·구현 요청
+  → Superpowers가 문제와 필요한 근거를 구체화
+  → Research가 관련 출처를 찾고 원문을 교차 검증
+  → Superpowers가 조사 결과를 설계·계획·구현에 반영
+```
+
+local debugging, 단순한 repository 탐색과 하나의 공식 문서만 확인하면 충분한 조회는 Research의
+기본 범위가 아닙니다. 반대로 구현을 포함하지 않는 다중 출처 조사에는 Superpowers를 선행시키지
+않습니다. Research만 설치된 환경에서도 조사를 완료할 수 있고, Superpowers만 설치된 환경에서도
+외부 Research의 존재를 가정하지 않고 개발 흐름을 수행합니다.
+
+Exa와 Perplexity 같은 전문 provider는 선택 사항입니다. 사용할 수 있는 provider가 없으면 generic
+web·browser·local 기능으로 조사하고, provider plugin이나 도구를 자동으로 설치·연결·인증하지
+않습니다. Fluent Languages 같은 문체 스킬은 조사 방법이나 개발 lifecycle을 소유하지 않으며,
+요청한 출력 언어에 따라 Research 또는 Superpowers와 독립적으로 함께 선택할 수 있습니다.
 
 ## Superpowers 흐름
 
@@ -88,6 +112,7 @@ diff를 보고하고 커밋 결정을 받습니다. task별 commit을 전제로 
 ## 라우팅 평가
 
 경계 변경은 [repository-level routing cases](../../evals/skill-routing/cases.json)의 positive,
-near-miss, 조합과 단독 설치 사례로 검토합니다. 이 파일은 기대 라우팅을 정의하며 JSON 파싱만
-통과했다고 실제 모델 동작이 검증된 것은 아닙니다. 모델 기반 평가는 격리된 읽기 전용 환경과
-명시된 실행 범위에서 수행하고 `pass`, `fail`, `not_run`, `inconclusive`를 구분합니다.
+near-miss, 조합, 단독 설치와 orthogonal 문체 사례로 검토합니다. 이 파일은 기대 라우팅을
+정의하며 JSON 파싱만 통과했다고 실제 모델 동작이 검증된 것은 아닙니다. 모델 기반 평가는
+격리된 읽기 전용 환경과 명시된 실행 범위에서 수행하고 `pass`, `fail`, `not_run`,
+`inconclusive`를 구분합니다.
