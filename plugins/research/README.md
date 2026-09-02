@@ -2,8 +2,8 @@
 
 여러 출처가 필요한 조사, 사실 확인, 문헌 검토와 외부 코드 사례 조사를 위한 개인 Codex
 플러그인입니다. 특정 검색 공급자가 없어도 Codex에 이미 제공된 web, browser, connector와
-로컬 자료를 사용해 가능한 범위에서 독립적으로 동작합니다. Superpowers, planning·Git
-workflow 또는 다른 스킬을 먼저 실행하거나 함께 설치했다고 가정하지 않습니다.
+로컬 자료를 사용해 가능한 범위에서 독립적으로 동작합니다. Engineering 또는 별도의
+planning·Git workflow를 먼저 실행하거나 함께 설치했다고 가정하지 않습니다.
 
 ## 선택적 공급자 설정
 

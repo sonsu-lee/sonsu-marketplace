@@ -12,7 +12,7 @@ Execute plan by dispatching a fresh implementer subagent per task, a task review
 **Core principle:** Fresh subagent per task + task review (spec + quality) + broad final review = high quality, fast iteration
 
 <HARD-GATE>
-This workflow relies on task commits for recovery and exact review ranges. Start it only when the user has explicitly authorized task commits for this plan in the current conversation. A request to execute a plan, use subagents, or work autonomously does not by itself authorize commits. If task commits are not authorized, use `superpowers:executing-plans` for inline execution and report the final diff before asking for a commit decision.
+This workflow relies on task commits for recovery and exact review ranges. Start it only when the user has explicitly authorized task commits for this plan in the current conversation. A request to execute a plan, use subagents, or work autonomously does not by itself authorize commits. If task commits are not authorized, use `engineering:executing-plans` for inline execution and report the final diff before asking for a commit decision.
 </HARD-GATE>
 
 **Narration:** between tool calls, narrate at most one short line — the
@@ -92,7 +92,7 @@ digraph process {
     "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [shape=box];
     "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" [shape=box];
     "Final review clean: delete this plan's workspace" [shape=box];
-    "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
+    "Use engineering:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "Setup: worktree, ledger check, read plan, pre-flight review" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer asks questions?";
@@ -121,14 +121,14 @@ digraph process {
     "More tasks remain?" -> "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [label="no"];
     "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals";
     "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" -> "Final review clean: delete this plan's workspace";
-    "Final review clean: delete this plan's workspace" -> "Use superpowers:finishing-a-development-branch";
+    "Final review clean: delete this plan's workspace" -> "Use engineering:finishing-a-development-branch";
 }
 ```
 
 ## Setup
 
 Ensure the work happens in an isolated workspace: use
-superpowers:using-git-worktrees to create one or verify the existing one.
+engineering:using-git-worktrees to create one or verify the existing one.
 Never start implementation on a main/master branch without your human
 partner's explicit consent.
 
@@ -456,7 +456,7 @@ branch started from, e.g. `git merge-base main HEAD`) and include the
 printed path in the final review dispatch, so the final reviewer reads
 one file instead of re-deriving the branch diff with git commands. Dispatch
 on the most capable available model (see Model Selection), using
-superpowers:requesting-code-review's
+engineering:requesting-code-review's
 [code-reviewer.md](../requesting-code-review/code-reviewer.md). Point it at
 the ledger's deferred-minor and parked lines so it can triage which must be
 fixed before merge.
@@ -490,7 +490,7 @@ delete this plan's workspace (`rm -rf <workspace>`) — the git history is
 the record now. Sibling directories belong to other plans; leave them
 alone.
 
-Use superpowers:finishing-a-development-branch.
+Use engineering:finishing-a-development-branch.
 
 ## Common Rationalizations
 
@@ -523,7 +523,7 @@ Task 1: Hook installation script
 
 Implementer: "Before I begin - should the hook be installed at user or system level?"
 
-You: "User level (~/.config/superpowers/hooks/)"
+You: "User level (~/.config/engineering/hooks/)"
 
 Implementer: [Later]
   - Implemented install-hook command
@@ -571,5 +571,5 @@ Final reviewer: All requirements met. Deferred minors triaged: none block merge.
 
 [Delete this plan's workspace — the record now lives in git]
 
-Done! Using superpowers:finishing-a-development-branch.
+Done! Using engineering:finishing-a-development-branch.
 ```

@@ -3,51 +3,51 @@
   "cases": [
     {
       "id": "direct-commit-routes-to-workflow",
-      "installed_plugins": ["superpowers", "workflow"],
+      "installed_plugins": ["engineering", "workflow"],
       "prompt": "현재 변경 중 API 수정만 Conventional Commit으로 커밋해줘. push는 하지 마.",
       "expected_sequence": ["workflow:git-workflow"],
-      "must_not_select": ["superpowers:finishing-a-development-branch"]
+      "must_not_select": ["engineering:finishing-a-development-branch"]
     },
     {
       "id": "direct-pr-routes-to-workflow",
-      "installed_plugins": ["superpowers", "workflow"],
+      "installed_plugins": ["engineering", "workflow"],
       "prompt": "현재 branch를 확인해서 GitHub PR 초안을 작성해줘. 아직 게시하지는 마.",
       "expected_sequence": ["workflow:to-pr"],
-      "must_not_select": ["superpowers:finishing-a-development-branch"]
+      "must_not_select": ["engineering:finishing-a-development-branch"]
     },
     {
       "id": "direct-ticket-routes-to-workflow",
-      "installed_plugins": ["superpowers", "workflow"],
+      "installed_plugins": ["engineering", "workflow"],
       "prompt": "합의된 구현 계획을 Linear 티켓 초안으로 변환해줘.",
       "expected_sequence": ["workflow:to-ticket"],
-      "must_not_select": ["superpowers:writing-plans"]
+      "must_not_select": ["engineering:writing-plans"]
     },
     {
-      "id": "integration-choice-routes-to-superpowers",
-      "installed_plugins": ["superpowers", "workflow"],
+      "id": "integration-choice-routes-to-engineering",
+      "installed_plugins": ["engineering", "workflow"],
       "prompt": "구현과 검증이 끝났고 commit도 모두 있어. 이 개발 branch를 어떻게 마무리할지 진행해줘.",
-      "expected_sequence": ["superpowers:finishing-a-development-branch"],
+      "expected_sequence": ["engineering:finishing-a-development-branch"],
       "must_not_select": ["workflow:git-workflow", "workflow:to-pr"]
     },
     {
       "id": "implementation-does-not-trigger-delivery",
-      "installed_plugins": ["superpowers", "workflow"],
+      "installed_plugins": ["engineering", "workflow"],
       "prompt": "토큰 갱신 기능을 구현하고 필요한 테스트를 실행해줘. Git 작업은 하지 마.",
-      "expected_plugins": ["superpowers"],
+      "expected_plugins": ["engineering"],
       "must_not_select": ["workflow:git-workflow", "workflow:to-ticket", "workflow:to-pr"]
     },
     {
       "id": "planning-list-is-not-a-ticket-request",
-      "installed_plugins": ["superpowers", "workflow"],
+      "installed_plugins": ["engineering", "workflow"],
       "prompt": "이 기능의 구현 계획을 단계별로 작성해줘. 티켓은 만들지 마.",
-      "expected_plugins": ["superpowers"],
+      "expected_plugins": ["engineering"],
       "must_not_select": ["workflow:to-ticket"]
     },
     {
       "id": "implementation-then-pr-composes-at-runtime",
-      "installed_plugins": ["superpowers", "workflow"],
+      "installed_plugins": ["engineering", "workflow"],
       "prompt": "이 기능을 구현하고 검증한 다음 현재 branch 기준 PR 초안까지 준비해줘.",
-      "expected_sequence": ["superpowers:*", "workflow:to-pr"],
+      "expected_sequence": ["engineering:*", "workflow:to-pr"],
       "must_not_assume_plugin_dependency": true
     },
     {
@@ -58,44 +58,44 @@
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "superpowers-only-remains-standalone",
-      "installed_plugins": ["superpowers"],
+      "id": "engineering-only-remains-standalone",
+      "installed_plugins": ["engineering"],
       "prompt": "구현과 검증이 끝났고 commit도 모두 있어. 이 개발 branch를 어떻게 마무리할지 진행해줘.",
-      "expected_sequence": ["superpowers:finishing-a-development-branch"],
+      "expected_sequence": ["engineering:finishing-a-development-branch"],
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "superpowers-only-handles-external-evidence-without-research",
-      "installed_plugins": ["superpowers"],
+      "id": "engineering-only-handles-external-evidence-without-research",
+      "installed_plugins": ["engineering"],
       "available_fallbacks": ["web", "browser"],
       "prompt": "OAuth 2.1의 최신 공식 문서를 확인해서 이 서비스의 인증 방식을 설계해줘. 아직 구현하지 마.",
-      "expected_sequence": ["superpowers:brainstorming"],
+      "expected_sequence": ["engineering:brainstorming"],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "direct-multi-source-research-routes-to-research",
-      "installed_plugins": ["superpowers", "research"],
+      "installed_plugins": ["engineering", "research"],
       "prompt": "브라우저 cache partitioning의 현재 동작과 보안 trade-off를 표준 문서, 브라우저 공식 문서와 관련 논문을 교차 검증해서 비교해줘. 구현은 하지 마.",
       "expected_sequence": ["research:research"],
-      "must_not_select": ["superpowers:brainstorming"]
+      "must_not_select": ["engineering:brainstorming"]
     },
     {
       "id": "development-and-research-compose-at-runtime",
-      "installed_plugins": ["superpowers", "research"],
+      "installed_plugins": ["engineering", "research"],
       "prompt": "이 서비스의 인증 방식을 설계하고 구현해줘. 설계 선택에 영향을 주는 최신 표준과 주요 라이브러리의 공식 문서를 여러 출처에서 먼저 검증해줘.",
-      "expected_sequence": ["superpowers:brainstorming", "research:research", "superpowers:*"],
+      "expected_sequence": ["engineering:brainstorming", "research:research", "engineering:*"],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "local-debugging-does-not-trigger-research",
-      "installed_plugins": ["superpowers", "research"],
+      "installed_plugins": ["engineering", "research"],
       "prompt": "이 repository에서 실패하는 단위 테스트와 관련 코드를 확인해서 원인을 찾고 수정해줘. 외부 조사는 필요 없어.",
-      "expected_plugins": ["superpowers"],
+      "expected_plugins": ["engineering"],
       "must_not_select": ["research:research"]
     },
     {
       "id": "single-official-doc-lookup-does-not-trigger-research",
-      "installed_plugins": ["superpowers", "research"],
+      "installed_plugins": ["engineering", "research"],
       "prompt": "Node.js 공식 문서에서 --env-file option이 처음 추가된 버전 하나만 확인해줘.",
       "expected_plugins": [],
       "must_not_select": ["research:research"]

@@ -1,19 +1,19 @@
 # Sonsu Marketplace
 
 개인적으로 사용하는 Codex 플러그인을 관리하는 마켓플레이스입니다. Superpowers 원본을
-개인 정책에 맞게 조정하고, Git·ticket·PR 산출물을 담당하는 Workflow와 한국어·일본어·영어 출력
+바탕으로 개인 정책에 맞춘 Engineering을 운영하고, Git·ticket·PR 산출물을 담당하는 Workflow와 한국어·일본어·영어 출력
 지침을 제공하는 Fluent Languages, 여러 출처를 검증하는 Research를 독립적으로 운영합니다.
 
 ## 등록된 플러그인
 
 | 플러그인 | 버전 | 상태 |
 | --- | --- | --- |
-| [Superpowers](plugins/superpowers/README.md) | 6.3.0-sonsu.2 | 원본 v6.3.0 기반 개발 방법론 |
+| [Engineering](plugins/engineering/README.md) | 6.3.0-sonsu.3 | Superpowers v6.3.0 기반 개발 방법론 |
 | [Workflow](plugins/workflow/.codex-plugin/plugin.json) | 0.4.0 | Git, ticket와 GitHub PR workflow |
 | [Fluent Languages](plugins/fluent-languages/.codex-plugin/plugin.json) | 0.1.0-beta.4 | 공통 코어와 언어별 한국어·일본어·영어 출력 지침 |
 | [Research](plugins/research/README.md) | 0.7.0-sonsu.1 | 여러 출처의 탐색, 원문 검증과 인용 감사 |
 
-Superpowers의 원본 커밋과 포함 범위는 [UPSTREAM.md](plugins/superpowers/UPSTREAM.md)에 기록합니다.
+Engineering이 기반으로 삼은 Superpowers 원본 커밋과 포함 범위는 [UPSTREAM.md](plugins/engineering/UPSTREAM.md)에 기록합니다.
 worktree 감지·생성 흐름과 해당 스킬 파일은 원본을 유지합니다. 스킬 안의 commit 문구를
 포함한 모든 Git 변경은 로컬 승인 게이트를 따르며, 문서 라우팅, 계획 저장과 TDD 적용
 범위는 [저장소 문서](docs/README.md)에 정의한 개인 정책을 따릅니다. 각 플러그인은 다른
@@ -27,7 +27,7 @@ sonsu-marketplace/
 │   └── plugins/
 │       └── marketplace.json
 ├── plugins/
-│   ├── superpowers/
+│   ├── engineering/
 │   │   ├── .codex-plugin/plugin.json
 │   │   ├── assets/
 │   │   ├── skills/
@@ -83,7 +83,7 @@ codex plugin list --marketplace sonsu-marketplace
 등록한 마켓플레이스에서 필요한 플러그인을 각각 설치합니다.
 
 ```sh
-codex plugin add superpowers@sonsu-marketplace
+codex plugin add engineering@sonsu-marketplace
 codex plugin add workflow@sonsu-marketplace
 codex plugin add fluent-languages@sonsu-marketplace
 codex plugin add research@sonsu-marketplace
@@ -93,6 +93,8 @@ codex plugin add research@sonsu-marketplace
 각 플러그인은 하나만 설치해도 해당 기능이 독립적으로 동작합니다. 기존 원격
 `fluent-languages@fluent-languages`를 사용 중이라면 같은 이름의 스킬이 중복되지 않도록
 기존판을 제거한 뒤 로컬판을 설치합니다.
+기존 `superpowers` 플러그인을 설치한 환경에서도 동일한 skill이 중복되지 않도록 기존판을
+제거한 뒤 `engineering`을 설치합니다.
 
 ## 플러그인 추가하기
 
@@ -120,7 +122,7 @@ Codex에서 설치 및 실행까지 확인합니다.
 
 ## 라이선스
 
-Superpowers 원본의 저작권 고지와 [MIT 라이선스](plugins/superpowers/LICENSE)를 유지합니다.
+Engineering이 가져온 Superpowers 원본의 저작권 고지와 [MIT 라이선스](plugins/engineering/LICENSE)를 유지합니다.
 Fluent Languages의 로컬 라이선스, 원본별 provenance와 제3자 라이선스 고지는 각각
 [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md)와
 [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md)에 기록합니다.

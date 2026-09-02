@@ -9,7 +9,7 @@ description: Use when creating new skills, editing existing skills, or verifying
 
 Skill changes need verification proportionate to the behavior they can affect. Frontmatter, paths, links, and loading checks are sufficient for simple metadata or reference edits. Routing, permission, safety, or multi-step workflow changes may justify realistic agent scenarios.
 
-**Personal skills live in your runtime's skills directory** (`~/.claude/skills/` on Claude Code) — see [codex-tools.md](../using-superpowers/references/codex-tools.md) or [gemini-tools.md](../using-superpowers/references/gemini-tools.md) for the path on those runtimes. Codex, Copilot CLI, and Gemini CLI all also recognize `~/.agents/skills/` as a cross-runtime alias.
+**Personal skills live in your runtime's skills directory** (`~/.claude/skills/` on Claude Code) — see [codex-tools.md](../using-engineering-skills/references/codex-tools.md) or [gemini-tools.md](../using-engineering-skills/references/gemini-tools.md) for the path on those runtimes. Codex, Copilot CLI, and Gemini CLI all also recognize `~/.agents/skills/` as a cross-runtime alias.
 
 For high-risk behavior-shaping guidance, you can use pressure scenarios with fresh agents: observe a relevant baseline failure, write focused guidance, verify improvement, and close demonstrated loopholes.
 
@@ -278,8 +278,8 @@ wc -w skills/path/SKILL.md
 **When writing documentation that references other skills:**
 
 Use skill name only, with explicit requirement markers:
-- ✅ Good: `**REQUIRED SUB-SKILL:** Use superpowers:test-driven-development`
-- ✅ Good: `**REQUIRED BACKGROUND:** You MUST understand superpowers:systematic-debugging`
+- ✅ Good: `**REQUIRED SUB-SKILL:** Use engineering:test-driven-development`
+- ✅ Good: `**REQUIRED BACKGROUND:** You MUST understand engineering:systematic-debugging`
 - ❌ Bad: `See skills/testing/test-driven-development` (unclear if required)
 - ❌ Bad: `@skills/testing/test-driven-development/SKILL.md` (force-loads, burns context)
 

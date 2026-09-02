@@ -1,0 +1,41 @@
+{
+  "name": "engineering",
+  "version": "6.3.0-sonsu.3",
+  "description": "A documentation-aware engineering method for planning, implementing, debugging, verifying, and reviewing software changes.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT",
+  "keywords": [
+    "engineering",
+    "brainstorming",
+    "subagent-driven-development",
+    "skills",
+    "planning",
+    "tdd",
+    "debugging",
+    "code-review",
+    "verification"
+  ],
+  "skills": "./skills/",
+  "hooks": {},
+  "interface": {
+    "displayName": "Engineering",
+    "shortDescription": "Planning, debugging, review, and proportionate validation",
+    "longDescription": "Guides documentation-aware planning, implementation, systematic debugging, code review, and branch completion with explicit approval points and proportionate validation.",
+    "developerName": "sonsu-lee",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "I've got an idea for something I'd like to build.",
+      "Let's add a feature to this project."
+    ],
+    "brandColor": "#F59E0B",
+    "screenshots": []
+  }
+}

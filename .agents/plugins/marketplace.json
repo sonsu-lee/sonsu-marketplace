@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "superpowers",
+      "name": "engineering",
       "source": {
         "source": "local",
-        "path": "./plugins/superpowers"
+        "path": "./plugins/engineering"
       },
       "policy": {
         "installation": "AVAILABLE",

@@ -4,6 +4,7 @@
 - Date: 2026-09-02
 - Supersedes: None
 - Superseded by: None
+- Naming note: 이 문서의 `Superpowers`는 [0005](0005-rename-superpowers-to-engineering.md)에서 `Engineering`으로 이름이 변경되었습니다.
 
 ## Context
 

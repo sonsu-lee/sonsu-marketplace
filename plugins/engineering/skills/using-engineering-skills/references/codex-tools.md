@@ -99,7 +99,7 @@ Step 1 for how each skill uses these signals.
 
 When the sandbox blocks branch/push operations (detached HEAD in an
 externally managed worktree), follow the Git authorization gate in
-`using-superpowers`. Commit only when the user explicitly authorized the
+`using-engineering-skills`. Commit only when the user explicitly authorized the
 current commit scope. Otherwise leave the verified changes uncommitted,
 report the diff, and tell the user which App control can continue the work:
 

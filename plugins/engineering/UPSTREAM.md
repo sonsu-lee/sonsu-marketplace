@@ -20,8 +20,8 @@
 
 원본 저장소의 다른 플랫폼용 매니페스트, 세션 훅, 개발용 지침,
 최상위 `docs/`, `tests/`, `scripts/` 등은 Codex 플러그인 소스 구성에서 제외합니다.
-따라서 보존한 원본 README의 다른 플랫폼용 상대 링크에는 이 패키지에 없는 경로가 있습니다.
-해당 문서는 위 기준 커밋의 원본 저장소에서 확인할 수 있습니다.
+가져오기 commit에는 원본 README가 포함되어 있습니다. 현재 README는 로컬 Engineering 배포를
+설명하도록 교체했으며, 원본의 다른 플랫폼용 안내는 위 기준 커밋에서 확인할 수 있습니다.
 
 공식 배포 아카이브를 재현한 것은 아닙니다. 원본 패키징 스크립트가 별도의 공식 배포본에서
 가져오는 `skills/*/agents/openai.yaml` 메타데이터는 이번 원본 소스 가져오기에 추가하지 않았습니다.
@@ -49,9 +49,21 @@ Codex CLI `0.149.1`의 `plugin/read`로 로컬 매니페스트와 스킬을 읽�
 - TDD는 코드의 동작 변경과 버그 수정에 적용하고, 문서·메타데이터·단순 설정에는 변경에 맞는 검증을 사용합니다.
 
 `6.3.0-sonsu.2`부터 완료된 개발 branch의 통합 결정을 일반적인 branch·commit·push·ticket·PR
-산출물 요청과 구분합니다. Superpowers는 다른 플러그인을 호출하거나 설치되었다고 가정하지
-않으며, 여러 플러그인이 필요한 요청은 Codex의 runtime routing으로 순서대로 조합합니다.
+산출물 요청과 구분합니다. 당시 `Superpowers`라는 이름의 로컬 플러그인은 다른 플러그인을
+호출하거나 설치되었다고 가정하지 않으며, 여러 플러그인이 필요한 요청은 Codex의 runtime
+routing으로 순서대로 조합합니다.
+
+`6.3.0-sonsu.3`부터 로컬 플러그인의 공개 이름과 ID를 `Engineering`과 `engineering`으로
+변경합니다. bootstrap skill은 `using-engineering-skills`, 내부 skill namespace는
+`engineering:*`를 사용합니다. 로컬 fork의 manifest는 로컬 배포·유지관리 주체를 표시하고, 원본 저작권과
+출처는 `LICENSE`와 이 문서에 보존합니다.
+
+기존 실행 artifact와 스크립트 호환성을 위해 `.superpowers/` scratch 경로와
+`SUPERPOWERS_DISABLE_TELEMETRY` 환경 변수는 유지합니다. 새 이름인
+`ENGINEERING_DISABLE_TELEMETRY`도 같은 opt-out으로 인식합니다. 원본 아이콘 파일은 provenance
+비교를 위해 남겨 두지만 Engineering manifest에서는 사용하지 않습니다.
 
 로컬 변경의 이유는 [문서·커밋 승인 결정](../../docs/decisions/0002-separate-doc-and-commit-approval.md),
 [플러그인 독립성 결정](../../docs/decisions/0003-keep-plugins-independent.md)과
+[이름 변경 결정](../../docs/decisions/0005-rename-superpowers-to-engineering.md),
 [스킬 라우팅 문서](../../docs/architecture/skill-routing.md)에 기록합니다.

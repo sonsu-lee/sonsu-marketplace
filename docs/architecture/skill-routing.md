@@ -5,14 +5,14 @@
 
 ## 플러그인 경계
 
-Superpowers, Workflow와 Research는 각각 단독으로 설치하고 사용할 수 있는 독립
+Engineering, Workflow와 Research는 각각 단독으로 설치하고 사용할 수 있는 독립
 플러그인입니다. 한 플러그인이 다른 플러그인을 import하거나 설치·선행 실행·특정 skill ID를
 전제로 하지 않습니다. 여러 영역을 포함한 요청은 Codex가 현재 설치된 스킬의 description과
 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로 선택합니다.
 
 | 직접 목적 | 담당 |
 | --- | --- |
-| 구현, 디버깅, 계획 실행과 개발 방법론 | `superpowers:*` |
+| 구현, 디버깅, 계획 실행과 개발 방법론 | `engineering:*` |
 | branch, staging, commit, 일반 push와 Git 변경 검토 | `workflow:git-workflow` |
 | ticket·issue·backlog 초안 또는 게시 | `workflow:to-ticket` |
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
@@ -20,43 +20,43 @@ Superpowers, Workflow와 Research는 각각 단독으로 설치하고 사용할 
 
 직접적인 산출물 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
 요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
-요청은 `superpowers:finishing-a-development-branch`의 범위입니다.
+요청은 `engineering:finishing-a-development-branch`의 범위입니다.
 
 ```text
 구현하고 PR 초안까지 준비
-  → Superpowers로 구현·검증
+  → Engineering으로 구현·검증
   → Workflow의 to-pr로 현재 branch를 다시 확인하고 PR 산출물 준비
 ```
 
 이 순서는 runtime 조합이며 플러그인 dependency가 아닙니다. Workflow만 설치된 환경에서는
-Git·ticket·PR 작업이 독립적으로 동작하고, Superpowers만 설치된 환경에서는 자체 개발 및
+Git·ticket·PR 작업이 독립적으로 동작하고, Engineering만 설치된 환경에서는 자체 개발 및
 branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 트리거가 반복해서 확인되기
 전에는 추가하지 않습니다.
 
 ## Research 조합
 
 Research를 직접 요청하면 Research가 조사와 근거 보고를 단독으로 완료합니다. 설계·계획·구현
-중 외부의 다중 출처 근거가 결과를 좌우하면 Superpowers가 전체 개발 흐름을 유지하고 Research의
+중 외부의 다중 출처 근거가 결과를 좌우하면 Engineering이 전체 개발 흐름을 유지하고 Research의
 결과를 다음 결정과 구현에 반영합니다.
 
 ```text
 외부 근거가 필요한 설계·구현 요청
-  → Superpowers가 문제와 필요한 근거를 구체화
+  → Engineering이 문제와 필요한 근거를 구체화
   → Research가 관련 출처를 찾고 원문을 교차 검증
-  → Superpowers가 조사 결과를 설계·계획·구현에 반영
+  → Engineering이 조사 결과를 설계·계획·구현에 반영
 ```
 
 local debugging, 단순한 repository 탐색과 하나의 공식 문서만 확인하면 충분한 조회는 Research의
-기본 범위가 아닙니다. 반대로 구현을 포함하지 않는 다중 출처 조사에는 Superpowers를 선행시키지
-않습니다. Research만 설치된 환경에서도 조사를 완료할 수 있고, Superpowers만 설치된 환경에서도
+기본 범위가 아닙니다. 반대로 구현을 포함하지 않는 다중 출처 조사에는 Engineering을 선행시키지
+않습니다. Research만 설치된 환경에서도 조사를 완료할 수 있고, Engineering만 설치된 환경에서도
 외부 Research의 존재를 가정하지 않고 개발 흐름을 수행합니다.
 
 Exa와 Perplexity 같은 전문 provider는 선택 사항입니다. 사용할 수 있는 provider가 없으면 generic
 web·browser·local 기능으로 조사하고, provider plugin이나 도구를 자동으로 설치·연결·인증하지
 않습니다. Fluent Languages 같은 문체 스킬은 조사 방법이나 개발 lifecycle을 소유하지 않으며,
-요청한 출력 언어에 따라 Research 또는 Superpowers와 독립적으로 함께 선택할 수 있습니다.
+요청한 출력 언어에 따라 Research 또는 Engineering과 독립적으로 함께 선택할 수 있습니다.
 
-## Superpowers 흐름
+## Engineering 흐름
 
 ```text
 요청
@@ -74,7 +74,7 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
 
 `using-git-worktrees` 파일은 기존 linked worktree를 재사용하고 일반 checkout에서 필요할 때
 worktree를 만드는 원본 정책을 유지합니다. 다만 스킬 안의 commit 문구를 포함한 모든 Git
-변경에는 `using-superpowers`의 전역 승인 게이트를 먼저 적용합니다.
+변경에는 `using-engineering-skills`의 전역 승인 게이트를 먼저 적용합니다.
 
 ## 문서 라우팅
 
@@ -86,6 +86,8 @@ worktree를 만드는 원본 정책을 유지합니다. 다만 스킬 안의 com
 `writing-plans`는 구현 계획을 기본적으로 대화에 작성합니다. 실행을 위해 파일이 필요하면
 Git에서 제외된 `.superpowers/plans/<topic>.md`를 사용합니다. 저장소의 기존 이슈·티켓이나
 사용자가 지정한 위치가 있으면 그 위치를 우선합니다.
+`.superpowers/`는 기존 실행 artifact를 보존하기 위한 호환성 경로이며 현재 플러그인 ID는
+`engineering`입니다.
 
 ## 커밋 라우팅
 

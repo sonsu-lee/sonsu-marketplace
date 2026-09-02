@@ -17,8 +17,8 @@ plugins/<plugin-name>/.codex-plugin/plugin.json
 | `name` | 플러그인 식별자 | 폴더명과 marketplace 항목 이름에 맞춤 |
 | `version` | 플러그인 버전 | 로컬 커스텀은 `<upstream>-sonsu.<revision>` 사용 |
 | `description` | 기능 설명 | 실제 제공 범위만 기술 |
-| `author` | 저작자 정보 | 업스트림 저작권과 출처를 보존 |
-| `homepage`, `repository` | 원본 링크 | 업스트림의 공식 위치 사용 |
+| `author` | 현재 배포·유지관리 주체 | 로컬 fork는 로컬 주체를 표시하고 원저작자와 저작권은 `LICENSE`와 `UPSTREAM.md`에 보존 |
+| `homepage`, `repository` | 현재 배포본의 공개 위치 | 유지되는 로컬 공개 위치가 없으면 생략하고 원본 링크는 `UPSTREAM.md`에 기록 |
 | `license` | 라이선스 식별자 | 포함한 라이선스 파일과 일치 |
 | `skills` | 스킬 디렉터리 | 매니페스트 기준 상대 경로 사용 |
 | `hooks` | hook 선언 | 업스트림 값과 현재 Codex 호환성을 별도 검증 |
@@ -31,14 +31,14 @@ plugins/<plugin-name>/.codex-plugin/plugin.json
 
 ```json
 {
-  "name": "superpowers",
+  "name": "engineering",
   "source": {
     "source": "local",
-    "path": "./plugins/superpowers"
+    "path": "./plugins/engineering"
   }
 }
 ```
 
 정적 validator와 Codex 실제 런타임이 지원하는 필드가 다를 수 있습니다. 이 저장소의
-Superpowers 매니페스트는 업스트림의 `hooks: {}`를 유지하므로 실제 `plugin/read` 결과를
+Engineering 매니페스트는 업스트림의 `hooks: {}`를 유지하므로 실제 `plugin/read` 결과를
 최종 호환성 근거로 사용합니다.

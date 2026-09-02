@@ -11,11 +11,11 @@ Write a buildable implementation plan for an engineer who knows little about the
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-If execution will use an isolated worktree, create or verify it with `superpowers:using-git-worktrees` at execution time.
+If execution will use an isolated worktree, create or verify it with `engineering:using-git-worktrees` at execution time.
 
 ## Plan Location
 
-The default deliverable is an in-chat plan. Do not create `docs/superpowers/plans/` or a dated plan file.
+The default deliverable is an in-chat plan. Do not create `docs/engineering/plans/` or a dated plan file.
 
 When an execution tool requires a file, save a scratch copy to:
 
@@ -52,7 +52,7 @@ Choose verification per task instead of applying one ceremony to every change.
 
 | Change | Plan |
 | --- | --- |
-| New or changed code behavior | Use `superpowers:test-driven-development`; include RED, GREEN, and regression commands |
+| New or changed code behavior | Use `engineering:test-driven-development`; include RED, GREEN, and regression commands |
 | Bug fix | Reproduce with a failing test, fix, and retain the regression test |
 | Refactoring that can change behavior | Protect affected behavior with tests before refactoring |
 | Documentation | Check links, paths, examples, and consistency with related docs |
@@ -73,7 +73,7 @@ Commit authorization: not granted
 
 Do not add `git add` or `git commit` as task steps. You may list potential commit boundaries as advisory notes, but execution requires explicit authorization. Push, PR, merge, and deployment remain separate permissions.
 
-`superpowers:subagent-driven-development` relies on task commits for recovery and review ranges. Offer it only when task commits are explicitly authorized. Otherwise use inline `superpowers:executing-plans`, report the completed diff, and ask for the commit decision.
+`engineering:subagent-driven-development` relies on task commits for recovery and review ranges. Offer it only when task commits are explicitly authorized. Otherwise use inline `engineering:executing-plans`, report the completed diff, and ask for the commit decision.
 
 ## Plan Header
 
@@ -167,7 +167,7 @@ Fix issues inline before presenting the plan.
 
 Report where the plan lives and its commit authorization state. Offer only applicable execution choices:
 
-- **Inline execution:** use `superpowers:executing-plans`; implement and verify, then report the diff before any unapproved commit.
-- **Subagent-driven execution:** use `superpowers:subagent-driven-development` only when a file-backed plan exists, subagents are available, and task commits are explicitly authorized.
+- **Inline execution:** use `engineering:executing-plans`; implement and verify, then report the diff before any unapproved commit.
+- **Subagent-driven execution:** use `engineering:subagent-driven-development` only when a file-backed plan exists, subagents are available, and task commits are explicitly authorized.
 
 Do not imply that choosing an execution mode grants additional Git or external-action permission.
