@@ -1,0 +1,27 @@
+{
+  "name": "quality-engineering",
+  "version": "0.1.0",
+  "description": "Domain-shaped implementation and evidence-grounded reviews for simplicity, maintainability, failure modes, and operability.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "Apache-2.0",
+  "interface": {
+    "displayName": "Quality Engineering",
+    "shortDescription": "Domain-shaped code and focused quality reviews",
+    "longDescription": "Guides domain-shaped, minimal implementation and reviews reachable risks in simplicity, maintainability, failure handling, and operability without owning the development lifecycle or Git delivery.",
+    "developerName": "sonsu-lee",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Implement this change with domain-shaped, minimal code.",
+      "Review this diff for over-engineering and maintainability risks.",
+      "Review this change for reachable failure modes and operability gaps."
+    ]
+  }
+}
