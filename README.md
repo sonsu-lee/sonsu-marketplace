@@ -1,7 +1,7 @@
 # Sonsu Marketplace
 
 개인적으로 사용하는 Codex 플러그인을 관리하는 마켓플레이스입니다. Superpowers 원본을
-개인 정책에 맞게 조정하고, Git·ticket·PR 산출물을 담당하는 Workflow와 한국어·일본어 출력
+개인 정책에 맞게 조정하고, Git·ticket·PR 산출물을 담당하는 Workflow와 한국어·일본어·영어 출력
 지침을 제공하는 Fluent Languages를 독립적으로 운영합니다.
 
 ## 등록된 플러그인
@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | [Superpowers](plugins/superpowers/README.md) | 6.3.0-sonsu.2 | 원본 v6.3.0 기반 개발 방법론 |
 | [Workflow](plugins/workflow/.codex-plugin/plugin.json) | 0.4.0 | Git, ticket와 GitHub PR workflow |
-| [Fluent Languages](plugins/fluent-languages/.codex-plugin/plugin.json) | 0.1.0-beta.3 | 공통 코어와 언어별 한국어·일본어 출력 지침 |
+| [Fluent Languages](plugins/fluent-languages/.codex-plugin/plugin.json) | 0.1.0-beta.4 | 공통 코어와 언어별 한국어·일본어·영어 출력 지침 |
 
 Superpowers의 원본 커밋과 포함 범위는 [UPSTREAM.md](plugins/superpowers/UPSTREAM.md)에 기록합니다.
 worktree 감지·생성 흐름과 해당 스킬 파일은 원본을 유지합니다. 스킬 안의 commit 문구를
@@ -42,6 +42,7 @@ sonsu-marketplace/
 │       └── UPSTREAM.md
 ├── evals/
 │   ├── fluent-japanese/
+│   ├── fluent-english/
 │   ├── language-style/
 │   └── skill-routing/
 ├── docs/
@@ -99,11 +100,12 @@ codex plugin add fluent-languages@sonsu-marketplace
 ```sh
 python3 -m json.tool .agents/plugins/marketplace.json
 python3 -m json.tool evals/fluent-japanese/cases.json
+python3 -m json.tool evals/fluent-english/cases.json
 python3 plugins/fluent-languages/scripts/render-skills.py --check
 ```
 
-앞의 두 명령은 JSON 문법만 확인합니다. 마지막 명령은 배포용 Fluent Languages 스킬이 공통
-코어와 언어별 정본에서 생성된 내용과 일치하는지 확인합니다. 일본어 case 파일의 parsing은
+앞의 세 명령은 JSON 문법만 확인합니다. 마지막 명령은 배포용 Fluent Languages 스킬이 공통
+코어와 언어별 정본에서 생성된 내용과 일치하는지 확인합니다. 일본어·영어 case 파일의 parsing은
 실제 모델 행동 평가가 아닙니다. 플러그인을 추가한 뒤에는 매니페스트와 참조 경로를 검토하고
 Codex에서 설치 및 실행까지 확인합니다.
 

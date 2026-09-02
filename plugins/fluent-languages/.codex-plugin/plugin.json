@@ -1,7 +1,7 @@
 {
   "name": "fluent-languages",
-  "version": "0.1.0-beta.3",
-  "description": "Personal Codex guidance for natural Korean and Japanese output.",
+  "version": "0.1.0-beta.4",
+  "description": "Personal Codex guidance for natural Korean, Japanese, and English output.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
@@ -10,6 +10,7 @@
   "keywords": [
     "korean",
     "japanese",
+    "english",
     "writing",
     "localization",
     "skills"
@@ -17,8 +18,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Fluent Languages",
-    "shortDescription": "Natural Korean and Japanese writing guidance",
-    "longDescription": "Uses language-specific Korean and Japanese generation guidance with a shared contract that preserves technical content, structure, uncertainty, and project-controlled text.",
+    "shortDescription": "Natural Korean, Japanese, and English guidance",
+    "longDescription": "Uses language-specific Korean, Japanese, and English generation guidance with a shared contract that preserves technical content, structure, uncertainty, and project-controlled text.",
     "developerName": "sonsu",
     "category": "Productivity",
     "capabilities": [

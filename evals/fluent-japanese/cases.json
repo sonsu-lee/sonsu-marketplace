@@ -255,7 +255,7 @@
           "must_not_introduce": ["staging 검증 완료", "배포 완료"]
         },
         "routing": {
-          "must_select": [],
+          "must_select": ["fluent-english"],
           "must_not_select": ["fluent-japanese", "fluent-korean"]
         }
       },

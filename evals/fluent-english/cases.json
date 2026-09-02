@@ -1,0 +1,266 @@
+{
+  "schema_version": "fluent-english-cases-v1",
+  "model_visible_fields": ["prompt", "evidence"],
+  "default_status_without_result_artifacts": "not_run",
+  "cases": [
+    {
+      "id": "actor-switch",
+      "kind": "generation",
+      "prompt": "Using only the evidence below, explain the save flow in one concise English paragraph.",
+      "evidence": "The user selects `Save`. `WebClient` sends `POST /v1/preferences`. `PreferencesAPI` validates the request. On success, `PreferencesAPI` returns `204 No Content` to `WebClient`.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["`Save`", "`WebClient`", "`POST /v1/preferences`", "`PreferencesAPI`", "`204 No Content`"],
+          "ordered_markers": ["Save", "POST /v1/preferences", "204 No Content"]
+        },
+        "semantic": {
+          "must_preserve": ["사용자가 Save를 선택한다", "WebClient가 요청을 보낸다", "PreferencesAPI가 요청을 검증하고 성공 응답을 WebClient에 반환한다"],
+          "must_not_introduce": ["사용자가 API 요청을 직접 보냈다는 주장", "WebClient가 요청을 검증했다는 주장", "입력에 없는 데이터베이스 동작"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["user, WebClient와 PreferencesAPI가 전환되는 지점에서 행위자를 혼동하지 않는가", "이름을 줄이려다가 책임 주체를 삭제하지 않는가"]
+    },
+    {
+      "id": "unknown-actor-passive",
+      "kind": "generation",
+      "prompt": "Using only the evidence below, write a short incident note in English under `## Confirmed` and `## Unconfirmed`, in that order. Do not guess who deleted the file.",
+      "evidence": "At 03:14, `config.json` was deleted. No audit log was retained, so the actor is unknown. The deployment process might be related, but that possibility has not been verified.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["03:14", "`config.json`"],
+          "required_headings": ["## Confirmed", "## Unconfirmed"],
+          "ordered_markers": ["## Confirmed", "## Unconfirmed"]
+        },
+        "semantic": {
+          "must_preserve": ["파일 삭제는 확인됐다", "삭제 행위자는 불명이다", "배포 프로세스의 관련성은 미확인 가능성이다"],
+          "must_not_introduce": ["사용자, CLI 또는 배포 프로세스를 삭제 행위자로 확정하는 주장", "감사 로그가 존재한다는 주장", "가능성을 사실로 높이는 표현"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["행위자를 알 수 없는 문장에서 수동태를 억지로 능동태로 바꾸지 않는가", "확인된 사실과 미확인 가능성을 분리하는가"]
+    },
+    {
+      "id": "pronoun-reference",
+      "kind": "generation",
+      "prompt": "Using only these facts, write two or three concise English sentences describing the request flow.",
+      "evidence": "`WebClient` sends the request to `AuthGateway`. `AuthGateway` records `request_id=R-17` and forwards the request to `TokenWorker`. `TokenWorker` retries once. The retry succeeds.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["`WebClient`", "`AuthGateway`", "`request_id=R-17`", "`TokenWorker`"]
+        },
+        "semantic": {
+          "must_preserve": ["WebClient가 요청을 AuthGateway에 보낸다", "AuthGateway가 request ID를 기록하고 요청을 전달한다", "TokenWorker가 한 번 재시도한다", "재시도는 성공한다"],
+          "must_not_introduce": ["WebClient가 기록 또는 재시도했다는 주장", "AuthGateway가 재시도했다는 주장", "두 번 이상의 재시도"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["명확한 선행사가 있는 대명사까지 기계적으로 구성 요소 이름으로 바꾸지 않는가", "AuthGateway에서 TokenWorker로 행위자가 바뀌는 지점은 명확하게 표시하는가"]
+    },
+    {
+      "id": "noun-stack-and-established-compound",
+      "kind": "generation",
+      "prompt": "Explain the two project terms below in clear English for a new contributor.",
+      "evidence": "`access token` is the project's established term for a credential used by the API client. `Customer Data Export Request Approval Policy` is the official policy name. It governs a manager's approval of requests to export customer data.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["`access token`", "API client", "`Customer Data Export Request Approval Policy`"]
+        },
+        "semantic": {
+          "must_preserve": ["access token은 API client가 사용하는 credential이다", "정책은 customer data export 요청에 대한 manager 승인을 다룬다", "긴 명칭은 공식 정책명이다"],
+          "must_not_introduce": ["정책이 export를 자동 승인한다는 주장", "access token의 명칭 변경", "공식 정책명의 변경"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["긴 noun stack의 관계는 본문에서 풀어 설명하는가", "정착된 `access token`과 공식 명칭을 명사 연쇄라는 이유만으로 재작성하지 않는가"]
+    },
+    {
+      "id": "only-scope",
+      "kind": "generation",
+      "prompt": "Using only the evidence below, write a concise English permission and safety note.",
+      "evidence": "Only administrators may run `rollback --prod`. Administrators may run it only after `health=failed` appears. The command rolls back the current release only; archived releases remain unchanged.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["`rollback --prod`", "`health=failed`"]
+        },
+        "semantic": {
+          "must_preserve": ["관리자만 명령을 실행할 수 있다", "health=failed가 표시된 후에만 실행할 수 있다", "현재 release만 rollback된다", "archived release는 바뀌지 않는다"],
+          "must_not_introduce": ["관리자 외 사용자의 실행 허용", "조건 확인 전 실행 허용", "archived release의 rollback"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["세 `only`의 범위가 각각 행위자, 조건과 대상에 정확히 연결되는가", "문장을 짧게 만들면서 제한 조건을 넓히지 않는가"]
+    },
+    {
+      "id": "direct-verb-and-legitimate-nominalization",
+      "kind": "generation",
+      "prompt": "Write a concise English change note using only these facts.",
+      "evidence": "The platform team approved the migration on 2026-09-02. The `Migration Approval` audit record stores that decision. The change updates the `authentication` subsystem and its `error handling` configuration. Deployment has not started.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["2026-09-02", "`Migration Approval`", "`authentication`", "`error handling`"]
+        },
+        "semantic": {
+          "must_preserve": ["platform team이 migration을 승인했다", "감사 기록이 결정을 저장한다", "변경 대상은 authentication subsystem과 error handling configuration이다", "배포는 시작하지 않았다"],
+          "must_not_introduce": ["migration 또는 deployment 완료", "승인 주체의 변경", "정착된 subsystem 또는 record 명칭의 변경"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["승인 행위를 불필요한 명사화로 감추지 않는가", "authentication과 error handling을 명사라는 이유로 어색하게 풀어 쓰지 않는가"]
+    },
+    {
+      "id": "british-english-and-register",
+      "kind": "generation",
+      "prompt": "Using only the evidence below, write a short customer support notice in the same friendly, professional British English as the approved sentence. Keep that sentence exactly as written.",
+      "evidence": "The project uses the spellings organisation, authorisation, and licence, and its customer notices use natural contractions. The licence renewal is available after an organisation administrator grants authorisation. If a customer cannot request renewal, support can check the account. Approved sentence: “You’ll need your organisation administrator’s authorisation before we can renew the licence.”",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["organisation", "authorisation", "licence", "You’ll need your organisation administrator’s authorisation before we can renew the licence."],
+          "literal_counts": {
+            "You’ll need your organisation administrator’s authorisation before we can renew the licence.": 1
+          }
+        },
+        "semantic": {
+          "must_preserve": ["관리자 authorisation 후 licence renewal을 이용할 수 있다", "renewal을 요청할 수 없으면 support가 account를 확인할 수 있다"],
+          "must_not_introduce": ["authorisation 없이 자동 갱신", "support가 갱신을 보장한다는 주장", "미국식 철자로의 일괄 변경"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["British English와 승인된 contraction을 유지하는가", "친근한 고객 안내를 불필요하게 딱딱하거나 법률적인 register로 바꾸지 않는가"]
+    },
+    {
+      "id": "global-date-and-abbreviation",
+      "kind": "generation",
+      "prompt": "Write a concise English notice for a global audience using only the evidence below.",
+      "evidence": "Site Reliability Engineering (SRE) reviews the change. The review deadline is `2026-09-08 17:00 UTC`. After the first mention, the team may be called SRE. No local time zone or regional date format applies. The phrase `end of day` must not be used.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["Site Reliability Engineering (SRE)", "SRE", "`2026-09-08 17:00 UTC`"],
+          "forbidden_literals": ["end of day"]
+        },
+        "semantic": {
+          "must_preserve": ["SRE가 변경을 검토한다", "검토 마감은 지정된 UTC timestamp다", "약어는 첫 사용에서 풀어 쓴다"],
+          "must_not_introduce": ["지역 시간대", "모호한 end-of-day 마감", "다른 날짜 형식 또는 마감 시각"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["국제 독자가 시간대를 추측하지 않아도 되는가", "약어를 매번 풀어 쓰거나 설명 없이 먼저 사용하지 않는가"]
+    },
+    {
+      "id": "project-terms-and-runbook-integrity",
+      "kind": "generation",
+      "prompt": "Create a short English runbook from the evidence. Use `## Steps` followed by `## Stop condition`. Keep the two numbered steps in order, reproduce the `sh` code block once, and do not rewrite project terms, UI labels, logs, or the ticket ID.",
+      "evidence": "Step 1: Select the UI label `Deploy now`. Step 2: Run the command shown below. If the log contains `[WARN] release train paused`, select `Cancel`, stop, and follow `OPS-742`. `release train` is the established project term.\n\n```sh\ndeployctl start --env prod\n```",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["`Deploy now`", "deployctl start --env prod", "`[WARN] release train paused`", "`Cancel`", "`OPS-742`", "`release train`"],
+          "required_headings": ["## Steps", "## Stop condition"],
+          "ordered_markers": ["Deploy now", "deployctl start --env prod", "[WARN] release train paused", "Cancel", "OPS-742"],
+          "exact_code_blocks": ["```sh\ndeployctl start --env prod\n```"],
+          "literal_counts": {
+            "```sh": 1
+          }
+        },
+        "semantic": {
+          "must_preserve": ["두 단계와 그 순서", "지정 로그가 나오면 Cancel을 선택하고 중단한다", "중단 후 OPS-742를 따른다"],
+          "must_not_introduce": ["명령 실행 전 추가 단계", "경고 후 계속 진행", "실행하지 않은 결과", "project term 또는 UI label의 동의어 교체"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["영어 표현을 다듬으면서 절차, 중단 조건과 보호 문자열을 바꾸지 않는가", "반복을 피하려고 `release train`을 다른 용어로 바꾸지 않는가"]
+    },
+    {
+      "id": "soft-audit-and-false-positives",
+      "kind": "generation",
+      "prompt": "Rewrite the draft as a concise English release note. Keep the factual contrast and both approved safety lines exactly as written.",
+      "evidence": "Draft: In today's fast-paced digital landscape, this game-changing release marks a pivotal moment. This change does not alter authentication; it changes retry scheduling. The scheduler now waits 30 seconds before retrying a failed job. Before rollout, if the signature is missing, stop the release. After rollback, if the signature is missing, stop the release. Overall, this is a significant improvement for everyone.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["This change does not alter authentication; it changes retry scheduling.", "30 seconds", "Before rollout, if the signature is missing, stop the release.", "After rollback, if the signature is missing, stop the release."],
+          "literal_counts": {
+            "This change does not alter authentication; it changes retry scheduling.": 1,
+            "Before rollout, if the signature is missing, stop the release.": 1,
+            "After rollback, if the signature is missing, stop the release.": 1
+          },
+          "forbidden_literals": ["In today's fast-paced digital landscape", "game-changing", "marks a pivotal moment", "Overall, this is a significant improvement for everyone."]
+        },
+        "semantic": {
+          "must_preserve": ["authentication은 바뀌지 않고 retry scheduling이 바뀐다", "실패한 job의 재시도 전 대기 시간은 30초다", "서로 다른 두 시점의 안전 중단 조건"],
+          "must_not_introduce": ["성과 또는 중요성에 대한 근거 없는 주장", "안전 문구 중 하나의 삭제", "authentication 변경"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["상투적인 홍보 문구와 빈 결론만 제거하는가", "실제 대조를 `not X but Y` 패턴이라는 이유로 삭제하지 않는가", "서로 다른 단계에서 필요한 반복 안전 문구를 합치거나 변주하지 않는가"]
+    },
+    {
+      "id": "korean-prompt-english-output-routing",
+      "kind": "routing",
+      "prompt": "아래 검증 결과를 영어로 간결하게 보고해줘. 실행하지 않은 검증을 추가하지 말고 명령과 결과는 그대로 유지해.",
+      "evidence": "`npm test`를 실행했고 결과는 `12 passed`였다. staging 검증과 배포는 실행하지 않았다.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["`npm test`", "`12 passed`", "staging"]
+        },
+        "semantic": {
+          "must_preserve": ["테스트는 실행됐다", "staging 검증과 배포는 실행하지 않았다"],
+          "must_not_introduce": ["staging 검증 완료", "배포 완료", "전체 검증 완료"]
+        },
+        "routing": {
+          "must_select": ["fluent-english"],
+          "must_not_select": ["fluent-korean", "fluent-japanese"]
+        }
+      },
+      "review_points": ["프롬프트 언어가 아니라 요청된 영어 출력으로 라우팅하는가", "출력은 영어인가"]
+    },
+    {
+      "id": "english-prompt-japanese-output-routing",
+      "kind": "routing",
+      "prompt": "Report the following validation result concisely in Japanese. Keep the command and result unchanged, and do not add checks that were not run.",
+      "evidence": "`pytest -q` returned `8 passed`. No validation was performed in `staging`.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["`pytest -q`", "`8 passed`", "`staging`"]
+        },
+        "semantic": {
+          "must_preserve": ["테스트는 실행됐다", "staging 검증은 하지 않았다"],
+          "must_not_introduce": ["staging 검증 완료", "배포 완료", "전체 검증 완료"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": ["fluent-english", "fluent-korean"]
+        }
+      },
+      "review_points": ["영어 프롬프트라는 이유만으로 영어 스킬을 선택하지 않는가", "요청된 일본어 출력에 맞춰 라우팅하는가"]
+    }
+  ]
+}
