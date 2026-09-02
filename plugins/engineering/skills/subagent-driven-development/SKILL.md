@@ -11,6 +11,9 @@ Execute plan by dispatching a fresh implementer subagent per task, a task review
 
 **Core principle:** Fresh subagent per task + task review (spec + quality) + broad final review = high quality, fast iteration
 
+Read and apply the shared [quality gate contract](../using-engineering-skills/references/quality-gates.md).
+Each task review and the final whole-branch review is a gate for one exact BASE..HEAD revision.
+
 <HARD-GATE>
 This workflow relies on task commits for recovery and exact review ranges. Start it only when the user has explicitly authorized task commits for this plan in the current conversation. A request to execute a plan, use subagents, or work autonomously does not by itself authorize commits. If task commits are not authorized, use `engineering:executing-plans` for inline execution and report the final diff before asking for a commit decision.
 </HARD-GATE>
@@ -18,21 +21,22 @@ This workflow relies on task commits for recovery and exact review ranges. Start
 **Narration:** between tool calls, narrate at most one short line — the
 ledger and the tool results carry the record.
 
-**Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. The only reasons to stop are the four named below, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it.
+**Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. The only reasons to stop are the five named below, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it.
 
-**Rulings, not stalls.** A running plan does not wait on a human. Conflicts,
-ambiguities, plan defects, a cap you would have asked to exceed — decide
-them. The spec is the binding authority, the plan is its argument, and your
-judgment settles what neither answers. Record every decision in the ledger as
+**Rulings, not stalls.** A running plan does not wait on a human for routine,
+reversible ambiguities that the approved spec and plan let you resolve safely.
+The spec is the binding authority, the plan is its argument, and your judgment
+settles details within those bounds. Record every decision in the ledger as
 `Ruling: <what you decided> — <why> — <what it costs if wrong>`, and keep
-going. A wrong ruling costs rework your human partner can see and undo; a
-session parked on a question costs their whole day and buys nothing.
+going. The five stop conditions below, including an unresolved required gate at
+its cap, are exceptions and require the human partner.
 
-Four things stop you, and only these: an irreversible or destructive
+Five things stop you, and only these: an irreversible or destructive
 operation; a security-sensitive action; a side effect outside this worktree
 that norms say you ask about first (a merge, a push to a shared branch, a
-publish); and a plan so broken that every path forward is a guess. For those,
-stop and ask.
+publish); a plan so broken that every path forward is a guess; and a required
+quality gate that reaches its retry cap with a valid unresolved finding that
+only a human may accept as risk. For those, stop and ask.
 
 ## When to Use
 
@@ -80,18 +84,22 @@ digraph process {
         "Dispatch scoped re-review (./re-review-prompt.md)" [shape=box];
         "All findings addressed?" [shape=diamond];
         "R = 5?" [shape=diamond];
-        "Adjudicate each open finding" [shape=box];
-        "Any load-bearing finding?" [shape=diamond];
-        "Rule and continue; stop only if every path forward is a guess" [shape=box];
-        "Park findings in ledger with rulings" [shape=box];
+        "Classify each residual finding with evidence" [shape=box];
+        "All residual findings disproved?" [shape=diamond];
+        "Close invalid findings with evidence" [shape=box];
+        "Record failed + decision_required; stop for human decision" [shape=box];
+        "Human accepts risk for exact revision?" [shape=diamond];
+        "Record accepted_risk" [shape=box];
+        "Return to owning stage with changed input" [shape=box];
         "Append completion to ledger, mark todo complete" [shape=box];
     }
 
     "Setup: worktree, ledger check, read plan, pre-flight review" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [shape=box];
-    "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" [shape=box];
-    "Final review clean: delete this plan's workspace" [shape=box];
+    "Final findings? ONE fix dispatch, one scoped re-review, classify residuals" [shape=box];
+    "Final gate outcome recorded" [shape=box];
+    "Delete workspace only when final gate passed" [shape=box];
     "Use engineering:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "Setup: worktree, ledger check, read plan, pre-flight review" -> "Dispatch implementer subagent (./implementer-prompt.md)";
@@ -111,17 +119,22 @@ digraph process {
     "All findings addressed?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "All findings addressed?" -> "R = 5?" [label="no"];
     "R = 5?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [label="no - next round"];
-    "R = 5?" -> "Adjudicate each open finding" [label="yes - breaker trips"];
-    "Adjudicate each open finding" -> "Any load-bearing finding?";
-    "Any load-bearing finding?" -> "Rule and continue; stop only if every path forward is a guess" [label="yes"];
-    "Any load-bearing finding?" -> "Park findings in ledger with rulings" [label="no"];
-    "Park findings in ledger with rulings" -> "Append completion to ledger, mark todo complete";
+    "R = 5?" -> "Classify each residual finding with evidence" [label="yes - breaker trips"];
+    "Classify each residual finding with evidence" -> "All residual findings disproved?";
+    "All residual findings disproved?" -> "Close invalid findings with evidence" [label="yes"];
+    "Close invalid findings with evidence" -> "Append completion to ledger, mark todo complete";
+    "All residual findings disproved?" -> "Record failed + decision_required; stop for human decision" [label="no"];
+    "Record failed + decision_required; stop for human decision" -> "Human accepts risk for exact revision?";
+    "Human accepts risk for exact revision?" -> "Record accepted_risk" [label="yes"];
+    "Record accepted_risk" -> "Append completion to ledger, mark todo complete";
+    "Human accepts risk for exact revision?" -> "Return to owning stage with changed input" [label="no"];
     "Append completion to ledger, mark todo complete" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [label="no"];
-    "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals";
-    "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" -> "Final review clean: delete this plan's workspace";
-    "Final review clean: delete this plan's workspace" -> "Use engineering:finishing-a-development-branch";
+    "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE fix dispatch, one scoped re-review, classify residuals";
+    "Final findings? ONE fix dispatch, one scoped re-review, classify residuals" -> "Final gate outcome recorded";
+    "Final gate outcome recorded" -> "Delete workspace only when final gate passed";
+    "Delete workspace only when final gate passed" -> "Use engineering:finishing-a-development-branch";
 }
 ```
 
@@ -281,8 +294,8 @@ and fix-round diffs need it.
   report. In real sessions, every reviewer a worker spawned duplicated
   the task review the controller dispatched anyway — a full extra
   review seat per task.
-- If an earlier task parked a finding in the area this task touches, carry
-  a pointer to that ledger entry in the dispatch.
+- If an earlier task has an accepted-risk or evidence-closed finding in the
+  area this task touches, carry a pointer to that ledger entry in the dispatch.
 - Record the implementer's agent identity from the dispatch result —
   fix-loop rounds 1-3 resume this agent.
 - Never dispatch multiple implementation subagents in parallel (conflicts).
@@ -318,6 +331,10 @@ final whole-branch review. Never skip the task review, and never accept a
 report missing either verdict — spec compliance AND task quality are both
 required. Implementer self-review never replaces the task review; both are
 needed.
+
+Before dispatch, record the gate's task artifact, BASE..HEAD revision, required
+verdicts, pass condition, task implementation return target, attempt cap, and
+decision owner. A missing required verdict is `inconclusive`, not clean.
 
 - Hand the reviewer its diff as a file: run this skill's
   `scripts/review-package PLAN_FILE BASE HEAD` and pass the reviewer the file path
@@ -411,46 +428,59 @@ minors — they never extend the loop.
 **After each round,** append to the ledger:
 `Task <N>: fix round <R>/5 (<X> addressed, <Y> open — <finding one-liners>; commits <a7>..<b7>)`
 
+Every retry must change the implementation, evidence, relevant context,
+evaluator, or available capability. Never repeat an unchanged deterministic
+check or tell the same reviewer to try again against the same package.
+
 Never fix findings yourself in the controller session — your context stays
 clean for coordination, and controller fixes skip review.
 
 **The breaker.** When round 5's re-review still leaves findings open, stop
-dispatching. Adjudicate each open finding yourself — you hold the plan and
-the cross-task context the reviewer lacks:
+dispatching. Classify each open finding with the plan, code, and verification
+evidence you hold:
 
-- **The reviewer is wrong, or the point is contestable:** park it —
-  `Task <N>: parked — <finding> — Ruling: <why the code stands>`. The final
-  review sees both sides.
-- **Real, but nothing downstream builds on it:** park it the same way, with
-  a ruling that says it's real and deferred.
-- **Real and load-bearing** — a later task builds on it, or it reveals a
-  plan defect: rule on the smallest change that unblocks the dependent work,
-  ledger it as `Task <N>: Ruling: <finding> — <what you decided and why>`,
-  and carry it into the next task's dispatch. Parking a structural failure
-  silently lets every dependent task build on it. Stop only when the defect
-  leaves every path forward a guess.
+- **Demonstrably invalid or outside this gate's declared scope:** close it with
+  evidence in the ledger: `Task <N>: finding closed — <finding> — Ruling:
+  <evidence that disproves or excludes it>`. A merely contestable point is not
+  enough.
+- **Valid task implementation finding:** record the gate `failed` and
+  `decision_required`, name the task implementation as the return target, and
+  stop for a human decision on a changed tactic or `accepted_risk`.
+- **Valid plan or requirement defect:** record `failed` and
+  `decision_required`, then return to the affected plan task or design
+  decision. Do not let downstream tasks build on it.
+- **Missing capability or external state:** record `blocked` and the concrete
+  condition that must change. Do not retry automatically.
 
-Adjudicate only at the cap. Adjudicating earlier to end a loop is
-pre-judging with a different name. Every adjudication is a ledger entry —
-a silent discard is forbidden.
+Only a named human decision-maker may accept a valid unresolved finding. If
+they explicitly do so for the exact revision, record `accepted_risk`, the
+finding, consequence, scope, and decision evidence. Reaching the cap, deciding
+that a defect is not load-bearing, or recording a controller ruling never turns
+a real finding into `passed`.
+
+Classify only at the cap. Classifying earlier to end a loop is pre-judging with
+a different name. Every classification is a ledger entry — a silent discard is
+forbidden.
 
 ### 5. Complete the task
 
-When the review comes back clean — or every open finding is parked with a
-ruling at the cap — append the completion line to the ledger in the same
-message as your other bookkeeping:
+When the review comes back clean, every residual finding is disproved with
+evidence, or a human explicitly accepts the remaining risk for the exact
+revision, append the completion line to the ledger in the same message as your
+other bookkeeping:
 
 - `Task <N>: complete (commits <base7>..<head7>, review clean)`
-- `Task <N>: complete (commits <base7>..<head7>, <K> parked)` after a
-  tripped breaker
+- `Task <N>: complete (commits <base7>..<head7>, accepted_risk: <decision evidence>)`
 
 Then mark the todo complete and move on. Never move to the next task while
-the review has open Critical/Important issues that are neither fixed nor
-parked-with-ruling at the cap.
+the review has an open valid Critical/Important issue without explicit human
+`accepted_risk` for that revision.
 
 ## Final Review
 
-The final whole-branch review gets a package too: run
+The final whole-branch review is another stage-owned gate. Record its artifact,
+MERGE_BASE..HEAD revision, required verdict, evidence, findings, return target,
+attempt, and decision owner. Run
 `scripts/review-package PLAN_FILE MERGE_BASE HEAD` (MERGE_BASE = the commit the
 branch started from, e.g. `git merge-base main HEAD`) and include the
 printed path in the final review dispatch, so the final reviewer reads
@@ -458,8 +488,8 @@ one file instead of re-deriving the branch diff with git commands. Dispatch
 on the most capable available model (see Model Selection), using
 engineering:requesting-code-review's
 [code-reviewer.md](../requesting-code-review/code-reviewer.md). Point it at
-the ledger's deferred-minor and parked lines so it can triage which must be
-fixed before merge.
+the ledger's deferred-minor, evidence-closed, and accepted-risk lines so it can
+triage which must be fixed before merge.
 
 If the final whole-branch review returns findings, dispatch ONE fix subagent
 with the complete findings list — not one fixer per finding.
@@ -468,27 +498,29 @@ session's final-review fix wave cost more than all its tasks combined.
 Then run exactly one scoped re-review of the fix wave
 (`scripts/review-package PLAN_FILE FIX_BASE HEAD` over the fix range,
 [re-review-prompt.md](re-review-prompt.md)).
-Adjudicate any residual findings as in the task loop's breaker: park with
-rulings, or rule on the load-bearing ones and ledger what you decided. Only
-the four classes above stop you here. There is no second fix wave —
-residual load-bearing findings surface to your human partner when
-finishing-a-development-branch presents the options.
+Classify residual findings as in the task loop's breaker. Demonstrably invalid
+findings may close with evidence. Any valid unresolved required finding records
+`failed` plus `decision_required` and stops for a human decision; it cannot be
+parked as a passed final review. There is no second fix wave without a changed
+plan, tactic, evaluator, capability, or explicit human `accepted_risk`.
 
 ## Finish
 
 Before you delete anything, collect every ledger line containing `Ruling:` —
-preflight rulings, parked findings, breaker adjudications, all of them — into
+preflight rulings and evidence-based finding classifications — and every
+`accepted_risk` line into
 your final message under "Rulings I made", in the order you made them, each
 with what it costs if wrong. The list is exhaustive: if the ledger holds a
-ruling, the list holds it. That list is the only place the decisions you
-took on your human partner's behalf reach them — they read it and rework
-whatever you got wrong. A ruling that dies with the workspace was a decision
-made in secret.
+ruling or accepted risk, the list holds it. That list is the only place the
+decisions and residual risks reach the human partner. A record that dies with
+the workspace was a decision made in secret.
 
-When the final whole-branch review is clean and its fixes are merged,
+When the final whole-branch gate is `passed` and its fixes are merged,
 delete this plan's workspace (`rm -rf <workspace>`) — the git history is
 the record now. Sibling directories belong to other plans; leave them
-alone.
+alone. If the final gate advanced under `accepted_risk`, preserve the workspace
+until the human partner chooses the branch-completion path so the evidence and
+decision record are not lost.
 
 Use engineering:finishing-a-development-branch.
 
@@ -496,11 +528,11 @@ Use engineering:finishing-a-development-branch.
 
 | Excuse | Reality |
 |--------|---------|
-| "Close enough on spec compliance" | Reviewer found spec gaps = not done. Fix or hit the cap and adjudicate — those are the only exits. |
+| "Close enough on spec compliance" | Reviewer found spec gaps = not done. Fix them, disprove them with evidence at the cap, or obtain explicit human `accepted_risk`. |
 | "I'll fix it myself, dispatching is overhead" | Controller fixes pollute your context and skip review. Resume the implementer. |
-| "One more round will converge" | Past the cap, rounds don't converge — the failure is structural. Adjudicate and route. |
+| "One more round will converge" | Past the cap, automatic rounds stop. Record the actual gate status and route the decision. |
 | "The reviewer will just find something new anyway" | Scoped re-reviews verify fixes; they cannot wander. New findings on untouched code go to the ledger, not the loop. |
-| "This finding is obviously wrong, I'll drop it" | You adjudicate only at the cap, and every ruling is a ledger entry. Silent discards are forbidden. |
+| "This finding is obviously wrong, I'll drop it" | You classify only at the cap, close it only with evidence, and record every ruling. Silent discards are forbidden. |
 | "The fix was small, skip the re-review" | Unreviewed fixes are how regressions land. Every round ends with a scoped re-review. |
 | "Reviews slow the loop down" | The loop without reviews is just unverified churn. Reviews are the loop's brakes and steering. |
 | "Ledger bookkeeping is overhead" | The ledger is what survives compaction. Controllers without one have re-dispatched entire completed task sequences. |

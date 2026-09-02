@@ -9,6 +9,9 @@ Dispatch a code reviewer subagent to catch issues before they cascade. The revie
 
 **Core principle:** Review early, review often.
 
+Read the shared [quality gate contract](../using-engineering-skills/references/quality-gates.md).
+A review is evidence for one declared artifact revision; it is not a general approval of later edits.
+
 ## When to Request Review
 
 **Mandatory:**
@@ -23,11 +26,13 @@ Dispatch a code reviewer subagent to catch issues before they cascade. The revie
 
 ## How to Request
 
-**1. Get git SHAs:**
+**1. Fix the review scope and revision:**
 ```bash
-BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
+BASE_SHA=<the task base or verified merge base>
 HEAD_SHA=$(git rev-parse HEAD)
 ```
+
+Do not default to `HEAD~1` for a multi-commit task. Use the base recorded before the task or the verified branch merge base. For an uncommitted artifact, create an immutable review package or content digest and name it in the gate record.
 
 **2. Dispatch code reviewer subagent:**
 
@@ -44,6 +49,9 @@ Dispatch a `general-purpose` subagent, filling the template at [code-reviewer.md
 - Fix Important issues before proceeding
 - Note Minor issues for later
 - Push back if reviewer is wrong (with reasoning)
+- Re-review the focused fix against the changed revision
+
+Record the review gate's artifact, revision, evidence, findings, status, return target, attempt, and decision owner. A reviewer report with missing required verdicts is `inconclusive`. If a required reviewer is unavailable, use `blocked` or `not_run`; never substitute the implementer's self-review or an unchanged retry. A technically disproved finding may be closed with evidence. A valid unresolved required finding needs a changed artifact or explicit human `accepted_risk` before the workflow advances.
 
 ## Example
 

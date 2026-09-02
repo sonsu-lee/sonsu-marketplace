@@ -1,7 +1,7 @@
 {
   "name": "engineering",
-  "version": "6.3.0-sonsu.3",
-  "description": "A documentation-aware engineering method for planning, implementing, debugging, verifying, and reviewing software changes.",
+  "version": "6.3.0-sonsu.4",
+  "description": "A documentation-aware engineering method with stage-owned quality gates for planning, implementation, debugging, verification, and review.",
   "author": {
     "name": "sonsu-lee",
     "url": "https://github.com/sonsu-lee"
@@ -22,8 +22,8 @@
   "hooks": {},
   "interface": {
     "displayName": "Engineering",
-    "shortDescription": "Planning, debugging, review, and proportionate validation",
-    "longDescription": "Guides documentation-aware planning, implementation, systematic debugging, code review, and branch completion with explicit approval points and proportionate validation.",
+    "shortDescription": "Engineering workflows with bounded quality gates",
+    "longDescription": "Guides documentation-aware planning, implementation, systematic debugging, code review, and branch completion with stage-owned quality gates, bounded backtracking, explicit approval points, and proportionate validation.",
     "developerName": "sonsu-lee",
     "category": "Developer Tools",
     "capabilities": [

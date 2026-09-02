@@ -23,3 +23,13 @@ Considered, Consequences와 Revisit When을 포함합니다.
 
 상태는 `Proposed`, `Accepted`, `Rejected`, `Superseded` 중 하나를 사용합니다. 결정을
 대체할 때에는 이전 파일을 덮어쓰지 않고 이전 문서와 새 문서에 서로의 번호를 기록합니다.
+
+## 현재 결정
+
+- [0001 Use Local Marketplace](0001-use-local-marketplace.md)
+- [0002 Separate Document and Commit Approval](0002-separate-doc-and-commit-approval.md)
+- [0003 Keep Marketplace Plugins Independent](0003-keep-plugins-independent.md)
+- [0004 Keep Research Independent](0004-keep-research-independent.md)
+- [0005 Rename the Local Superpowers Fork to Engineering](0005-rename-superpowers-to-engineering.md)
+- [0006 Keep Prompting as an Independent Plugin](0006-keep-prompting-independent.md)
+- [0007 Use Stage-Owned Quality Gates with Bounded Backtracking](0007-use-stage-owned-quality-gates.md)

@@ -11,6 +11,9 @@ description: Use when about to claim work is complete, fixed, or passing, before
 
 **Violating the letter of this rule is violating the spirit of this rule.**
 
+Read and apply the shared [quality gate contract](../using-engineering-skills/references/quality-gates.md).
+This skill supplies the final evidence gate; it does not grant any Git or external-action permission.
+
 ## The Iron Law
 
 ```
@@ -24,16 +27,26 @@ If you haven't run the verification command in this message, you cannot claim it
 ```
 BEFORE claiming any status or expressing satisfaction:
 
-1. IDENTIFY: What command proves this claim?
-2. RUN: Execute the FULL command (fresh, complete)
-3. READ: Full output, check exit code, count failures
-4. VERIFY: Does output confirm the claim?
+1. SCOPE: Identify the exact artifact and revision the claim covers
+2. IDENTIFY: What command or review proves this claim?
+3. RUN: Execute the FULL check (fresh, complete)
+4. READ: Full output, check exit code, count failures
+5. VERIFY: Does output confirm the claim for this revision?
    - If NO: State actual status with evidence
    - If YES: State claim WITH evidence
-5. ONLY THEN: Make the claim
+6. RECORD: Preserve the gate status, evidence, findings, and return target
+7. ONLY THEN: Make the claim
 
 Skip any step = lying, not verifying
 ```
+
+## Gate Outcomes
+
+- `passed` requires every required check to meet its pass condition for the current revision.
+- `failed` returns to the nearest implementation, plan, or design owner that can change the failing input.
+- `blocked`, `inconclusive`, and required `not_run` do not support a completion claim.
+- `accepted_risk` requires an explicit human decision for the exact revision. Report the unresolved risk; never reword it as tests passing or the gate passing.
+- Any artifact change makes earlier evidence stale unless the check demonstrably covered the resulting revision.
 
 ## Common Failures
 

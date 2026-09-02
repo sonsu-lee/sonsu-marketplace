@@ -29,13 +29,16 @@ This skill integrates commits that already exist. It does not turn uncommitted i
 
 First confirm the implementation worktree is clean apart from explicitly preserved unrelated changes and that the commits to integrate exist. Do not stage or commit files in this skill.
 
+Read the shared [quality gate contract](../using-engineering-skills/references/quality-gates.md).
+Confirm that the final gate names the exact commit revision to integrate. A result for an earlier working tree or commit is stale.
+
 Run the final verification required by the approved plan and the change type.
 
 - Production behavior or integration changes normally require the relevant full test suite (`npm test` / `cargo test` / `pytest` / `go test ./...`).
 - Documentation, metadata, static data, and simple configuration changes use their specified link, syntax, path, loader, or consuming-command checks instead.
 - Repository instructions or a concrete cross-cutting risk may still require a broader suite; record why it applies.
 
-**If required verification fails**, report the failures and stop — the menu comes after current evidence passes:
+**If the final gate is `failed`, `blocked`, `inconclusive`, or has a required check marked `not_run`**, report the actual state and stop — the menu comes only after current evidence supports advancing:
 
 ```
 Verification failing. Must fix before completing:
@@ -43,7 +46,9 @@ Verification failing. Must fix before completing:
 [Show failures]
 ```
 
-**If required verification passes:** continue to Step 2.
+**If the final gate is `passed`:** continue to Step 2.
+
+**If a human decision-maker explicitly recorded `accepted_risk` for this exact revision:** repeat the finding, consequence, scope, and decision evidence before continuing to Step 2. Never describe accepted risk as a passed gate.
 
 ## Step 2: Detect Environment
 

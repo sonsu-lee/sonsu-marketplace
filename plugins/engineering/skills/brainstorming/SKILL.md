@@ -101,8 +101,9 @@ your path and complete them in order.
 7. **Present the documentation action** — show the documents reviewed, proposed path, purpose, and scope; wait for approval before creating a new durable document or substantially restructuring one
 8. **Write or update approved documentation** — use the repository's established ADR, architecture, product, guide, reference, or runbook location; do not invent a dated spec path
 9. **Document self-review** — quick inline check for placeholders, contradictions, ambiguity, scope, and consistency with related docs
-10. **User reviews the written document** — when a durable document changed, ask the user to review it before planning
-11. **Transition to implementation** — invoke writing-plans to create an implementation plan; documentation approval does not authorize a commit
+10. **Run the design-document quality gate** — use proportionate checks and an independent reviewer when architecture or risk warrants it
+11. **User reviews the written document** — when a durable document changed, ask the user to review it before planning
+12. **Transition to implementation** — invoke writing-plans to create an implementation plan; documentation approval does not authorize a commit
 
 ## Process Flow
 
@@ -124,6 +125,7 @@ digraph brainstorming {
     "User approves doc action?" [shape=diamond];
     "Write/update durable docs if needed" [shape=box];
     "Document self-review\n(fix inline)" [shape=box];
+    "Design-document quality gate" [shape=diamond];
     "User reviews written doc?" [shape=diamond];
     "Invoke writing-plans skill" [shape=doublecircle];
     "Hidden complexity? Upgrade path" [shape=box];
@@ -147,7 +149,9 @@ digraph brainstorming {
     "User approves doc action?" -> "Assess documentation impact" [label="revise"];
     "User approves doc action?" -> "Write/update durable docs if needed" [label="yes"];
     "Write/update durable docs if needed" -> "Document self-review\n(fix inline)";
-    "Document self-review\n(fix inline)" -> "User reviews written doc?";
+    "Document self-review\n(fix inline)" -> "Design-document quality gate";
+    "Design-document quality gate" -> "Write/update durable docs if needed" [label="failed: revise affected section"];
+    "Design-document quality gate" -> "User reviews written doc?" [label="passed / accepted risk"];
     "User reviews written doc?" -> "Write/update durable docs if needed" [label="changes requested"];
     "User reviews written doc?" -> "Invoke writing-plans skill" [label="approved or no durable doc"];
 }
@@ -231,7 +235,20 @@ After writing or updating an approved durable document, look at it with fresh ey
 3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
 
-Fix any issues inline. No need to re-review — just fix and move on.
+Fix any issues inline before entering the design-document quality gate. The
+gate rules below determine whether a changed revision needs another review.
+
+**Design-Document Quality Gate:**
+Read the shared [quality gate contract](../using-engineering-skills/references/quality-gates.md),
+then gate the exact durable-document revision before asking for user review.
+
+1. Always run the self-review above and the applicable link, path, schema, or repository documentation checks.
+2. For an architectural or high-risk durable document, or when independent review would materially reduce planning risk, dispatch a reviewer with [spec-document-reviewer-prompt.md](spec-document-reviewer-prompt.md). Low-risk edits may record that check as `not_applicable`.
+3. Set a maximum of three review attempts (the initial review plus two revised reviews). A retry must change the affected document section, requirements evidence, or evaluator context.
+4. Return a valid finding to the smallest affected design or documentation section. Return a requirement contradiction to the relevant design decision instead of rewriting unrelated sections.
+5. Advance only with `passed` for the current revision or a human `accepted_risk`. A required but unavailable reviewer is `blocked` or `not_run`, not an implicit pass.
+
+Record the gate artifact, revision, evidence, status, findings, return target, attempt, and decision owner. Ordinary document approval does not silently accept a disclosed quality risk; accepted risk must be explicit.
 
 **User Review Gate:**
 After the document review loop passes, ask the user to review the written document before proceeding:
