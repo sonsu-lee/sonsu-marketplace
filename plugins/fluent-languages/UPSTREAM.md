@@ -2,6 +2,12 @@
 
 The Korean skill in this local Codex plugin is a generation-oriented adapted subset of an MIT-licensed project. It is not a byte-identical vendor snapshot of the upstream repository.
 
+The reusable local source is split at build time. `sources/core/` contains the shared communication and integrity contracts, while `sources/languages/korean.md` contains the Korean entrypoint and language guidance. `scripts/render-skills.py` combines every `sources/languages/<language>.md` file into a self-contained `skills/fluent-<language>/SKILL.md`; the core is not a separately triggered skill or runtime dependency.
+
+This personal marketplace intentionally maintains the shared instruction source once in Korean. The language of those instructions does not select the response language; each generated skill's name, description, scope, and language-specific source do. A future externally distributed localization would require a separate equivalence review rather than independently edited core copies.
+
+The cross-language discourse principles in `sources/core/communication.md` are local guidance derived from this marketplace's language-design review. They are not copied from or attributed to `im-not-ai`.
+
 ## `im-not-ai`
 
 - Repository: <https://github.com/epoko77-ai/im-not-ai>
