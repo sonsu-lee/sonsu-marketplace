@@ -62,7 +62,88 @@ PROMOTION_KEYS = {
     "note",
     "promoted_at",
 }
-HEX_OBJECT_ID = re.compile(r"^[0-9a-f]{40,64}$")
+HEX_OBJECT_ID = re.compile(r"^(?:[0-9a-f]{40}|[0-9a-f]{64})$")
+REQUIRED_TABLE_COLUMNS = {
+    "cache_meta": {
+        "key": ("TEXT", 0, 1),
+        "value": ("TEXT", 1, 0),
+    },
+    "queries": {
+        "query_fingerprint": ("TEXT", 0, 1),
+        "contract_json": ("TEXT", 1, 0),
+        "first_seen_at": ("TEXT", 1, 0),
+        "last_seen_at": ("TEXT", 1, 0),
+    },
+    "search_runs": {
+        "run_id": ("INTEGER", 0, 1),
+        "query_fingerprint": ("TEXT", 1, 0),
+        "searched_at": ("TEXT", 1, 0),
+        "provider": ("TEXT", 1, 0),
+        "status": ("TEXT", 1, 0),
+        "complete": ("INTEGER", 1, 0),
+        "next_cursor": ("TEXT", 0, 0),
+        "result_count": ("INTEGER", 1, 0),
+    },
+    "artifacts": {
+        "artifact_id": ("TEXT", 0, 1),
+        "canonical_repository": ("TEXT", 1, 0),
+        "full_commit_sha": ("TEXT", 1, 0),
+        "file_path": ("TEXT", 1, 0),
+        "symbol": ("TEXT", 0, 0),
+        "line_start": ("INTEGER", 0, 0),
+        "line_end": ("INTEGER", 0, 0),
+        "blob_sha": ("TEXT", 0, 0),
+        "immutable_locator": ("TEXT", 0, 0),
+        "role": ("TEXT", 0, 0),
+        "license": ("TEXT", 0, 0),
+        "verified_at": ("TEXT", 1, 0),
+        "first_seen_at": ("TEXT", 1, 0),
+        "last_seen_at": ("TEXT", 1, 0),
+    },
+    "query_artifacts": {
+        "query_fingerprint": ("TEXT", 1, 1),
+        "artifact_id": ("TEXT", 1, 2),
+        "first_seen_at": ("TEXT", 1, 0),
+        "last_seen_at": ("TEXT", 1, 0),
+    },
+    "evaluations": {
+        "artifact_id": ("TEXT", 1, 1),
+        "rubric_version": ("TEXT", 1, 2),
+        "verdict": ("TEXT", 1, 0),
+        "scores_json": ("TEXT", 1, 0),
+        "rationale": ("TEXT", 1, 0),
+        "evaluated_at": ("TEXT", 1, 0),
+    },
+    "catalog_entries": {
+        "artifact_id": ("TEXT", 1, 1),
+        "rubric_version": ("TEXT", 1, 2),
+        "note": ("TEXT", 1, 0),
+        "promoted_at": ("TEXT", 1, 0),
+    },
+}
+REQUIRED_FOREIGN_KEYS = {
+    "search_runs": {("query_fingerprint", "queries", "query_fingerprint")},
+    "query_artifacts": {
+        ("query_fingerprint", "queries", "query_fingerprint"),
+        ("artifact_id", "artifacts", "artifact_id"),
+    },
+    "evaluations": {("artifact_id", "artifacts", "artifact_id")},
+    "catalog_entries": {
+        ("artifact_id", "evaluations", "artifact_id"),
+        ("rubric_version", "evaluations", "rubric_version"),
+    },
+}
+REQUIRED_UNIQUE_INDEXES = {
+    "search_runs": {("query_fingerprint", "searched_at", "provider")},
+    "query_artifacts": {("query_fingerprint", "artifact_id")},
+    "evaluations": {("artifact_id", "rubric_version")},
+    "catalog_entries": {("artifact_id", "rubric_version")},
+}
+REQUIRED_TRIGGERS = {
+    "catalog_entries_require_accepted_insert",
+    "catalog_entries_require_accepted_update",
+    "remove_catalog_entry_after_evaluation_demotion",
+}
 
 
 class ContractError(ValueError):
@@ -93,17 +174,13 @@ def nonempty_string(value: Any, label: str) -> str:
     return value.strip()
 
 
-def normalize_space(value: str) -> str:
-    return " ".join(value.split())
-
-
 def normalize_json(value: Any) -> Any:
     if isinstance(value, dict):
         return {str(key): normalize_json(item) for key, item in sorted(value.items())}
     if isinstance(value, list):
         return [normalize_json(item) for item in value]
     if isinstance(value, str):
-        return normalize_space(value)
+        return value.strip()
     if isinstance(value, float) and not math.isfinite(value):
         raise ContractError("query contract numbers must be finite")
     if value is None or isinstance(value, (bool, int, float)):
@@ -116,7 +193,7 @@ def normalize_query_contract(value: Any) -> dict[str, Any]:
         raise ContractError("query contract must be an object")
     reject_unknown_keys(value, QUERY_KEYS, "query contract")
     provider = nonempty_string(value.get("provider"), "query contract.provider").lower()
-    query = normalize_space(nonempty_string(value.get("query"), "query contract.query"))
+    query = nonempty_string(value.get("query"), "query contract.query")
     strategy = nonempty_string(
         value.get("strategy_version"), "query contract.strategy_version"
     )
@@ -150,13 +227,25 @@ def normalize_repository(value: Any) -> str:
         port_number = parts.port
     except ValueError as exc:
         raise ContractError("artifact.canonical_repository contains an invalid port") from exc
-    port = f":{port_number}" if port_number else ""
+    scheme = parts.scheme.lower()
     path = parts.path.rstrip("/")
     if path.endswith(".git"):
         path = path[:-4]
     if host == "github.com":
-        path = path.lower()
-    return urlunsplit((parts.scheme.lower(), host + port, path, "", ""))
+        if port_number not in (None, 80, 443):
+            raise ContractError("artifact.canonical_repository contains an unsupported GitHub port")
+        path_parts = path.strip("/").split("/")
+        if len(path_parts) != 2 or not all(path_parts):
+            raise ContractError("artifact.canonical_repository must identify one GitHub owner/repository")
+        path = "/" + "/".join(part.lower() for part in path_parts)
+        return urlunsplit(("https", host, path, "", ""))
+    if not path:
+        raise ContractError("artifact.canonical_repository URL must include a repository path")
+    default_port = (scheme == "http" and port_number == 80) or (
+        scheme == "https" and port_number == 443
+    )
+    port = "" if port_number is None or default_port else f":{port_number}"
+    return urlunsplit((scheme, host + port, path, "", ""))
 
 
 def normalize_timestamp(value: Any, label: str, default: str | None = None) -> str:
@@ -181,7 +270,7 @@ def normalize_artifact(value: Any, default_time: str) -> tuple[str, dict[str, An
     repository = normalize_repository(value.get("canonical_repository"))
     full_commit_sha = nonempty_string(value.get("full_commit_sha"), "artifact.full_commit_sha").lower()
     if not HEX_OBJECT_ID.fullmatch(full_commit_sha):
-        raise ContractError("artifact.full_commit_sha must be a full 40-64 character hex object ID")
+        raise ContractError("artifact.full_commit_sha must be a full 40 or 64 character hex object ID")
 
     file_path = nonempty_string(value.get("file_path"), "artifact.file_path").replace("\\", "/")
     path = PurePosixPath(file_path)
@@ -189,8 +278,9 @@ def normalize_artifact(value: Any, default_time: str) -> tuple[str, dict[str, An
         raise ContractError("artifact.file_path must be a repository-relative POSIX path")
     file_path = str(path)
 
-    symbol = normalize_space(value["symbol"]) if isinstance(value.get("symbol"), str) else None
-    symbol = symbol or None
+    symbol = None
+    if "symbol" in value and value["symbol"] is not None:
+        symbol = nonempty_string(value["symbol"], "artifact.symbol")
     line_start = value.get("line_start")
     line_end = value.get("line_end")
     if line_start is not None and (not isinstance(line_start, int) or isinstance(line_start, bool) or line_start < 1):
@@ -201,14 +291,16 @@ def normalize_artifact(value: Any, default_time: str) -> tuple[str, dict[str, An
         raise ContractError("artifact.line_end requires artifact.line_start")
     if line_start is not None and line_end is not None and line_end < line_start:
         raise ContractError("artifact.line_end must not precede artifact.line_start")
+    if symbol is None and line_start is None:
+        raise ContractError("artifact requires artifact.symbol or artifact.line_start")
 
     blob_sha = value.get("blob_sha")
     if blob_sha is not None:
         blob_sha = nonempty_string(blob_sha, "artifact.blob_sha").lower()
         if not HEX_OBJECT_ID.fullmatch(blob_sha):
-            raise ContractError("artifact.blob_sha must be a full 40-64 character hex object ID")
+            raise ContractError("artifact.blob_sha must be a full 40 or 64 character hex object ID")
 
-    identity = {
+    normalized = {
         "canonical_repository": repository,
         "full_commit_sha": full_commit_sha,
         "file_path": file_path,
@@ -216,7 +308,16 @@ def normalize_artifact(value: Any, default_time: str) -> tuple[str, dict[str, An
         "line_start": line_start,
         "line_end": line_end,
     }
-    normalized = dict(identity)
+    identity = {
+        "canonical_repository": repository,
+        "full_commit_sha": full_commit_sha,
+        "file_path": file_path,
+    }
+    if symbol is not None:
+        identity["symbol"] = symbol
+    else:
+        identity["line_start"] = line_start
+        identity["line_end"] = line_end
     for key in ("immutable_locator", "role", "license"):
         if value.get(key) is not None:
             normalized[key] = nonempty_string(value[key], f"artifact.{key}")
@@ -324,6 +425,39 @@ def initialize_schema(connection: sqlite3.Connection) -> None:
             FOREIGN KEY (artifact_id, rubric_version)
                 REFERENCES evaluations(artifact_id, rubric_version)
         );
+        CREATE TRIGGER IF NOT EXISTS catalog_entries_require_accepted_insert
+        BEFORE INSERT ON catalog_entries
+        FOR EACH ROW
+        WHEN NOT EXISTS (
+            SELECT 1 FROM evaluations
+            WHERE artifact_id = NEW.artifact_id
+              AND rubric_version = NEW.rubric_version
+              AND verdict = 'accepted'
+        )
+        BEGIN
+            SELECT RAISE(ABORT, 'catalog entry requires an accepted evaluation');
+        END;
+        CREATE TRIGGER IF NOT EXISTS catalog_entries_require_accepted_update
+        BEFORE UPDATE ON catalog_entries
+        FOR EACH ROW
+        WHEN NOT EXISTS (
+            SELECT 1 FROM evaluations
+            WHERE artifact_id = NEW.artifact_id
+              AND rubric_version = NEW.rubric_version
+              AND verdict = 'accepted'
+        )
+        BEGIN
+            SELECT RAISE(ABORT, 'catalog entry requires an accepted evaluation');
+        END;
+        CREATE TRIGGER IF NOT EXISTS remove_catalog_entry_after_evaluation_demotion
+        AFTER UPDATE OF verdict ON evaluations
+        FOR EACH ROW
+        WHEN NEW.verdict <> 'accepted'
+        BEGIN
+            DELETE FROM catalog_entries
+            WHERE artifact_id = NEW.artifact_id
+              AND rubric_version = NEW.rubric_version;
+        END;
         """
     )
     row = connection.execute("SELECT value FROM cache_meta WHERE key = 'schema_version'").fetchone()
@@ -334,6 +468,27 @@ def initialize_schema(connection: sqlite3.Connection) -> None:
         )
     elif row["value"] != str(SCHEMA_VERSION):
         raise ContractError(f"unsupported schema version: {row['value']}")
+    ensure_schema(connection)
+
+
+def table_columns(connection: sqlite3.Connection, table: str) -> dict[str, tuple[str, int, int]]:
+    return {
+        row["name"]: (row["type"].upper(), row["notnull"], row["pk"])
+        for row in connection.execute(f"PRAGMA table_info({table})")
+    }
+
+
+def unique_indexes(connection: sqlite3.Connection, table: str) -> set[tuple[str, ...]]:
+    indexes: set[tuple[str, ...]] = set()
+    for row in connection.execute(f"PRAGMA index_list({table})"):
+        if row["unique"]:
+            index_name = '"' + row["name"].replace('"', '""') + '"'
+            columns = tuple(
+                item["name"]
+                for item in connection.execute(f"PRAGMA index_info({index_name})")
+            )
+            indexes.add(columns)
+    return indexes
 
 
 def ensure_schema(connection: sqlite3.Connection) -> None:
@@ -346,6 +501,56 @@ def ensure_schema(connection: sqlite3.Connection) -> None:
     if row is None or row["value"] != str(SCHEMA_VERSION):
         found = None if row is None else row["value"]
         raise ContractError(f"unsupported schema version: {found}")
+
+    objects = {
+        (item["type"], item["name"])
+        for item in connection.execute(
+            "SELECT type, name FROM sqlite_master WHERE type IN ('table', 'trigger')"
+        )
+    }
+    missing_tables = sorted(
+        table for table in REQUIRED_TABLE_COLUMNS if ("table", table) not in objects
+    )
+    if missing_tables:
+        raise ContractError(f"missing required table: {', '.join(missing_tables)}")
+
+    for table, expected_columns in REQUIRED_TABLE_COLUMNS.items():
+        actual_columns = table_columns(connection, table)
+        if actual_columns != expected_columns:
+            raise ContractError(f"table {table} has incompatible columns")
+
+    for table, expected_keys in REQUIRED_FOREIGN_KEYS.items():
+        actual_keys = {
+            (item["from"], item["table"], item["to"])
+            for item in connection.execute(f"PRAGMA foreign_key_list({table})")
+        }
+        if not expected_keys.issubset(actual_keys):
+            raise ContractError(f"table {table} is missing required foreign keys")
+
+    for table, expected_indexes in REQUIRED_UNIQUE_INDEXES.items():
+        actual_indexes = unique_indexes(connection, table)
+        if not expected_indexes.issubset(actual_indexes):
+            raise ContractError(f"table {table} is missing a required unique constraint")
+
+    missing_triggers = sorted(
+        trigger for trigger in REQUIRED_TRIGGERS if ("trigger", trigger) not in objects
+    )
+    if missing_triggers:
+        raise ContractError(f"missing required trigger: {', '.join(missing_triggers)}")
+
+    if connection.execute("PRAGMA foreign_key_check").fetchone() is not None:
+        raise ContractError("cache database contains foreign-key violations")
+    invalid_catalog = connection.execute(
+        """
+        SELECT 1 FROM catalog_entries c
+        LEFT JOIN evaluations e
+          ON e.artifact_id = c.artifact_id AND e.rubric_version = c.rubric_version
+        WHERE e.verdict IS NULL OR e.verdict <> 'accepted'
+        LIMIT 1
+        """
+    ).fetchone()
+    if invalid_catalog is not None:
+        raise ContractError("cache database contains a catalog entry without an accepted evaluation")
 
 
 def load_input(path: str) -> Any:
@@ -418,9 +623,15 @@ def record_run(connection: sqlite3.Connection, payload: Any) -> dict[str, Any]:
             (fingerprint, searched_at, provider, status, int(complete), next_cursor, result_count),
         )
         unique_artifacts = 0
+        evaluations_invalidated = 0
+        catalog_entries_invalidated = 0
         for artifact_id, artifact in normalized_artifacts:
             existing = connection.execute(
-                "SELECT blob_sha FROM artifacts WHERE artifact_id = ?", (artifact_id,)
+                """
+                SELECT blob_sha, immutable_locator, role, license
+                FROM artifacts WHERE artifact_id = ?
+                """,
+                (artifact_id,),
             ).fetchone()
             if (
                 existing is not None
@@ -431,6 +642,19 @@ def record_run(connection: sqlite3.Connection, payload: Any) -> dict[str, Any]:
                 raise ContractError(f"artifact {artifact_id} has conflicting blob_sha values")
             if existing is None:
                 unique_artifacts += 1
+            else:
+                evidence_changed = any(
+                    artifact.get(field) is not None
+                    and existing[field] != artifact.get(field)
+                    for field in ("blob_sha", "immutable_locator", "role", "license")
+                )
+                if evidence_changed:
+                    catalog_entries_invalidated += connection.execute(
+                        "DELETE FROM catalog_entries WHERE artifact_id = ?", (artifact_id,)
+                    ).rowcount
+                    evaluations_invalidated += connection.execute(
+                        "DELETE FROM evaluations WHERE artifact_id = ?", (artifact_id,)
+                    ).rowcount
             connection.execute(
                 """
                 INSERT INTO artifacts(
@@ -439,6 +663,8 @@ def record_run(connection: sqlite3.Connection, payload: Any) -> dict[str, Any]:
                     verified_at, first_seen_at, last_seen_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(artifact_id) DO UPDATE SET
+                    line_start = COALESCE(excluded.line_start, artifacts.line_start),
+                    line_end = COALESCE(excluded.line_end, artifacts.line_end),
                     blob_sha = COALESCE(artifacts.blob_sha, excluded.blob_sha),
                     immutable_locator = COALESCE(excluded.immutable_locator, artifacts.immutable_locator),
                     role = COALESCE(excluded.role, artifacts.role),
@@ -484,11 +710,19 @@ def record_run(connection: sqlite3.Connection, payload: Any) -> dict[str, Any]:
         ).fetchone()["run_id"],
         "artifacts_recorded": len(normalized_artifacts),
         "unique_artifacts_added": unique_artifacts,
+        "evaluations_invalidated": evaluations_invalidated,
+        "catalog_entries_invalidated": catalog_entries_invalidated,
     }
 
 
-def lookup(connection: sqlite3.Connection, contract_input: Any) -> dict[str, Any]:
+def lookup(
+    connection: sqlite3.Connection,
+    contract_input: Any,
+    rubric_version: str | None = None,
+) -> dict[str, Any]:
     fingerprint, contract = query_fingerprint(contract_input)
+    if rubric_version is not None:
+        rubric_version = nonempty_string(rubric_version, "--rubric-version")
     query = connection.execute(
         "SELECT * FROM queries WHERE query_fingerprint = ?", (fingerprint,)
     ).fetchone()
@@ -499,13 +733,13 @@ def lookup(connection: sqlite3.Connection, contract_input: Any) -> dict[str, Any
         """
         SELECT searched_at, provider, status, complete, next_cursor, result_count
         FROM search_runs WHERE query_fingerprint = ?
-        ORDER BY run_id DESC LIMIT 1
+        ORDER BY searched_at DESC, run_id DESC LIMIT 1
         """,
         (fingerprint,),
     ).fetchone()
     rows = connection.execute(
         """
-        SELECT a.* FROM artifacts a
+        SELECT a.*, qa.last_seen_at AS query_last_seen_at FROM artifacts a
         JOIN query_artifacts qa ON qa.artifact_id = a.artifact_id
         WHERE qa.query_fingerprint = ?
         ORDER BY a.canonical_repository, a.file_path, a.symbol, a.line_start
@@ -515,7 +749,8 @@ def lookup(connection: sqlite3.Connection, contract_input: Any) -> dict[str, Any
     artifacts = []
     for row in rows:
         item = dict(row)
-        item["reuse_state"] = "reused"
+        query_last_seen_at = item.pop("query_last_seen_at")
+        item["last_seen_for_query_at"] = query_last_seen_at
         item["mutable_revalidation_required"] = True
         evaluations = connection.execute(
             """
@@ -531,12 +766,40 @@ def lookup(connection: sqlite3.Connection, contract_input: Any) -> dict[str, Any
             }
             for evaluation in evaluations
         ]
+        selected_evaluation = next(
+            (
+                evaluation
+                for evaluation in item["evaluations"]
+                if evaluation["rubric_version"] == rubric_version
+            ),
+            None,
+        )
+        if rubric_version is None and len(item["evaluations"]) == 1:
+            selected_evaluation = item["evaluations"][0]
+        if selected_evaluation is not None and selected_evaluation["verdict"] in {
+            "partial",
+            "rejected",
+        }:
+            item["reuse_state"] = selected_evaluation["verdict"]
+        elif (
+            latest_run is not None
+            and bool(latest_run["complete"])
+            and query_last_seen_at < latest_run["searched_at"]
+        ):
+            item["reuse_state"] = "stale"
+        else:
+            item["reuse_state"] = "reused"
         artifacts.append(item)
+    latest_run_output = None
+    if latest_run is not None:
+        latest_run_output = dict(latest_run)
+        latest_run_output["complete"] = bool(latest_run_output["complete"])
     return {
         "query_fingerprint": fingerprint,
         "query_contract": contract,
+        "rubric_version": rubric_version,
         "cache_state": "hit" if artifacts else "hit_empty",
-        "latest_run": None if latest_run is None else dict(latest_run),
+        "latest_run": latest_run_output,
         "artifacts": artifacts,
     }
 
@@ -609,25 +872,21 @@ def promote(connection: sqlite3.Connection, payload: Any) -> dict[str, Any]:
     rubric_version = nonempty_string(payload.get("rubric_version"), "promotion.rubric_version")
     note = nonempty_string(payload.get("note"), "promotion.note")
     promoted_at = normalize_timestamp(payload.get("promoted_at"), "promotion.promoted_at", utc_now())
-    evaluation = connection.execute(
-        """
-        SELECT verdict FROM evaluations WHERE artifact_id = ? AND rubric_version = ?
-        """,
-        (artifact_id, rubric_version),
-    ).fetchone()
-    if evaluation is None or evaluation["verdict"] != "accepted":
-        raise ContractError("only an accepted evaluation can be promoted to the catalog")
     with connection:
-        connection.execute(
+        promoted = connection.execute(
             """
             INSERT INTO catalog_entries(artifact_id, rubric_version, note, promoted_at)
-            VALUES (?, ?, ?, ?)
+            SELECT artifact_id, rubric_version, ?, ?
+            FROM evaluations
+            WHERE artifact_id = ? AND rubric_version = ? AND verdict = 'accepted'
             ON CONFLICT(artifact_id, rubric_version) DO UPDATE SET
                 note = excluded.note,
                 promoted_at = excluded.promoted_at
             """,
-            (artifact_id, rubric_version, note, promoted_at),
+            (note, promoted_at, artifact_id, rubric_version),
         )
+        if promoted.rowcount == 0:
+            raise ContractError("only an accepted evaluation can be promoted to the catalog")
     return {"artifact_id": artifact_id, "rubric_version": rubric_version, "cataloged": True}
 
 
@@ -672,7 +931,12 @@ def build_parser() -> argparse.ArgumentParser:
     fingerprint_parser = subparsers.add_parser("fingerprint", help="hash a query contract")
     fingerprint_parser.add_argument("--input", required=True, help="JSON file or - for stdin")
 
-    for command in ("lookup", "record-run", "evaluate", "promote"):
+    lookup_parser = subparsers.add_parser("lookup")
+    lookup_parser.add_argument("--db", required=True)
+    lookup_parser.add_argument("--input", required=True, help="JSON file or - for stdin")
+    lookup_parser.add_argument("--rubric-version")
+
+    for command in ("record-run", "evaluate", "promote"):
         command_parser = subparsers.add_parser(command)
         command_parser.add_argument("--db", required=True)
         command_parser.add_argument("--input", required=True, help="JSON file or - for stdin")
@@ -698,7 +962,7 @@ def main(argv: list[str] | None = None) -> int:
             if args.command == "init":
                 output({"db": str(path), "schema_version": SCHEMA_VERSION})
             elif args.command == "lookup":
-                output(lookup(connection, load_input(args.input)))
+                output(lookup(connection, load_input(args.input), args.rubric_version))
             elif args.command == "record-run":
                 output(record_run(connection, load_input(args.input)))
             elif args.command == "evaluate":

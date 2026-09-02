@@ -98,7 +98,7 @@ cap이나 `incomplete` 상태가 있으면 전수 조사라고 표현하지 않�
 | evidence store | 검증을 다시 수행할 위치 보존 | canonical repository, full SHA, path, symbol/range, blob SHA, immutable locator |
 | curated catalog | 좋은 사례만 재사용 | accepted artifact, rubric version, 판정과 짧은 적용 메모 |
 
-query fingerprint는 `provider + normalized query + filters + language/framework/version + query_strategy_version`의 canonical JSON SHA-256이다. artifact ID는 정규화한 `canonical repository + full commit SHA + file path + symbol 또는 line range`의 canonical JSON SHA-256이다. blob SHA는 snapshot 무결성과 copy 계보 확인에 사용하되, 나중에 blob SHA를 확보했다는 이유만으로 같은 artifact를 새 사례로 만들지 않는다.
+query fingerprint는 `provider + normalized query + filters + language/framework/version + query_strategy_version`의 canonical JSON SHA-256이다. query와 filter 문자열은 바깥쪽 공백만 제거하고 정규식·문자열 리터럴의 의미가 달라질 수 있는 내부 공백은 보존한다. artifact ID는 정규화한 `canonical repository + full commit SHA + file path + symbol 또는 line range`의 canonical JSON SHA-256이다. GitHub의 `owner/repository`, HTTP(S) URL과 `.git` suffix는 같은 canonical HTTPS repository로 합친다. commit과 blob object ID는 정확히 40자 또는 64자 hex만 허용한다. blob SHA는 snapshot 무결성과 copy 계보 확인에 사용하되, 나중에 blob SHA를 확보했다는 이유만으로 같은 artifact를 새 사례로 만들지 않는다.
 
 immutable commit의 코드, path와 blob은 재사용할 수 있다. 현재 default branch·HEAD, 최신 release 포함 여부, 저장소 archived 상태, 현재 라이선스 정책, 열려 있는 issue와 유지보수 상태처럼 mutable한 주장은 매번 다시 확인한다.
 
@@ -121,13 +121,16 @@ immutable commit의 코드, path와 blob은 재사용할 수 있다. 현재 defa
 - source code, snippet, diff, 검색 원문, credential과 비공개 문서 본문은 입력 schema에서 허용하지 않는다.
 - `record-run`, `evaluate`, `promote`는 쓰기 작업이므로 각 조사에서 승인된 persistence 범위 안에서만 호출한다.
 - `lookup`과 `catalog`은 외부 검색을 수행하지 않으며 DB의 기존 metadata만 읽는다.
+- `init`과 모든 DB 명령은 schema version만 보지 않고 필수 table, column, foreign key, unique constraint와 catalog invariant trigger를 검증한다. 일부만 만들어진 파일을 cache로 간주하지 않는다.
+- 기존 artifact의 `blob_sha`, `immutable_locator`, `role` 또는 `license`가 보강·변경되면 그 metadata에 기대던 평가와 catalog 항목을 같은 transaction에서 무효화하고 재평가를 요구한다. 충돌하는 non-null `blob_sha`는 갱신하지 않고 거부한다.
+- `lookup`은 실제 `searched_at` 기준의 최신 run을 반환하고 `complete`를 JSON boolean으로 직렬화한다. 최신 complete run에서 사라진 artifact는 `stale`로, 선택한 rubric의 hard gate가 실패한 artifact는 `partial` 또는 `rejected`로 표시한다.
 
 대표적인 흐름은 다음과 같다.
 
 ```text
 init --db <absolute-path>
 fingerprint --input <query-contract.json>
-lookup --db <absolute-path> --input <query-contract.json>
+lookup --db <absolute-path> --input <query-contract.json> [--rubric-version <version>]
 record-run --db <absolute-path> --input <verified-run.json>
 evaluate --db <absolute-path> --input <evaluation.json>
 promote --db <absolute-path> --input <promotion.json>
@@ -169,6 +172,6 @@ catalog --db <absolute-path> [--rubric-version <version>]
 }
 ```
 
-`evaluate`는 `artifact_id`, `rubric_version`, `accepted | partial | rejected`, 숫자형 `scores`, 짧은 `rationale`와 `evaluated_at`을 받는다. `promote`는 같은 `artifact_id`와 `rubric_version`, 적용 맥락을 설명하는 `note`, `promoted_at`을 받으며 `accepted` 평가만 catalog에 넣는다. 재평가가 `partial`이나 `rejected`로 바뀌면 기존 catalog 항목을 제거한다.
+`evaluate`는 `artifact_id`, `rubric_version`, `accepted | partial | rejected`, 숫자형 `scores`, 짧은 `rationale`와 `evaluated_at`을 받는다. `promote`는 같은 `artifact_id`와 `rubric_version`, 적용 맥락을 설명하는 `note`, `promoted_at`을 받으며 `accepted` 평가만 catalog에 넣는다. 이 조건은 승격 SQL과 DB trigger가 함께 강제하므로 평가가 동시에 바뀌어도 rejected 결과가 catalog에 남지 않는다. 재평가가 `partial`이나 `rejected`로 바뀌면 기존 catalog 항목을 제거한다. 여러 rubric의 평가가 함께 저장된 경우 `lookup --rubric-version`으로 이번 조사에서 사용할 판정을 지정한다.
 
 메모리 저장을 별도로 요청받았더라도 raw 결과나 전체 catalog를 넣지 않는다. 장기 정책, 사용자가 선택한 cache locator와 대표 artifact ID처럼 작은 pointer만 남기고, 실제 검색·검증 상태는 이 구조화된 저장소에서 조회한다.
