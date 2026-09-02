@@ -1,0 +1,43 @@
+# Research 원본 출처
+
+`skills/research/`는 아래 원본 저장소의 한 skill subtree를 독립 Codex 플러그인으로 패키징한
+것입니다.
+
+- 원본 저장소: <https://github.com/sonsu-lee/skills>
+- 기준 커밋: [`e8313cb43b8913a47b1d2f5997d1fdc877344660`](https://github.com/sonsu-lee/skills/commit/e8313cb43b8913a47b1d2f5997d1fdc877344660)
+- 원본 플러그인 버전: `0.7.0`
+- 원본 subtree: `skills/research/`
+- 원본 Git tree: `d49869e56357e14c6ee2630c006d0ed09b086697`
+- 가져온 날짜: `2026-09-02`
+- 라이선스: 기준 커밋의 저장소 루트와 subtree에 `LICENSE` 또는 `COPYING` 파일이 없으므로
+  별도 라이선스를 추정하지 않습니다.
+
+## 기준선 포함 범위
+
+다음 8개 파일은 기준 커밋의 `skills/research/`에서 내용과 실행 권한을 변경하지 않고
+가져왔습니다.
+
+- `SKILL.md`
+- `agents/openai.yaml`
+- `evals/cases.json`
+- `evals/rubric.md`
+- `references/code-research.md`
+- `references/evidence-policy.md`
+- `references/tool-routing.md`
+- `references/workflow-integration.md`
+
+`plugins/research/.codex-plugin/plugin.json`, 이 플러그인의 `README.md`, 이 파일과 marketplace
+등록은 독립 배포를 위한 로컬 wrapper이며 원본 subtree의 일부가 아닙니다. 원본 저장소의
+공통 평가 harness, 다른 skills와 플랫폼별 파일은 runtime에 필요하지 않아 포함하지 않았습니다.
+
+## 기준선 검증
+
+원본과 로컬 subtree의 상대 경로, regular file mode와 SHA-256을 비교합니다. 기준선 8개
+파일을 POSIX 상대 경로로 정렬하고 각 행을 `0o644 <file SHA-256> <relative path>`로 만든 뒤,
+UTF-8 LF로 연결하되 마지막 LF는 붙이지 않습니다. 이 바이트열의 SHA-256은 다음과 같습니다.
+
+```text
+23295810086d4bd2cc594472714c0d7af3a6564e6753738f7e20c87ed680306c
+```
+
+로컬 정책 변경은 이 기준선 commit 다음의 별도 commit에서 수행합니다.

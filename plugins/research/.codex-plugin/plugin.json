@@ -1,0 +1,23 @@
+{
+  "name": "research",
+  "version": "0.7.0-sonsu.0",
+  "description": "Evidence-driven multi-source research, fact-checking, literature review, and code research for Codex.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "homepage": "https://github.com/sonsu-lee/skills/tree/main/skills/research",
+  "repository": "https://github.com/sonsu-lee/skills",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Research",
+    "shortDescription": "Evidence-driven multi-source research",
+    "longDescription": "Classifies research depth, verifies canonical sources, resolves conflicting evidence, and audits citations without requiring a specific search provider.",
+    "developerName": "sonsu-lee",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive"
+    ],
+    "defaultPrompt": "여러 출처를 조사하고 원문을 교차 검증해 근거 중심의 답변을 작성해줘."
+  }
+}
