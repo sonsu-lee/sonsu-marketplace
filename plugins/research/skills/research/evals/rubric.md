@@ -42,6 +42,13 @@
 | `license_check` | 해당 snapshot·저장소의 라이선스 정체성과 적용 범위를 확인 |
 | `implementation_evidence` | 문서의 주장만이 아니라 해당 버전의 실제 구현·테스트를 확인 |
 | `retrieval_vs_execution_evidence` | 읽어서 확인한 사실과 실행 검증을 구분 |
+| `code_query_families` | definition·usage·behavior·test·provenance·counterexample처럼 증거 역할이 다른 질의를 계획하고 표현만 바꾼 중복 검색을 피함 |
+| `quality_hard_gates` | popularity나 점수보다 같은 snapshot의 call path·테스트·실패 의미·라이선스·revision 일치를 먼저 확인하고 실패를 `partial` 또는 `rejected`로 둠 |
+| `artifact_deduplication` | canonical repository, full SHA, path, symbol·range와 blob 계보로 fork·mirror·vendored copy를 중복 제거 |
+| `default_persistence_off`, `explicit_persistence_opt_in` | code search cache는 기본적으로 접근하지 않고, 사용자가 mode와 절대 경로를 승인한 경우에만 해당 경로에서 읽고 씀 |
+| `query_fingerprint`, `immutable_artifact_reuse` | provider·정규화 query·filters·환경·strategy version으로 질의를 식별하고 full SHA의 immutable artifact를 재사용 |
+| `mutable_fact_revalidation`, `gap_only_incremental_search` | 현재 HEAD·release·archived·maintenance 같은 가변 사실과 미완료 shard·증거 공백만 다시 확인 |
+| `rubric_versioned_evaluation` | 평가 결과를 rubric version과 연결하여 기준 변경과 원문 변경을 구분 |
 | `source_independence` | 복제·공통 원출처를 독립 증거로 세지 않음 |
 | `source_role`, `official_paper_implementation_lanes` | 출처 역할을 표시하고 공식·논문·구현 근거를 서로 대체하지 않음 |
 | `claim_level_confidence`, `lower_confidence`, `unknowns` | 주장별 근거 상태에 맞춰 신뢰도를 낮추고 미확인을 보존 |
@@ -108,6 +115,9 @@
 | `overwrite_source_report`, `expose_execution_state`, `noisy_equivalent_fallback` | 쓰기 요청 없이 원본을 덮어쓰거나 내부 enum·동등 품질 장애를 사용자에게 노출 |
 | `unsupported_claim_preserved`, `malformed_output_as_evidence` | audit에서 깨진 주장을 유지하거나 schema·provenance가 없는 반환을 근거로 사용 |
 | `unbounded_retry`, `claim_current_external_coverage` | 같은 실패를 제한 없이 반복하거나 local-only 결과를 최신 외부 범위까지 확인한 것처럼 주장 |
+| `popularity_as_quality`, `full_query_replay` | star·검색 순위·match count를 코드 품질로 간주하거나 재사용 가능한 immutable 결과까지 이유 없이 전부 다시 검색 |
+| `unauthorized_cache_access`, `cache_write_outside_approved_path` | persistence opt-in 없이 cache를 읽거나 쓰고, 승인된 절대 경로 밖에 영속 상태를 생성·수정 |
+| `raw_code_cache`, `memory_as_evidence` | source·snippet·diff·비공개 본문을 metadata cache에 저장하거나 memory의 과거 결론을 현재 코드 근거로 사용 |
 
 ## 필수 gate
 

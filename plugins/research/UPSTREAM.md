@@ -60,4 +60,16 @@ UTF-8 LF로 연결하되 마지막 LF는 붙이지 않습니다. 이 바이트�
 [이름 변경 결정](../../docs/decisions/0005-rename-superpowers-to-engineering.md)에 따라
 `Engineering`으로 변경되었습니다.
 
+`0.7.0-sonsu.2`에서는 외부 코드 패턴 검색과 반복 조사에 다음 로컬 정책을 추가합니다.
+
+- 검색을 증거 역할별 query family로 분리하고 bounded brute force, provider cap·pagination과
+  artifact 계보 중복을 명시적으로 다룹니다.
+- popularity가 아니라 동일 commit의 production call path, 테스트, 실패 의미와 라이선스를 먼저
+  확인하는 hard gate를 적용합니다.
+- query fingerprint, immutable artifact ID, mutable fact 재검증과 rubric version에 따라 기존
+  근거를 다시 내려받지 않고 재사용할 수 있게 합니다.
+- 영속 저장은 기본 `off`로 유지하고, 승인된 절대 경로에서 metadata-only SQLite `cache`와
+  명시적으로 승격한 `catalog`만 사용합니다.
+- 코드 검색 및 cache 재사용·기본 read-only 경계를 평가 fixture에 추가합니다.
+
 변경된 파일의 구체적인 차이는 기준선 commit과 현재 버전 사이의 Git diff로 추적합니다.

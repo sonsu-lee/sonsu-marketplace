@@ -12,7 +12,7 @@
 | [Quality Engineering](plugins/quality-engineering/README.md) | `0.1.0` | 도메인 형태의 구현과 단순성·유지보수성·실패 모드·운용 가능성 검토 | `domain-shaped-code`, `simplify-code`, `review-quality` 등 8개 |
 | [Workflow](plugins/workflow/) | `0.6.1` | branch, commit, ticket와 GitHub pull request 작업 | `git-workflow`, `to-ticket`, `to-pr` |
 | [Fluent Languages](plugins/fluent-languages/) | `0.1.0-beta.4` | 기술 내용을 보존하는 한국어, 일본어와 영어 출력 지침 | `fluent-korean`, `fluent-japanese`, `fluent-english` |
-| [Research](plugins/research/README.md) | `0.7.0-sonsu.1` | 여러 출처의 탐색, 원문 교차 검증과 인용 감사 | `research` |
+| [Research](plugins/research/README.md) | `0.7.0-sonsu.2` | 여러 출처의 탐색, 원문 교차 검증과 인용 감사 | `research` |
 | [Prompting](plugins/prompting/README.md) | `0.1.0` | Codex, ChatGPT와 OpenAI API용 프롬프트 작성·재작성·최적화 | `prompt-builder` |
 
 각 플러그인은 다른 플러그인을 설치하거나 먼저 실행했다고 가정하지 않습니다. 여러 영역을
