@@ -29,8 +29,9 @@ GitHub Draft 상태와 다르다.
 
 “PR을 만들어 줘”, “올려 줘”, “게시해 줘”와 `open a PR`은 publish 요청일 뿐 ready 요청이
 아니다. 변경이 완성됐거나 validation이 통과했고 미디어가 없다는 이유로 기본 Draft를 Ready로
-올리지 않는다. target host가 Draft PR을 지원하지 않으면 Ready로 대체하지 않고 중단하여
-제약을 보고한다. 게시 전 payload에 결정한 `target_pr_state`와 그 근거를 표시한다.
+올리지 않는다. `target_pr_state`가 `draft`인데 target host가 Draft PR을 지원하지 않으면 Ready로
+대체하지 않고 중단하여 제약을 보고한다. 게시 전 payload에 결정한 `target_pr_state`와 그 근거를
+표시한다.
 
 명시적인 publish 요청은 정확한 기존 remote로 current branch를 일반 push하는 데 필요한 권한을
 포함하지만, fork·remote 생성, force push, publish 시작 전에 이미 존재하던 PR의 변경 또는
