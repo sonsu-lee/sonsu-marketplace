@@ -15,7 +15,7 @@ plugins/<plugin-name>/.codex-plugin/plugin.json
 | 필드 | 용도 | 로컬 규칙 |
 | --- | --- | --- |
 | `name` | 플러그인 식별자 | 폴더명과 marketplace 항목 이름에 맞춤 |
-| `version` | 플러그인 버전 | 로컬 커스텀은 `<upstream>-sonsu.<revision>` 사용 |
+| `version` | 플러그인 버전 | 단일 upstream fork는 `<upstream>-sonsu.<revision>`, 여러 source를 합성하거나 새로 설계한 plugin은 독립 semantic version 사용 |
 | `description` | 기능 설명 | 실제 제공 범위만 기술 |
 | `author` | 현재 배포·유지관리 주체 | 로컬 fork는 로컬 주체를 표시하고 원저작자와 저작권은 `LICENSE`와 `UPSTREAM.md`에 보존 |
 | `homepage`, `repository` | 현재 배포본의 공개 위치 | 유지되는 로컬 공개 위치가 없으면 생략하고 원본 링크는 `UPSTREAM.md`에 기록 |

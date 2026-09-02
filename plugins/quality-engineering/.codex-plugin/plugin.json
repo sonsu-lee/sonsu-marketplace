@@ -7,6 +7,7 @@
     "url": "https://github.com/sonsu-lee"
   },
   "license": "Apache-2.0",
+  "skills": "./skills/",
   "interface": {
     "displayName": "Quality Engineering",
     "shortDescription": "Domain-shaped code and focused quality reviews",
