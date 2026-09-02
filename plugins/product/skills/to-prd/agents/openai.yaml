@@ -1,0 +1,3 @@
+interface:
+  display_name: "PRD Writer"
+  short_description: "Turn approved product decisions into traceable PRDs"

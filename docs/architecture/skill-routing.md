@@ -5,7 +5,7 @@
 
 ## 플러그인 경계
 
-Engineering, Quality Engineering, Workflow, Research, Prompting과 Fluent Languages는 각각 단독으로 설치하고
+Engineering, Quality Engineering, Workflow, Research, Prompting, Product와 Fluent Languages는 각각 단독으로 설치하고
 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을 import하거나 설치·선행
 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은 Codex가 현재 설치된
 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로 선택합니다.
@@ -26,6 +26,13 @@ Engineering, Quality Engineering, Workflow, Research, Prompting과 Fluent Langua
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
 | Codex·ChatGPT·OpenAI API용 프롬프트 생성·재작성·최적화 | `prompting:prompt-builder` |
+| 제품 문제·기회·가치 제안과 해법 후보 발산 | `product:product-brainstorming` |
+| 제품 사용자·문제·기대 결과·범위와 미해결 결정 구체화 | `product:product-discovery` |
+| 인터뷰·설문·피드백·이슈·지표의 traceable synthesis | `product:synthesize-product-evidence` |
+| 제품 용어·상태·사건·규칙·예외의 후보 모델 탐색 | `product:product-domain-discovery` |
+| 제품 가설의 실행 전 검증 방법·계측·판정 기준 설계 | `product:design-product-test` |
+| 실행된 제품 검증을 사전 기준으로 판정 | `product:assess-product-test` |
+| 승인된 제품 합의를 PRD로 변환 | `product:to-prd` |
 
 직접적인 산출물과 관점 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
 요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
@@ -91,6 +98,40 @@ Quality Engineering은 다음 책임으로 확장하지 않습니다.
 우선하지만, 깊은 전문 검토가 필요하면 관련 범위를 밝히고 해당 전문 skill로 라우팅합니다.
 error handling과 logging은 별도 규칙으로 강제하지 않고 오류를 소유하는 경계와 실제 운영 질문을
 기준으로 함께 판단합니다.
+
+## Product 조합
+
+Product는 제품 문제와 기회, 사용자 근거, 제품 도메인 규칙, 검증과 PRD 변환을 담당합니다.
+스킬은 작업 단계가 아니라 사용자가 직접 요청한 산출물과 현재 증거 상태를 기준으로 선택합니다.
+
+```text
+제품 아이디어를 검증 가능한 요구사항으로 발전
+  → product-brainstorming으로 문제·기회·해법 후보를 확장
+  → product-discovery와 evidence·domain 스킬로 필요한 제품 맥락을 구체화
+  → design-product-test와 assess-product-test로 실행 전 기준과 실행 후 판정을 분리
+  → 승인 경계를 통과한 내용만 to-prd로 변환
+```
+
+위 흐름은 가능한 조합 예시이며 고정된 7단계 pipeline이 아닙니다. 사용자는 제공된 인터뷰의
+근거 종합, 이미 실행한 test의 판정 또는 준비된 합의의 PRD 변환부터 직접 시작할 수 있습니다.
+각 Product 스킬은 자기 결과와 handoff 정보를 독립적으로 완성하며 다른 Product 스킬의 선행
+실행을 필수로 가정하지 않습니다.
+
+Product와 다른 플러그인의 경계는 다음과 같습니다.
+
+- 외부의 여러 출처를 새로 찾고 원문을 교차 검증하는 작업은 Research가 담당하고, 제공된
+  인터뷰·피드백·지표를 제품 질문에 맞게 종합하는 작업은 `synthesize-product-evidence`가
+  담당합니다.
+- 제품 용어·상태·규칙의 후보를 찾는 작업은 `product-domain-discovery`가 담당하고, 확인된
+  계약을 code shape와 제어 흐름에 반영하는 작업은 Quality Engineering의
+  `domain-shaped-code`가 담당합니다.
+- 제품 문제, 결과와 요구사항은 Product가 담당하고, 기술 설계·구현·검증 lifecycle은
+  Engineering이 담당합니다.
+- `to-prd`는 PRD만 다루며 branch, commit, ticket과 PR은 Workflow가 담당합니다.
+
+Product만 설치된 환경에서도 현재 대화와 제공 자료를 바탕으로 각 작업을 완료할 수 있어야
+합니다. 외부 근거나 구현이 함께 요청되면 Research 또는 Engineering을 runtime에서 조합하며
+manifest dependency를 추가하지 않습니다.
 
 ## PR 게시 상태
 

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Assess Product Test"
+  short_description: "Assess product tests against precommitted criteria"

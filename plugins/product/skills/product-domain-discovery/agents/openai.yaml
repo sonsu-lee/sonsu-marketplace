@@ -1,0 +1,3 @@
+interface:
+  display_name: "Product Domain Discovery"
+  short_description: "Discover product terms, states, rules, and exceptions"
