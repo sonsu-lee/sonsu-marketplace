@@ -1,0 +1,265 @@
+{
+  "schema_version": "fluent-japanese-cases-v1",
+  "model_visible_fields": ["prompt", "evidence"],
+  "default_status_without_result_artifacts": "not_run",
+  "cases": [
+    {
+      "id": "stable-topic-omission",
+      "kind": "generation",
+      "prompt": "次の事実だけを使い、利用者向けの操作を日本語の「です・ます調」で一つの段落にまとめてください。操作順を変えず、UIラベルはそのまま使ってください。",
+      "evidence": "利用者が「設定」を開く。利用者が「通知」を選ぶ。利用者が「メール通知」を無効にする。利用者が「保存」を押す。",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["設定", "通知", "メール通知", "保存"],
+          "ordered_markers": ["設定", "通知", "メール通知", "保存"]
+        },
+        "semantic": {
+          "must_preserve": ["네 동작의 행위자는 모두 이용자다", "설정에서 저장까지의 조작 순서"],
+          "must_not_introduce": ["앱이나 서버가 조작했다는 주장", "입력에 없는 추가 단계"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": ["fluent-korean"]
+        }
+      },
+      "review_points": [
+        "같은 화제가 유지되는 동안 `利用者は`를 매 문장 기계적으로 반복하지 않는가",
+        "주어를 줄이면서 필요한 대상이나 조작 순서를 삭제하지 않는가"
+      ]
+    },
+    {
+      "id": "actor-switch",
+      "kind": "generation",
+      "prompt": "次の事実だけを使い、設定保存後の処理を日本語で簡潔に説明してください。誰が各処理を行うかを読み違えないようにしてください。",
+      "evidence": "利用者が「保存」を押す。Webアプリが `POST /v1/preferences` を送信する。APIが入力を検証し、成功時に `204 No Content` を返す。",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["保存", "Webアプリ", "POST /v1/preferences", "API", "204 No Content"],
+          "ordered_markers": ["保存", "POST /v1/preferences", "204 No Content"]
+        },
+        "semantic": {
+          "must_preserve": ["이용자가 저장을 누른다", "Web 앱이 요청을 보낸다", "API가 검증하고 성공 응답을 반환한다"],
+          "must_not_introduce": ["데이터베이스나 캐시의 동작", "입력에 없는 행위자"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": []
+        }
+      },
+      "review_points": ["이용자, Web 앱과 API의 전환 지점에서 역할을 혼동하지 않는가"]
+    },
+    {
+      "id": "unknown-actor-passive",
+      "kind": "generation",
+      "prompt": "次の証拠だけを使い、`## 確認済み` と `## 未確認` の順で日本語の障害メモを書いてください。確認できていない削除主体を推測しないでください。",
+      "evidence": "03:14 に `config.json` が削除された。監査ログは保存されていないため、削除した主体は不明である。デプロイ処理が関係した可能性はあるが、まだ確認していない。",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["03:14", "config.json", "監査ログ"],
+          "required_headings": ["## 確認済み", "## 未確認"],
+          "ordered_markers": ["## 確認済み", "## 未確認"]
+        },
+        "semantic": {
+          "must_preserve": ["파일 삭제는 확인됐다", "삭제 행위자는 불명이다", "배포 프로세스와의 관련성은 미확인 가능성이다"],
+          "must_not_introduce": ["CLI, 이용자 또는 배포 프로세스를 삭제 행위자로 확정하는 주장", "감사 로그가 존재한다는 주장"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": []
+        }
+      },
+      "review_points": ["행위자를 알 수 없는 수동 표현을 억지로 능동태로 바꾸지 않는가", "가능성을 사실로 높이지 않는가"]
+    },
+    {
+      "id": "particle-predicate-scope",
+      "kind": "generation",
+      "prompt": "次の事実を一つの段落で日本語にまとめてください。助詞と述語から、承認、通知、受信の主体と対象が一つに決まるようにしてください。",
+      "evidence": "管理者が申請を承認した。アプリが承認結果を申請者へ通知した。申請者が通知を受信した。",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["管理者", "申請", "アプリ", "申請者"]
+        },
+        "semantic": {
+          "must_preserve": ["관리자가 신청을 승인한다", "앱이 신청자에게 승인 결과를 통지한다", "신청자가 통지를 받는다"],
+          "must_not_introduce": ["앱이 신청을 승인했다는 주장", "관리자가 통지를 수신했다는 주장"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": []
+        }
+      },
+      "review_points": ["조사와 술어의 관계를 한 번에 해석할 수 있는가", "모든 명사에 조사를 기계적으로 붙이지 않는가"]
+    },
+    {
+      "id": "relative-clause-and-condition-scope",
+      "kind": "generation",
+      "prompt": "次の事実だけを使い、障害の範囲を日本語で説明してください。時点、環境と発生条件を変えないでください。",
+      "evidence": "設定変更機能は 2026-09-01 に追加された。機能は staging と production の両方で使われる。欠陥は production で `FEATURE_FLAG=legacy` の場合だけ発生した。staging では再現していない。",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["2026-09-01", "staging", "production", "FEATURE_FLAG=legacy"]
+        },
+        "semantic": {
+          "must_preserve": ["기능 추가 시점", "기능은 두 환경에서 사용된다", "결함은 production의 지정 조건에서만 발생했다", "staging에서는 재현하지 않았다"],
+          "must_not_introduce": ["staging에서도 결함이 발생했다는 주장", "플래그 없이도 발생한다는 주장"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": []
+        }
+      },
+      "review_points": ["연체수식절을 조정해도 날짜, 수식 대상과 조건 범위가 유지되는가", "길다는 이유만으로 관계를 잘라내지 않는가"]
+    },
+    {
+      "id": "nominalization-modality-contrast",
+      "kind": "generation",
+      "prompt": "次の四つの状態を日本語で簡潔に報告してください。能力、確認済みの事実、発生可能性と予定を区別してください。",
+      "evidence": "管理者は設定を変更できる。設定を変更できることは確認済みである。接続は月に一度切れることがある。移行は 2026-09-10 に実施することになっている。",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["月に一度", "2026-09-10"]
+        },
+        "semantic": {
+          "must_preserve": ["관리자의 변경 가능성 또는 권한", "변경할 수 있다는 사실은 확인됐다", "연결 단절은 월 1회 발생할 수 있다", "이행은 지정일에 예정돼 있다"],
+          "must_not_introduce": ["이행이 이미 완료됐다는 주장", "연결이 반드시 매달 끊긴다는 주장", "가능성을 실행 사실로 바꾸는 표현"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": []
+        }
+      },
+      "review_points": ["`こと`를 일괄 제거하지 않는가", "능력, 가능성, 확인과 예정의 modality가 구분되는가"]
+    },
+    {
+      "id": "official-name-and-technical-terms",
+      "kind": "generation",
+      "prompt": "次の情報だけを使い、初学者向けに日本語で説明してください。正式名称、識別子と技術用語は変えず、必要な説明だけを加えてください。",
+      "evidence": "OAuth 2.0 は認可のための枠組みである。`RetryPolicy` は再試行方法を選ぶプロジェクト内の設定名である。AWS Identity and Access Management (IAM) はAWSのアクセス管理サービスである。法令の正式名称は個人情報の保護に関する法律である。",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["OAuth 2.0", "RetryPolicy", "AWS Identity and Access Management (IAM)", "個人情報の保護に関する法律"]
+        },
+        "semantic": {
+          "must_preserve": ["각 용어에 evidence가 부여한 기능", "법령명이 정식 명칭이라는 점"],
+          "must_not_introduce": ["입력에 없는 제품 동작이나 법적 의무", "RetryPolicy 식별자의 번역 또는 변경"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": []
+        }
+      },
+      "review_points": ["독자에게 필요한 범위에서만 용어를 설명하는가", "카타카나나 영어라는 이유로 정착한 표현을 바꾸지 않는가"]
+    },
+    {
+      "id": "mixed-register-and-legitimate-politeness",
+      "kind": "generation",
+      "prompt": "次の事実だけを使い、`## お客様へのご案内` と `## 障害記録` の順で書いてください。前者は自然な「です・ます調」、後者は簡潔な「だ・である調」にしてください。引用文は変更しないでください。",
+      "evidence": "お客様には再試行を依頼する。障害が続く場合は、受付番号を添えてサポートへ連絡していただくよう案内する。案内には「お手数ですが、再度お試しいただけますでしょうか。」という承認済み文言も含める。サポート担当者が 09:20 にお客様の申告を確認した。障害の原因はまだ特定していない。",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["お手数ですが、再度お試しいただけますでしょうか。", "受付番号", "サポート担当者", "09:20"],
+          "required_headings": ["## お客様へのご案内", "## 障害記録"],
+          "ordered_markers": ["## お客様へのご案内", "## 障害記録"]
+        },
+        "semantic": {
+          "must_preserve": ["고객에게 재시도를 요청한다", "장애가 계속되면 접수 번호와 함께 지원팀에 연락하도록 정중하게 안내한다", "지원 담당자가 신고를 확인했다", "원인은 미확정이다"],
+          "must_not_introduce": ["원인이 확정됐다는 주장", "고객이 장애를 일으켰다는 주장"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": []
+        }
+      },
+      "review_points": ["두 섹션을 하나의 register로 덮어쓰지 않는가", "비인용 고객 안내도 필요한 경의를 유지하는가", "승인된 고객용 경어를 과잉 경어라는 이유로 제거하지 않는가"]
+    },
+    {
+      "id": "runbook-integrity",
+      "kind": "generation",
+      "prompt": "次の証拠から日本語のrunbookを作ってください。`## 手順`、`## 停止条件` の順にし、四つの番号付き手順の順序と条件を変えないでください。二つのコマンドは指定された `sh` code blockとして一度だけ載せてください。",
+      "evidence": "手順1: `deployctl status --env prod` を実行する。手順2: 出力が `state=pending` の場合は `ack=ready` を待つ。手順3: `ack=ready` を確認した後だけ `deployctl retry --job JOB-417` を実行する。手順4: 再試行コマンドが `exit code 75` を返したら停止して担当者へ連絡し、それ以上再試行しない。code blockは次の内容にする。\n\n```sh\ndeployctl status --env prod\ndeployctl retry --job JOB-417\n```",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["deployctl status --env prod", "state=pending", "ack=ready", "deployctl retry --job JOB-417", "JOB-417", "exit code 75"],
+          "required_headings": ["## 手順", "## 停止条件"],
+          "ordered_markers": ["deployctl status --env prod", "state=pending", "ack=ready", "deployctl retry --job JOB-417", "exit code 75"],
+          "exact_code_blocks": ["```sh\ndeployctl status --env prod\ndeployctl retry --job JOB-417\n```"],
+          "literal_counts": {
+            "```sh": 1
+          }
+        },
+        "semantic": {
+          "must_preserve": ["네 단계와 그 순서", "ack 확인 후에만 retry한다", "exit code 75에서는 중단하고 더 재시도하지 않는다"],
+          "must_not_introduce": ["ack 확인 전 재시도", "exit code 75에서 자동 재시도", "실행하지 않은 검증 결과"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": []
+        }
+      },
+      "review_points": ["문장 분리와 재배치가 절차 순서와 정지 조건을 바꾸지 않는가"]
+    },
+    {
+      "id": "intentional-repetition-and-ui-labels",
+      "kind": "generation",
+      "prompt": "次の安全確認を日本語で案内してください。指定された確認文は二回とも同じ形で残し、UIラベルには助詞や語尾を追加しないでください。",
+      "evidence": "変更前に「対象環境を確認してから操作してください。」と表示する。変更後にも「対象環境を確認してから操作してください。」と表示する。利用者が選ぶUIラベルは `設定変更`、`保存`、`キャンセル` である。",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["対象環境を確認してから操作してください。", "設定変更", "保存", "キャンセル"],
+          "literal_counts": {
+            "対象環境を確認してから操作してください。": 2
+          }
+        },
+        "semantic": {
+          "must_preserve": ["안전 확인 문구를 변경 전후에 각각 표시한다", "세 UI 라벨의 역할"],
+          "must_not_introduce": ["두 확인 중 하나의 생략", "UI 라벨의 이름 변경"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": []
+        }
+      },
+      "review_points": ["반복 완화 규칙이 의도적인 안전 확인을 변주하지 않는가", "UI 라벨을 자연문처럼 교정하지 않는가"]
+    },
+    {
+      "id": "korean-prompt-japanese-output-routing",
+      "kind": "routing",
+      "prompt": "아래 검증 결과를 일본어로 간결하게 보고해줘. 실행하지 않은 검증을 추가하지 말고 명령과 결과는 그대로 유지해.",
+      "evidence": "`npm test`를 실행했고 결과는 `12 passed`였다. 배포는 실행하지 않았다.",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["npm test", "12 passed"]
+        },
+        "semantic": {
+          "must_preserve": ["테스트는 실행됐다", "배포는 실행하지 않았다"],
+          "must_not_introduce": ["배포 완료", "전체 검증 완료"]
+        },
+        "routing": {
+          "must_select": ["fluent-japanese"],
+          "must_not_select": ["fluent-korean"]
+        }
+      },
+      "review_points": ["프롬프트 언어가 아니라 요청된 일본어 출력으로 라우팅하는가"]
+    },
+    {
+      "id": "japanese-prompt-english-output-routing",
+      "kind": "routing",
+      "prompt": "次の検証結果を英語で簡潔に報告してください。実行していない検証を追加せず、コマンドと結果はそのまま残してください。",
+      "evidence": "`pytest -q` の結果は `8 passed` だった。staging では確認していない。",
+      "expectations": {
+        "exact": {
+          "protected_literals": ["pytest -q", "8 passed", "staging"]
+        },
+        "semantic": {
+          "must_preserve": ["테스트는 실행됐다", "staging 검증은 하지 않았다"],
+          "must_not_introduce": ["staging 검증 완료", "배포 완료"]
+        },
+        "routing": {
+          "must_select": [],
+          "must_not_select": ["fluent-japanese", "fluent-korean"]
+        }
+      },
+      "review_points": ["일본어 프롬프트라는 이유만으로 일본어 스킬을 선택하지 않는가", "출력은 영어인가"]
+    }
+  ]
+}
