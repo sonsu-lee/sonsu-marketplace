@@ -1,0 +1,33 @@
+{
+  "name": "prompting",
+  "version": "0.1.0",
+  "description": "Create lean, model-aware, copy-ready prompts for Codex, ChatGPT, and OpenAI API models.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "keywords": [
+    "prompting",
+    "prompt-builder",
+    "codex",
+    "chatgpt",
+    "openai-api"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Prompting",
+    "shortDescription": "Lean, model-aware prompt creation",
+    "longDescription": "Creates, rewrites, and optimizes copy-ready prompts while preserving the requested outcome, constraints, product surface, model, and output format.",
+    "developerName": "sonsu",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Turn this request into a copy-ready Codex task prompt.",
+      "Rewrite this prompt to remove ambiguity and duplication.",
+      "Adapt this prompt for the OpenAI Responses API."
+    ]
+  }
+}
