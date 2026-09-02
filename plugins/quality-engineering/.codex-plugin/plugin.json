@@ -1,7 +1,7 @@
 {
   "name": "quality-engineering",
   "version": "0.1.0",
-  "description": "Domain-shaped implementation and evidence-grounded reviews for simplicity, maintainability, failure modes, and operability.",
+  "description": "도메인 구조를 반영한 구현과 단순성, 유지보수성, 실패 모드 및 운용 가능성에 대한 근거 중심 리뷰를 제공합니다.",
   "author": {
     "name": "sonsu-lee",
     "url": "https://github.com/sonsu-lee"
@@ -10,8 +10,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Quality Engineering",
-    "shortDescription": "Domain-shaped code and focused quality reviews",
-    "longDescription": "Guides domain-shaped, minimal implementation and reviews reachable risks in simplicity, maintainability, failure handling, and operability without owning the development lifecycle or Git delivery.",
+    "shortDescription": "도메인 구조를 반영한 코드와 집중적인 품질 리뷰",
+    "longDescription": "개발 lifecycle이나 Git delivery를 직접 담당하지 않으면서 도메인 구조를 반영한 최소 구현을 안내하고, 단순성, 유지보수성, 실패 처리와 운용 가능성에서 실제로 도달 가능한 위험을 검토합니다.",
     "developerName": "sonsu-lee",
     "category": "Developer Tools",
     "capabilities": [
@@ -20,9 +20,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Implement this change with domain-shaped, minimal code.",
-      "Review this diff for over-engineering and maintainability risks.",
-      "Review this change for reachable failure modes and operability gaps."
+      "이 변경을 도메인 구조가 드러나는 최소한의 코드로 구현해 줘.",
+      "이 diff에서 과도한 설계와 유지보수성 위험을 검토해 줘.",
+      "이 변경에서 도달 가능한 실패 모드와 운용상 공백을 검토해 줘."
     ]
   }
 }

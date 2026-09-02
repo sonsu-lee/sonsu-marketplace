@@ -3,7 +3,7 @@ name: review-overengineering
 description: 사용자가 현재 diff, commit, branch 또는 지정한 코드 변경을 over-engineering, 불필요한 추상화, YAGNI 관점에서 검토해 달라고 명시적으로 요청할 때 사용한다. 코드를 수정하거나 repository 전체를 audit하지 않는다.
 ---
 
-# Review over-engineering
+# review-overengineering: 과도한 설계 리뷰
 
 선택된 변경을 읽기 전용으로 검토하고, 현재 요구사항을 만족하는 데 필요하지 않은 구조만 찾는다.
 

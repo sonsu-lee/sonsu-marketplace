@@ -3,7 +3,7 @@ name: review-operability
 description: 사용자가 현재 diff나 지정한 코드의 error ownership, logging, telemetry, 진단 가능성과 민감정보 노출을 읽기 전용으로 검토해 달라고 요청할 때 사용한다. 특정 observability vendor나 모든 endpoint의 계측을 강제하지 않는다.
 ---
 
-# Review operability
+# review-operability: 운용 가능성 리뷰
 
 운영자가 실제 장애 질문에 답하고 올바른 소유 경계에서 대응할 수 있는지 검토한다.
 

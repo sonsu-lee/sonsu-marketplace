@@ -3,7 +3,7 @@ name: assess-product-test
 description: 실행된 제품 검증의 plan, 실제 절차와 관찰 결과를 대조하여 supported, invalidated, inconclusive, invalid 또는 not-run 상태를 판정한다. 제품 experiment, prototype test, 인터뷰 검증이나 출시 지표의 결과를 해석할 때 사용한다. 새 test 설계, 실험 실행과 제품 결정 승인에는 사용하지 않는다.
 ---
 
-# 제품 검증 판정
+# assess-product-test: 제품 검증 판정
 
 실행된 검증이 원래 질문에 어떤 증거를 제공하는지 판정한다. 기대했던 결과를 정당화하기 위해
 사후에 가설, 표본, 지표나 기준을 바꾸지 않는다.

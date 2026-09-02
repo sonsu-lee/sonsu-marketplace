@@ -1,4 +1,4 @@
 interface:
   display_name: "To Ticket"
-  short_description: "Draft and publish actionable tracker tickets"
-  default_prompt: "Use $to-ticket to turn this prepared work into actionable tracker tickets."
+  short_description: "실행 가능한 티켓을 작성해 tracker에 게시합니다"
+  default_prompt: "$to-ticket을 사용해 정리된 이 작업을 실행 가능한 티켓으로 만들어 줘."

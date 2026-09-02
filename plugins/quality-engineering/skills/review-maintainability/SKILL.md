@@ -3,7 +3,7 @@ name: review-maintainability
 description: 사용자가 현재 diff나 지정한 코드의 reader load, 변경 이유의 결합, 중복 지식, public surface와 장기 유지보수성을 읽기 전용으로 검토해 달라고 요청할 때 사용한다. 파일 길이만으로 분할을 요구하거나 코드를 수정하지 않는다.
 ---
 
-# Review maintainability
+# review-maintainability: 유지보수성 리뷰
 
 실제 변경 흐름을 따라가며 다음 수정자가 계약을 이해하고 안전하게 바꾸는 데 드는 비용을 검토한다.
 

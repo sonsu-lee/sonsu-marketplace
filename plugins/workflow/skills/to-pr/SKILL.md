@@ -1,9 +1,9 @@
 ---
 name: to-pr
-description: Use when 현재 Git branch를 새 GitHub Pull Request 초안이나 게시 payload로 만들고, GitHub Issues·Linear·Jira 티켓 연결, 변경 위치를 마킹한 이미지 또는 비디오 증거를 포함해야 할 때. branch·commit 생성, 기존 PR 수정, code review와 merge에는 사용하지 않는다.
+description: 현재 Git branch를 새 GitHub Pull Request 초안이나 게시 payload로 만들고, GitHub Issues·Linear·Jira 티켓 연결, 변경 위치를 마킹한 이미지 또는 비디오 증거를 포함해야 할 때 사용한다. branch·commit 생성, 기존 PR 수정, code review와 merge에는 사용하지 않는다.
 ---
 
-# PR로 변환하기
+# to-pr: PR로 변환하기
 
 현재 branch의 실제 변경을 검토 가능한 새 GitHub Pull Request로 표현한다. 티켓 연결은 PR metadata를 우선하고, 화면 변경에는 필요한 시각 증거와 게시 가능한 미디어 계획을 포함한다.
 

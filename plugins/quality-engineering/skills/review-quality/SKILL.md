@@ -3,7 +3,7 @@ name: review-quality
 description: 사용자가 현재 diff, commit, branch 또는 지정한 코드에 대해 단순성, 유지보수성, 실패 모드와 운용 가능성을 아우르는 broad quality review를 명시적으로 요청할 때 사용한다. 한 관점만 지정한 요청이나 코드 수정에는 사용하지 않는다.
 ---
 
-# Review quality
+# review-quality: 품질 리뷰
 
 요청한 변경을 읽기 전용으로 검토하되, 관련 있는 quality lens만 선택하고 같은 원인의 finding은
 하나로 합친다.

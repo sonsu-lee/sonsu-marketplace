@@ -1,9 +1,9 @@
 ---
 name: to-ticket
-description: Use when 준비된 요구사항, 결정, 계획 또는 대화를 실행 가능한 ticket, issue, backlog item으로 변환하거나 GitHub Issues, Linear 또는 Jira에 게시해야 할 때. Tracker 산출물을 요구하지 않는 구현 계획에는 사용하지 않는다.
+description: 준비된 요구사항, 결정, 계획 또는 대화를 실행 가능한 ticket, issue, backlog item으로 변환하거나 GitHub Issues, Linear 또는 Jira에 게시해야 할 때 사용한다. tracker 산출물을 요구하지 않는 구현 계획에는 사용하지 않는다.
 ---
 
-# 티켓으로 변환하기
+# to-ticket: 티켓으로 변환하기
 
 준비된 작업을 독립적으로 완료 여부를 판단할 수 있는 티켓과 명시적인 선행 관계로 변환한다. 대상 tracker가 정해지지 않았으면 플랫폼 중립적인 초안을 완성한다.
 

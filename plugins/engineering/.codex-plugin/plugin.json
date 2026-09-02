@@ -1,7 +1,7 @@
 {
   "name": "engineering",
   "version": "6.3.0-sonsu.4",
-  "description": "A documentation-aware engineering method with stage-owned quality gates for planning, implementation, debugging, verification, and review.",
+  "description": "문서 상태를 고려해 계획, 구현, 디버깅, 검증과 리뷰를 수행하고 단계별 소유 품질 게이트를 적용하는 엔지니어링 방법입니다.",
   "author": {
     "name": "sonsu-lee",
     "url": "https://github.com/sonsu-lee"
@@ -22,8 +22,8 @@
   "hooks": {},
   "interface": {
     "displayName": "Engineering",
-    "shortDescription": "Engineering workflows with bounded quality gates",
-    "longDescription": "Guides documentation-aware planning, implementation, systematic debugging, code review, and branch completion with stage-owned quality gates, bounded backtracking, explicit approval points, and proportionate validation.",
+    "shortDescription": "범위가 명확한 품질 게이트를 갖춘 엔지니어링 워크플로",
+    "longDescription": "문서를 고려한 계획, 구현, 체계적인 디버깅, 코드 리뷰와 브랜치 완료를 안내하며, 단계별 소유 품질 게이트, 제한된 되돌아가기, 명시적인 승인 지점과 변경에 비례한 검증을 적용합니다.",
     "developerName": "sonsu-lee",
     "category": "Developer Tools",
     "capabilities": [
@@ -32,8 +32,8 @@
       "Write"
     ],
     "defaultPrompt": [
-      "I've got an idea for something I'd like to build.",
-      "Let's add a feature to this project."
+      "구현하고 싶은 아이디어가 있어. 요구사항부터 구체화해 줘.",
+      "이 프로젝트에 새 기능을 추가해 줘."
     ],
     "brandColor": "#F59E0B",
     "screenshots": []

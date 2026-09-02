@@ -1,7 +1,7 @@
 {
   "name": "prompting",
   "version": "0.1.0",
-  "description": "Create lean, model-aware, copy-ready prompts for Codex, ChatGPT, and OpenAI API models.",
+  "description": "Codex, ChatGPT와 OpenAI API 모델에서 바로 사용할 수 있는 간결한 모델 맞춤형 프롬프트를 작성합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
@@ -16,8 +16,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Prompting",
-    "shortDescription": "Lean, model-aware prompt creation",
-    "longDescription": "Creates, rewrites, and optimizes copy-ready prompts while preserving the requested outcome, constraints, product surface, model, and output format.",
+    "shortDescription": "간결한 모델 맞춤형 프롬프트 작성",
+    "longDescription": "요청한 결과, 제약, 제품별 사용 지점, 모델과 출력 형식을 보존하면서 바로 복사해 사용할 수 있는 프롬프트를 생성·재작성·최적화합니다.",
     "developerName": "sonsu",
     "category": "Productivity",
     "capabilities": [
@@ -25,9 +25,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Turn this request into a copy-ready Codex task prompt.",
-      "Rewrite this prompt to remove ambiguity and duplication.",
-      "Adapt this prompt for the OpenAI Responses API."
+      "이 요청을 바로 사용할 수 있는 Codex 작업 프롬프트로 만들어 줘.",
+      "모호함과 중복을 제거하도록 이 프롬프트를 다시 작성해 줘.",
+      "이 프롬프트를 OpenAI Responses API에 맞게 조정해 줘."
     ]
   }
 }

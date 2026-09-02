@@ -1,111 +1,97 @@
 ---
 name: brainstorming
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+description: "기능 생성, component 구축, 기능 추가 또는 동작 변경 같은 창의적인 작업 전에 반드시 사용한다. 구현 전에 사용자의 의도, 요구사항과 설계를 탐색한다."
 ---
 
-# Brainstorming Ideas Into Designs
+# brainstorming: 아이디어를 설계로 구체화하기
 
-Help turn ideas into fully formed designs and specs through natural collaborative dialogue.
+자연스러운 협업 대화를 통해 아이디어를 완성된 설계와 spec으로 구체화한다.
 
-Start by classifying how much process the request needs, then work
-through your path: understand the context, refine the idea, present a
-design, and get your human partner's approval.
+먼저 요청에 필요한 process의 정도를 분류한 뒤 해당 경로를 따른다. context를 이해하고,
+아이디어를 다듬고, 설계를 제시하고, 사용자의 승인을 받는다.
 
 <HARD-GATE>
-Do NOT invoke any implementation skill, write any code, scaffold any
-project, or take any implementation action until you have told your
-human partner what you intend and they have approved it. This applies
-to EVERY task on EVERY path below — the ceremony scales with the task;
-the approval gate never does.
+하려는 작업을 사용자에게 설명하고 승인을 받기 전에는 implementation 스킬을 호출하거나,
+코드를 작성하거나, project를 scaffold하거나, 구현 작업을 수행하지 않는다. 이는 아래 모든
+경로의 모든 task에 적용된다. 절차의 무게는 task에 맞춰 조절하지만 승인 게이트는 생략하지 않는다.
 </HARD-GATE>
 
-## Three Paths
+## 세 가지 경로
 
-Before your first question, classify the request and say the
-classification out loud — "this looks bounded, so I'll present a short
-design here rather than write a spec" — so your human partner can
-override it:
+첫 질문 전에 요청을 분류하고 "이 작업은 `bounded`로 보이므로 spec을 작성하지 않고 여기에서
+짧은 설계를 제시하겠습니다"처럼 분류를 사용자에게 알린다. 그래야 사용자가 다른 경로를
+선택할 수 있다.
 
-- **Spike** — a feasibility question ("can we...", "is it possible...",
-  "quick and dirty is fine") whose output is an answer, not code you
-  keep. Present the question and what you'll try in 2-3 sentences, get
-  a nod, then find out as cheaply as correctness allows. No design
-  doc, no spec file. Report findings as a recommendation; anything you
-  built stays labeled throwaway.
-- **Bounded** — a well-scoped change to code that already exists in
-  this repo: a new flag, a small endpoint, a one-file fix.
-  Understanding the kind of app is not enough — bounded means the flow
-  you are changing is already here to read. If there is no existing
-  flow to change, the task is not bounded. Ask the clarifying
-  questions that matter, present a short design IN CHAT (a few
-  sentences to a few short paragraphs), and STOP. Implementation
-  starts only after your human partner says yes to that design — a
-  bounded task's approval is as hard a gate as an architectural
-  one. No spec file, no implementation plan document.
-- **Architectural** — new projects, new subsystems, changes that
-  restructure how components fit together or alter interfaces others
-  depend on. Follow the full process: questions, approaches, sectioned
-  design, documentation impact review, then the writing-plans skill.
+- **Spike** — 유지할 코드가 아니라 답을 산출하는 feasibility 질문("can we...", "is it
+  possible...", "quick and dirty is fine")이다. 질문과 확인할 내용을 2-3문장으로 제시하고
+  동의를 받은 뒤, 정확성이 허용하는 가장 저렴한 방법으로 알아본다. design doc이나 spec 파일은
+  만들지 않는다. finding을 권고안으로 보고하고, 만든 것이 있다면 폐기용이라고 표시한다.
+- **Bounded** — 이 저장소에 이미 존재하는 코드를 대상으로 범위가 명확한 변경이다. 새 flag,
+  작은 endpoint, 한 파일 수정 등이 해당한다. 앱의 종류를 이해한다는 것만으로는 부족하다.
+  `bounded`는 변경할 흐름이 이미 존재하여 읽을 수 있다는 뜻이다. 변경할 기존 흐름이 없다면
+  `bounded`가 아니다. 중요한 명확화 질문을 하고, chat 안에서 몇 문장이나 짧은 몇 문단으로
+  설계를 제시한 뒤 중단한다. 사용자가 설계를 승인한 뒤에만 구현을 시작한다. `bounded` task의
+  승인도 `architectural` task와 똑같이 강한 게이트다. spec 파일이나 구현 plan 문서를 만들지 않는다.
+- **Architectural** — 새 project, 새 subsystem, component 사이의 구성을 재구성하거나 다른
+  대상이 의존하는 interface를 바꾸는 변경이다. 질문, 접근 방식, 섹션별 설계, 문서 영향 리뷰,
+  `writing-plans` 스킬의 전체 process를 따른다.
 
-When in doubt between two paths, take the heavier one. The ratchet is
-one-way: hidden complexity discovered mid-task upgrades the path —
-stop, say so, and step up. Nothing downgrades mid-task.
+두 경로 사이에서 확신할 수 없다면 더 무거운 경로를 선택한다. ratchet은 한 방향으로만
+움직인다. task 도중 숨은 복잡성을 발견하면 중단하고 그 사실을 알린 뒤 더 무거운 경로로
+올린다. task 도중에는 경로를 낮추지 않는다.
 
-## Anti-Pattern: "Too Simple To Need Approval"
+## 안티패턴: "Too Simple To Need Approval"
 
-Every path ends with your human partner approving your intent before
-implementation. A todo list, a single-function utility, a config
-change — the design may be two sentences in chat, but you MUST present
-it and get approval. "Simple" tasks are where unexamined assumptions
-cause the most wasted work. What scales with simplicity is the
-artifact, never the approval.
+모든 경로는 구현 전에 사용자가 의도를 승인하는 것으로 끝난다. todo 목록, 단일 함수 utility,
+config 변경이라면 설계가 chat의 두 문장일 수는 있지만 반드시 제시하고 승인을 받아야 한다.
+"Simple" task일수록 검토하지 않은 가정이 가장 큰 낭비를 만든다. 단순함에 맞춰 줄어드는 것은
+artifact의 크기이지 승인 절차가 아니다.
 
-## Red Flags
+## 위험 신호
 
-| Thought | Reality |
+| 생각 | 실제 |
 |---------|---------|
-| "This is too simple to need a design" | Simple means a short design, not no design. Two sentences in chat, then approval. |
-| "I'll call it bounded and skip the spec" | Reaching for a label to skip work IS the doubt — take the heavier path. |
-| "It's bounded and the design is obvious — I'll start while they read it" | The gate is the approval, not the design's length. Present, then stop until you hear yes. |
-| "I understand this kind of app, so it's bounded" | Bounded measures the repo, not your familiarity. A new project has no existing flow — it is architectural. |
-| "The spike works, so I'll keep the code" | A spike's output is an answer. Keeping the code is a new request — classify it. |
-| "It grew, but I'm almost done — no need to re-classify" | Hidden complexity upgrades the path mid-task. Stop and say so. |
-| "They approved the spike, so the follow-up change is approved too" | Each task gets its own classification and its own approval. |
+| "This is too simple to need a design" | 단순하다는 것은 설계가 짧다는 뜻이지 없다는 뜻이 아니다. chat에서 두 문장으로 제시한 뒤 승인을 받는다. |
+| "I'll call it bounded and skip the spec" | 일을 생략하려고 label을 고르는 것 자체가 의심의 신호다. 더 무거운 경로를 선택한다. |
+| "It's bounded and the design is obvious — I'll start while they read it" | 게이트는 설계 길이가 아니라 승인이다. 제시한 뒤 사용자가 동의할 때까지 중단한다. |
+| "I understand this kind of app, so it's bounded" | `bounded`는 익숙함이 아니라 저장소를 기준으로 판단한다. 새 project에는 기존 흐름이 없으므로 `architectural`이다. |
+| "The spike works, so I'll keep the code" | spike의 산출물은 답이다. 코드를 유지하려면 새 요청으로 분류한다. |
+| "It grew, but I'm almost done — no need to re-classify" | 숨은 복잡성을 발견하면 task 도중 경로를 올린다. 중단하고 그 사실을 알린다. |
+| "They approved the spike, so the follow-up change is approved too" | 각 task는 별도의 분류와 승인을 받는다. |
 
-## Checklist
+## 체크리스트
 
-Classify first, announce the path, then create a task for each item on
-your path and complete them in order.
+먼저 분류를 알리고, 선택한 경로의 각 항목으로 task를 만든 뒤 순서대로 완료한다.
 
 **Spike:**
-1. **Explore project context** — enough to frame the probe
-2. **Present question + probe plan** — 2-3 sentences
-3. **Get approval** — a nod is enough
-4. **Investigate** — as cheaply as correctness allows
-5. **Report findings** — a recommendation; label anything built as throwaway
+1. **Project context 탐색** — probe 범위를 정할 만큼 확인한다.
+2. **질문과 probe plan 제시** — 2-3문장으로 작성한다.
+3. **승인 받기** — 동의 표시로 충분하다.
+4. **조사** — 정확성이 허용하는 가장 저렴한 방법을 사용한다.
+5. **Finding 보고** — 권고안을 제시하고 만든 것이 있다면 폐기용이라고 표시한다.
 
-**Bounded:**
-1. **Explore project context** — check files, docs, recent commits
-2. **Ask clarifying questions** — one at a time, the ones that matter
-3. **Present short design in chat** — approach, files touched, testing
-4. **Get approval** — STOP and wait for an explicit yes; presenting the design and starting in the same breath is skipping the gate
-5. **Implement** — proceed with the normal development workflow; use TDD for code behavior changes and proportionate verification otherwise; no plan document
+**`bounded`(범위 한정):**
+1. **Project context 탐색** — 파일, 문서와 최근 commit을 확인한다.
+2. **명확화 질문** — 중요한 질문을 한 번에 하나씩 한다.
+3. **Chat에서 짧은 설계 제시** — 접근 방식, 수정할 파일과 테스트를 설명한다.
+4. **승인 받기** — 중단하고 명시적인 동의를 기다린다. 설계를 제시하면서 바로 시작하면 게이트를 건너뛴 것이다.
+5. **구현** — 일반 개발 workflow로 진행한다. 코드 동작 변경에는 TDD를 사용하고 그 외에는 변경에 비례해 검증한다. plan 문서는 만들지 않는다.
 
-**Architectural:**
-1. **Explore project context** — check files, docs, recent commits
-2. **Offer the visual companion just-in-time** — NOT upfront. The first time a question would genuinely be clearer shown than described, offer it then (its own message); on approval its browser tab opens for you. If no visual question ever arises, never offer it. See the Visual Companion section below.
-3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
-4. **Propose 2-3 approaches** — with trade-offs and your recommendation
-5. **Present design** — in sections scaled to their complexity, get user approval after each section
-6. **Assess documentation impact** — inspect existing docs and classify the action as none, update, create, or supersede
-7. **Present the documentation action** — show the documents reviewed, proposed path, purpose, and scope; wait for approval before creating a new durable document or substantially restructuring one
-8. **Write or update approved documentation** — use the repository's established ADR, architecture, product, guide, reference, or runbook location; do not invent a dated spec path
-9. **Document self-review** — quick inline check for placeholders, contradictions, ambiguity, scope, and consistency with related docs
-10. **Run the design-document quality gate** — use proportionate checks and an independent reviewer when architecture or risk warrants it
-11. **User reviews the written document** — when a durable document changed, ask the user to review it before planning
-12. **Transition to implementation** — invoke writing-plans to create an implementation plan; documentation approval does not authorize a commit
+**`architectural`(아키텍처 변경):**
+1. **Project context 탐색** — 파일, 문서와 최근 commit을 확인한다.
+2. **필요한 순간에 visual companion 제안** — 처음부터 제안하지 않는다. 설명보다 보여 주는 것이 실제로 더 명확한 질문이 처음 등장할 때 별도 메시지로 제안한다. 승인하면 browser tab이 열린다. 시각적인 질문이 없다면 제안하지 않는다. 아래 Visual Companion 섹션을 참고한다.
+3. **명확화 질문** — 목적, 제약과 성공 기준을 이해하도록 한 번에 하나씩 질문한다.
+4. **접근 방식 2-3개 제안** — trade-off와 추천안을 함께 제시한다.
+5. **설계 제시** — 복잡성에 맞춰 섹션을 나누고 각 섹션 뒤에 사용자 승인을 받는다.
+6. **문서 영향 평가** — 기존 문서를 확인하고 작업을 없음, 갱신, 생성 또는 대체로 분류한다.
+7. **문서 작업 제시** — 검토한 문서, 제안 경로, 목적과 범위를 보여 준다. 새 영속 문서를 만들거나 기존 문서를 크게 재구성하기 전에 승인을 기다린다.
+8. **승인된 문서 작성 또는 갱신** — 저장소의 기존 ADR, architecture, product, guide, reference 또는 runbook 위치를 사용하며 날짜 기반 spec 경로를 만들지 않는다.
+9. **문서 자체 리뷰** — placeholder, 모순, 모호함, 범위와 관련 문서 사이의 일관성을 빠르게 확인한다.
+10. **설계 문서 품질 게이트 실행** — architecture 또는 위험에 필요하면 변경에 비례한 검사와 독립 reviewer를 사용한다.
+11. **사용자가 작성된 문서를 리뷰** — 영속 문서가 바뀌었다면 plan 작성 전에 사용자에게 리뷰를 요청한다.
+12. **구현으로 전환** — `writing-plans`를 호출해 구현 plan을 만든다. 문서 승인은 commit 권한을 부여하지 않는다.
 
-## Process Flow
+## Process 흐름
 
 ```dot
 digraph brainstorming {
@@ -157,126 +143,122 @@ digraph brainstorming {
 }
 ```
 
-**Terminal states are path-bound.** Architectural: the ONLY skill you
-invoke after brainstorming is writing-plans — never frontend-design,
-mcp-builder, or any other implementation skill. Bounded: after
-approval, implementation proceeds directly through the normal
-development workflow; no plan document. Spike: the terminal state is a
-reported recommendation.
+**종료 상태는 각 경로에 종속된다.** `Architectural`에서는 brainstorming 뒤에 호출하는 유일한
+스킬이 `writing-plans`다. `frontend-design`, `mcp-builder` 또는 다른 implementation 스킬을
+호출하지 않는다. `Bounded`에서는 승인 뒤 일반 개발 workflow로 바로 구현하며 plan 문서를
+만들지 않는다. `Spike`의 종료 상태는 권고안 보고다.
 
-## The Process
+## 절차
 
-The subsections below serve the bounded and architectural paths (a
-spike stops at "present the probe, get a nod"). Sections from
-**Exploring approaches** onward are architectural-path depth — for
-bounded work, context plus a few questions plus a short in-chat design
-is the whole process.
+아래 하위 섹션은 `bounded`와 `architectural` 경로에 적용된다(`spike`는 "present the probe,
+get a nod", 즉 probe를 제시하고 동의를 받는 단계에서 끝난다). **접근 방식 탐색** 이후 섹션은 `architectural` 경로에 해당하는
+깊이다. `bounded` 작업은 context, 몇 가지 질문과 chat 안의 짧은 설계로 process가 끝난다.
 
-**Understanding the idea:**
+**아이디어 이해:**
 
-- Check out the current project state first (files, docs, recent commits)
-- Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
-- If the project is too large for a single design, help the user decompose it into sub-projects: what are the independent pieces, how do they relate, and what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own approved design → plan → implementation cycle; durable documents are updated only when the documentation impact warrants it.
-- For appropriately-scoped projects, ask questions one at a time to refine the idea
-- Prefer multiple choice questions when possible, but open-ended is fine too
-- Only one question per message - if a topic needs more exploration, break it into multiple questions
-- Focus on understanding: purpose, constraints, success criteria
+- 현재 project 상태를 먼저 확인한다(파일, 문서, 최근 commit).
+- 세부 질문 전에 범위를 평가한다. 요청이 서로 독립적인 여러 subsystem을 설명한다면(예: "build a platform with chat, file storage, billing, and analytics") 즉시 알린다. 먼저 분해해야 하는 project의 세부사항을 질문으로 다듬는 데 시간을 쓰지 않는다.
+- project가 하나의 설계로 다루기에 너무 크면 사용자가 sub-project로 분해하도록 돕는다. 독립된 부분이 무엇인지, 서로 어떻게 연결되는지, 어떤 순서로 만들어야 하는지 정한다. 그런 다음 첫 sub-project를 일반 설계 흐름으로 brainstorming한다. 각 sub-project는 자체 승인된 설계 → plan → 구현 cycle을 거치며, 문서 영향에 필요할 때에만 영속 문서를 갱신한다.
+- 범위가 적절한 project는 한 번에 하나의 질문으로 아이디어를 다듬는다.
+- 가능하면 객관식 질문을 우선하지만 서술형 질문도 사용할 수 있다.
+- 메시지마다 질문은 하나만 한다. 주제를 더 탐색해야 하면 여러 질문으로 나눈다.
+- 목적, 제약과 성공 기준을 이해하는 데 집중한다.
 
-**Exploring approaches:**
+**접근 방식 탐색:**
 
-- Propose 2-3 different approaches with trade-offs
-- Present options conversationally with your recommendation and reasoning
-- Lead with your recommended option and explain why
-- YAGNI ruthlessly - remove unnecessary features from every approach and design
+- trade-off와 함께 서로 다른 접근 방식 2-3개를 제안한다.
+- 추천안과 근거를 포함하여 대화하듯 선택지를 제시한다.
+- 추천하는 선택지를 먼저 제시하고 이유를 설명한다.
+- 모든 접근 방식과 설계에서 필요하지 않은 기능을 제거하여 YAGNI를 엄격히 적용한다.
 
-**Presenting the design:**
+**설계 제시:**
 
-- Once you believe you understand what you're building, present the design
-- Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced
-- Ask after each section whether it looks right so far
-- Cover: architecture, components, data flow, error handling, testing
-- Be ready to go back and clarify if something doesn't make sense
+- 구현할 내용을 이해했다고 판단하면 설계를 제시한다.
+- 각 섹션을 복잡성에 맞춘다. 단순하면 몇 문장, 미묘한 내용이면 최대 200-300단어로 작성한다.
+- 각 섹션 뒤에 지금까지의 내용이 맞는지 질문한다.
+- architecture, component, data flow, 오류 처리와 테스트를 다룬다.
+- 이해하기 어려운 부분이 있으면 돌아가서 명확히 할 준비를 한다.
 
-**Design for isolation and clarity:**
+**격리와 명확성을 위한 설계:**
 
-- Break the system into smaller units that each have one clear purpose, communicate through well-defined interfaces, and can be understood and tested independently
-- For each unit, you should be able to answer: what does it do, how do you use it, and what does it depend on?
-- Can someone understand what a unit does without reading its internals? Can you change the internals without breaking consumers? If not, the boundaries need work.
-- Smaller, well-bounded units are also easier for you to work with - you reason better about code you can hold in context at once, and your edits are more reliable when files are focused. When a file grows large, that's often a signal that it's doing too much.
+- 시스템을 하나의 명확한 목적을 가진 작은 단위로 나눈다. 각 단위는 잘 정의된 interface로 통신하며 독립적으로 이해하고 테스트할 수 있어야 한다.
+- 각 단위에 대해 무엇을 하는지, 어떻게 사용하는지, 무엇에 의존하는지 답할 수 있어야 한다.
+- 내부 구현을 읽지 않고도 단위의 동작을 이해할 수 있는가? consumer를 깨뜨리지 않고 내부를 바꿀 수 있는가? 그렇지 않다면 경계를 다듬어야 한다.
+- 작고 경계가 분명한 단위는 작업하기도 쉽다. 한 번에 context에 담을 수 있는 코드를 더 잘 추론할 수 있고, 파일의 초점이 분명할수록 수정도 안정적이다. 파일이 커지는 것은 너무 많은 일을 한다는 신호일 수 있다.
 
-**Working in existing codebases:**
+**기존 codebase에서 작업:**
 
-- Explore the current structure before proposing changes. Follow existing patterns.
-- Where existing code has problems that affect the work (e.g., a file that's grown too large, unclear boundaries, tangled responsibilities), include targeted improvements as part of the design - the way a good developer improves code they're working in.
-- Don't propose unrelated refactoring. Stay focused on what serves the current goal.
+- 변경을 제안하기 전에 현재 구조를 탐색하고 기존 pattern을 따른다.
+- 기존 코드의 문제가 현재 작업에 영향을 준다면(예: 너무 커진 파일, 불명확한 경계, 뒤엉킨 책임) 좋은 개발자가 작업 중인 코드를 개선하듯 표적화된 개선을 설계에 포함한다.
+- 관련 없는 refactoring을 제안하지 않고 현재 목표에 필요한 내용에 집중한다.
 
-## After the Design (architectural path)
+## 설계 이후(`architectural` 경로)
 
-**Documentation impact:**
+**문서 영향:**
 
-- Search the repository's existing `README`, `CONTEXT`, `docs`, ADR, architecture, product, guide, reference, runbook, issue, and ticket material before proposing a new file.
-- Classify the action as no documentation change, update an existing document, create a durable document, or supersede an existing decision.
-- Follow the repository's existing documentation structure. If none exists, route by the question the document answers:
-  - current system structure → architecture
-  - durable choice and trade-offs → ADR or decisions
-  - product intent and acceptance criteria → product or requirements
-  - goal-oriented procedure → guide
-  - exact contracts and configuration → reference
-  - repeatable operation with verification and recovery → runbook
-- Use stable topic names for living documents. Use the repository's decision identifier convention for ADRs or decision records. Do not create a new file merely to put the current date in its name.
-- Before creating or substantially restructuring a durable document, present the documents reviewed, proposed path, purpose, and scope, then wait for approval.
-- Writing or updating a document does not authorize `git add`, `git commit`, push, or PR creation.
+- 새 파일을 제안하기 전에 저장소의 기존 `README`, `CONTEXT`, `docs`, ADR, architecture, product, guide, reference, runbook, issue와 ticket 자료를 검색한다.
+- 작업을 문서 변경 없음, 기존 문서 갱신, 영속 문서 생성 또는 기존 결정 대체로 분류한다.
+- 저장소의 기존 문서 구조를 따른다. 구조가 없다면 문서가 답하는 질문에 따라 분류한다.
+  - 현재 시스템 구조 → architecture
+  - 오래 유지할 선택과 trade-off → ADR 또는 decisions
+  - 제품 의도와 인수 기준 → product 또는 requirements
+  - 목표 중심 절차 → guide
+  - 정확한 계약과 configuration → reference
+  - 검증과 복구를 포함한 반복 가능한 작업 → runbook
+- living document에는 안정적인 주제 이름을 사용한다. ADR 또는 decision record에는 저장소의 결정 식별자 관례를 따른다. 현재 날짜를 이름에 넣기 위해 새 파일을 만들지 않는다.
+- 영속 문서를 새로 만들거나 크게 재구성하기 전에 검토한 문서, 제안 경로, 목적과 범위를 제시한 뒤 승인을 기다린다.
+- 문서 작성이나 갱신은 `git add`, `git commit`, push 또는 PR 생성 권한을 부여하지 않는다.
 
-**Document Self-Review:**
-After writing or updating an approved durable document, look at it with fresh eyes:
+**문서 자체 리뷰:**
+승인된 영속 문서를 작성하거나 갱신한 뒤 새로운 관점으로 확인한다.
 
-1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
-2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
-3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
-4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
+1. **Placeholder 검색:** "TBD", "TODO", 불완전한 섹션 또는 모호한 요구사항이 있는가? 수정한다.
+2. **내부 일관성:** 서로 모순되는 섹션이 있는가? architecture가 기능 설명과 일치하는가?
+3. **범위 확인:** 하나의 구현 plan으로 다룰 만큼 초점이 분명한가, 아니면 분해해야 하는가?
+4. **모호함 확인:** 두 가지 방식으로 해석할 수 있는 요구사항이 있는가? 하나를 선택해 명시한다.
 
-Fix any issues inline before entering the design-document quality gate. The
-gate rules below determine whether a changed revision needs another review.
+설계 문서 품질 게이트에 들어가기 전에 문제를 그 자리에서 수정한다. 아래 게이트 규칙에 따라
+변경된 리비전에 추가 리뷰가 필요한지 판단한다.
 
-**Design-Document Quality Gate:**
-Read the shared [quality gate contract](../using-engineering-skills/references/quality-gates.md),
-then gate the exact durable-document revision before asking for user review.
+**설계 문서 품질 게이트:**
+공통 [품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)을 읽고, 사용자
+리뷰를 요청하기 전에 정확한 영속 문서 리비전에 게이트를 적용한다.
 
-1. Always run the self-review above and the applicable link, path, schema, or repository documentation checks.
-2. For an architectural or high-risk durable document, or when independent review would materially reduce planning risk, dispatch a reviewer with [spec-document-reviewer-prompt.md](spec-document-reviewer-prompt.md). Low-risk edits may record that check as `not_applicable`.
-3. Set a maximum of three review attempts (the initial review plus two revised reviews). A retry must change the affected document section, requirements evidence, or evaluator context.
-4. Return a valid finding to the smallest affected design or documentation section. Return a requirement contradiction to the relevant design decision instead of rewriting unrelated sections.
-5. Advance only with `passed` for the current revision or a human `accepted_risk`. A required but unavailable reviewer is `blocked` or `not_run`, not an implicit pass.
+1. 항상 위의 자체 리뷰와 적용 가능한 link, 경로, schema 또는 저장소 문서 검사를 실행한다.
+2. architecture 또는 고위험 영속 문서, 혹은 독립 리뷰가 계획 위험을 실질적으로 줄이는 경우 [spec-document-reviewer-prompt.md](spec-document-reviewer-prompt.md)로 reviewer를 위임한다. 저위험 수정은 해당 검사를 `not_applicable`로 기록할 수 있다.
+3. 리뷰 시도는 최대 3회로 제한한다(초기 리뷰와 수정 후 리뷰 2회). 재시도할 때에는 영향을 받은 문서 섹션, 요구사항 근거 또는 evaluator context가 달라져야 한다.
+4. 유효한 finding은 영향을 받은 가장 작은 설계 또는 문서 섹션으로 돌려보낸다. 요구사항 모순은 관련 없는 섹션을 다시 쓰는 대신 해당 설계 결정으로 돌려보낸다.
+5. 현재 리비전이 `passed`이거나 사람이 `accepted_risk`를 기록한 경우에만 진행한다. 필수 reviewer를 사용할 수 없으면 암묵적 pass가 아니라 `blocked` 또는 `not_run`이다.
 
-Record the gate artifact, revision, evidence, status, findings, return target, attempt, and decision owner. Ordinary document approval does not silently accept a disclosed quality risk; accepted risk must be explicit.
+게이트 artifact, 리비전, 근거, 상태, finding, 반환 대상, 시도 횟수와 decision owner를 기록한다. 일반적인 문서 승인은 공개된 품질 위험을 조용히 수용하지 않으며, 위험 수용은 명시적이어야 한다.
 
-**User Review Gate:**
-After the document review loop passes, ask the user to review the written document before proceeding:
+**사용자 리뷰 게이트:**
+문서 리뷰 loop가 통과하면 진행하기 전에 작성된 문서를 사용자에게 리뷰해 달라고 요청한다.
 
-> "Documentation updated at `<path>`. No commit was created. Please review it and let me know if you want changes before we write the implementation plan."
+> "`<path>`의 문서를 갱신했습니다. commit은 만들지 않았습니다. 구현 plan을 작성하기 전에 문서를 검토하고 수정할 부분이 있는지 알려주세요."
 
-Wait for the user's response. If they request changes, make them and re-run the document review loop. Only proceed once the user approves. If no durable documentation change was warranted, transition directly from the approved design to planning.
+사용자의 응답을 기다린다. 수정 요청이 있으면 반영하고 문서 리뷰 loop를 다시 실행한다. 사용자가 승인한 뒤에만 진행한다. 영속 문서 변경이 필요하지 않았다면 승인된 설계에서 plan으로 바로 전환한다.
 
-**Implementation:**
+**구현:**
 
-- Invoke the writing-plans skill to create a detailed implementation plan
-- Do NOT invoke any other skill. writing-plans is the next step.
+- 상세 구현 plan을 만들기 위해 `writing-plans` 스킬을 호출한다.
+- 다른 스킬은 호출하지 않는다. 다음 단계는 `writing-plans`다.
 
-## Visual Companion
+## Visual Companion 안내
 
-A browser-based companion for showing mockups, diagrams, and visual options during brainstorming. Available as a tool — not a mode. Accepting the companion means it's available for questions that benefit from visual treatment; it does NOT mean every question goes through the browser.
+brainstorming 중 mockup, diagram과 시각적 선택지를 보여 주는 browser 기반 companion이다. mode가 아니라 도구로 제공된다. companion을 수락한다는 것은 시각적 표현이 유용한 질문에 사용할 수 있다는 뜻이지 모든 질문을 browser로 처리한다는 뜻이 아니다.
 
-**Offering the companion (just-in-time):** Do NOT offer it upfront. Wait until a question would genuinely be clearer shown than told — a real mockup / layout / diagram question, not merely a UI *topic*. The first time that happens, offer it then, as its own message:
-> "This next part might be easier if I show you — I can put together mockups, diagrams, and comparisons in a browser tab as we go. It's still new and can be token-intensive. Want me to? I'll open it for you."
+**필요한 순간에 companion 제안:** 처음부터 제안하지 않는다. 단순한 UI *주제*가 아니라 실제 mockup / layout / diagram 질문처럼 설명보다 보여 주는 것이 더 명확한 질문이 나올 때까지 기다린다. 그런 상황이 처음 발생하면 별도 메시지로 다음과 같이 제안한다.
+> "다음 내용은 직접 보여 드리는 편이 이해하기 쉬울 수 있습니다. 진행하면서 browser tab에 mockup, diagram과 비교 자료를 만들어 드릴 수 있어요. 아직 새로운 기능이라 token을 많이 사용할 수 있습니다. 사용해 볼까요? 바로 열어 드리겠습니다."
 
-**This offer MUST be its own message.** Only the offer — no clarifying question, summary, or other content. Wait for the user's response. If they accept, start the server with `--open` so their browser opens to the first screen automatically. If they decline, continue text-only and don't offer again unless they raise it.
+**이 제안은 반드시 별도 메시지여야 한다.** 제안만 작성하고 명확화 질문, 요약 또는 다른 내용을 넣지 않는다. 사용자의 응답을 기다린다. 수락하면 `--open`으로 server를 시작해 browser가 첫 화면을 자동으로 열게 한다. 거절하면 text만 사용하고 사용자가 다시 언급하지 않는 한 재차 제안하지 않는다.
 
-**Per-question decision:** Even after the user accepts, decide FOR EACH QUESTION whether to use the browser or the terminal. The test: **would the user understand this better by seeing it than reading it?**
+**질문별 결정:** 사용자가 수락한 뒤에도 각 질문마다 browser를 사용할지 terminal을 사용할지 판단한다. 기준은 **사용자가 글로 읽는 것보다 직접 보는 편이 더 잘 이해되는가?**다.
 
-- **Use the browser** for content that IS visual — mockups, wireframes, layout comparisons, architecture diagrams, side-by-side visual designs
-- **Use the terminal** for content that is text — requirements questions, conceptual choices, tradeoff lists, A/B/C/D text options, scope decisions
+- 실제로 시각적인 내용에는 **browser를 사용한다** — mockup, wireframe, layout 비교, architecture diagram, 나란히 비교하는 시각 설계.
+- text 중심 내용에는 **terminal을 사용한다** — 요구사항 질문, 개념 선택, trade-off 목록, A/B/C/D text 선택지, 범위 결정.
 
-A question about a UI topic is not automatically a visual question. "What does personality mean in this context?" is a conceptual question — use the terminal. "Which wizard layout works better?" is a visual question — use the browser.
+UI에 관한 질문이라고 자동으로 시각적인 질문이 되지는 않는다. "What does personality mean in this context?"는 개념 질문이므로 terminal을 사용한다. "Which wizard layout works better?"는 시각적인 질문이므로 browser를 사용한다.
 
-If they agree to the companion, read the detailed guide before proceeding:
+사용자가 companion 사용에 동의하면 진행하기 전에 상세 guide를 읽는다.
 `skills/brainstorming/visual-companion.md`

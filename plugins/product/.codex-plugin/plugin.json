@@ -1,7 +1,7 @@
 {
   "name": "product",
   "version": "0.1.0",
-  "description": "Explore product opportunities, synthesize evidence, model product domains, design and assess tests, and turn approved decisions into PRDs.",
+  "description": "제품 기회를 탐색하고, 근거를 종합하고, 제품 도메인을 모델링하고, 검증을 설계·판정하며, 승인된 결정을 PRD로 변환합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
@@ -17,8 +17,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Product",
-    "shortDescription": "Evidence-aware product discovery and validation",
-    "longDescription": "Expands product opportunities, clarifies users and outcomes, synthesizes traceable evidence, discovers product rules, separates test design from assessment, and writes PRDs only from approved decisions.",
+    "shortDescription": "근거를 고려한 제품 탐색과 검증",
+    "longDescription": "제품 기회를 넓히고 사용자와 기대 결과를 구체화하며, 추적 가능한 근거를 종합하고 제품 규칙을 발견합니다. 검증 설계와 판정을 분리하고 승인된 결정만 PRD로 작성합니다.",
     "developerName": "sonsu",
     "category": "Productivity",
     "capabilities": [
@@ -26,9 +26,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Brainstorm several product opportunities without treating them as validated.",
-      "Synthesize these interviews into traceable themes, contradictions, and open questions.",
-      "Turn the approved discovery results into a PRD without inventing missing decisions."
+      "여러 제품 기회를 발산하되 검증된 결론처럼 다루지 마.",
+      "이 인터뷰를 추적 가능한 theme, 모순과 미해결 질문으로 종합해 줘.",
+      "빠진 결정을 지어내지 말고 승인된 탐색 결과를 PRD로 만들어 줘."
     ]
   }
 }

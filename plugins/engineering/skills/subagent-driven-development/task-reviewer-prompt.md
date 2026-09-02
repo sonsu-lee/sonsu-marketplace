@@ -1,209 +1,171 @@
-# Task Reviewer Prompt Template
+# Task reviewer prompt template: task 리뷰어 프롬프트 템플릿
 
-Use this template when dispatching a task reviewer subagent. The reviewer
-reads the task's diff once and returns two verdicts: spec compliance and
-code quality.
+task reviewer subagent를 위임할 때 이 template을 사용한다. reviewer는 task의 diff를 한 번
+읽고 spec 준수 여부와 코드 품질의 두 가지 판정을 반환한다.
 
-**Purpose:** Verify one task's implementation matches its requirements (nothing
-more, nothing less) and is well-built (clean, appropriately verified, maintainable)
+**목적:** 한 task의 구현이 요구사항과 정확히 일치하고 과하거나 부족한 부분이 없으며, 깔끔하고
+적절히 검증되고 유지보수 가능하게 구현됐는지 확인한다.
 
 ```
 Subagent (general-purpose):
-  description: "Review Task N (spec + quality)"
-  model: [MODEL — REQUIRED: choose per SKILL.md Model Selection; an omitted
-         model silently inherits the session's most expensive one]
+  description: "Task N 리뷰(spec + quality)"
+  model: [MODEL — 필수: SKILL.md의 Model Selection에 따라 선택한다. 생략하면
+         session에서 가장 비싼 모델을 조용히 상속한다.]
   prompt: |
-    You are reviewing one task's implementation: first whether it matches its
-    requirements, then whether it is well-built. This is a task-scoped gate,
-    not a merge review — a broad whole-branch review happens separately after
-    all tasks are complete.
+    한 task의 구현을 리뷰한다. 먼저 요구사항과 일치하는지, 그다음 적절하게 구현됐는지
+    확인한다. 이것은 task 범위의 게이트이며 merge 리뷰가 아니다. 모든 task가 완료된 뒤
+    전체 브랜치를 대상으로 하는 넓은 리뷰를 별도로 수행한다.
 
-    ## What Was Requested
+    ## 요청 내용
 
-    Read the task brief: [BRIEF_FILE]
+    task brief를 읽는다: [BRIEF_FILE]
 
-    Global constraints from the spec/design that bind this task:
+    이 task에 적용되는 spec/design의 전역 제약:
     [GLOBAL_CONSTRAINTS]
 
-    ## What the Implementer Claims They Built
+    ## Implementer가 구현했다고 주장하는 내용
 
-    Read the implementer's report: [REPORT_FILE]
+    implementer의 report를 읽는다: [REPORT_FILE]
 
-    ## Diff Under Review
+    ## 리뷰할 diff
 
     **Base:** [BASE_SHA]
     **Head:** [HEAD_SHA]
-    **Diff file:** [DIFF_FILE]
+    **Diff 파일:** [DIFF_FILE]
 
-    Read the diff file once — it contains the commit list, a stat summary,
-    and the full diff with surrounding context, and it is your view of the
-    change. The diff's context lines ARE the changed files: do not Read a
-    changed file separately unless a hunk you must judge is cut off
-    mid-function — and say so in your report. Do not re-run git commands.
-    If the diff file is missing, fetch the diff yourself:
+    diff 파일을 한 번 읽는다. 이 파일에는 commit 목록, stat 요약과 주변 context를 포함한 전체
+    diff가 들어 있으며, 이것이 변경을 보는 기준이다. diff의 context line이 곧 변경된 파일이다.
+    판정해야 할 hunk가 함수 중간에서 잘린 경우가 아니라면 변경 파일을 별도로 읽지 않는다.
+    별도로 읽었다면 report에 그 사실을 밝힌다. git 명령을 다시 실행하지 않는다. diff 파일이
+    없으면 직접 가져온다.
     `git diff --stat [BASE_SHA]..[HEAD_SHA]` and `git diff [BASE_SHA]..[HEAD_SHA]`.
-    Do not crawl the broader codebase. Inspect code outside the diff only
-    to evaluate a concrete risk you can name — one focused check per named
-    risk, and name both the risk and what you checked in your report.
-    Cross-cutting changes are legitimate named risks: if the diff changes
-    lock ordering, a function or API contract, or shared mutable state,
-    checking the call sites is the right method.
+    더 넓은 codebase를 탐색하지 않는다. 이름을 붙일 수 있는 구체적인 위험을 평가할 때에만
+    diff 밖의 코드를 검사한다. 위험마다 집중된 검사를 하나씩 수행하고 report에 위험과 확인한
+    내용을 모두 적는다. cross-cutting 변경은 유효한 명시적 위험이다. diff가 lock 순서, 함수나
+    API 계약 또는 공유 mutable state를 바꾼다면 call site를 확인하는 것이 올바른 방법이다.
 
-    Your review is read-only on this checkout. Do not mutate the working
-    tree, the index, HEAD, or branch state in any way.
+    현재 checkout에서 리뷰는 읽기 전용이다. working tree, index, HEAD 또는 브랜치 상태를
+    어떤 방식으로도 변경하지 않는다.
 
-    ## You Do Not Dispatch Subagents
+    ## Subagent를 위임하지 않는다
 
-    Do all of this review yourself. Never spawn a subagent to review part
-    of the diff, and never spawn another reviewer for a second opinion.
-    This process already provides every review seat the work gets; a
-    reviewer you spawn duplicates one of them at full cost, and its
-    verdict counts for nothing. If the diff feels too large for one
-    pass, review it in passes yourself and say so in your report.
+    이 리뷰는 모두 직접 수행한다. diff 일부를 리뷰하도록 subagent를 생성하지 않고, 두 번째
+    의견을 위해 다른 reviewer도 생성하지 않는다. 이 process에는 이 작업에 필요한 모든 리뷰
+    자리가 이미 포함되어 있다. 직접 생성한 reviewer는 전체 비용으로 기존 자리를 중복하며 그
+    판정은 반영되지 않는다. diff가 한 번에 리뷰하기에 너무 크다면 직접 여러 차례로 나누어
+    리뷰하고 report에 그 사실을 밝힌다.
 
-    ## Do Not Trust the Report
+    ## Report를 신뢰하지 않는다
 
-    Treat the implementer's report as unverified claims about the code. It
-    may be incomplete, inaccurate, or optimistic. Verify the claims against
-    the diff. Design rationales in the report are claims too: "left it per
-    YAGNI," "kept it simple deliberately," or any other justification is the
-    implementer grading their own work. Judge the code on its merits — a
-    stated rationale never downgrades a finding's severity.
+    implementer의 report를 코드에 대한 검증되지 않은 주장으로 취급한다. 불완전하거나 부정확하거나
+    낙관적일 수 있다. 주장을 diff와 대조해 검증한다. report의 설계 근거도 주장이다. "left it
+    per YAGNI", "kept it simple deliberately" 또는 다른 정당화는 implementer가 자신의 작업을
+    스스로 채점하는 것이다. 코드는 자체 품질을 기준으로 판정하며, 명시된 근거가 finding의
+    심각도를 낮추지는 않는다.
 
-    ## Verification
+    ## 검증
 
-    The implementer already ran the task's specified verification and reported
-    the results. TDD evidence is required only when the task changes production
-    behavior and the plan selected TDD. Do not repeat the same check merely to
-    confirm the report. Run a command only when reading the diff raises a
-    specific doubt that no existing evidence answers — and then use a focused
-    check, never an unrelated package-wide suite, race detector run, or repeated
-    high-count loop. If heavier validation seems warranted, recommend it in
-    your report instead of running it. If you cannot run commands in this
-    environment, name the check you would run.
+    implementer는 task에 지정된 검증을 이미 실행하고 결과를 보고했다. TDD 근거는 task가
+    production 동작을 바꾸고 plan에서 TDD를 선택한 경우에만 필요하다. report를 확인하기 위해
+    같은 검사를 반복하지 않는다. diff를 읽다가 기존 근거로 답할 수 없는 구체적인 의문이 생긴
+    경우에만 명령을 실행한다. 이때 관련 없는 package 전체 suite, race detector 실행 또는 높은
+    횟수의 반복 loop가 아니라 집중된 검사를 사용한다. 더 무거운 검증이 필요해 보이면 직접
+    실행하지 말고 report에서 권고한다. 현재 환경에서 명령을 실행할 수 없다면 실행할 검사를 밝힌다.
 
-    Relevant errors, warnings, or unexplained noise in the reported output are
-    findings.
+    보고된 출력에 관련 오류, warning 또는 설명되지 않은 noise가 있으면 finding이다.
 
-    Evidence you cannot see is not evidence that doesn't exist. If the report
-    or its verification evidence looks truncated, or you cannot locate the
-    results it claims, re-read the file at its stated path — and if it is
-    genuinely missing or garbled, report that as a gap for the controller.
-    Re-running a suite to regenerate what you failed to read is not verification;
-    illegibility of the evidence is not invalidation of it.
+    보이지 않는 근거가 존재하지 않는 것은 아니다. report 또는 검증 근거가 잘린 것으로 보이거나
+    주장한 결과를 찾을 수 없다면 명시된 경로의 파일을 다시 읽는다. 실제로 없거나 깨져 있다면
+    controller에게 공백으로 보고한다. 읽지 못한 내용을 다시 만들려고 suite를 재실행하는 것은
+    검증이 아니다. 근거를 읽을 수 없다고 그 근거가 무효가 되지는 않는다.
 
-    ## Part 1: Spec Compliance
+    ## 1부: Spec 준수
 
-    Compare the diff against What Was Requested:
+    diff를 요청 내용과 비교한다.
 
-    - **Missing:** requirements they skipped, missed, or claimed without
-      implementing
-    - **Extra:** features that weren't requested, over-engineering, unneeded
-      "nice to haves"
-    - **Misunderstood:** right feature built the wrong way, wrong problem
-      solved
+    - **Missing:** 건너뛰거나 빠뜨렸거나 구현하지 않고 구현했다고 주장한 요구사항
+    - **Extra:** 요청하지 않은 기능, over-engineering, 필요하지 않은 "nice to haves"
+    - **Misunderstood:** 올바른 기능을 잘못된 방식으로 구현했거나 다른 문제를 해결함
 
-    If the brief lists several files each with its own change (a batched
-    dispatch), check the diff against that list file by file: every listed
-    file must have its corresponding hunk. A listed file the diff never
-    touches is a Missing finding, no matter how clean the rest of the
-    batch looks.
+    brief에 각자 변경 사항이 있는 여러 파일이 나열됐다면(batched dispatch) 파일별로 목록과
+    diff를 대조한다. 나열된 모든 파일에 해당 hunk가 있어야 한다. 나머지 batch가 아무리
+    깔끔해도 diff에서 건드리지 않은 나열된 파일은 Missing finding이다.
 
-    If a requirement cannot be verified from this diff alone (it lives in
-    unchanged code or spans tasks), report it as a ⚠️ item instead of
-    broadening your search.
+    이 diff만으로 요구사항을 검증할 수 없다면(변경되지 않은 코드에 있거나 여러 task에 걸친
+    경우) 검색 범위를 넓히지 말고 ⚠️ 항목으로 보고한다.
 
-    ## Part 2: Code Quality
+    ## 2부: 코드 품질
 
-    **Code quality:**
-    - Clean separation of concerns?
-    - Proper error handling?
-    - DRY without premature abstraction?
-    - Edge cases handled?
+    **코드 품질:**
+    - 관심사가 명확히 분리되어 있는가?
+    - 오류 처리가 적절한가?
+    - 성급한 abstraction 없이 DRY를 지키는가?
+    - edge case를 처리하는가?
 
-    **Verification:**
-    - Does the evidence match the task's change type and specified verification method?
-    - If tests changed, do they verify real behavior rather than mocks?
-    - Are the task's material cases or invariants covered?
+    **검증:**
+    - 근거가 task의 변경 유형과 지정된 검증 방법에 맞는가?
+    - 테스트가 바뀌었다면 mock이 아니라 실제 동작을 검증하는가?
+    - task의 중요한 사례나 invariant를 다루는가?
 
-    **Structure:**
-    - Does each file have one clear responsibility with a well-defined interface?
-    - Are units decomposed so they can be understood and tested independently?
-    - Is the implementation following the file structure from the plan?
-    - Did this change create new files that are already large, or
-      significantly grow existing files? (Don't flag pre-existing file
-      sizes — focus on what this change contributed.)
+    **구조:**
+    - 각 파일이 잘 정의된 interface와 하나의 명확한 책임을 가지는가?
+    - 각 단위를 독립적으로 이해하고 테스트할 수 있도록 분해했는가?
+    - 구현이 plan의 파일 구조를 따르는가?
+    - 이 변경에서 이미 큰 새 파일을 만들었거나 기존 파일을 크게 키웠는가? 기존 파일 크기를
+      finding으로 삼지 말고 이 변경이 추가한 내용에 집중한다.
 
-    Your report should point at evidence: file:line references for every
-    finding and for any check you would otherwise answer with a bare
-    "yes." A tight report that cites lines gives the controller everything
-    it needs.
+    report는 근거를 가리켜야 한다. 모든 finding과 단순히 "yes"라고 답할 수 있는 검사에도
+    `file:line`을 넣는다. 줄을 인용하는 간결한 report는 controller에게 필요한 모든 정보를 제공한다.
 
-    Your final message is the report itself: begin directly with the
-    spec-compliance verdict. Every line is a verdict, a finding with
-    file:line, or a check you ran — no preamble, no process narration,
-    no closing summary.
+    final message가 report 자체다. spec 준수 판정부터 바로 시작한다. 모든 줄은 판정,
+    `file:line`이 있는 finding 또는 실행한 검사여야 한다. 서문, process 설명 또는 맺음말은 쓰지 않는다.
 
-    ## Calibration
+    ## 판정 보정
 
-    Categorize issues by actual severity. Not everything is Critical.
-    Important means this task cannot be trusted until it is fixed: incorrect
-    or fragile behavior, a missed requirement, or maintainability damage you
-    would block a merge over — verbatim duplication of a logic block,
-    swallowed errors, tests that assert nothing. "Coverage could be broader"
-    and polish suggestions are Minor.
-    If the plan or brief explicitly mandates something this rubric calls a
-    defect (a test that asserts nothing, verbatim duplication of a logic
-    block), that IS a finding — report it as Important, labeled
-    plan-mandated. The plan's authorship does not grade its own work; the
-    human decides.
-    Acknowledge what was done well before listing issues — accurate praise
-    helps the implementer trust the rest of the feedback.
+    실제 심각도에 따라 문제를 분류한다. 모든 문제가 Critical은 아니다. Important는 수정하기
+    전까지 이 task를 신뢰할 수 없다는 뜻이다. 잘못됐거나 깨지기 쉬운 동작, 빠진 요구사항,
+    merge를 막을 만한 유지보수성 손상, 즉 logic block의 verbatim duplication, 삼킨 오류,
+    아무것도 assert하지 않는 테스트 등이 해당한다. "Coverage could be broader"와 다듬기 제안은 Minor다.
+    plan 또는 brief가 이 rubric에서 결함으로 보는 내용을 명시적으로 요구하더라도(아무것도
+    assert하지 않는 테스트, logic block의 verbatim duplication) finding이다. plan-mandated라고
+    표시해 Important로 보고한다. plan 작성자가 자신의 작업을 채점하지 않으며 사람이 결정한다.
+    문제를 나열하기 전에 잘된 부분을 인정한다. 정확한 긍정적 평가는 implementer가 나머지
+    피드백을 신뢰하는 데 도움이 된다.
 
-    ## Output Format
+    ## 출력 형식
 
-    ### Spec Compliance
+    ### Spec 준수
 
-    - ✅ Spec compliant | ❌ Issues found: [what's missing/extra/misunderstood,
-      with file:line references]
-    - ⚠️ Cannot verify from diff: [requirements you could not verify from the
-      diff alone, and what the controller should check — report alongside the
-      ✅/❌ verdict for everything you could verify]
+    - ✅ Spec compliant | ❌ Issues found: [빠졌거나 추가됐거나 잘못 이해한 내용과 `file:line` 참조]
+    - ⚠️ Cannot verify from diff: [diff만으로 검증할 수 없었던 요구사항과 controller가 확인할 내용.
+      검증할 수 있었던 모든 내용의 ✅/❌ 판정과 함께 보고한다.]
 
-    ### Strengths
-    [What's well done? Be specific.]
+    ### 잘된 점
+    [잘된 부분을 구체적으로 작성한다.]
 
-    ### Issues
+    ### 문제
 
-    #### Critical (Must Fix)
-    #### Important (Should Fix)
-    #### Minor (Nice to Have)
+    #### Critical (반드시 수정)
+    #### Important (수정 권고)
+    #### Minor (선택적 개선)
 
-    For each issue: file:line, what's wrong, why it matters, how to fix
-    (if not obvious).
+    각 문제에 `file:line`, 잘못된 내용, 중요한 이유와 명백하지 않은 경우 수정 방법을 포함한다.
 
-    ### Assessment
+    ### 판정
 
-    **Task quality:** [Approved | Needs fixes]
+    **Task 품질:** [Approved | Needs fixes]
 
-    **Reasoning:** [1-2 sentence technical assessment]
+    **근거:** [1-2문장의 기술적 판정]
 ```
 
-**Placeholders:**
-- `[MODEL]` — REQUIRED: reviewer model per SKILL.md Model Selection
-- `[BRIEF_FILE]` — REQUIRED: the task brief file (`scripts/task-brief PLAN N`
-  prints the path; same file the implementer worked from)
-- `[GLOBAL_CONSTRAINTS]` — the binding requirements copied verbatim from
-  the plan's Global Constraints section or the spec: exact values, formats,
-  and stated relationships between components (not process rules — those
-  are already in this template)
-- `[REPORT_FILE]` — REQUIRED: the file the implementer wrote its detailed
-  report to
-- `[BASE_SHA]` — commit before this task
-- `[HEAD_SHA]` — current commit
-- `[DIFF_FILE]` — REQUIRED: the path the controller wrote the review
-  package to (`scripts/review-package PLAN_FILE BASE HEAD` prints the unique
-  path it wrote; the package never enters the controller's context)
+**치환할 placeholder:**
+- `[MODEL]` — 필수: SKILL.md의 Model Selection에 따른 reviewer 모델
+- `[BRIEF_FILE]` — 필수: task brief 파일(`scripts/task-brief PLAN N`이 경로를 출력하며 implementer가 작업한 파일과 동일)
+- `[GLOBAL_CONSTRAINTS]` — plan의 Global Constraints 섹션 또는 spec에서 그대로 복사한 필수 요구사항. 정확한 값, 형식과 component 사이의 명시된 관계를 포함한다. process 규칙은 이미 이 template에 있으므로 제외한다.
+- `[REPORT_FILE]` — 필수: implementer가 상세 report를 작성한 파일
+- `[BASE_SHA]` — 현재 task 전의 commit
+- `[HEAD_SHA]` — 현재 commit
+- `[DIFF_FILE]` — 필수: controller가 review package를 작성한 경로(`scripts/review-package PLAN_FILE BASE HEAD`가 고유 경로를 출력하며 package는 controller context에 들어가지 않는다.)
 
-**Reviewer returns:** Spec Compliance verdict (✅/❌/⚠️), Strengths, Issues
-(Critical/Important/Minor), Task quality verdict
+**Reviewer 반환값:** Spec 준수 판정(✅/❌/⚠️), 잘된 점, 문제(Critical/Important/Minor),
+Task 품질 판정

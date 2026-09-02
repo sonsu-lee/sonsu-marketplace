@@ -1,9 +1,9 @@
-# Logging policy
+# Logging 정책
 
 log와 telemetry는 실제 운영 질문에 답하기 위해 만든다. 모든 endpoint, 함수 또는 예외를
 기록하는 것이 목표가 아니다.
 
-## Start from questions
+## 질문부터 시작한다
 
 먼저 운영자가 물을 구체적인 질문을 적는다. 예:
 
@@ -14,7 +14,7 @@ log와 telemetry는 실제 운영 질문에 답하기 위해 만든다. 모든 e
 질문에 답하는 데 필요한 event, field와 level만 추가한다. dashboard나 alert가 실제로 소비하지
 않는 high-cardinality field와 성공 log를 관성적으로 만들지 않는다.
 
-## Event ownership
+## Event 소유권
 
 - 오류를 최종 처리하거나 사용자 영향이 확정되는 경계에서 한 번 기록한다.
 - log 후 같은 오류를 그대로 throw하여 중복 기록하지 않는다.
@@ -25,7 +25,7 @@ log와 telemetry는 실제 운영 질문에 답하기 위해 만든다. 모든 e
 - correlation 또는 trace identifier는 여러 비동기 경계나 서비스에서 실제 요청을 연결해야 할
   때 사용한다. 단일 프로세스의 단순 흐름에 무조건 강제하지 않는다.
 
-## Data safety
+## 데이터 안전
 
 - password, token, session secret, authorization header와 credential을 기록하지 않는다.
 - 개인정보와 원문 payload는 질문에 반드시 필요하고 보존·접근 정책이 명확할 때만 기록한다.

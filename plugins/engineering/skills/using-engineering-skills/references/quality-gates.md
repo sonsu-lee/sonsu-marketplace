@@ -1,19 +1,18 @@
-# Engineering Quality Gate Contract
+# Engineering 품질 게이트 계약
 
-Use this contract when an Engineering lifecycle skill declares a quality gate. The
-stage that creates an artifact owns its gate and its return path. Do not create a
-central gate dispatcher or recursively invoke the whole workflow.
+Engineering lifecycle 스킬이 품질 게이트를 선언할 때 이 계약을 사용한다. artifact를 만드는
+단계가 해당 게이트와 반환 경로를 소유한다. 중앙 게이트 dispatcher를 만들거나 전체 workflow를
+재귀적으로 호출하지 않는다.
 
-## Quality Is Not Authorization
+## 품질 판정은 권한이 아니다
 
-A quality gate decides whether the current artifact has enough evidence to advance.
-It never grants permission to write a durable document, implement, stage, commit,
-push, create a PR, merge, deploy, publish, or perform another external action.
-Apply the relevant authorization gate separately.
+품질 게이트는 현재 artifact에 다음 단계로 진행할 충분한 근거가 있는지 판단한다. 영속 문서
+작성, 구현, staging, commit, push, PR 생성, merge, 배포, 게시 또는 다른 외부 작업의 권한은
+절대 부여하지 않는다. 관련 권한 게이트를 별도로 적용한다.
 
-## Define the Gate Before Running It
+## 실행 전에 게이트를 정의한다
 
-Record these fields in the conversation, plan, progress ledger, or review package:
+대화, plan, 진행 ledger 또는 review package에 다음 필드를 기록한다.
 
 ```text
 Gate: <stable gate id>
@@ -29,82 +28,75 @@ Attempt: <current>/<cap>
 Decision owner: <stage owner or named human decision-maker>
 ```
 
-Set the required checks, pass condition, return target, and finite attempt cap before
-the first run. Use a content digest or immutable review package when a file is not
-committed. If the artifact changes, the previous result is stale; run the required
-checks against the new revision before advancing.
+첫 실행 전에 필수 검사, 통과 조건, 반환 대상과 유한한 시도 횟수 상한을 정한다. 파일이
+commit되지 않았다면 content digest 또는 변경할 수 없는 review package를 사용한다. artifact가
+바뀌면 이전 결과는 오래된 것이므로 다음 단계로 진행하기 전에 새 리비전에 필수 검사를 실행한다.
 
-A digest identifies content but does not expose it. When an independent evaluator
-must inspect an uncommitted artifact, provide a readable frozen package as well as
-its digest; a live commit range that omits working-tree changes is not equivalent.
+digest는 내용을 식별하지만 노출하지 않는다. 독립 evaluator가 commit하지 않은 artifact를
+검사해야 한다면 digest와 함께 읽을 수 있는 고정 package를 제공한다. working tree 변경을
+누락한 현재 commit range는 이와 같지 않다.
 
-## Statuses
+## 상태
 
-| Status | Meaning | May advance a required gate? |
+| 상태 | 의미 | 필수 게이트를 통과할 수 있는가? |
 | --- | --- | --- |
-| `passed` | All required checks produced evidence meeting the pass condition for this revision | Yes |
-| `failed` | Evidence shows a required condition is not met | No |
-| `blocked` | A missing capability, permission, dependency, or external state prevents a required check or repair | No |
-| `inconclusive` | Evidence exists but cannot support either pass or fail | No |
-| `not_run` | A required or proposed check was not executed | No |
-| `not_applicable` | The check was excluded before execution because it does not apply to this artifact | Only if every required check is otherwise satisfied |
-| `accepted_risk` | A named human decision-maker explicitly accepts a stated unresolved risk for this revision | Yes, but never report it as `passed` |
+| `passed` | 모든 필수 검사에서 현재 리비전의 통과 조건을 충족하는 근거가 나왔다 | 예 |
+| `failed` | 필수 조건을 충족하지 못했음이 근거로 드러났다 | 아니요 |
+| `blocked` | capability, 권한, dependency 또는 외부 상태의 부재가 필수 검사나 수정을 막는다 | 아니요 |
+| `inconclusive` | 근거가 있지만 통과 또는 실패를 뒷받침하지 못한다 | 아니요 |
+| `not_run` | 필수 또는 제안 검사를 실행하지 않았다 | 아니요 |
+| `not_applicable` | 현재 artifact에 적용되지 않아 실행 전에 검사 대상에서 제외했다 | 다른 모든 필수 검사를 충족한 경우에만 가능 |
+| `accepted_risk` | 지명된 사람인 의사결정자가 현재 리비전의 명시된 미해결 위험을 명시적으로 수용했다 | 예. 단, `passed`로 보고하지 않는다 |
 
-Only the user or another identified, authorized human decision-maker may set
-`accepted_risk`. A controller, implementer, reviewer, retry cap, schedule, or token
-budget cannot create it. Preserve the finding, consequence, scope, revision, and
-decision evidence whenever work advances under accepted risk.
+사용자 또는 식별되고 권한을 가진 다른 사람인 의사결정자만 `accepted_risk`를 설정할 수 있다.
+controller, implementer, reviewer, retry 상한, 일정 또는 token budget은 이를 만들 수 없다.
+위험을 수용하고 진행할 때에는 finding, 결과, 범위, 리비전과 결정 근거를 보존한다.
 
-## Run Cheap Oracles Before Judgment
+## 판단보다 저렴한 oracle을 먼저 실행한다
 
-Run deterministic checks that can decide the question before an inferential review:
-tests, type checks, builds, parsers, native loaders, link/path checks, and consuming
-commands. Use an independent reviewer where judgment materially reduces risk, not as
-a substitute for an available oracle.
+추론 기반 리뷰 전에 질문을 판정할 수 있는 결정론적 검사를 실행한다. 여기에는 테스트, type
+check, build, parser, native loader, link/path 검사와 실제 소비 명령이 포함된다. 독립 reviewer는
+판단이 위험을 실질적으로 줄이는 곳에 사용하고, 사용할 수 있는 oracle을 대신하는 용도로 쓰지 않는다.
 
-Independent review is normally worth its cost at these boundaries:
+독립 리뷰는 일반적으로 다음 경계에서 비용을 들일 가치가 있다.
 
-- an architectural or high-risk durable design document;
-- a cross-component, long-running, or high-risk implementation plan;
-- each subagent implementation task;
-- a major or high-risk inline change and the final whole change.
+- 아키텍처 또는 고위험 영속 설계 문서
+- 여러 component에 걸치거나 오래 걸리거나 위험도가 높은 구현 계획
+- 각 subagent 구현 task
+- 크거나 위험도가 높은 직접 변경과 최종 전체 변경
 
-Documentation, metadata, and simple configuration usually need proportionate
-deterministic checks. If a review is optional and deliberately excluded, record it as
-`not_applicable`; if it was required but unavailable, record `blocked` or
-`not_run` rather than silently weakening the gate.
+문서, metadata와 단순 설정에는 보통 변경에 비례한 결정론적 검사가 필요하다. 리뷰가 선택
+사항이고 의도적으로 제외했다면 `not_applicable`로 기록한다. 필수지만 사용할 수 없었다면
+게이트를 조용히 약화하지 말고 `blocked` 또는 `not_run`으로 기록한다.
 
-## Return to the Nearest Owner
+## 가장 가까운 소유 단계로 돌아간다
 
-| Failure | Return target |
+| 실패 | 반환 대상 |
 | --- | --- |
-| Failing behavior check or test | The task implementation; use systematic debugging when the cause is not known |
-| Valid task-review finding | The task's focused fix loop, followed by a scoped re-review |
-| Incomplete or contradictory plan | `writing-plans` at the affected task or interface |
-| Requirement or design contradiction | `brainstorming` at the disputed decision |
-| Integration-only failure | The integration step or affected implementation, not the whole project |
-| Missing tool, permission, service, or external state | `blocked`; wait for changed capability or human action |
-| Reviewer disagreement | Gather decisive evidence, clarify the requirement, or request human adjudication |
+| 동작 검사 또는 테스트 실패 | task 구현. 원인을 모르면 systematic debugging을 사용한다 |
+| 유효한 task-review finding | task의 집중 수정 loop를 거친 뒤 범위를 제한해 재리뷰한다 |
+| 불완전하거나 모순된 plan | 영향을 받은 task 또는 interface의 `writing-plans` |
+| 요구사항 또는 설계 모순 | 논쟁 중인 결정의 `brainstorming` |
+| 통합에서만 발생한 실패 | 전체 프로젝트가 아니라 통합 단계 또는 영향받은 구현 |
+| 도구, 권한, service 또는 외부 상태 부재 | `blocked`. capability 변경이나 사람의 조치를 기다린다 |
+| Reviewer 의견 불일치 | 결정적 근거를 수집하거나 요구사항을 명확히 하거나 사람의 판정을 요청한다 |
 
-Preserve the last green checkpoint and already verified work. Backtracking is a
-targeted state transition, not a restart and not recursive self-invocation.
+마지막 green checkpoint와 이미 검증한 작업을 보존한다. 되돌아가기는 표적화된 상태 전환이며,
+재시작이나 재귀적인 자기 호출이 아니다.
 
-## Retry With Changed Information
+## 정보가 달라졌을 때 재시도한다
 
-Every retry must change at least one of: the artifact, hypothesis, implementation,
-evidence, context, evaluator, or available capability. Do not repeat an identical
-deterministic command against an unchanged artifact, and do not tell the same
-evaluator to “try harder” with unchanged inputs.
+재시도할 때마다 artifact, 가설, 구현, 근거, context, evaluator 또는 사용 가능한 capability 중
+하나 이상이 달라져야 한다. 바뀌지 않은 artifact에 동일한 결정론적 명령을 반복하지 않고,
+같은 evaluator에게 변경 없는 입력으로 “try harder”라고 지시하지 않는다.
 
-At the attempt cap:
+시도 횟수 상한에서는 다음과 같이 처리한다.
 
-1. Close a finding only when evidence demonstrates that it is invalid or outside the
-   declared gate scope.
-2. Route a valid unresolved finding to the nearest owner and record
-   `decision_required` in prose alongside the gate's `failed` or `blocked` status.
-3. Advance only after a new revision passes or a human explicitly records
-   `accepted_risk` for the current revision.
+1. 근거에서 finding이 유효하지 않거나 선언한 게이트 범위 밖임이 드러난 경우에만 닫는다.
+2. 유효한 미해결 finding은 가장 가까운 소유 단계로 보내고, 게이트의 `failed` 또는 `blocked`
+   상태와 함께 산문으로 `decision_required`를 기록한다.
+3. 새 리비전이 통과하거나 사람이 현재 리비전에 대해 `accepted_risk`를 명시적으로 기록한
+   뒤에만 진행한다.
 
-Minor advisory observations may be deferred when they were never part of the pass
-condition. A valid required finding never becomes `passed` merely because the retry
-cap was reached.
+경미한 권고 사항이 통과 조건에 포함된 적이 없다면 나중으로 미룰 수 있다. retry 상한에
+도달했다는 이유만으로 유효한 필수 finding이 `passed`가 되지는 않는다.

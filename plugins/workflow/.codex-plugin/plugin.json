@@ -1,15 +1,15 @@
 {
   "name": "workflow",
   "version": "0.6.1",
-  "description": "A personal Codex plugin for explicit Git, ticket, and GitHub pull request workflows.",
+  "description": "명시적인 Git, 티켓과 GitHub Pull Request 작업을 위한 개인용 Codex 플러그인입니다.",
   "author": {
     "name": "sonsu"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Workflow",
-    "shortDescription": "Git, ticket, and pull request workflows",
-    "longDescription": "Prepare atomic Git changes, turn prepared work into tracker-ready tickets, or create a draft-by-default GitHub pull request with repository-aware templates, explicit publication boundaries, and marked visual evidence.",
+    "shortDescription": "Git, 티켓과 Pull Request 워크플로",
+    "longDescription": "원자적인 Git 변경을 준비하고, 정리된 작업을 tracker에 바로 등록할 수 있는 티켓으로 변환하거나, 저장소 템플릿, 명시적인 게시 경계와 변경 위치를 표시한 시각 증거를 사용해 기본 Draft GitHub Pull Request를 만듭니다.",
     "developerName": "sonsu",
     "category": "Developer Tools",
     "capabilities": [
@@ -18,9 +18,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Review this Git change and propose an atomic branch and Conventional Commit.",
-      "Turn this prepared work into tracker-ready tickets.",
-      "Prepare the current branch as a reviewable GitHub pull request."
+      "이 Git 변경을 검토하고 원자적인 브랜치와 Conventional Commit을 제안해 줘.",
+      "정리된 이 작업을 tracker에 바로 등록할 수 있는 티켓으로 만들어 줘.",
+      "현재 브랜치를 리뷰 가능한 GitHub Pull Request로 준비해 줘."
     ]
   }
 }
