@@ -32,7 +32,8 @@
       "expected": {
         "status": "failed",
         "return_target": "brainstorming-design-decision",
-        "retry_requires_changed_input": false,
+        "retry_requires_changed_input": true,
+        "automatic_retry_allowed": false,
         "decision_required": true
       },
       "must_not": [
@@ -52,7 +53,8 @@
       "expected": {
         "status": "blocked",
         "return_target": "capability-or-human-action",
-        "retry_requires_changed_input": false,
+        "retry_requires_changed_input": true,
+        "automatic_retry_allowed": false,
         "condition_to_resume": "loader capability or explicit human decision changes"
       },
       "must_not": [
@@ -115,7 +117,8 @@
       "expected": {
         "status": "failed",
         "return_target": "task-implementation-and-human-decision",
-        "retry_requires_changed_input": false,
+        "retry_requires_changed_input": true,
+        "automatic_retry_allowed": false,
         "decision_required": true
       },
       "must_not": [

@@ -26,13 +26,29 @@ A review is evidence for one declared artifact revision; it is not a general app
 
 ## How to Request
 
-**1. Fix the review scope and revision:**
+**1. Freeze the review artifact and revision:**
 ```bash
 BASE_SHA=<the task base or verified merge base>
 HEAD_SHA=$(git rev-parse HEAD)
+./scripts/review-package range "$BASE_SHA" "$HEAD_SHA"
 ```
 
-Do not default to `HEAD~1` for a multi-commit task. Use the base recorded before the task or the verified branch merge base. For an uncommitted artifact, create an immutable review package or content digest and name it in the gate record.
+Do not default to `HEAD~1` for a multi-commit task. Use the base recorded before
+the task or the verified branch merge base. The script prints a package path and
+its SHA-256 revision; record both and pass both to the reviewer. Run
+`./scripts/review-package` from this skill's directory.
+
+When the authorized artifact is still uncommitted, freeze the complete working
+tree instead:
+
+```bash
+./scripts/review-package working-tree
+```
+
+This mode includes tracked, staged, and untracked changes and refuses an empty
+working tree. Its package is created outside the repository so it does not add
+itself to the diff. A digest alone identifies an artifact but does not let a
+reviewer inspect it; always pass the readable package path too.
 
 **2. Dispatch code reviewer subagent:**
 
@@ -41,8 +57,8 @@ Dispatch a `general-purpose` subagent, filling the template at [code-reviewer.md
 **Placeholders:**
 - `{DESCRIPTION}` - Brief summary of what you built
 - `{PLAN_OR_REQUIREMENTS}` - What it should do
-- `{BASE_SHA}` - Starting commit
-- `{HEAD_SHA}` - Ending commit
+- `{REVIEW_PACKAGE}` - Immutable package path printed by `scripts/review-package`
+- `{REVIEW_REVISION}` - SHA-256 revision printed for that package
 
 **3. Act on feedback:**
 - Fix Critical issues immediately
@@ -60,14 +76,19 @@ Record the review gate's artifact, revision, evidence, findings, status, return 
 
 You: Let me request code review before proceeding.
 
-BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
+BASE_SHA=<recorded Task 2 base>
 HEAD_SHA=$(git rev-parse HEAD)
+./scripts/review-package range "$BASE_SHA" "$HEAD_SHA"
+
+[Script returns]:
+  Package: /tmp/engineering-review.ABC123.diff
+  Revision: sha256:012345...
 
 [Dispatch code reviewer subagent]
   DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
   PLAN_OR_REQUIREMENTS: Task 2 from .superpowers/plans/deployment-plan.md
-  BASE_SHA: a7981ec
-  HEAD_SHA: 3df7661
+  REVIEW_PACKAGE: /tmp/engineering-review.ABC123.diff
+  REVIEW_REVISION: sha256:012345...
 
 [Subagent returns]:
   Strengths: Clean architecture, real tests

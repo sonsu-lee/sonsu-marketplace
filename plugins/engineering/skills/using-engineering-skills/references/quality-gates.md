@@ -34,6 +34,10 @@ the first run. Use a content digest or immutable review package when a file is n
 committed. If the artifact changes, the previous result is stale; run the required
 checks against the new revision before advancing.
 
+A digest identifies content but does not expose it. When an independent evaluator
+must inspect an uncommitted artifact, provide a readable frozen package as well as
+its digest; a live commit range that omits working-tree changes is not equivalent.
+
 ## Statuses
 
 | Status | Meaning | May advance a required gate? |

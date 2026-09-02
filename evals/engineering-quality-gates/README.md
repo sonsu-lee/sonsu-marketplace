@@ -8,6 +8,12 @@
 응답과 tool trace를 기대값에 대조해야 합니다. Quality Engineering, Workflow 또는 다른
 플러그인의 존재를 가정하지 않습니다.
 
+`retry_requires_changed_input`은 workflow가 다시 진행될 때 artifact, evidence, context,
+evaluator, capability 또는 human decision이 달라져야 하는지를 뜻합니다.
+`automatic_retry_allowed`는 현재 controller가 human/external change 없이 다음 retry를 시작할
+수 있는지를 별도로 나타냅니다. retry가 적용되지 않는 passed case의 `false`와, retry 전에
+변화가 필요하다는 조건을 혼동하지 않습니다.
+
 JSON 파싱과 schema field 검사는 fixture의 구조만 확인합니다. 실제 model behavior를 입증하지
 않습니다. 모델 기반 실행에는 별도의 model·비용·반복 횟수 승인이 필요하며 평가 결과를 `pass`,
 `fail`, `blocked`, `inconclusive`, `not_run`으로 구분합니다. case 안의 `expected.status`는

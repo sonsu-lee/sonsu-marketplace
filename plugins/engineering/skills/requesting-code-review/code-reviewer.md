@@ -20,15 +20,18 @@ Subagent (general-purpose):
 
     [PLAN_OR_REQUIREMENTS]
 
-    ## Git Range to Review
+    ## Frozen Review Artifact
 
-    **Base:** [BASE_SHA]
-    **Head:** [HEAD_SHA]
+    **Package:** [REVIEW_PACKAGE]
+    **Revision:** [REVIEW_REVISION]
 
-    ```bash
-    git diff --stat [BASE_SHA]..[HEAD_SHA]
-    git diff [BASE_SHA]..[HEAD_SHA]
-    ```
+    Read the package before reviewing. It contains the exact committed range or
+    working-tree snapshot, its provenance, status, and full diff. Verify its
+    SHA-256 digest matches the declared revision. If the package is missing,
+    unreadable, empty, or has a different digest, return an `inconclusive`
+    assessment instead of reconstructing or approving a different artifact.
+    Use `shasum -a 256 [REVIEW_PACKAGE]` or `sha256sum [REVIEW_PACKAGE]`,
+    whichever is available, and compare the result with `[REVIEW_REVISION]`.
 
     ## Read-Only Review
 
@@ -137,8 +140,8 @@ Subagent (general-purpose):
 **Placeholders:**
 - `[DESCRIPTION]` — brief summary of what was built
 - `[PLAN_OR_REQUIREMENTS]` — what it should do (plan file path, task text, or requirements)
-- `[BASE_SHA]` — starting commit
-- `[HEAD_SHA]` — ending commit
+- `[REVIEW_PACKAGE]` — readable package path printed by `scripts/review-package`
+- `[REVIEW_REVISION]` — SHA-256 revision printed for that package
 
 **Reviewer returns:** Strengths, Issues (Critical / Important / Minor), Recommendations, Assessment
 

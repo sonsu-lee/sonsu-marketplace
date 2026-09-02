@@ -78,15 +78,17 @@ digraph process {
         "Implementer implements, verifies, commits, self-reviews" [shape=box];
         "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)" [shape=box];
         "Spec ✅ and quality approved?" [shape=diamond];
-        "Finding conflicts with plan text?" [shape=diamond];
-        "Rule on the conflict, ledger the ruling" [shape=box];
+        "Classify findings by owner before retry" [shape=diamond];
+        "Return plan or requirement defect to its owner; stop" [shape=box];
+        "Record capability or external-state blocker; stop" [shape=box];
+        "Close invalid findings with evidence" [shape=box];
         "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [shape=box];
         "Dispatch scoped re-review (./re-review-prompt.md)" [shape=box];
         "All findings addressed?" [shape=diamond];
         "R = 5?" [shape=diamond];
-        "Classify each residual finding with evidence" [shape=box];
+        "Adjudicate residual implementation findings with evidence" [shape=box];
         "All residual findings disproved?" [shape=diamond];
-        "Close invalid findings with evidence" [shape=box];
+        "Close residual invalid findings with evidence" [shape=box];
         "Record failed + decision_required; stop for human decision" [shape=box];
         "Human accepts risk for exact revision?" [shape=diamond];
         "Record accepted_risk" [shape=box];
@@ -96,10 +98,15 @@ digraph process {
 
     "Setup: worktree, ledger check, read plan, pre-flight review" [shape=box];
     "More tasks remain?" [shape=diamond];
-    "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [shape=box];
-    "Final findings? ONE fix dispatch, one scoped re-review, classify residuals" [shape=box];
-    "Final gate outcome recorded" [shape=box];
+    "Run final whole-change deterministic verification" [shape=box];
+    "Final deterministic verification passed?" [shape=diamond];
+    "Return to affected implementation or integration stage" [shape=box];
+    "Generate final package, dispatch code reviewer" [shape=box];
+    "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" [shape=box];
+    "Final gate outcome?" [shape=diamond];
     "Delete workspace only when final gate passed" [shape=box];
+    "Preserve workspace for accepted_risk" [shape=box];
+    "Return to owner or stop" [shape=box];
     "Use engineering:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "Setup: worktree, ledger check, read plan, pre-flight review" -> "Dispatch implementer subagent (./implementer-prompt.md)";
@@ -110,19 +117,21 @@ digraph process {
     "Implementer implements, verifies, commits, self-reviews" -> "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)";
     "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
     "Spec ✅ and quality approved?" -> "Append completion to ledger, mark todo complete" [label="yes"];
-    "Spec ✅ and quality approved?" -> "Finding conflicts with plan text?" [label="no"];
-    "Finding conflicts with plan text?" -> "Rule on the conflict, ledger the ruling" [label="yes"];
-    "Rule on the conflict, ledger the ruling" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model";
-    "Finding conflicts with plan text?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [label="no"];
+    "Spec ✅ and quality approved?" -> "Classify findings by owner before retry" [label="no"];
+    "Classify findings by owner before retry" -> "Return plan or requirement defect to its owner; stop" [label="plan / requirement"];
+    "Classify findings by owner before retry" -> "Record capability or external-state blocker; stop" [label="blocked"];
+    "Classify findings by owner before retry" -> "Close invalid findings with evidence" [label="invalid / out of scope"];
+    "Close invalid findings with evidence" -> "All findings addressed?";
+    "Classify findings by owner before retry" -> "R = 5?" [label="valid implementation"];
     "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" -> "Dispatch scoped re-review (./re-review-prompt.md)";
     "Dispatch scoped re-review (./re-review-prompt.md)" -> "All findings addressed?";
     "All findings addressed?" -> "Append completion to ledger, mark todo complete" [label="yes"];
-    "All findings addressed?" -> "R = 5?" [label="no"];
+    "All findings addressed?" -> "Classify findings by owner before retry" [label="no"];
     "R = 5?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [label="no - next round"];
-    "R = 5?" -> "Classify each residual finding with evidence" [label="yes - breaker trips"];
-    "Classify each residual finding with evidence" -> "All residual findings disproved?";
-    "All residual findings disproved?" -> "Close invalid findings with evidence" [label="yes"];
-    "Close invalid findings with evidence" -> "Append completion to ledger, mark todo complete";
+    "R = 5?" -> "Adjudicate residual implementation findings with evidence" [label="yes - breaker trips"];
+    "Adjudicate residual implementation findings with evidence" -> "All residual findings disproved?";
+    "All residual findings disproved?" -> "Close residual invalid findings with evidence" [label="yes"];
+    "Close residual invalid findings with evidence" -> "Append completion to ledger, mark todo complete";
     "All residual findings disproved?" -> "Record failed + decision_required; stop for human decision" [label="no"];
     "Record failed + decision_required; stop for human decision" -> "Human accepts risk for exact revision?";
     "Human accepts risk for exact revision?" -> "Record accepted_risk" [label="yes"];
@@ -130,11 +139,17 @@ digraph process {
     "Human accepts risk for exact revision?" -> "Return to owning stage with changed input" [label="no"];
     "Append completion to ledger, mark todo complete" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
-    "More tasks remain?" -> "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [label="no"];
-    "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE fix dispatch, one scoped re-review, classify residuals";
-    "Final findings? ONE fix dispatch, one scoped re-review, classify residuals" -> "Final gate outcome recorded";
-    "Final gate outcome recorded" -> "Delete workspace only when final gate passed";
+    "More tasks remain?" -> "Run final whole-change deterministic verification" [label="no"];
+    "Run final whole-change deterministic verification" -> "Final deterministic verification passed?";
+    "Final deterministic verification passed?" -> "Return to affected implementation or integration stage" [label="no"];
+    "Final deterministic verification passed?" -> "Generate final package, dispatch code reviewer" [label="yes"];
+    "Generate final package, dispatch code reviewer" -> "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals";
+    "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" -> "Final gate outcome?";
+    "Final gate outcome?" -> "Delete workspace only when final gate passed" [label="passed"];
+    "Final gate outcome?" -> "Preserve workspace for accepted_risk" [label="accepted_risk"];
+    "Final gate outcome?" -> "Return to owner or stop" [label="non-advancing status"];
     "Delete workspace only when final gate passed" -> "Use engineering:finishing-a-development-branch";
+    "Preserve workspace for accepted_risk" -> "Use engineering:finishing-a-development-branch";
 }
 ```
 
@@ -376,23 +391,27 @@ Template: [task-reviewer-prompt.md](task-reviewer-prompt.md)
 
 ### 4. The fix loop
 
-The loop triggers when the review reports spec ❌, any Critical or Important
-finding, or a ⚠️ item you confirmed as a real gap.
+Classify every finding by its owner immediately after each review or re-review:
 
-Before the loop starts, two routes leave it immediately:
+- Close a demonstrably invalid or out-of-scope finding with evidence. If that
+  resolves every required finding, the task may complete.
+- Send a task-detail or interface defect back to `engineering:writing-plans`.
+- Send an approved requirement or design contradiction back to
+  `engineering:brainstorming`.
+- Record a missing capability, permission, service, dependency, or external
+  state as `blocked` with the condition needed to resume.
+- Send only valid implementation findings into the bounded fix loop.
 
-- Record Minor findings in the progress ledger as you go
-  (`Task <N>: minor (deferred): <one-liner>`), and point the final
-  whole-branch review at that list so it can triage which must be fixed
-  before merge. A roll-up nobody reads is a silent discard. Minor findings
-  never enter the loop.
-- A finding labeled plan-mandated — or any finding that conflicts with
-  what the plan's text requires — is yours to rule on: weigh the finding
-  against the plan text, decide with the spec as the binding authority, and
-  ledger the ruling before you act on it. Do not dismiss the finding because
-  the plan mandates it, and do not dispatch a fix that contradicts the plan
-  without a recorded ruling.
-Everything else enters the loop. A fix round is one fix dispatch plus one
+This owner classification is routing, not cap adjudication. It prevents code
+retries that cannot change the failing input. The loop triggers only for a valid
+implementation finding: spec ❌, any Critical or Important issue, or a ⚠️ item
+you confirmed as an implementation gap.
+
+Minor findings leave before the loop. Record them in the progress ledger as you
+go (`Task <N>: minor (deferred): <one-liner>`), and point the final whole-branch
+review at that list so it can triage which must be fixed before merge. A roll-up
+nobody reads is a silent discard. Minor findings never enter the loop. Only the
+remaining valid implementation findings enter the loop. A fix round is one fix dispatch plus one
 scoped re-review. Five rounds maximum per task:
 
 **Rounds 1-3 — resume the original implementer.** Send it the open findings
@@ -435,9 +454,9 @@ check or tell the same reviewer to try again against the same package.
 Never fix findings yourself in the controller session — your context stays
 clean for coordination, and controller fixes skip review.
 
-**The breaker.** When round 5's re-review still leaves findings open, stop
-dispatching. Classify each open finding with the plan, code, and verification
-evidence you hold:
+**The breaker.** When round 5's re-review still leaves implementation findings
+open, stop dispatching. Adjudicate each residual finding with the plan, code,
+and verification evidence you hold:
 
 - **Demonstrably invalid or outside this gate's declared scope:** close it with
   evidence in the ledger: `Task <N>: finding closed — <finding> — Ruling:
@@ -446,11 +465,6 @@ evidence you hold:
 - **Valid task implementation finding:** record the gate `failed` and
   `decision_required`, name the task implementation as the return target, and
   stop for a human decision on a changed tactic or `accepted_risk`.
-- **Valid plan or requirement defect:** record `failed` and
-  `decision_required`, then return to the affected plan task or design
-  decision. Do not let downstream tasks build on it.
-- **Missing capability or external state:** record `blocked` and the concrete
-  condition that must change. Do not retry automatically.
 
 Only a named human decision-maker may accept a valid unresolved finding. If
 they explicitly do so for the exact revision, record `accepted_risk`, the
@@ -458,9 +472,9 @@ finding, consequence, scope, and decision evidence. Reaching the cap, deciding
 that a defect is not load-bearing, or recording a controller ruling never turns
 a real finding into `passed`.
 
-Classify only at the cap. Classifying earlier to end a loop is pre-judging with
-a different name. Every classification is a ledger entry — a silent discard is
-forbidden.
+Only residual implementation-finding adjudication waits until the cap. Owner
+routing happens after every review, before any retry. Every routing decision and
+cap adjudication is a ledger entry — a silent discard is forbidden.
 
 ### 5. Complete the task
 
@@ -478,12 +492,18 @@ the review has an open valid Critical/Important issue without explicit human
 
 ## Final Review
 
-The final whole-branch review is another stage-owned gate. Record its artifact,
+The final whole-branch review is another stage-owned gate. First run the final
+deterministic verification required by the plan across the whole branch and
+record its command, output, and exact HEAD. If it fails, record `failed` and
+return to the affected implementation or integration stage; do not dispatch an
+inferential reviewer yet.
+
+After the deterministic checks pass, record the gate's artifact,
 MERGE_BASE..HEAD revision, required verdict, evidence, findings, return target,
 attempt, and decision owner. Run
 `scripts/review-package PLAN_FILE MERGE_BASE HEAD` (MERGE_BASE = the commit the
 branch started from, e.g. `git merge-base main HEAD`) and include the
-printed path in the final review dispatch, so the final reviewer reads
+printed path and SHA-256 revision in the final review dispatch, so the final reviewer reads
 one file instead of re-deriving the branch diff with git commands. Dispatch
 on the most capable available model (see Model Selection), using
 engineering:requesting-code-review's
@@ -495,7 +515,8 @@ If the final whole-branch review returns findings, dispatch ONE fix subagent
 with the complete findings list — not one fixer per finding.
 Per-finding fixers each rebuild context and re-run suites; a real
 session's final-review fix wave cost more than all its tasks combined.
-Then run exactly one scoped re-review of the fix wave
+Re-run the affected and required whole-change deterministic checks against the
+new HEAD. Only after they pass, run exactly one scoped re-review of the fix wave
 (`scripts/review-package PLAN_FILE FIX_BASE HEAD` over the fix range,
 [re-review-prompt.md](re-review-prompt.md)).
 Classify residual findings as in the task loop's breaker. Demonstrably invalid
@@ -598,6 +619,7 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
 ...
 
 [After all tasks]
+[Run final whole-change deterministic verification; record commands and output]
 [Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final code-reviewer, most capable model]
 Final reviewer: All requirements met. Deferred minors triaged: none block merge.
 
