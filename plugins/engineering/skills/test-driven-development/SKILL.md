@@ -15,11 +15,25 @@ description: 프로덕션 코드의 동작을 변경하거나 결함을 수정�
 
 ## 사용 시점
 
-**항상 사용:**
-- 새로운 프로덕션 코드 동작
+구현 plan이 있으면 `engineering:writing-plans`에서 의사코드로 동작 흐름을 먼저 정의한 뒤
+TDD 적합성을 판단합니다. plan이 필요 없는 직접 변경에서도 파일 확장자가 아니라 관찰 가능한
+동작, 회귀 위험과 자동화 테스트의 실익을 기준으로 판단합니다.
+
+**TDD 적합성을 반드시 판단할 변경:**
+- 새로운 프로덕션 기능이나 관찰 가능한 동작
 - 코드 버그 수정
+- 로직, 알고리즘, 상태 전이, 검증 또는 오류 처리 변경
 - 관찰 가능한 동작을 바꿀 수 있는 리팩터링
-- 알고리즘, 상태 전이, 검증 또는 오류 처리 변경
+
+다음 조건일수록 TDD가 적합합니다.
+
+- 기대 동작이나 결함을 구현 전에 실패하는 자동화 테스트로 표현할 수 있습니다.
+- 테스트가 올바른 이유로 실패하는지 확인하면 구현 오류를 실제로 구분할 수 있습니다.
+- 같은 동작의 회귀 가능성이 있고 테스트를 계속 유지할 가치가 있습니다.
+
+재현 가능한 버그와 명확한 동작 계약에는 TDD를 기본 선택으로 삼습니다. 다만 자동화할 수
+없거나 테스트가 구현을 그대로 반복해 실질적인 신호를 주지 못한다면, 그 이유를 기록하고
+가장 강한 다른 검증을 선택합니다.
 
 **기본적으로 사용하지 않음:**
 - 문서, 산문, 주석 및 문구만 바꾸는 변경
@@ -31,15 +45,20 @@ description: 프로덕션 코드의 동작을 변경하거나 결함을 수정�
 
 이런 변경에는 구문 및 경로 검사, 링크와 예제 검토, native loader 또는 변경된 설정을 실제로 소비하는 최소 명령처럼 위험에 비례한 검증을 사용합니다. 설정이나 metadata 변경이 의미 있는 runtime behavior를 제어한다면 그 동작을 테스트합니다. 파일 형식만 보고 위험이 낮다고 가정하지 않습니다.
 
-이 스킬이 프로덕션 동작 변경에 적용되는 상황에서 "skip TDD just this once"라고 생각하는 것은 합리화입니다.
+단순히 production code 파일을 수정한다는 이유만으로 TDD를 선택하지 않습니다. 반대로 문서나
+configuration 파일이라도 runtime behavior와 회귀 위험을 실질적으로 바꾸면 해당 동작에 TDD가
+적합한지 판단합니다. 선택한 검증 방법과 이유는 plan이나 작업 보고에 남깁니다.
+
+TDD를 선택한 프로덕션 동작 변경에서 "skip TDD just this once"라고 생각하는 것은 합리화입니다.
 
 ## 절대 원칙
 
 ```
-NO PRODUCTION BEHAVIOR CHANGE WITHOUT A FAILING TEST FIRST
+ONCE TDD IS SELECTED, NO PRODUCTION IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 ```
 
-이 원칙은 위 범위에 따라 변경을 TDD 작업으로 분류한 뒤 적용됩니다.
+이 원칙은 위 기준에 따라 변경을 TDD 작업으로 분류한 뒤 적용됩니다. 일단 TDD를 선택했다면
+아래 RED–GREEN–REFACTOR 규칙을 완전하게 따릅니다.
 
 테스트보다 코드를 먼저 작성했다면 삭제하고 처음부터 다시 시작합니다.
 
@@ -315,15 +334,20 @@ TDD 범위의 작업을 완료로 표시하기 전에 확인합니다.
 
 ## 디버깅과 통합
 
-코드 버그를 발견했다면 이를 재현하는 실패 테스트를 작성합니다. TDD cycle을 따릅니다. 이 테스트는 수정 사항을 증명하고 회귀를 방지합니다.
+코드 버그를 발견했다면 먼저 실패를 재현합니다. 위 기준에 따라 TDD를 선택했다면 재현하는
+실패 테스트로 TDD cycle을 따릅니다. 이 테스트는 수정 사항을 증명하고 회귀를 방지합니다.
 
-환경 때문에 자동화가 불가능하지 않은 한, 재현 가능한 코드 결함을 regression test 없이 수정하지 않습니다. 자동화가 불가능하다면 제약을 기록하고 대신 가능한 가장 강한 재현 절차를 실행합니다.
+재현 가능한 코드 결함에 TDD를 선택했다면 실패하는 regression test 없이 수정하지 않습니다.
+자동화가 불가능하거나 테스트가 구현을 그대로 반복해 실질적인 회귀 신호를 주지 못해 TDD를
+선택하지 않았다면 그 이유를 기록하고, 수정 전 가능한 가장 강한 재현 절차와 변경에 비례한
+검증을 실행합니다.
 
 ## 최종 규칙
 
 ```
-Production behavior change → test exists and failed first
-Non-behavior change → proportionate verification
+Behavior and regression risk → choose TDD or proportionate verification, with a reason
+TDD selected → test exists and failed first
+TDD not selected → run the strongest proportionate verification named in the plan or report
 ```
 
 분류가 불명확하다면 변경된 artifact를 무엇이 소비하는지 확인하고, 올바른 이유로 실패할 수 있는 가장 작은 검증을 선택합니다.

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Extract one task's full text from an implementation plan into a file the
-# implementer reads in one call, so the task text never has to be pasted
-# through the controller's context.
+# Extract the global plan context and one task's full text into a file the
+# implementer reads in one call, so the behavior contract and task text never
+# have to be pasted through the controller's context.
 #
 # Usage: task-brief PLAN_FILE TASK_NUMBER [OUTFILE]
 # Default OUTFILE: <repo-root>/.superpowers/sdd/<plan-basename>/task-<N>-brief.md
@@ -25,15 +25,23 @@ else
   out="$dir/task-${n}-brief.md"
 fi
 
-awk -v n="$n" '
+if awk -v n="$n" '
   /^```/ { infence = !infence }
   !infence && /^#+[ \t]+Task[ \t]+[0-9]+/ {
+    sawtask = 1
     intask = ($0 ~ ("^#+[ \t]+Task[ \t]+" n "([^0-9]|$)"))
+    if (intask) found = 1
   }
-  intask { print }
-' "$plan" > "$out"
-
-if [ ! -s "$out" ]; then
+  !sawtask || intask { print }
+  END { if (!found) exit 3 }
+' "$plan" > "$out"; then
+  :
+else
+  status=$?
+  if [ "$status" -ne 3 ]; then
+    exit "$status"
+  fi
+  : > "$out"
   echo "task ${n} not found in ${plan} (no heading matching 'Task ${n}')" >&2
   exit 3
 fi

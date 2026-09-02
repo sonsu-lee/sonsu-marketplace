@@ -175,7 +175,9 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
   → 작업 범위 판단과 기존 코드·문서 조사
   → 문서 영향 분류
   → 설계 제안 → 필요한 design-document gate → 사용자 검토
-  → 구현 계획 → plan-readiness gate
+  → 의사코드로 전체 흐름 정의
+  → 파일·task·dependency별 구현 계획 도출
+  → TDD 또는 다른 검증 선택과 이유 기록 → plan-readiness gate
   → worktree 확인 또는 생성
   → 구현 → task gate와 targeted fix
   → 변경 성격에 맞는 final gate
@@ -203,7 +205,7 @@ quality gate는 문서 작성, 구현, commit, push, PR, merge, deploy 또는 pu
 | Gate | 기본 evidence | 실패 return target |
 | --- | --- | --- |
 | design document | self-review, link/path/schema check, architectural/high-risk일 때 independent review | 영향받은 문서 section 또는 design decision |
-| implementation plan | requirement-task mapping, path/interface/verification check, cross-component·long-running·high-risk일 때 independent review | 영향받은 plan task 또는 `brainstorming` |
+| implementation plan | 의사코드 선행 여부, flow-task-path-dependency-verification 추적성, 검증 선택 이유, cross-component·long-running·high-risk일 때 independent review | 영향받은 의사코드·plan task 또는 `brainstorming` |
 | inline task | task별 test·build·parser·loader·consuming command | task implementation 또는 `systematic-debugging` |
 | subagent task review | task brief와 정확한 BASE..HEAD, spec·quality verdict | scoped fix loop; plan/design defect면 해당 소유 stage |
 | whole change와 completion | 전체 diff, 요구사항 mapping, final deterministic verification, major/high-risk일 때 independent review | 가장 가까운 implementation, plan 또는 design stage |
@@ -228,6 +230,13 @@ stage별 유한한 상한을 가집니다. 상한에 남은 실제 필수 findin
 `writing-plans`는 구현 계획을 기본적으로 대화에 작성합니다. 실행을 위해 파일이 필요하면
 Git에서 제외된 `.superpowers/plans/<topic>.md`를 사용합니다. 저장소의 기존 이슈·티켓이나
 사용자가 지정한 위치가 있으면 그 위치를 우선합니다.
+계획이 필요한 작업에서는 구현 세부사항과 테스트 방식을 정하기 전에 언어 중립적인 의사코드로
+입출력, 처리 순서, 필요한 상태 변화·분기·반복·오류·경계와 책임을 정의합니다. 각 flow ID를
+파일, task, dependency와 검증에 연결한 뒤 검증 방법과 이유를 선택합니다. 구현이 승인된
+요구사항·설계·관찰 가능한 계약을 바꾸면 `brainstorming`으로 돌아가 사용자의 명시적인 재승인을
+받습니다. 승인된 설계 안의 흐름 변경이거나 재승인을 받은 변경은 의사코드를 먼저 갱신하고,
+영향받은 완료 task를 reopened하여 plan과 구현·검증·review gate를 새 리비전에 다시 맞춥니다.
+별도 구현 계획이 필요 없는 단순 작업에는 긴 의사코드를 요구하지 않습니다.
 `.superpowers/`는 기존 실행 artifact를 보존하기 위한 호환성 경로이며 현재 플러그인 ID는
 `engineering`입니다.
 
@@ -243,7 +252,7 @@ diff를 보고하고 커밋 결정을 받습니다. task별 commit을 전제로 
 
 | 변경 | 기본 검증 |
 | --- | --- |
-| 코드의 새 동작, 버그 수정, 동작을 건드리는 리팩터링 | TDD와 회귀 테스트 |
+| 기능 추가, 버그 수정, 로직·상태·오류 처리, 동작에 민감한 리팩터링 | 동작과 회귀 위험 및 자동화 실익을 판단해 TDD를 선택하면 RED–GREEN–REFACTOR, 아니면 이유가 있는 가장 강한 비례 검증 |
 | 문서 | 링크, 경로, 예제와 문서 간 일관성 확인 |
 | 스킬 지침 | frontmatter와 경로 검증, 위험할 때 실제 사용 시나리오 평가 |
 | manifest와 metadata | 문법, 경로와 실제 Codex 로딩 확인 |

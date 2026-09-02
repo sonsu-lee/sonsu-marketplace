@@ -64,6 +64,14 @@ design document, plan, task, whole-change review와 final verification은 exact 
 되돌아갑니다. 반복에는 변경된 입력과 유한한 상한이 필요하며, 상한에 남은 실제 필수 finding은
 human `accepted_risk` 없이 pass나 complete로 바뀌지 않습니다.
 
+`6.3.0-sonsu.5`부터 구현 plan이 필요한 개발 작업은 언어 중립적인 의사코드로 전체 동작과
+제어 흐름을 먼저 정의합니다. 각 흐름을 파일, task, dependency와 검증 방법에 연결한 뒤
+동작·회귀 위험과 검증 실익에 따라 TDD 또는 다른 검증을 선택하고 이유를 기록합니다. TDD를
+선택한 task의 RED–GREEN–REFACTOR 규칙은 유지하며, plan이 필요 없는 단순 작업과 문서,
+metadata, 단순 configuration에는 긴 의사코드나 가치 없는 테스트를 강제하지 않습니다. 실행 중
+승인된 설계나 관찰 가능한 계약을 바꾸는 차이는 사용자 재승인을 받고, 새 plan 리비전의 영향을
+받는 완료 task는 다시 열어 구현·검증·리뷰합니다.
+
 기존 실행 artifact와 스크립트 호환성을 위해 `.superpowers/` scratch 경로와
 `SUPERPOWERS_DISABLE_TELEMETRY` 환경 변수는 유지합니다. 새 이름인
 `ENGINEERING_DISABLE_TELEMETRY`도 같은 opt-out으로 인식합니다. 원본 아이콘 파일은 provenance

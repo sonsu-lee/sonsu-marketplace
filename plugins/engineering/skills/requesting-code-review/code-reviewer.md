@@ -47,7 +47,10 @@ Subagent (general-purpose):
 
     **Plan 정합성:**
     - 구현이 plan 또는 요구사항과 일치하는가?
-    - 차이가 타당한 개선인가, 문제가 되는 이탈인가?
+    - plan이 있으면 구현이 의사코드 flow ID의 입출력, 상태, 분기·오류와 책임 경계에서 추적되는가?
+    - material한 차이가 있다면 의사코드와 영향을 받는 task·검증이 구현보다 먼저 갱신됐는가?
+    - 승인된 요구사항·설계·관찰 가능한 계약을 바꾼 차이라면 사용자의 명시적인 재승인 근거가 있는가?
+    - plan 리비전의 영향을 받는 완료 task가 reopened되어 새 흐름으로 구현·검증·리뷰됐는가?
     - 계획한 기능이 모두 있는가?
 
     **코드 품질:**
@@ -63,11 +66,11 @@ Subagent (general-purpose):
     - security 문제가 있는가?
     - 주변 코드와 자연스럽게 통합되는가?
 
-    **테스트:**
-    - mock이 아니라 실제 동작을 검증하는가?
-    - edge case를 다루는가?
-    - 중요한 곳에 integration test가 있는가?
-    - 모든 테스트가 통과하는가?
+    **검증:**
+    - task가 의사코드 뒤에 선택한 TDD 또는 다른 검증 방법과 그 이유를 따르는가?
+    - TDD를 선택했다면 RED–GREEN–REFACTOR 근거가 있고 mock이 아니라 실제 동작을 검증하는가?
+    - TDD를 선택하지 않았다면 syntax, static check, path, native loader, build 또는 실제 소비 명령 중 변경에 비례한 근거가 있는가?
+    - 중요한 edge case와 오류 조건을 다루며 보고한 검사가 통과하는가?
 
     **Production 준비 상태:**
     - schema가 바뀌었다면 migration 전략이 있는가?
