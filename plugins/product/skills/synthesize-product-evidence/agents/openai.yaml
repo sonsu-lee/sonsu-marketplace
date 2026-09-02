@@ -1,0 +1,3 @@
+interface:
+  display_name: "Synthesize Product Evidence"
+  short_description: "Synthesize traceable product evidence and uncertainty"

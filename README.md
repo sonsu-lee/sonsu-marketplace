@@ -1,7 +1,7 @@
 # Sonsu Marketplace
 
 개인적으로 사용하는 Codex 플러그인을 한곳에서 배포하고 관리하는 마켓플레이스입니다.
-개발 방법론, Git 산출물, 출력 언어, 리서치와 프롬프트 작성을 서로 독립적인 플러그인으로
+개발 방법론, 제품 탐색, Git 산출물, 출력 언어, 리서치와 프롬프트 작성을 서로 독립적인 플러그인으로
 나누어 필요한 기능만 설치할 수 있습니다.
 
 ## 플러그인
@@ -14,6 +14,7 @@
 | [Fluent Languages](plugins/fluent-languages/) | `0.1.0-beta.4` | 기술 내용을 보존하는 한국어, 일본어와 영어 출력 지침 | `fluent-korean`, `fluent-japanese`, `fluent-english` |
 | [Research](plugins/research/README.md) | `0.7.0-sonsu.2` | 여러 출처의 탐색, 원문 교차 검증과 인용 감사 | `research` |
 | [Prompting](plugins/prompting/README.md) | `0.1.0` | Codex, ChatGPT와 OpenAI API용 프롬프트 작성·재작성·최적화 | `prompt-builder` |
+| [Product](plugins/product/README.md) | `0.1.0` | 제품 기회 탐색, 근거 종합, 도메인 발견, 검증과 PRD 변환 | `product-brainstorming`, `product-discovery`, `synthesize-product-evidence`, `product-domain-discovery`, `design-product-test`, `assess-product-test`, `to-prd` |
 
 각 플러그인은 다른 플러그인을 설치하거나 먼저 실행했다고 가정하지 않습니다. 여러 영역을
 포함한 요청에서는 Codex가 설치된 스킬의 설명과 요청 목적을 바탕으로 필요한 플러그인을 함께
@@ -44,6 +45,7 @@ codex plugin add workflow@sonsu-marketplace
 codex plugin add fluent-languages@sonsu-marketplace
 codex plugin add research@sonsu-marketplace
 codex plugin add prompting@sonsu-marketplace
+codex plugin add product@sonsu-marketplace
 ```
 
 등록된 Git 마켓플레이스의 최신 snapshot을 가져오려면 다음 명령을 실행합니다.
@@ -54,7 +56,8 @@ codex plugin marketplace upgrade sonsu-marketplace
 
 플러그인을 설치하거나 업데이트한 뒤에는 새 Codex 작업을 시작해 최신 스킬 목록을 불러옵니다.
 이전에 `superpowers`, 다른 마켓플레이스의 `fluent-languages` 또는 standalone
-`prompt-builder`를 설치했다면 같은 이름의 스킬이 중복되지 않도록 기존 복사본을 먼저
+`prompt-builder`, `product-discovery` 또는 `to-prd`를 설치했다면 같은 이름의 스킬이 중복되지
+않도록 기존 복사본을 먼저
 제거합니다.
 
 ### 로컬 저장소에서 등록
@@ -82,6 +85,7 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
 | 한국어·일본어·영어 설명문의 자연스러움과 기술 내용 보존 | Fluent Languages |
 | 여러 외부 출처가 필요한 조사와 사실 검증 | Research |
 | Codex·ChatGPT·OpenAI API용 프롬프트 산출물 | Prompting |
+| 제품 기회, 문제, 근거, 도메인 규칙, 검증과 PRD | Product |
 
 Research의 Exa와 Perplexity 연동은 선택 사항입니다. 사용할 수 있는 전문 provider가 없으면
 Codex가 이미 제공하는 web, browser, connector와 로컬 자료로 가능한 범위에서 조사하며,
@@ -139,5 +143,6 @@ JSON parsing, 생성된 Fluent Languages 스킬의 정본 일치 여부와 평�
 - Quality Engineering은 여러 고정 upstream을 기반으로 하며 [Apache-2.0 라이선스](plugins/quality-engineering/LICENSE), [NOTICE](plugins/quality-engineering/NOTICE), [출처 mapping](plugins/quality-engineering/UPSTREAM.md)과 [MIT 원문 고지](plugins/quality-engineering/THIRD_PARTY_NOTICES.md)를 유지합니다.
 - Workflow에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Prompting에는 현재 별도의 라이선스를 선언하지 않았습니다.
+- Product에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Fluent Languages의 라이선스와 원본별 출처는 [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md)와 [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md)에 기록합니다.
 - Research는 기준 원본에서 라이선스 파일을 확인하지 못했으며 사용 허가를 추정하지 않습니다. 기준 commit과 포함 범위는 [UPSTREAM.md](plugins/research/UPSTREAM.md)에 기록합니다.

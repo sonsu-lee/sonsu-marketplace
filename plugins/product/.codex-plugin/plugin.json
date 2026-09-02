@@ -1,0 +1,34 @@
+{
+  "name": "product",
+  "version": "0.1.0",
+  "description": "Explore product opportunities, synthesize evidence, model product domains, design and assess tests, and turn approved decisions into PRDs.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "keywords": [
+    "product",
+    "discovery",
+    "research-synthesis",
+    "domain-modeling",
+    "experimentation",
+    "prd"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Product",
+    "shortDescription": "Evidence-aware product discovery and validation",
+    "longDescription": "Expands product opportunities, clarifies users and outcomes, synthesizes traceable evidence, discovers product rules, separates test design from assessment, and writes PRDs only from approved decisions.",
+    "developerName": "sonsu",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Brainstorm several product opportunities without treating them as validated.",
+      "Synthesize these interviews into traceable themes, contradictions, and open questions.",
+      "Turn the approved discovery results into a PRD without inventing missing decisions."
+    ]
+  }
+}

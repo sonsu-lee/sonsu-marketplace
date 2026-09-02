@@ -1,6 +1,6 @@
 # 스킬 라우팅 평가
 
-`cases.json`은 Engineering, Quality Engineering, Workflow, Research, Prompting과 Fluent
+`cases.json`은 Engineering, Quality Engineering, Workflow, Research, Prompting, Product와 Fluent
 Languages를 함께 또는 각각 설치했을 때의 기대 라우팅을 정의합니다. 직접 산출물 요청,
 비슷하지만 다른 요청, runtime 조합과 단독 설치 사례를 포함합니다.
 
