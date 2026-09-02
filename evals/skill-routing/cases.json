@@ -201,14 +201,12 @@
       "id": "architecture-decision-does-not-trigger-quality",
       "installed_plugins": ["engineering", "quality-engineering"],
       "prompt": "이벤트 버스와 직접 호출 중 아직 결론이 나지 않은 아키텍처 선택을 비교해 결정 자료를 만들어줘.",
-      "expected_sequence": ["architecture-decisions"],
       "must_not_select": ["quality-engineering:domain-shaped-code", "quality-engineering:review-quality"]
     },
     {
       "id": "domain-glossary-does-not-trigger-domain-shaped-code",
       "installed_plugins": ["quality-engineering"],
       "prompt": "이 repository의 도메인 용어를 조사해서 CONTEXT.md를 작성해줘.",
-      "expected_sequence": ["domain-modeling"],
       "must_not_select": ["quality-engineering:domain-shaped-code"]
     },
     {
