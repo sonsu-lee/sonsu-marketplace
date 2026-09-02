@@ -5,20 +5,28 @@
 
 ## 플러그인 경계
 
-Engineering, Workflow와 Research는 각각 단독으로 설치하고 사용할 수 있는 독립
-플러그인입니다. 한 플러그인이 다른 플러그인을 import하거나 설치·선행 실행·특정 skill ID를
-전제로 하지 않습니다. 여러 영역을 포함한 요청은 Codex가 현재 설치된 스킬의 description과
-요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로 선택합니다.
+Engineering, Quality Engineering, Workflow, Research와 Fluent Languages는 각각 단독으로 설치하고
+사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을 import하거나 설치·선행
+실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은 Codex가 현재 설치된
+스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로 선택합니다.
 
 | 직접 목적 | 담당 |
 | --- | --- |
 | 구현, 디버깅, 계획 실행과 개발 방법론 | `engineering:*` |
+| 확인된 계약과 trust boundary를 코드 형태로 직접 반영 | `quality-engineering:domain-shaped-code` |
+| 명시적으로 요청한 최소 구현, 삭제 우선과 YAGNI | `quality-engineering:simplify-code` |
+| diff·commit·branch의 over-engineering 검토 | `quality-engineering:review-overengineering` |
+| repository 또는 큰 경로의 over-engineering audit | `quality-engineering:audit-overengineering` |
+| reader load와 유지보수성 검토 | `quality-engineering:review-maintainability` |
+| 도달 가능한 실패 경로 검토 | `quality-engineering:review-failure-modes` |
+| error ownership, logging과 운용 가능성 검토 | `quality-engineering:review-operability` |
+| 여러 quality lens를 아우르는 broad review | `quality-engineering:review-quality` |
 | branch, staging, commit, 일반 push와 Git 변경 검토 | `workflow:git-workflow` |
 | ticket·issue·backlog 초안 또는 게시 | `workflow:to-ticket` |
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
 
-직접적인 산출물 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
+직접적인 산출물과 관점 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
 요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
 요청은 `engineering:finishing-a-development-branch`의 범위입니다.
 
@@ -32,6 +40,41 @@ Engineering, Workflow와 Research는 각각 단독으로 설치하고 사용할 
 Git·ticket·PR 작업이 독립적으로 동작하고, Engineering만 설치된 환경에서는 자체 개발 및
 branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 트리거가 반복해서 확인되기
 전에는 추가하지 않습니다.
+
+## Quality Engineering 조합
+
+Quality Engineering은 code shape, simplicity, maintainability, reachable failure mode와 operability를
+담당합니다. 일반적인 기능 설계·구현·디버깅 요청은 Engineering이 유지하고, 사용자가 도메인
+형태나 최소 구현을 직접 요구할 때 Quality Engineering 구현 스킬을 선택합니다.
+
+```text
+도메인 계약에 맞춰 최소 구현하고 품질 검토
+  → Engineering이 전체 개발 lifecycle과 검증 흐름을 유지
+  → Quality Engineering의 domain-shaped-code 또는 simplify-code로 명시된 제약을 구현
+  → Quality Engineering의 관련 review lens만 읽기 전용으로 적용
+```
+
+이 조합은 dependency가 아닙니다. Quality Engineering만 설치된 환경에서도 구현·review 스킬은
+자기 범위를 독립적으로 완료하며 Engineering의 계획, TDD 또는 branch 완료 skill ID를 호출하지
+않습니다. Engineering만 설치된 환경도 Quality Engineering이 있다고 가정하지 않습니다.
+
+review skill은 사용자가 지정한 관점과 범위에만 직접 trigger됩니다. `review-quality`는 broad
+quality review 요청에서 관련 lens만 선택하고, over-engineering처럼 한 관점만 지정한 요청을
+가로채거나 모든 lens를 기계적으로 실행하지 않습니다. review와 audit skill은 파일을 수정하지
+않습니다.
+
+Quality Engineering은 다음 책임으로 확장하지 않습니다.
+
+- 제품 용어집, `CONTEXT.md`, ADR과 미결 architecture decision
+- 일반 debugging, TDD, 계획과 branch 완료 lifecycle
+- branch, commit, ticket, push와 PR
+- penetration test, repository-wide security scan과 취약점 판정
+- 일반 문서 작성, 조사 방법과 출력 언어
+
+명백한 correctness, security, data integrity, accessibility 또는 compatibility 문제는 단순성보다
+우선하지만, 깊은 전문 검토가 필요하면 관련 범위를 밝히고 해당 전문 skill로 라우팅합니다.
+error handling과 logging은 별도 규칙으로 강제하지 않고 오류를 소유하는 경계와 실제 운영 질문을
+기준으로 함께 판단합니다.
 
 ## PR 게시 상태
 
@@ -119,9 +162,9 @@ diff를 보고하고 커밋 결정을 받습니다. task별 commit을 전제로 
 | manifest와 metadata | 문법, 경로와 실제 Codex 로딩 확인 |
 | 단순 설정 | 설정을 소비하는 최소 실제 명령으로 확인 |
 
-외부 스킬은 관련성이 있다는 이유만으로 모두 자동 적용하지 않습니다. Ponytail, grilling,
-아키텍처 결정과 제품 탐색 스킬은 사용자가 요청하거나 현재 결정의 불확실성과 위험을 실제로
-줄일 때만 선택합니다.
+외부 스킬은 관련성이 있다는 이유만으로 모두 자동 적용하지 않습니다. Quality Engineering의
+review·audit, grilling, 아키텍처 결정과 제품 탐색 스킬은 사용자가 요청하거나 현재 결과의
+불확실성과 위험을 실제로 줄일 때만 선택합니다.
 
 ## 라우팅 평가
 

@@ -1,7 +1,7 @@
 # 마켓플레이스 아키텍처
 
 - Status: Current
-- Last reviewed: 2026-09-01
+- Last reviewed: 2026-09-02
 
 ## 목적
 
@@ -30,6 +30,15 @@ Sonsu Marketplace는 개인적으로 사용하는 Codex 플러그인을 한 저�
 
 마켓플레이스 등록은 저장소의 파일을 변경하거나 커밋하는 작업과 별개입니다. Codex에
 등록하거나 설치하는 작업도 각각 외부 상태 변경이므로 사용자가 요청한 범위에서만 수행합니다.
+
+플러그인은 책임과 업데이트 경계에 따라 독립적으로 설치됩니다. Engineering은 개발 lifecycle,
+Quality Engineering은 코드 shape·단순성·유지보수성·실패 모드·운용 가능성, Workflow는 Git과
+delivery 산출물, Research는 외부 다중 출처 조사를 담당합니다. 한 요청에서 여러 책임이 필요하면
+runtime이 설치된 스킬을 조합하며 manifest dependency나 공통 router를 전제하지 않습니다.
+
+단일 upstream fork뿐 아니라 Quality Engineering처럼 여러 source를 합성한 플러그인도 원본을
+별도 baseline commit에 byte-for-byte로 보존한 뒤 최종 경로로 이동해 수정합니다. 현재 파일의
+출처는 `UPSTREAM.md`의 source·baseline·final mapping으로 추적합니다.
 
 ## 문서 경계
 

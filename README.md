@@ -9,6 +9,7 @@
 | 플러그인 | 버전 | 역할 | 주요 스킬 |
 | --- | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | `6.3.0-sonsu.3` | 설계, 구현, 디버깅, 검토와 변경 성격에 맞는 검증 | `brainstorming`, `writing-plans`, `using-git-worktrees`, `test-driven-development` 등 14개 |
+| [Quality Engineering](plugins/quality-engineering/README.md) | `0.1.0` | 도메인 형태의 구현과 단순성·유지보수성·실패 모드·운용 가능성 검토 | `domain-shaped-code`, `simplify-code`, `review-quality` 등 8개 |
 | [Workflow](plugins/workflow/) | `0.6.1` | branch, commit, ticket와 GitHub pull request 작업 | `git-workflow`, `to-ticket`, `to-pr` |
 | [Fluent Languages](plugins/fluent-languages/) | `0.1.0-beta.4` | 기술 내용을 보존하는 한국어, 일본어와 영어 출력 지침 | `fluent-korean`, `fluent-japanese`, `fluent-english` |
 | [Research](plugins/research/README.md) | `0.7.0-sonsu.1` | 여러 출처의 탐색, 원문 교차 검증과 인용 감사 | `research` |
@@ -37,6 +38,7 @@ codex plugin list --marketplace sonsu-marketplace
 
 ```sh
 codex plugin add engineering@sonsu-marketplace
+codex plugin add quality-engineering@sonsu-marketplace
 codex plugin add workflow@sonsu-marketplace
 codex plugin add fluent-languages@sonsu-marketplace
 codex plugin add research@sonsu-marketplace
@@ -72,6 +74,7 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
 | 작업 | 담당 플러그인 |
 | --- | --- |
 | 소프트웨어 변경의 설계, 구현, 디버깅과 검증 | Engineering |
+| 코드의 shape, 단순성, 유지보수성, 실패 모드와 운용 가능성 | Quality Engineering |
 | Git branch·commit·push, ticket와 pull request 산출물 | Workflow |
 | 한국어·일본어·영어 설명문의 자연스러움과 기술 내용 보존 | Fluent Languages |
 | 여러 외부 출처가 필요한 조사와 사실 검증 | Research |
@@ -129,6 +132,7 @@ JSON parsing, 생성된 Fluent Languages 스킬의 정본 일치 여부와 평�
 플러그인의 범위는 다음과 같이 구분합니다.
 
 - Engineering은 Superpowers v6.3.0의 [MIT 라이선스](plugins/engineering/LICENSE)와 원본 저작권 고지를 유지합니다.
+- Quality Engineering은 여러 고정 upstream을 기반으로 하며 [Apache-2.0 라이선스](plugins/quality-engineering/LICENSE), [NOTICE](plugins/quality-engineering/NOTICE), [출처 mapping](plugins/quality-engineering/UPSTREAM.md)과 [MIT 원문 고지](plugins/quality-engineering/THIRD_PARTY_NOTICES.md)를 유지합니다.
 - Workflow에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Fluent Languages의 라이선스와 원본별 출처는 [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md)와 [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md)에 기록합니다.
 - Research는 기준 원본에서 라이선스 파일을 확인하지 못했으며 사용 허가를 추정하지 않습니다. 기준 commit과 포함 범위는 [UPSTREAM.md](plugins/research/UPSTREAM.md)에 기록합니다.
