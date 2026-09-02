@@ -163,6 +163,19 @@ Before handoff:
 
 Fix issues inline before presenting the plan.
 
+## Plan Readiness Gate
+
+Read the shared [quality gate contract](../using-engineering-skills/references/quality-gates.md)
+and gate the exact plan revision before execution handoff.
+
+1. Treat the Self-Review checks above as required deterministic checks and record their evidence.
+2. For a cross-component, long-running, or high-risk plan, or when independent review would materially reduce implementation risk, dispatch a reviewer with [plan-document-reviewer-prompt.md](plan-document-reviewer-prompt.md). A deliberately excluded optional review is `not_applicable`; a required reviewer that is unavailable is `blocked` or `not_run`.
+3. Set a maximum of three review attempts (the initial review plus two revised reviews). Every retry must change the affected task, requirements evidence, interface definition, or evaluator context.
+4. Return task-detail findings to the affected plan task. Return missing or contradictory requirements to `engineering:brainstorming` and the disputed design decision.
+5. Hand off only when the current plan revision is `passed` or a human explicitly records `accepted_risk`. Never turn an unresolved required finding into a pass at the attempt cap.
+
+Record the gate artifact, revision, evidence, findings, status, return target, attempt, and decision owner in the plan or handoff message. Plan readiness still does not grant Git or external-action permission.
+
 ## Execution Handoff
 
 Report where the plan lives and its commit authorization state. Offer only applicable execution choices:

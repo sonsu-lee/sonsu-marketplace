@@ -8,11 +8,11 @@
 
 | 플러그인 | 버전 | 역할 | 주요 스킬 |
 | --- | --- | --- | --- |
-| [Engineering](plugins/engineering/README.md) | `6.3.0-sonsu.3` | 설계, 구현, 디버깅, 검토와 변경 성격에 맞는 검증 | `brainstorming`, `writing-plans`, `using-git-worktrees`, `test-driven-development` 등 14개 |
+| [Engineering](plugins/engineering/README.md) | `6.3.0-sonsu.4` | 단계별 quality gate를 둔 설계, 구현, 디버깅, 검토와 검증 | `brainstorming`, `writing-plans`, `using-git-worktrees`, `test-driven-development` 등 14개 |
 | [Quality Engineering](plugins/quality-engineering/README.md) | `0.1.0` | 도메인 형태의 구현과 단순성·유지보수성·실패 모드·운용 가능성 검토 | `domain-shaped-code`, `simplify-code`, `review-quality` 등 8개 |
 | [Workflow](plugins/workflow/) | `0.6.1` | branch, commit, ticket와 GitHub pull request 작업 | `git-workflow`, `to-ticket`, `to-pr` |
 | [Fluent Languages](plugins/fluent-languages/) | `0.1.0-beta.4` | 기술 내용을 보존하는 한국어, 일본어와 영어 출력 지침 | `fluent-korean`, `fluent-japanese`, `fluent-english` |
-| [Research](plugins/research/README.md) | `0.7.0-sonsu.1` | 여러 출처의 탐색, 원문 교차 검증과 인용 감사 | `research` |
+| [Research](plugins/research/README.md) | `0.7.0-sonsu.2` | 여러 출처의 탐색, 원문 교차 검증과 인용 감사 | `research` |
 | [Prompting](plugins/prompting/README.md) | `0.1.0` | Codex, ChatGPT와 OpenAI API용 프롬프트 작성·재작성·최적화 | `prompt-builder` |
 | [Product](plugins/product/README.md) | `0.1.0` | 제품 기회 탐색, 근거 종합, 도메인 발견, 검증과 PRD 변환 | `product-brainstorming`, `product-discovery`, `synthesize-product-evidence`, `product-domain-discovery`, `design-product-test`, `assess-product-test`, `to-prd` |
 

@@ -1,4 +1,4 @@
-# 0007 Add an Independent Product Plugin
+# 0008 Add an Independent Product Plugin
 
 - Status: Accepted
 - Date: 2026-09-02

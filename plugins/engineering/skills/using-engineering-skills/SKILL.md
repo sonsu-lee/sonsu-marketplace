@@ -66,6 +66,15 @@ If your harness appears here, read its reference file for special instructions:
 - Antigravity: `references/antigravity-tools.md`
 - Hermes Agent: `references/hermes-tools.md`
 
+## Quality Gates
+
+Engineering lifecycle skills use stage-owned quality gates. When a selected skill
+declares a gate, read and apply the shared
+[quality gate contract](references/quality-gates.md) before deciding whether to
+advance, retry, return to an earlier stage, or stop. The contract does not add a
+central router and does not change the Git or external-action authorization boundary
+above.
+
 ## User Instructions
 
 User instructions (CLAUDE.md, AGENTS.md, GEMINI.md, etc, direct requests) take precedence over skills, which in turn override default behavior. Only skip skill workflows or instructions when your human partner has explicitly told you to.

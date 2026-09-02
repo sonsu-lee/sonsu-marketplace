@@ -11,6 +11,10 @@ Code review requires technical evaluation, not emotional performance.
 
 **Core principle:** Verify before implementing. Ask before assuming. Technical correctness over social comfort.
 
+When the feedback belongs to an Engineering quality gate, read the shared
+[quality gate contract](../using-engineering-skills/references/quality-gates.md).
+Keep the original artifact revision and finding identity so a later scoped re-review can determine whether that exact finding was addressed.
+
 ## The Response Pattern
 
 ```
@@ -21,7 +25,9 @@ WHEN receiving code review feedback:
 3. VERIFY: Check against codebase reality
 4. EVALUATE: Technically sound for THIS codebase?
 5. RESPOND: Technical acknowledgment or reasoned pushback
-6. IMPLEMENT: One item at a time, test each
+6. ROUTE: Send a valid finding to the nearest implementation, plan, or design owner
+7. IMPLEMENT: One item at a time, test each
+8. RE-REVIEW: Verify the changed revision with focused evidence
 ```
 
 ## Forbidden Responses

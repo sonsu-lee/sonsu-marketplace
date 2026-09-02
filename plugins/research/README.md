@@ -42,6 +42,24 @@ providers:
 [`skills/research/references/tool-routing.md`](skills/research/references/tool-routing.md)에
 정의되어 있습니다.
 
+## 선택적 코드 검색 cache
+
+외부 코드 패턴 조사는 검색 결과를 그대로 좋은 사례로 간주하지 않고, full commit SHA로 고정한
+호출부·설정·테스트·라이선스 근거를 검증합니다. 반복 조사에서는 사용자가 영속 저장과 절대 경로를
+명시적으로 승인한 경우에만 표준 라이브러리 기반 SQLite helper를 사용할 수 있습니다.
+
+```text
+python3 skills/research/scripts/code_search_cache.py init --db /absolute/path/code-search.sqlite3
+python3 skills/research/scripts/code_search_cache.py lookup --db /absolute/path/code-search.sqlite3 --input query.json
+```
+
+helper는 query metadata, immutable code locator, rubric 판정과 명시적으로 승격한 catalog 항목만
+저장합니다. source code, snippet, diff, credential과 비공개 문서 본문은 저장하지 않습니다. cache를
+요청하지 않은 조사의 기본값은 `off`이며 파일이나 데이터베이스를 만들지 않습니다. 검색 전략,
+artifact identity와 freshness 규칙은
+[`skills/research/references/code-search.md`](skills/research/references/code-search.md)에 정의되어
+있습니다.
+
 ## 출처
 
 가져온 정확한 commit, 포함 범위와 로컬 wrapper 경계는 [`UPSTREAM.md`](UPSTREAM.md)에
