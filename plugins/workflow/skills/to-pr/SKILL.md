@@ -63,6 +63,10 @@ PR body의 공식 reference를 먼저 사용하고, provider가 필요로 할 �
 
 GitHub Issues, Linear와 Jira 중 provider를 문자열 모양만으로 추측하지 않는다. 같은 작업이 여러 tracker에 동기화되어 있으면 canonical ticket을 확인하여 의도하지 않은 중복 completion을 만들지 않는다.
 
+티켓 intent와 PR event의 status effect는 분리한다. 게시 전에 대상 repository·team·site의 integration과 automation 정책을 확인하고, native automation이 해당 event를 처리하면 직접 같은 transition을 실행하지 않는다. Draft PR 생성은 review 시작으로 간주하지 않는다. merge도 release·deployment가 완료 조건인 티켓을 곧바로 완료시키지 않는다.
+
+직접 lifecycle fallback은 automation 부재 또는 해당 event 비적용, canonical ticket의 현재 상태, 정확한 목표 transition과 실행 권한이 확인되고, 전이 근거가 직접 사용자 의도 또는 확인된 repository·team lifecycle 정책일 때만 다음 runtime 책임으로 넘긴다. 비동기 automation 결과가 불명확하면 `status_effect: unknown`으로 남기고 직접 전이하지 않는다.
+
 ## 시각 증거를 준비한다
 
 사용자가 screenshot을 요청했거나 diff가 사용자에게 보이는 UI를 바꾸거나 repository 규칙이 요구할 때만 [시각 증거 규칙](references/visual-evidence.md)을 읽는다. UI와 무관한 변경에는 빈 screenshot 섹션을 만들지 않는다.
@@ -89,6 +93,6 @@ CLI로 게시할 때 본문은 임시 파일에 정확히 기록하고 `gh pr cr
 
 ## 결과를 확인한다
 
-게시 후에는 PR을 다시 읽어 URL, number, title, body, base, head, draft 여부, head SHA, ticket reference와 visual evidence를 확인한다. 미디어가 있으면 로컬 경로가 남지 않았는지, 저장된 URL, 표시 순서와 접근 범위도 확인한다.
+게시 후에는 PR을 다시 읽어 URL, number, title, body, base, head, draft 여부, head SHA, ticket reference와 visual evidence를 확인한다. 가능하면 canonical ticket도 다시 읽어 link가 적용됐는지와 status effect가 실제로 발생했는지를 별도로 확인한다. 미디어가 있으면 로컬 경로가 남지 않았는지, 저장된 URL, 표시 순서와 접근 범위도 확인한다.
 
-push, Draft PR 생성, 미디어별 업로드·body 반영, ready 전환과 티켓 연결의 성공 여부를 각각 구분한다. `gh pr edit --attach`도 upload 뒤 body update가 실패하여 orphan attachment를 남길 수 있으므로, 실패 코드만 보고 다시 실행하지 않는다. 응답이 불명확하면 head의 기존 PR과 저장된 body를 먼저 조회한다. 실행하지 않은 validation과 확인하지 못한 provider 상태를 성공으로 표현하지 않는다.
+push, Draft PR 생성, 미디어별 업로드·body 반영, ready 전환, 티켓 link와 status effect의 성공 여부를 각각 구분한다. `gh pr edit --attach`도 upload 뒤 body update가 실패하여 orphan attachment를 남길 수 있으므로, 실패 코드만 보고 다시 실행하지 않는다. 응답이 불명확하면 head의 기존 PR과 저장된 body를 먼저 조회한다. 실행하지 않은 validation과 확인하지 못한 provider 상태를 성공으로 표현하지 않는다.
