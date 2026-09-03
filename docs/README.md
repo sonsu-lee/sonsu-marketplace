@@ -2,7 +2,7 @@
 
 이 디렉터리는 마켓플레이스와 플러그인을 장기간 유지하는 데 필요한 지식을 보관합니다.
 구현 순서만 담은 작업 계획은 기본적으로 대화, 기존 이슈·티켓 또는 Git에서 제외된
-`.superpowers/plans/`에 두며, 단지 계획이라는 이유로 `docs/`에 저장하지 않습니다.
+`.engineering/plans/`에 두며, 단지 계획이라는 이유로 `docs/`에 저장하지 않습니다.
 
 ## 문서 배치 기준
 
@@ -30,7 +30,7 @@
 
 새 문서나 큰 문서 재구성이 필요하면 구현 전에 검토한 기존 문서, 제안 경로,
 목적과 예상 변경 범위를 사용자에게 제시합니다. 구현 계획은 기본적으로 대화에
-작성합니다. 파일이 필요한 실행 도구를 사용할 때에는 `.superpowers/plans/<topic>.md`를
+작성합니다. 파일이 필요한 실행 도구를 사용할 때에는 `.engineering/plans/<topic>.md`를
 사용합니다. 저장소가 이미 이슈·티켓 또는 다른 계획 위치를 사용하거나 사용자가 위치를
 지정하면 그 규칙을 우선합니다.
 
@@ -58,7 +58,6 @@
 - [스킬 라우팅](architecture/skill-routing.md)
 - [플러그인 독립성과 runtime 라우팅 결정](decisions/0003-keep-plugins-independent.md)
 - [Research 독립성과 선택적 provider 결정](decisions/0004-keep-research-independent.md)
-- [Engineering 이름 변경 결정](decisions/0005-rename-superpowers-to-engineering.md)
 - [Prompting 독립 플러그인 결정](decisions/0006-keep-prompting-independent.md)
 - [Engineering 단계별 quality gate 결정](decisions/0007-use-stage-owned-quality-gates.md)
 - [Product 독립 플러그인 결정](decisions/0008-add-product-plugin.md)

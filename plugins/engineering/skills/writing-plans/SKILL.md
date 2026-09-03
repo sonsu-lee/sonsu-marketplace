@@ -23,7 +23,7 @@ codebase를 거의 모르는 엔지니어도 실행할 수 있는 구현 계획�
 실행 도구에 파일이 필요하면 scratch 사본을 다음 위치에 저장한다.
 
 ```text
-.superpowers/plans/<feature-name>.md
+.engineering/plans/<feature-name>.md
 ```
 
 scratch 경로는 Git에서 제외해야 한다. 저장소가 이미 issue, ticket 또는 다른 plan 위치를 사용하거나 사용자가 위치를 지정했다면 그 관례를 따른다. plan 파일 작성은 staging이나 commit 권한을 부여하지 않는다.

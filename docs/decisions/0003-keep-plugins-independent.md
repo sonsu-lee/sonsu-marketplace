@@ -4,7 +4,6 @@
 - Date: 2026-09-02
 - Supersedes: None
 - Superseded by: None
-- Naming note: 이 문서의 `Superpowers`는 [0005](0005-rename-superpowers-to-engineering.md)에서 `Engineering`으로 이름이 변경되었습니다.
 
 ## Context
 
@@ -25,7 +24,7 @@ Workflow의 `git-workflow`와 `to-pr` 일부와 겹칩니다. Quality Engineerin
 
 - [OpenAI plugin manifest 명세](https://github.com/openai/plugins/blob/1e285826e604f66f7208f7ac4dba0fe8341d1f57/.agents/skills/plugin-creator/references/plugin-json-spec.md)
 - [Anthropic Claude Code plugin marketplace](https://github.com/anthropics/claude-code/blob/f275fa282e76c5e5456912268f2c367a7f4f4797/.claude-plugin/marketplace.json)
-- [Superpowers executing-plans 내부 조합](https://github.com/obra/superpowers/blob/b36e0829c6d0140e93cfef2ca599b1b07d4a7797/skills/executing-plans/SKILL.md)
+- 고정한 원본의 `executing-plans` 내부 조합
 - [Matt Pocock ask-matt router](https://github.com/mattpocock/skills/blob/6654f6b60cd9d5be8b54c6fafe44346dabeb3b76/skills/engineering/ask-matt/SKILL.md)
 - [Wshobson git-pr-workflows의 cross-plugin dependency 정책](https://github.com/wshobson/agents/blob/554237f7515b7012ce22e753c5c2e5b65369e3a4/plugins/git-pr-workflows/commands/git-workflow.md)
 
