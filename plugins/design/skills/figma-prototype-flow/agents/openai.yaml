@@ -1,0 +1,3 @@
+interface:
+  display_name: "Figma Prototype Flow"
+  short_description: "Figma-native reaction과 상태 동선을 연결합니다"

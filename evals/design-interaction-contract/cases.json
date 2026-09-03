@@ -1,0 +1,62 @@
+{
+  "schema_version": "design-interaction-contract-v1",
+  "cases": [
+    {
+      "id": "button-navigation-uses-actual-control",
+      "scenario": "기존 화면의 Continue 버튼을 다음 화면으로 연결한다.",
+      "expected": ["reaction-on-actual-button", "trigger-type-on-trigger", "node-action-type", "navigation-field", "resolvable-destination-id", "concise-annotation", "named-starting-point"],
+      "must_not": ["decorative-arrow-only", "reaction-on-unrelated-wrapper", "navigate-used-as-action-type", "deprecated-single-action-field"]
+    },
+    {
+      "id": "modal-flow-has-dismissal",
+      "scenario": "Delete 버튼이 confirm modal을 열고 Cancel 또는 close로 원래 화면에 돌아온다.",
+      "expected": ["open-overlay", "explicit-cancel-or-close", "backdrop-behavior-recorded", "visible-result-annotated"],
+      "must_not": ["unclosable-overlay", "navigation-frame-disguised-as-modal"]
+    },
+    {
+      "id": "submit-flow-covers-failure-and-recovery",
+      "scenario": "Submit 후 loading, success와 server error가 있고 error에서는 retry할 수 있다.",
+      "expected": ["primary-path", "failure-path", "recovery-path", "playback-from-starting-point"],
+      "must_not": ["happy-path-only", "dead-end-error-frame"]
+    },
+    {
+      "id": "local-state-avoids-frame-explosion",
+      "scenario": "한 화면에 toggle, checkbox와 selected tab 상태가 반복된다.",
+      "expected": ["use-understandable-component-state-or-variable", "keep-screen-level-topology-readable"],
+      "must_not": ["duplicate-full-screen-for-every-local-state", "variant-for-unrelated-screen-outcomes"]
+    },
+    {
+      "id": "meaningful-screen-state-remains-reviewable",
+      "scenario": "검색 결과의 empty, populated와 permission-denied 상태를 설계한다.",
+      "expected": ["separate-reviewable-screen-states", "record-entry-condition", "connect-recovery-when-available"],
+      "must_not": ["hide-all-outcomes-inside-one-uninspectable-component"]
+    },
+    {
+      "id": "partial-reaction-evidence-is-inconclusive",
+      "scenario": "reaction write는 성공했지만 destination readback과 playback이 실패했다.",
+      "expected_status": "inconclusive",
+      "expected": ["preserve-confirmed-write", "report-unverified-destination", "retry-affected-path-only"],
+      "must_not": ["claim-clickable-prototype-passed", "recreate-whole-file"]
+    },
+    {
+      "id": "write-readback-pass-playback-unsupported",
+      "scenario": "현재 provider는 reaction write와 readback을 지원하지만 prototype playback 도구는 제공하지 않는다.",
+      "expected_status": "inconclusive",
+      "expected": ["reaction-write-passed", "reaction-readback-passed", "prototype-playback-not-run", "report-capability-gap"],
+      "must_not": ["claim-clickable-prototype-passed", "treat-unsupported-as-tool-failure"]
+    },
+    {
+      "id": "stale-target-stops-before-write",
+      "scenario": "선택했던 button node가 삭제되어 node ID가 더 이상 resolve되지 않는다.",
+      "expected_status": "blocked",
+      "expected": ["reread-target", "report-stale-node", "request-or-resolve-exact-control"],
+      "must_not": ["attach-reaction-to-nearest-button", "claim-original-selection-is-current"]
+    },
+    {
+      "id": "parallel-writers-share-prototype-graph",
+      "scenario": "두 writer가 서로 다른 화면의 control을 수정하지만 같은 starting point와 state graph에 연결된다.",
+      "expected": ["treat-prototype-graph-as-one-conflict-domain", "serialize-or-stop", "reread-graph-before-write"],
+      "must_not": ["parallelize-from-different-screen-ids-only"]
+    }
+  ]
+}

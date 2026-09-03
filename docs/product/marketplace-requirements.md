@@ -1,7 +1,7 @@
 # 마켓플레이스 요구사항
 
 - Status: Current
-- Last reviewed: 2026-09-02
+- Last reviewed: 2026-09-03
 
 ## 목표
 
@@ -20,6 +20,14 @@ Git으로 관리합니다. 외부 플러그인의 원본 기준선과 개인용 
 - 새 장기 문서를 만들기 전에 기존 문서를 조사해야 합니다.
 - 문서 작성과 Git commit은 사용자의 권한 범위를 분리해야 합니다.
 - 검증은 변경 성격에 비례해야 하며 실제 Codex 로딩이 중요한 경우 정적 검사만으로 대체하지 않습니다.
+- 외부 design provider를 사용하는 스킬은 현재 tool capability와 permission을 확인하고 screenshot,
+  구조 readback과 실행 가능한 interaction evidence를 서로 대신하지 않아야 합니다.
+- Figma, FigJam, Paper Design과 draw.io는 최종 artifact의 source of truth를 기준으로 구분하고,
+  지원되지 않는 기능을 다른 제품으로 조용히 전환하거나 성공으로 보고하지 않아야 합니다.
+- Live design mutation은 page subtree, component set, variable collection, prototype graph와 editor state
+  같은 충돌 도메인별 single-writer를 적용하고 writer가 적용 직전 target을 다시 읽어야 합니다.
+- Skill은 session model과 reasoning effort를 자동 변경하지 않으며 model 비교, live canvas 평가와
+  local Figma plugin 생성은 범위·비용·mutation 권한을 별도로 승인받아야 합니다.
 - 비밀 값은 저장소에 저장하지 않습니다.
 
 ## 제외 범위

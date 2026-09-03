@@ -1,0 +1,53 @@
+---
+name: figma-prototype-flow
+description: Figma Design에서 버튼 navigation, modal·drawer·popover, component state, 조건 분기 또는 실제 클릭 가능한 prototype reaction을 생성·수정하고 그 변경 결과를 검증해 달라는 요청에 사용한다. 기존 flow의 읽기·playback 검토, 화면 visual layout만 만드는 작업, FigJam journey, system diagram과 Figma-to-code에는 사용하지 않는다.
+---
+
+# Figma prototype flow
+
+Figma가 제품 interaction의 source of truth일 때 actual control과 native reaction을 연결한다. Connection,
+사람이 읽는 annotation과 named state topology를 서로 대체하지 않는 세 evidence layer로 유지한다.
+
+## 시작 전
+
+1. [tool routing](../../references/tool-routing.md)으로 실제 제품 interaction인지 확인한다.
+2. [capability and evidence](../../references/capability-and-evidence.md)를 읽고 provider prerequisite,
+   target, permission과 mutation scope를 확인한다. `reaction_write`, `reaction_readback`과
+   `prototype_playback` capability를 각각 기록한다.
+3. 기존 starting point, screen·component states, reactions, variables와 annotations를 읽어 현재 graph를
+   만든다. Selection이나 node ID가 stale하면 write 전에 정확한 target을 다시 정한다.
+
+Model, custom agent, concurrency 또는 local plugin 선택이 요청에 포함되면
+[execution architecture](../../references/execution-architecture.md)를 함께 읽는다.
+
+Reaction write capability가 없으면 같은 interaction specification을 제공하고 mutation과 playback을
+`not_run`으로 보고한다. Paper나 draw.io로 조용히 전환하지 않는다.
+
+## Interaction 계약
+
+[interaction specification](../../references/interaction-spec.md)의 필드를 각 중요한 transition에
+적용한다. 화면 수준 결과는 별도 frame, 반복되는 local state는 이해 가능한 component variant 또는
+variable로 표현한다. 실제 control에 목적에 맞는 native action을 연결하고 overlay dismissal,
+cancel/back, error와 recovery를 포함한다.
+
+같은 prototype graph, 연결된 state frame 또는 selection/current-page context를 수정하는 writer는
+하나만 둔다. 별도 writer가 screen structure를 준비했다면 reaction 적용 직전에 최신 node와
+destination을 다시 읽고, node·variable·prototype dependency가 겹치면 직렬화하거나 중단한다.
+
+## 검증과 결과
+
+Readback capability가 있으면 reaction을 다시 읽어 trigger, action과 destination을 확인한다. Playback
+capability가 있으면 named starting point에서 primary, failure와 recovery path를 실행하고 unreachable
+frame, dead end, 닫히지 않는 overlay와 잘못된 Back을 찾는다. Screenshot은 visible state만, reaction
+readback은 graph만 증명하므로 둘을 함께 쓴다.
+
+결과에는 starting point, 검증한 path, unresolved branch, annotation coverage와 상태를 기록한다.
+Reaction write는 성공했지만 destination readback이 실패하거나 지원되지 않으면 해당 path는
+`inconclusive`다. Write와 readback이 성공해도 playback이 unsupported이면 playback은 `not_run`, 전체
+clickable 결과는 `inconclusive`다. Clickable prototype이 통과했다고 보고하지 않는다.
+
+## 예시
+
+“Pay를 누르면 확인 modal이 열리고 Confirm 후 성공 또는 오류로 나뉘게 해 줘”라는 요청에서는 Pay에
+overlay reaction, modal에 close/cancel, Confirm에 submitting과 결과 branch를 연결한다. 각 transition의
+조건과 visible result를 annotation에 남기고 starting point부터 success와 error recovery를 실행한다.

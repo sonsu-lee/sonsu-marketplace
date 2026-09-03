@@ -1,0 +1,3 @@
+interface:
+  display_name: "Figma Design Audit"
+  short_description: "Figma 구조와 interaction을 수정 없이 검토합니다"
