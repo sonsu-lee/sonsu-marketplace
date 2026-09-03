@@ -26,7 +26,7 @@ canonical: true | false
 status_intent: start | review | ready | complete | reopen | cancel | none
 assignee_change:
   { action: assign, target: { id, display_name, verified } }
-  | { action: unassign, target: none }
+  | { action: unassign, target: { id, display_name, verified } | all }
   | none
 relation_operations: Array<{
   action: add | remove
@@ -35,7 +35,7 @@ relation_operations: Array<{
 }>
 ```
 
-status intent는 최대 하나다. “나”도 현재 tracker identity 없이 account ID로 추정하지 않는다. `A is blocked by B`와 `A blocks B`의 방향을 보존한다. `unblock`은 target과 방향이 일치하는 기존 relation을 확인한 뒤 제거한다. `duplicate`는 어떤 티켓이 어느 canonical target의 중복인지 보존한다. target이나 방향을 확정할 수 없으면 쓰지 않는다.
+status intent는 최대 하나다. “나”도 현재 tracker identity 없이 account ID로 추정하지 않는다. 특정 담당자 해제는 현재 assignee에서 검증한 사용자를 target으로 보존하고, `all`은 사용자가 모든 담당자 해제를 명시한 경우에만 사용한다. 다중 assignee에서 특정 사용자와 `all` 중 어느 의도인지 확정할 수 없으면 쓰지 않는다. `A is blocked by B`와 `A blocks B`의 방향을 보존한다. `unblock`은 target과 방향이 일치하는 기존 relation을 확인한 뒤 제거한다. `duplicate`는 어떤 티켓이 어느 canonical target의 중복인지 보존한다. target이나 방향을 확정할 수 없으면 쓰지 않는다.
 
 ## 현재 상태를 읽고 한 번씩 적용한다
 

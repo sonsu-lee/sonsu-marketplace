@@ -174,9 +174,10 @@ metadata와 relation을 적용한 뒤 원격 상태를 다시 읽습니다. 일�
 
 플랫폼별 차이는 다음과 같이 유지합니다.
 
-- Linear는 team, title과 status가 필요하고 나머지 property와 relation은 선택 사항입니다. 현재
-  team의 label, priority, estimate 체계와 project·milestone 관계를 확인합니다. milestone은
-  project가 확인된 경우에만 사용합니다. [Linear issue 생성](https://linear.app/docs/creating-issues),
+- Linear는 team과 title이 필요합니다. status는 확인된 template·team 기본값을 유지하거나 명시되고
+  지원되는 초기값만 사용하며, 나머지 property와 relation은 선택 사항입니다. 현재 team의 label,
+  priority, estimate 체계와 project·milestone 관계를 확인합니다. milestone은 project가 확인된
+  경우에만 사용합니다. [Linear issue 생성](https://linear.app/docs/creating-issues),
   [Linear issue relation](https://linear.app/docs/issue-relations)
 - GitHub Issues는 확인된 assignee, label, milestone, project, issue type, parent, blocked-by와
   blocking을 생성 흐름에서 적용할 수 있습니다. priority와 estimate가 GitHub Project custom
@@ -198,7 +199,9 @@ start | review | ready | complete | reopen | cancel | block | unblock
 provider, canonical ticket, 현재 status, 실제 workflow transition과 변경 가능한 field를 먼저
 확인합니다. `start`는 현재 상태가 unstarted일 때만 실제 Started 계열 상태로 전이합니다. 이미
 started이면 idempotent하게 유지하고, completed·canceled ticket은 명시적인 `reopen` 없이 되돌리지
-않습니다. 담당자는 사용자의 지정이나 확인된 auto-assign 정책이 있을 때만 함께 설정합니다.
+않습니다. 담당자는 사용자의 지정이나 확인된 auto-assign 정책이 있을 때만 함께 설정합니다. 특정
+담당자를 해제할 때에는 현재 assignee에서 검증한 대상을 보존하고, 전체 해제는 사용자가 명시한
+경우에만 수행합니다. 다중 assignee에서 대상 또는 전체 해제 의도가 모호하면 변경하지 않습니다.
 
 `block`과 `unblock`은 status 문자열보다 tracker의 native blocked-by·blocking relation을
 우선합니다. 공간에 Waiting 또는 Blocked 상태 정책이 있으면 relation과 별개로 그 transition도
@@ -256,6 +259,8 @@ trigger를 지원합니다. GitHub Issue 자체의 state는 open·closed 중심�
   실패해도 ticket을 중복 생성하지 않는가?
 - 기존 ticket 작업 시작 요청은 한 번만 Started 계열 상태로 전이하고, 일반 코드 요청은 원격
   ticket을 추정하여 변경하지 않는가?
+- GitHub의 여러 assignee 중 한 명만 해제할 때 검증된 target을 보존하고 나머지를 유지하며, 전체
+  해제는 명시적인 요청에서만 수행하는가?
 - GitHub Project가 있을 때만 priority, estimate와 Status custom field를 실제 ID로 갱신하고,
   project 권한 부재를 issue 생성 성공으로 숨기지 않는가?
 - Jira는 허용된 transition만 사용하고 branch·PR automation이 이미 수행한 전이를 중복하지 않는가?

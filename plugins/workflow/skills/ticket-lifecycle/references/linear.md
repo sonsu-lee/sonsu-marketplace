@@ -7,7 +7,7 @@
 - 정확한 workspace, team과 issue ID·identifier·URL을 읽는다.
 - team의 현재 issue status와 type을 조회한다. `start`, `review`, `ready`, `complete`, `reopen`과 `cancel`을 고정된 status 이름이나 priority 숫자로 바꾸지 않는다.
 - 이미 Started 계열 type이면 `start`는 `no-op`이다. Completed·Canceled 계열은 명시적인 `reopen`과 유효한 target status 없이 되돌리지 않는다.
-- 사용자 지정이나 확인된 auto-assign 정책이 있을 때만 assignee를 바꾸고, 실제 workspace member ID를 조회한다.
+- 사용자 지정이나 확인된 auto-assign 정책이 있을 때만 assignee를 바꾸고, 실제 workspace member ID를 조회한다. 해제할 때에도 현재 assignee를 target으로 보존하며, 사용자 지정 대상과 일치하거나 모든 담당자 해제 의도가 명시된 경우에만 assignee field를 비운다.
 
 ## native relation을 우선한다
 

@@ -100,6 +100,33 @@
       "must_reread_after_mutation": true
     },
     {
+      "id": "github-ticket-unassigns-only-verified-target",
+      "installed_plugins": ["workflow"],
+      "prompt": "GitHub sonsu/example#17의 assignee 중 octocat만 해제하고 다른 담당자는 유지해 줘.",
+      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_assignee_change": {
+        "action": "unassign",
+        "target": "octocat"
+      },
+      "must_verify_canonical_ticket": true,
+      "must_verify_assignee": true,
+      "must_preserve_other_assignees": true,
+      "must_reread_after_mutation": true
+    },
+    {
+      "id": "github-ticket-unassigns-all-only-when-explicit",
+      "installed_plugins": ["workflow"],
+      "prompt": "GitHub sonsu/example#17의 모든 assignee를 해제해 줘.",
+      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_assignee_change": {
+        "action": "unassign",
+        "target": "all"
+      },
+      "must_verify_canonical_ticket": true,
+      "must_require_explicit_all_assignees_intent": true,
+      "must_reread_after_mutation": true
+    },
+    {
       "id": "existing-ticket-related-routes-to-lifecycle",
       "installed_plugins": ["workflow"],
       "prompt": "Linear Acme workspace의 ENG-123을 ENG-120과 related 관계로 연결해 줘. 본문이나 status는 바꾸지 마.",

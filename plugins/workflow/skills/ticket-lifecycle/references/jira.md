@@ -7,7 +7,7 @@
 - 정확한 site 또는 `cloudId`, project key, work item key와 URL을 읽는다.
 - 현재 status와 available transition을 조회한다. status field edit로 전이를 흉내 내거나 transition 이름·ID를 추정하지 않는다.
 - `start`, `review`, `ready`, `complete`, `reopen`과 `cancel`은 site workflow에 실제 대응 transition이 있을 때만 매핑한다.
-- assignee 변경에는 현재 interface가 요구하는 account ID와 assignable user 여부를 확인한다.
+- assignee 변경에는 현재 interface가 요구하는 account ID와 assignable user 여부를 확인한다. 해제할 때에도 현재 assignee를 target으로 보존하며, 사용자 지정 대상과 일치하거나 모든 담당자 해제 의도가 명시된 경우에만 assignee field를 비운다.
 
 ## issue link의 방향을 보존한다
 
