@@ -89,10 +89,10 @@
       "category": "Productivity"
     },
     {
-      "name": "design",
+      "name": "figma-workflow",
       "source": {
         "source": "local",
-        "path": "./plugins/design"
+        "path": "./plugins/figma-workflow"
       },
       "policy": {
         "installation": "AVAILABLE",
