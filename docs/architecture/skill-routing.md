@@ -1,7 +1,7 @@
 # 스킬 라우팅
 
 - Status: Current
-- Last reviewed: 2026-09-02
+- Last reviewed: 2026-09-03
 
 ## 플러그인 경계
 
@@ -22,7 +22,8 @@ Engineering, Quality Engineering, Workflow, Research, Prompting, Product와 Flue
 | error ownership, logging과 운용 가능성 검토 | `quality-engineering:review-operability` |
 | 여러 quality lens를 아우르는 broad review | `quality-engineering:review-quality` |
 | branch, staging, commit, 일반 push와 Git 변경 검토 | `workflow:git-workflow` |
-| ticket·issue·backlog 초안 또는 게시 | `workflow:to-ticket` |
+| ticket·issue·backlog 초안 또는 생성 metadata를 포함한 게시 | `workflow:to-ticket` |
+| 기존 ticket의 작업 시작·review·완료 상태, 담당자와 native relation 변경 | `workflow:ticket-lifecycle` |
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
 | Codex·ChatGPT·OpenAI API용 프롬프트 생성·재작성·최적화 | `prompting:prompt-builder` |
@@ -132,6 +133,135 @@ Product와 다른 플러그인의 경계는 다음과 같습니다.
 Product만 설치된 환경에서도 현재 대화와 제공 자료를 바탕으로 각 작업을 완료할 수 있어야
 합니다. 외부 근거나 구현이 함께 요청되면 Research 또는 Engineering을 runtime에서 조합하며
 manifest dependency를 추가하지 않습니다.
+
+## Ticket 생성과 lifecycle
+
+Workflow는 ticket 생성, 기존 ticket의 lifecycle 변경과 PR 연동을 서로 다른 책임으로 나눕니다.
+
+| 이벤트 | 담당 | 책임 |
+| --- | --- | --- |
+| ticket 초안·생성 | `workflow:to-ticket` | body, 초기 status와 생성 metadata를 확정하고 게시 결과를 검증 |
+| 작업 시작·상태 변경 | `workflow:ticket-lifecycle` | canonical ticket의 현재 상태를 읽고 허용된 transition, 담당자와 native relation을 변경 |
+| branch 생성 | `workflow:git-workflow` | Git branch만 관리하고 ticket mutation은 runtime에서 `ticket-lifecycle`과 조합 |
+| PR 초안·게시 | `workflow:to-pr` | canonical ticket의 연결 의도와 provider 문법을 PR에 표현하고 status effect를 검증 |
+| PR·merge·release event | tracker의 native integration | 구성된 workflow automation을 적용하고, Workflow skill은 직접 중복 전이하지 않음 |
+
+### 생성 metadata를 같은 publish 흐름에서 완성한다
+
+`to-ticket`은 tracker와 대상 공간의 실제 schema, template, 사용자 지정값과 일관된 team·project
+정책을 먼저 읽습니다. 다음 값 가운데 근거가 있고 현재 interface가 지원하는 값은 title과 body를
+게시하는 동일한 흐름에서 적용합니다.
+
+- type 또는 기존 분류 label
+- assignee, priority와 estimate
+- project, milestone, cycle, sprint, fix version과 due date
+- parent·sub-ticket hierarchy
+- blocked by, blocks, related와 duplicate relation
+- component와 대상 tracker의 필수·허용 custom field
+- 명시되었거나 template·공간 정책으로 정해진 초기 status
+
+모든 선택 필드를 채우는 것이 목표는 아닙니다. 사용자 지정값, 유효한 template, 명시적인 공간
+정책 또는 동일한 종류의 최근 ticket에서 일관되게 확인되는 값이 없으면 assignee, priority,
+estimate와 분류값을 추정하지 않습니다. ticket 생성 자체만 요청받으면 확인된 template·공간의
+기본 초기 상태를 유지하며, 생성 직후 작업 시작까지 요청받았을 때에만 `ticket-lifecycle`을 이어서
+선택합니다.
+
+일부 tracker interface는 project custom field나 relation을 생성 호출과 별도 작업으로 처리합니다.
+이 경우에도 하나의 publish 흐름으로 취급하여 기본 ticket을 한 번만 만들고, 반환된 ID로 남은
+metadata와 relation을 적용한 뒤 원격 상태를 다시 읽습니다. 일부 단계가 실패하거나 응답이
+불명확하면 ticket을 다시 만들지 않고 성공한 값, 미적용 값과 확인하지 못한 상태를 구분해
+보고합니다. 구조화된 relation을 지원하지 않을 때에만 body에 의미를 보존하고 제한을 밝힙니다.
+
+플랫폼별 차이는 다음과 같이 유지합니다.
+
+- Linear는 team, title과 status가 필요하고 나머지 property와 relation은 선택 사항입니다. 현재
+  team의 label, priority, estimate 체계와 project·milestone 관계를 확인합니다. milestone은
+  project가 확인된 경우에만 사용합니다. [Linear issue 생성](https://linear.app/docs/creating-issues),
+  [Linear issue relation](https://linear.app/docs/issue-relations)
+- GitHub Issues는 확인된 assignee, label, milestone, project, issue type, parent, blocked-by와
+  blocking을 생성 흐름에서 적용할 수 있습니다. priority와 estimate가 GitHub Project custom
+  field라면 issue를 project item으로 추가한 뒤 실제 field ID와 option을 조회해 별도로 설정하며,
+  project 권한을 자동으로 확대하지 않습니다. [GitHub CLI `gh issue create`](https://cli.github.com/manual/gh_issue_create)
+- Jira는 project와 work type별 create-field metadata가 허용하는 field만 사용합니다. 생성 후
+  status 변경은 일반 field edit이 아니라 현재 workflow가 허용하는 transition으로 처리하고,
+  issue link가 별도 interface이면 생성 직후 반환 key로 연결합니다.
+  [Jira Cloud issue API](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/)
+
+### 작업 시작과 기존 ticket 변경을 분리한다
+
+`ticket-lifecycle`은 기존 ticket에 대한 다음 의도를 담당합니다.
+
+```text
+start | review | ready | complete | reopen | cancel | block | unblock
+```
+
+provider, canonical ticket, 현재 status, 실제 workflow transition과 변경 가능한 field를 먼저
+확인합니다. `start`는 현재 상태가 unstarted일 때만 실제 Started 계열 상태로 전이합니다. 이미
+started이면 idempotent하게 유지하고, completed·canceled ticket은 명시적인 `reopen` 없이 되돌리지
+않습니다. 담당자는 사용자의 지정이나 확인된 auto-assign 정책이 있을 때만 함께 설정합니다.
+
+`block`과 `unblock`은 status 문자열보다 tracker의 native blocked-by·blocking relation을
+우선합니다. 공간에 Waiting 또는 Blocked 상태 정책이 있으면 relation과 별개로 그 transition도
+적용할 수 있습니다. `related`와 `duplicate`도 body 문구가 아니라 지원되는 native relation으로
+관리합니다. Linear의 duplicate 처리처럼 native operation 자체에 필수 상태 효과가 포함된 경우에는
+이를 별도 임의 transition으로 보지 않고 operation의 원자적 효과로 검증합니다. 사용자가 그 상태
+효과를 명시적으로 금지하면 요청을 일부만 실행하지 않고 충돌을 보고합니다.
+
+각 mutation 뒤에는 canonical ticket을 다시 읽어 status, assignee와 대상 relation의 실제 결과를
+검증합니다. status·assignment·relation을 함께 바꾸는 요청은 각 작업을 적용됨, 미적용 또는 확인
+불가로 구분해 보고합니다. 이미 목표 status이거나 relation이 존재·제거된 경우는 no-op으로
+처리합니다. 부분 실패 뒤에는 최신 원격 상태를 기준으로 미적용 작업만 재시도하며, 권한 부족과
+지원되지 않는 transition·relation을 다른 작업의 실패와 구분합니다.
+
+`ENG-123 작업 시작해`처럼 canonical ticket과 작업 시작을 함께 지정한 요청은 해당 ticket의
+`start` mutation을 포함합니다. ticket을 지정하지 않은 일반 코드 수정, branch 이름에 우연히
+포함된 ID 또는 provider를 확정할 수 없는 ID만으로는 원격 ticket을 바꾸지 않습니다. ticket 작업과
+branch 생성이 함께 요청되면 `ticket-lifecycle`과 `git-workflow`을 runtime에서 각각 선택하며 어느
+한 스킬도 다른 스킬의 설치나 선행 실행을 필수로 가정하지 않습니다.
+
+### PR은 연결하고 native automation을 우선한다
+
+`to-pr`은 canonical ticket의 `complete`, `contribute`, `relate` 또는 `suppress` 의도를 provider의
+정확한 PR title·body·link 문법으로 표현합니다. Linear magic word, GitHub closing keyword와 Jira
+work item key는 서로 바꾸어 사용하지 않습니다. 같은 작업이 여러 tracker에 동기화되어 있으면
+확인된 canonical ticket 하나에만 completion 의도를 적용합니다.
+
+Linear와 Jira처럼 PR event 기반 status automation이 구성된 경우 Draft, PR open, review request,
+ready for merge, merge와 release event는 native integration이 담당합니다. `to-pr`은 같은 status를
+직접 중복 변경하지 않고 PR 게시 후 ticket을 다시 읽어 link와 실제 status effect를 확인합니다.
+automation이 없거나 해당 event에 적용되지 않는다는 점, 목표 transition, 권한과 현재 상태가 모두
+확인되고 사용자의 전이 의도 또는 repository·team lifecycle 정책이 있는 경우에만
+`ticket-lifecycle`을 fallback으로 선택합니다. automation 적용 여부나 비동기 결과가 불명확하면
+직접 전이하지 않고 `unknown`으로 보고합니다.
+
+Draft PR 생성은 review 시작과 같지 않으며 Draft라는 이유만으로 review 상태로 직접 전이하지
+않습니다. Ready 전환, review request와 merge의 상태 효과는 확인된 provider integration 또는
+repository·team 정책이 정의한 매핑을 따릅니다. 배포나 release가 ticket의 완료 조건이면
+merge만으로 completed 처리하지 않고 release automation이나 명시적인 완료 요청을 기다립니다. PR
+없이 완료되는 investigation, 문서와 운영 ticket은 `ticket-lifecycle`이 직접 완료 상태를 처리합니다.
+
+Linear는 PR drafted·opened·review requested·ready for merge·merged event별 status automation을
+지원합니다. Jira Cloud는 연결된 source control의 branch created, pull request created와 merged
+trigger를 지원합니다. GitHub Issue 자체의 state는 open·closed 중심이므로 Started·Review 같은
+상태는 실제 GitHub Project의 Status field나 repository automation이 있을 때만 변경합니다.
+[Linear GitHub integration](https://linear.app/docs/github),
+[Jira automation trigger](https://support.atlassian.com/cloud-automation/docs/jira-automation-triggers/),
+[GitHub Projects built-in automation](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-built-in-automations)
+
+### 검증할 대표 경로
+
+- Linear ticket 생성에서 label, priority, estimate, assignee, project, milestone과 relation을 실제
+  workspace 선택지에 맞춰 적용하고 전부 재조회하는가?
+- 관계 없는 단일 ticket을 생성할 때 불필요한 `client_key`를 만들지 않고, 별도 relation 단계가
+  실패해도 ticket을 중복 생성하지 않는가?
+- 기존 ticket 작업 시작 요청은 한 번만 Started 계열 상태로 전이하고, 일반 코드 요청은 원격
+  ticket을 추정하여 변경하지 않는가?
+- GitHub Project가 있을 때만 priority, estimate와 Status custom field를 실제 ID로 갱신하고,
+  project 권한 부재를 issue 생성 성공으로 숨기지 않는가?
+- Jira는 허용된 transition만 사용하고 branch·PR automation이 이미 수행한 전이를 중복하지 않는가?
+- PR의 `complete`, `contribute`와 `relate` 의도가 merge 시 서로 다른 status effect를 유지하는가?
+- integration 적용 여부나 비동기 status effect를 확인할 수 없을 때 직접 전이를 만들지 않고
+  정확히 `unknown`으로 보고하며, 확인된 fallback만 적용하는가?
 
 ## PR 게시 상태
 

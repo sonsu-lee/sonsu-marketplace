@@ -49,7 +49,123 @@
       "installed_plugins": ["engineering", "workflow"],
       "prompt": "합의된 구현 계획을 Linear 티켓 초안으로 변환해줘.",
       "expected_sequence": ["workflow:to-ticket"],
-      "must_not_select": ["engineering:writing-plans"]
+      "must_not_select": ["engineering:writing-plans"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "korean-ticket-composes-with-fluent-language",
+      "installed_plugins": ["workflow", "fluent-languages"],
+      "prompt": "이 버그 보고를 Linear 티켓 초안으로 만들고 본문은 한국어로 작성해줘.",
+      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-korean"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "english-ticket-composes-with-fluent-language",
+      "installed_plugins": ["workflow", "fluent-languages"],
+      "prompt": "Turn this approved maintenance task into a concise GitHub issue in English.",
+      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-english"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "japanese-ticket-composes-with-fluent-language",
+      "installed_plugins": ["workflow", "fluent-languages"],
+      "prompt": "合意済みの調査項目をJiraチケットの下書きにして、本文は日本語で書いてください。",
+      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-japanese"],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "create-ticket-with-metadata-routes-to-to-ticket",
+      "installed_plugins": ["workflow"],
+      "prompt": "Linear ENG 팀에 승인된 작업 티켓을 생성해 줘. 기존 Bug 라벨, High 우선순위, 3 estimate, 나를 담당자, Payments 프로젝트와 M2 마일스톤으로 지정하고 ENG-10에 blocked by로 연결해. 아직 작업 시작은 하지 마.",
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_mode": "publish",
+      "must_not_select": ["workflow:ticket-lifecycle"]
+    },
+    {
+      "id": "create-and-start-ticket-composes-lifecycle",
+      "installed_plugins": ["workflow"],
+      "prompt": "Linear ENG 팀에 승인된 작업 티켓을 생성하고, 생성 결과를 확인한 다음 바로 작업 시작 상태로 변경해 줘.",
+      "expected_sequence": ["workflow:to-ticket", "workflow:ticket-lifecycle"],
+      "expected_intent": "start",
+      "must_reread_after_mutation": true
+    },
+    {
+      "id": "explicit-ticket-start-routes-to-lifecycle",
+      "installed_plugins": ["workflow"],
+      "prompt": "Linear Acme workspace의 ENG-123 작업을 시작하고 나를 담당자로 지정해 줘.",
+      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_intent": "start",
+      "must_verify_canonical_ticket": true,
+      "must_verify_assignee": true,
+      "must_reread_after_mutation": true
+    },
+    {
+      "id": "existing-ticket-related-routes-to-lifecycle",
+      "installed_plugins": ["workflow"],
+      "prompt": "Linear Acme workspace의 ENG-123을 ENG-120과 related 관계로 연결해 줘. 본문이나 status는 바꾸지 마.",
+      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_relation": {
+        "action": "add",
+        "kind": "related",
+        "target": "ENG-120"
+      },
+      "must_use_native_relation": true
+    },
+    {
+      "id": "existing-ticket-duplicate-routes-to-lifecycle",
+      "installed_plugins": ["workflow"],
+      "prompt": "Linear Acme workspace의 ENG-123을 ENG-98의 duplicate로 표시해 줘. 본문이나 status는 바꾸지 마.",
+      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_relation": {
+        "action": "add",
+        "kind": "duplicate",
+        "target": "ENG-98"
+      },
+      "must_use_native_relation": true,
+      "must_report_conflict": true,
+      "must_not_propose_mutation": true
+    },
+    {
+      "id": "ticket-id-shaped-branch-hint-does-not-mutate",
+      "installed_plugins": ["workflow"],
+      "prompt": "현재 ENG-123-fix branch의 변경을 검토해서 Conventional Commit 후보를 작성해 줘. 티켓 작업은 요청하지 않았어.",
+      "expected_sequence": ["workflow:git-workflow"],
+      "expected_remote_action": "none",
+      "must_not_select": ["workflow:ticket-lifecycle"],
+      "must_not_infer_provider": true
+    },
+    {
+      "id": "ticket-start-and-branch-compose-at-runtime",
+      "installed_plugins": ["workflow"],
+      "prompt": "Linear Acme workspace의 ENG-123 작업을 시작하고, 이 작업용 Git branch도 만들어 줘.",
+      "expected_sequence": ["workflow:ticket-lifecycle", "workflow:git-workflow"],
+      "expected_intent": "start",
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "pr-native-automation-does-not-select-lifecycle-fallback",
+      "installed_plugins": ["workflow"],
+      "prompt": "Linear GitHub 연동에서 PR open과 merge status automation이 설정된 ENG-123을 Fixes로 연결해서 현재 branch의 Draft PR을 만들어 줘.",
+      "expected_sequence": ["workflow:to-pr"],
+      "must_not_select": ["workflow:ticket-lifecycle"],
+      "must_not_duplicate_native_automation": true
+    },
+    {
+      "id": "confirmed-pr-fallback-composes-lifecycle",
+      "installed_plugins": ["workflow"],
+      "prompt": "Jira ACME-42를 연결해 현재 branch의 Ready PR을 만들어 줘. 이 repository에는 PR-created automation이 적용되지 않는 것이 확인됐고 현재 workflow의 To Review transition과 내 권한도 확인됐으니 티켓도 review 상태로 변경해 줘.",
+      "expected_sequence": ["workflow:to-pr", "workflow:ticket-lifecycle"],
+      "expected_intent": "review",
+      "must_verify_canonical_ticket": true,
+      "must_reread_after_mutation": true
+    },
+    {
+      "id": "workflow-lifecycle-remains-standalone",
+      "installed_plugins": ["workflow"],
+      "prompt": "GitHub sonsu/example#17의 현재 상태를 확인하고, 열려 있으면 닫아 줘.",
+      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_intent": "complete",
+      "must_not_assume_plugin_dependency": true
     },
     {
       "id": "integration-choice-routes-to-engineering",

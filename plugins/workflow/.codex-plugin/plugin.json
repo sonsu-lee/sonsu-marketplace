@@ -1,15 +1,15 @@
 {
   "name": "workflow",
-  "version": "0.6.1",
-  "description": "명시적인 Git, 티켓과 GitHub Pull Request 작업을 위한 개인용 Codex 플러그인입니다.",
+  "version": "0.7.0",
+  "description": "명시적인 Git, 티켓 생성·lifecycle과 GitHub Pull Request 작업을 위한 개인용 Codex 플러그인입니다.",
   "author": {
     "name": "sonsu"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Workflow",
-    "shortDescription": "Git, 티켓과 Pull Request 워크플로",
-    "longDescription": "원자적인 Git 변경을 준비하고, 정리된 작업을 tracker에 바로 등록할 수 있는 티켓으로 변환하거나, 저장소 템플릿, 명시적인 게시 경계와 변경 위치를 표시한 시각 증거를 사용해 기본 Draft GitHub Pull Request를 만듭니다.",
+    "shortDescription": "Git, 티켓 생성·lifecycle과 Pull Request 워크플로",
+    "longDescription": "원자적인 Git 변경을 준비하고, 정리된 작업을 tracker에 바로 등록할 수 있는 티켓으로 변환하고, 명시된 기존 티켓의 상태·담당자·관계를 안전하게 변경하거나, 저장소 템플릿과 명시적인 게시 경계에 따라 기본 Draft GitHub Pull Request를 만듭니다.",
     "developerName": "sonsu",
     "category": "Developer Tools",
     "capabilities": [
@@ -20,6 +20,7 @@
     "defaultPrompt": [
       "이 Git 변경을 검토하고 원자적인 브랜치와 Conventional Commit을 제안해 줘.",
       "정리된 이 작업을 tracker에 바로 등록할 수 있는 티켓으로 만들어 줘.",
+      "명시한 기존 티켓의 현재 상태를 확인하고 요청한 lifecycle 변경을 적용해 줘.",
       "현재 브랜치를 리뷰 가능한 GitHub Pull Request로 준비해 줘."
     ]
   }

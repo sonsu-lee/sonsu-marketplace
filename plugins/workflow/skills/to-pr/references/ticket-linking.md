@@ -23,6 +23,8 @@ provider와 canonical ticket은 사용자의 명시, 승인된 티켓 문서, �
 
 같은 작업이 GitHub Issues와 Linear 사이에 동기화되어 있으면 canonical ticket 하나에만 completion 의도를 적용한다. 실제 sync 관계를 확인하지 못한 티켓은 자동으로 같은 작업이라고 묶지 않는다.
 
+`intent`는 PR이 티켓과 맺는 의미이고 `status_effect`는 provider와 현재 automation이 실제로 만들 결과다. 둘을 같다고 가정하지 않는다. PR 게시 전에 repository·team·Jira site의 현재 integration, event mapping과 티켓 상태를 읽는다.
+
 ## PR metadata를 우선한다
 
 연결 채널은 Git history와 branch naming에 미치는 결합도가 낮은 순서로 고른다.
@@ -47,6 +49,8 @@ PR body를 기본 채널로 사용한다. closing keyword는 PR이 repository de
 
 non-default base에서는 closing keyword가 무시되므로 자동 연결이나 종료를 주장하지 않는다. GitHub Development sidebar 연결은 사용자가 요청한 별도 원격 동작으로 취급한다. branch에 issue 번호를 넣도록 요구하지 않는다.
 
+Draft PR 생성은 GitHub Issue나 Project item의 review 시작을 뜻하지 않는다. merge가 release·deployment 전 단계일 뿐인 티켓에는 closing keyword를 사용하지 않고 `contribute` 또는 `relate`로 표현한다.
+
 공식 참고: [GitHub의 PR과 issue 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
 
 ## Linear
@@ -62,6 +66,8 @@ PR body의 magic word를 기본 채널로 사용한다. title의 ID는 repositor
 
 `part of`는 두 단어다. 기존 branch에 Linear ID가 있으면 사용자가 원하는 티켓과 관계 의도에 맞는지 확인한다. 원하지 않는 ID가 branch에 있으면 rename하지 않고 `Ignore ENG-123`가 필요한지 판단한다. 여러 ID에 모두 `Fixes`를 붙이지 않는다.
 
+Linear의 drafted, opened, review requested, ready for merge와 merged event mapping은 team·repository 설정에 따라 다르다. Draft PR 자체를 review 시작으로 해석하거나, configured mapping과 같은 status를 직접 중복 적용하지 않는다. merge 뒤 release·deployment가 완료 조건이면 `Fixes` 대신 completion을 만들지 않는 intent를 사용한다.
+
 공식 참고: [Linear GitHub integration](https://linear.app/docs/github)
 
 ## Jira
@@ -73,3 +79,14 @@ branch나 commit의 기존 key는 보조 evidence다. key가 없어도 branch를
 Jira 상태 전이는 site의 workflow trigger와 automation 설정에 따라 달라진다. title에 key를 넣거나 `Fixes PROJ-123`라고 썼다는 이유만으로 종료를 주장하지 않는다.
 
 공식 참고: [GitHub development information을 Jira에 연결](https://support.atlassian.com/jira-cloud-administration/docs/use-the-github-for-jira-app/)
+
+## status effect를 판정한다
+
+PR 생성·review 요청·ready·merge·decline·deployment 같은 event마다 다음 순서로 판단한다.
+
+1. 해당 event의 native integration 또는 automation과 정확한 status mapping이 확인되면 그 자동화를 단일 소유자로 둔다.
+2. PR과 canonical ticket을 다시 읽어 link와 status를 별도로 확인한다.
+3. 비동기 실행 여부가 불명확하면 `status_effect: unknown`으로 보고하고 직접 transition하지 않는다.
+4. automation 부재 또는 이 event의 비적용, 현재 상태, 정확한 목표 transition과 권한이 확인되고, 전이 근거가 직접 사용자 의도 또는 확인된 repository·team lifecycle 정책일 때만 직접 lifecycle fallback을 넘긴다.
+
+provider reference가 저장됐다는 사실은 `link: applied`일 수 있지만 상태가 바뀌었다는 증거는 아니다. 반대로 상태 automation이 실행됐더라도 기대한 reference가 저장됐는지는 따로 검증한다. Draft PR은 명시적인 review 요청 event가 아니며, release·deployment가 완료 조건이면 merge만으로 `complete`를 주장하지 않는다.
