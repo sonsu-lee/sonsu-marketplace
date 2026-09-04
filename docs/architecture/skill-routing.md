@@ -386,18 +386,21 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
 
 ```text
 요청
-  → 작업 범위 판단과 기존 코드·문서 조사
-  → 문서 영향 분류
-  → 설계 제안 → 필요한 design-document gate → 사용자 검토
-  → 의사코드로 전체 흐름 정의
-  → 파일·task·dependency별 구현 계획 도출
-  → TDD 또는 다른 검증 선택과 이유 기록 → plan-readiness gate
-  → worktree 확인 또는 생성
-  → 구현 → task gate와 targeted fix
-  → 변경 성격에 맞는 final gate
-  → diff 보고
-  → 명시적인 커밋 승인
-  → commit
+  → spike / bounded / architectural 분류와 표적 탐색
+  → bounded이고 Fast Path 조건을 모두 충족하는가?
+      → yes: plan 없는 Local/Mechanical Fast Path → 결정론적 검증 → 목적 정렬 기록
+      → no/unknown: 짧은 설계 승인 → plan 필요 여부 판정
+  → architectural 또는 plan 필요 bounded:
+      설계 승인과 필요한 design-document gate
+      → 의사코드로 전체 흐름 정의
+      → 파일·task·dependency별 구현 계획과 검증 이유 → plan-readiness gate
+      → worktree 확인 또는 생성 → 구현 → task gate와 targeted fix
+      → final deterministic verification → 일반 whole-change review
+      → 목표·요구사항·설계·plan·전체 diff·검증을 하나의 immutable bundle로 고정
+      → fresh-context red-team completion gate
+  → plan 없는 일반 bounded:
+      승인된 짧은 설계 → 구현 → 변경에 비례한 결정론적 final gate
+  → diff와 gate 상태 보고 → 명시적인 커밋 승인 → commit
 ```
 
 `using-git-worktrees` 파일은 기존 linked worktree를 재사용하고 일반 checkout에서 필요할 때
@@ -422,7 +425,9 @@ quality gate는 문서 작성, 구현, commit, push, PR, merge, deploy 또는 pu
 | implementation plan | 의사코드 선행 여부, flow-task-path-dependency-verification 추적성, 검증 선택 이유, cross-component·long-running·high-risk일 때 independent review | 영향받은 의사코드·plan task 또는 `brainstorming` |
 | inline task | task별 test·build·parser·loader·consuming command | task implementation 또는 `systematic-debugging` |
 | subagent task review | task brief와 정확한 BASE..HEAD, spec·quality verdict | scoped fix loop; plan/design defect면 해당 소유 stage |
-| whole change와 completion | 전체 diff, 요구사항 mapping, final deterministic verification, major/high-risk일 때 independent review | 가장 가까운 implementation, plan 또는 design stage |
+| whole change ordinary review | plan-backed 전체 diff, 요구사항 mapping, final deterministic verification와 독립 reviewer | 가장 가까운 implementation, plan 또는 design stage |
+| red-team completion | 모든 plan-backed 작업의 목표·요구사항·설계·plan·전체 diff·검증을 포함한 content-digested bundle과 fresh-context reviewer | 사용자 재승인 또는 가장 가까운 design, plan, implementation, verification stage |
+| plan 없는 direct completion | Fast Path 또는 승인된 bounded 구현의 비례한 결정론적 검증과 목적 정렬 | 영향받은 구현 또는 일반 workflow escalation |
 
 deterministic oracle를 inferential review보다 먼저 실행합니다. retry는 artifact, hypothesis,
 implementation, evidence, context, evaluator 또는 capability 가운데 하나 이상이 바뀌어야 하며

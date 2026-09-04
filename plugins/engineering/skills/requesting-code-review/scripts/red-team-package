@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Freeze every red-team input into one immutable, content-addressed bundle.
+set -euo pipefail
+
+usage() {
+  echo "usage: red-team-package DIFF_PACKAGE ORIGINAL_GOAL REQUIREMENTS_AND_DESIGN PLAN_AND_MAPPING VERIFICATION_REPORT OBSERVED_OUTCOMES REVIEW_FINDING_PROVENANCE [OUTFILE]" >&2
+  exit 2
+}
+
+[ $# -ge 7 ] && [ $# -le 8 ] || usage
+
+inputs=("$1" "$2" "$3" "$4" "$5" "$6" "$7")
+labels=(
+  "whole-change-diff"
+  "original-goal"
+  "requirements-and-design"
+  "plan-and-flow-mapping"
+  "verification-report"
+  "observed-outcomes-and-constraints"
+  "review-finding-provenance"
+)
+
+for input in "${inputs[@]}"; do
+  [ -f "$input" ] && [ -r "$input" ] || {
+    echo "required component is missing or unreadable: $input" >&2
+    exit 2
+  }
+  [ -s "$input" ] || {
+    echo "required component is empty: $input" >&2
+    exit 2
+  }
+done
+
+if [ $# -eq 8 ]; then
+  out_parent=$(cd "$(dirname "$8")" && pwd -P)
+  out="$out_parent/$(basename "$8")"
+  [ ! -e "$out" ] || {
+    echo "output already exists: $out" >&2
+    exit 2
+  }
+else
+  temp_root=${TMPDIR:-/tmp}
+  out=$(mktemp "${temp_root%/}/engineering-red-team.XXXXXX")
+fi
+
+{
+  echo "# Red-team review bundle"
+  echo "Format: engineering-red-team-bundle-v1"
+  for index in 0 1 2 3 4 5 6; do
+    input=${inputs[$index]}
+    label=${labels[$index]}
+    bytes=$(wc -c < "$input" | tr -d ' ')
+    echo
+    echo "## Component: $label"
+    echo "Source: $input"
+    echo "Bytes: $bytes"
+    echo
+    command cat "$input"
+    echo
+  done
+} > "$out"
+
+if command -v shasum >/dev/null 2>&1; then
+  digest=$(shasum -a 256 "$out" | awk '{print $1}')
+elif command -v sha256sum >/dev/null 2>&1; then
+  digest=$(sha256sum "$out" | awk '{print $1}')
+else
+  echo "neither shasum nor sha256sum is available" >&2
+  exit 2
+fi
+
+printf 'Package: %s\nRevision: sha256:%s\n' "$out" "$digest"

@@ -99,7 +99,7 @@ digraph process {
     "Generate final package, dispatch code reviewer" [shape=box];
     "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" [shape=box];
     "Ordinary final gate outcome?" [shape=diamond];
-    "Dispatch fresh-context red-team reviewer" [shape=box];
+    "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" [shape=box];
     "Red-team verdict?" [shape=diamond];
     "Red-team attempt cap reached?" [shape=diamond];
     "Return red-team finding to owner; wait for changed input" [shape=box];
@@ -148,9 +148,9 @@ digraph process {
     "Final deterministic verification passed?" -> "Generate final package, dispatch code reviewer" [label="yes"];
     "Generate final package, dispatch code reviewer" -> "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals";
     "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" -> "Ordinary final gate outcome?";
-    "Ordinary final gate outcome?" -> "Dispatch fresh-context red-team reviewer" [label="passed / accepted_risk"];
+    "Ordinary final gate outcome?" -> "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" [label="passed / accepted_risk"];
     "Ordinary final gate outcome?" -> "Return to owner or stop" [label="non-advancing status"];
-    "Dispatch fresh-context red-team reviewer" -> "Red-team verdict?";
+    "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" -> "Red-team verdict?";
     "Red-team verdict?" -> "Preserve workspace through branch decision" [label="survives_challenge"];
     "Red-team verdict?" -> "Preserve workspace through branch decision" [label="human accepts exact risk"];
     "Red-team verdict?" -> "Red-team attempt cap reached?" [label="invalidated / inconclusive / blocked"];
@@ -346,8 +346,8 @@ task 리뷰를 생략하거나 두 판정 중 하나가 빠진 report를 받아�
 
 - reviewer에게 diff를 파일로 전달한다. 이 스킬의 `scripts/review-package PLAN_FILE BASE HEAD`를
   실행하고 출력된 파일 경로를 전달한다. bash가 없다면 해당 range의 `git log --oneline`,
-  `git diff --stat`, `git diff -U10`을 고유한 이름의 한 파일로 redirect한다. 출력은 자신의
-  context에 들어가지 않고 reviewer는 한 번의 Read 호출로 commit 목록, stat 요약과 context가
+  `git diff --stat`, `git diff --binary --no-ext-diff -U10`을 고유한 이름의 한 파일로 redirect한다. 출력은 자신의
+  context에 들어가지 않고 reviewer는 한 번의 Read 호출로 commit 목록, stat 요약과 binary-safe context가
   포함된 전체 diff를 본다. implementer를 위임하기 전에 기록한 BASE를 사용하며 여러 commit의
   task를 조용히 잘라내는 `HEAD~1`을 사용하지 않는다. diff 파일 없이 task reviewer를 위임하지 않는다.
 - **Reviewer 입력:** task reviewer는 같은 brief 파일, report 파일, review package의 세 경로와
@@ -489,23 +489,28 @@ plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다.
 목표를 해결하는지를 반증하려는 단계다.
 
 1. red-team을 위임하기 직전에 `scripts/review-package PLAN_FILE MERGE_BASE HEAD`를 다시 실행하여
-   현재 전체 변경의 새 immutable review package와 digest를 고정한다. 일반 최종 리뷰에서 수정이
-   없었더라도 이 단계의 정확한 HEAD를 기록하며, `FIX_BASE..HEAD` 수정 package나 이전 HEAD의 전체
-   package를 대신 사용하지 않는다. 여기에 원래 목표, 승인된 요구사항·설계, plan의 의사코드·
-   mapping, 결정론적 검증 report와 관찰된 결과의 읽기 전용 경로를 더한다. 일반 review finding이
-   artifact 변경을 유도했다면 verdict·칭찬 없이 finding 원문·근거에서 적용 revision·path로 이어지는
-   중립적인 provenance를 더하고, 그렇지 않으면 `none`을 기록한다.
-2. 이전 implementer, reviewer의 session history, 결론 또는 칭찬을 전달하지 않고 fresh-context
+   현재 전체 변경의 binary-safe package를 고정한다. 이 SDD helper는 canonical
+   `requesting-code-review/scripts/review-package range`에 위임하며 같은 range도 고유한 새 경로를
+   사용해 기존 package를 덮어쓰지 않는다. 일반 최종 리뷰에서 수정이 없었더라도 이 단계의 정확한
+   HEAD를 기록하며, `FIX_BASE..HEAD` 수정 package나 이전 HEAD의 전체 package를 대신 사용하지 않는다.
+2. 원래 목표, 승인된 요구사항·설계, plan의 의사코드·mapping, 결정론적 검증 report, 관찰된 결과와
+   알려진 제약을 현재 plan workspace의 개별 파일로 고정한다. 일반 review finding이 artifact 변경을
+   유도했다면 verdict·칭찬 없이 finding 원문·근거에서 적용 revision·path로 이어지는 provenance를
+   파일로 고정하고, 그렇지 않으면 그 파일에 `none`을 기록한다. 전체 변경 package와 이 여섯 파일을
+   `../requesting-code-review/scripts/red-team-package`에 전달해 attempt별 새 경로의 단일 bundle과
+   bundle 전체 SHA-256을 만든다. reviewer에는 이 bundle과 digest만 전달하며 원본 경로를 별도로
+   전달하지 않는다.
+3. 이전 implementer, reviewer의 session history, 결론 또는 칭찬을 전달하지 않고 fresh-context
    reviewer를 위임한다. [red-team-reviewer.md](../requesting-code-review/red-team-reviewer.md)를
    사용하고 Codex에서는 역할별 matrix의 가장 강한 red-team 조합을 명시한다.
-3. reviewer는 finding 수를 채우지 않으며 가장 강한 반례를 근거로 검증한다. 판정은 정확히
+4. reviewer는 finding 수를 채우지 않으며 가장 강한 반례를 근거로 검증한다. 판정은 정확히
    `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
-4. `survives_challenge`만 red-team의 일반 통과다. `invalidated`는 finding 소유 단계로 돌아가며
+5. `survives_challenge`만 red-team의 일반 통과다. `invalidated`는 finding 소유 단계로 돌아가며
    원래 문제 정의·사용자 목표가 틀렸으면 사용자 재승인, 요구사항·설계가 바뀌면 brainstorming
    재승인, plan이 바뀌면 writing-plans 갱신과 영향 task `reopened`, 구현이면 해당 task 재개,
    검증이면 verification 단계 재실행으로 routing한다.
    `inconclusive` 또는 `blocked`는 통과가 아니며 부족한 근거나 capability의 소유 단계로 돌린다.
-5. 수정 후 새 리비전을 다시 challenge할 때에는 반드시 또 다른 fresh-context reviewer를 사용한다.
+6. 수정 후 새 리비전을 다시 challenge할 때에는 반드시 또 다른 fresh-context reviewer를 사용한다.
    같은 artifact와 같은 evaluator의 무변경 재시도는 금지하며 red-team 자동 시도도 최대 3회다.
    상한 뒤 유효한 위험이 남으면 `decision_required`로 중단하고, 사람이 정확한 리비전과 위험을
    명시적으로 수용한 경우에만 `accepted_risk`로 다음 단계에 갈 수 있다.
@@ -604,8 +609,9 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
 [Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final code-reviewer, most capable model]
 Final reviewer: All requirements met. Deferred minors triaged: none block merge.
 
-[Regenerate the full MERGE_BASE..current HEAD package and digest]
-[Dispatch a new fresh-context red-team reviewer with that package plus goal/design/plan/evidence paths]
+[Regenerate the full binary-safe MERGE_BASE..current HEAD package]
+[Freeze goal/design/plan/evidence/provenance contents with the diff into a new red-team bundle and digest]
+[Dispatch a new fresh-context red-team reviewer with only that bundle and digest]
 Red-team reviewer: Verdict: survives_challenge. No evidenced counter-case invalidates the chosen work.
 
 [Preserve this plan's workspace]

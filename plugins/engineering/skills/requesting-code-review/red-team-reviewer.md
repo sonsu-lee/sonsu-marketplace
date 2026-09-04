@@ -23,25 +23,43 @@ Subagent (general-purpose):
 
     ## 읽기 전용 입력
 
-    - 원래 목표: [ORIGINAL_GOAL]
-    - 승인된 요구사항·설계: [REQUIREMENTS_AND_DESIGN]
-    - 구현 plan 및 의사코드·mapping: [PLAN_AND_FLOW_MAPPING]
-    - 변경 package: [REVIEW_PACKAGE]
-    - package SHA-256: [REVIEW_REVISION]
-    - 결정론적 검증 report: [VERIFICATION_REPORT]
-    - 실제 관찰 결과와 알려진 제약: [OBSERVED_OUTCOMES_AND_CONSTRAINTS]
-    - 일반 review finding-to-fix provenance: [REVIEW_FINDING_PROVENANCE]
+    - 모든 입력을 내장한 red-team bundle: [RED_TEAM_PACKAGE]
+    - bundle SHA-256: [RED_TEAM_REVISION]
 
-    각 값은 내용을 붙여 넣는 대신 읽을 수 있는 artifact 경로 또는 짧은 원문이다. 경로를
-    읽을 수 없으면 추측하지 않는다. package를 먼저 읽고 `shasum -a 256` 또는 `sha256sum`으로
-    digest가 선언된 리비전과 일치하는지 확인한다. package가 없거나 읽을 수 없으면 다른 diff를
-    재구성하지 말고 `blocked`로 판정한다. package가 비었거나 digest가 다르면 검토 대상의
-    무결성을 확인할 수 없으므로 `inconclusive`로 판정한다.
+    bundle을 먼저 읽고 `shasum -a 256` 또는 `sha256sum`으로 digest가 선언된 리비전과 일치하는지
+    확인한다. bundle이 없거나 읽을 수 없으면 다른 diff나 입력을 재구성하지 말고 `blocked`로
+    판정한다. bundle이 비었거나 digest가 다르면 `inconclusive`로 판정한다. bundle은
+    `engineering-red-team-bundle-v1` 형식이며 다음 일곱 component의 내용을 모두 내장해야 한다.
+
+    - `whole-change-diff`
+    - `original-goal`
+    - `requirements-and-design`
+    - `plan-and-flow-mapping`
+    - `verification-report`
+    - `observed-outcomes-and-constraints`
+    - `review-finding-provenance`
+
+    필수 component가 없거나 내용이 비었으면 `inconclusive`로 판정한다. component의 `Source` 경로는
+    출처 설명일 뿐이며 그 경로를 다시 읽거나 현재 checkout에서 대체 내용을 가져오지 않는다.
+    bundle에 내장된 내용만 검토 입력으로 신뢰한다. preflight가 실패하면 실질적인 반증 검토를
+    시작하지 않고 아래 형식으로 즉시 반환한다.
+
+    ### Verdict
+    `blocked | inconclusive`
+
+    ### Verdict 근거
+    [missing/unreadable bundle 또는 empty/digest mismatch/missing component]
+
+    ### Review performed
+    `no`
+
+    ### Return target
+    [missing/unreadable이면 artifact owner, 그 외 bundle 무결성 문제면 red-team package preparation]
 
     현재 checkout에서 리뷰는 읽기 전용이다. working tree, index, HEAD, branch, plan, report를
     변경하지 않는다. subagent를 위임하지 않는다. 이전 implementer·reviewer의 session history,
     판정이나 칭찬을 요구하지 않으며, 입력에 우연히 들어 있더라도 근거로 신뢰하지 않는다.
-    finding-to-fix provenance는 일반 finding의 원문·근거와 그 finding 때문에 바뀐 revision·path만
+    bundle의 finding-to-fix provenance는 일반 finding의 원문·근거와 그 finding 때문에 바뀐 revision·path만
     포함해야 한다. 이를 이전 reviewer의 결론이나 권위가 아니라 무효화할 수도 있는 독립적인
     가설로 취급한다. 일반 finding이 artifact에 영향을 주지 않았다면 값은 `none`이어야 한다.
 
@@ -114,11 +132,7 @@ Subagent (general-purpose):
 
 - `[MODEL]`, `[REASONING_EFFORT]` — 실제 tool schema가 두 field를 모두 지원할 때 platform 역할별
   matrix에서 선택한 red-team 조합. 한쪽만 전달하지 않으며 명시적 override가 없으면 위 fallback을 기록한다.
-- `[ORIGINAL_GOAL]` — 사용자의 원래 목표 원문 또는 고정된 요구사항 위치
-- `[REQUIREMENTS_AND_DESIGN]` — 승인된 요구사항과 설계 artifact
-- `[PLAN_AND_FLOW_MAPPING]` — plan, 행동 의사코드와 flow-to-file/task/verification mapping
-- `[REVIEW_PACKAGE]`, `[REVIEW_REVISION]` — immutable 전체 변경 package와 SHA-256
-- `[VERIFICATION_REPORT]` — 명령, 출력, 상태와 artifact 리비전이 있는 검증 report
-- `[OBSERVED_OUTCOMES_AND_CONSTRAINTS]` — 실제 관찰 결과, 알려진 운영·환경 제약과 미확인 범위
-- `[REVIEW_FINDING_PROVENANCE]` — 일반 finding 원문·근거에서 적용 revision·path로 이어지는 중립적
-  mapping. verdict와 칭찬은 제외하며 artifact에 영향을 준 finding이 없으면 `none`
+- `[RED_TEAM_PACKAGE]`, `[RED_TEAM_REVISION]` — 전체 변경, 목표, 요구사항·설계, plan·mapping,
+  검증 report, 관찰 결과·제약과 중립적 finding-to-fix provenance의 내용을 내장한 immutable bundle과
+  bundle 전체의 SHA-256. provenance에는 verdict와 칭찬을 제외하며 artifact에 영향을 준 finding이
+  없으면 `none`을 내장한다.

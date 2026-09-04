@@ -71,7 +71,10 @@ check, build, parser, native loader, link/path 검사와 실제 소비 명령이
 
 구현 plan이 있는 작업의 whole-change gate에는 위험도와 관계없이 일반 final review 뒤
 fresh-context red-team challenge가 필요하다. 이는 plan artifact 존재로 trigger하며, plan 없는
-Fast Path에는 적용하지 않는다. challenge verdict는 quality status와 분리해 기록한다.
+Fast Path에는 적용하지 않는다. challenge 전에는 목표, 요구사항·설계, plan·mapping, 전체 diff,
+검증 report, 관찰 결과·제약과 review finding provenance의 내용을 하나의 immutable bundle로
+복사하고 bundle 전체 digest를 고정한다. mutable source 경로를 별도로 reviewer에게 넘기지 않는다.
+challenge verdict는 quality status와 분리해 기록한다.
 
 | Challenge verdict | Quality status | 의미 |
 | --- | --- | --- |

@@ -41,7 +41,8 @@ Engineering은 기존 [0007 stage-owned quality gate](0007-use-stage-owned-quali
 5. 구현 plan이 존재하는 모든 작업은 전체 결정론적 검증과 일반 final review 뒤에 별도의
    fresh-context red-team gate를 거칩니다. 이는 위험도 분류가 아니라 plan artifact 존재로
    trigger합니다. reviewer는 목표·요구사항·설계·의사코드·plan·전체 diff·검증 근거를 바탕으로
-   지금까지의 전제를 반증하며 구현에 참여하거나 코드를 수정하지 않습니다.
+   지금까지의 전제를 반증하며 구현에 참여하거나 코드를 수정하지 않습니다. 이 모든 입력은
+   경로 포인터가 아니라 하나의 immutable content bundle에 복사하고 bundle 전체 digest로 고정합니다.
 6. red-team verdict는 `survives_challenge`, `invalidated`, `inconclusive`, `blocked`를 사용합니다.
    첫 verdict만 quality gate의 `passed`로 연결합니다. 나머지는 가장 가까운 소유 단계로
    반환하며 최대 3개의 서로 다른 fresh-context reviewer 뒤에는 `decision_required`로 중단합니다.

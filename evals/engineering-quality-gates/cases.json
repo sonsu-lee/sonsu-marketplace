@@ -513,6 +513,70 @@
       ]
     },
     {
+      "id": "red-team-bundle-freezes-all-required-inputs",
+      "stage": "red-team-package-preparation",
+      "prompt": "red-team 직전 전체 diff package는 고정됐지만 목표, 요구사항, plan, 검증 report와 관찰 결과는 별도 파일 경로에 있다. reviewer 입력을 준비해줘.",
+      "event": {
+        "plan_artifact_exists": true,
+        "whole_change_package_frozen": true,
+        "all_required_component_files_present": true,
+        "source_paths_mutable": true
+      },
+      "expected": {
+        "bundle_format": "engineering-red-team-bundle-v1",
+        "embedded_component_count": 7,
+        "digest_scope": "entire-bundle",
+        "reviewer_inputs": "bundle-path-and-digest-only"
+      },
+      "must_not": [
+        "digest-diff-only",
+        "pass-mutable-source-paths-separately",
+        "omit-review-finding-provenance"
+      ]
+    },
+    {
+      "id": "red-team-bundle-missing-component-is-inconclusive",
+      "stage": "red-team-completion-review",
+      "prompt": "bundle digest는 일치하지만 `observed-outcomes-and-constraints` component가 없다. red-team preflight 상태를 판정해줘.",
+      "event": {
+        "bundle_readable": true,
+        "bundle_digest_matches": true,
+        "missing_component": "observed-outcomes-and-constraints"
+      },
+      "expected": {
+        "status": "inconclusive",
+        "red_team_verdict": "inconclusive",
+        "review_performed": false,
+        "return_target": "red-team-package-preparation"
+      },
+      "must_not": [
+        "reconstruct-component-from-checkout",
+        "claim-survives-challenge",
+        "continue-substantive-review"
+      ]
+    },
+    {
+      "id": "sdd-review-package-is-binary-safe-and-non-overwriting",
+      "stage": "review-package-preparation",
+      "prompt": "같은 BASE..HEAD에서 binary artifact를 포함한 SDD review package를 두 번 생성한다. package 계약을 기록해줘.",
+      "event": {
+        "plan_artifact_exists": true,
+        "binary_change_present": true,
+        "same_range_generation_count": 2
+      },
+      "expected": {
+        "binary_patch_included": true,
+        "canonical_range_helper_used": true,
+        "unique_output_paths": true,
+        "prior_package_preserved": true
+      },
+      "must_not": [
+        "text-diff-only",
+        "overwrite-prior-package",
+        "reuse-deterministic-range-path"
+      ]
+    },
+    {
       "id": "red-team-retry-requires-changed-input-and-fresh-package",
       "stage": "red-team-completion-review",
       "prompt": "첫 red-team이 invalidated를 반환했고 소유자가 artifact를 새 revision으로 수정했다. 다음 자동 전이를 기록해줘.",
@@ -568,23 +632,27 @@
       },
       "expected": {
         "script_path": "plugins/engineering/skills/requesting-code-review/scripts/review-package",
+        "bundle_script_path": "plugins/engineering/skills/requesting-code-review/scripts/red-team-package",
         "mode": "range",
         "range": "BASE-to-current-HEAD",
-        "regenerate_package": true
+        "regenerate_package": true,
+        "reviewer_inputs": "bundle-path-and-digest-only"
       },
       "must_not": [
         "use-nonexistent-executing-plans-local-script",
+        "use-nonexistent-red-team-bundle-script",
         "omit-review-package-mode",
+        "pass-mutable-source-paths-separately",
         "reuse-pre-fix-package"
       ]
     },
     {
       "id": "missing-red-team-package-blocks",
       "stage": "red-team-completion-review",
-      "prompt": "red-team에 선언된 immutable package 경로가 없어서 읽을 수 없다. 다른 diff를 재구성하지 말고 판정해줘.",
+      "prompt": "red-team에 선언된 immutable bundle 경로가 없어서 읽을 수 없다. 다른 diff나 입력을 재구성하지 말고 판정해줘.",
       "event": {
-        "package_exists": false,
-        "package_readable": false
+        "bundle_exists": false,
+        "bundle_readable": false
       },
       "expected": {
         "status": "blocked",

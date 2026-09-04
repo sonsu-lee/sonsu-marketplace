@@ -63,14 +63,16 @@ task의 구현·검증·리뷰부터 다시 수행한다. material하지 않은 
    단계로 돌려보낸다. 상한에 도달해도 필수 finding이 해결되지 않았다면 사람의 결정이 필요하며,
    명시적인 `accepted_risk`만 다음 단계 진행을 허용한다.
 5. 일반 최종 리뷰 뒤에는 plan-backed 작업을 전체 구조에서 반증하는 fresh-context red-team
-   리뷰를 반드시 수행한다. 이전 작업·리뷰의 결론이나 session history를 넘기지 않고 원래 목표,
-   승인된 요구사항·설계, plan 의사코드·mapping, immutable 전체 변경 package와 digest,
-   결정론적 검증 report와 관찰된 결과의 경로를 전달한다. 일반 review finding이 artifact 변경을
-   유도했다면 verdict나 칭찬을 제외한 finding-to-fix provenance만 함께 전달한다. red-team 직전에
+   리뷰를 반드시 수행한다. 이전 작업·리뷰의 결론이나 session history를 넘기지 않는다. red-team 직전에
    현재 전체 commit range 또는 전체 working tree를 저장소 root에서
    `plugins/engineering/skills/requesting-code-review/scripts/review-package range BASE HEAD` 또는
    같은 script의 `working-tree` mode로 다시 고정하며, 일반 리뷰 뒤 artifact가 바뀌었다면 이전
-   package나 수정 range package를 재사용하지 않는다.
+   package나 수정 range package를 재사용하지 않는다. 원래 목표, 승인된 요구사항·설계, plan
+   의사코드·mapping, 결정론적 검증 report, 관찰 결과·제약과 verdict·칭찬을 제외한 finding-to-fix
+   provenance도 파일로 고정한 뒤 저장소 root의
+   `plugins/engineering/skills/requesting-code-review/scripts/red-team-package`로 전체 변경 package와
+   함께 하나의 immutable bundle에 복사한다. reviewer에는 bundle 경로와 SHA-256만 전달하며
+   별도의 mutable source 경로를 전달하지 않는다.
    `engineering:requesting-code-review`의 `red-team-reviewer.md` 계약을 사용한다.
 6. red-team 판정은 `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
    `survives_challenge`만 일반 통과다. 나머지는 공통 품질 게이트 계약에 따라 design, plan,

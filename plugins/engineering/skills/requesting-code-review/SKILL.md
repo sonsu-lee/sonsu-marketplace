@@ -77,13 +77,18 @@ HEAD_SHA=$(git rev-parse HEAD)
 - reviewer는 이전 implementer·reviewer와 다른 fresh context에서 시작하며 이전 session history,
   판정, 칭찬 또는 완료에 가까워 보인다는 진행 신호를 전달받지 않는다. Codex에서는 실제 tool
   metadata를 확인한 뒤 `fork_turns: "none"`을 사용한다.
-- 원래 목표, 승인된 요구사항·설계, plan 의사코드·mapping, immutable review package와 digest,
-  결정론적 검증 report, 실제 관찰 결과와 알려진 제약의 읽기 전용 경로만 전달한다. 일반 리뷰
-  뒤 artifact가 바뀌었다면 red-team 직전에 현재 전체 변경을 새 package와 digest로 다시 고정한다.
+- red-team 직전에 전체 변경 package, 원래 목표, 승인된 요구사항·설계, plan 의사코드·mapping,
+  결정론적 검증 report, 실제 관찰 결과와 알려진 제약을 각각 파일로 고정한다. 이 component와
+  아래 provenance를 `scripts/red-team-package`로 하나의 bundle에 복사해 bundle 전체의 SHA-256을
+  기록한다. mutable source 경로를 bundle과 별도로 reviewer에게 전달하지 않는다.
 - 일반 review finding이 artifact 변경을 유도했다면 finding 원문·근거와 적용된 revision·path의
   중립적인 finding-to-fix provenance만 전달한다. verdict, 칭찬과 reviewer 권위를 제거하고 red-team이
   구속력 없는 반증 대상으로 취급하게 한다. finding이 없거나 artifact에 영향을 주지 않았다면
-  `none`을 기록한다.
+  provenance 파일에 `none`을 기록한다.
+- bundle은 다음 순서의 일곱 component를 모두 내장한다: 전체 변경 package, 원래 목표,
+  요구사항·설계, plan·flow mapping, 검증 report, 관찰 결과·제약, finding-to-fix provenance.
+  reviewer에는 bundle 경로와 bundle digest만 전달한다. 일반 리뷰 뒤 artifact가 바뀌었다면 전체
+  변경 package와 모든 영향 component를 새로 고정해 새 bundle을 만든다.
 - 일반 리뷰를 반복하지 않고 문제 정의부터 검증까지 전체 연결을 부정하는 가장 강한 반례를 찾는다.
 - 판정은 정확히 `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
   `survives_challenge`만 일반 통과로 취급한다.
@@ -93,6 +98,16 @@ HEAD_SHA=$(git rev-parse HEAD)
   reviewer를 사용하며 변경 없는 재시도는 하지 않는다. 자동 시도는 최대 3회다.
 - reviewer를 사용할 수 없거나 필요한 evidence가 없으면 `not_run`, `blocked` 또는
   `inconclusive`를 그대로 기록한다. 일반 reviewer의 승인을 red-team 통과로 대체하지 않는다.
+
+```bash
+./scripts/red-team-package \
+  "$WHOLE_CHANGE_PACKAGE" "$ORIGINAL_GOAL_FILE" "$REQUIREMENTS_FILE" \
+  "$PLAN_AND_MAPPING_FILE" "$VERIFICATION_REPORT" "$OUTCOMES_FILE" \
+  "$PROVENANCE_FILE" "$RED_TEAM_BUNDLE"
+```
+
+필수 component가 없거나 비어 있으면 script가 bundle 생성을 거부한다. 기존 output 경로도
+덮어쓰지 않는다. 같은 range를 다시 challenge하더라도 attempt별 새 output 경로를 사용한다.
 
 ## 예시
 
