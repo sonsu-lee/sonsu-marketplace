@@ -36,7 +36,16 @@ PY
 
 TASK_ID="red-routing-$$"
 WORK=$(mktemp -d)
-trap 'rm -rf "$WORK"' EXIT
+ANCESTOR=$(mktemp -d)
+WORK=$(cd "$WORK" && pwd -P)
+ANCESTOR=$(cd "$ANCESTOR" && pwd -P)
+trap 'rm -rf "$WORK" "$ANCESTOR"' EXIT
+REVISION_A=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+REVISION_B=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+REVISION_64=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+DIGEST_A=cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+DIGEST_B=dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+DIGEST_C=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 
 # RED: Task 2 must provide this state helper. Each invocation is a new process,
 # so the latch must be persisted rather than held only in memory.
@@ -44,19 +53,40 @@ trap 'rm -rf "$WORK"' EXIT
 initial=$($STATE check "$WORK" "$TASK_ID") || fail 'initial state failed'
 [[ "$initial" == unclassified ]] || fail "initial state: $initial"
 
-$STATE record "$WORK" "$TASK_ID" eligible candidate-rev classifier-digest \
+$STATE record "$WORK" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_A" \
   || fail 'eligible record failed'
-eligible=$($STATE check "$WORK" "$TASK_ID") || fail 'eligible state check failed'
+! $STATE check "$WORK" "$TASK_ID" >/dev/null 2>&1 \
+  || fail 'eligible state did not require an expected revision'
+! $STATE check "$WORK" "$TASK_ID" "$REVISION_B" >/dev/null 2>&1 \
+  || fail 'eligible state accepted a stale revision'
+eligible=$($STATE check "$WORK" "$TASK_ID" "$REVISION_A") || fail 'eligible state check failed'
 [[ "$eligible" == eligible ]] || fail "eligible state: $eligible"
+$STATE record "$WORK" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_A" \
+  || fail 'exact eligible record was not idempotent'
+! $STATE record "$WORK" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_B" >/dev/null 2>&1 \
+  || fail 'eligible state accepted a changed digest'
+! $STATE record "$WORK" "$TASK_ID" eligible "$REVISION_B" "$DIGEST_A" >/dev/null 2>&1 \
+  || fail 'eligible state accepted a changed revision'
 
-$STATE record "$WORK" "$TASK_ID" disqualified 'unexpected consumer' escalation-digest \
+$STATE record "$WORK" "revision64-$TASK_ID" eligible "$REVISION_64" "$DIGEST_A" \
+  || fail '64-character revision record failed'
+eligible64=$($STATE check "$WORK" "revision64-$TASK_ID" "$REVISION_64") \
+  || fail '64-character revision state check failed'
+[[ "$eligible64" == eligible ]] || fail "64-character eligible state: $eligible64"
+
+$STATE record "$WORK" "$TASK_ID" disqualified 'unexpected consumer' "$DIGEST_C" \
   || fail 'disqualified record failed'
 disqualified=$($STATE check "$WORK" "$TASK_ID") || fail 'disqualified state check failed'
 [[ "$disqualified" == disqualified ]] || fail "disqualified state: $disqualified"
 
-! $STATE record "$WORK" "$TASK_ID" eligible candidate-rev classifier-digest \
+! $STATE record "$WORK" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_A" \
   || fail 'disqualified state accepted a later eligible record'
 persisted=$($STATE check "$WORK" "$TASK_ID") || fail 'persisted state check failed'
 [[ "$persisted" == disqualified ]] || fail "persisted state: $persisted"
+
+mkdir "$ANCESTOR/real"
+ln -s "$ANCESTOR/real" "$ANCESTOR/linked"
+! $STATE check "$ANCESTOR/linked/state-root" "$TASK_ID" >/dev/null 2>&1 \
+  || fail 'state root with an ancestor symlink was accepted'
 
 printf 'PASS: fast-path routing regression checks\n'

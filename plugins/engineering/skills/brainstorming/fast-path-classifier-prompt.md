@@ -46,29 +46,35 @@ cannot be searched, or execution is blocked, return a non-eligible verdict. Do n
 
 ## Controller routing
 
-Before **every** Fast Path entry, run:
+Before **every** Fast Path entry, capture the repository's exact current commit revision, then run the
+revision-bound state check. The stable task ID is still created before target discovery and must never be
+re-derived from the target.
 
 ```bash
 STATE_ROOT="$REPOSITORY_ROOT/.engineering/fast-path"
 TASK_ID=<stable-todo-id-or-uuid-created-once-before-target-discovery>
 STATE_FILE="$STATE_ROOT/$TASK_ID.state"
-plugins/engineering/skills/brainstorming/scripts/fast-path-state check "$STATE_ROOT" "$TASK_ID"
+CANDIDATE_REVISION=$(git -C "$REPOSITORY_ROOT" rev-parse --verify 'HEAD^{commit}')
+plugins/engineering/skills/brainstorming/scripts/fast-path-state check "$STATE_ROOT" "$TASK_ID" "$CANDIDATE_REVISION"
 ```
 
-`disqualified` rejects Fast Path without calling the classifier, predicate, or execution. For an
+`disqualified` rejects Fast Path without calling the classifier, predicate, or execution. `eligible` only
+matches when its stored candidate revision is exactly `CANDIDATE_REVISION`; a missing expected revision or a
+mismatch fails closed. For an
 `unclassified` task, the controller performs its one targeted search, builds the five-field brief, and
 dispatches the classifier once. Record an eligible verdict only with the exact candidate revision and
-classifier evidence digest:
+classifier evidence digest. The classifier's returned revision must match the controller-captured
+`CANDIDATE_REVISION`, and `EVIDENCE_DIGEST` is a 64-character lowercase SHA-256 hex digest:
 
 ```bash
-fast-path-state record "$STATE_ROOT" "$TASK_ID" eligible "$CANDIDATE_REVISION" "$EVIDENCE_DIGEST"
+plugins/engineering/skills/brainstorming/scripts/fast-path-state record "$STATE_ROOT" "$TASK_ID" eligible "$CANDIDATE_REVISION" "$EVIDENCE_DIGEST"
 ```
 
 For `escalate`, `inconclusive`, `blocked`, unavailable classifier capability, or any other non-eligible
 outcome, record the irreversible latch before routing:
 
 ```bash
-fast-path-state record "$STATE_ROOT" "$TASK_ID" disqualified "$REASON" "$EVIDENCE_DIGEST"
+plugins/engineering/skills/brainstorming/scripts/fast-path-state record "$STATE_ROOT" "$TASK_ID" disqualified "$REASON" "$EVIDENCE_DIGEST"
 ```
 
 Then route to the nearest normal workflow: unexplained failure to `engineering:systematic-debugging`,

@@ -57,8 +57,11 @@ branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 �
 ## Engineering 실행 경로
 
 Engineering은 작업을 중앙 orchestrator 하나로 모으지 않고 기존 stage-owned gate를 유지합니다.
-Fast Path는 target discovery 전에 stable todo ID 또는 한 번 생성한 UUID를 고정하고 매 entry에서
-`.engineering/fast-path/<task-id>.state`를 먼저 확인합니다. 이미 `disqualified`인 task는 classifier,
+Fast Path는 target discovery 전에 stable todo ID 또는 한 번 생성한 UUID를 고정하고 target에서 다시
+유도하지 않습니다. 매 entry에서 current `HEAD`의 exact candidate revision을 capture해
+`.engineering/fast-path/<task-id>.state`에 `check ROOT TASK_ID EXPECTED_REVISION`을 먼저 실행합니다.
+stored eligible revision이 expected revision과 다르거나 expected revision이 없으면 fail closed합니다.
+이미 `disqualified`인 task는 classifier,
 predicate, execution을 건너뛰고 가장 가까운 일반 workflow로 갑니다. `unclassified` task만 아래의
 독립 classifier gate를 통과해야 plan 없는 Fast Path를 사용합니다.
 
@@ -67,7 +70,7 @@ predicate, execution을 건너뛰고 가장 가까운 일반 workflow로 갑니�
   → controller 표적 탐색 1회: 대상·관찰 결과·완료 조건, references, consumers, public-contract risk, oracle
   → fresh gpt-5.6-luna/low classifier의 독립 표적 탐색 1회
   → classifier verdict eligible | escalate | inconclusive | blocked
-  → eligible일 때만 exact candidate revision과 evidence digest를 state에 기록
+  → eligible일 때만 controller-captured revision과 일치하는 exact candidate revision 및 64-character lowercase SHA-256 evidence digest를 state에 기록
   → 효과 또는 변환 규칙과 직접 소비자 범위를 두 탐색 안에 닫음
   → public contract·schema·상태·권한·migration·호환성 변경 없음
   → 저렴한 결정론적 검증 존재
@@ -400,8 +403,8 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
   → spike / bounded / architectural 분류와 stable task ID 고정
   → 매 Fast Path entry에서 persistent latch 확인
       → disqualified: classifier/predicate/execution을 건너뛰고 nearest normal workflow
-      → unclassified: controller search 1회 → fresh classifier search 1회
-          → eligible: state에 exact candidate revision + digest 기록 → plan 없는 Local/Mechanical Fast Path
+      → unclassified: current HEAD exact revision capture → controller search 1회 → fresh classifier search 1회
+          → eligible: controller revision과 일치하는 exact revision + 64-hex digest 기록 → plan 없는 Local/Mechanical Fast Path
           → escalate/inconclusive/blocked/unavailable/false/unknown: disqualified latch → nearest normal workflow
   → Fast Path 실행 중 hidden complexity
       → disqualified latch → systematic-debugging / writing-plans / brainstorming (Fast Path 재진입 없음)

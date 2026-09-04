@@ -90,15 +90,18 @@ challenge verdict는 quality status와 분리해 기록한다.
 ## Fast Path classifier와 latch gate
 
 plan 없는 Fast Path의 eligibility gate는 controller가 소유한다. target discovery 전에 stable todo ID를
-고정하거나 UUID를 한 번 생성하고, **매 Fast Path entry 전에** repository
-`.engineering/fast-path/<task-id>.state`를 확인한다. `disqualified`는 classifier, predicate와 execution을
+고정하거나 UUID를 한 번 생성하고, task ID를 target에서 다시 유도하지 않는다. **매 Fast Path entry 전에**
+current `HEAD`의 exact candidate revision을 capture해 repository
+`.engineering/fast-path/<task-id>.state`에 `check ROOT TASK_ID EXPECTED_REVISION`을 실행한다. stored eligible
+revision이 expected revision과 다르거나 expected revision이 없으면 fail closed한다. `disqualified`는 classifier, predicate와 execution을
 건너뛰어 가장 가까운 normal workflow로 보낸다.
 
 `unclassified`일 때만 controller가 표적 탐색을 한 번 하고 request, target, controller evidence,
 proposed deterministic oracle, unknowns로 짧은 brief를 만든다. fresh `gpt-5.6-luna` / `low` classifier가
 독립 targeted search를 정확히 한 번 실행하므로 Fast Path 전체 탐색 예산은 2회다. verdict는
-`eligible | escalate | inconclusive | blocked`다. `eligible`만 exact candidate revision과 evidence digest로
-기록할 수 있다. `escalate`, `inconclusive`, `blocked`, unavailable 또는 false/unknown predicate는 먼저
+`eligible | escalate | inconclusive | blocked`다. `eligible`만 controller-captured revision과 일치하는
+exact candidate revision 및 64-character lowercase SHA-256 evidence digest로 기록할 수 있다. 기존 eligible
+record는 revision과 digest가 완전히 같을 때만 idempotent다. `escalate`, `inconclusive`, `blocked`, unavailable 또는 false/unknown predicate는 먼저
 `disqualified`를 영속 기록하고 nearest normal workflow로 routing한다.
 
 unexpected consumer, semantic decision, public contract, unexplained failure, widened responsibility, related

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-  printf 'usage: fast-path-state check ROOT TASK_ID | record ROOT TASK_ID eligible CANDIDATE_REVISION EVIDENCE_DIGEST | record ROOT TASK_ID disqualified REASON EVIDENCE_DIGEST\n' >&2
+  printf 'usage: fast-path-state check ROOT TASK_ID [EXPECTED_REVISION] | record ROOT TASK_ID eligible CANDIDATE_REVISION EVIDENCE_DIGEST | record ROOT TASK_ID disqualified REASON EVIDENCE_DIGEST\n' >&2
   exit 64
 }
 
@@ -16,9 +16,10 @@ command=$1
 
 case "$command" in
   check)
-    [[ $# -eq 3 ]] || usage
+    [[ $# -eq 3 || $# -eq 4 ]] || usage
     root=$2
     task_id=$3
+    expected_revision=${4:-}
     ;;
   record)
     [[ $# -eq 6 ]] || usage
@@ -32,22 +33,41 @@ case "$command" in
 esac
 
 [[ "$root" == /* ]] || fail_closed 'state root must be an absolute path'
+[[ "$root" != / && "$root" != */ ]] || fail_closed 'unsafe state root'
 [[ "$task_id" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]] || fail_closed 'unsafe task ID'
+[[ -z ${expected_revision:-} || "$expected_revision" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]] || fail_closed 'invalid expected revision'
 
-mkdir -p "$root" || fail_closed 'cannot create state root'
-[[ ! -L "$root" && -d "$root" ]] || fail_closed 'unsafe state root'
-root=$(cd "$root" && pwd -P) || fail_closed 'cannot resolve state root'
+root_parent=${root%/*}
+[[ -n "$root_parent" ]] || root_parent=/
+logical_parent=$(cd -L "$root_parent" 2>/dev/null && pwd -L) || fail_closed 'cannot resolve state root parent'
+physical_parent=$(cd -P "$root_parent" 2>/dev/null && pwd -P) || fail_closed 'cannot resolve state root parent'
+[[ "$logical_parent" == "$physical_parent" ]] || fail_closed 'state root parent contains a symlink'
+
+if [[ -e "$root" || -L "$root" ]]; then
+  [[ ! -L "$root" && -d "$root" ]] || fail_closed 'unsafe state root'
+else
+  mkdir "$root" || fail_closed 'cannot create state root'
+fi
+logical_root=$(cd -L "$root" 2>/dev/null && pwd -L) || fail_closed 'cannot resolve state root'
+physical_root=$(cd -P "$root" 2>/dev/null && pwd -P) || fail_closed 'cannot resolve state root'
+[[ "$logical_root" == "$physical_root" ]] || fail_closed 'state root contains a symlink'
+root=$physical_root
 state="$root/$task_id.state"
 lock="$root/$task_id.state.lock"
 
-validate_value() {
+validate_text() {
   local value=$1
   [[ -n "$value" && ${#value} -le 512 && "$value" != *$'\n'* && "$value" != *$'\r'* ]]
 }
 
+validate_revision() { [[ "$1" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]]; }
+validate_digest() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
+
 read_state() {
   local line key value lines=0
   state_verdict=''
+  state_detail=''
+  state_digest=''
   [[ ! -L "$state" ]] || return 1
   [[ -f "$state" && -s "$state" ]] || return 1
   while IFS= read -r line || [[ -n "$line" ]]; do
@@ -58,12 +78,18 @@ read_state() {
     case "$key" in
       version) [[ "$lines" -eq 1 && "$value" == 1 ]] || return 1 ;;
       verdict) [[ "$lines" -eq 2 && ( "$value" == eligible || "$value" == disqualified ) ]] || return 1; state_verdict=$value ;;
-      detail) [[ "$lines" -eq 3 ]] || return 1; validate_value "$value" || return 1 ;;
-      evidence_digest) [[ "$lines" -eq 4 ]] || return 1; validate_value "$value" || return 1 ;;
+      detail) [[ "$lines" -eq 3 ]] || return 1; state_detail=$value ;;
+      evidence_digest) [[ "$lines" -eq 4 ]] || return 1; state_digest=$value ;;
       *) return 1 ;;
     esac
   done < "$state"
-  [[ "$lines" -eq 4 && -n "$state_verdict" ]]
+  [[ "$lines" -eq 4 && -n "$state_verdict" ]] || return 1
+  validate_digest "$state_digest" || return 1
+  if [[ "$state_verdict" == eligible ]]; then
+    validate_revision "$state_detail"
+  else
+    validate_text "$state_detail"
+  fi
 }
 
 case "$command" in
@@ -71,6 +97,10 @@ case "$command" in
     if [[ ! -e "$state" && ! -L "$state" ]]; then
       printf 'unclassified\n'
     elif read_state; then
+      if [[ "$state_verdict" == eligible ]]; then
+        [[ -n "$expected_revision" ]] || fail_closed 'eligible state requires an expected revision'
+        [[ "$state_detail" == "$expected_revision" ]] || fail_closed 'eligible state revision mismatch'
+      fi
       printf '%s\n' "$state_verdict"
     else
       fail_closed 'malformed or unsafe state'
@@ -78,8 +108,12 @@ case "$command" in
     ;;
   record)
     case "$verdict" in eligible|disqualified) ;; *) fail_closed 'unsupported verdict' ;; esac
-    validate_value "$detail" || fail_closed 'invalid record detail'
-    validate_value "$digest" || fail_closed 'invalid evidence digest'
+    validate_digest "$digest" || fail_closed 'invalid evidence digest'
+    if [[ "$verdict" == eligible ]]; then
+      validate_revision "$detail" || fail_closed 'invalid candidate revision'
+    else
+      validate_text "$detail" || fail_closed 'invalid disqualification reason'
+    fi
 
     attempts=0
     while ! mkdir "$lock" 2>/dev/null; do
@@ -93,10 +127,12 @@ case "$command" in
 
     if [[ -e "$state" || -L "$state" ]]; then
       read_state || fail_closed 'malformed or unsafe state'
-      if [[ "$state_verdict" == disqualified && "$verdict" == eligible ]]; then
-        fail_closed 'task is permanently disqualified'
+      if [[ "$state_verdict" == disqualified ]]; then
+        [[ "$verdict" != eligible ]] || fail_closed 'task is permanently disqualified'
+        exit 0
       fi
-      if [[ "$state_verdict" == disqualified || "$verdict" == eligible ]]; then
+      if [[ "$verdict" == eligible ]]; then
+        [[ "$state_detail" == "$detail" && "$state_digest" == "$digest" ]] || fail_closed 'eligible state does not match current candidate'
         exit 0
       fi
     fi
