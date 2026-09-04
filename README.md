@@ -1,8 +1,8 @@
 # Sonsu Marketplace
 
 개인적으로 사용하는 Codex 플러그인을 한곳에서 배포하고 관리하는 마켓플레이스입니다.
-개발 방법론, 제품 탐색, Git 산출물, 출력 언어, 리서치와 프롬프트 작성을 서로 독립적인 플러그인으로
-나누어 필요한 기능만 설치할 수 있습니다.
+개발 방법론, 제품 탐색, 제품 디자인, Git 산출물, 출력 언어, 리서치와 프롬프트 작성을 서로
+독립적인 플러그인으로 나누어 필요한 기능만 설치할 수 있습니다.
 
 ## 플러그인
 
@@ -15,6 +15,7 @@
 | [Research](plugins/research/README.md) | `0.7.0-sonsu.2` | 여러 출처의 탐색, 원문 교차 검증과 인용 감사 | `research` |
 | [Prompting](plugins/prompting/README.md) | `0.1.0` | Codex, ChatGPT와 OpenAI API용 프롬프트 작성·재작성·최적화 | `prompt-builder` |
 | [Product](plugins/product/README.md) | `0.1.0` | 제품 기회 탐색, 근거 종합, 도메인 발견, 검증과 PRD 변환 | `product-brainstorming`, `product-discovery`, `synthesize-product-evidence`, `product-domain-discovery`, `design-product-test`, `assess-product-test`, `to-prd` |
+| [Figma Workflow](plugins/figma-workflow/README.md) | `0.1.0` | 공식 Figma MCP와 수동 companion의 경계를 지키는 Figma 화면·prototype·handoff 품질 | `figma-product-design`, `figma-prototype-flow`, `figma-design-audit` |
 
 각 플러그인은 다른 플러그인을 설치하거나 먼저 실행했다고 가정하지 않습니다. 여러 영역을
 포함한 요청에서는 Codex가 설치된 스킬의 설명과 요청 목적을 바탕으로 필요한 플러그인을 함께
@@ -42,6 +43,7 @@ codex plugin add fluent-languages@sonsu-marketplace
 codex plugin add research@sonsu-marketplace
 codex plugin add prompting@sonsu-marketplace
 codex plugin add product@sonsu-marketplace
+codex plugin add figma-workflow@sonsu-marketplace
 ```
 
 등록된 Git 마켓플레이스의 최신 snapshot을 가져오려면 다음 명령을 실행합니다.
@@ -82,6 +84,7 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
 | 여러 외부 출처가 필요한 조사와 사실 검증 | Research |
 | Codex·ChatGPT·OpenAI API용 프롬프트 산출물 | Prompting |
 | 제품 기회, 문제, 근거, 도메인 규칙, 검증과 PRD | Product |
+| Figma 제품 화면·prototype의 구조, interaction과 handoff 품질 | Figma Workflow |
 
 Research의 Exa와 Perplexity 연동은 선택 사항입니다. 사용할 수 있는 전문 provider가 없으면
 Codex가 이미 제공하는 web, browser, connector와 로컬 자료로 가능한 범위에서 조사하며,
@@ -104,7 +107,7 @@ sonsu-marketplace/
 - [마켓플레이스 문서](docs/README.md): 아키텍처, 결정 기록, 제품 요구사항, 가이드, 참조와 런북
 - [플러그인 추가 가이드](docs/guides/adding-a-plugin.md): 새 플러그인의 디렉터리와 manifest 등록 절차
 - [업스트림 업데이트 런북](docs/runbooks/updating-upstream-plugin.md): 원본 기준선과 로컬 변경을 분리해 갱신하는 절차
-- [`evals/`](evals/): 언어 출력과 스킬 라우팅의 fixture 및 정적 평가 도구
+- [`evals/`](evals/): 언어 출력, 스킬 라우팅과 Figma Workflow 품질 계약의 fixture 및 정적 평가 도구
 
 마켓플레이스 식별자는 `sonsu-marketplace`, 표시 이름은 `Sonsu Marketplace`입니다. Codex는
 저장소 루트의 [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json)에서 각
@@ -140,5 +143,6 @@ JSON parsing, 생성된 Fluent Languages 스킬의 정본 일치 여부와 평�
 - Workflow에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Prompting에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Product에는 현재 별도의 라이선스를 선언하지 않았습니다.
+- Figma Workflow는 외부 파일을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 검토한 출처와 비복사 원칙은 [UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md)에 기록합니다.
 - Fluent Languages의 라이선스와 원본별 출처는 [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md)와 [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md)에 기록합니다.
 - Research는 기준 원본에서 라이선스 파일을 확인하지 못했으며 사용 허가를 추정하지 않습니다. 기준 commit과 포함 범위는 [UPSTREAM.md](plugins/research/UPSTREAM.md)에 기록합니다.

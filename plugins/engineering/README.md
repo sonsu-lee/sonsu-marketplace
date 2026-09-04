@@ -75,7 +75,7 @@ codex plugin add engineering@sonsu-marketplace
 - 시도 횟수 상한에 도달했다는 이유로 유효한 미해결 finding을 pass로 바꾸지 않습니다. 식별된 사람인 의사결정자만 `accepted_risk`를 기록할 수 있습니다.
 - Engineering, Workflow, Research와 Fluent Languages를 서로 독립적으로 설치할 수 있게 유지합니다.
 
-저장소 정책은 [문서 가이드](../../docs/README.md), [스킬 라우팅 아키텍처](../../docs/architecture/skill-routing.md), [Fast Path와 red-team 결정](../../docs/decisions/0010-use-fast-path-and-plan-red-team-gates.md)과 관련 결정 기록에 남깁니다.
+저장소 정책은 [문서 가이드](../../docs/README.md), [스킬 라우팅 아키텍처](../../docs/architecture/skill-routing.md), [Fast Path와 red-team 결정](../../docs/decisions/0011-use-fast-path-and-plan-red-team-gates.md)과 관련 결정 기록에 남깁니다.
 
 ## 실행 artifact와 visual companion
 

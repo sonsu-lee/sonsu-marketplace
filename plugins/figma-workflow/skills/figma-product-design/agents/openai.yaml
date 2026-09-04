@@ -1,0 +1,4 @@
+interface:
+  display_name: "Figma Product Design"
+  short_description: "Figma 제품 화면의 native 구조와 품질을 만듭니다"
+  default_prompt: "$figma-product-design을 사용해 이 제품 화면을 Figma Design에서 responsive하게 만들고 필요한 handoff evidence를 정리해 줘."

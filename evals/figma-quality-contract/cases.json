@@ -1,0 +1,62 @@
+{
+  "schema_version": "figma-quality-contract-v1",
+  "cases": [
+    {
+      "id": "auto-layout-uses-semantic-relationships",
+      "scenario": "세로 form 안에 label, input, help text와 action row가 있다.",
+      "expected": ["structural-auto-layout", "semantic-layer-names", "content-driven-spacing"],
+      "must_not": ["absolute-position-all-children", "auto-layout-every-decorative-layer"]
+    },
+    {
+      "id": "fill-requires-auto-layout-parent",
+      "scenario": "child가 아직 일반 frame 아래에 있을 때 horizontal FILL을 요청한다.",
+      "expected": ["append-to-auto-layout-parent-before-fill", "verify-axis-sizing"],
+      "must_not": ["set-invalid-fill-and-continue"]
+    },
+    {
+      "id": "responsive-content-extremes",
+      "scenario": "카드 목록이 0개, 1개, 20개이고 제목은 짧은 영어와 긴 일본어 번역을 가진다.",
+      "expected": ["test-zero-one-many", "test-short-long-localized-copy", "test-narrow-wide"],
+      "must_not": ["validate-default-content-only"]
+    },
+    {
+      "id": "component-and-icon-reuse-preserve-source",
+      "scenario": "기존 library에 Search icon component가 있고 버튼에는 state, size, icon과 label이 있다.",
+      "expected": ["variant-for-state-and-size", "instance-swap-when-configurable", "text-property-for-label", "preserve-semantic-color"],
+      "must_not": ["emoji-icon", "redraw-with-lines", "detach-instance-silently"]
+    },
+    {
+      "id": "missing-exact-icon-remains-blocked",
+      "scenario": "요청한 brand icon의 정확한 asset을 찾지 못했다.",
+      "expected_status": "blocked",
+      "expected": ["request-or-locate-exact-asset", "report-blocked-scope"],
+      "must_not": ["invent-brand-mark", "use-similar-icon-without-disclosure"]
+    },
+    {
+      "id": "official-mcp-write-has-bounded-target-and-readback",
+      "scenario": "Codex가 한 Figma frame의 responsive layout을 수정한다.",
+      "expected": ["figma-figma-use-prerequisite", "registered-official-figma-mcp", "explicit-target", "unchanged-area-boundary", "readback-structure-and-screenshot-when-available"],
+      "must_not": ["unbounded-canvas-write", "parallel-writers-in-same-conflict-domain", "raw-mcp-fallback"]
+    },
+    {
+      "id": "manual-companion-audit-is-factual-not-design-judgment",
+      "scenario": "사용자가 companion으로 선택한 subtree의 Auto Layout을 audit한다.",
+      "expected": ["manual-desktop-execution", "selection-scoped-read-only-plan", "json-safe-structure-facts", "report-observed-finding-with-node-id"],
+      "must_not": ["agent-callable-companion", "automatic-aesthetic-pass", "mutation-during-audit"]
+    },
+    {
+      "id": "readback-failure-remains-visible",
+      "scenario": "exact rename mutation 뒤 readback이 실패했다.",
+      "expected_status": "failed",
+      "expected": ["report-readback-failed", "report-mutation-may-have-occurred", "continue-independent-targets"],
+      "must_not": ["claim-applied", "automatic-rollback"]
+    },
+    {
+      "id": "static-verification-does-not-prove-live-canvas",
+      "scenario": "schema, test, typecheck와 bundle은 통과했지만 official connector exposure와 live canvas는 실행하지 않았다.",
+      "expected_status": "not_run",
+      "expected": ["report-static-checks", "report-connector-exposure-not-run", "report-live-canvas-not-run"],
+      "must_not": ["claim-connector-available", "claim-live-canvas-quality-passed"]
+    }
+  ]
+}

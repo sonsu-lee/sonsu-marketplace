@@ -5,10 +5,11 @@
 
 ## 플러그인 경계
 
-Engineering, Quality Engineering, Workflow, Research, Prompting, Product와 Fluent Languages는 각각 단독으로 설치하고
-사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을 import하거나 설치·선행
-실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은 Codex가 현재 설치된
-스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로 선택합니다.
+Engineering, Quality Engineering, Workflow, Research, Prompting, Product, Figma Workflow과 Fluent Languages는
+각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
+import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
+Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
+선택합니다.
 
 | 직접 목적 | 담당 |
 | --- | --- |
@@ -34,6 +35,9 @@ Engineering, Quality Engineering, Workflow, Research, Prompting, Product와 Flue
 | 제품 가설의 실행 전 검증 방법·계측·판정 기준 설계 | `product:design-product-test` |
 | 실행된 제품 검증을 사전 기준으로 판정 | `product:assess-product-test` |
 | 승인된 제품 합의를 PRD로 변환 | `product:to-prd` |
+| Figma 제품 화면 생성·수정과 responsive layout | `figma-workflow:figma-product-design` |
+| Figma의 실제 prototype connection, overlay와 상태 동선 | `figma-workflow:figma-prototype-flow` |
+| 기존 Figma artifact의 구조·interaction에 대한 읽기 전용 감사 | `figma-workflow:figma-design-audit` |
 
 직접적인 산출물과 관점 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
 요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
@@ -173,6 +177,41 @@ Product와 다른 플러그인의 경계는 다음과 같습니다.
 Product만 설치된 환경에서도 현재 대화와 제공 자료를 바탕으로 각 작업을 완료할 수 있어야
 합니다. 외부 근거나 구현이 함께 요청되면 Research 또는 Engineering을 runtime에서 조합하며
 manifest dependency를 추가하지 않습니다.
+
+## Figma Workflow 조합
+
+Figma Workflow는 Figma 제품 화면의 native 구조, interaction과 handoff 품질을 담당합니다. final
+artifact가 무엇인지에 따라 Figma Design, FigJam과 draw.io의 책임을 다음처럼 구분합니다.
+
+| 최종 artifact 또는 목적 | 담당 |
+| --- | --- |
+| 제품 UI, reusable component와 responsive screen | Figma Design과 `figma-workflow:figma-product-design` |
+| 버튼 이동, overlay와 상태 분기를 포함한 clickable flow | Figma Design과 `figma-workflow:figma-prototype-flow` |
+| 기존 Figma file·page·frame·selection의 읽기 전용 품질 감사 | `figma-workflow:figma-design-audit` |
+| 협업용 초기 user journey, workshop와 sticky-note board | 공식 FigJam skill |
+| AWS, network, system architecture, UML, ERD와 data flow | draw.io plugin |
+
+Figma 제품 화면에서는 Auto Layout, component, variable와 exact asset을 native node에 유지합니다.
+클릭 동선은 실제 reaction, 사람이 읽는 annotation과 named state topology를 구분하고 실제 prototype
+playback으로 검증합니다. 정적 arrow나 annotation만으로 clickable interaction을 통과시키지 않습니다.
+
+Figma canvas의 판단형 read/write는 registered official Figma MCP가 유일한 agent writer입니다. 실제
+`use_figma` 호출은 먼저 `figma:figma-use`를 invoke하고 해당 tool call의 `skillNames`에 `figma-use`를
+포함합니다. 화면·composed view에는 `figma:figma-generate-design`, component·library에는
+`figma:figma-generate-library`, design-to-code에는 `figma:figma-design-to-code`를 current official
+contract에 따라 조합합니다. prerequisite나 capability가 없으면 API를 추정하거나 우회하지 않고
+`blocked`, `inconclusive` 또는 `not_run`을 보고합니다.
+
+[Figma Workflow Companion](../../plugins/figma-workflow/figma-plugin/README.md)은 사용자가 Figma Desktop에서
+직접 실행하는 수동 companion입니다. Codex writer나 agent-callable bridge가 아니며, 반복적이고 결과가
+명확한 allowlisted JSON 작업만 처리합니다. mutation은 explicit node ID, expected state, same-plan preview
+receipt, apply 직전 re-read와 readback을 요구합니다. official MCP 안의 bounded code는 current tool
+contract가 허용하는 범위에서만 사용하고, companion의 manual operation과 섞지 않습니다.
+
+일반적인 “user flow”가 clickable product flow, collaborative journey 또는 system logic 중 무엇인지
+구분되지 않을 때만 하나의 artifact 질문을 합니다. 제품과 목적이 명시된 요청에는 불필요한 확인
+질문을 추가하지 않습니다. 공통 router는 실제 반복 충돌이 확인되고 별도 결정이 승인되기 전에는
+추가하지 않습니다.
 
 ## Ticket 생성과 lifecycle
 
@@ -439,7 +478,11 @@ review·audit, grilling, 아키텍처 결정과 제품 탐색 스킬은 사용�
 ## 라우팅 평가
 
 경계 변경은 [repository-level routing cases](../../evals/skill-routing/cases.json)의 positive,
-near-miss, 조합, 단독 설치와 orthogonal 문체 사례로 검토합니다. 이 파일은 기대 라우팅을
-정의하며 JSON 파싱만 통과했다고 실제 모델 동작이 검증된 것은 아닙니다. 모델 기반 평가는
-격리된 읽기 전용 환경과 명시된 실행 범위에서 수행하고 `pass`, `fail`, `not_run`,
-`inconclusive`를 구분합니다.
+near-miss, 조합, 단독 설치와 orthogonal 문체 사례로 검토합니다. Figma Workflow는 별도의
+[tool routing cases](../../evals/figma-workflow-routing/cases.json)와
+[native quality contract cases](../../evals/figma-quality-contract/cases.json),
+[interaction contract cases](../../evals/figma-interaction-contract/cases.json)로 Figma, FigJam과
+draw.io 경계 및 결과 품질을 검토합니다. 이 파일들은 기대 동작을 정의하며 JSON 파싱만
+통과했다고 실제 모델 선택이나 canvas 동작이 검증된 것은 아닙니다. 모델 기반 평가는 격리된
+환경과 명시된 실행 범위에서 수행하고 `pass`, `fail`, `blocked`, `inconclusive`, `not_run`을
+구분합니다.
