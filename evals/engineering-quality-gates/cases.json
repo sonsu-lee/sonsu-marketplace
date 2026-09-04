@@ -890,7 +890,7 @@
         "classifier_independent_targeted_searches": 1,
         "classifier_verdict": "eligible",
         "classifier_revision_matches_candidate": true,
-        "classifier_evidence_digest": "64-character-lowercase-sha256",
+        "classifier_evidence_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
         "all_fast_path_predicates_proven": true
       },
       "expected": {
