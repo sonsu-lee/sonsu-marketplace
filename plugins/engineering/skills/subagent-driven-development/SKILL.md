@@ -241,8 +241,10 @@ Task 1을 위임하기 전에 plan의 충돌을 한 번 검사하고 확인한 �
 선택한다. 작고 기계적인 diff에는 가장 성능이 높은 모델이 필요 없지만 미묘한 concurrency
 변경에는 필요하다. 작은 수정 diff의 범위가 제한된 재리뷰에는 저가에서 중간 tier를 사용한다.
 
-**Fix-loop 상향(2-3회차):** 새 context에 이전 시도와 열린 finding만 전달하고, 판단 부족이
-원인이면 막힌 implementer보다 적어도 한 tier 높은 모델 또는 추론도를 사용한다.
+**Fix-loop 상향(2-3회차):** 이전 시도나 열린 finding을 전달하지 않는다. current raw evidence를
+immutable fix-handoff bundle에 고정하고 `spawn_agent {fork_turns: "none"}` fresh implementer에게
+bundle path/digest만 전달한다. 3회차에는 판단 부족이 원인이면 막힌 implementer보다 적어도 한 tier
+높은 모델 또는 추론도를 사용한다.
 
 **subagent를 위임할 때 실제 schema가 두 override를 모두 지원하면 모델과 추론도를 함께
 명시한다.** 한쪽만 override하지 않는다. 지원하지 않으면 확인 가능한 role·preset·machine
@@ -305,7 +307,8 @@ child 목록을 확인해 보고 없이 완료한 child를 찾는다. 제한된 
 - 이전 task에 현재 task가 건드리는 영역의 accepted-risk 또는 근거로 닫은 finding이 있으면
   dispatch에 해당 ledger 항목의 pointer를 포함한다.
 - dispatch 결과에서 implementer의 agent identity를 기록한다. fix-loop 1회차까지만 이 에이전트를
-  재개하며, 2-3회차에는 이전 session history를 상속하지 않는 새 implementer를 위임한다.
+  재개하며, 2-3회차에는 `spawn_agent {fork_turns: "none"}`의 새 implementer에게 verified immutable
+  bundle path/digest만 전달한다.
 - 충돌을 막기 위해 여러 구현 subagent를 병렬로 위임하지 않는다.
 
 템플릿: [implementer-prompt.md](implementer-prompt.md)
@@ -359,7 +362,9 @@ task 리뷰를 생략하거나 두 판정 중 하나가 빠진 report를 받아�
   포함된 전체 diff를 본다. implementer를 위임하기 전에 기록한 BASE를 사용하며 여러 commit의
   task를 조용히 잘라내는 `HEAD~1`을 사용하지 않는다. diff 파일 없이 task reviewer를 위임하지 않는다.
 - **Reviewer 입력:** task reviewer는 같은 brief 파일, report 파일, review package의 세 경로와
-  task에 적용되는 전역 제약을 받는다.
+  task에 적용되는 전역 제약을 받는다. 이 full report는 controller/reviewer 기록이다. round 2/3 fresh
+  fix implementer에게는 report 또는 reviewer의 판단을 전달하지 않으며, raw evidence만 normalized JSON으로
+  고정한 immutable fix-handoff bundle에 넣는다.
 - reviewer에게 전달하는 global-constraints block은 주의할 내용을 정하는 lens다. plan의 Global
   Constraints 섹션 또는 spec에서 구속력 있는 요구사항을 그대로 복사한다. 정확한 값, 형식과
   component 사이의 명시된 관계("same layout as X", "matches Y")를 포함한다. reviewer
@@ -398,25 +403,31 @@ Minor finding은 loop 전에 제외한다. 진행하면서 progress ledger에 `T
 남은 유효한 구현 finding만 들어간다. 수정 회차는 한 번의 수정 위임과 범위가 제한된 재리뷰로
 구성하며 task마다 최대 3회다.
 
-**1회차 — 원래 implementer를 재개한다.** 열린 finding을 그대로 전달한다. context가 남아
-있으므로 task, 코드와 자신의 선택을 알고 있다. harness에서 실행 중인 subagent에게 추가
-메시지를 보낼 수 없다면 brief 경로, report 파일 경로와 finding을 포함해 새 implementer를
-위임한다. 어느 경우든 report 파일이 영속 memory다.
+**1회차 — 원래 implementer를 재개한다.** 열린 finding을 그대로 전달하며 이 회차에만
+`followup_task`를 사용할 수 있다. context가 남아 있으므로 task, 코드와 자신의 선택을 알고 있다.
+harness에서 실행 중인 subagent에게 추가 메시지를 보낼 수 없다면 brief 경로, report 파일 경로와 finding을
+포함해 새 implementer를 위임한다. 어느 경우든 report 파일이 영속 memory다.
 
-**2회차 — fresh-context implementer를 위임한다.** 이전 agent의 session history나 결론을
-상속하지 않는다. brief 경로, report 파일 경로, 현재 열린 finding, 현재 리비전과 이전 시도
-횟수만 전달한다.
+**2회차 — immutable evidence-only handoff를 만든다.** controller가 task brief, current artifact package,
+normalized finding-evidence JSON, normalized verification-evidence JSON, round `2`와 exact revision을
+`../executing-plans/scripts/fix-handoff create`로 고정한다. `spawn_agent {fork_turns: "none"}`으로 새
+implementer를 위임하고 [공유 fix prompt](../executing-plans/fix-implementer-prompt.md)와 bundle path/digest만
+전달한다. report 파일, reviewer 판단, finding 원문, agent identity와 session history를 전달하지 않는다.
+새 implementer는 어떤 bundle 읽기·추출·수정 전에도 canonical `fix-handoff verify BUNDLE DIGEST`를 실행한다.
+실패하면 missing/unreadable은 `blocked`, malformed/schema/digest mismatch는 `inconclusive`으로 handoff
+preparation에 돌려보내며 prior context를 재사용하지 않는다.
 
-**3회차 — 또 다른 fresh context와 상위 capability를 사용한다.** 2회차 agent를 재사용하지 않고
-해당 task에 적합한 한 단계 높은 허용 모델을 우선 사용해 마지막 수정을 위임한다. 상위 모델을
-사용할 수 없으면 가장 가까운 허용 조합과 reasoning effort fallback을 기록한다. 새 관점이 필요한
+**3회차 — 또 다른 immutable handoff와 capability-up을 사용한다.** 2회차 agent를 재사용하지 않고
+`spawn_agent {fork_turns: "none"}`으로 다른 fresh implementer를 위임한다. 새 current revision과 raw evidence를
+다시 고정해 bundle path/digest만 전달하고, 해당 task에 적합한 한 단계 높은 허용 모델을 우선 사용한다. 상위
+모델을 사용할 수 없으면 가장 가까운 허용 조합과 reasoning effort fallback을 기록한다. 새 관점이 필요한
 시점에 기존 context를 계속 재사용해 같은 오류를 강화하지 않는다.
 
 **모든 회차:** implementer는 문제를 수정하고, 변경된 작업을 다루는 집중 검증을 다시 실행하고,
-같은 report 파일에 수정 보고를 추가하고, 짧은 계약을 반환한다. reviewer를 다시 위임하기 전에
-수정 report에 해당 검사, 실행한 명령과 출력이 모두 있는지 확인한다. 세 가지가 모두 있으면
-재리뷰를 위임한다. 코드 동작은 수정 메시지에 관련 테스트 파일을 적고, 문서, metadata와 단순
-configuration 수정에는 변경에 비례한 검사를 사용한다.
+controller가 보관하는 report에 수정 보고를 추가하고, 짧은 계약을 반환한다. round 2/3 report는 이후
+fresh fix implementer 입력이 아니다. reviewer를 다시 위임하기 전에 수정 report에 해당 검사, 실행한 명령과
+출력이 모두 있는지 확인한다. 세 가지가 모두 있으면 재리뷰를 위임한다. 코드 동작은 수정 메시지에 관련
+테스트 파일을 적고, 문서, metadata와 단순 configuration 수정에는 변경에 비례한 검사를 사용한다.
 
 **재리뷰의 범위는 제한된다.** 이전 리뷰에서 확인한 head를 FIX_BASE로 사용하여
 `scripts/review-package PLAN_FILE FIX_BASE HEAD`를 실행한다. finding 목록, brief, report 파일과

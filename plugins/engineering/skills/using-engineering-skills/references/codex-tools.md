@@ -17,9 +17,13 @@ multi-agent 버전에 따라 달라진다(현재 preset은 V2, 이전 preset은 
   `~/.codex/agents/` 아래의 role 파일을 `agent_type`으로 격리 fork에 연결한다.
   현재 tool schema가 허용하는 `fork_turns`와 model override 조합을 신뢰한다. 격리 reviewer는
   `fork_turns: "none"`을 사용하고 필요한 artifact만 prompt에 넣는다.
-- **수정 회차:** `followup_task`로 implementer를 재개한다. 이 도구는 메시지를 전달하고
-  turn을 시작하며 harness가 내보낸 child를 투명하게 다시 불러온다. 생성된 에이전트에게 다시
-  메시지를 보낼 수 없다는 생각으로 새 implementer를 위임하지 않는다. V2에서는 항상 가능하다.
+- **수정 회차:** round 1만 `followup_task`로 원래 implementer를 재개할 수 있다. round 2와 3은
+  항상 `spawn_agent {fork_turns: "none"}`으로 서로 다른 fresh implementer를 만든다. controller는
+  `fix-handoff create`가 출력한 immutable bundle path와 SHA-256만 전달한다. fresh implementer는 bundle을
+  읽거나 추출하거나 수정하기 전에 canonical `fix-handoff verify BUNDLE DIGEST`를 실행한다. 검증 실패는
+  missing/unreadable이면 `blocked`, malformed/schema/digest mismatch이면 `inconclusive`으로 handoff
+  preparation에 반환하며 이전 agent·report·session history를 재사용하지 않는다. Fast Path classifier는
+  이 일반 수정 규칙의 예외가 아니며 기존 독립 탐색·재진입 금지 규칙을 그대로 따른다.
 - **Lifecycle:** V2에는 `close_agent`가 없다. slot이 필요하면 완료된 child는 자동으로
   제거되므로 닫지 않아도 비용이 들지 않는다. V1 session에만 `close_agent`가 있다. V1에서는
   reviewer가 결과를 반환하면 닫고, implementer는 해당 task 리뷰가 통과한 뒤 닫는다.

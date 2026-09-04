@@ -1,0 +1,329 @@
+#!/usr/bin/env bash
+# Freeze evidence-only inputs for a fresh round-2/3 fix implementer.
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'EOF'
+usage:
+  fix-handoff create --brief FILE --artifact FILE --revision GIT_REVISION --findings FILE --verification FILE --round 2|3 [--output FILE]
+  fix-handoff verify BUNDLE SHA256
+EOF
+  exit 2
+}
+
+[[ $# -ge 1 ]] || usage
+mode=$1
+shift
+
+case "$mode" in
+  create)
+    brief=''
+    artifact=''
+    revision=''
+    findings=''
+    verification=''
+    round=''
+    output=''
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --brief|--artifact|--revision|--findings|--verification|--round|--output)
+          [[ $# -ge 2 ]] || usage
+          case "$1" in
+            --brief) brief=$2 ;;
+            --artifact) artifact=$2 ;;
+            --revision) revision=$2 ;;
+            --findings) findings=$2 ;;
+            --verification) verification=$2 ;;
+            --round) round=$2 ;;
+            --output) output=$2 ;;
+          esac
+          shift 2
+          ;;
+        *) usage ;;
+      esac
+    done
+    [[ -n "$brief" && -n "$artifact" && -n "$revision" && -n "$findings" && -n "$verification" && -n "$round" ]] || usage
+    python3 - "$brief" "$artifact" "$revision" "$findings" "$verification" "$round" "$output" <<'PY'
+import hashlib
+import io
+import json
+import os
+import re
+import stat
+import sys
+import tarfile
+import tempfile
+
+brief, artifact, revision, findings_path, verification_path, round_text, output = sys.argv[1:]
+FORMAT = "engineering-fix-handoff-v1"
+MEMBERS = ("metadata.json", "task-brief", "artifact-package", "findings.json", "verification.json")
+FORBIDDEN = {
+    "severity", "verdict", "reviewer", "agent", "cause", "rationale",
+    "suggested_fix", "recommendation", "status", "conclusion", "authority",
+}
+
+def fail(message):
+    print(f"fix-handoff create: {message}", file=sys.stderr)
+    raise SystemExit(2)
+
+def read_regular(path, label):
+    try:
+        info = os.lstat(path)
+    except OSError:
+        fail(f"{label} is missing or unreadable: {path}")
+    if not stat.S_ISREG(info.st_mode) or stat.S_ISLNK(info.st_mode):
+        fail(f"{label} is not a regular file: {path}")
+    if info.st_size == 0:
+        fail(f"{label} is empty: {path}")
+    try:
+        with open(path, "rb") as handle:
+            return handle.read()
+    except OSError:
+        fail(f"{label} is missing or unreadable: {path}")
+
+def exact_keys(value, expected, label):
+    if not isinstance(value, dict):
+        fail(f"{label} must be an object")
+    actual = set(value)
+    if actual != set(expected):
+        named = sorted(actual & FORBIDDEN)
+        if named:
+            fail(f"{label} includes forbidden fields: {', '.join(named)}")
+        fail(f"{label} has missing or unrecognized keys")
+
+def string_list(value, label):
+    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+        fail(f"{label} must be an array of strings")
+
+def parse_json(data, label):
+    try:
+        value = json.loads(data.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        fail(f"{label} is malformed JSON")
+    return value
+
+def validate_findings(data):
+    value = parse_json(data, "findings")
+    exact_keys(value, ("schema", "findings"), "findings envelope")
+    if value["schema"] != "finding-evidence.v1" or not isinstance(value["schema"], str):
+        fail("findings schema is invalid")
+    if not isinstance(value["findings"], list):
+        fail("findings must be an array")
+    for index, finding in enumerate(value["findings"]):
+        label = f"finding {index}"
+        exact_keys(finding, (
+            "id", "observed_mismatch", "expected_contract", "artifact_locations",
+            "reproduction", "raw_evidence", "unknowns",
+        ), label)
+        for key in ("id", "observed_mismatch", "expected_contract", "reproduction", "raw_evidence"):
+            if not isinstance(finding[key], str):
+                fail(f"{label}.{key} must be a string")
+        string_list(finding["artifact_locations"], f"{label}.artifact_locations")
+        string_list(finding["unknowns"], f"{label}.unknowns")
+    return value
+
+def validate_verification(data):
+    value = parse_json(data, "verification")
+    exact_keys(value, ("schema", "checks", "unknowns"), "verification envelope")
+    if value["schema"] != "verification-evidence.v1" or not isinstance(value["schema"], str):
+        fail("verification schema is invalid")
+    if not isinstance(value["checks"], list):
+        fail("checks must be an array")
+    string_list(value["unknowns"], "verification unknowns")
+    for index, check in enumerate(value["checks"]):
+        label = f"check {index}"
+        exact_keys(check, ("command", "exit_code", "output_reference", "observed_result"), label)
+        for key in ("command", "output_reference", "observed_result"):
+            if not isinstance(check[key], str):
+                fail(f"{label}.{key} must be a string")
+        if not isinstance(check["exit_code"], int) or isinstance(check["exit_code"], bool):
+            fail(f"{label}.exit_code must be an integer")
+    return value
+
+if not re.fullmatch(r"[0-9a-f]{40}(?:[0-9a-f]{24})?", revision):
+    fail("revision must be exactly 40 or 64 lowercase hexadecimal characters")
+if round_text not in {"2", "3"}:
+    fail("round must be 2 or 3")
+
+# Read and validate every source before reserving or freezing an output.
+brief_data = read_regular(brief, "brief")
+artifact_data = read_regular(artifact, "artifact")
+findings_data = read_regular(findings_path, "findings")
+verification_data = read_regular(verification_path, "verification")
+validate_findings(findings_data)
+validate_verification(verification_data)
+
+if output:
+    output = os.path.abspath(output)
+    parent = os.path.dirname(output)
+    try:
+        parent_info = os.lstat(parent)
+    except OSError:
+        fail(f"output parent does not exist: {parent}")
+    if not stat.S_ISDIR(parent_info.st_mode) or stat.S_ISLNK(parent_info.st_mode):
+        fail(f"output parent is not a directory: {parent}")
+    try:
+        fd = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError:
+        fail(f"output already exists: {output}")
+    except OSError as error:
+        fail(f"cannot create output: {error}")
+else:
+    parent = os.path.abspath(os.environ.get("TMPDIR", tempfile.gettempdir()))
+    try:
+        fd, output = tempfile.mkstemp(prefix="engineering-fix-handoff.", suffix=".tar", dir=parent)
+    except OSError as error:
+        fail(f"cannot create unique output: {error}")
+
+metadata = json.dumps({"format": FORMAT, "round": int(round_text), "revision": revision},
+                      sort_keys=True, separators=(",", ":")).encode("utf-8")
+payloads = {
+    "metadata.json": metadata,
+    "task-brief": brief_data,
+    "artifact-package": artifact_data,
+    "findings.json": findings_data,
+    "verification.json": verification_data,
+}
+try:
+    with os.fdopen(fd, "wb") as fileobj:
+        with tarfile.open(fileobj=fileobj, mode="w", format=tarfile.USTAR_FORMAT) as archive:
+            for name in MEMBERS:
+                data = payloads[name]
+                member = tarfile.TarInfo(name)
+                member.size = len(data)
+                member.mode = 0o600
+                member.mtime = 0
+                archive.addfile(member, io.BytesIO(data))
+except Exception as error:
+    try:
+        os.unlink(output)
+    except OSError:
+        pass
+    fail(f"cannot freeze bundle: {error}")
+
+try:
+    with open(output, "rb") as handle:
+        digest = hashlib.sha256(handle.read()).hexdigest()
+except OSError as error:
+    fail(f"cannot hash bundle: {error}")
+print(f"Bundle: {output}")
+print(f"Revision: sha256:{digest}")
+PY
+    ;;
+  verify)
+    [[ $# -eq 2 ]] || usage
+    python3 - "$1" "$2" <<'PY'
+import hashlib
+import json
+import os
+import re
+import stat
+import sys
+import tarfile
+
+bundle, expected_digest = sys.argv[1:]
+FORMAT = "engineering-fix-handoff-v1"
+MEMBERS = ("metadata.json", "task-brief", "artifact-package", "findings.json", "verification.json")
+FORBIDDEN = {
+    "severity", "verdict", "reviewer", "agent", "cause", "rationale",
+    "suggested_fix", "recommendation", "status", "conclusion", "authority",
+}
+
+def fail(message):
+    print(f"fix-handoff verify: {message}", file=sys.stderr)
+    raise SystemExit(2)
+
+def exact_keys(value, expected, label):
+    if not isinstance(value, dict) or set(value) != set(expected):
+        fail(f"{label} has missing or unrecognized keys")
+    if set(value) & FORBIDDEN:
+        fail(f"{label} includes forbidden fields")
+
+def string_list(value, label):
+    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+        fail(f"{label} must be an array of strings")
+
+def parse_json(data, label):
+    try:
+        return json.loads(data.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        fail(f"{label} is malformed JSON")
+
+def validate_findings(data):
+    value = parse_json(data, "findings")
+    exact_keys(value, ("schema", "findings"), "findings envelope")
+    if not isinstance(value["schema"], str) or value["schema"] != "finding-evidence.v1" or not isinstance(value["findings"], list):
+        fail("findings schema is invalid")
+    for index, finding in enumerate(value["findings"]):
+        label = f"finding {index}"
+        exact_keys(finding, ("id", "observed_mismatch", "expected_contract", "artifact_locations", "reproduction", "raw_evidence", "unknowns"), label)
+        if any(not isinstance(finding[key], str) for key in ("id", "observed_mismatch", "expected_contract", "reproduction", "raw_evidence")):
+            fail(f"{label} has invalid string fields")
+        string_list(finding["artifact_locations"], f"{label}.artifact_locations")
+        string_list(finding["unknowns"], f"{label}.unknowns")
+
+def validate_verification(data):
+    value = parse_json(data, "verification")
+    exact_keys(value, ("schema", "checks", "unknowns"), "verification envelope")
+    if not isinstance(value["schema"], str) or value["schema"] != "verification-evidence.v1" or not isinstance(value["checks"], list):
+        fail("verification schema is invalid")
+    string_list(value["unknowns"], "verification unknowns")
+    for index, check in enumerate(value["checks"]):
+        label = f"check {index}"
+        exact_keys(check, ("command", "exit_code", "output_reference", "observed_result"), label)
+        if any(not isinstance(check[key], str) for key in ("command", "output_reference", "observed_result")):
+            fail(f"{label} has invalid string fields")
+        if not isinstance(check["exit_code"], int) or isinstance(check["exit_code"], bool):
+            fail(f"{label}.exit_code must be an integer")
+
+if not re.fullmatch(r"[0-9a-f]{64}", expected_digest):
+    fail("digest must be 64 lowercase hexadecimal characters")
+try:
+    info = os.lstat(bundle)
+except OSError:
+    fail(f"bundle is missing or unreadable: {bundle}")
+if not stat.S_ISREG(info.st_mode) or stat.S_ISLNK(info.st_mode):
+    fail(f"bundle is not a regular file: {bundle}")
+if info.st_size == 0:
+    fail(f"bundle is empty: {bundle}")
+try:
+    with open(bundle, "rb") as handle:
+        actual_digest = hashlib.sha256(handle.read()).hexdigest()
+except OSError:
+    fail(f"bundle is missing or unreadable: {bundle}")
+if actual_digest != expected_digest:
+    fail("bundle digest mismatch")
+
+try:
+    with tarfile.open(bundle, "r:*") as archive:
+        members = archive.getmembers()
+        names = [member.name for member in members]
+        if len(names) != len(MEMBERS) or set(names) != set(MEMBERS) or len(set(names)) != len(names):
+            fail("archive has unsafe, missing, duplicate, or extra members")
+        payloads = {}
+        for member in members:
+            if not member.isreg() or member.name not in MEMBERS or member.size <= 0:
+                fail("archive contains an unsafe or empty member")
+            source = archive.extractfile(member)
+            if source is None:
+                fail("archive member cannot be read")
+            payloads[member.name] = source.read()
+except (tarfile.TarError, OSError):
+    fail("bundle archive is malformed")
+
+metadata = parse_json(payloads["metadata.json"], "metadata")
+exact_keys(metadata, ("format", "round", "revision"), "metadata")
+if metadata["format"] != FORMAT or not isinstance(metadata["format"], str):
+    fail("metadata format is invalid")
+if metadata["round"] not in (2, 3) or isinstance(metadata["round"], bool):
+    fail("metadata round is invalid")
+if not isinstance(metadata["revision"], str) or not re.fullmatch(r"[0-9a-f]{40}(?:[0-9a-f]{24})?", metadata["revision"]):
+    fail("metadata revision is invalid")
+validate_findings(payloads["findings.json"])
+validate_verification(payloads["verification.json"])
+print(f"Verified: {os.path.abspath(bundle)}")
+print(f"Revision: sha256:{actual_digest}")
+PY
+    ;;
+  *) usage ;;
+esac

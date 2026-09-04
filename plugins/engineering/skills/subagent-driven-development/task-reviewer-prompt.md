@@ -3,6 +3,11 @@
 task reviewer subagent를 위임할 때 이 template을 사용한다. reviewer는 task의 diff를 한 번
 읽고 spec 준수 여부와 코드 품질의 두 가지 판정을 반환한다.
 
+이 review의 report, finding, rationale, verdict, praise와 reviewer identity는 controller/reviewer 기록이다.
+round 2/3 fresh fix implementer에게 전달하지 않는다. controller는 raw evidence만 exact-key JSON으로
+정규화해 shared `../executing-plans/fix-implementer-prompt.md`의 verified immutable bundle path/digest를
+전달한다.
+
 **목적:** 한 task의 구현이 요구사항과 정확히 일치하고 과하거나 부족한 부분이 없으며, 깔끔하고
 적절히 검증되고 유지보수 가능하게 구현됐는지 확인한다.
 

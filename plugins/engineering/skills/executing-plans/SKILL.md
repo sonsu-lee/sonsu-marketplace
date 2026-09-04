@@ -36,14 +36,20 @@ description: 별도 session에서 review checkpoint와 함께 실행할 작성�
 5. 검사가 실패하면 영향을 받은 가장 작은 구현 단계로 돌아간다. 원인을 모르면 `engineering:systematic-debugging`을 사용한 뒤 변경된 artifact에 집중된 검사를 다시 실행한다.
 6. task 게이트가 `passed`이거나 사람이 해당 리비전에 대해 `accepted_risk`를 명시적으로 기록한 경우에만 `completed`로 표시한다.
 
-유효한 task 구현 finding의 자동 수정은 최대 3회다. 1회차는 원래 implementer가 finding만
-집중 수정한다. 2회차는 이전 session history를 상속하지 않는 새 implementer에게 task brief,
-현재 artifact와 검증 evidence만 전달한다. 3회차는 2회차와도 다른 fresh-context implementer와
-해당 task에 적절한 상위 capability 조합을 사용한다. 각 회차 뒤 변경 범위의 결정론적 검증과
-scoped 재리뷰를 실행한다. 필요한 fresh context 또는 capability를 제공할 수 없으면 기존
-controller나 implementer를 재사용하지 않고 `blocked`, `decision_required`로 기록한다. 3회 뒤에도
-유효한 필수 finding이 남으면 자동 반복을 중단하며, 정확한 리비전에 대한 사람의 명시적인
-`accepted_risk` 없이는 task를 완료하지 않는다.
+유효한 task 구현 finding의 자동 수정은 최대 3회다. 1회차만 원래 implementer를 `followup_task`로
+재개해 finding을 집중 수정할 수 있다. 2·3회차에는 controller가 task brief, 현재 binary-safe artifact
+package, normalized finding-evidence JSON, normalized verification-evidence JSON과 정확한 artifact revision을
+`scripts/fix-handoff create`로 단일 immutable bundle에 고정한다. controller와 reviewer는 full report를
+보관할 수 있지만 fresh implementer에게 report, implementation narrative, rationale, self-review, completion
+verdict, reviewer praise/verdict, agent identity 또는 session history를 전달하지 않는다. 새 implementer는
+[fix-implementer-prompt.md](fix-implementer-prompt.md)에 따라 bundle path와 SHA-256만 받고 읽기·추출·수정
+전에 반드시 `fix-handoff verify BUNDLE DIGEST`를 실행한다. verify가 실패하면 missing/unreadable은 `blocked`,
+그 밖의 malformed/schema/digest failure는 `inconclusive`으로 handoff preparation에 돌려보내며 prior context를
+재사용하지 않는다. 3회차는 2회차와도 다른 fresh-context implementer와 해당 task에 적절한 상위 capability
+조합을 사용한다. 각 회차 뒤 변경 범위의 결정론적 검증과 scoped 재리뷰를 실행한다. 필요한 fresh context
+또는 capability를 제공할 수 없으면 기존 controller나 implementer를 재사용하지 않고 `blocked`,
+`decision_required`로 기록한다. 3회 뒤에도 유효한 필수 finding이 남으면 자동 반복을 중단하며, 정확한
+리비전에 대한 사람의 명시적인 `accepted_risk` 없이는 task를 완료하지 않는다.
 
 구현이 plan과 달라져야 할 때에는 `engineering:writing-plans`의 material deviation 기준을 적용한다.
 그 기준에 해당하면 차이와 이유를 설명하고 중단한다. 승인된 요구사항·설계·관찰 가능한 계약을
