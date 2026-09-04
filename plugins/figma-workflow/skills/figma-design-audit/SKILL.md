@@ -21,6 +21,7 @@ Screenshot과 metadata, hierarchy, components, variables, icon provenance, react
 
 - section, frame와 semantic layer organization
 - Auto Layout, `HUG`·`FILL`·`FIXED`, constraints와 absolute-position 예외
+- horizontal·vertical·wrap·Grid Auto Layout 선택이 한 축 또는 2차원 content relationship과 맞는지, Layout grid를 responsive structure로 오인했는지
 - content extreme과 resize에서 예상되는 failure
 - component reuse, detached instances, variant와 property 책임
 - semantic variable binding과 중복 hardcode
