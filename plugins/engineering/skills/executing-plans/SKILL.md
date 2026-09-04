@@ -46,7 +46,10 @@ verdict, reviewer praise/verdict, agent identity 또는 session history를 전�
 전에 반드시 `fix-handoff verify BUNDLE DIGEST`를 실행한다. 성공 뒤에는 stdout의 `Extracted:` absolute directory만
 읽으며 bundle path를 다시 열거나 직접 tar extract하지 않는다. verify가 실패하면 missing/unreadable은 `blocked`,
 그 밖의 malformed/schema/digest failure는 `inconclusive`으로 handoff preparation에 돌려보내며 prior context를
-재사용하지 않는다. 3회차는 2회차와도 다른 fresh-context implementer와 해당 task에 적절한 상위 capability
+재사용하지 않는다. canonical committed-range review package의 revision은 유일한 40-hex `Head:`와 같아야 하며,
+canonical working-tree package와 그 밖의 binary-safe artifact의 revision은 exact artifact bytes의 64-hex SHA-256이어야
+한다. `create`와 `verify`는 이 관계가 없거나 header가 missing, duplicate 또는 malformed이면 handoff를 거절한다.
+3회차는 2회차와도 다른 fresh-context implementer와 해당 task에 적절한 상위 capability
 조합을 사용한다. 각 회차 뒤 변경 범위의 결정론적 검증과 scoped 재리뷰를 실행한다. 필요한 fresh context
 또는 capability를 제공할 수 없으면 기존 controller나 implementer를 재사용하지 않고 `blocked`,
 `decision_required`로 기록한다. 3회 뒤에도 유효한 필수 finding이 남으면 자동 반복을 중단하며, 정확한

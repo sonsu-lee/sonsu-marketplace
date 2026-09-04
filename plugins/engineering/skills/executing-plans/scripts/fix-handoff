@@ -103,6 +103,41 @@ def validate_metadata(data):
     if not isinstance(value["revision"], str) or not re.fullmatch(r"[0-9a-f]{40}(?:[0-9a-f]{24})?", value["revision"]):
         fail("metadata revision is invalid")
 
+def validate_artifact_revision(data, revision):
+    """Bind a review package's revision to its exact artifact representation.
+
+    The canonical review-package helper starts committed ranges with a fixed
+    four-line header.  Treat only that unambiguous form as a git-range package;
+    every other (including binary) artifact is content-addressed instead.
+    """
+    content_digest = hashlib.sha256(data).hexdigest()
+    try:
+        lines = data.decode("utf-8").splitlines()
+    except UnicodeDecodeError:
+        lines = []
+
+    if len(lines) >= 2 and lines[0] == "# Review package" and lines[1] == "Mode: committed range":
+        header = []
+        for line in lines[2:]:
+            if line == "":
+                break
+            header.append(line)
+
+        bases = [line for line in header if line.startswith("Base:")]
+        heads = [line for line in header if line.startswith("Head:")]
+        if len(bases) != 1 or len(heads) != 1:
+            fail("committed-range artifact has missing or duplicate Base/Head headers")
+        base = bases[0]
+        head = heads[0]
+        if not re.fullmatch(r"Base: [0-9a-f]{40}", base) or not re.fullmatch(r"Head: [0-9a-f]{40}", head):
+            fail("committed-range artifact has malformed Base/Head headers")
+        if revision != head.removeprefix("Head: "):
+            fail("committed-range artifact Head does not match revision")
+        return
+
+    if revision != content_digest:
+        fail("non-committed-range artifact SHA-256 does not match revision")
+
 def read_regular(path, label):
     try:
         info = os.lstat(path)
@@ -164,6 +199,7 @@ if mode == "create":
     verification_data = read_regular(verification_path, "verification")
     validate_findings(findings_data)
     validate_verification(verification_data)
+    validate_artifact_revision(artifact_data, revision)
 
     if explicit_output:
         final = os.path.abspath(explicit_output)
@@ -278,6 +314,8 @@ elif mode == "verify":
     validate_metadata(payloads["metadata.json"])
     validate_findings(payloads["findings.json"])
     validate_verification(payloads["verification.json"])
+    metadata = parse_json(payloads["metadata.json"], "metadata")
+    validate_artifact_revision(payloads["artifact-package"], metadata["revision"])
 
     extracted = None
     try:

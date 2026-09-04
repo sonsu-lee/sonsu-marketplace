@@ -19,20 +19,32 @@ assert_rejected() {
 }
 
 create_bundle() {
+  create_bundle_with_revision "$(hash_bundle "$2")" "$@"
+}
+
+create_bundle_with_revision() {
+  local revision=$1
+  shift
   TMPDIR="$WORK" "$HELPER" create \
     --brief "$1" \
     --artifact "$2" \
-    --revision 76a0526195709caf2fe1102160d8a9ae72c39130 \
+    --revision "$revision" \
     --findings "$3" \
     --verification "$4" \
     --round "$5"
 }
 
 create_bundle_to() {
+  create_bundle_to_with_revision "$(hash_bundle "$2")" "$@"
+}
+
+create_bundle_to_with_revision() {
+  local revision=$1
+  shift
   TMPDIR="$WORK" "$HELPER" create \
     --brief "$1" \
     --artifact "$2" \
-    --revision 76a0526195709caf2fe1102160d8a9ae72c39130 \
+    --revision "$revision" \
     --findings "$3" \
     --verification "$4" \
     --round "$5" \
@@ -296,5 +308,67 @@ done
 for round in 0 1 4 -1 two ''; do
   assert_rejected create_bundle "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" "$round"
 done
+
+# Canonical committed-range packages are git-revision addressed, not merely
+# shape-checked. Create and verify must both reject a stale metadata revision.
+committed_base=90f0ac00a6df120ab960e29678cd8b3770af6830
+committed_head=f9aa79e56133f2448712a71ffd9755852c3df6e8
+committed_artifact="$WORK/committed-range.artifact"
+printf '# Review package\nMode: committed range\nBase: %s\nHead: %s\n\n## Diff\n' \
+  "$committed_base" "$committed_head" > "$committed_artifact"
+
+committed_create=$(create_bundle_with_revision "$committed_head" \
+  "$WORK/brief" "$committed_artifact" "$FINDINGS" "$VERIFICATION" 2)
+committed_bundle=$(parse_bundle_path "$committed_create")
+committed_digest=$(parse_bundle_digest "$committed_create")
+"$HELPER" verify "$committed_bundle" "$committed_digest" \
+  || fail 'canonical committed-range package failed verification'
+assert_rejected create_bundle_with_revision 0000000000000000000000000000000000000000 \
+  "$WORK/brief" "$committed_artifact" "$FINDINGS" "$VERIFICATION" 2
+
+for committed_case in missing duplicate malformed; do
+  case_artifact="$WORK/committed-$committed_case.artifact"
+  case "$committed_case" in
+    missing)
+      printf '# Review package\nMode: committed range\nBase: %s\n\n## Diff\n' \
+        "$committed_base" > "$case_artifact" ;;
+    duplicate)
+      printf '# Review package\nMode: committed range\nBase: %s\nHead: %s\nHead: %s\n\n## Diff\n' \
+        "$committed_base" "$committed_head" "$committed_head" > "$case_artifact" ;;
+    malformed)
+      printf '# Review package\nMode: committed range\nBase: %s\nHead: invalid\n\n## Diff\n' \
+        "$committed_base" > "$case_artifact" ;;
+  esac
+  assert_rejected create_bundle_with_revision "$committed_head" \
+    "$WORK/brief" "$case_artifact" "$FINDINGS" "$VERIFICATION" 2
+done
+
+# A valid digest alone cannot make a manually assembled stale package valid.
+mismatched_bundle="$WORK/mismatched-committed.bundle"
+python3 - "$committed_bundle" "$mismatched_bundle" <<'PY'
+import io
+import json
+import tarfile
+import sys
+
+source, destination = sys.argv[1:]
+with tarfile.open(source, "r:*") as archive:
+    payloads = {member.name: archive.extractfile(member).read() for member in archive.getmembers()}
+metadata = json.loads(payloads["metadata.json"])
+metadata["revision"] = "0000000000000000000000000000000000000000"
+payloads["metadata.json"] = json.dumps(metadata, sort_keys=True, separators=(",", ":")).encode("utf-8")
+with tarfile.open(destination, "w", format=tarfile.USTAR_FORMAT) as archive:
+    for name in ("metadata.json", "task-brief", "artifact-package", "findings.json", "verification.json"):
+        member = tarfile.TarInfo(name)
+        member.size = len(payloads[name])
+        member.mode = 0o600
+        member.mtime = 0
+        archive.addfile(member, io.BytesIO(payloads[name]))
+PY
+mismatched_digest=$(hash_bundle "$mismatched_bundle")
+extracts_before=$(extract_count)
+mismatched_verify=$("$HELPER" verify "$mismatched_bundle" "$mismatched_digest" 2>&1 || true)
+assert_no_extract_output "$mismatched_verify" "$extracts_before"
+assert_rejected "$HELPER" verify "$mismatched_bundle" "$mismatched_digest"
 
 printf 'PASS: fix-handoff evidence regression checks\n'
