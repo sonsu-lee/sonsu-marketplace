@@ -106,7 +106,7 @@ HEAD_SHA=$(git rev-parse HEAD)
   MODEL: <role-appropriate model>
   REASONING_EFFORT: <role-appropriate effort>
   DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
-  PLAN_OR_REQUIREMENTS: Task 2 from .superpowers/plans/deployment-plan.md
+  PLAN_OR_REQUIREMENTS: Task 2 from .engineering/plans/deployment-plan.md
   REVIEW_PACKAGE: /tmp/engineering-review.ABC123.diff
   REVIEW_REVISION: sha256:012345...
 

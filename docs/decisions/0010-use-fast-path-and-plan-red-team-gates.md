@@ -1,4 +1,4 @@
-# 0009 Use Fast Paths and Plan-Backed Red-Team Gates
+# 0010 Use Fast Paths and Plan-Backed Red-Team Gates
 
 - Status: Accepted
 - Date: 2026-09-04

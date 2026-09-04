@@ -2,7 +2,7 @@
 
 Engineering은 소프트웨어 변경을 계획하고, 구현하고, 디버깅하고, 검증하고, 리뷰할 때 문서 상태를 함께 고려하는 방법입니다. 제한적이고 표적화된 되돌아가기와 단계별 소유 품질 게이트를 사용합니다. 조합 가능한 Codex 스킬을 제공하되 Git 전달, 외부 조사와 출력 언어 지침은 별도 플러그인으로 분리합니다.
 
-이 로컬 플러그인은 [obra/superpowers](https://github.com/obra/superpowers) v6.3.0을 기반으로 하며 공식 Superpowers 배포본이 아닙니다. 고정한 원본, 가져온 파일, 로컬 변경과 호환성을 위해 유지하는 이름은 [UPSTREAM.md](UPSTREAM.md)를 참고하세요.
+Engineering은 현재 독립 플러그인으로 관리하며 독립 semantic version을 사용합니다. 다른 플러그인의 기준선이나 호환 경로를 배포 계약으로 유지하지 않습니다.
 
 ## 책임
 
@@ -32,7 +32,6 @@ codex plugin add engineering@sonsu-marketplace
 ```
 
 저장소 변경과 플러그인 설치는 서로 다른 작업입니다. 플러그인을 설치하거나 갱신한 뒤 새 Codex 작업을 시작해야 현재 스킬 catalog를 받을 수 있습니다.
-`engineering`을 설치하기 전에 기존 `superpowers` 플러그인을 제거하세요. 두 버전을 함께 유지하면 같은 스킬의 중복 복사본이 노출될 수 있습니다.
 
 ## 개발 흐름
 
@@ -76,14 +75,14 @@ codex plugin add engineering@sonsu-marketplace
 - 시도 횟수 상한에 도달했다는 이유로 유효한 미해결 finding을 pass로 바꾸지 않습니다. 식별된 사람인 의사결정자만 `accepted_risk`를 기록할 수 있습니다.
 - Engineering, Workflow, Research와 Fluent Languages를 서로 독립적으로 설치할 수 있게 유지합니다.
 
-저장소 정책은 [문서 가이드](../../docs/README.md), [스킬 라우팅 아키텍처](../../docs/architecture/skill-routing.md), [Fast Path와 red-team 결정](../../docs/decisions/0009-use-fast-path-and-plan-red-team-gates.md)과 관련 결정 기록에 남깁니다.
+저장소 정책은 [문서 가이드](../../docs/README.md), [스킬 라우팅 아키텍처](../../docs/architecture/skill-routing.md), [Fast Path와 red-team 결정](../../docs/decisions/0010-use-fast-path-and-plan-red-team-gates.md)과 관련 결정 기록에 남깁니다.
 
-## 호환성과 visual companion
+## 실행 artifact와 visual companion
 
-Scratch plan, subagent ledger와 지속형 brainstorming session은 계속 `.superpowers/`를 사용합니다. 이 legacy 경로는 기존 로컬 artifact와 스크립트 호환성을 보존하기 위한 것이며 현재 플러그인 이름이 아닙니다.
+Scratch plan, subagent ledger와 지속형 brainstorming session은 `.engineering/`에 저장합니다.
 
-선택 사항인 brainstorming visual companion은 telemetry가 활성화되어 있으면 upstream Prime Radiant 이미지를 계속 사용합니다. 이 요청을 막으려면 `ENGINEERING_DISABLE_TELEMETRY`를 true 값으로 설정하세요. 기존 `SUPERPOWERS_DISABLE_TELEMETRY`, `DISABLE_TELEMETRY`, `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 변수도 계속 지원합니다.
+선택 사항인 brainstorming visual companion은 외부 브랜드 이미지나 원격 요청 없이 Engineering 버전을 텍스트로 표시합니다.
 
-## Upstream과 라이선스
+## 라이선스
 
-Engineering에는 Superpowers v6.3.0에서 파생된 작업이 포함되어 있습니다. 원본, 고정한 커밋, 가져온 범위와 로컬 변경은 [UPSTREAM.md](UPSTREAM.md)에 기록했습니다. 원본 MIT 저작권 고지는 [LICENSE](LICENSE)에 유지합니다.
+Engineering에는 [MIT 라이선스](LICENSE)가 적용됩니다.

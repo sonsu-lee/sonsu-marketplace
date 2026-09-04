@@ -1,6 +1,6 @@
 {
   "name": "engineering",
-  "version": "6.3.0-sonsu.6",
+  "version": "1.1.0",
   "description": "단순 작업의 Fast Path와 계획 작업의 의사코드, 검증, 일반 리뷰 및 fresh-context red-team 게이트를 적용하는 엔지니어링 방법입니다.",
   "author": {
     "name": "sonsu-lee",

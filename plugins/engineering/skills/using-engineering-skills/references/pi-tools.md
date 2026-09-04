@@ -13,4 +13,4 @@ Pi core는 표준 subagent 도구를 제공하지 않는다. 선택적으로 함
 
 ## Task 목록
 
-Pi core는 표준 task-list 도구를 제공하지 않는다. todo/task extension이 설치되어 있으면 문서화된 도구를 사용한다. 그 외에는 Engineering plan 파일, Markdown checklist 또는 저장소 로컬 `TODO.md`로 task를 추적한다. 이전 upstream Superpowers 문서에서 `TodoWrite`를 언급할 수 있는데, 이는 위의 task 추적 작업으로 취급한다.
+Pi core는 표준 task-list 도구를 제공하지 않는다. todo/task extension이 설치되어 있으면 문서화된 도구를 사용한다. 그 외에는 Engineering plan 파일, Markdown checklist 또는 저장소 로컬 `TODO.md`로 task를 추적한다. 이전 upstream 문서에서 `TodoWrite`를 언급할 수 있는데, 이는 위의 task 추적 작업으로 취급한다.
