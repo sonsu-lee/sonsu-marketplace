@@ -5,6 +5,7 @@ ROOT=$(cd "$(dirname "$0")/../../../../.." && pwd)
 HELPER="$ROOT/plugins/engineering/skills/executing-plans/scripts/fix-handoff"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
+export TMPDIR="$WORK"
 
 fail() { printf 'FAIL: %s\n' "$1" >&2; exit 1; }
 if [[ ! -x "$HELPER" ]]; then
@@ -40,10 +41,46 @@ create_bundle_to() {
 
 parse_bundle_path() { printf '%s\n' "$1" | sed -n 's/^Bundle: //p'; }
 parse_bundle_digest() { printf '%s\n' "$1" | sed -n 's/^Revision: sha256://p'; }
+parse_extracted_path() { printf '%s\n' "$1" | sed -n 's/^Extracted: //p'; }
 hash_bundle() { shasum -a 256 "$1" | awk '{print $1}'; }
 
+assert_snapshot() {
+  python3 - "$1" <<'PY'
+import os
+import stat
+import sys
+
+directory = sys.argv[1]
+expected = {"metadata.json", "task-brief", "artifact-package", "findings.json", "verification.json"}
+if stat.S_IMODE(os.lstat(directory).st_mode) != 0o700:
+    raise SystemExit("extracted directory mode is not restricted")
+actual = set(os.listdir(directory))
+if actual != expected:
+    raise SystemExit(f"wrong extracted members: {actual!r}")
+for name in expected:
+    info = os.lstat(os.path.join(directory, name))
+    if not stat.S_ISREG(info.st_mode) or stat.S_ISLNK(info.st_mode):
+        raise SystemExit(f"extracted member is not a regular non-symlink: {name}")
+    if stat.S_IMODE(info.st_mode) != 0o600:
+        raise SystemExit(f"extracted member mode is not restricted: {name}")
+PY
+}
+
+extract_count() {
+  find "$WORK" -maxdepth 1 -type d -name 'engineering-fix-handoff-extract.*' | wc -l | tr -d ' '
+}
+
+assert_no_extract_output() {
+  local output=$1
+  local before=$2
+  [[ -z "$(parse_extracted_path "$output")" ]] || fail "failed verify emitted Extracted: $output"
+  if [[ "$(extract_count)" != "$before" ]]; then
+    fail 'failed verify left a partial extracted directory'
+  fi
+}
+
 printf 'brief\n' > "$WORK/brief"
-printf 'artifact\n' > "$WORK/artifact"
+printf '\x00artifact\xff\n' > "$WORK/artifact"
 
 CASES="$WORK/cases"
 mkdir -p "$CASES"
@@ -175,7 +212,14 @@ digest1=$(parse_bundle_digest "$create1")
 [[ -f "$bundle1" && ! -L "$bundle1" ]] || fail "bundle path is not one regular file: $bundle1"
 [[ "$digest1" =~ ^[0-9a-f]{64}$ ]] || fail "bundle digest is not a SHA-256: $digest1"
 [[ "$(hash_bundle "$bundle1")" == "$digest1" ]] || fail 'first digest does not hash the full bundle file'
-"$HELPER" verify "$bundle1" "$digest1" || fail 'first exact bundle/digest pair failed verification'
+verify1=$("$HELPER" verify "$bundle1" "$digest1") || fail 'first exact bundle/digest pair failed verification'
+extract1=$(parse_extracted_path "$verify1")
+[[ -n "$extract1" && -d "$extract1" && ! -L "$extract1" ]] || fail 'verify did not emit an extracted snapshot'
+assert_snapshot "$extract1"
+cmp "$WORK/brief" "$extract1/task-brief" || fail 'extracted brief differs from the input'
+cmp "$WORK/artifact" "$extract1/artifact-package" || fail 'extracted binary artifact differs from the input'
+cmp "$FINDINGS" "$extract1/findings.json" || fail 'extracted findings differ from the input'
+cmp "$VERIFICATION" "$extract1/verification.json" || fail 'extracted verification differs from the input'
 
 create2=$(create_bundle "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" 3)
 bundle2=$(parse_bundle_path "$create2")
@@ -184,12 +228,26 @@ digest2=$(parse_bundle_digest "$create2")
 [[ "$bundle1" != "$bundle2" ]] || fail 'separate creates reused a bundle path'
 [[ -f "$bundle2" && ! -L "$bundle2" ]] || fail "bundle path is not one regular file: $bundle2"
 [[ "$(hash_bundle "$bundle2")" == "$digest2" ]] || fail 'second digest does not hash the full bundle file'
-"$HELPER" verify "$bundle2" "$digest2" || fail 'second exact bundle/digest pair failed verification'
+verify2=$("$HELPER" verify "$bundle2" "$digest2") || fail 'second exact bundle/digest pair failed verification'
+extract2=$(parse_extracted_path "$verify2")
+[[ -n "$extract2" && -d "$extract2" && ! -L "$extract2" ]] || fail 'second verify did not emit an extracted snapshot'
+assert_snapshot "$extract2"
+
+# The verified snapshot remains the consumer input after the mutable bundle path
+# is replaced and then tampered with.
+cp "$bundle2" "$WORK/replacement.bundle"
+mv "$WORK/replacement.bundle" "$bundle1"
+printf 'tampered after verify\n' >> "$bundle1"
+assert_snapshot "$extract1"
+cmp "$WORK/artifact" "$extract1/artifact-package" || fail 'extracted snapshot changed after bundle replacement'
 
 cp "$bundle1" "$WORK/tampered.bundle"
 printf 'tampered\n' >> "$WORK/tampered.bundle"
+extracts_before=$(extract_count)
+tampered_verify=$("$HELPER" verify "$WORK/tampered.bundle" "$digest1" 2>&1 || true)
+assert_no_extract_output "$tampered_verify" "$extracts_before"
 assert_rejected "$HELPER" verify "$WORK/tampered.bundle" "$digest1"
-"$HELPER" verify "$bundle1" "$digest1" || fail 'original bundle changed after copy tampering'
+"$HELPER" verify "$bundle2" "$digest2" || fail 'untampered second bundle changed after first-path replacement'
 
 explicit_bundle="$WORK/explicit.bundle"
 explicit_create=$(create_bundle_to \
@@ -200,8 +258,11 @@ explicit_digest=$(parse_bundle_digest "$explicit_create")
 [[ -f "$explicit_bundle" && ! -L "$explicit_bundle" ]] || fail 'explicit output is not one regular file'
 [[ "$(hash_bundle "$explicit_bundle")" == "$explicit_digest" ]] \
   || fail 'explicit output digest does not hash the full bundle file'
-"$HELPER" verify "$explicit_bundle" "$explicit_digest" \
+explicit_verify=$("$HELPER" verify "$explicit_bundle" "$explicit_digest") \
   || fail 'explicit output failed verification'
+explicit_extract=$(parse_extracted_path "$explicit_verify")
+[[ -n "$explicit_extract" ]] || fail 'explicit output verify did not emit Extracted'
+assert_snapshot "$explicit_extract"
 
 printf 'different artifact\n' > "$WORK/other-artifact"
 assert_rejected create_bundle_to \
@@ -211,11 +272,22 @@ assert_rejected create_bundle_to \
 "$HELPER" verify "$explicit_bundle" "$explicit_digest" \
   || fail 'original explicit output no longer verifies after rejected overwrite'
 
+extracts_before=$(extract_count)
+missing_verify=$("$HELPER" verify "$WORK/missing.bundle" "$digest1" 2>&1 || true)
+assert_no_extract_output "$missing_verify" "$extracts_before"
 assert_rejected "$HELPER" verify "$WORK/missing.bundle" "$digest1"
 : > "$WORK/empty.bundle"
-assert_rejected "$HELPER" verify "$WORK/empty.bundle" "$(hash_bundle "$WORK/empty.bundle")"
+empty_digest=$(hash_bundle "$WORK/empty.bundle")
+extracts_before=$(extract_count)
+empty_verify=$("$HELPER" verify "$WORK/empty.bundle" "$empty_digest" 2>&1 || true)
+assert_no_extract_output "$empty_verify" "$extracts_before"
+assert_rejected "$HELPER" verify "$WORK/empty.bundle" "$empty_digest"
 printf 'not a fix-handoff bundle\n' > "$WORK/malformed.bundle"
-assert_rejected "$HELPER" verify "$WORK/malformed.bundle" "$(hash_bundle "$WORK/malformed.bundle")"
+malformed_digest=$(hash_bundle "$WORK/malformed.bundle")
+extracts_before=$(extract_count)
+malformed_verify=$("$HELPER" verify "$WORK/malformed.bundle" "$malformed_digest" 2>&1 || true)
+assert_no_extract_output "$malformed_verify" "$extracts_before"
+assert_rejected "$HELPER" verify "$WORK/malformed.bundle" "$malformed_digest"
 
 for round in 2 3; do
   create_bundle "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" "$round" >/dev/null \

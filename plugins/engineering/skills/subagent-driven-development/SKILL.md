@@ -414,6 +414,7 @@ normalized finding-evidence JSON, normalized verification-evidence JSON, round `
 implementer를 위임하고 [공유 fix prompt](../executing-plans/fix-implementer-prompt.md)와 bundle path/digest만
 전달한다. report 파일, reviewer 판단, finding 원문, agent identity와 session history를 전달하지 않는다.
 새 implementer는 어떤 bundle 읽기·추출·수정 전에도 canonical `fix-handoff verify BUNDLE DIGEST`를 실행한다.
+성공한 뒤 stdout의 `Extracted:` absolute directory만 읽고 bundle path를 다시 열거나 직접 tar extract하지 않는다.
 실패하면 missing/unreadable은 `blocked`, malformed/schema/digest mismatch는 `inconclusive`으로 handoff
 preparation에 돌려보내며 prior context를 재사용하지 않는다.
 
@@ -423,11 +424,11 @@ preparation에 돌려보내며 prior context를 재사용하지 않는다.
 모델을 사용할 수 없으면 가장 가까운 허용 조합과 reasoning effort fallback을 기록한다. 새 관점이 필요한
 시점에 기존 context를 계속 재사용해 같은 오류를 강화하지 않는다.
 
-**모든 회차:** implementer는 문제를 수정하고, 변경된 작업을 다루는 집중 검증을 다시 실행하고,
-controller가 보관하는 report에 수정 보고를 추가하고, 짧은 계약을 반환한다. round 2/3 report는 이후
-fresh fix implementer 입력이 아니다. reviewer를 다시 위임하기 전에 수정 report에 해당 검사, 실행한 명령과
-출력이 모두 있는지 확인한다. 세 가지가 모두 있으면 재리뷰를 위임한다. 코드 동작은 수정 메시지에 관련
-테스트 파일을 적고, 문서, metadata와 단순 configuration 수정에는 변경에 비례한 검사를 사용한다.
+**보고와 재리뷰:** round 1 implementer만 기존 report 파일에 수정 보고를 append한다. round 2/3 implementer는
+report 경로나 내용을 받지 않고 concise raw result만 반환한다. controller가 그 raw result를 자체 report와 ledger에
+기록한다. 어느 경우든 reviewer를 다시 위임하기 전에 controller 기록에 해당 검사, 실행한 명령과 출력이 모두
+있는지 확인한다. 세 가지가 모두 있으면 재리뷰를 위임한다. 코드 동작은 수정 메시지에 관련 테스트 파일을 적고,
+문서, metadata와 단순 configuration 수정에는 변경에 비례한 검사를 사용한다.
 
 **재리뷰의 범위는 제한된다.** 이전 리뷰에서 확인한 head를 FIX_BASE로 사용하여
 `scripts/review-package PLAN_FILE FIX_BASE HEAD`를 실행한다. finding 목록, brief, report 파일과

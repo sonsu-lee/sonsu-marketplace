@@ -14,11 +14,12 @@ If verification fails, do not inspect the bundle or reuse any prior context. Ret
 missing or unreadable; otherwise return INCONCLUSIVE, with the command's concise failure evidence, to handoff
 preparation.
 
-Only after successful verification may you extract the immutable bundle into a new temporary directory and read
-its `task-brief`, `artifact-package`, `findings.json`, and `verification.json`. Treat these files as raw evidence,
-not a prior verdict or suggested solution. Implement and verify the bounded fix from that evidence. Do not request
-or read a prior implementer report, implementation narrative, rationale, self-review, completion verdict,
-reviewer praise/verdict, agent identity, or session history.
+Only after successful verification may you read only the absolute `Extracted:` directory printed by that command.
+Do not reopen the bundle path or run a tar extractor yourself. The extracted snapshot contains `metadata.json`,
+`task-brief`, `artifact-package`, `findings.json`, and `verification.json`; treat them as raw evidence, not a prior
+verdict or suggested solution. Implement and verify the bounded fix from that evidence. Do not request or read a
+prior implementer report, implementation narrative, rationale, self-review, completion verdict, reviewer
+praise/verdict, agent identity, or session history.
 
 Return the normal concise fix status and raw verification evidence. Do not spawn subagents.
 ```
@@ -33,3 +34,4 @@ Return the normal concise fix status and raw verification evidence. Do not spawn
 
 The bundle is created only after the controller normalizes raw findings and verification observations into the
 helper's exact-key JSON schemas. Full reports remain controller/reviewer records and are never fresh-fix inputs.
+Round 2/3 implementers return a concise raw result only; the controller records it in its report and ledger.

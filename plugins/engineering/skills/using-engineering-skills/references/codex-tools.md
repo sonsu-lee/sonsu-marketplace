@@ -20,7 +20,8 @@ multi-agent 버전에 따라 달라진다(현재 preset은 V2, 이전 preset은 
 - **수정 회차:** round 1만 `followup_task`로 원래 implementer를 재개할 수 있다. round 2와 3은
   항상 `spawn_agent {fork_turns: "none"}`으로 서로 다른 fresh implementer를 만든다. controller는
   `fix-handoff create`가 출력한 immutable bundle path와 SHA-256만 전달한다. fresh implementer는 bundle을
-  읽거나 추출하거나 수정하기 전에 canonical `fix-handoff verify BUNDLE DIGEST`를 실행한다. 검증 실패는
+  읽거나 추출하거나 수정하기 전에 canonical `fix-handoff verify BUNDLE DIGEST`를 실행하고, 성공 뒤에는
+  stdout의 `Extracted:` directory만 읽는다. bundle path를 다시 열거나 직접 tar extract하지 않는다. 검증 실패는
   missing/unreadable이면 `blocked`, malformed/schema/digest mismatch이면 `inconclusive`으로 handoff
   preparation에 반환하며 이전 agent·report·session history를 재사용하지 않는다. Fast Path classifier는
   이 일반 수정 규칙의 예외가 아니며 기존 독립 탐색·재진입 금지 규칙을 그대로 따른다.

@@ -43,7 +43,8 @@ package, normalized finding-evidence JSON, normalized verification-evidence JSON
 보관할 수 있지만 fresh implementer에게 report, implementation narrative, rationale, self-review, completion
 verdict, reviewer praise/verdict, agent identity 또는 session history를 전달하지 않는다. 새 implementer는
 [fix-implementer-prompt.md](fix-implementer-prompt.md)에 따라 bundle path와 SHA-256만 받고 읽기·추출·수정
-전에 반드시 `fix-handoff verify BUNDLE DIGEST`를 실행한다. verify가 실패하면 missing/unreadable은 `blocked`,
+전에 반드시 `fix-handoff verify BUNDLE DIGEST`를 실행한다. 성공 뒤에는 stdout의 `Extracted:` absolute directory만
+읽으며 bundle path를 다시 열거나 직접 tar extract하지 않는다. verify가 실패하면 missing/unreadable은 `blocked`,
 그 밖의 malformed/schema/digest failure는 `inconclusive`으로 handoff preparation에 돌려보내며 prior context를
 재사용하지 않는다. 3회차는 2회차와도 다른 fresh-context implementer와 해당 task에 적절한 상위 capability
 조합을 사용한다. 각 회차 뒤 변경 범위의 결정론적 검증과 scoped 재리뷰를 실행한다. 필요한 fresh context
