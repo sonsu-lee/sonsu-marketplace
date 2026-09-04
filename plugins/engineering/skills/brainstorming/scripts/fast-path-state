@@ -34,20 +34,61 @@ esac
 
 [[ "$root" == /* ]] || fail_closed 'state root must be an absolute path'
 [[ "$root" != / && "$root" != */ ]] || fail_closed 'unsafe state root'
+case "$root" in
+  *'//'*|*/./*|*/../*|*/.|*/..) fail_closed 'state root must be canonical' ;;
+esac
 [[ "$task_id" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]] || fail_closed 'unsafe task ID'
 [[ -z ${expected_revision:-} || "$expected_revision" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]] || fail_closed 'invalid expected revision'
 
-root_parent=${root%/*}
-[[ -n "$root_parent" ]] || root_parent=/
-logical_parent=$(cd -L "$root_parent" 2>/dev/null && pwd -L) || fail_closed 'cannot resolve state root parent'
-physical_parent=$(cd -P "$root_parent" 2>/dev/null && pwd -P) || fail_closed 'cannot resolve state root parent'
-[[ "$logical_parent" == "$physical_parent" ]] || fail_closed 'state root parent contains a symlink'
+canonicalize_state_root() {
+  local candidate=$root component parent logical_ancestor physical_ancestor logical_root physical_root
+  local target attempts=0 missing_components=''
 
-if [[ -e "$root" || -L "$root" ]]; then
-  [[ ! -L "$root" && -d "$root" ]] || fail_closed 'unsafe state root'
-else
-  mkdir "$root" || fail_closed 'cannot create state root'
-fi
+  # Walk only to the nearest existing path. A bounded walk prevents malformed
+  # input from turning state-root initialization into an unbounded traversal.
+  while [[ ! -e "$candidate" && ! -L "$candidate" ]]; do
+    component=${candidate##*/}
+    [[ -n "$component" && "$component" != "$candidate" ]] || fail_closed 'cannot resolve state root ancestor'
+    missing_components=$component${missing_components:+/$missing_components}
+    parent=${candidate%/*}
+    candidate=${parent:-/}
+    attempts=$((attempts + 1))
+    [[ "$attempts" -le 256 ]] || fail_closed 'state root path is too deep'
+  done
+
+  [[ ! -L "$candidate" && -d "$candidate" ]] || fail_closed 'unsafe state root ancestor'
+  logical_ancestor=$(cd -L "$candidate" 2>/dev/null && pwd -L) || fail_closed 'cannot resolve state root ancestor'
+  physical_ancestor=$(cd -P "$candidate" 2>/dev/null && pwd -P) || fail_closed 'cannot resolve state root ancestor'
+  [[ "$logical_ancestor" == "$physical_ancestor" ]] || fail_closed 'state root ancestor contains a symlink'
+
+  root=$physical_ancestor
+  while [[ -n "$missing_components" ]]; do
+    component=${missing_components%%/*}
+    if [[ "$missing_components" == */* ]]; then
+      missing_components=${missing_components#*/}
+    else
+      missing_components=''
+    fi
+    if [[ "$root" == / ]]; then
+      target=/$component
+    else
+      target=$root/$component
+    fi
+    if [[ -e "$target" || -L "$target" ]]; then
+      [[ ! -L "$target" && -d "$target" ]] || fail_closed 'unsafe state root component'
+    else
+      mkdir "$target" || fail_closed 'cannot create state root component'
+    fi
+    root=$target
+  done
+
+  logical_root=$(cd -L "$root" 2>/dev/null && pwd -L) || fail_closed 'cannot resolve state root'
+  physical_root=$(cd -P "$root" 2>/dev/null && pwd -P) || fail_closed 'cannot resolve state root'
+  [[ "$logical_root" == "$physical_root" && "$root" == "$physical_root" ]] || fail_closed 'state root contains a symlink'
+  root=$physical_root
+}
+
+canonicalize_state_root
 logical_root=$(cd -L "$root" 2>/dev/null && pwd -L) || fail_closed 'cannot resolve state root'
 physical_root=$(cd -P "$root" 2>/dev/null && pwd -P) || fail_closed 'cannot resolve state root'
 [[ "$logical_root" == "$physical_root" ]] || fail_closed 'state root contains a symlink'

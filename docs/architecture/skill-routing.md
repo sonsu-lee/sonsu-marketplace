@@ -59,7 +59,7 @@ branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 �
 Engineering은 작업을 중앙 orchestrator 하나로 모으지 않고 기존 stage-owned gate를 유지합니다.
 Fast Path는 target discovery 전에 stable todo ID 또는 한 번 생성한 UUID를 고정하고 target에서 다시
 유도하지 않습니다. 매 entry에서 current `HEAD`의 exact candidate revision을 capture해
-`.engineering/fast-path/<task-id>.state`에 `check ROOT TASK_ID EXPECTED_REVISION`을 먼저 실행합니다.
+`.engineering/fast-path/<task-id>.state`에 `plugins/engineering/skills/brainstorming/scripts/fast-path-state check ROOT TASK_ID EXPECTED_REVISION`을 먼저 실행합니다.
 stored eligible revision이 expected revision과 다르거나 expected revision이 없으면 fail closed합니다.
 이미 `disqualified`인 task는 classifier,
 predicate, execution을 건너뛰고 가장 가까운 일반 workflow로 갑니다. `unclassified` task만 아래의

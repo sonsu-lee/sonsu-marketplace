@@ -50,43 +50,48 @@ DIGEST_C=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 # RED: Task 2 must provide this state helper. Each invocation is a new process,
 # so the latch must be persisted rather than held only in memory.
 [[ -x "$STATE" ]] || { "$STATE" check "$WORK" "$TASK_ID"; }
-initial=$($STATE check "$WORK" "$TASK_ID") || fail 'initial state failed'
+CANONICAL_STATE_ROOT="$WORK/.engineering/fast-path"
+initial=$($STATE check "$CANONICAL_STATE_ROOT" "$TASK_ID") || fail 'initial state failed'
 [[ "$initial" == unclassified ]] || fail "initial state: $initial"
+[[ -d "$WORK/.engineering" && -d "$CANONICAL_STATE_ROOT" ]] || fail 'first check did not create missing parent and state root'
 
-$STATE record "$WORK" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_A" \
+$STATE record "$CANONICAL_STATE_ROOT" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_A" \
   || fail 'eligible record failed'
-! $STATE check "$WORK" "$TASK_ID" >/dev/null 2>&1 \
+! $STATE check "$CANONICAL_STATE_ROOT" "$TASK_ID" >/dev/null 2>&1 \
   || fail 'eligible state did not require an expected revision'
-! $STATE check "$WORK" "$TASK_ID" "$REVISION_B" >/dev/null 2>&1 \
+! $STATE check "$CANONICAL_STATE_ROOT" "$TASK_ID" "$REVISION_B" >/dev/null 2>&1 \
   || fail 'eligible state accepted a stale revision'
-eligible=$($STATE check "$WORK" "$TASK_ID" "$REVISION_A") || fail 'eligible state check failed'
+eligible=$($STATE check "$CANONICAL_STATE_ROOT" "$TASK_ID" "$REVISION_A") || fail 'eligible state check failed'
 [[ "$eligible" == eligible ]] || fail "eligible state: $eligible"
-$STATE record "$WORK" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_A" \
+$STATE record "$CANONICAL_STATE_ROOT" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_A" \
   || fail 'exact eligible record was not idempotent'
-! $STATE record "$WORK" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_B" >/dev/null 2>&1 \
+! $STATE record "$CANONICAL_STATE_ROOT" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_B" >/dev/null 2>&1 \
   || fail 'eligible state accepted a changed digest'
-! $STATE record "$WORK" "$TASK_ID" eligible "$REVISION_B" "$DIGEST_A" >/dev/null 2>&1 \
+! $STATE record "$CANONICAL_STATE_ROOT" "$TASK_ID" eligible "$REVISION_B" "$DIGEST_A" >/dev/null 2>&1 \
   || fail 'eligible state accepted a changed revision'
 
-$STATE record "$WORK" "revision64-$TASK_ID" eligible "$REVISION_64" "$DIGEST_A" \
+$STATE record "$CANONICAL_STATE_ROOT" "revision64-$TASK_ID" eligible "$REVISION_64" "$DIGEST_A" \
   || fail '64-character revision record failed'
-eligible64=$($STATE check "$WORK" "revision64-$TASK_ID" "$REVISION_64") \
+eligible64=$($STATE check "$CANONICAL_STATE_ROOT" "revision64-$TASK_ID" "$REVISION_64") \
   || fail '64-character revision state check failed'
 [[ "$eligible64" == eligible ]] || fail "64-character eligible state: $eligible64"
 
-$STATE record "$WORK" "$TASK_ID" disqualified 'unexpected consumer' "$DIGEST_C" \
+$STATE record "$CANONICAL_STATE_ROOT" "$TASK_ID" disqualified 'unexpected consumer' "$DIGEST_C" \
   || fail 'disqualified record failed'
-disqualified=$($STATE check "$WORK" "$TASK_ID") || fail 'disqualified state check failed'
+disqualified=$($STATE check "$CANONICAL_STATE_ROOT" "$TASK_ID") || fail 'disqualified state check failed'
 [[ "$disqualified" == disqualified ]] || fail "disqualified state: $disqualified"
 
-! $STATE record "$WORK" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_A" \
+! $STATE record "$CANONICAL_STATE_ROOT" "$TASK_ID" eligible "$REVISION_A" "$DIGEST_A" \
   || fail 'disqualified state accepted a later eligible record'
-persisted=$($STATE check "$WORK" "$TASK_ID") || fail 'persisted state check failed'
+persisted=$($STATE check "$CANONICAL_STATE_ROOT" "$TASK_ID") || fail 'persisted state check failed'
 [[ "$persisted" == disqualified ]] || fail "persisted state: $persisted"
 
 mkdir "$ANCESTOR/real"
 ln -s "$ANCESTOR/real" "$ANCESTOR/linked"
 ! $STATE check "$ANCESTOR/linked/state-root" "$TASK_ID" >/dev/null 2>&1 \
   || fail 'state root with an ancestor symlink was accepted'
+ln -s "$ANCESTOR/real" "$ANCESTOR/root-link"
+! $STATE check "$ANCESTOR/root-link" "$TASK_ID" >/dev/null 2>&1 \
+  || fail 'state root symlink was accepted'
 
 printf 'PASS: fast-path routing regression checks\n'

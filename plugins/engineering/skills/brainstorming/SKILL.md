@@ -51,7 +51,7 @@ Fast Path는 작은 diff가 아니라 의도, 영향 범위, 변환 규칙과 �
 사용하거나 target discovery 전에 UUID를 한 번만 생성한다. 그 ID는 target에서 다시 유도하지 않으며
 task 전체에서 고정한다. **모든 Fast Path entry에서** repository의 current `HEAD` commit을 exact candidate
 revision으로 capture한 뒤 `.engineering/fast-path/<task-id>.state`를
-`fast-path-state check ROOT TASK_ID EXPECTED_REVISION`로 읽는다. `eligible`은 expected revision이 stored
+`plugins/engineering/skills/brainstorming/scripts/fast-path-state check ROOT TASK_ID EXPECTED_REVISION`로 읽는다. `eligible`은 expected revision이 stored
 candidate revision과 정확히 같을 때만 통과하며, missing 또는 mismatched revision은 fail closed한다.
 `disqualified`이면 classifier,
 predicate와 실행을 건너뛰어 가장 가까운 일반 workflow로 보낸다. 상태 파일은 context compaction 뒤에도
@@ -66,7 +66,7 @@ exact candidate revision을 돌려준다. controller는 classifier revision이 e
 같은지 확인하고 evidence digest가 64-character lowercase SHA-256 hex인지 확인한다. `eligible`은 다음
 predicate가 모두 proven이고 hidden-risk signal이 없을 때만 허용된다. `eligible` 외의 verdict,
 classifier unavailable, false 또는 unknown predicate는
-`fast-path-state record ... disqualified ...`로 영속 latch를 먼저 기록하고 일반 workflow로 route한다.
+`plugins/engineering/skills/brainstorming/scripts/fast-path-state record ... disqualified ...`로 영속 latch를 먼저 기록하고 일반 workflow로 route한다.
 
 다음 predicate를 모두 확인한다.
 
@@ -93,7 +93,7 @@ classifier가 유일한 Fast Path subagent slot이며 implementation/reviewer su
 만들지 않는다. 모델 상향 또는 fresh-context 재시도는 최대 1회이고 첫 실패와 같은 입력·접근을
 반복하지 않는다. 예상 밖 consumer, 두 번째 의미 판단, 여러 책임으로 확장, public contract, 원인
 불명의 검사 실패, reviewer 없이는 판정하기 어려운 상태, 관련 없는 refactoring 또는 두 번째 수정
-필요가 드러나면 `fast-path-state record ... disqualified ...`를 먼저 실행하고 즉시 Fast Path를
+필요가 드러나면 `plugins/engineering/skills/brainstorming/scripts/fast-path-state record ... disqualified ...`를 먼저 실행하고 즉시 Fast Path를
 종료한다. 이 one-way owner escalation은 classifier, predicate 또는 Fast Path 실행으로 돌아가지
 않는다. 완료할 때에는 판정 근거, 실제 변경 범위, 결정론적 검증과 원래 목적과의 정렬을 짧게 기록한다.
 
@@ -130,7 +130,7 @@ Fast Path로 분류하지 않는다.
 
 **`bounded`(범위 한정):**
 1. **Project context 탐색** — 파일, 문서와 최근 commit을 확인한다.
-2. **Fast Path latch 확인과 독립 판정** — target discovery 전 stable todo ID 또는 한 번 생성한 UUID를 고정한다. 매 entry에서 current `HEAD`의 exact candidate revision을 capture하고 `check ROOT TASK_ID EXPECTED_REVISION`으로 state를 확인한다. stored eligible revision이 다르거나 expected revision이 없으면 fail closed한다. `disqualified`면 classifier 없이 일반 workflow로 route한다. `unclassified`이면 controller search 1회와 fresh classifier의 독립 search 1회로만 판정한다. classifier revision이 controller-captured revision과 같고 digest가 64-character lowercase SHA-256 hex인 `eligible`만 state에 기록해 요청을 승인된 짧은 설계로 취급한다. 그 외 verdict와 unavailable은 disqualified로 latch한 뒤 일반 workflow로 route한다.
+2. **Fast Path latch 확인과 독립 판정** — target discovery 전 stable todo ID 또는 한 번 생성한 UUID를 고정한다. 매 entry에서 current `HEAD`의 exact candidate revision을 capture하고 `plugins/engineering/skills/brainstorming/scripts/fast-path-state check ROOT TASK_ID EXPECTED_REVISION`으로 state를 확인한다. stored eligible revision이 다르거나 expected revision이 없으면 fail closed한다. `disqualified`면 classifier 없이 일반 workflow로 route한다. `unclassified`이면 controller search 1회와 fresh classifier의 독립 search 1회로만 판정한다. classifier revision이 controller-captured revision과 같고 digest가 64-character lowercase SHA-256 hex인 `eligible`만 state에 기록해 요청을 승인된 짧은 설계로 취급한다. 그 외 verdict와 unavailable은 disqualified로 latch한 뒤 일반 workflow로 route한다.
 3. **명확화 질문** — Fast Path가 아니면 중요한 질문을 한 번에 하나씩 한다.
 4. **Chat에서 짧은 설계 제시** — 접근 방식, 예상 동작과 수정할 파일을 설명한다.
 5. **승인 받기** — 중단하고 명시적인 동의를 기다린다. 설계를 제시하면서 바로 시작하면 게이트를 건너뛴 것이다.
