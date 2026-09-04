@@ -100,7 +100,8 @@ HEAD_SHA=$(git rev-parse HEAD)
   무효화하고 영향 task를 `reopened`한다. 소유 단계에서 artifact가 바뀌면 scoped 검증·재리뷰,
   전체 결정론적 검증과 현재 전체 리비전의 fresh-context 일반 whole-change review를 다시 통과한
   뒤 새 bundle을 만든다. 그 다음 red-team에는 새 fresh-context reviewer를 사용하며 변경 없는
-  재시도는 하지 않는다. 자동 시도는 최대 3회다.
+  재시도는 하지 않는다. 자동 시도는 최대 5회이며, 각 시도에는 새로 고정한 bundle과 서로 다른
+  fresh-context reviewer가 필요하다.
 - reviewer를 사용할 수 없거나 필요한 evidence가 없으면 `not_run`, `blocked` 또는
   `inconclusive`를 그대로 기록한다. 일반 reviewer의 승인을 red-team 통과로 대체하지 않는다.
 

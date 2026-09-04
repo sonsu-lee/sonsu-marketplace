@@ -32,7 +32,7 @@ Decision owner: <stage owner or named human decision-maker>
 commit되지 않았다면 content digest 또는 변경할 수 없는 review package를 사용한다. artifact가
 바뀌면 이전 결과는 오래된 것이므로 다음 단계로 진행하기 전에 새 리비전에 필수 검사를 실행한다.
 
-별도 stage가 더 낮은 상한을 선언하지 않는 한 자동 review/fix loop는 최대 3회다. 횟수 상한은
+별도 stage가 더 낮은 상한을 선언하지 않는 한 자동 review/fix loop는 최대 5회다. 횟수 상한은
 같은 evaluator와 context를 반복 사용하는 허가가 아니다. 재시도 조건에 evaluator 또는 context
 변경이 포함되면 이전 session history를 상속하지 않는 fresh context에 필요한 artifact만 전달한다.
 
@@ -141,7 +141,7 @@ red-team finding을 소유 단계에서 수정해 artifact revision이 바뀌어
 
 ## 정보가 달라졌을 때 재시도한다
 
-재시도할 때마다 artifact, 가설, 구현, 근거, context, evaluator 또는 사용 가능한 capability 중
+재시도할 때마다 artifact, 가설, 구현, 근거, context, evaluator, 사용 가능한 capability 또는 human decision 중
 하나 이상이 달라져야 한다. 바뀌지 않은 artifact에 동일한 결정론적 명령을 반복하지 않고,
 같은 evaluator에게 변경 없는 입력으로 “try harder”라고 지시하지 않는다.
 

@@ -1,7 +1,7 @@
 # 스킬 라우팅
 
 - Status: Current
-- Last reviewed: 2026-09-04
+- Last reviewed: 2026-09-05
 
 ## 플러그인 경계
 
@@ -103,10 +103,13 @@ red-team completion review를 수행합니다. 이 reviewer는 이전 session hi
 `invalidated`, `inconclusive`, `blocked`는 각각 실제 design, plan, implementation, verification
 또는 capability 소유 단계로 돌아갑니다. plan 없는 Fast Path에는 이 게이트를 강제하지 않습니다.
 
-Engineering의 자동 review/fix loop는 기본 최대 3회입니다. task fix는 1회차만 원래 implementer를
-재사용하고, 2-3회차는 artifact 중심의 fresh context를 사용합니다. red-team 재시도도 변경된
-리비전과 서로 다른 fresh reviewer로 최대 3회입니다. 상한은 유효한 finding을 통과로 바꾸지
-않습니다.
+Engineering의 자동 task review/fix, design/plan review, whole-change review와 red-team loop는
+각각 최대 5회입니다. task fix는 1회차만 원래 implementer를 재사용하고, 2-5회차는 매번 서로 다른
+fresh implementer가 evidence-only bundle만 받습니다. 판단 부족이 원인에 기여한 3회차에는 capability를
+높이고, 4회차에는 역할에 맞는 high-capability 조합, 5회차에는 예외적인 최대 effort mode가 아닌
+가장 강한 role-appropriate default 조합을 사용합니다. red-team 재시도도 changed input, 새 bundle과
+서로 다른 fresh reviewer를 요구합니다. 상한은 유효한 finding을 통과로 바꾸지 않으며
+`decision_required`로 중단합니다.
 
 ## Prompting 조합
 
@@ -414,10 +417,10 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
       설계 승인과 필요한 design-document gate
       → 의사코드로 전체 흐름 정의
       → 파일·task·dependency별 구현 계획과 검증 이유 → plan-readiness gate
-      → worktree 확인 또는 생성 → 구현 → task gate와 targeted fix
-      → final deterministic verification → 일반 whole-change review
+      → worktree 확인 또는 생성 → 구현 → task gate와 targeted fix (R=1 original, R=2..5 distinct fresh bundle-only)
+      → final deterministic verification → 일반 whole-change review (changed input으로 최대 5회)
       → 목표·요구사항·설계·plan·전체 diff·검증을 하나의 immutable bundle로 고정
-      → fresh-context red-team completion gate
+      → fresh-context red-team completion gate (새 bundle·reviewer로 최대 5회)
   → plan 없는 일반 bounded:
       승인된 짧은 설계 → 구현 → 변경에 비례한 결정론적 final gate
   → diff와 gate 상태 보고 → 명시적인 커밋 승인 → commit
@@ -450,7 +453,7 @@ quality gate는 문서 작성, 구현, commit, push, PR, merge, deploy 또는 pu
 | plan 없는 direct completion | Fast Path 또는 승인된 bounded 구현의 비례한 결정론적 검증과 목적 정렬 | 영향받은 구현 또는 일반 workflow escalation |
 
 deterministic oracle를 inferential review보다 먼저 실행합니다. retry는 artifact, hypothesis,
-implementation, evidence, context, evaluator 또는 capability 가운데 하나 이상이 바뀌어야 하며
+implementation, evidence, context, evaluator, capability 또는 human decision 가운데 하나 이상이 바뀌어야 하며
 stage별 유한한 상한을 가집니다. 상한에 남은 실제 필수 finding은 `passed`나 `complete`로
 자동 전환하지 않습니다. 사용자 또는 확인된 human decision-maker만 exact revision의 위험을
 `accepted_risk`로 수락할 수 있고, 이 상태는 `passed`와 구분해 보고합니다.

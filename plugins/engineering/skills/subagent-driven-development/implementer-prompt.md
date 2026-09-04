@@ -127,7 +127,7 @@ Subagent (general-purpose):
 
     ## 보고 형식
 
-    전체 보고를 [REPORT_FILE]에 작성한다. 이 report는 controller/reviewer 기록이며 round 2/3 fresh fix
+    전체 보고를 [REPORT_FILE]에 작성한다. 이 report는 controller/reviewer 기록이며 round 2-5 fresh fix
     implementer에게 전달하지 않는다. 후속 fresh fix는 shared
     `../executing-plans/fix-implementer-prompt.md`와 검증된 immutable bundle path/digest만 받는다.
     - 구현한 내용(blocked라면 시도한 내용)

@@ -292,7 +292,7 @@ handoff 전에 정확한 plan 리비전에 게이트를 적용한다.
 
 1. 위의 자체 리뷰 검사를 필수 결정론적 검사로 취급하고 근거를 기록한다.
 2. 여러 component에 걸치거나 오래 걸리거나 위험도가 높은 plan, 또는 독립 리뷰가 구현 위험을 실질적으로 줄이는 경우 [plan-document-reviewer-prompt.md](plan-document-reviewer-prompt.md)로 reviewer를 위임한다. 의도적으로 제외한 선택적 리뷰는 `not_applicable`이고, 필수 reviewer를 사용할 수 없으면 `blocked` 또는 `not_run`이다.
-3. 리뷰 시도는 최대 3회로 제한한다(초기 리뷰와 수정 후 리뷰 2회). 재시도할 때마다 영향을 받은 task, 요구사항 근거, interface 정의 또는 evaluator context가 달라져야 한다.
+3. 리뷰 시도는 최대 5회로 제한한다(초기 리뷰와 수정 후 리뷰 4회). 재시도할 때마다 영향을 받은 task, 요구사항 근거, interface 정의 또는 evaluator context가 달라져야 한다.
 4. task 세부사항에 대한 finding은 영향을 받은 plan task로 돌려보낸다. 빠졌거나 모순된 요구사항은 `engineering:brainstorming`과 논쟁 중인 설계 결정으로 돌려보낸다.
 5. 현재 plan 리비전이 `passed`이거나 사람이 `accepted_risk`를 명시적으로 기록한 경우에만 handoff한다. 시도 횟수 상한에 도달했다는 이유로 미해결 필수 finding을 pass로 바꾸지 않는다.
 

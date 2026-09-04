@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Freeze and verify evidence-only inputs for a fresh round-2/3 fix implementer.
+# Freeze and verify evidence-only inputs for a fresh round-2-5 fix implementer.
 set -euo pipefail
 
 usage() {
   cat >&2 <<'EOF'
 usage:
-  fix-handoff create --brief FILE --artifact FILE --revision GIT_REVISION --findings FILE --verification FILE --round 2|3 [--output FILE]
+  fix-handoff create --brief FILE --artifact FILE --revision GIT_REVISION --findings FILE --verification FILE --round 2|3|4|5 [--output FILE]
   fix-handoff verify BUNDLE SHA256
 EOF
   exit 2
@@ -98,7 +98,7 @@ def validate_metadata(data):
     exact_keys(value, ("format", "round", "revision"), "metadata")
     if not isinstance(value["format"], str) or value["format"] != FORMAT:
         fail("metadata format is invalid")
-    if value["round"] not in (2, 3) or isinstance(value["round"], bool):
+    if value["round"] not in (2, 3, 4, 5) or isinstance(value["round"], bool):
         fail("metadata round is invalid")
     if not isinstance(value["revision"], str) or not re.fullmatch(r"[0-9a-f]{40}(?:[0-9a-f]{24})?", value["revision"]):
         fail("metadata revision is invalid")
@@ -189,8 +189,8 @@ if mode == "create":
     brief, artifact, revision, findings_path, verification_path, round_text, explicit_output = sys.argv[2:]
     if not re.fullmatch(r"[0-9a-f]{40}(?:[0-9a-f]{24})?", revision):
         fail("revision must be exactly 40 or 64 lowercase hexadecimal characters")
-    if round_text not in {"2", "3"}:
-        fail("round must be 2 or 3")
+    if round_text not in {"2", "3", "4", "5"}:
+        fail("round must be 2, 3, 4 or 5")
 
     # Read and validate every source before any output path is reserved.
     brief_data = read_regular(brief, "brief")

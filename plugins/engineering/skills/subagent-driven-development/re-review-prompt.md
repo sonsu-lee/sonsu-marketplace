@@ -4,7 +4,7 @@
 검증하고 수정 diff에 새 문제가 생겼는지 확인한다. 전체 리뷰는 이미 끝났으므로 새로운 리뷰가 아니다.
 
 이 re-review의 full report, finding 판정, rationale, verdict와 agent identity는 controller/reviewer 기록이다.
-round 2/3 fresh fix implementer에게 전달하지 않는다. 후속 fresh fix에는 shared
+round 2-5 fresh fix implementer에게 전달하지 않는다. 후속 fresh fix에는 shared
 `../executing-plans/fix-implementer-prompt.md`의 verified immutable bundle path/digest만 전달한다.
 
 **목적:** 이전 리뷰의 각 finding을 해결했고 수정 자체가 다른 동작을 깨뜨리지 않았는지 검증한다.

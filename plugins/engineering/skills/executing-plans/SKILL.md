@@ -36,8 +36,8 @@ description: 별도 session에서 review checkpoint와 함께 실행할 작성�
 5. 검사가 실패하면 영향을 받은 가장 작은 구현 단계로 돌아간다. 원인을 모르면 `engineering:systematic-debugging`을 사용한 뒤 변경된 artifact에 집중된 검사를 다시 실행한다.
 6. task 게이트가 `passed`이거나 사람이 해당 리비전에 대해 `accepted_risk`를 명시적으로 기록한 경우에만 `completed`로 표시한다.
 
-유효한 task 구현 finding의 자동 수정은 최대 3회다. 1회차만 원래 implementer를 `followup_task`로
-재개해 finding을 집중 수정할 수 있다. 2·3회차에는 controller가 task brief, 현재 binary-safe artifact
+유효한 task 구현 finding의 자동 수정은 최대 5회다. 1회차만 원래 implementer를 `followup_task`로
+재개해 finding을 집중 수정할 수 있다. 2~5회차에는 controller가 task brief, 현재 binary-safe artifact
 package, normalized finding-evidence JSON, normalized verification-evidence JSON과 정확한 artifact revision을
 `scripts/fix-handoff create`로 단일 immutable bundle에 고정한다. controller와 reviewer는 full report를
 보관할 수 있지만 fresh implementer에게 report, implementation narrative, rationale, self-review, completion
@@ -49,10 +49,14 @@ verdict, reviewer praise/verdict, agent identity 또는 session history를 전�
 재사용하지 않는다. canonical committed-range review package의 revision은 유일한 40-hex `Head:`와 같아야 하며,
 canonical working-tree package와 그 밖의 binary-safe artifact의 revision은 exact artifact bytes의 64-hex SHA-256이어야
 한다. `create`와 `verify`는 이 관계가 없거나 header가 missing, duplicate 또는 malformed이면 handoff를 거절한다.
-3회차는 2회차와도 다른 fresh-context implementer와 해당 task에 적절한 상위 capability
-조합을 사용한다. 각 회차 뒤 변경 범위의 결정론적 검증과 scoped 재리뷰를 실행한다. 필요한 fresh context
+2~5회차는 회차마다 서로 다른 `fork_turns: "none"` fresh-context implementer를 사용한다. 판단력 부족이
+원인에 기여한 3회차에는 모델 tier 또는 reasoning effort를 지원되는 한 단계 이상 높인다. 4회차에는
+역할에 맞는 high-capability 조합을, 5회차에는 역할에 맞는 가장 강한 default 조합을 사용하되 플랫폼의
+예외적인 최대 effort mode를 기본값으로 올리지 않는다. 각 회차 뒤 변경 범위의 결정론적 검증과 fresh scoped
+재리뷰를 실행한다. 필요한 fresh context
 또는 capability를 제공할 수 없으면 기존 controller나 implementer를 재사용하지 않고 `blocked`,
-`decision_required`로 기록한다. 3회 뒤에도 유효한 필수 finding이 남으면 자동 반복을 중단하며, 정확한
+`decision_required`로 기록한다. 5회 뒤에도 유효한 필수 finding이 남으면 `failed`와
+`decision_required`를 기록하고 자동 반복을 중단하며, 정확한
 리비전에 대한 사람의 명시적인 `accepted_risk` 없이는 task를 완료하지 않는다.
 
 구현이 plan과 달라져야 할 때에는 `engineering:writing-plans`의 material deviation 기준을 적용한다.
@@ -77,13 +81,13 @@ task의 구현·검증·리뷰부터 다시 수행한다. material하지 않은 
    해당 리뷰가 필수지만 사용할 수 없으면 게이트를 통과했다고 하지 말고 `blocked` 또는
    `not_run`으로 기록한 뒤 사람의 결정을 요청한다.
 4. 일반 리뷰의 유효한 finding에는 한 번에 하나의 집중된 수정과 범위가 제한된 재리뷰를 적용하고,
-   자동 리뷰 시도는 최대 3회로 제한한다. 1회차 이후에는 가능한 경우 이전 session history를
+   자동 리뷰 시도는 최대 5회로 제한한다. 1회차 이후에는 이전 session history를
    상속하지 않는 fresh-context evaluator를 사용한다. 계획 또는 요구사항의 모순은 해당 소유
    단계로 돌려보낸다. 상한에 도달해도 필수 finding이 해결되지 않았다면 사람의 결정이 필요하며,
    명시적인 `accepted_risk`만 다음 단계 진행을 허용한다. scoped 재리뷰는 finding 수정만 닫으며
    변경된 전체 artifact의 final gate를 대신하지 않는다. 수정이 있었다면 현재 `BASE..HEAD`의 전체
    package를 다시 생성해 fresh-context whole-change reviewer로 일반 final gate를 갱신한다. 이 전체
-   review도 3회 상한에 포함하며, 현재 전체 리비전의 gate가 `passed` 또는 `accepted_risk`일 때만
+   review도 5회 상한에 포함하며, 현재 전체 리비전의 gate가 `passed` 또는 `accepted_risk`일 때만
    red-team으로 진행한다.
 5. 일반 최종 리뷰 뒤에는 plan-backed 작업을 전체 구조에서 반증하는 fresh-context red-team
    리뷰를 반드시 수행한다. 이전 작업·리뷰의 결론이나 session history를 넘기지 않는다. red-team 직전에
@@ -104,7 +108,9 @@ task의 구현·검증·리뷰부터 다시 수행한다. material하지 않은 
    whole-change gate를 fresh context로 갱신한 뒤 새 bundle을 만든다. 그 뒤에만 다른
    fresh-context red-team reviewer가 새 리비전을 검토한다. evidence 또는 capability만 바뀌고
    artifact 리비전이 같다면 현재 일반 gate를 재사용할 수 있지만 영향 component와 bundle은 새로
-   고정한다. red-team 자동 시도는 최대 3회며 상한 뒤에는 사람의 `accepted_risk` 없이 진행하지 않는다.
+   고정한다. red-team 자동 시도는 최대 5회이며 각 시도는 새로 고정한 bundle과 서로 다른
+   fresh-context reviewer를 사용한다. 상한 뒤에는 `decision_required`를 기록하고 사람의
+   `accepted_risk` 없이 진행하지 않는다.
 7. 정확한 working tree 또는 commit 리비전에 결정론적 검증, 일반 최종 리뷰와 red-team 게이트를
    각각 기록한다. 변경 내용, 검증 근거, 남은 위험과 상태를 보고한다.
 8. commit 권한이 없으면 중단하고 commit 결정을 요청한다. 검증된 변경은 commit하지 않은 상태로 둔다.

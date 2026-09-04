@@ -17,8 +17,11 @@ multi-agent 버전에 따라 달라진다(현재 preset은 V2, 이전 preset은 
   `~/.codex/agents/` 아래의 role 파일을 `agent_type`으로 격리 fork에 연결한다.
   현재 tool schema가 허용하는 `fork_turns`와 model override 조합을 신뢰한다. 격리 reviewer는
   `fork_turns: "none"`을 사용하고 필요한 artifact만 prompt에 넣는다.
-- **수정 회차:** round 1만 `followup_task`로 원래 implementer를 재개할 수 있다. round 2와 3은
-  항상 `spawn_agent {fork_turns: "none"}`으로 서로 다른 fresh implementer를 만든다. controller는 canonical
+- **수정 회차:** round 1만 `followup_task`로 원래 implementer를 재개할 수 있다. round 2~5는
+  항상 `spawn_agent {fork_turns: "none"}`으로 이전 모든 회차와 다른 fresh implementer를 만든다.
+  3회차에는 판단 부족이 원인에 기여했을 때 model tier 또는 reasoning effort를 지원되는 한 단계 이상
+  높인다. 4회차에는 fresh high-capability 역할 조합을 사용하고, 5회차에는 fresh strongest
+  role-appropriate default 조합을 사용한다. controller는 canonical
   committed-range review package의 유일한 40-hex `Head:`를 revision으로 선택하고, canonical working-tree
   package와 그 밖의 binary-safe artifact는 exact artifact bytes의 64-hex SHA-256을 선택한다.
   committed-range package의 `Base:`·`Head:` header가 missing, duplicate, malformed이거나 artifact와
@@ -86,11 +89,13 @@ default_subagent_reasoning_effort = "medium"
 | 여러 파일 통합·일반 debugging | `gpt-5.6-terra` | `high` |
 | 일반 task review | `gpt-5.6-terra` | `medium` 또는 `high` |
 | 범위가 제한된 기계적 re-review | `gpt-5.6-luna` | `medium` |
+| fix round 4 high-capability implementer | `gpt-5.6-sol` | `high` |
+| fix round 5 strongest default implementer | `gpt-5.6-sol` | `xhigh` |
 | architecture와 구현 plan | `gpt-5.6-sol` | `high` |
 | 일반 final whole-change review | `gpt-5.6-sol` | `high` |
 | fresh-context red-team whole-structure review | `gpt-5.6-sol` | `xhigh` |
 
-`max`와 `ultra`는 기본값으로 사용하지 않는다. Fast Path에서는 independent classifier만 한 슬롯으로
+`max`와 `ultra`는 5회차를 포함해 기본값으로 사용하지 않는다. Fast Path에서는 independent classifier만 한 슬롯으로
 만들 수 있으며 implementation 또는 reviewer subagent는 Fast Path 기본 경로에서 만들지 않는다.
 classifier는 fresh `gpt-5.6-luna` / `low`로 request, target, controller evidence, proposed oracle,
 unknowns만 받고 독립 targeted search를 정확히 한 번 실행한다. model 상향은 변경 없는 입력을 다시

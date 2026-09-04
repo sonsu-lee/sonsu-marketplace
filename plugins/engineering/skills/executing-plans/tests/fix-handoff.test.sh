@@ -116,6 +116,29 @@ with tarfile.open(destination, "w", format=tarfile.USTAR_FORMAT) as archive:
 PY
 }
 
+assemble_bundle_with_round() {
+  python3 - "$1" "$2" "$3" <<'PY'
+import io
+import json
+import tarfile
+import sys
+
+source, destination, round_text = sys.argv[1:]
+with tarfile.open(source, "r:*") as archive:
+    payloads = {member.name: archive.extractfile(member).read() for member in archive.getmembers()}
+metadata = json.loads(payloads["metadata.json"])
+metadata["round"] = int(round_text)
+payloads["metadata.json"] = json.dumps(metadata, sort_keys=True, separators=(",", ":")).encode("utf-8")
+with tarfile.open(destination, "w", format=tarfile.USTAR_FORMAT) as archive:
+    for name in ("metadata.json", "task-brief", "artifact-package", "findings.json", "verification.json"):
+        member = tarfile.TarInfo(name)
+        member.size = len(payloads[name])
+        member.mode = 0o600
+        member.mtime = 0
+        archive.addfile(member, io.BytesIO(payloads[name]))
+PY
+}
+
 printf 'brief\n' > "$WORK/brief"
 printf '\x00artifact\xff\n' > "$WORK/artifact"
 
@@ -241,7 +264,7 @@ for input in brief artifact findings verification; do
 done
 
 # The helper contract is exact-key, immutable, digest-bound, and accepts only
-# round 2/3 evidence. Each create output exposes an exact path/digest pair.
+# round 2-5 evidence. Each create output exposes an exact path/digest pair.
 create1=$(create_bundle "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" 2)
 bundle1=$(parse_bundle_path "$create1")
 digest1=$(parse_bundle_digest "$create1")
@@ -326,13 +349,26 @@ malformed_verify=$("$HELPER" verify "$WORK/malformed.bundle" "$malformed_digest"
 assert_no_extract_output "$malformed_verify" "$extracts_before"
 assert_rejected "$HELPER" verify "$WORK/malformed.bundle" "$malformed_digest"
 
-for round in 2 3; do
-  create_bundle "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" "$round" >/dev/null \
-    || fail "round $round was rejected"
+for round in 2 3 4 5; do
+  round_create=$(create_bundle \
+    "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" "$round") \
+    || fail "round $round was rejected during create"
+  round_bundle=$(parse_bundle_path "$round_create")
+  round_digest=$(parse_bundle_digest "$round_create")
+  "$HELPER" verify "$round_bundle" "$round_digest" >/dev/null \
+    || fail "round $round was rejected during verify"
 done
-for round in 0 1 4 -1 two ''; do
+for round in 0 1 6 -1 two ''; do
   assert_rejected create_bundle "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" "$round"
 done
+
+round6_bundle="$WORK/round-6.bundle"
+assemble_bundle_with_round "$round_bundle" "$round6_bundle" 6
+round6_digest=$(hash_bundle "$round6_bundle")
+extracts_before=$(extract_count)
+round6_verify=$("$HELPER" verify "$round6_bundle" "$round6_digest" 2>&1 || true)
+assert_no_extract_output "$round6_verify" "$extracts_before"
+assert_rejected "$HELPER" verify "$round6_bundle" "$round6_digest"
 
 # Canonical working-tree review packages remain content-addressed. Exercise the
 # exact header shape so later parser changes cannot accidentally treat them as

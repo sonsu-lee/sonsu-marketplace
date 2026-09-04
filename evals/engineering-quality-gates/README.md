@@ -27,6 +27,8 @@ classification과 정상 escalation은 `quality_status`, `classification_outcome
 - gate는 exact artifact revision에 묶이고 변경 후 이전 결과는 stale입니다.
 - deterministic failure는 전체 workflow가 아니라 실패를 고칠 수 있는 stage로 돌아갑니다.
 - retry에는 artifact, hypothesis, evidence, context, evaluator 또는 capability 변화가 필요합니다.
+- 자동 task review/fix, design/plan review, whole-change review와 red-team은 정확히 최대 5회이며,
+  상한은 변경 없는 입력이나 같은 evaluator를 반복할 권한이 아닙니다.
 - tool·permission·external state 부재는 `blocked`이며 동일 명령을 반복하지 않습니다.
 - retry cap의 valid required finding은 human `accepted_risk` 없이 `passed`나 `complete`가 아닙니다.
 - quality gate와 Git·PR·publish authorization은 독립적으로 판정합니다.
@@ -39,7 +41,7 @@ classification과 정상 escalation은 `quality_status`, `classification_outcome
 - Fast Path eligibility와 실행 전 classification은 quality `passed`가 아니며 정상 escalation도 quality failure가 아닙니다.
 - Code Mode는 결정론적 실행 수단이며 Fast Path 적합성이나 품질 통과의 증거가 아닙니다.
 - plan-backed 완료에는 일반 최종 리뷰와 별개의 fresh-context red-team 판정이 필요합니다.
-- round 2/3 fix handoff는 exact task brief, exact-revision binary-safe artifact package, exact-key normalized finding/verification evidence와 round만 든 immutable bundle입니다. fresh implementer는 `fix-handoff verify BUNDLE DIGEST` 성공 뒤 verified `Extracted:` snapshot만 읽고 이전 report·rationale·verdict·agent identity·session history를 받지 않습니다.
+- round 2-5 fix handoff는 exact task brief, exact-revision binary-safe artifact package, exact-key normalized finding/verification evidence와 round만 든 immutable bundle입니다. 각 회차의 서로 다른 fresh implementer는 `fix-handoff verify BUNDLE DIGEST` 성공 뒤 verified `Extracted:` snapshot만 읽고 이전 report·rationale·verdict·agent identity·session history를 받지 않습니다. round 3은 판단 부족이 원인에 기여했을 때 capability를 높이고, round 4는 high-capability 역할 조합, round 5는 strongest role-appropriate default 조합을 사용합니다.
 - F4 completion gate는 artifact가 바뀔 때마다 현재 exact revision의 deterministic verification, ordinary whole-change review와 immutable red-team bundle을 다시 고정합니다.
 - red-team의 목표·요구사항·설계·plan·전체 diff·검증·관찰 결과·review provenance는 source 경로가
   아니라 하나의 content-digested bundle 안에 고정되어야 합니다.

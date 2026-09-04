@@ -2,9 +2,10 @@
 
 - Status: Accepted
 - Date: 2026-09-04
+- Last amended: 2026-09-05
 - Supersedes: None
 - Superseded by: None
-- Approval: 사용자가 2026-09-04 현재 대화에서 Fast Path, Code Mode, 최대 3회 retry, plan 기반 fresh-context red-team, Codex model·reasoning effort와 goal lifecycle 방향을 명시적으로 승인했습니다.
+- Approval: 사용자가 2026-09-04 현재 대화에서 Fast Path, Code Mode, plan 기반 fresh-context red-team, Codex model·reasoning effort와 goal lifecycle 방향을 승인했고, 2026-09-05에 자동 task review/fix, design/plan review, whole-change review와 red-team 상한을 최대 5회로 변경하도록 승인했습니다.
 
 ## Context
 
@@ -42,14 +43,16 @@ Engineering은 기존 [0007 stage-owned quality gate](0007-use-stage-owned-quali
 3. Code Mode는 결정론적 탐색·변환·검증의 실행 수단입니다. Code Mode를 사용할 수 있다는 사실은
    Fast Path 적합성이나 품질 통과의 근거가 아니며, 실제 consumer와 postcondition을 별도로
    검증합니다.
-4. 자동 review/fix loop는 최대 3회입니다. task fix는 1회차에 원래 implementer를 사용하고,
-   2~3회차에는 exact task brief, exact-revision binary-safe artifact package, exact-key normalized
+4. 자동 task review/fix, design/plan review와 whole-change review loop는 각각 최대 5회입니다. task fix는
+   1회차에 원래 implementer를 사용하고, 2~5회차에는 서로 다른 fresh-context implementer에게 exact task
+   brief, exact-revision binary-safe artifact package, exact-key normalized
    finding-evidence JSON 및 verification-evidence JSON만 immutable bundle에 고정해 fresh-context
    implementer에게 전달합니다. 이 implementer는 이전 report, implementation narrative, rationale,
    self-review, completion verdict, reviewer verdict, agent identity와 session history를 받지 않습니다.
    읽기·추출·수정 전 canonical `fix-handoff verify BUNDLE DIGEST`를 실행하고, 성공한 뒤 stdout의
-   verified `Extracted:` snapshot만 읽습니다. 3회차에는 해당 task에 적합한 상위 capability를
-   적용하며 상한의 미해결 필수 finding은 자동 통과하지 않습니다.
+   verified `Extracted:` snapshot만 읽습니다. 판단 부족이 원인에 기여한 3회차에는 capability를 지원되는
+   한 단계 이상 높이고, 4회차에는 역할에 맞는 high-capability 조합, 5회차에는 `max`·`ultra`가 아닌
+   가장 강한 role-appropriate default 조합을 적용합니다. 상한의 미해결 필수 finding은 자동 통과하지 않습니다.
 5. 구현 plan이 존재하는 모든 작업은 현재 exact revision의 전체 결정론적 검증과 일반 final review 뒤에 별도의
    fresh-context red-team gate를 거칩니다. 이는 위험도 분류가 아니라 plan artifact 존재로
    trigger합니다. reviewer는 목표·요구사항·설계·의사코드·plan·전체 diff·검증 근거를 바탕으로
@@ -58,7 +61,7 @@ Engineering은 기존 [0007 stage-owned quality gate](0007-use-stage-owned-quali
 6. red-team verdict는 `survives_challenge`, `invalidated`, `inconclusive`, `blocked`를 사용합니다.
    첫 verdict만 quality gate의 `passed`로 연결합니다. 나머지는 가장 가까운 소유 단계로
    반환하며, artifact가 바뀌면 현재 exact revision의 deterministic verification, ordinary whole-change
-   review 및 immutable red-team bundle을 다시 고정합니다. 최대 3개의 서로 다른 fresh-context reviewer
+   review 및 immutable red-team bundle을 다시 고정합니다. 최대 5개의 서로 다른 fresh-context reviewer
    뒤에는 `decision_required`로 중단합니다.
 7. generic skill은 capability tier만 정의하고, Codex 전용 reference가 허용된 model과
    `reasoning_effort`를 함께 mapping합니다. 사용할 수 없는 조합의 fallback은 기록하며
@@ -89,7 +92,7 @@ Engineering은 기존 [0007 stage-owned quality gate](0007-use-stage-owned-quali
 접근 자체를 부정하는 독립 검토를 받습니다.
 
 red-team은 강한 model과 새 context를 사용하므로 plan-backed 작업의 비용이 증가합니다. 이를
-plan 존재라는 고정 trigger, 최대 3회 상한, immutable artifact package와 역할별 model routing으로
+plan 존재라는 고정 trigger, 최대 5회 상한, immutable artifact package와 역할별 model routing으로
 제한합니다. Fast Path classifier와 evidence-only handoff의 실제 runtime model compliance, 그리고
 품질·비용 효과는 deterministic fixture나 native loading만으로 입증되지 않으며 별도 승인된 behavior
 evaluation이 필요합니다.

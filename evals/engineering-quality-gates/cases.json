@@ -86,24 +86,29 @@
     {
       "id": "executing-plans-task-fix-rounds-isolate-implementers",
       "stage": "plan-execution-task-fix-loop",
-      "prompt": "task의 valid Important finding이 재리뷰 뒤에도 남을 때 executing-plans의 1~3회차 implementer와 capability 전환, 사용할 수 없을 때 상태를 기록해줘.",
+      "prompt": "task의 valid Important finding이 재리뷰 뒤에도 남을 때 executing-plans의 1~5회차 implementer와 capability 전환, 사용할 수 없을 때 상태를 기록해줘.",
       "event": {
         "plan_execution_mode": "executing-plans",
         "finding_owner": "task-implementation",
-        "attempt_cap": 3
+        "attempt_cap": 5,
+        "judgment_shortage_contributed_at_round_3": true
       },
       "expected": {
         "round_1": "original-implementer-focused-fix",
         "round_2": "fresh-context-implementer-with-brief-artifact-and-evidence-only",
         "round_3": "different-fresh-context-implementer-with-capability-up",
+        "round_4": "different-fresh-context-high-capability-role-appropriate-implementer",
+        "round_5": "different-fresh-context-strongest-role-appropriate-default-implementer",
+        "rounds_2_to_5_input": "new-immutable-evidence-only-bundle-path-and-digest",
         "scoped_verification_and_rereview_each_round": true,
         "unavailable_required_context_or_capability": "blocked-and-decision-required"
       },
       "must_not": [
         "reuse-original-implementer-for-round-2",
-        "reuse-round-2-implementer-for-round-3",
+        "reuse-any-prior-implementer-for-rounds-2-to-5",
         "replace-missing-fresh-context-with-controller-retry",
-        "start-round-4"
+        "default-round-5-to-max-or-ultra",
+        "start-round-6"
       ]
     },
     {
@@ -149,11 +154,11 @@
     {
       "id": "retry-cap-does-not-pass-valid-finding",
       "stage": "subagent-task-review",
-      "prompt": "3/3 fix round 뒤에도 valid Important finding이 남았다. downstream dependency는 없다. task 상태와 필요한 decision을 기록해줘.",
+      "prompt": "5/5 fix round 뒤에도 valid Important finding이 남았다. downstream dependency는 없다. task 상태와 필요한 decision을 기록해줘.",
       "event": {
         "artifact_revision_changed": true,
-        "attempt": 3,
-        "attempt_cap": 3,
+        "attempt": 5,
+        "attempt_cap": 5,
         "evidence": "scoped re-review says finding remains open and valid"
       },
       "expected": {
@@ -166,7 +171,7 @@
       "must_not": [
         "park-valid-finding-as-passed",
         "mark-task-complete-without-accepted-risk",
-        "start-round-4"
+        "start-round-6"
       ]
     },
     {
@@ -453,12 +458,12 @@
       ]
     },
     {
-      "id": "red-team-third-attempt-does-not-auto-pass",
+      "id": "red-team-fifth-attempt-does-not-auto-pass",
       "stage": "red-team-completion-review",
-      "prompt": "서로 다른 fresh reviewer가 변경된 revision을 세 번 검토했지만 세 번째에도 근거 있는 invalidated finding이 남았다. 다음 상태를 판정해줘.",
+      "prompt": "서로 다른 fresh reviewer가 변경된 입력을 새 bundle로 다섯 번 검토했지만 다섯 번째에도 근거 있는 invalidated finding이 남았다. 다음 상태를 판정해줘.",
       "event": {
-        "attempt": 3,
-        "attempt_cap": 3,
+        "attempt": 5,
+        "attempt_cap": 5,
         "red_team_verdict": "invalidated",
         "valid_finding_open": true
       },
@@ -469,7 +474,7 @@
         "return_target": "finding-owner-and-human-decision"
       },
       "must_not": [
-        "start-attempt-4",
+        "start-attempt-6",
         "convert-invalidated-to-survives-challenge",
         "claim-complete-without-accepted-risk"
       ]
@@ -645,7 +650,7 @@
       "prompt": "첫 red-team이 invalidated를 반환했고 소유자가 artifact를 새 revision으로 수정했다. 다음 자동 전이를 기록해줘.",
       "event": {
         "attempt": 1,
-        "attempt_cap": 3,
+        "attempt_cap": 5,
         "red_team_verdict": "invalidated",
         "artifact_revision_changed": true
       },
