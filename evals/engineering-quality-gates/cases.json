@@ -84,6 +84,48 @@
       ]
     },
     {
+      "id": "executing-plans-task-fix-rounds-isolate-implementers",
+      "stage": "plan-execution-task-fix-loop",
+      "prompt": "task의 valid Important finding이 재리뷰 뒤에도 남을 때 executing-plans의 1~3회차 implementer와 capability 전환, 사용할 수 없을 때 상태를 기록해줘.",
+      "event": {
+        "plan_execution_mode": "executing-plans",
+        "finding_owner": "task-implementation",
+        "attempt_cap": 3
+      },
+      "expected": {
+        "round_1": "original-implementer-focused-fix",
+        "round_2": "fresh-context-implementer-with-brief-artifact-and-evidence-only",
+        "round_3": "different-fresh-context-implementer-with-capability-up",
+        "scoped_verification_and_rereview_each_round": true,
+        "unavailable_required_context_or_capability": "blocked-and-decision-required"
+      },
+      "must_not": [
+        "reuse-original-implementer-for-round-2",
+        "reuse-round-2-implementer-for-round-3",
+        "replace-missing-fresh-context-with-controller-retry",
+        "start-round-4"
+      ]
+    },
+    {
+      "id": "task-scoped-rereview-does-not-run-whole-branch-review",
+      "stage": "subagent-task-review",
+      "prompt": "Task 2의 finding 수정과 scoped 재리뷰가 끝났지만 Task 3가 아직 남아 있다. 전체 branch review 시점을 판정해줘.",
+      "event": {
+        "task": 2,
+        "scoped_rereview": "all-findings-addressed",
+        "more_tasks_remain": true
+      },
+      "expected": {
+        "mark_task_complete": true,
+        "continue_to_next_task": true,
+        "whole_branch_review": "once-after-all-tasks-and-final-deterministic-verification"
+      },
+      "must_not": [
+        "run-whole-branch-review-after-task-2",
+        "duplicate-final-whole-change-review"
+      ]
+    },
+    {
       "id": "artifact-change-invalidates-prior-pass",
       "stage": "completion",
       "prompt": "commit A에서 final gate가 passed였지만 이후 파일을 수정해 commit B가 생겼다. B를 완료로 보고할 수 있는지 판정해줘.",
@@ -609,13 +651,18 @@
       },
       "expected": {
         "automatic_attempt_next": 2,
+        "owner_scoped_verification_and_rereview": true,
+        "full_deterministic_verification_for_current_revision": true,
+        "ordinary_whole_change_review_for_current_revision": "passed-or-accepted-risk-before-red-team",
         "regenerate_full_package": true,
         "fresh_context": true
       },
       "must_not": [
         "stop-without-owner-routing",
         "retry-same-revision",
-        "reuse-reviewer"
+        "reuse-reviewer",
+        "dispatch-red-team-directly-after-owner-fix",
+        "reuse-stale-ordinary-review-gate"
       ]
     },
     {

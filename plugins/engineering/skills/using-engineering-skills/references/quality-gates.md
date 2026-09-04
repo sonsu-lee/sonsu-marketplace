@@ -112,6 +112,10 @@ whole-change review의 finding을 수정한 뒤 수행하는 scoped 재리뷰는
 변경된 전체 artifact의 final gate가 아니다. 현재 전체 package를 다시 생성해 whole-change gate를
 같은 exact revision으로 갱신한 뒤에만 후속 completion gate로 진행한다.
 
+red-team finding을 소유 단계에서 수정해 artifact revision이 바뀌어도 같은 원칙을 적용한다.
+소유 단계의 scoped 검증·재리뷰 뒤 전체 결정론적 검증과 일반 whole-change gate를 새 리비전에
+다시 묶고, 그 결과를 포함한 새 bundle을 만든 뒤에만 다음 fresh-context challenge를 시작한다.
+
 ## 정보가 달라졌을 때 재시도한다
 
 재시도할 때마다 artifact, 가설, 구현, 근거, context, evaluator 또는 사용 가능한 capability 중

@@ -105,7 +105,8 @@ digraph process {
     "Red-team verdict?" [shape=diamond];
     "Red-team attempt cap reached?" [shape=diamond];
     "Return red-team finding to owner; wait for changed input" [shape=box];
-    "Regenerate full package; dispatch new fresh red-team reviewer" [shape=box];
+    "Owner resolves finding; scoped verification/re-review for artifact changes" [shape=box];
+    "Artifact revision changed after red-team return?" [shape=diamond];
     "Record red-team decision_required; stop" [shape=doublecircle];
     "Preserve workspace through branch decision" [shape=box];
     "Merged result verified?" [shape=diamond];
@@ -161,8 +162,10 @@ digraph process {
     "Red-team verdict?" -> "Red-team attempt cap reached?" [label="invalidated / inconclusive / blocked"];
     "Red-team attempt cap reached?" -> "Record red-team decision_required; stop" [label="yes: 3 attempts"];
     "Red-team attempt cap reached?" -> "Return red-team finding to owner; wait for changed input" [label="no"];
-    "Return red-team finding to owner; wait for changed input" -> "Regenerate full package; dispatch new fresh red-team reviewer" [label="revision / evidence / capability changed"];
-    "Regenerate full package; dispatch new fresh red-team reviewer" -> "Red-team verdict?";
+    "Return red-team finding to owner; wait for changed input" -> "Owner resolves finding; scoped verification/re-review for artifact changes" [label="changed input"];
+    "Owner resolves finding; scoped verification/re-review for artifact changes" -> "Artifact revision changed after red-team return?";
+    "Artifact revision changed after red-team return?" -> "Run final whole-change deterministic verification" [label="yes"];
+    "Artifact revision changed after red-team return?" -> "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" [label="no: evidence / capability only"];
     "Preserve workspace through branch decision" -> "Use engineering:finishing-a-development-branch";
     "Use engineering:finishing-a-development-branch" -> "Merged result verified?";
     "Merged result verified?" -> "Delete workspace after verified merge" [label="yes"];
@@ -521,10 +524,15 @@ plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다.
    재승인, plan이 바뀌면 writing-plans 갱신과 영향 task `reopened`, 구현이면 해당 task 재개,
    검증이면 verification 단계 재실행으로 routing한다.
    `inconclusive` 또는 `blocked`는 통과가 아니며 부족한 근거나 capability의 소유 단계로 돌린다.
-6. 수정 후 새 리비전을 다시 challenge할 때에는 반드시 또 다른 fresh-context reviewer를 사용한다.
-   같은 artifact와 같은 evaluator의 무변경 재시도는 금지하며 red-team 자동 시도도 최대 3회다.
-   상한 뒤 유효한 위험이 남으면 `decision_required`로 중단하고, 사람이 정확한 리비전과 위험을
-   명시적으로 수용한 경우에만 `accepted_risk`로 다음 단계에 갈 수 있다.
+6. 소유 단계가 artifact를 수정했다면 해당 task 또는 결정의 scoped 검증·재리뷰를 먼저 완료한다.
+   이어서 전체 결정론적 검증을 다시 실행하고 현재 `MERGE_BASE..HEAD` package로 일반
+   whole-change review를 fresh context에서 갱신한다. 일반 gate가 `passed` 또는 exact revision의
+   `accepted_risk`가 된 뒤에만 모든 입력을 새 bundle로 고정하고 또 다른 fresh-context red-team
+   reviewer를 사용한다. evidence 또는 capability만 달라지고 artifact revision이 같다면 현재
+   일반 gate는 유지할 수 있지만 영향 component와 bundle은 다시 고정한다. 같은 artifact와 같은
+   evaluator의 무변경 재시도는 금지하며 red-team 자동 시도도 최대 3회다. 상한 뒤 유효한 위험이
+   남으면 `decision_required`로 중단하고, 사람이 정확한 리비전과 위험을 명시적으로 수용한 경우에만
+   `accepted_risk`로 다음 단계에 갈 수 있다.
 
 ## 마무리
 
@@ -610,9 +618,6 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
   Magic number — ADDRESSED (src/recovery.js:7). New breakage: none.
   Verdict: all findings addressed.
 
-[Regenerate review-package PLAN_FILE MERGE_BASE current HEAD]
-[Dispatch a fresh-context whole-change reviewer; record the ordinary final gate for current HEAD]
-
 [Ledger: Task 2: fix round 1/3 (2 addressed, 0 open; commits d4e5f6a..b7c8d9e)]
 [Ledger: Task 2: complete (commits d4e5f6a..b7c8d9e, review clean)]
 
@@ -621,7 +626,13 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
 [After all tasks]
 [Run final whole-change deterministic verification; record commands and output]
 [Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final code-reviewer, most capable model]
-Final reviewer: All requirements met. Deferred minors triaged: none block merge.
+Final reviewer: Important — repair mode bypasses the permission boundary required by the plan.
+
+[Apply one focused final-review fix and rerun affected plus whole-change deterministic checks]
+[Run review-package PLAN_FILE FIX_BASE HEAD; dispatch scoped re-review]
+Re-reviewer: Original finding — ADDRESSED. New breakage: none.
+[Regenerate review-package PLAN_FILE MERGE_BASE current HEAD]
+[Dispatch a fresh-context whole-change reviewer; record passed for current HEAD]
 
 [Regenerate the full binary-safe MERGE_BASE..current HEAD package]
 [Freeze goal/design/plan/evidence/provenance contents with the diff into a new red-team bundle and digest]
