@@ -306,6 +306,10 @@
           results.push({ nodeId: target.nodeId, status: "skipped", reason: "STALE_EXPECTED_STATE" });
           continue;
         }
+        if (mutation2 === "lookup_failed") {
+          results.push({ nodeId: target.nodeId, status: "failed", reason: "LOOKUP_FAILED" });
+          continue;
+        }
         try {
           const readback = await port.readNode(target.nodeId);
           if (readback?.name === renameTarget.newName) {
@@ -364,6 +368,10 @@
         results.push({ nodeId: target.nodeId, status: "skipped", reason: "STALE_EXPECTED_STATE" });
         continue;
       }
+      if (mutation === "lookup_failed") {
+        results.push({ nodeId: target.nodeId, status: "failed", reason: "LOOKUP_FAILED" });
+        continue;
+      }
       try {
         const readback = await port.readNode(target.nodeId);
         if (readback?.mainComponentKey === iconTarget.replacementComponentKey) {
@@ -390,9 +398,39 @@
     const destinationId = asRecord(action)?.destinationId;
     return typeof destinationId === "string" ? destinationId : void 0;
   }
+  function snapshotActions(action) {
+    const record = asRecord(action);
+    if (!record) return [];
+    const actions = [{ destinationId: readDestinationId(action) }];
+    const conditionalBlocks = record.conditionalBlocks;
+    if (!Array.isArray(conditionalBlocks)) return actions;
+    for (const block of conditionalBlocks) {
+      const nestedActions = asRecord(block)?.actions;
+      if (!Array.isArray(nestedActions)) continue;
+      for (const nestedAction of nestedActions) actions.push(...snapshotActions(nestedAction));
+    }
+    return actions;
+  }
+  function snapshotReactionActions(reaction) {
+    const record = asRecord(reaction);
+    if (!record) return void 0;
+    const actions = Array.isArray(record.actions) ? record.actions : record.action === void 0 ? void 0 : [record.action];
+    return actions?.flatMap(snapshotActions);
+  }
   function snapshotParent(parent) {
     const layoutMode = parent.layoutMode;
     return typeof layoutMode === "string" ? { id: parent.id, type: parent.type, layoutMode } : { id: parent.id, type: parent.type };
+  }
+  function normalizeVariableAlias(value) {
+    const alias = asRecord(value);
+    return alias?.type === "VARIABLE_ALIAS" && typeof alias.id === "string" ? alias.id : void 0;
+  }
+  function normalizeVariableBinding(value) {
+    const alias = normalizeVariableAlias(value);
+    if (alias) return { kind: "binding", variableId: alias };
+    if (!Array.isArray(value)) return void 0;
+    const variableIds = value.map(normalizeVariableAlias).filter((id) => id !== void 0);
+    return variableIds.length > 0 ? { kind: "binding-list", variableIds } : void 0;
   }
   function snapshotVariableBindings(node) {
     const variableNode = node;
@@ -400,9 +438,23 @@
     if (typeof variableNode.opacity === "number" && Number.isFinite(variableNode.opacity)) {
       bindings.opacity = { kind: "literal", value: variableNode.opacity };
     }
-    const opacityBinding = asRecord(asRecord(variableNode.boundVariables)?.opacity);
-    if (opacityBinding?.type === "VARIABLE_ALIAS" && typeof opacityBinding.id === "string") {
-      bindings.opacity = { kind: "binding", variableId: opacityBinding.id };
+    const boundVariables = asRecord(variableNode.boundVariables);
+    if (!boundVariables) return Object.keys(bindings).length > 0 ? bindings : void 0;
+    for (const [field, value] of Object.entries(boundVariables)) {
+      const componentProperties = asRecord(value);
+      if (field === "componentProperties" && componentProperties) {
+        const properties = {};
+        for (const [propertyName, propertyValue] of Object.entries(componentProperties)) {
+          const normalized2 = normalizeVariableBinding(propertyValue);
+          if (normalized2) properties[propertyName] = normalized2;
+        }
+        if (Object.keys(properties).length > 0) {
+          bindings.componentProperties = { kind: "component-properties", properties };
+        }
+        continue;
+      }
+      const normalized = normalizeVariableBinding(value);
+      if (normalized) bindings[field] = normalized;
     }
     return Object.keys(bindings).length > 0 ? bindings : void 0;
   }
@@ -435,9 +487,8 @@
     const reactionNode = node;
     if (reactionNode.reactions) {
       snapshot.reactions = reactionNode.reactions.map((reaction) => {
-        const actions = asRecord(reaction)?.actions;
-        if (!Array.isArray(actions)) return {};
-        return { actions: actions.map((action) => ({ destinationId: readDestinationId(action) })) };
+        const actions = snapshotReactionActions(reaction);
+        return actions === void 0 ? {} : { actions };
       });
     }
     if ("children" in node) {
@@ -455,7 +506,12 @@
       return node ? snapshotNode(node) : null;
     }
     async renameIfCurrent(nodeId, expectedName, name) {
-      const node = await figma.getNodeByIdAsync(nodeId);
+      let node;
+      try {
+        node = await figma.getNodeByIdAsync(nodeId);
+      } catch {
+        return "lookup_failed";
+      }
       if (!node) return "missing";
       if (!("name" in node) || node.name !== expectedName) return "stale";
       node.name = name;
@@ -465,11 +521,21 @@
       return figma.importComponentByKeyAsync(componentKey);
     }
     async replaceIconInstanceIfCurrent(nodeId, expectedMainComponentKey, component) {
-      const node = await figma.getNodeByIdAsync(nodeId);
+      let node;
+      try {
+        node = await figma.getNodeByIdAsync(nodeId);
+      } catch {
+        return "lookup_failed";
+      }
       if (!node) return "missing";
       if (node.type !== "INSTANCE") return "stale";
       if (!isComponentNode(component)) throw new Error("Imported value is not a component");
-      const currentComponent = await node.getMainComponentAsync();
+      let currentComponent;
+      try {
+        currentComponent = await node.getMainComponentAsync();
+      } catch {
+        return "lookup_failed";
+      }
       if (currentComponent?.key !== expectedMainComponentKey) return "stale";
       node.swapComponent(component);
       return "applied";
@@ -482,7 +548,7 @@
 
   // src/code.ts
   var invalidField = { status: "invalid", reason: "INVALID_FIELD" };
-  var lookupFailed = { status: "invalid", reason: "LOOKUP_FAILED" };
+  var lookupFailed = { status: "failed", reason: "LOOKUP_FAILED" };
   var isRequestId = (value) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
   var isRequest = (value) => typeof value === "object" && value !== null;
   function createUiMessageHandler(port, post) {

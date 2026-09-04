@@ -1,6 +1,6 @@
 import type { NormalizedNodeSnapshot } from './contracts.js';
 
-export type ConditionalMutationResult = 'applied' | 'stale' | 'missing';
+export type ConditionalMutationResult = 'applied' | 'stale' | 'missing' | 'lookup_failed';
 
 export interface NodePort {
   getSelection(): Promise<NormalizedNodeSnapshot[]>;

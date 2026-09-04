@@ -693,6 +693,27 @@ test('icon apply skips when state changes during component import', async () => 
   assert.equal(node.mainComponentKey, 'C');
 });
 
+test('apply classifies a final conditional lookup failure without mutating', async () => {
+  const previewText = JSON.stringify({
+    version: 1, mode: 'preview', operation: 'rename-exact',
+    targets: [{ nodeId: 'node', expectedName: 'A', newName: 'B' }],
+  });
+  const applyText = previewText.replace('"preview"', '"apply"');
+  const node = { id: 'node', type: 'RECTANGLE', name: 'A' };
+  const port = {
+    async readNode() { return node; },
+    async renameIfCurrent() { return 'lookup_failed'; },
+  };
+  const preview = await previewPlan(previewText, port) as { receipt: unknown };
+  const result = await applyPlan(applyText, preview.receipt, port);
+
+  assert.deepEqual(result, {
+    status: 'failed',
+    results: [{ nodeId: 'node', status: 'failed', reason: 'LOOKUP_FAILED' }],
+  });
+  assert.equal(node.name, 'A');
+});
+
 test('auto-layout audit returns clean when every checked node has an Auto Layout parent', async () => {
   const result = await previewPlan(JSON.stringify({
     version: 1, mode: 'preview', operation: 'audit-auto-layout', scope: { kind: 'selection' },

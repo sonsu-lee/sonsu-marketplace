@@ -61,7 +61,7 @@ test('selection getMainComponentAsync rejection is classified without exposing r
 
   assert.deepEqual(posted, [{
     type: 'result', request: 'preview', requestId: 7, input: plan,
-    result: { status: 'invalid', reason: 'LOOKUP_FAILED' },
+    result: { status: 'failed', reason: 'LOOKUP_FAILED' },
   }]);
 });
 
@@ -77,6 +77,6 @@ test('prototype destination lookup exceptions are classified without exposing ra
 
   assert.deepEqual(posted, [{
     type: 'result', request: 'preview', requestId: 8, input: plan,
-    result: { status: 'invalid', reason: 'LOOKUP_FAILED' },
+    result: { status: 'failed', reason: 'LOOKUP_FAILED' },
   }]);
 });

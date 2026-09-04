@@ -21,11 +21,47 @@ function readDestinationId(action: unknown): string | undefined {
   return typeof destinationId === 'string' ? destinationId : undefined;
 }
 
+function snapshotActions(action: unknown): Array<{ destinationId?: string }> {
+  const record = asRecord(action);
+  if (!record) return [];
+  const actions: Array<{ destinationId?: string }> = [{ destinationId: readDestinationId(action) }];
+  const conditionalBlocks = record.conditionalBlocks;
+  if (!Array.isArray(conditionalBlocks)) return actions;
+  for (const block of conditionalBlocks) {
+    const nestedActions = asRecord(block)?.actions;
+    if (!Array.isArray(nestedActions)) continue;
+    for (const nestedAction of nestedActions) actions.push(...snapshotActions(nestedAction));
+  }
+  return actions;
+}
+
+function snapshotReactionActions(reaction: unknown): Array<{ destinationId?: string }> | undefined {
+  const record = asRecord(reaction);
+  if (!record) return undefined;
+  const actions = Array.isArray(record.actions)
+    ? record.actions
+    : record.action === undefined ? undefined : [record.action];
+  return actions?.flatMap(snapshotActions);
+}
+
 function snapshotParent(parent: BaseNode): NonNullable<NormalizedNodeSnapshot['parent']> {
   const layoutMode = (parent as NodeWithLayout).layoutMode;
   return typeof layoutMode === 'string'
     ? { id: parent.id, type: parent.type, layoutMode }
     : { id: parent.id, type: parent.type };
+}
+
+function normalizeVariableAlias(value: unknown): string | undefined {
+  const alias = asRecord(value);
+  return alias?.type === 'VARIABLE_ALIAS' && typeof alias.id === 'string' ? alias.id : undefined;
+}
+
+function normalizeVariableBinding(value: unknown): NormalizedVariableBinding | undefined {
+  const alias = normalizeVariableAlias(value);
+  if (alias) return { kind: 'binding', variableId: alias };
+  if (!Array.isArray(value)) return undefined;
+  const variableIds = value.map(normalizeVariableAlias).filter((id): id is string => id !== undefined);
+  return variableIds.length > 0 ? { kind: 'binding-list', variableIds } : undefined;
 }
 
 function snapshotVariableBindings(node: BaseNode): Record<string, NormalizedVariableBinding> | undefined {
@@ -34,9 +70,23 @@ function snapshotVariableBindings(node: BaseNode): Record<string, NormalizedVari
   if (typeof variableNode.opacity === 'number' && Number.isFinite(variableNode.opacity)) {
     bindings.opacity = { kind: 'literal', value: variableNode.opacity };
   }
-  const opacityBinding = asRecord(asRecord(variableNode.boundVariables)?.opacity);
-  if (opacityBinding?.type === 'VARIABLE_ALIAS' && typeof opacityBinding.id === 'string') {
-    bindings.opacity = { kind: 'binding', variableId: opacityBinding.id };
+  const boundVariables = asRecord(variableNode.boundVariables);
+  if (!boundVariables) return Object.keys(bindings).length > 0 ? bindings : undefined;
+  for (const [field, value] of Object.entries(boundVariables)) {
+    const componentProperties = asRecord(value);
+    if (field === 'componentProperties' && componentProperties) {
+      const properties: Record<string, NormalizedVariableBinding> = {};
+      for (const [propertyName, propertyValue] of Object.entries(componentProperties)) {
+        const normalized = normalizeVariableBinding(propertyValue);
+        if (normalized) properties[propertyName] = normalized;
+      }
+      if (Object.keys(properties).length > 0) {
+        bindings.componentProperties = { kind: 'component-properties', properties };
+      }
+      continue;
+    }
+    const normalized = normalizeVariableBinding(value);
+    if (normalized) bindings[field] = normalized;
   }
   return Object.keys(bindings).length > 0 ? bindings : undefined;
 }
@@ -73,9 +123,8 @@ async function snapshotNode(node: BaseNode): Promise<NormalizedNodeSnapshot> {
   const reactionNode = node as NodeWithReactions;
   if (reactionNode.reactions) {
     snapshot.reactions = reactionNode.reactions.map((reaction) => {
-      const actions = asRecord(reaction)?.actions;
-      if (!Array.isArray(actions)) return {};
-      return { actions: actions.map((action) => ({ destinationId: readDestinationId(action) })) };
+      const actions = snapshotReactionActions(reaction);
+      return actions === undefined ? {} : { actions };
     });
   }
 
@@ -98,7 +147,12 @@ export class FigmaNodePort implements NodePort {
   }
 
   async renameIfCurrent(nodeId: string, expectedName: string, name: string): Promise<ConditionalMutationResult> {
-    const node = await figma.getNodeByIdAsync(nodeId);
+    let node;
+    try {
+      node = await figma.getNodeByIdAsync(nodeId);
+    } catch {
+      return 'lookup_failed';
+    }
     if (!node) return 'missing';
     if (!('name' in node) || (node as Partial<NodeWithName>).name !== expectedName) return 'stale';
     (node as NodeWithName).name = name;
@@ -114,11 +168,21 @@ export class FigmaNodePort implements NodePort {
     expectedMainComponentKey: string,
     component: unknown,
   ): Promise<ConditionalMutationResult> {
-    const node = await figma.getNodeByIdAsync(nodeId);
+    let node;
+    try {
+      node = await figma.getNodeByIdAsync(nodeId);
+    } catch {
+      return 'lookup_failed';
+    }
     if (!node) return 'missing';
     if (node.type !== 'INSTANCE') return 'stale';
     if (!isComponentNode(component)) throw new Error('Imported value is not a component');
-    const currentComponent = await node.getMainComponentAsync();
+    let currentComponent;
+    try {
+      currentComponent = await node.getMainComponentAsync();
+    } catch {
+      return 'lookup_failed';
+    }
     if (currentComponent?.key !== expectedMainComponentKey) return 'stale';
     node.swapComponent(component);
     return 'applied';

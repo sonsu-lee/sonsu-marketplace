@@ -58,13 +58,19 @@ plugin data, network 또는 document에 저장하지 않습니다. plugin을 닫
 각 UI request는 generation ID와 요청 당시 입력을 함께 전달한다. 이전 Preview 또는 Apply의 늦은
 response는 현재 generation과 입력이 모두 일치할 때만 표시하거나 receipt로 채택한다.
 
-Malformed UI message는 `{ status: "invalid", reason: "INVALID_FIELD" }`로, selection snapshot,
-prototype destination lookup 같은 host lookup exception은 `{ status: "invalid", reason:
-"LOOKUP_FAILED" }`로 응답한다. raw error나 stack은 UI에 전달하지 않는다.
+Malformed UI message는 `{ status: "invalid", reason: "INVALID_FIELD" }`로, plan/receipt validation은
+기존의 안정된 validation reason을 가진 `invalid` 결과로 응답한다. 반면 selection snapshot, prototype
+destination, final conditional mutation lookup 같은 host
+lookup exception은 `{ status: "failed", reason: "LOOKUP_FAILED" }`로 응답한다. 실제 name assignment나
+`swapComponent()` failure는 `{ status: "failed", reason: "MUTATION_FAILED" }`다. raw error나 stack은 UI에
+전달하지 않는다.
 
-Selection snapshot의 `variableBindings.opacity`는 JSON-safe 사실만 보존한다. literal opacity는
-`{ "kind": "literal", "value": 0.5 }`, Figma variable alias는
-`{ "kind": "binding", "variableId": "VariableID:…" }`로 구분한다.
+Selection snapshot의 `variableBindings`는 JSON-safe 사실만 보존한다. literal opacity는
+`{ "kind": "literal", "value": 0.5 }`, 하나의 Figma variable alias는
+`{ "kind": "binding", "variableId": "VariableID:…" }`, alias 배열은
+`{ "kind": "binding-list", "variableIds": ["VariableID:…"] }`, component property map은
+`{ "kind": "component-properties", "properties": { "Property": { "kind": "binding", "variableId": "…" } } }`로
+정규화한다. variable binding이 있으면 해당 literal fact보다 우선하며, 알 수 없거나 비정상 값은 생략한다.
 
 ## Verification boundary
 

@@ -361,6 +361,10 @@ export async function applyPlan(text: string, receipt: unknown, port: NodePort):
         results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'STALE_EXPECTED_STATE' });
         continue;
       }
+      if (mutation === 'lookup_failed') {
+        results.push({ nodeId: target.nodeId, status: 'failed', reason: 'LOOKUP_FAILED' });
+        continue;
+      }
       try {
         const readback = await port.readNode(target.nodeId);
         if (readback?.name === renameTarget.newName) {
@@ -415,6 +419,10 @@ export async function applyPlan(text: string, receipt: unknown, port: NodePort):
     }
     if (mutation === 'stale') {
       results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'STALE_EXPECTED_STATE' });
+      continue;
+    }
+    if (mutation === 'lookup_failed') {
+      results.push({ nodeId: target.nodeId, status: 'failed', reason: 'LOOKUP_FAILED' });
       continue;
     }
     try {

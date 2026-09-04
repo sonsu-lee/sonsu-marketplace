@@ -12,7 +12,7 @@ type UiResultMessage = {
 };
 
 const invalidField = { status: 'invalid', reason: 'INVALID_FIELD' } as const;
-const lookupFailed = { status: 'invalid', reason: 'LOOKUP_FAILED' } as const;
+const lookupFailed = { status: 'failed', reason: 'LOOKUP_FAILED' } as const;
 
 const isRequestId = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;

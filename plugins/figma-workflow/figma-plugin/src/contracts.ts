@@ -83,7 +83,9 @@ export type NormalizedNodeSnapshot = {
 
 export type NormalizedVariableBinding =
   | { kind: 'literal'; value: string | number | boolean | null }
-  | { kind: 'binding'; variableId: string };
+  | { kind: 'binding'; variableId: string }
+  | { kind: 'binding-list'; variableIds: string[] }
+  | { kind: 'component-properties'; properties: Record<string, NormalizedVariableBinding> };
 
 export type PreviewReceipt = {
   fingerprint: string;
