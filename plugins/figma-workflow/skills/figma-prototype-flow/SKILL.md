@@ -10,11 +10,11 @@ Figma Design이 제품 interaction의 source of truth일 때 actual control과 n
 ## 시작과 실행 선택
 
 1. [tool routing](../../references/tool-routing.md)으로 실제 제품 interaction인지 확인한다. overlay, back/dismiss, error/recovery와 state edge case는 Figma prototype 안에서 정의한다. FigJam과 draw.io diagram은 이를 대체하지 않는다.
-2. [capability and evidence](../../references/capability-and-evidence.md)를 읽어 target, permission과 `reaction_write`, `reaction_readback`, `prototype_playback` capability를 각각 기록한다. provider가 Figma tool 전에 prerequisite skill을 요구하고 그것이 설치되어 있으면 현재 계약을 먼저 따른다.
+2. [capability and evidence](../../references/capability-and-evidence.md)를 읽어 target, permission과 `reaction_write`, `reaction_readback`, `prototype_playback` capability를 각각 기록한다. `use_figma`가 필요한 reaction read/write 전에는 `figma:figma-use`를 invoke하고 해당 tool call의 `skillNames`에 `figma-use`를 포함한다. motion 등 추가 official prerequisite가 현재 설치된 contract에 적용되면 그것도 함께 따른다.
 3. 판단형 reaction read/write는 registered official Figma MCP를 유일한 agent writer로 사용한다. direct official MCP와 explicit target을 좁힌 bounded code 모두 official MCP 경로 안에 한정한다. raw MCP, local bridge, second writer 또는 추정한 API 이름을 사용하지 않는다.
 4. existing starting point, screen·component states, reactions, variables와 annotations를 읽어 현재 graph를 만든다. Selection이나 node ID가 stale하면 write 전에 정확한 target을 다시 정한다.
 
-reaction write capability가 없으면 interaction specification을 제공하고 mutation과 playback을 `not_run`으로 보고한다. companion은 prototype graph를 write하는 도구가 아니다. 수동 companion의 `audit-prototype-links`는 selection 기반의 결정적 integrity evidence만 제공하며 자세한 계약은 [deterministic execution](../../references/deterministic-execution.md)과 [companion README](../../figma-plugin/README.md)를 따른다.
+`figma:figma-use` 또는 필요한 capability가 설치·노출되지 않으면 interaction specification을 제공하고 mutation과 playback을 `blocked`, `not_run` 또는 `inconclusive`로 보고한다. tool/API를 추정하거나 우회하지 않는다. companion은 prototype graph를 write하는 도구가 아니다. 수동 companion의 `audit-prototype-links`는 selection 기반의 결정적 integrity evidence만 제공하며 자세한 계약은 [deterministic execution](../../references/deterministic-execution.md)과 [companion README](../../figma-plugin/README.md)를 따른다.
 
 ## Interaction 계약
 

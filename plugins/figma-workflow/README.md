@@ -17,7 +17,7 @@ Figma Design에서 제품 화면, responsive Auto Layout, component·variant·va
 - AWS, network, UML, ERD와 system architecture는 draw.io에서 native `.drawio`로 만듭니다.
 - 판단형 Figma canvas read/write는 registered official Figma MCP만 수행합니다. raw MCP 설치, agent-callable local bridge, second writer는 제공하거나 제안하지 않습니다.
 
-현재 환경이 tool 사용 전에 official Figma prerequisite skill을 요구하고 그것이 설치되어 있다면 그 skill의 현재 계약을 먼저 따릅니다. live tool schema가 문서와 다르면 schema만 capability 근거로 삼으며 존재하지 않는 tool/API를 가정하지 않습니다.
+`use_figma`를 실제 호출할 때마다 먼저 `figma:figma-use`를 invoke하고 해당 tool call의 `skillNames`에 `figma-use`를 포함합니다. composed screen/view는 `figma:figma-use`와 `figma:figma-generate-design`, component/library는 `figma:figma-use`와 `figma:figma-generate-library`를 함께 invoke합니다. motion 등 추가 official prerequisite는 current installed contract가 요구할 때 함께 적용합니다. 읽기 전용 audit도 `use_figma`를 호출하면 같은 규칙을 따릅니다. prerequisite 또는 capability가 설치·노출되지 않으면 tool/API를 가정하거나 우회하지 않고 `blocked`, `not_run` 또는 `inconclusive`로 보고합니다.
 
 화면과 composed view에는 `figma-product-design`, prototype reaction에는 `figma-prototype-flow`, 읽기 전용 검토에는 `figma-design-audit`을 사용합니다. component/library authoring은 `figma:figma-generate-library`, design-to-code는 `figma:figma-design-to-code`의 범위입니다.
 
