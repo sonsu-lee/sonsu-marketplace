@@ -14,10 +14,25 @@ assert_contains "$SKILL" 'classifier verdict'
 assert_contains "$SKILL" 'Run bounded Fast Path'
 assert_contains "$SKILL" 'Hidden complexity during Fast Path?'
 
-# A graph-level edge from escalation back to either predicate or execution is forbidden.
-if rg -n 'Hidden complexity during Fast Path\?.*->.*(All Fast Path predicates confirmed\?|Run bounded Fast Path)' "$SKILL"; then
-  fail 'escalation can reach Fast Path predicate or execution'
-fi
+# Check directed DOT reachability (not a direct-edge/string grep).
+python3 - "$SKILL" <<'PY'
+import re,sys
+from collections import defaultdict,deque
+s=open(sys.argv[1]).read(); g=defaultdict(list)
+for a,b in re.findall(r'^\s*"([^"]+)"\s*->\s*"([^"]+)"',s,re.M): g[a].append(b)
+def reach(a,b):
+ q=deque([a]); seen={a}
+ while q:
+  n=q.popleft()
+  if n==b:return True
+  for x in g[n]:
+   if x not in seen: seen.add(x);q.append(x)
+ return False
+c=next((x for x in g if 'classifier' in x.lower()),None); p=next((x for x in g if 'All Fast Path predicates confirmed?' in x),None); e=next((x for x in g if 'Run bounded Fast Path' in x),None); h=next((x for x in g if 'Hidden complexity during Fast Path?' in x),None)
+assert c and p and e and h,'required DOT nodes absent'
+assert reach(c,p) and reach(c,e),'classifier does not precede execution'
+assert not reach(h,p) and not reach(h,e),'escalation re-enters Fast Path'
+PY
 
 TASK_ID="red-routing-$$"
 WORK=$(mktemp -d)
@@ -25,11 +40,13 @@ trap 'rm -rf "$WORK"' EXIT
 
 # RED: Task 2 must provide this state helper.  Exercise it in two processes so
 # a transient in-memory latch cannot make disqualified -> eligible possible.
-[[ -x "$STATE" ]] || { "$STATE" check "$WORK" "$TASK_ID" eligible; }
-"$STATE" disqualify "$WORK" "$TASK_ID" 'unexpected consumer' >/dev/null
-[[ "$({ "$STATE" check "$WORK" "$TASK_ID" eligible; } 2>/dev/null || true)" != 'eligible' ]] ||
-  fail 'disqualified task was reclassified as eligible in a new process'
-[[ "$({ "$STATE" route "$WORK" "$TASK_ID"; } 2>/dev/null || true)" != *'normal'* ]] ||
-  true
+[[ -x "$STATE" ]] || { "$STATE" check "$WORK" "$TASK_ID"; }
+initial=$($STATE check "$WORK" "$TASK_ID") || fail 'initial state failed'
+[[ "$initial" == eligible ]] || fail "initial state: $initial"
+$STATE eligible "$WORK" "$TASK_ID" candidate-rev classifier-digest >/dev/null || fail 'eligible record failed'
+$STATE disqualify "$WORK" "$TASK_ID" 'unexpected consumer' >/dev/null || fail 'disqualify failed'
+! $STATE check "$WORK" "$TASK_ID" || fail 'disqualified state accepted eligibility check'
+route=$($STATE route "$WORK" "$TASK_ID") || fail 'route command failed'
+[[ "$route" == normal* ]] || fail "unexpected route: $route"
 
 printf 'PASS: fast-path routing regression checks\n'
