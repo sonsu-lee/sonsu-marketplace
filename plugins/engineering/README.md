@@ -35,12 +35,15 @@ codex plugin add engineering@sonsu-marketplace
 
 ## 개발 흐름
 
-1. **brainstorming**은 bounded 진입에서 Local/Mechanical Fast Path 적합성을 먼저 판정합니다. 모든
-   조건이 확인된 Fast Path는 사용자 요청을 승인된 짧은 설계로 간주하고 바로 실행하며, 하나라도
-   false 또는 unknown이면 문제, 대안, 설계와 문서 영향을 구체화합니다.
+1. **brainstorming**은 bounded 진입에서 Local/Mechanical Fast Path 적합성을 먼저 판정합니다. controller는
+   target discovery 전에 stable task ID를 고정하고 매 entry에서 exact candidate revision으로 persistent
+   latch를 확인합니다. controller 탐색 1회와 fresh-context classifier의 독립 탐색 1회이 전체 search
+   budget이며, revision과 64-character SHA-256 evidence digest가 일치한 `eligible`만 바로 실행할 수
+   있습니다. classifier의 non-eligible·unavailable, false·unknown predicate 또는 실행 중 escalation은
+   `disqualified` latch를 영속 기록한 뒤 가장 가까운 일반 workflow로 보내며 Fast Path에 재진입하지 않습니다.
 2. **using-git-worktrees**는 기존 linked `worktree`를 재사용하거나 격리가 필요할 때 새로 만듭니다.
 3. **writing-plans**는 기본적으로 대화 안에 계획을 작성합니다. 의사코드로 전체 흐름을 정의하고 파일·task·dependency에 연결한 뒤, 이유가 있는 검증 방법을 선택하여 계획 준비 상태를 판정합니다.
-4. **executing-plans**는 task 및 전체 변경 게이트와 함께 계획을 직접 실행합니다. **subagent-driven-development**는 파일 기반 계획과 task 커밋이 명시적으로 승인된 경우 task별 정밀 리뷰 게이트를 추가합니다. 두 실행 경로 모두 자동 review/fix를 최대 3회로 제한하고, 일반 최종 리뷰 뒤 fresh-context red-team을 수행하며, `writing-plans`의 material deviation 규칙에 따라 설계 재승인과 영향받은 완료 task의 재개방 여부를 처리합니다.
+4. **executing-plans**는 task 및 전체 변경 게이트와 함께 계획을 직접 실행합니다. **subagent-driven-development**는 파일 기반 계획과 task 커밋이 명시적으로 승인된 경우 task별 정밀 리뷰 게이트를 추가합니다. 두 실행 경로 모두 자동 review/fix를 최대 3회로 제한합니다. round 2/3 fresh fix implementer는 exact task brief, binary-safe artifact package, exact-key normalized finding/verification evidence, round와 exact revision만 든 immutable bundle path·digest를 받고, `fix-handoff verify BUNDLE DIGEST` 성공 뒤 verified `Extracted:` snapshot만 읽습니다. 이전 report·rationale·verdict·agent identity·session history는 전달하지 않습니다. 일반 최종 리뷰와 fresh-context red-team은 항상 현재 exact revision에 다시 고정하며, `writing-plans`의 material deviation 규칙에 따라 설계 재승인과 영향받은 완료 task의 재개방 여부를 처리합니다.
 5. **test-driven-development**는 기능, 결함, 로직, 상태 전이와 오류 처리처럼 동작·회귀 위험이 있는 변경에서 적합성을 판단한 뒤, 선택된 task에 RED–GREEN–REFACTOR를 적용합니다. 문서, metadata와 단순 설정에는 변경에 적합한 검사를 사용합니다.
 6. **requesting-code-review**와 **receiving-code-review**는 검증되지 않은 피드백을 사실로 취급하지 않으면서 리뷰를 처리합니다.
 7. **verification-before-completion**은 성공을 주장하기 전에 정확한 리비전의 현재 근거를 요구합니다.
@@ -65,15 +68,18 @@ codex plugin add engineering@sonsu-marketplace
 
 - 새 영속 문서를 제안하기 전에 기존 ADR, architecture, product, guide, reference와 runbook 문서를 확인합니다.
 - 구현 계획은 기본적으로 대화 안에 유지합니다. 실행에 파일이 필요할 때에만 Git에서 무시하는 scratch 파일을 사용합니다.
-- 구현 계획이 필요하면 `writing-plans`의 의사코드가 구현 세부사항보다 먼저 오며, 각 흐름을 파일, task, dependency와 검증에 연결합니다. 계획이 필요 없는 Fast Path에는 긴 의사코드와 red-team을 강제하지 않지만 표적 탐색, 범위와 결정론적 검증을 기록합니다.
+- 구현 계획이 필요하면 `writing-plans`의 의사코드가 구현 세부사항보다 먼저 오며, 각 흐름을 파일, task, dependency와 검증에 연결합니다. 계획이 필요 없는 Fast Path에는 긴 의사코드와 red-team을 강제하지 않지만, stable task ID, revision-bound persistent latch, classifier 독립성, 총 2회 search budget, 범위와 결정론적 검증을 기록합니다.
 - 구현이 계획에서 material하게 달라지면 `writing-plans`를 canonical source로 삼습니다. 승인된 설계나 관찰 가능한 계약을 바꾸는 차이는 사용자 재승인이 필요하고, 새 흐름의 영향을 받는 완료 task는 다시 열어 검증합니다.
 - 설계 승인, 문서 작성, 구현, commit, push, PR, merge와 배포를 서로 다른 권한 경계로 취급합니다.
 - 동작과 회귀 위험, 자동화 테스트의 실익을 기준으로 TDD 적합성을 판단하고 선택 이유를 기록합니다. TDD를 선택하면 RED–GREEN–REFACTOR를 유지하며, 문서, metadata와 단순 설정에는 변경에 비례한 구조 검사 또는 실제 소비 명령을 사용합니다.
-- 추론 기반 리뷰보다 결정론적인 검사를 먼저 실행하고, 모든 게이트를 정확한 artifact 리비전에 연결하고, 정보가 달라졌을 때에만 재시도합니다.
+- 추론 기반 리뷰보다 결정론적인 검사를 먼저 실행하고, 모든 게이트를 정확한 artifact 리비전에 연결하고, artifact가 바뀌면 F4의 deterministic verification·ordinary review·red-team bundle을 새 리비전에 다시 고정하며, 정보가 달라졌을 때에만 재시도합니다.
 - 결정론적 작업에는 노출된 Code Mode를 우선 활용하되 실행 수단을 Fast Path나 품질 통과의 근거로 취급하지 않습니다.
 - 역할마다 capability tier와 reasoning effort를 함께 선택하고, Codex의 구체적인 model mapping은 platform reference를 따릅니다. goal은 사용자가 명시적으로 요청한 plan-backed 작업에 최대 하나만 만들고 task는 ledger로 추적합니다.
 - 시도 횟수 상한에 도달했다는 이유로 유효한 미해결 finding을 pass로 바꾸지 않습니다. 식별된 사람인 의사결정자만 `accepted_risk`를 기록할 수 있습니다.
 - Engineering, Workflow, Research와 Fluent Languages를 서로 독립적으로 설치할 수 있게 유지합니다.
+
+이 문서는 플러그인의 선언된 routing·handoff 계약을 설명합니다. fixture, native loading, shell 검증은
+문서와 helper의 구조를 확인할 수 있지만 runtime model compliance나 실제 품질·비용 효과를 증명하지 않습니다.
 
 저장소 정책은 [문서 가이드](../../docs/README.md), [스킬 라우팅 아키텍처](../../docs/architecture/skill-routing.md), [Fast Path와 red-team 결정](../../docs/decisions/0011-use-fast-path-and-plan-red-team-gates.md)과 관련 결정 기록에 남깁니다.
 

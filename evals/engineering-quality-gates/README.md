@@ -32,11 +32,15 @@ classification과 정상 escalation은 `quality_status`, `classification_outcome
 - quality gate와 Git·PR·publish authorization은 독립적으로 판정합니다.
 - subagent capability가 있어도 task commit 승인이 없으면 plan 실행은 `executing-plans`에 남고
   `subagent-driven-development`로 순환하지 않습니다.
-- Fast Path는 모든 predicate가 확인된 plan 없는 작업에만 적용되고 숨은 복잡성이 나오면 즉시 일반 workflow로 올라갑니다.
+- Fast Path controller는 target discovery 전에 stable task ID를 고정하고, 매 entry에서 exact candidate revision과 persistent state를 확인합니다. `disqualified` latch는 classifier·predicate·execution을 건너뛰어 재진입을 막습니다.
+- Fast Path classifier는 controller의 자기 판정과 독립된 fresh-context search를 정확히 한 번 수행합니다. controller search 1회와 합친 전체 search budget은 2회이며, `eligible`은 exact revision과 64-character lowercase SHA-256 evidence digest가 state에 고정될 때만 유효합니다.
+- classifier의 non-eligible·unavailable, false·unknown predicate와 실행 중 숨은 복잡성은 persistent `disqualified` latch를 기록한 뒤 가장 가까운 일반 workflow로 routing합니다.
 - Fast Path의 숨은 복잡성 upgrade와 red-team의 변경 입력 기반 재시도는 flow diagram에서도 실제로 도달 가능해야 합니다.
 - Fast Path eligibility와 실행 전 classification은 quality `passed`가 아니며 정상 escalation도 quality failure가 아닙니다.
 - Code Mode는 결정론적 실행 수단이며 Fast Path 적합성이나 품질 통과의 증거가 아닙니다.
 - plan-backed 완료에는 일반 최종 리뷰와 별개의 fresh-context red-team 판정이 필요합니다.
+- round 2/3 fix handoff는 exact task brief, exact-revision binary-safe artifact package, exact-key normalized finding/verification evidence와 round만 든 immutable bundle입니다. fresh implementer는 `fix-handoff verify BUNDLE DIGEST` 성공 뒤 verified `Extracted:` snapshot만 읽고 이전 report·rationale·verdict·agent identity·session history를 받지 않습니다.
+- F4 completion gate는 artifact가 바뀔 때마다 현재 exact revision의 deterministic verification, ordinary whole-change review와 immutable red-team bundle을 다시 고정합니다.
 - red-team의 목표·요구사항·설계·plan·전체 diff·검증·관찰 결과·review provenance는 source 경로가
   아니라 하나의 content-digested bundle 안에 고정되어야 합니다.
 - SDD review package는 binary patch를 포함하고 같은 range를 다시 생성해도 기존 package를
@@ -47,3 +51,7 @@ classification과 정상 escalation은 `quality_status`, `classification_outcome
   다시 엽니다.
 - SDD workspace는 local merge와 merge 결과 검증 전까지 보존합니다.
 - 모델과 reasoning effort는 역할별로 함께 선택하며 goal은 명시적으로 요청된 plan에 최대 하나입니다.
+
+이 fixture는 선언된 입력·출력과 금지 경로를 평가하기 위한 data contract입니다. JSON parser, shell test,
+native loading과 model 실행 결과를 구분합니다. 특히 fixture 통과는 runtime model compliance나 실제
+품질·비용 효과를 주장하지 않습니다.

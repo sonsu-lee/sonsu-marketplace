@@ -877,6 +877,124 @@
         "invent-token-budget",
         "mark-complete-before-red-team"
       ]
+    },
+    {
+      "id": "fast-path-independent-classifier-eligible",
+      "stage": "fast-path-classification",
+      "prompt": "controller가 target discovery 전에 stable task ID를 고정했고 exact candidate revision을 capture했다. controller search 1회 뒤 fresh classifier가 별도 context에서 consumer search 1회를 수행해 모든 predicate와 oracle을 증명했다. Fast Path entry를 판정해줘.",
+      "event": {
+        "task_id_stable_before_target_discovery": true,
+        "persistent_state": "unclassified",
+        "controller_targeted_searches": 1,
+        "classifier_fresh_context": true,
+        "classifier_independent_targeted_searches": 1,
+        "classifier_verdict": "eligible",
+        "classifier_revision_matches_candidate": true,
+        "classifier_evidence_digest": "64-character-lowercase-sha256",
+        "all_fast_path_predicates_proven": true
+      },
+      "expected": {
+        "classification_outcome": "eligible",
+        "execution_path": "local-or-mechanical-fast-path",
+        "total_targeted_search_budget": 2,
+        "state_record": "eligible-with-stable-task-id-exact-revision-and-evidence-digest"
+      },
+      "must_not": [
+        "treat-controller-self-classification-as-independent",
+        "perform-third-targeted-search",
+        "record-eligible-without-matching-revision-or-digest"
+      ]
+    },
+    {
+      "id": "fast-path-noneligible-or-unavailable-falls-back",
+      "stage": "fast-path-classification",
+      "prompt": "controller search 뒤 classifier가 unavailable이거나 predicate가 unknown이라 eligible verdict를 낼 수 없다. Fast Path와 state를 판정해줘.",
+      "event": {
+        "persistent_state": "unclassified",
+        "classifier_available": false,
+        "predicate_status": "unknown"
+      },
+      "expected": {
+        "classification_outcome": "general-workflow",
+        "state_record": "persistent-disqualified-latch-before-routing",
+        "return_target": "nearest-normal-workflow"
+      },
+      "must_not": [
+        "guess-eligible",
+        "continue-fast-path-without-classifier",
+        "retry-classifier-or-search-after-unavailable"
+      ]
+    },
+    {
+      "id": "fast-path-latched-escalation-cannot-reenter",
+      "stage": "fast-path-execution",
+      "prompt": "eligible Fast Path 실행 중 unexpected consumer가 발견되어 task state가 disqualified로 기록됐다. context compaction 뒤 같은 task를 다시 Fast Path로 분류해 달라는 요청을 받았다. routing을 판정해줘.",
+      "event": {
+        "task_id_stable": true,
+        "persistent_state": "disqualified",
+        "disqualification_reason": "unexpected-consumer",
+        "context_compacted": true
+      },
+      "expected": {
+        "execution_outcome": "escalated",
+        "fast_path_reentry_allowed": false,
+        "return_target": "nearest-normal-workflow-with-task-id-and-state-file-path"
+      },
+      "must_not": [
+        "rerun-classifier",
+        "rerun-fast-path-predicates",
+        "resume-fast-path-execution",
+        "clear-disqualified-latch"
+      ]
+    },
+    {
+      "id": "round-2-evidence-handoff-verifies-extracted-snapshot",
+      "stage": "plan-execution-task-fix-handoff",
+      "prompt": "round 2 fix handoff에 exact task brief, exact-revision binary-safe artifact package, normalized finding-evidence JSON, normalized verification-evidence JSON, round와 bundle digest가 있다. fresh implementer의 preflight와 읽기 범위를 판정해줘.",
+      "event": {
+        "round": 2,
+        "bundle_immutable": true,
+        "bundle_digest_matches": true,
+        "task_brief_present": true,
+        "artifact_package_binary_safe": true,
+        "artifact_revision_exact": true,
+        "finding_evidence_normalized": true,
+        "verification_evidence_normalized": true
+      },
+      "expected": {
+        "handoff_outcome": "verified-evidence-only",
+        "preflight": "fix-handoff-verify-before-read-extract-or-edit",
+        "readable_input": "verified-extracted-snapshot-only",
+        "fresh_context": true
+      },
+      "must_not": [
+        "read-bundle-before-verify",
+        "reopen-bundle-after-verify",
+        "direct-tar-extract",
+        "reuse-prior-session-history"
+      ]
+    },
+    {
+      "id": "round-3-evidence-handoff-rejects-report-contamination",
+      "stage": "plan-execution-task-fix-handoff",
+      "prompt": "round 3 fresh fix handoff에 이전 implementer report와 self-review를 추가하려 한다. evidence-only handoff의 입력을 판정해줘.",
+      "event": {
+        "round": 3,
+        "bundle_contains_prior_report": true,
+        "bundle_contains_self_review": true,
+        "fresh_context_requested": true
+      },
+      "expected": {
+        "handoff_outcome": "inconclusive",
+        "return_target": "handoff-preparation",
+        "prior_context_reuse": false
+      },
+      "must_not": [
+        "dispatch-contaminated-bundle",
+        "treat-report-as-raw-evidence",
+        "reuse-original-or-round-2-implementer",
+        "skip-exact-key-evidence-validation"
+      ]
     }
   ]
 }
