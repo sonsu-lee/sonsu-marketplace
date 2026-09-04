@@ -8,7 +8,7 @@
 
 | 플러그인 | 버전 | 역할 | 주요 스킬 |
 | --- | --- | --- | --- |
-| [Engineering](plugins/engineering/README.md) | `6.3.0-sonsu.5` | 의사코드 우선 계획과 단계별 quality gate를 둔 구현, 디버깅, 검토와 검증 | `brainstorming`, `writing-plans`, `using-git-worktrees`, `test-driven-development` 등 14개 |
+| [Engineering](plugins/engineering/README.md) | `1.0.0` | 의사코드 우선 계획과 단계별 quality gate를 둔 구현, 디버깅, 검토와 검증 | `brainstorming`, `writing-plans`, `using-git-worktrees`, `test-driven-development` 등 14개 |
 | [Quality Engineering](plugins/quality-engineering/README.md) | `0.1.0` | 도메인 형태의 구현과 단순성·유지보수성·실패 모드·운용 가능성 검토 | `domain-shaped-code`, `simplify-code`, `review-quality` 등 8개 |
 | [Workflow](plugins/workflow/) | `0.7.0` | branch·commit, ticket 생성·lifecycle과 GitHub pull request 작업 | `git-workflow`, `to-ticket`, `ticket-lifecycle`, `to-pr` |
 | [Fluent Languages](plugins/fluent-languages/) | `0.1.0-beta.4` | 기술 내용을 보존하는 한국어, 일본어와 영어 출력 지침 | `fluent-korean`, `fluent-japanese`, `fluent-english` |
@@ -20,10 +20,6 @@
 포함한 요청에서는 Codex가 설치된 스킬의 설명과 요청 목적을 바탕으로 필요한 플러그인을 함께
 사용합니다. 자세한 책임과 조합 기준은 [스킬 라우팅 문서](docs/architecture/skill-routing.md)에
 정리되어 있습니다.
-
-Engineering은 [obra/superpowers](https://github.com/obra/superpowers) v6.3.0을 기반으로 개인
-정책을 적용한 플러그인이며 공식 Superpowers 배포판이 아닙니다. 가져온 원본과 변경 범위는
-[Engineering UPSTREAM.md](plugins/engineering/UPSTREAM.md)에 기록합니다.
 
 ## 설치
 
@@ -55,7 +51,7 @@ codex plugin marketplace upgrade sonsu-marketplace
 ```
 
 플러그인을 설치하거나 업데이트한 뒤에는 새 Codex 작업을 시작해 최신 스킬 목록을 불러옵니다.
-이전에 `superpowers`, 다른 마켓플레이스의 `fluent-languages` 또는 standalone
+이전에 다른 마켓플레이스의 `fluent-languages` 또는 standalone
 `prompt-builder`, `product-discovery` 또는 `to-prd`를 설치했다면 같은 이름의 스킬이 중복되지
 않도록 기존 복사본을 먼저
 제거합니다.
@@ -139,7 +135,7 @@ JSON parsing, 생성된 Fluent Languages 스킬의 정본 일치 여부와 평�
 저장소 전체에 공통으로 적용되는 root-level 라이선스는 현재 선언하지 않았습니다. 각
 플러그인의 범위는 다음과 같이 구분합니다.
 
-- Engineering은 Superpowers v6.3.0의 [MIT 라이선스](plugins/engineering/LICENSE)와 원본 저작권 고지를 유지합니다.
+- Engineering에는 [MIT 라이선스](plugins/engineering/LICENSE)가 적용됩니다.
 - Quality Engineering은 여러 고정 upstream을 기반으로 하며 [Apache-2.0 라이선스](plugins/quality-engineering/LICENSE), [NOTICE](plugins/quality-engineering/NOTICE), [출처 mapping](plugins/quality-engineering/UPSTREAM.md)과 [MIT 원문 고지](plugins/quality-engineering/THIRD_PARTY_NOTICES.md)를 유지합니다.
 - Workflow에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Prompting에는 현재 별도의 라이선스를 선언하지 않았습니다.

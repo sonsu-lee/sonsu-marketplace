@@ -24,6 +24,10 @@ plugins/<plugin-name>/.codex-plugin/plugin.json
 | `hooks` | hook 선언 | 업스트림 값과 현재 Codex 호환성을 별도 검증 |
 | `interface` | Codex UI 메타데이터 | 표시 이름, 설명, 아이콘과 기능 범위 정의 |
 
+Engineering은 독립 플러그인으로 관리하므로 `1.0.0`부터 독립 semantic version을 사용하고
+upstream 기준선이나 이전 호환 경로를 매니페스트 계약으로 두지 않습니다. MIT 고지는
+[`LICENSE`](../../plugins/engineering/LICENSE)에 보존합니다.
+
 ## 마켓플레이스 연결
 
 `.agents/plugins/marketplace.json`의 `source.path`는 마켓플레이스 JSON이 있는 디렉터리가
@@ -40,5 +44,5 @@ plugins/<plugin-name>/.codex-plugin/plugin.json
 ```
 
 정적 validator와 Codex 실제 런타임이 지원하는 필드가 다를 수 있습니다. 이 저장소의
-Engineering 매니페스트는 업스트림의 `hooks: {}`를 유지하므로 실제 `plugin/read` 결과를
-최종 호환성 근거로 사용합니다.
+Engineering 매니페스트는 `hooks: {}`를 사용하므로 실제 `plugin/read` 결과를 최종 호환성
+근거로 사용합니다.
