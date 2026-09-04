@@ -116,6 +116,26 @@ with tarfile.open(destination, "w", format=tarfile.USTAR_FORMAT) as archive:
 PY
 }
 
+assert_reassembled_control() {
+  local source_bundle=$1
+  local rebuilt_bundle=$2
+  local artifact=$3
+  local revision=$4
+  local label=$5
+  local rebuilt_digest rebuilt_verify rebuilt_extract
+
+  assemble_bundle_with_artifact_revision \
+    "$source_bundle" "$rebuilt_bundle" "$artifact" "$revision"
+  rebuilt_digest=$(hash_bundle "$rebuilt_bundle")
+  rebuilt_verify=$("$HELPER" verify "$rebuilt_bundle" "$rebuilt_digest") \
+    || fail "$label reassembled control failed verification"
+  rebuilt_extract=$(parse_extracted_path "$rebuilt_verify")
+  [[ -n "$rebuilt_extract" ]] || fail "$label reassembled control did not emit Extracted"
+  assert_snapshot "$rebuilt_extract"
+  cmp "$artifact" "$rebuilt_extract/artifact-package" \
+    || fail "$label reassembled control artifact differs from the input"
+}
+
 assemble_bundle_with_round() {
   python3 - "$1" "$2" "$3" <<'PY'
 import io
@@ -391,6 +411,10 @@ cmp "$working_tree_artifact" "$working_tree_extract/artifact-package" \
 assert_rejected create_bundle_with_revision 90f0ac00a6df120ab960e29678cd8b3770af6830 \
   "$WORK/brief" "$working_tree_artifact" "$FINDINGS" "$VERIFICATION" 2
 
+assert_reassembled_control \
+  "$working_tree_bundle" "$WORK/reassembled-working-tree.bundle" \
+  "$working_tree_artifact" "$working_tree_revision" 'working-tree'
+
 stale_working_tree_bundle="$WORK/stale-working-tree.bundle"
 stale_working_tree_revision=0000000000000000000000000000000000000000000000000000000000000000
 assemble_bundle_with_artifact_revision "$working_tree_bundle" "$stale_working_tree_bundle" \
@@ -418,6 +442,10 @@ committed_digest=$(parse_bundle_digest "$committed_create")
   || fail 'canonical committed-range package failed verification'
 assert_rejected create_bundle_with_revision 0000000000000000000000000000000000000000 \
   "$WORK/brief" "$committed_artifact" "$FINDINGS" "$VERIFICATION" 2
+
+assert_reassembled_control \
+  "$committed_bundle" "$WORK/reassembled-committed-range.bundle" \
+  "$committed_artifact" "$committed_head" 'committed-range'
 
 for committed_case in missing-base missing-head duplicate-base duplicate-head malformed-base malformed-head; do
   case_artifact="$WORK/committed-$committed_case.artifact"
