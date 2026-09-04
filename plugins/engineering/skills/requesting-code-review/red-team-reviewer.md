@@ -4,11 +4,17 @@ plan-backed 작업의 일반 최종 리뷰가 끝난 뒤 이 template을 사용�
 한 번 더 칭찬하거나 finding 수를 채우는 사람이 아니다. 지금까지의 문제 정의와 해결 방향이
 근본적으로 틀렸을 가능성을 가장 강하게 검증한다.
 
+위임 전에 platform 도구 metadata를 확인한다. Codex에서는 `fork_turns: "none"`으로 전체
+session history를 제외한다. `model`과 `reasoning_effort`를 함께 지원하면 역할별 조합을 둘 다
+명시한다. 둘 중 하나라도 지원하지 않으면 부분 override를 만들지 않고 platform이 제공하는
+role·preset·machine default 중 확인 가능한 가장 가까운 조합을 사용해 fallback을 기록한다.
+override field가 없다는 이유만으로 전체 대화를 상속하거나 존재하지 않는 field를 보내지 않는다.
+
 ```
 Subagent (general-purpose):
   description: "전체 변경 red-team completion review"
-  model: [MODEL — 필수: platform 역할별 matrix의 red-team 모델]
-  reasoning_effort: [REASONING_EFFORT — 필수: platform 역할별 matrix의 red-team 추론도]
+  model: [MODEL — 실제 schema가 두 override를 모두 지원할 때 platform matrix에서 선택]
+  reasoning_effort: [REASONING_EFFORT — model과 함께 지원될 때 platform matrix에서 선택]
   prompt: |
     plan-backed 작업 전체를 fresh-context red-team 관점에서 검토한다. 이전 작업자와 reviewer의
     결론을 지지하는 것이 목적이 아니다. 원래 목표부터 검증 근거까지 가장 강한 반례를 세워
@@ -27,8 +33,9 @@ Subagent (general-purpose):
 
     각 값은 내용을 붙여 넣는 대신 읽을 수 있는 artifact 경로 또는 짧은 원문이다. 경로를
     읽을 수 없으면 추측하지 않는다. package를 먼저 읽고 `shasum -a 256` 또는 `sha256sum`으로
-    digest가 선언된 리비전과 일치하는지 확인한다. package가 없거나 비었거나 digest가 다르면
-    다른 diff를 재구성하지 말고 `inconclusive`로 판정한다.
+    digest가 선언된 리비전과 일치하는지 확인한다. package가 없거나 읽을 수 없으면 다른 diff를
+    재구성하지 말고 `blocked`로 판정한다. package가 비었거나 digest가 다르면 검토 대상의
+    무결성을 확인할 수 없으므로 `inconclusive`로 판정한다.
 
     현재 checkout에서 리뷰는 읽기 전용이다. working tree, index, HEAD, branch, plan, report를
     변경하지 않는다. subagent를 위임하지 않는다. 이전 implementer·reviewer의 session history,
@@ -50,6 +57,8 @@ Subagent (general-purpose):
     6. 테스트와 검증이 실제 결과를 증명하는가, 아니면 mock, happy path, 정적 형태 또는 구현
        세부사항만 확인해 잘못된 작업을 통과시키는가?
     7. 일반 코드 리뷰가 diff 품질에 집중하면서 더 근본적인 문제를 놓치도록 만든 요소가 있는가?
+    8. 일반 reviewer의 기존 finding이나 그에 따른 수정 방향 자체가 원래 목표에서 벗어났는가?
+       그렇다면 어떤 finding을 왜 무효화하고 어느 영향 task를 다시 열어야 하는가?
 
     각 반례는 artifact와 `file:line` 또는 report 위치에 연결한다. 근거 없는 가능성은 finding으로
     올리지 않고 `미확인 가정`으로 분리한다. 직접 확인할 수 없는 외부 사실이 판정에 필수라면
@@ -71,6 +80,7 @@ Subagent (general-purpose):
     - plan, 의사코드, mapping, task 분해 → `writing-plans`
     - 구현 결함 → 영향받은 implementation task
     - 검증이 잘못된 proxy이거나 근거 부족 → verification
+    - 기존 review finding·수정 방향 오류 → finding을 근거와 함께 무효화하고 영향 task를 `reopened`
 
     ## 출력 형식
 
@@ -97,7 +107,8 @@ Subagent (general-purpose):
 
 **치환할 placeholder:**
 
-- `[MODEL]`, `[REASONING_EFFORT]` — platform 역할별 matrix에서 선택한 red-team 조합
+- `[MODEL]`, `[REASONING_EFFORT]` — 실제 tool schema가 두 field를 모두 지원할 때 platform 역할별
+  matrix에서 선택한 red-team 조합. 한쪽만 전달하지 않으며 명시적 override가 없으면 위 fallback을 기록한다.
 - `[ORIGINAL_GOAL]` — 사용자의 원래 목표 원문 또는 고정된 요구사항 위치
 - `[REQUIREMENTS_AND_DESIGN]` — 승인된 요구사항과 설계 artifact
 - `[PLAN_AND_FLOW_MAPPING]` — plan, 행동 의사코드와 flow-to-file/task/verification mapping

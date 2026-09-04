@@ -32,6 +32,16 @@ artifact의 사용 가능한 전문 스킬이 담당하며 이 통합 선택 men
 공통 [품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)을 읽는다.
 최종 게이트가 통합할 정확한 commit 리비전을 가리키는지 확인한다. 이전 working tree 또는 commit에 대한 결과는 오래된 것이다.
 
+plan artifact가 있는 작업이면 같은 전체 변경 리비전에 대해 다음 두 게이트를 별도로 확인한다.
+
+- 일반 final review가 `passed`이거나 사람이 해당 리비전의 명시된 위험을 `accepted_risk`로 수용했다.
+- red-team verdict가 `survives_challenge`이거나 사람이 해당 리비전의 명시된 red-team 위험을
+  `accepted_risk`로 수용했다.
+
+red-team이 `not_run`, `blocked`, `inconclusive`, `invalidated`이거나 이전 리비전만 다뤘다면 일반
+final review의 `passed`로 대신하지 않고 2단계로 진행하지 않는다. plan이 없는 Fast Path에는
+red-team을 새로 요구하지 않는다.
+
 승인된 plan과 변경 유형에 필요한 최종 검증을 실행한다.
 
 - Production 동작 또는 통합 변경에는 일반적으로 관련 전체 test suite(`npm test` / `cargo test` / `pytest` / `go test ./...`)가 필요하다.

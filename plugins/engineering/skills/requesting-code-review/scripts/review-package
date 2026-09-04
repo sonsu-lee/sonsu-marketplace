@@ -111,15 +111,19 @@ case "$mode" in
       echo "## Tracked, staged, and unstaged diff"
       git diff --binary --no-ext-diff -U10 HEAD --
 
-      for file in "${untracked_files[@]}"; do
-        echo
-        printf '## Untracked file: %q\n' "$file"
-        set +e
-        git diff --no-index --binary -U10 -- /dev/null "$file"
-        diff_status=$?
-        set -e
-        [ "$diff_status" -le 1 ] || exit "$diff_status"
-      done
+      # Bash 3.2 treats an empty array expansion as an unset variable under
+      # `set -u`, so guard the expansion when the tree has no untracked files.
+      if [ "${#untracked_files[@]}" -gt 0 ]; then
+        for file in "${untracked_files[@]}"; do
+          echo
+          printf '## Untracked file: %q\n' "$file"
+          set +e
+          git diff --no-index --binary -U10 -- /dev/null "$file"
+          diff_status=$?
+          set -e
+          [ "$diff_status" -le 1 ] || exit "$diff_status"
+        done
+      fi
     } > "$out"
     ;;
 

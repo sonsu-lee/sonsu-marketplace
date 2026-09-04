@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "기능 생성, component 구축, 기능 추가 또는 동작 변경 같은 창의적인 작업 전에 반드시 사용한다. 구현 전에 사용자의 의도, 요구사항과 설계를 탐색한다."
+description: "기존 코드·문서·metadata의 국소적 또는 기계적 변경을 포함해 구현이나 동작 변경을 분류하고 설계 경계를 정해야 할 때 사용한다. 새 기능, component, bounded 수정과 architectural 변경의 구현 전에 사용한다."
 ---
 
 # brainstorming: 아이디어를 설계로 구체화하기

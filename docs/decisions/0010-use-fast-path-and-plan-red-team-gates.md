@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-09-04
-- Supersedes: [0007](0007-use-stage-owned-quality-gates.md)
+- Supersedes: None
 - Superseded by: None
 - Approval: 사용자가 2026-09-04 현재 대화에서 Fast Path, Code Mode, 최대 3회 retry, plan 기반 fresh-context red-team, Codex model·reasoning effort와 goal lifecycle 방향을 명시적으로 승인했습니다.
 
@@ -22,7 +22,8 @@ Codex는 역할별 model과 reasoning effort, 격리된 subagent context, Code M
 
 ## Decision
 
-Engineering은 기존 stage-owned quality gate와 권한 분리를 유지하면서 다음 계약을 추가합니다.
+Engineering은 기존 [0007 stage-owned quality gate](0007-use-stage-owned-quality-gates.md)와 권한
+분리를 유지하면서 다음 계약을 추가하고 일부 실행 기준을 구체화합니다.
 
 1. `bounded` 요청 중 명확한 결과, 닫힌 영향 범위, 결정론적 검증과 가역성을 모두 갖춘 작업은
    plan 없는 Fast Path로 실행할 수 있습니다. 효과가 국소적인 Local Fast Path와 동일 규칙을
@@ -53,7 +54,7 @@ Engineering은 기존 stage-owned quality gate와 권한 분리를 유지하면�
 
 0007의 exact revision, 상태 구분, changed-input retry, nearest-owner return과 authorization 분리
 원칙은 계속 적용합니다. 이번 결정은 독립 reviewer 적용 기준, retry cap과 Codex 실행 routing을
-더 구체적인 계약으로 대체합니다.
+더 구체화합니다.
 
 ## Alternatives Considered
 

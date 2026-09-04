@@ -101,9 +101,10 @@ digraph process {
     "Ordinary final gate outcome?" [shape=diamond];
     "Dispatch fresh-context red-team reviewer" [shape=box];
     "Red-team verdict?" [shape=diamond];
-    "Any final gate accepted_risk?" [shape=diamond];
-    "Delete workspace only when both final gates passed" [shape=box];
-    "Preserve workspace for accepted_risk" [shape=box];
+    "Preserve workspace through branch decision" [shape=box];
+    "Merged result verified?" [shape=diamond];
+    "Delete workspace after verified merge" [shape=box];
+    "Keep workspace for PR or branch" [shape=doublecircle];
     "Return to owner or stop" [shape=box];
     "Use engineering:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
@@ -146,13 +147,13 @@ digraph process {
     "Ordinary final gate outcome?" -> "Dispatch fresh-context red-team reviewer" [label="passed / accepted_risk"];
     "Ordinary final gate outcome?" -> "Return to owner or stop" [label="non-advancing status"];
     "Dispatch fresh-context red-team reviewer" -> "Red-team verdict?";
-    "Red-team verdict?" -> "Any final gate accepted_risk?" [label="survives_challenge"];
-    "Any final gate accepted_risk?" -> "Delete workspace only when both final gates passed" [label="no"];
-    "Any final gate accepted_risk?" -> "Preserve workspace for accepted_risk" [label="yes"];
-    "Red-team verdict?" -> "Preserve workspace for accepted_risk" [label="human accepts exact risk"];
+    "Red-team verdict?" -> "Preserve workspace through branch decision" [label="survives_challenge"];
+    "Red-team verdict?" -> "Preserve workspace through branch decision" [label="human accepts exact risk"];
     "Red-team verdict?" -> "Return to owner or stop" [label="invalidated / inconclusive / blocked"];
-    "Delete workspace only when both final gates passed" -> "Use engineering:finishing-a-development-branch";
-    "Preserve workspace for accepted_risk" -> "Use engineering:finishing-a-development-branch";
+    "Preserve workspace through branch decision" -> "Use engineering:finishing-a-development-branch";
+    "Use engineering:finishing-a-development-branch" -> "Merged result verified?";
+    "Merged result verified?" -> "Delete workspace after verified merge" [label="yes"];
+    "Merged result verified?" -> "Keep workspace for PR or branch" [label="PR / keep / failed"];
 }
 ```
 
@@ -227,9 +228,10 @@ Task 1을 위임하기 전에 plan의 충돌을 한 번 검사하고 확인한 �
 **Fix-loop 상향(2-3회차):** 새 context에 이전 시도와 열린 finding만 전달하고, 판단 부족이
 원인이면 막힌 implementer보다 적어도 한 tier 높은 모델 또는 추론도를 사용한다.
 
-**subagent를 위임할 때 항상 모델과 추론도를 명시한다.** 모델이나 추론도를 생략하면 session
-설정을 상속하여 역할별 비용·품질 정책을 조용히 무너뜨릴 수 있다. 구체적인 Codex 조합은
-[Codex 도구 참고](../using-engineering-skills/references/codex-tools.md)의 역할별 matrix를 따른다.
+**subagent를 위임할 때 실제 schema가 두 override를 모두 지원하면 모델과 추론도를 함께
+명시한다.** 한쪽만 override하지 않는다. 지원하지 않으면 확인 가능한 role·preset·machine
+default를 사용하고 fallback을 기록한다. 구체적인 Codex 조합과 fallback은
+[Codex 도구 참고](../using-engineering-skills/references/codex-tools.md)를 따른다.
 
 **Turn 수가 token 가격보다 중요하다.** 실제 시간과 context 비용은 subagent가 사용하는 turn
 수에 비례하며, 가장 저렴한 모델은 여러 단계의 작업에서 흔히 2-3배 많은 turn을 사용해 전체
@@ -478,8 +480,11 @@ plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다.
 강화하는 재리뷰가 아니라 지금까지 선택한 문제 정의, 요구사항, 설계, plan, 구현과 검증이 실제
 목표를 해결하는지를 반증하려는 단계다.
 
-1. 일반 최종 리뷰와 동일한 immutable review package와 digest에 더해 원래 목표, 승인된 요구사항·
-   설계, plan의 의사코드·mapping, 결정론적 검증 report와 관찰된 결과의 읽기 전용 경로를 준비한다.
+1. red-team을 위임하기 직전에 `scripts/review-package PLAN_FILE MERGE_BASE HEAD`를 다시 실행하여
+   현재 전체 변경의 새 immutable review package와 digest를 고정한다. 일반 최종 리뷰에서 수정이
+   없었더라도 이 단계의 정확한 HEAD를 기록하며, `FIX_BASE..HEAD` 수정 package나 이전 HEAD의 전체
+   package를 대신 사용하지 않는다. 여기에 원래 목표, 승인된 요구사항·설계, plan의 의사코드·
+   mapping, 결정론적 검증 report와 관찰된 결과의 읽기 전용 경로를 더한다.
 2. 이전 implementer, reviewer의 session history, 결론 또는 칭찬을 전달하지 않고 fresh-context
    reviewer를 위임한다. [red-team-reviewer.md](../requesting-code-review/red-team-reviewer.md)를
    사용하고 Codex에서는 역할별 matrix의 가장 강한 red-team 조합을 명시한다.
@@ -502,13 +507,13 @@ plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다.
 위험이 있다면 목록에도 있어야 한다. 결정과 남은 위험을 사용자에게 전달하는 유일한 장소다.
 workspace와 함께 사라지는 기록은 몰래 내린 결정이다.
 
-일반 최종 브랜치 게이트가 `passed`이고 red-team 판정이 `survives_challenge`이며 수정 내용이
-merge되면 현재 plan의 workspace
-(`rm -rf <workspace>`)를 삭제한다. 이제 git history가 기록이다. sibling 디렉터리는 다른
-plan 소유이므로 그대로 둔다. 어느 최종 게이트든 `accepted_risk`로 진행됐다면 근거와 결정 기록을
-잃지 않도록 사용자가 브랜치 완료 경로를 선택할 때까지 workspace를 보존한다.
-
-`engineering:finishing-a-development-branch`를 사용한다.
+일반 최종 브랜치 게이트가 `passed` 또는 정확한 리비전의 `accepted_risk`이고 red-team도
+`survives_challenge` 또는 사람의 정확한 위험 수용으로 진행할 수 있으면 workspace를 보존한 채
+`engineering:finishing-a-development-branch`를 사용한다. PR 생성 또는 브랜치 보존을 선택하면
+후속 피드백을 위해 workspace를 유지한다. local merge를 선택해 merge 결과 검증까지 통과한 뒤에만
+현재 plan의 workspace를 삭제한다. worktree 정리가 workspace를 함께 제거하면 별도로
+`rm -rf`하지 않는다. sibling 디렉터리는 다른 plan 소유이므로 그대로 둔다. 어느 최종 게이트든
+`accepted_risk`였다면 삭제 전 final message에 보존한 근거와 결정 기록이 있는지 확인한다.
 
 ## 자주 하는 합리화
 
@@ -588,10 +593,11 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
 [Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final code-reviewer, most capable model]
 Final reviewer: All requirements met. Deferred minors triaged: none block merge.
 
-[Dispatch a new fresh-context red-team reviewer with the same package plus goal/design/plan/evidence paths]
+[Regenerate the full MERGE_BASE..current HEAD package and digest]
+[Dispatch a new fresh-context red-team reviewer with that package plus goal/design/plan/evidence paths]
 Red-team reviewer: Verdict: survives_challenge. No evidenced counter-case invalidates the chosen work.
 
-[Delete this plan's workspace — the record now lives in git]
-
-Done! Using engineering:finishing-a-development-branch.
+[Preserve this plan's workspace]
+[Use engineering:finishing-a-development-branch]
+[Delete the workspace only after a local merge and merged-result verification; preserve it for PR/keep]
 ```

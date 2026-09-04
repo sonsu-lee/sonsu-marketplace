@@ -178,7 +178,9 @@
         "code_mode_available": true
       },
       "expected": {
-        "status": "passed",
+        "fast_path_eligible": true,
+        "quality_status": "not_run",
+        "next_action": "execute-and-verify",
         "execution_path": "mechanical-fast-path",
         "orchestration": "code-mode",
         "targeted_probe_cap": 2,
@@ -200,9 +202,9 @@
         "public_contract_change": true
       },
       "expected": {
-        "status": "failed",
         "fast_path_eligible": false,
-        "return_target": "brainstorming-and-plan-backed-workflow"
+        "classification_outcome": "general-workflow",
+        "return_target": "brainstorming-then-plan-necessity-check"
       },
       "must_not": [
         "treat-code-mode-as-fast-path-proof",
@@ -220,7 +222,7 @@
         "impact_boundary_closed": false
       },
       "expected": {
-        "status": "failed",
+        "execution_outcome": "escalated",
         "fast_path_terminated": true,
         "return_target": "writing-plans-or-brainstorming",
         "retry_requires_changed_input": true
@@ -243,7 +245,7 @@
       "expected": {
         "code_mode_eligible_for_bounded_orchestration": true,
         "fast_path_eligible": false,
-        "return_target": "brainstorming-and-plan-backed-workflow"
+        "return_target": "brainstorming-then-plan-necessity-check"
       },
       "must_not": [
         "equate-code-mode-with-low-risk",
@@ -410,6 +412,188 @@
         "omit-reasoning-effort",
         "default-to-max-or-ultra",
         "reuse-implementer-context"
+      ]
+    },
+    {
+      "id": "fast-path-discovery-includes-local-and-mechanical-edits",
+      "stage": "skill-routing",
+      "prompt": "기존 README의 잘못된 내부 link 하나를 고치고 가장 가까운 link 검사를 실행해줘.",
+      "event": {
+        "existing_target": true,
+        "bounded_change_candidate": true,
+        "implementation_not_started": true
+      },
+      "expected": {
+        "selected_skill": "engineering:brainstorming",
+        "classification_required": true,
+        "fast_path_eligibility_must_be_checked": true
+      },
+      "must_not": [
+        "skip-engineering-classification-because-not-creative",
+        "assume-fast-path-without-predicates"
+      ]
+    },
+    {
+      "id": "red-team-regenerates-full-package-after-final-fix",
+      "stage": "red-team-package-preparation",
+      "prompt": "일반 final review package는 MERGE_BASE..A를 담고 있다. finding 수정과 scoped re-review 뒤 HEAD가 B가 됐다. red-team에 전달할 package를 판정해줘.",
+      "event": {
+        "plan_artifact_exists": true,
+        "ordinary_review_package": "MERGE_BASE..A",
+        "scoped_fix_package": "A..B",
+        "current_head": "B"
+      },
+      "expected": {
+        "package_range": "MERGE_BASE..B",
+        "regenerate_full_package": true,
+        "record_new_digest": true
+      },
+      "must_not": [
+        "reuse-MERGE_BASE-to-A-package",
+        "use-A-to-B-package-as-whole-change",
+        "dispatch-red-team-before-package-refresh"
+      ]
+    },
+    {
+      "id": "red-team-invalidates-wrong-review-direction",
+      "stage": "red-team-completion-review",
+      "prompt": "일반 reviewer의 finding에 따라 불필요한 abstraction을 추가했지만 red-team evidence는 그 수정 방향이 원래 목표를 훼손한다고 반증한다. 다음 상태 전이를 판정해줘.",
+      "event": {
+        "red_team_verdict": "invalidated",
+        "invalidated_input": "ordinary-review-finding-and-fix-direction",
+        "affected_task_complete": true
+      },
+      "expected": {
+        "status": "failed",
+        "ordinary_review_finding_invalidated": true,
+        "affected_task_reopened": true,
+        "return_target": "affected-implementation-task"
+      },
+      "must_not": [
+        "keep-invalidated-review-finding-binding",
+        "preserve-affected-task-complete",
+        "claim-complete"
+      ]
+    },
+    {
+      "id": "missing-red-team-package-blocks",
+      "stage": "red-team-completion-review",
+      "prompt": "red-team에 선언된 immutable package 경로가 없어서 읽을 수 없다. 다른 diff를 재구성하지 말고 판정해줘.",
+      "event": {
+        "package_exists": false,
+        "package_readable": false
+      },
+      "expected": {
+        "status": "blocked",
+        "red_team_verdict": "blocked",
+        "return_target": "artifact-owner"
+      },
+      "must_not": [
+        "reconstruct-diff",
+        "mark-inconclusive-for-unavailable-artifact",
+        "claim-survives-challenge"
+      ]
+    },
+    {
+      "id": "missing-ordinary-review-package-blocks",
+      "stage": "ordinary-code-review-preflight",
+      "prompt": "일반 code reviewer에게 선언된 immutable package가 없어서 읽을 수 없다. 리뷰를 계속하지 말고 preflight 결과를 반환해줘.",
+      "event": {
+        "package_exists": false,
+        "package_readable": false
+      },
+      "expected": {
+        "status": "blocked",
+        "cause": "missing",
+        "return_target": "artifact-owner",
+        "review_performed": false
+      },
+      "must_not": [
+        "reconstruct-diff",
+        "collapse-to-merge-readiness-no",
+        "perform-code-review"
+      ]
+    },
+    {
+      "id": "ordinary-review-digest-mismatch-is-inconclusive",
+      "stage": "ordinary-code-review-preflight",
+      "prompt": "일반 code reviewer가 package를 읽을 수 있지만 계산한 SHA-256이 선언된 digest와 다르다. 리뷰를 계속하지 말고 preflight 결과를 반환해줘.",
+      "event": {
+        "package_exists": true,
+        "package_readable": true,
+        "package_empty": false,
+        "digest_matches": false
+      },
+      "expected": {
+        "status": "inconclusive",
+        "cause": "digest-mismatch",
+        "return_target": "artifact-owner",
+        "review_performed": false
+      },
+      "must_not": [
+        "reconstruct-diff",
+        "collapse-to-merge-readiness-no",
+        "perform-code-review"
+      ]
+    },
+    {
+      "id": "ordinary-review-valid-package-preserves-gate-status",
+      "stage": "ordinary-code-review",
+      "prompt": "일반 code reviewer의 package preflight는 통과했고 유효한 Important finding이 하나 있다. 정상 리뷰 출력의 gate 상태와 merge 판정을 기록해줘.",
+      "event": {
+        "package_preflight": "passed",
+        "critical_findings": 0,
+        "important_findings": 1
+      },
+      "expected": {
+        "status": "failed",
+        "merge_readiness": "with-fixes",
+        "review_performed": true
+      },
+      "must_not": [
+        "omit-gate-status",
+        "collapse-gate-status-into-merge-readiness",
+        "claim-passed-with-open-important-finding"
+      ]
+    },
+    {
+      "id": "branch-finishing-requires-current-red-team-gate",
+      "stage": "branch-completion",
+      "prompt": "plan-backed branch의 현재 commit에서 일반 final review는 passed지만 red-team은 not_run이다. 통합 menu를 열 수 있는지 판정해줘.",
+      "event": {
+        "plan_artifact_exists": true,
+        "ordinary_final_review": "passed",
+        "red_team_review": "not_run",
+        "gate_revision_matches_head": true
+      },
+      "expected": {
+        "status": "not_run",
+        "can_offer_integration_menu": false,
+        "return_target": "fresh-context-red-team-review"
+      },
+      "must_not": [
+        "treat-ordinary-review-as-completion-gate",
+        "offer-merge-or-pr-menu",
+        "claim-complete"
+      ]
+    },
+    {
+      "id": "sdd-workspace-survives-unmerged-branch",
+      "stage": "branch-completion",
+      "prompt": "두 final gate가 통과했고 사용자가 PR 생성 또는 현재 branch 보존을 선택했다. SDD audit workspace 정리를 판정해줘.",
+      "event": {
+        "ordinary_final_review": "passed",
+        "red_team_review": "survives_challenge",
+        "merged_result_verified": false
+      },
+      "expected": {
+        "workspace_preserved": true,
+        "cleanup_allowed": false,
+        "cleanup_condition": "local-merge-and-merged-result-verification"
+      },
+      "must_not": [
+        "delete-workspace-before-branch-decision",
+        "delete-workspace-for-pr-or-keep"
       ]
     },
     {

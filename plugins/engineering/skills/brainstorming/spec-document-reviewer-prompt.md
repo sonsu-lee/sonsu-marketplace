@@ -9,8 +9,8 @@ spec 문서 reviewer subagent를 위임할 때 이 template을 사용한다.
 ```
 Subagent (general-purpose):
   description: "Spec 문서 리뷰"
-  model: [MODEL — 필수: architecture/design 역할에 맞게 선택한다.]
-  reasoning_effort: [REASONING_EFFORT — 필수: architecture/design 역할에 맞게 선택한다.]
+  model: [MODEL — 실제 schema가 두 override를 모두 지원할 때 architecture/design 역할에 맞게 선택한다.]
+  reasoning_effort: [REASONING_EFFORT — model과 함께 지원될 때 역할에 맞게 선택한다.]
   prompt: |
     당신은 설계 문서 reviewer다. 이 문서가 완전하고 plan을 작성할 준비가 됐는지 검증한다.
 

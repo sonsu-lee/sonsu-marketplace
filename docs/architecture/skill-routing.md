@@ -64,7 +64,9 @@ Engineering은 작업을 중앙 orchestrator 하나로 모으지 않고 기존 s
   → 저렴한 결정론적 검증 존재
     → Local Fast Path 또는 Mechanical Fast Path
   그 외
-    → brainstorming → writing-plans → plan-backed execution
+    → brainstorming → 승인된 짧은 설계
+      → plan 필요: writing-plans → plan-backed execution
+      → plan 불필요: bounded direct execution
 ```
 
 Mechanical Fast Path는 파일 수가 아니라 결정론적인 변환 규칙과 닫힌 영향 범위로 판단합니다.

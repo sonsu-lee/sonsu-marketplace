@@ -99,6 +99,7 @@ Fast Path에는 적용하지 않는다. challenge verdict는 quality status와 �
 | Red-team이 task·interface plan을 반증 | `writing-plans`의 영향받은 flow 또는 task |
 | Red-team이 설계·해결책·원래 목표를 반증 | `brainstorming` 또는 사용자 재승인 |
 | Red-team이 실제 효과 근거 부족을 발견 | 검증 단계 또는 제품 실험 |
+| Red-team이 기존 review finding·수정 방향을 반증 | finding을 근거와 함께 무효화하고 영향 task를 `reopened` |
 
 마지막 green checkpoint와 이미 검증한 작업을 보존한다. 되돌아가기는 표적화된 상태 전환이며,
 재시작이나 재귀적인 자기 호출이 아니다.

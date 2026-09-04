@@ -45,9 +45,16 @@ timeout된 짧은 poll이었다.
 
 ## 생성 시 모델 routing
 
-자신이 fan-out을 실행하는 child인 경우를 포함해 모든 `spawn_agent` 호출에는 실행 중인 스킬의
-Model Selection 규칙에 따라 `model`과 `reasoning_effort`를 모두 명시한다. `model`만 설정하면
-child의 effort가 자신의 값이 아니라 해당 모델의 기본값으로 조용히 재설정된다.
+자신이 fan-out을 실행하는 child인 경우를 포함해 `spawn_agent`의 실제 schema가 두 override를
+모두 지원하면 실행 중인 스킬의 Model Selection 규칙에 따라 `model`과 `reasoning_effort`를 함께
+명시한다. 한쪽만 설정하면 의도하지 않은 기본값을 쓰거나 schema validation에 실패할 수 있으므로
+부분 override는 하지 않는다.
+
+실제 schema가 두 field 중 하나라도 지원하지 않으면 존재하지 않는 field를 보내지 않는다. 노출된
+`agent_type`, role 또는 preset이 있으면 같은 역할의 가장 가까운 조합을 사용하고, 그렇지 않으면
+아래 machine-level default를 사용하되 `routing_fallback: tool-schema-no-explicit-overrides`를
+기록한다. 필요한 capability를 어떤 지원 경로로도 제공할 수 없을 때에만 해당 reviewer를
+`blocked`로 판정한다. tool metadata의 부재를 무시하고 잘못된 호출을 반복하지 않는다.
 
 누락된 spawn이 session에서 가장 비싼 모델을 조용히 상속하지 않고 의도한 tier로 routing되도록
 사용자에게 `~/.codex/config.toml`에 machine-level backstop을 추가해 달라고 요청한다.
