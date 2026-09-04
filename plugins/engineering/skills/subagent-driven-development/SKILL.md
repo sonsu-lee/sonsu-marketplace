@@ -252,6 +252,8 @@ bundle path/digest만 전달한다. 각 회차에는 이전 회차와 다른 imp
 명시한다.** 한쪽만 override하지 않는다. 지원하지 않으면 확인 가능한 role·preset·machine
 default를 사용하고 fallback을 기록한다. 구체적인 Codex 조합과 fallback은
 [Codex 도구 참고](../using-engineering-skills/references/codex-tools.md)를 따른다.
+단, Fix-loop 3회차의 필수 한 단계 capability 증가와 4·5회차의 필수 조합에는 이 일반 fallback을
+적용하지 않는다. 해당 capability를 제공할 수 없으면 `blocked`와 `decision_required`로 중단한다.
 
 **Turn 수가 token 가격보다 중요하다.** 실제 시간과 context 비용은 subagent가 사용하는 turn
 수에 비례하며, 가장 저렴한 모델은 여러 단계의 작업에서 흔히 2-3배 많은 turn을 사용해 전체
@@ -428,18 +430,22 @@ preparation에 돌려보내며 prior context를 재사용하지 않는다.
 `spawn_agent {fork_turns: "none"}`으로 다른 fresh implementer를 위임한다. 새 current revision과 raw evidence를
 같은 선택 규칙으로 다시 고정해 bundle path/digest만 전달한다. binding 실패는 handoff preparation으로
 돌려보낸다. 판단 부족이 원인에 기여했다면 해당 task에 적합한 model tier 또는 reasoning effort를
-지원되는 한 단계 이상 높인다. 그 capability를 사용할 수 없으면 가장 가까운 허용 조합과 fallback을 기록한다. 새 관점이 필요한
-시점에 기존 context를 계속 재사용해 같은 오류를 강화하지 않는다.
+지원되는 한 단계 이상 높인다. 실제 한 단계 이상의 capability 증가를 제공할 수 없으면 더 약한 fallback으로
+계속하지 않고 `blocked`와 `decision_required`를 기록한 뒤 중단한다. 새 관점이 필요한 시점에 기존 context를
+계속 재사용해 같은 오류를 강화하지 않는다.
 
 **4회차 — fresh high-capability 조합을 사용한다.** 3회차까지의 agent를 재사용하지 않는다. 새 current
 revision과 raw evidence로 immutable bundle을 다시 만들고, 역할에 맞는 high-capability 조합의
 `spawn_agent {fork_turns: "none"}` implementer에게 bundle path/digest만 전달한다. 같은 artifact/revision
-binding 규칙을 적용하며 실패하면 handoff preparation으로 돌아간다.
+binding 규칙을 적용하며 실패하면 handoff preparation으로 돌아간다. 필요한 high-capability 조합을 제공할
+수 없으면 더 약한 fallback으로 계속하지 않고 `blocked`와 `decision_required`를 기록한 뒤 중단한다.
 
 **5회차 — fresh strongest role-appropriate default 조합을 사용한다.** 이전 agent를 재사용하지 않고
 새 current revision과 raw evidence를 다시 고정한다. 역할에 맞는 가장 강한 default model과 reasoning
 effort를 함께 선택하되 플랫폼의 예외적인 최대 effort mode를 자동 기본값으로 사용하지 않는다. 같은
-artifact/revision binding 규칙을 적용하며 실패하면 handoff preparation으로 돌아간다.
+artifact/revision binding 규칙을 적용하며 실패하면 handoff preparation으로 돌아간다. 필요한 strongest
+role-appropriate default 조합을 제공할 수 없으면 더 약한 fallback으로 계속하지 않고 `blocked`와
+`decision_required`를 기록한 뒤 중단한다.
 
 **보고와 재리뷰:** round 1 implementer만 기존 report 파일에 수정 보고를 append한다. round 2-5 implementer는
 report 경로나 내용을 받지 않고 concise raw result만 반환한다. controller가 그 raw result를 자체 report와 ledger에

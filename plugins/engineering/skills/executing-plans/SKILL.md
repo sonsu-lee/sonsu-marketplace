@@ -36,8 +36,11 @@ description: 별도 session에서 review checkpoint와 함께 실행할 작성�
 5. 검사가 실패하면 영향을 받은 가장 작은 구현 단계로 돌아간다. 원인을 모르면 `engineering:systematic-debugging`을 사용한 뒤 변경된 artifact에 집중된 검사를 다시 실행한다.
 6. task 게이트가 `passed`이거나 사람이 해당 리비전에 대해 `accepted_risk`를 명시적으로 기록한 경우에만 `completed`로 표시한다.
 
-유효한 task 구현 finding의 자동 수정은 최대 5회다. 1회차만 원래 implementer를 `followup_task`로
-재개해 finding을 집중 수정할 수 있다. 2~5회차에는 controller가 task brief, 현재 binary-safe artifact
+유효한 task 구현 finding의 자동 수정은 최대 5회다. 1회차에는 실제 원래 child implementer가 있을 때만
+그 child를 `followup_task`로 재개해 finding을 집중 수정한다. 이 스킬의 direct 실행처럼 controller가
+원래 implementer라서 재개할 child가 없으면 controller가 1회차 focused fix를 직접 수행하며
+`followup_task`를 요구하지 않는다. SDD의 원래 child implementer 재개 동작은 그대로 유지한다.
+2~5회차에는 controller가 task brief, 현재 binary-safe artifact
 package, normalized finding-evidence JSON, normalized verification-evidence JSON과 정확한 artifact revision을
 `scripts/fix-handoff create`로 단일 immutable bundle에 고정한다. controller와 reviewer는 full report를
 보관할 수 있지만 fresh implementer에게 report, implementation narrative, rationale, self-review, completion
