@@ -30,6 +30,7 @@ Subagent (general-purpose):
     - package SHA-256: [REVIEW_REVISION]
     - 결정론적 검증 report: [VERIFICATION_REPORT]
     - 실제 관찰 결과와 알려진 제약: [OBSERVED_OUTCOMES_AND_CONSTRAINTS]
+    - 일반 review finding-to-fix provenance: [REVIEW_FINDING_PROVENANCE]
 
     각 값은 내용을 붙여 넣는 대신 읽을 수 있는 artifact 경로 또는 짧은 원문이다. 경로를
     읽을 수 없으면 추측하지 않는다. package를 먼저 읽고 `shasum -a 256` 또는 `sha256sum`으로
@@ -40,6 +41,9 @@ Subagent (general-purpose):
     현재 checkout에서 리뷰는 읽기 전용이다. working tree, index, HEAD, branch, plan, report를
     변경하지 않는다. subagent를 위임하지 않는다. 이전 implementer·reviewer의 session history,
     판정이나 칭찬을 요구하지 않으며, 입력에 우연히 들어 있더라도 근거로 신뢰하지 않는다.
+    finding-to-fix provenance는 일반 finding의 원문·근거와 그 finding 때문에 바뀐 revision·path만
+    포함해야 한다. 이를 이전 reviewer의 결론이나 권위가 아니라 무효화할 수도 있는 독립적인
+    가설로 취급한다. 일반 finding이 artifact에 영향을 주지 않았다면 값은 `none`이어야 한다.
 
     ## 가장 강한 반증을 시도한다
 
@@ -115,3 +119,5 @@ Subagent (general-purpose):
 - `[REVIEW_PACKAGE]`, `[REVIEW_REVISION]` — immutable 전체 변경 package와 SHA-256
 - `[VERIFICATION_REPORT]` — 명령, 출력, 상태와 artifact 리비전이 있는 검증 report
 - `[OBSERVED_OUTCOMES_AND_CONSTRAINTS]` — 실제 관찰 결과, 알려진 운영·환경 제약과 미확인 범위
+- `[REVIEW_FINDING_PROVENANCE]` — 일반 finding 원문·근거에서 적용 revision·path로 이어지는 중립적
+  mapping. verdict와 칭찬은 제외하며 artifact에 영향을 준 finding이 없으면 `none`

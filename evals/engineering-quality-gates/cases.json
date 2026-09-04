@@ -461,10 +461,13 @@
       "event": {
         "red_team_verdict": "invalidated",
         "invalidated_input": "ordinary-review-finding-and-fix-direction",
+        "review_finding_provenance": "finding-text-and-evidence-to-applied-revision-and-path",
         "affected_task_complete": true
       },
       "expected": {
         "status": "failed",
+        "review_finding_provenance_provided": true,
+        "prior_review_verdict_provided": false,
         "ordinary_review_finding_invalidated": true,
         "affected_task_reopened": true,
         "return_target": "affected-implementation-task"
@@ -473,6 +476,27 @@
         "keep-invalidated-review-finding-binding",
         "preserve-affected-task-complete",
         "claim-complete"
+      ]
+    },
+    {
+      "id": "executing-plans-uses-runnable-red-team-package-command",
+      "stage": "red-team-package-preparation",
+      "prompt": "executing-plans에서 red-team 직전 현재 전체 committed range를 새 package로 고정해야 한다. 저장소 root에서 실행할 command routing을 기록해줘.",
+      "event": {
+        "working_directory": "repository-root",
+        "artifact_state": "committed-range",
+        "general_review_changed_artifact": true
+      },
+      "expected": {
+        "script_path": "plugins/engineering/skills/requesting-code-review/scripts/review-package",
+        "mode": "range",
+        "range": "BASE-to-current-HEAD",
+        "regenerate_package": true
+      },
+      "must_not": [
+        "use-nonexistent-executing-plans-local-script",
+        "omit-review-package-mode",
+        "reuse-pre-fix-package"
       ]
     },
     {

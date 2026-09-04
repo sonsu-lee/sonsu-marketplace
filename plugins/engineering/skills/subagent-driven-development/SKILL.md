@@ -484,7 +484,9 @@ plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다.
    현재 전체 변경의 새 immutable review package와 digest를 고정한다. 일반 최종 리뷰에서 수정이
    없었더라도 이 단계의 정확한 HEAD를 기록하며, `FIX_BASE..HEAD` 수정 package나 이전 HEAD의 전체
    package를 대신 사용하지 않는다. 여기에 원래 목표, 승인된 요구사항·설계, plan의 의사코드·
-   mapping, 결정론적 검증 report와 관찰된 결과의 읽기 전용 경로를 더한다.
+   mapping, 결정론적 검증 report와 관찰된 결과의 읽기 전용 경로를 더한다. 일반 review finding이
+   artifact 변경을 유도했다면 verdict·칭찬 없이 finding 원문·근거에서 적용 revision·path로 이어지는
+   중립적인 provenance를 더하고, 그렇지 않으면 `none`을 기록한다.
 2. 이전 implementer, reviewer의 session history, 결론 또는 칭찬을 전달하지 않고 fresh-context
    reviewer를 위임한다. [red-team-reviewer.md](../requesting-code-review/red-team-reviewer.md)를
    사용하고 Codex에서는 역할별 matrix의 가장 강한 red-team 조합을 명시한다.

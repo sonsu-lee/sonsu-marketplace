@@ -35,6 +35,7 @@ classification과 정상 escalation은 `quality_status`, `classification_outcome
 - Code Mode는 결정론적 실행 수단이며 Fast Path 적합성이나 품질 통과의 증거가 아닙니다.
 - plan-backed 완료에는 일반 최종 리뷰와 별개의 fresh-context red-team 판정이 필요합니다.
 - red-team 직전에는 현재 HEAD의 전체 변경 package를 다시 고정하고, 잘못된 기존 review finding은
-  근거와 함께 무효화하여 영향 task를 다시 엽니다.
+  verdict·칭찬이 제거된 finding-to-fix provenance로 반증한 뒤 근거와 함께 무효화하여 영향 task를
+  다시 엽니다.
 - SDD workspace는 local merge와 merge 결과 검증 전까지 보존합니다.
 - 모델과 reasoning effort는 역할별로 함께 선택하며 goal은 명시적으로 요청된 plan에 최대 하나입니다.
