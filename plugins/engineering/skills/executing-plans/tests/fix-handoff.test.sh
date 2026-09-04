@@ -18,18 +18,29 @@ assert_rejected() {
 }
 
 create_bundle() {
-  "$HELPER" create \
+  TMPDIR="$WORK" "$HELPER" create \
+    --brief "$1" \
+    --artifact "$2" \
+    --revision 76a0526195709caf2fe1102160d8a9ae72c39130 \
+    --findings "$3" \
+    --verification "$4" \
+    --round "$5"
+}
+
+create_bundle_to() {
+  TMPDIR="$WORK" "$HELPER" create \
     --brief "$1" \
     --artifact "$2" \
     --revision 76a0526195709caf2fe1102160d8a9ae72c39130 \
     --findings "$3" \
     --verification "$4" \
     --round "$5" \
-    --output-dir "$WORK"
+    --output "$6"
 }
 
 parse_bundle_path() { printf '%s\n' "$1" | sed -n 's/^Bundle: //p'; }
 parse_bundle_digest() { printf '%s\n' "$1" | sed -n 's/^Revision: sha256://p'; }
+hash_bundle() { shasum -a 256 "$1" | awk '{print $1}'; }
 
 printf 'brief\n' > "$WORK/brief"
 printf 'artifact\n' > "$WORK/artifact"
@@ -71,28 +82,37 @@ def write(kind, name, value):
         json.dump(value, handle)
         handle.write("\n")
 
+def wrong_type(value):
+    if isinstance(value, str):
+        return []
+    if isinstance(value, list):
+        return {}
+    if isinstance(value, int):
+        return "not-an-integer"
+    raise AssertionError(f"unhandled fixture type: {type(value)}")
+
 def make_cases(kind, base, array_key, item_keys):
     write(kind, "valid.json", base)
     for key in base:
         value = copy.deepcopy(base)
         del value[key]
         write(kind, f"missing-envelope-{key}.json", value)
+        value = copy.deepcopy(base)
+        value[key] = wrong_type(value[key])
+        write(kind, f"wrong-envelope-{key}.json", value)
     for key in item_keys:
         value = copy.deepcopy(base)
         del value[array_key][0][key]
         write(kind, f"missing-item-{key}.json", value)
-    value = copy.deepcopy(base)
-    value["schema"] = []
-    write(kind, "wrong-envelope-scalar.json", value)
-    value = copy.deepcopy(base)
-    value[array_key] = {}
-    write(kind, "wrong-envelope-array.json", value)
+        value = copy.deepcopy(base)
+        value[array_key][0][key] = wrong_type(value[array_key][0][key])
+        write(kind, f"wrong-item-{key}.json", value)
     value = copy.deepcopy(base)
     value[array_key] = [False]
     write(kind, "wrong-item-object.json", value)
     value = copy.deepcopy(base)
-    value[array_key][0][item_keys[0]] = []
-    write(kind, "wrong-item-scalar.json", value)
+    value["schema"] = "wrong-schema.v1"
+    write(kind, "wrong-schema-value.json", value)
     for scope in ("envelope", "item"):
         value = copy.deepcopy(base)
         target = value if scope == "envelope" else value[array_key][0]
@@ -105,20 +125,7 @@ def make_cases(kind, base, array_key, item_keys):
             write(kind, f"forbidden-{scope}-{key}.json", value)
 
 make_cases("findings", finding, "findings", list(finding["findings"][0]))
-value = copy.deepcopy(finding)
-value["findings"][0]["artifact_locations"] = "a"
-write("findings", "wrong-item-array.json", value)
-value = copy.deepcopy(finding)
-value["findings"][0]["unknowns"] = {}
-write("findings", "wrong-item-unknowns-array.json", value)
-
 make_cases("verification", verification, "checks", list(verification["checks"][0]))
-value = copy.deepcopy(verification)
-value["unknowns"] = {}
-write("verification", "wrong-envelope-unknowns-array.json", value)
-value = copy.deepcopy(verification)
-value["checks"][0]["exit_code"] = "zero"
-write("verification", "wrong-item-exit-code.json", value)
 
 for kind in ("findings", "verification"):
     with open(os.path.join(out, kind, "malformed.json"), "w") as handle:
@@ -126,18 +133,19 @@ for kind in ("findings", "verification"):
     open(os.path.join(out, kind, "empty.json"), "w").close()
 PY
 
-for schema in findings verification; do
-  validator="validate-$schema"
-  "$HELPER" "$validator" "$CASES/$schema/valid.json" \
-    || fail "valid $schema evidence was rejected"
-  for invalid in "$CASES/$schema"/*.json; do
-    [[ "$(basename "$invalid")" == valid.json ]] && continue
-    assert_rejected "$HELPER" "$validator" "$invalid"
-  done
-done
-
 FINDINGS="$CASES/findings/valid.json"
 VERIFICATION="$CASES/verification/valid.json"
+for invalid in "$CASES/findings"/*.json; do
+  [[ "$(basename "$invalid")" == valid.json ]] && continue
+  assert_rejected create_bundle \
+    "$WORK/brief" "$WORK/artifact" "$invalid" "$VERIFICATION" 2
+done
+for invalid in "$CASES/verification"/*.json; do
+  [[ "$(basename "$invalid")" == valid.json ]] && continue
+  assert_rejected create_bundle \
+    "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$invalid" 2
+done
+
 for input in brief artifact findings verification; do
   missing="$WORK/missing-$input"
   empty="$WORK/empty-$input"
@@ -164,7 +172,9 @@ create1=$(create_bundle "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATIO
 bundle1=$(parse_bundle_path "$create1")
 digest1=$(parse_bundle_digest "$create1")
 [[ -n "$bundle1" && -n "$digest1" ]] || fail 'create did not emit Bundle and Revision fields'
-[[ -d "$bundle1" ]] || fail "bundle path is not a directory: $bundle1"
+[[ -f "$bundle1" && ! -L "$bundle1" ]] || fail "bundle path is not one regular file: $bundle1"
+[[ "$digest1" =~ ^[0-9a-f]{64}$ ]] || fail "bundle digest is not a SHA-256: $digest1"
+[[ "$(hash_bundle "$bundle1")" == "$digest1" ]] || fail 'first digest does not hash the full bundle file'
 "$HELPER" verify "$bundle1" "$digest1" || fail 'first exact bundle/digest pair failed verification'
 
 create2=$(create_bundle "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" 3)
@@ -172,14 +182,40 @@ bundle2=$(parse_bundle_path "$create2")
 digest2=$(parse_bundle_digest "$create2")
 [[ -n "$bundle2" && -n "$digest2" ]] || fail 'second create did not emit Bundle and Revision fields'
 [[ "$bundle1" != "$bundle2" ]] || fail 'separate creates reused a bundle path'
+[[ -f "$bundle2" && ! -L "$bundle2" ]] || fail "bundle path is not one regular file: $bundle2"
+[[ "$(hash_bundle "$bundle2")" == "$digest2" ]] || fail 'second digest does not hash the full bundle file'
 "$HELPER" verify "$bundle2" "$digest2" || fail 'second exact bundle/digest pair failed verification'
 
-cp -R "$bundle1" "$WORK/tampered.bundle"
-tampered_file=$(find "$WORK/tampered.bundle" -type f -print -quit)
-[[ -n "$tampered_file" ]] || fail 'copied bundle has no file to tamper'
-printf 'tampered\n' >> "$tampered_file"
+cp "$bundle1" "$WORK/tampered.bundle"
+printf 'tampered\n' >> "$WORK/tampered.bundle"
 assert_rejected "$HELPER" verify "$WORK/tampered.bundle" "$digest1"
 "$HELPER" verify "$bundle1" "$digest1" || fail 'original bundle changed after copy tampering'
+
+explicit_bundle="$WORK/explicit.bundle"
+explicit_create=$(create_bundle_to \
+  "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" 2 "$explicit_bundle")
+explicit_path=$(parse_bundle_path "$explicit_create")
+explicit_digest=$(parse_bundle_digest "$explicit_create")
+[[ "$explicit_path" == "$explicit_bundle" ]] || fail "create returned the wrong explicit output: $explicit_path"
+[[ -f "$explicit_bundle" && ! -L "$explicit_bundle" ]] || fail 'explicit output is not one regular file'
+[[ "$(hash_bundle "$explicit_bundle")" == "$explicit_digest" ]] \
+  || fail 'explicit output digest does not hash the full bundle file'
+"$HELPER" verify "$explicit_bundle" "$explicit_digest" \
+  || fail 'explicit output failed verification'
+
+printf 'different artifact\n' > "$WORK/other-artifact"
+assert_rejected create_bundle_to \
+  "$WORK/brief" "$WORK/other-artifact" "$FINDINGS" "$VERIFICATION" 3 "$explicit_bundle"
+[[ "$(hash_bundle "$explicit_bundle")" == "$explicit_digest" ]] \
+  || fail 'rejected create overwrote the existing explicit output'
+"$HELPER" verify "$explicit_bundle" "$explicit_digest" \
+  || fail 'original explicit output no longer verifies after rejected overwrite'
+
+assert_rejected "$HELPER" verify "$WORK/missing.bundle" "$digest1"
+: > "$WORK/empty.bundle"
+assert_rejected "$HELPER" verify "$WORK/empty.bundle" "$(hash_bundle "$WORK/empty.bundle")"
+printf 'not a fix-handoff bundle\n' > "$WORK/malformed.bundle"
+assert_rejected "$HELPER" verify "$WORK/malformed.bundle" "$(hash_bundle "$WORK/malformed.bundle")"
 
 for round in 2 3; do
   create_bundle "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" "$round" >/dev/null \
