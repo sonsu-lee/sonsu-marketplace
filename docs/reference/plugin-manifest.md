@@ -24,6 +24,10 @@ plugins/<plugin-name>/.codex-plugin/plugin.json
 | `hooks` | hook 선언 | 업스트림 값과 현재 Codex 호환성을 별도 검증 |
 | `interface` | Codex UI 메타데이터 | 표시 이름, 설명, 아이콘과 기능 범위 정의 |
 
+Engineering은 독립 플러그인으로 관리하므로 `1.0.0`부터 독립 semantic version을 사용하고
+upstream 기준선이나 이전 호환 경로를 매니페스트 계약으로 두지 않습니다. MIT 고지는
+[`LICENSE`](../../plugins/engineering/LICENSE)에 보존합니다.
+
 ## 마켓플레이스 연결
 
 `.agents/plugins/marketplace.json`의 `source.path`는 마켓플레이스 JSON이 있는 디렉터리가

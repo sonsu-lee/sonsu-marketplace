@@ -1,7 +1,7 @@
 # 플러그인 생명주기
 
 - Status: Current
-- Last reviewed: 2026-09-02
+- Last reviewed: 2026-09-04
 
 ## 흐름
 
@@ -28,8 +28,13 @@ path, 최종 path와 hash를 함께 기록합니다. 원본 가져오기와 로�
 
 로컬 정책은 원본 기준선 이후에 적용합니다. 하나의 upstream plugin을 fork한 매니페스트 버전은
 업스트림 버전 뒤에 `-sonsu.<revision>`을 붙여 원본 릴리스와 구분합니다. 여러 source를 합성하거나
-로컬에서 새로 설계한 plugin은 독립 semantic version을 사용하고 `UPSTREAM.md`에서 각 source와
-변환을 추적합니다. 정책 변경은 관련 결정 기록과 현재 아키텍처 문서를 함께 갱신합니다.
+로컬에서 새로 설계한 plugin은 독립 semantic version을 사용합니다. 여러 source를 합성했다면
+`UPSTREAM.md`에서 각 source와 변환을 추적하고, 가져온 source가 없는 독립 plugin은 upstream
+기준선을 만들지 않습니다. 정책 변경은 관련 결정 기록과 현재 아키텍처 문서를 함께 갱신합니다.
+
+Engineering은 [독립 플러그인 결정](../decisions/0009-maintain-engineering-as-an-independent-plugin.md)에
+따라 독립 semantic version을 사용하며 upstream 동기화나 이전 호환 경로를 배포 계약으로 두지
+않습니다.
 
 ## 검증
 

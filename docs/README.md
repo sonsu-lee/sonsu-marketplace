@@ -48,7 +48,10 @@
 - 아키텍처, 제품, 가이드, 참조와 런북은 날짜가 없는 안정적인 주제 이름을 사용합니다.
 - 날짜가 필요하면 문서 안의 `Date` 또는 `Last reviewed`에 기록합니다.
 - 결정 기록은 `0001-<decision>.md` 형식의 순번을 사용합니다.
-- 대체된 결정은 내용을 지우지 않고 `Superseded` 상태와 새 결정 링크를 남깁니다.
+- 대체된 결정은 내용을 지우지 않고 `Superseded` 상태와 새 결정 링크를 남깁니다. 다만
+  [0009 결정](decisions/0009-maintain-engineering-as-an-independent-plugin.md)처럼 사용자가 제거를
+  명시적으로 승인한 이전 플러그인 정체성을 직접 포함한 기록은 새 결정에 대상 번호, 삭제 이유와
+  현재 계약을 기록한 뒤 제거할 수 있습니다.
 - 실제 내용이 없는 폴더와 자리표시자 문서는 만들지 않습니다.
 
 ## 현재 문서
@@ -61,6 +64,7 @@
 - [Prompting 독립 플러그인 결정](decisions/0006-keep-prompting-independent.md)
 - [Engineering 단계별 quality gate 결정](decisions/0007-use-stage-owned-quality-gates.md)
 - [Product 독립 플러그인 결정](decisions/0008-add-product-plugin.md)
+- [Engineering 독립 플러그인 결정](decisions/0009-maintain-engineering-as-an-independent-plugin.md)
 - [마켓플레이스 요구사항](product/marketplace-requirements.md)
 - [플러그인 추가 가이드](guides/adding-a-plugin.md)
 - [플러그인 매니페스트 참조](reference/plugin-manifest.md)
