@@ -447,7 +447,10 @@ assert_reassembled_control \
   "$committed_bundle" "$WORK/reassembled-committed-range.bundle" \
   "$committed_artifact" "$committed_head" 'committed-range'
 
-for committed_case in missing-base missing-head duplicate-base duplicate-head malformed-base malformed-head; do
+for committed_case in \
+  missing-base missing-head duplicate-base duplicate-head malformed-base malformed-head \
+  extra-field reordered-fields missing-blank-line
+do
   case_artifact="$WORK/committed-$committed_case.artifact"
   case "$committed_case" in
     missing-base)
@@ -468,6 +471,15 @@ for committed_case in missing-base missing-head duplicate-base duplicate-head ma
     malformed-head)
       printf '# Review package\nMode: committed range\nBase: %s\nHead: invalid\n\n## Diff\n' \
         "$committed_base" > "$case_artifact" ;;
+    extra-field)
+      printf '# Review package\nMode: committed range\nBase: %s\nHead: %s\nUnrecognized: value\n\n## Diff\n' \
+        "$committed_base" "$committed_head" > "$case_artifact" ;;
+    reordered-fields)
+      printf '# Review package\nMode: committed range\nHead: %s\nBase: %s\n\n## Diff\n' \
+        "$committed_head" "$committed_base" > "$case_artifact" ;;
+    missing-blank-line)
+      printf '# Review package\nMode: committed range\nBase: %s\nHead: %s\n## Diff\n' \
+        "$committed_base" "$committed_head" > "$case_artifact" ;;
   esac
   assert_rejected create_bundle_with_revision "$committed_head" \
     "$WORK/brief" "$case_artifact" "$FINDINGS" "$VERIFICATION" 2

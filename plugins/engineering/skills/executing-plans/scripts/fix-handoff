@@ -117,20 +117,12 @@ def validate_artifact_revision(data, revision):
         lines = []
 
     if len(lines) >= 2 and lines[0] == "# Review package" and lines[1] == "Mode: committed range":
-        header = []
-        for line in lines[2:]:
-            if line == "":
-                break
-            header.append(line)
-
-        bases = [line for line in header if line.startswith("Base:")]
-        heads = [line for line in header if line.startswith("Head:")]
-        if len(bases) != 1 or len(heads) != 1:
-            fail("committed-range artifact has missing or duplicate Base/Head headers")
-        base = bases[0]
-        head = heads[0]
+        if len(lines) < 5 or lines[4] != "":
+            fail("committed-range artifact does not have the canonical header shape")
+        base = lines[2]
+        head = lines[3]
         if not re.fullmatch(r"Base: [0-9a-f]{40}", base) or not re.fullmatch(r"Head: [0-9a-f]{40}", head):
-            fail("committed-range artifact has malformed Base/Head headers")
+            fail("committed-range artifact does not have canonical Base/Head headers")
         if revision != head.removeprefix("Head: "):
             fail("committed-range artifact Head does not match revision")
         return
