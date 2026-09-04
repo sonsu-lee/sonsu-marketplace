@@ -31,6 +31,24 @@ for input in "${inputs[@]}"; do
   }
 done
 
+cleanup() {
+  if [ -n "${staging:-}" ]; then
+    rm -f "$staging"
+  fi
+}
+
+publish_exact_path() {
+  python3 - "$1" "$2" <<'PY'
+import os
+import sys
+
+try:
+    os.link(sys.argv[1], sys.argv[2])
+except OSError:
+    raise SystemExit(1)
+PY
+}
+
 explicit_out=false
 if [ $# -eq 8 ]; then
   explicit_out=true
@@ -46,17 +64,11 @@ else
   out=$(mktemp "${temp_root%/}/engineering-red-team.XXXXXX")
   staging=$out
 fi
-chmod 600 "$staging"
-
-cleanup() {
-  if [ -n "${staging:-}" ]; then
-    rm -f "$staging"
-  fi
-}
 trap cleanup EXIT
 trap 'exit 129' HUP
 trap 'exit 130' INT
 trap 'exit 143' TERM
+chmod 600 "$staging"
 
 {
   echo "# Red-team review bundle"
@@ -85,7 +97,7 @@ else
 fi
 
 if [ "$explicit_out" = true ]; then
-  if ! ln "$staging" "$out"; then
+  if ! publish_exact_path "$staging" "$out"; then
     echo "output already exists or cannot be published without replacement: $out" >&2
     exit 2
   fi

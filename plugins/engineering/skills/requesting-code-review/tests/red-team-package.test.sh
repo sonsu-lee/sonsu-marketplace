@@ -107,6 +107,7 @@ if "$red_team_package" \
 fi
 
 real_cat=$(command -v cat)
+real_chmod=$(command -v chmod)
 mkdir "$fixture_dir/bin"
 cat > "$fixture_dir/bin/cat" <<'EOF'
 #!/usr/bin/env bash
@@ -116,16 +117,71 @@ if [ "${RED_TEAM_TEST_FAIL_INPUT:-}" = "${1:-}" ]; then
   exit 73
 fi
 if [ "${RED_TEAM_TEST_RACE_INPUT:-}" = "${1:-}" ]; then
-  printf 'racer-owned\n' > "$RED_TEAM_TEST_RACE_OUTPUT"
+  case "${RED_TEAM_TEST_RACE_KIND:-file}" in
+    file)
+      printf 'racer-owned\n' > "$RED_TEAM_TEST_RACE_OUTPUT"
+      ;;
+    directory)
+      mkdir "$RED_TEAM_TEST_RACE_OUTPUT"
+      ;;
+    symlink-directory)
+      mkdir "$RED_TEAM_TEST_RACE_TARGET"
+      ln -s "$RED_TEAM_TEST_RACE_TARGET" "$RED_TEAM_TEST_RACE_OUTPUT"
+      ;;
+    *)
+      exit 74
+      ;;
+  esac
 fi
 
 exec "$RED_TEAM_TEST_REAL_CAT" "$@"
 EOF
 chmod +x "$fixture_dir/bin/cat"
+cat > "$fixture_dir/bin/chmod" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ -n "${RED_TEAM_TEST_FAIL_CHMOD_PREFIX:-}" ]; then
+  case "${2:-}" in
+    "$RED_TEAM_TEST_FAIL_CHMOD_PREFIX".staging.*)
+      exit 75
+      ;;
+  esac
+fi
+
+exec "$RED_TEAM_TEST_REAL_CHMOD" "$@"
+EOF
+"$real_chmod" +x "$fixture_dir/bin/chmod"
+
+chmod_failed_package_path="$(cd "$fixture_dir" && pwd -P)/chmod-failed.bundle"
+if PATH="$fixture_dir/bin:$PATH" \
+  RED_TEAM_TEST_REAL_CHMOD="$real_chmod" \
+  RED_TEAM_TEST_FAIL_CHMOD_PREFIX="$chmod_failed_package_path" \
+  "$red_team_package" \
+    "$fixture_dir/diff.package" \
+    "$fixture_dir/original-goal.md" \
+    "$fixture_dir/requirements.md" \
+    "$fixture_dir/plan.md" \
+    "$fixture_dir/verification.md" \
+    "$fixture_dir/outcomes.md" \
+    "$fixture_dir/provenance.md" \
+    "$chmod_failed_package_path" >/dev/null 2>&1; then
+  echo 'staging chmod failure was accepted' >&2
+  exit 1
+fi
+if [ -e "$chmod_failed_package_path" ] || [ -L "$chmod_failed_package_path" ]; then
+  echo 'staging chmod failure left a final package path' >&2
+  exit 1
+fi
+if find "$fixture_dir" -maxdepth 1 -name 'chmod-failed.bundle.staging.*' -print -quit | grep -q .; then
+  echo 'staging chmod failure left a staging file' >&2
+  exit 1
+fi
 
 race_package_path="$fixture_dir/race.bundle"
 if PATH="$fixture_dir/bin:$PATH" \
   RED_TEAM_TEST_REAL_CAT="$real_cat" \
+  RED_TEAM_TEST_REAL_CHMOD="$real_chmod" \
   RED_TEAM_TEST_RACE_INPUT="$fixture_dir/plan.md" \
   RED_TEAM_TEST_RACE_OUTPUT="$race_package_path" \
   "$red_team_package" \
@@ -144,6 +200,76 @@ fi
   echo 'concurrent output path was overwritten' >&2
   exit 1
 }
+
+race_directory_path="$fixture_dir/race-directory.bundle"
+if PATH="$fixture_dir/bin:$PATH" \
+  RED_TEAM_TEST_REAL_CAT="$real_cat" \
+  RED_TEAM_TEST_REAL_CHMOD="$real_chmod" \
+  RED_TEAM_TEST_RACE_INPUT="$fixture_dir/plan.md" \
+  RED_TEAM_TEST_RACE_KIND=directory \
+  RED_TEAM_TEST_RACE_OUTPUT="$race_directory_path" \
+  "$red_team_package" \
+    "$fixture_dir/diff.package" \
+    "$fixture_dir/original-goal.md" \
+    "$fixture_dir/requirements.md" \
+    "$fixture_dir/plan.md" \
+    "$fixture_dir/verification.md" \
+    "$fixture_dir/outcomes.md" \
+    "$fixture_dir/provenance.md" \
+    "$race_directory_path" >/dev/null 2>&1; then
+  echo 'concurrent output directory was accepted' >&2
+  exit 1
+fi
+[ -d "$race_directory_path" ] || {
+  echo 'concurrent output directory was replaced' >&2
+  exit 1
+}
+if find "$race_directory_path" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
+  echo 'concurrent output directory received a nested package artifact' >&2
+  exit 1
+fi
+if find "$fixture_dir" -maxdepth 1 -name 'race-directory.bundle.staging.*' -print -quit | grep -q .; then
+  echo 'concurrent output directory failure left a staging file' >&2
+  exit 1
+fi
+
+race_symlink_directory_path="$fixture_dir/race-symlink-directory.bundle"
+race_symlink_directory_target="$fixture_dir/race-symlink-directory-target"
+if PATH="$fixture_dir/bin:$PATH" \
+  RED_TEAM_TEST_REAL_CAT="$real_cat" \
+  RED_TEAM_TEST_REAL_CHMOD="$real_chmod" \
+  RED_TEAM_TEST_RACE_INPUT="$fixture_dir/plan.md" \
+  RED_TEAM_TEST_RACE_KIND=symlink-directory \
+  RED_TEAM_TEST_RACE_OUTPUT="$race_symlink_directory_path" \
+  RED_TEAM_TEST_RACE_TARGET="$race_symlink_directory_target" \
+  "$red_team_package" \
+    "$fixture_dir/diff.package" \
+    "$fixture_dir/original-goal.md" \
+    "$fixture_dir/requirements.md" \
+    "$fixture_dir/plan.md" \
+    "$fixture_dir/verification.md" \
+    "$fixture_dir/outcomes.md" \
+    "$fixture_dir/provenance.md" \
+    "$race_symlink_directory_path" >/dev/null 2>&1; then
+  echo 'concurrent output symlink to a directory was accepted' >&2
+  exit 1
+fi
+[ -L "$race_symlink_directory_path" ] || {
+  echo 'concurrent output symlink to a directory was replaced' >&2
+  exit 1
+}
+[ "$(readlink "$race_symlink_directory_path")" = "$race_symlink_directory_target" ] || {
+  echo 'concurrent output symlink target changed' >&2
+  exit 1
+}
+if find "$race_symlink_directory_target" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
+  echo 'concurrent output symlink target received a nested package artifact' >&2
+  exit 1
+fi
+if find "$fixture_dir" -maxdepth 1 -name 'race-symlink-directory.bundle.staging.*' -print -quit | grep -q .; then
+  echo 'concurrent output symlink failure left a staging file' >&2
+  exit 1
+fi
 
 dangling_package_path="$fixture_dir/dangling.bundle"
 dangling_target="$fixture_dir/must-not-be-created.bundle"
@@ -172,6 +298,7 @@ fi
 failed_package_path="$fixture_dir/failed.bundle"
 if PATH="$fixture_dir/bin:$PATH" \
   RED_TEAM_TEST_REAL_CAT="$real_cat" \
+  RED_TEAM_TEST_REAL_CHMOD="$real_chmod" \
   RED_TEAM_TEST_FAIL_INPUT="$fixture_dir/plan.md" \
   "$red_team_package" \
     "$fixture_dir/diff.package" \
