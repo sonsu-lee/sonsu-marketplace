@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Figma Workflow Companion</title>
+    <style>
+      :root { color-scheme: light dark; font: 12px/1.45 Inter, sans-serif; }
+      body { box-sizing: border-box; margin: 0; padding: 16px; color: var(--figma-color-text, #1e1e1e); background: var(--figma-color-bg, #fff); }
+      h1 { font-size: 15px; margin: 0 0 6px; }
+      p { margin: 0 0 12px; color: var(--figma-color-text-secondary, #666); }
+      label { display: block; font-weight: 600; margin: 12px 0 6px; }
+      textarea { box-sizing: border-box; width: 100%; min-height: 232px; resize: vertical; padding: 8px; border: 1px solid var(--figma-color-border, #d9d9d9); border-radius: 4px; color: inherit; background: var(--figma-color-bg, #fff); font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .actions { display: flex; gap: 8px; margin: 10px 0; }
+      button { border: 0; border-radius: 4px; padding: 7px 10px; color: var(--figma-color-text-onbrand, #fff); background: var(--figma-color-bg-brand, #18a0fb); font: inherit; font-weight: 600; cursor: pointer; }
+      button.secondary { color: var(--figma-color-text, #1e1e1e); background: var(--figma-color-bg-secondary, #f5f5f5); }
+      button:disabled { cursor: not-allowed; opacity: .45; }
+      #status { min-height: 18px; color: var(--figma-color-text-secondary, #666); }
+      #result { min-height: 148px; white-space: pre-wrap; word-break: break-word; }
+    </style>
+  </head>
+  <body>
+    <h1>Figma Workflow Companion</h1>
+    <p>Paste a version 1 preview plan. Apply uses the matching preview receipt held only in this window.</p>
+    <label for="plan">Operation plan JSON</label>
+    <textarea id="plan" spellcheck="false">{
+  "version": 1,
+  "mode": "preview",
+  "operation": "inspect-selection",
+  "scope": { "kind": "selection" }
+}</textarea>
+    <div class="actions">
+      <button type="button" data-action="preview">Preview</button>
+      <button type="button" data-action="apply" disabled>Apply</button>
+      <button type="button" class="secondary" data-action="copy">Copy result</button>
+    </div>
+    <div id="status" aria-live="polite">Preview a plan before applying mutations.</div>
+    <label for="result">Result</label>
+    <pre id="result" tabindex="0">No result yet.</pre>
+    <script>
+      (() => {
+        const plan = document.querySelector('#plan');
+        const result = document.querySelector('#result');
+        const status = document.querySelector('#status');
+        const applyButton = document.querySelector('[data-action="apply"]');
+        let receipt = null;
+        let requestGeneration = 0;
+        let latestRequest = null;
+
+        const clearReceipt = () => {
+          receipt = null;
+          applyButton.disabled = true;
+          latestRequest = null;
+          requestGeneration += 1;
+        };
+
+        const showResult = (value) => {
+          result.textContent = JSON.stringify(value, null, 2);
+          status.textContent = value.status === 'invalid'
+            ? `Validation failed: ${value.reason}`
+            : `Result: ${value.status}`;
+        };
+
+        const planForApply = (text) => {
+          const parsed = JSON.parse(text);
+          if (parsed && typeof parsed === 'object' && parsed.mode === 'preview') {
+            return JSON.stringify({ ...parsed, mode: 'apply' });
+          }
+          return text;
+        };
+
+        const postRequest = (type, requestPlan, requestReceipt) => {
+          const request = {
+            type,
+            plan: requestPlan,
+            input: plan.value,
+            requestId: ++requestGeneration,
+          };
+          latestRequest = request;
+          parent.postMessage({ pluginMessage: { ...request, receipt: requestReceipt } }, '*');
+        };
+
+        plan.addEventListener('input', clearReceipt);
+        document.querySelector('[data-action="preview"]').addEventListener('click', () => {
+          clearReceipt();
+          postRequest('preview', plan.value, null);
+        });
+        applyButton.addEventListener('click', () => {
+          let applyPlan;
+          try {
+            applyPlan = planForApply(plan.value);
+          } catch {
+            showResult({ status: 'invalid', reason: 'INVALID_JSON' });
+            return;
+          }
+          postRequest('apply', applyPlan, receipt);
+        });
+        document.querySelector('[data-action="copy"]').addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(result.textContent);
+            status.textContent = 'Result copied.';
+          } catch {
+            status.textContent = 'Copy failed; select the result text manually.';
+          }
+        });
+        window.onmessage = (event) => {
+          const message = event.data && event.data.pluginMessage;
+          if (!message || message.type !== 'result') return;
+          if (!latestRequest || message.request !== latestRequest.type
+            || message.requestId !== latestRequest.requestId
+            || message.input !== latestRequest.input
+            || plan.value !== latestRequest.input) return;
+          showResult(message.result);
+          if (message.request === 'preview' && message.result && message.result.receipt) {
+            receipt = message.result.receipt;
+            applyButton.disabled = false;
+          }
+        };
+      })();
+    </script>
+  </body>
+</html>

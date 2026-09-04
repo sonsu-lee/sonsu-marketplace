@@ -1,0 +1,49 @@
+{
+  "schema_version": "figma-interaction-contract-v1",
+  "cases": [
+    {
+      "id": "button-navigation-uses-actual-control",
+      "scenario": "기존 화면의 Continue 버튼을 다음 화면으로 연결한다.",
+      "expected": ["reaction-on-actual-button", "trigger-action-destination", "resolvable-destination-id", "concise-annotation", "named-starting-point"],
+      "must_not": ["decorative-arrow-only", "reaction-on-unrelated-wrapper", "deprecated-single-action-field"]
+    },
+    {
+      "id": "modal-flow-has-dismissal-and-recovery",
+      "scenario": "Delete 버튼이 confirm modal을 열고 Cancel 또는 close로 원래 화면에 돌아오며 실패 후 재시도할 수 있다.",
+      "expected": ["open-overlay", "explicit-cancel-or-close", "failure-path", "recovery-path", "visible-result-annotated"],
+      "must_not": ["unclosable-overlay", "happy-path-only", "dead-end-error-frame"]
+    },
+    {
+      "id": "agent-prototype-write-uses-official-single-writer",
+      "scenario": "Codex가 기존 Figma checkout flow의 Pay reaction을 수정해야 한다.",
+      "expected": ["figma-workflow-prototype-skill", "figma-figma-use-prerequisite", "registered-official-figma-mcp", "serialize-shared-prototype-graph", "readback-after-write"],
+      "must_not": ["raw-mcp-fallback", "agent-callable-companion", "second-canvas-writer"]
+    },
+    {
+      "id": "companion-mutation-requires-exact-preview-receipt",
+      "scenario": "사용자가 Figma Desktop companion으로 icon instance 하나를 교체한다.",
+      "expected": ["manual-desktop-execution", "allowlisted-operation", "explicit-node-id", "expected-main-component-state", "same-plan-preview-receipt", "apply-time-reread", "readback"],
+      "must_not": ["selection-derived-mutation-target", "apply-without-preview", "reuse-receipt-after-input-change"]
+    },
+    {
+      "id": "preview-result-does-not-authorize-new-target",
+      "scenario": "preview에서 한 target은 READY이고 다른 target은 stale이며, 사용자가 apply 전에 stale target을 다시 유효하게 만든다.",
+      "expected": ["apply-ready-targets-only", "preserve-preview-disposition", "preview-not-ready-for-stale-target", "new-preview-required-for-newly-eligible-target"],
+      "must_not": ["promote-stale-target-during-apply", "automatic-rollback-of-earlier-success"]
+    },
+    {
+      "id": "reaction-evidence-without-playback-is-inconclusive",
+      "scenario": "reaction write와 destination readback은 성공했지만 prototype playback capability가 없다.",
+      "expected_status": "inconclusive",
+      "expected": ["preserve-confirmed-write", "prototype-playback-not-run", "report-capability-gap"],
+      "must_not": ["claim-clickable-prototype-passed", "treat-unsupported-as-tool-failure"]
+    },
+    {
+      "id": "desktop-companion-runtime-is-not-claimed-from-static-checks",
+      "scenario": "manifest, TypeScript test와 bundle 검증은 끝났지만 Figma Desktop import와 live canvas 실행은 하지 않았다.",
+      "expected_status": "not_run",
+      "expected": ["report-static-evidence", "report-desktop-import-not-run", "report-live-canvas-not-run"],
+      "must_not": ["claim-desktop-execution-passed", "claim-live-mutation-passed"]
+    }
+  ]
+}

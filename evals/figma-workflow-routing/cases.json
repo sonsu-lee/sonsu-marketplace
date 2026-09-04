@@ -1,0 +1,76 @@
+{
+  "schema_version": "figma-workflow-routing-v1",
+  "cases": [
+    {
+      "id": "clickable-product-flow-routes-to-figma-design",
+      "installed_plugins": ["figma-workflow", "figma", "drawio"],
+      "prompt": "결제 화면에서 Pay 버튼을 누르면 확인 modal이 뜨고 성공하면 주문 상세로 이동하는 클릭 가능한 Figma prototype을 만들어 줘.",
+      "expected_sequence": ["figma-workflow:figma-product-design", "figma:figma-use", "figma:figma-generate-design", "figma-workflow:figma-prototype-flow"],
+      "expected_artifact": "figma-design",
+      "must_use_prerequisite": "figma:figma-use",
+      "must_create_executable_reactions": true,
+      "must_not_select": ["drawio:drawio", "figma:figma-generate-diagram"]
+    },
+    {
+      "id": "figma-audit-remains-read-only",
+      "installed_plugins": ["figma-workflow", "figma"],
+      "prompt": "현재 선택한 Figma checkout frame의 Auto Layout, component 재사용, icon과 끊긴 prototype 동선을 수정하지 말고 검토해 줘.",
+      "expected_sequence": ["figma-workflow:figma-design-audit", "figma:figma-use"],
+      "expected_mode": "read-only",
+      "must_use_prerequisite": "figma:figma-use",
+      "must_not_mutate": true,
+      "must_not_select": ["figma-workflow:figma-product-design", "figma-workflow:figma-prototype-flow"]
+    },
+    {
+      "id": "workshop-journey-routes-to-figjam",
+      "installed_plugins": ["figma-workflow", "figma", "drawio"],
+      "prompt": "팀 워크숍에서 쓸 신규 사용자 onboarding journey를 sticky note와 branch로 FigJam에 정리해 줘.",
+      "expected_sequence": ["figma:figma-use-figjam"],
+      "expected_artifact": "figjam",
+      "must_not_select": ["figma-workflow:figma-product-design", "drawio:drawio"]
+    },
+    {
+      "id": "aws-architecture-routes-to-drawio",
+      "installed_plugins": ["figma-workflow", "figma", "drawio"],
+      "prompt": "AWS VPC, public/private subnet, ALB, ECS와 RDS 구조도를 그려 줘.",
+      "expected_sequence": ["drawio:drawio"],
+      "expected_artifact": "drawio",
+      "must_not_select": ["figma-workflow:figma-product-design", "figma-workflow:figma-prototype-flow", "figma:figma-generate-diagram"]
+    },
+    {
+      "id": "design-to-code-remains-official-figma-responsibility",
+      "installed_plugins": ["figma-workflow", "figma"],
+      "prompt": "이 Figma selection을 기존 React 프로젝트의 component와 token을 재사용해서 구현해 줘.",
+      "expected_sequence": ["figma:figma-design-to-code"],
+      "must_not_select": ["figma-workflow:figma-product-design", "figma-workflow:figma-prototype-flow", "figma-workflow:figma-design-audit"]
+    },
+    {
+      "id": "manual-companion-is-directed-not-agent-invoked",
+      "installed_plugins": ["figma-workflow", "figma"],
+      "prompt": "선택한 node IDs의 이름을 같은 JSON plan으로 안전하게 바꿔 줘.",
+      "expected_action": "direct-user-to-figma-desktop-companion",
+      "expected_artifact": "manual-companion-result",
+      "must_require": ["explicit-node-ids", "preview-receipt", "apply-time-readback"],
+      "must_not_select": ["agent-callable-companion", "raw-mcp-bridge"]
+    },
+    {
+      "id": "missing-official-write-capability-is-not_run",
+      "installed_plugins": ["figma-workflow"],
+      "available_tools": [],
+      "prompt": "Figma에 settings 화면을 만들고 저장 버튼을 success 화면에 연결해 줘.",
+      "expected_sequence": ["figma-workflow:figma-product-design", "figma-workflow:figma-prototype-flow"],
+      "expected_mode": "advisory-spec",
+      "expected_status": "not_run",
+      "must_not_claim_canvas_mutation": true,
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "generic-flow-asks-only-when-artifact-ambiguous",
+      "installed_plugins": ["figma-workflow", "figma", "drawio"],
+      "prompt": "가입 user flow를 그려 줘.",
+      "expected_action": "clarify-artifact-intent",
+      "allowed_choices": ["figma-design", "figjam", "drawio"],
+      "must_not_mutate": true
+    }
+  ]
+}
