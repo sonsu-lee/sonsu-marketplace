@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-  printf 'usage: fast-path-state check ROOT TASK_ID [EXPECTED_REVISION] | record ROOT TASK_ID eligible CANDIDATE_REVISION EVIDENCE_DIGEST | record ROOT TASK_ID disqualified REASON EVIDENCE_DIGEST\n' >&2
+  printf 'usage: fast-path-state check ROOT TASK_ID EXPECTED_REVISION | record ROOT TASK_ID eligible CANDIDATE_REVISION EVIDENCE_DIGEST | record ROOT TASK_ID disqualified REASON EVIDENCE_DIGEST\n' >&2
   exit 64
 }
 
@@ -16,10 +16,10 @@ command=$1
 
 case "$command" in
   check)
-    [[ $# -eq 3 || $# -eq 4 ]] || usage
+    [[ $# -eq 4 ]] || usage
     root=$2
     task_id=$3
-    expected_revision=${4:-}
+    expected_revision=$4
     ;;
   record)
     [[ $# -eq 6 ]] || usage
@@ -38,7 +38,9 @@ case "$root" in
   *'//'*|*/./*|*/../*|*/.|*/..) fail_closed 'state root must be canonical' ;;
 esac
 [[ "$task_id" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]] || fail_closed 'unsafe task ID'
-[[ -z ${expected_revision:-} || "$expected_revision" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]] || fail_closed 'invalid expected revision'
+if [[ "$command" == check ]]; then
+  [[ "$expected_revision" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]] || fail_closed 'invalid expected revision'
+fi
 
 canonicalize_state_root() {
   local candidate=$root component parent logical_ancestor physical_ancestor logical_root physical_root
@@ -139,7 +141,6 @@ case "$command" in
       printf 'unclassified\n'
     elif read_state; then
       if [[ "$state_verdict" == eligible ]]; then
-        [[ -n "$expected_revision" ]] || fail_closed 'eligible state requires an expected revision'
         [[ "$state_detail" == "$expected_revision" ]] || fail_closed 'eligible state revision mismatch'
       fi
       printf '%s\n' "$state_verdict"
