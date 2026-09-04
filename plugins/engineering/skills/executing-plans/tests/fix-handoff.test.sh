@@ -91,6 +91,31 @@ assert_no_extract_output() {
   fi
 }
 
+assemble_bundle_with_artifact_revision() {
+  python3 - "$1" "$2" "$3" "$4" <<'PY'
+import io
+import json
+import tarfile
+import sys
+
+source, destination, artifact_path, revision = sys.argv[1:]
+with tarfile.open(source, "r:*") as archive:
+    payloads = {member.name: archive.extractfile(member).read() for member in archive.getmembers()}
+with open(artifact_path, "rb") as handle:
+    payloads["artifact-package"] = handle.read()
+metadata = json.loads(payloads["metadata.json"])
+metadata["revision"] = revision
+payloads["metadata.json"] = json.dumps(metadata, sort_keys=True, separators=(",", ":")).encode("utf-8")
+with tarfile.open(destination, "w", format=tarfile.USTAR_FORMAT) as archive:
+    for name in ("metadata.json", "task-brief", "artifact-package", "findings.json", "verification.json"):
+        member = tarfile.TarInfo(name)
+        member.size = len(payloads[name])
+        member.mode = 0o600
+        member.mtime = 0
+        archive.addfile(member, io.BytesIO(payloads[name]))
+PY
+}
+
 printf 'brief\n' > "$WORK/brief"
 printf '\x00artifact\xff\n' > "$WORK/artifact"
 
@@ -309,6 +334,38 @@ for round in 0 1 4 -1 two ''; do
   assert_rejected create_bundle "$WORK/brief" "$WORK/artifact" "$FINDINGS" "$VERIFICATION" "$round"
 done
 
+# Canonical working-tree review packages remain content-addressed. Exercise the
+# exact header shape so later parser changes cannot accidentally treat them as
+# 40-hex git-revision artifacts.
+working_tree_artifact="$WORK/working-tree.artifact"
+printf '# Review package\nMode: working tree\nBase HEAD: %s\n\n## Status\n M sample\n\n## Tracked, staged, and unstaged diff\n' \
+  90f0ac00a6df120ab960e29678cd8b3770af6830 > "$working_tree_artifact"
+working_tree_revision=$(hash_bundle "$working_tree_artifact")
+working_tree_create=$(create_bundle_with_revision "$working_tree_revision" \
+  "$WORK/brief" "$working_tree_artifact" "$FINDINGS" "$VERIFICATION" 2)
+working_tree_bundle=$(parse_bundle_path "$working_tree_create")
+working_tree_digest=$(parse_bundle_digest "$working_tree_create")
+working_tree_verify=$("$HELPER" verify "$working_tree_bundle" "$working_tree_digest") \
+  || fail 'canonical working-tree package failed verification'
+working_tree_extract=$(parse_extracted_path "$working_tree_verify")
+[[ -n "$working_tree_extract" ]] || fail 'working-tree verify did not emit Extracted'
+assert_snapshot "$working_tree_extract"
+cmp "$working_tree_artifact" "$working_tree_extract/artifact-package" \
+  || fail 'verified working-tree artifact differs from the input'
+assert_rejected create_bundle_with_revision 90f0ac00a6df120ab960e29678cd8b3770af6830 \
+  "$WORK/brief" "$working_tree_artifact" "$FINDINGS" "$VERIFICATION" 2
+
+stale_working_tree_bundle="$WORK/stale-working-tree.bundle"
+stale_working_tree_revision=0000000000000000000000000000000000000000000000000000000000000000
+assemble_bundle_with_artifact_revision "$working_tree_bundle" "$stale_working_tree_bundle" \
+  "$working_tree_artifact" "$stale_working_tree_revision"
+stale_working_tree_digest=$(hash_bundle "$stale_working_tree_bundle")
+extracts_before=$(extract_count)
+stale_working_tree_verify=$("$HELPER" verify \
+  "$stale_working_tree_bundle" "$stale_working_tree_digest" 2>&1 || true)
+assert_no_extract_output "$stale_working_tree_verify" "$extracts_before"
+assert_rejected "$HELPER" verify "$stale_working_tree_bundle" "$stale_working_tree_digest"
+
 # Canonical committed-range packages are git-revision addressed, not merely
 # shape-checked. Create and verify must both reject a stale metadata revision.
 committed_base=90f0ac00a6df120ab960e29678cd8b3770af6830
@@ -326,21 +383,40 @@ committed_digest=$(parse_bundle_digest "$committed_create")
 assert_rejected create_bundle_with_revision 0000000000000000000000000000000000000000 \
   "$WORK/brief" "$committed_artifact" "$FINDINGS" "$VERIFICATION" 2
 
-for committed_case in missing duplicate malformed; do
+for committed_case in missing-base missing-head duplicate-base duplicate-head malformed-base malformed-head; do
   case_artifact="$WORK/committed-$committed_case.artifact"
   case "$committed_case" in
-    missing)
+    missing-base)
+      printf '# Review package\nMode: committed range\nHead: %s\n\n## Diff\n' \
+        "$committed_head" > "$case_artifact" ;;
+    missing-head)
       printf '# Review package\nMode: committed range\nBase: %s\n\n## Diff\n' \
         "$committed_base" > "$case_artifact" ;;
-    duplicate)
+    duplicate-base)
+      printf '# Review package\nMode: committed range\nBase: %s\nBase: %s\nHead: %s\n\n## Diff\n' \
+        "$committed_base" "$committed_base" "$committed_head" > "$case_artifact" ;;
+    duplicate-head)
       printf '# Review package\nMode: committed range\nBase: %s\nHead: %s\nHead: %s\n\n## Diff\n' \
         "$committed_base" "$committed_head" "$committed_head" > "$case_artifact" ;;
-    malformed)
+    malformed-base)
+      printf '# Review package\nMode: committed range\nBase: invalid\nHead: %s\n\n## Diff\n' \
+        "$committed_head" > "$case_artifact" ;;
+    malformed-head)
       printf '# Review package\nMode: committed range\nBase: %s\nHead: invalid\n\n## Diff\n' \
         "$committed_base" > "$case_artifact" ;;
   esac
   assert_rejected create_bundle_with_revision "$committed_head" \
     "$WORK/brief" "$case_artifact" "$FINDINGS" "$VERIFICATION" 2
+
+  malformed_header_bundle="$WORK/verify-$committed_case.bundle"
+  assemble_bundle_with_artifact_revision "$committed_bundle" "$malformed_header_bundle" \
+    "$case_artifact" "$committed_head"
+  malformed_header_digest=$(hash_bundle "$malformed_header_bundle")
+  extracts_before=$(extract_count)
+  malformed_header_verify=$("$HELPER" verify \
+    "$malformed_header_bundle" "$malformed_header_digest" 2>&1 || true)
+  assert_no_extract_output "$malformed_header_verify" "$extracts_before"
+  assert_rejected "$HELPER" verify "$malformed_header_bundle" "$malformed_header_digest"
 done
 
 # A valid digest alone cannot make a manually assembled stale package valid.

@@ -410,8 +410,12 @@ harness에서 실행 중인 subagent에게 추가 메시지를 보낼 수 없다
 
 **2회차 — immutable evidence-only handoff를 만든다.** controller가 task brief, current artifact package,
 normalized finding-evidence JSON, normalized verification-evidence JSON, round `2`와 exact revision을
-`../executing-plans/scripts/fix-handoff create`로 고정한다. `spawn_agent {fork_turns: "none"}`으로 새
-implementer를 위임하고 [공유 fix prompt](../executing-plans/fix-implementer-prompt.md)와 bundle path/digest만
+`../executing-plans/scripts/fix-handoff create`로 고정한다. canonical committed-range review package면
+유일한 40-hex `Head:`를 revision으로 선택하고, canonical working-tree package와 그 밖의 binary-safe
+artifact면 exact artifact bytes의 64-hex SHA-256을 선택한다. committed-range package의
+`Base:`·`Head:` header가 missing, duplicate, malformed이거나 artifact와 revision을 결합할 수 없으면
+dispatch하지 않고 handoff preparation으로 돌아간다. `spawn_agent {fork_turns: "none"}`으로 새 implementer를
+위임하고 [공유 fix prompt](../executing-plans/fix-implementer-prompt.md)와 bundle path/digest만
 전달한다. report 파일, reviewer 판단, finding 원문, agent identity와 session history를 전달하지 않는다.
 새 implementer는 어떤 bundle 읽기·추출·수정 전에도 canonical `fix-handoff verify BUNDLE DIGEST`를 실행한다.
 성공한 뒤 stdout의 `Extracted:` absolute directory만 읽고 bundle path를 다시 열거나 직접 tar extract하지 않는다.
@@ -420,7 +424,8 @@ preparation에 돌려보내며 prior context를 재사용하지 않는다.
 
 **3회차 — 또 다른 immutable handoff와 capability-up을 사용한다.** 2회차 agent를 재사용하지 않고
 `spawn_agent {fork_turns: "none"}`으로 다른 fresh implementer를 위임한다. 새 current revision과 raw evidence를
-다시 고정해 bundle path/digest만 전달하고, 해당 task에 적합한 한 단계 높은 허용 모델을 우선 사용한다. 상위
+같은 선택 규칙으로 다시 고정해 bundle path/digest만 전달한다. binding 실패는 handoff preparation으로
+돌려보내고 해당 task에 적합한 한 단계 높은 허용 모델을 우선 사용한다. 상위
 모델을 사용할 수 없으면 가장 가까운 허용 조합과 reasoning effort fallback을 기록한다. 새 관점이 필요한
 시점에 기존 context를 계속 재사용해 같은 오류를 강화하지 않는다.
 
