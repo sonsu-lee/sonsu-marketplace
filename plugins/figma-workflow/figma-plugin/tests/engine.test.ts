@@ -279,7 +279,12 @@ test('apply requires the matching preview receipt and verifies a rename by readb
   };
   const port = {
     async readNode(nodeId: string) { return nodes[nodeId] ?? null; },
-    async rename(nodeId: string, name: string) { nodes[nodeId].name = name; },
+    async renameIfCurrent(nodeId: string, expectedName: string, name: string) {
+      if (!nodes[nodeId]) return 'missing';
+      if (nodes[nodeId].name !== expectedName) return 'stale';
+      nodes[nodeId].name = name;
+      return 'applied';
+    },
   };
   const preview = await previewPlan(previewText, port) as { receipt: unknown };
 
@@ -315,7 +320,12 @@ test('apply re-reads each target and continues after stale and missing nodes', a
   };
   const port = {
     async readNode(nodeId: string) { return nodes[nodeId] ?? null; },
-    async rename(nodeId: string, name: string) { nodes[nodeId].name = name; },
+    async renameIfCurrent(nodeId: string, expectedName: string, name: string) {
+      if (!nodes[nodeId]) return 'missing';
+      if (nodes[nodeId].name !== expectedName) return 'stale';
+      nodes[nodeId].name = name;
+      return 'applied';
+    },
   };
   const preview = await previewPlan(previewText, port) as { receipt: unknown };
   nodes.stale.name = 'Changed externally';
@@ -354,9 +364,12 @@ test('apply isolates lookup, mutation and readback failures per target', async (
       if (phase === 'apply' && nodeId === 'readback' && nodes[nodeId].name === 'After') throw new Error('readback broke');
       return nodes[nodeId] ?? null;
     },
-    async rename(nodeId: string, name: string) {
+    async renameIfCurrent(nodeId: string, expectedName: string, name: string) {
       if (nodeId === 'mutation') throw new Error('mutation broke');
+      if (!nodes[nodeId]) return 'missing';
+      if (nodes[nodeId].name !== expectedName) return 'stale';
       nodes[nodeId].name = name;
+      return 'applied';
     },
   };
   const preview = await previewPlan(previewText, port) as { receipt: unknown };
@@ -451,7 +464,7 @@ test('apply reports READBACK_MISMATCH when a successful mutation cannot be obser
   const node = { id: 'node-1', type: 'RECTANGLE', name: 'Before' };
   const port = {
     async readNode() { return node; },
-    async rename() { /* Figma accepted the request but state did not change. */ },
+    async renameIfCurrent() { return 'applied'; /* Figma accepted the request but state did not change. */ },
   };
   const preview = await previewPlan(previewText, port) as { receipt: unknown };
 
@@ -485,7 +498,7 @@ test('icon apply classifies import and icon readback errors without rollback', a
       }
       return { key };
     },
-    async replaceIconInstance() { /* Mutation request completed but readback stays old. */ },
+    async replaceIconInstanceIfCurrent() { return 'applied'; /* Mutation request completed but readback stays old. */ },
   };
   const preview = await previewPlan(previewText, port) as { receipt: unknown };
 
@@ -532,9 +545,11 @@ test('apply only reads and mutates targets whose preview disposition was READY',
       if (phase === 'apply' && nodeId === 'gone') throw new Error('skipped target was read');
       return nodeId === 'ready' ? node : null;
     },
-    async rename(nodeId: string, name: string) {
+    async renameIfCurrent(nodeId: string, expectedName: string, name: string) {
       assert.equal(nodeId, 'ready');
+      assert.equal(node.name, expectedName);
       node.name = name;
+      return 'applied';
     },
   };
   const preview = await previewPlan(previewText, port) as { receipt: unknown };
@@ -563,7 +578,7 @@ test('apply honors a receipt disposition changed from READY without reading the 
       if (phase === 'apply') throw new Error('receipt-skipped target was read');
       return { id: 'ready', type: 'RECTANGLE', name: 'Before' };
     },
-    async rename() { throw new Error('receipt-skipped target was mutated'); },
+    async renameIfCurrent() { throw new Error('receipt-skipped target was mutated'); },
   };
   const preview = await previewPlan(previewText, port) as {
     receipt: { targets: Array<Record<string, unknown>> };
@@ -591,7 +606,7 @@ test('apply with no preview-ready targets skips without reading or mutating', as
       if (phase === 'apply') throw new Error('all-skipped target was read');
       return null;
     },
-    async rename() { throw new Error('all-skipped target was mutated'); },
+    async renameIfCurrent() { throw new Error('all-skipped target was mutated'); },
   };
   const preview = await previewPlan(previewText, port) as { receipt: unknown };
   phase = 'apply';
@@ -614,7 +629,11 @@ test('icon apply reports a successful replacement after readback', async () => {
   const port = {
     async readNode() { return node; },
     async importComponent(key: string) { return { key }; },
-    async replaceIconInstance(_nodeId: string, component: { key: string }) { node.mainComponentKey = component.key; },
+    async replaceIconInstanceIfCurrent(_nodeId: string, expectedKey: string, component: { key: string }) {
+      if (node.mainComponentKey !== expectedKey) return 'stale';
+      node.mainComponentKey = component.key;
+      return 'applied';
+    },
   };
   const preview = await previewPlan(previewText, port) as { receipt: unknown };
 
@@ -627,6 +646,51 @@ test('icon apply reports a successful replacement after readback', async () => {
       before: { mainComponentKey: 'old' }, after: { mainComponentKey: 'new' },
     }],
   });
+});
+
+test('rename apply skips when the adapter rejects a stale final precondition', async () => {
+  const previewText = JSON.stringify({
+    version: 1, mode: 'preview', operation: 'rename-exact',
+    targets: [{ nodeId: 'node', expectedName: 'A', newName: 'B' }],
+  });
+  const applyText = previewText.replace('"preview"', '"apply"');
+  const node = { id: 'node', type: 'RECTANGLE', name: 'A' };
+  const port = {
+    async readNode() { return node; },
+    async renameIfCurrent() { node.name = 'C'; return 'stale'; },
+  };
+  const preview = await previewPlan(previewText, port) as { receipt: unknown };
+  const result = await applyPlan(applyText, preview.receipt, port);
+
+  assert.deepEqual(result, {
+    status: 'no_changes',
+    results: [{ nodeId: 'node', status: 'skipped', reason: 'STALE_EXPECTED_STATE' }],
+  });
+  assert.equal(node.name, 'C');
+});
+
+test('icon apply skips when state changes during component import', async () => {
+  const previewText = JSON.stringify({
+    version: 1, mode: 'preview', operation: 'replace-icon-instance-exact',
+    targets: [{ nodeId: 'icon', expectedMainComponentKey: 'A', replacementComponentKey: 'B' }],
+  });
+  const applyText = previewText.replace('"preview"', '"apply"');
+  const node = { id: 'icon', type: 'INSTANCE', name: 'Icon', mainComponentKey: 'A' };
+  const port = {
+    async readNode() { return node; },
+    async importComponent() { node.mainComponentKey = 'C'; return { key: 'B' }; },
+    async replaceIconInstanceIfCurrent() {
+      return node.mainComponentKey === 'A' ? 'applied' : 'stale';
+    },
+  };
+  const preview = await previewPlan(previewText, port) as { receipt: unknown };
+  const result = await applyPlan(applyText, preview.receipt, port);
+
+  assert.deepEqual(result, {
+    status: 'no_changes',
+    results: [{ nodeId: 'icon', status: 'skipped', reason: 'STALE_EXPECTED_STATE' }],
+  });
+  assert.equal(node.mainComponentKey, 'C');
 });
 
 test('auto-layout audit returns clean when every checked node has an Auto Layout parent', async () => {

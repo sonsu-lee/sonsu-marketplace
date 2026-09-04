@@ -55,6 +55,16 @@ Preview를 실행하고, 같은 입력을 유지한 채 Apply를 누릅니다. U
 
 입력 textarea를 수정하면 receipt를 즉시 폐기합니다. receipt는 UI process memory에만 있으며 storage,
 plugin data, network 또는 document에 저장하지 않습니다. plugin을 닫으면 새 preview가 필요합니다.
+각 UI request는 generation ID와 요청 당시 입력을 함께 전달한다. 이전 Preview 또는 Apply의 늦은
+response는 현재 generation과 입력이 모두 일치할 때만 표시하거나 receipt로 채택한다.
+
+Malformed UI message는 `{ status: "invalid", reason: "INVALID_FIELD" }`로, selection snapshot,
+prototype destination lookup 같은 host lookup exception은 `{ status: "invalid", reason:
+"LOOKUP_FAILED" }`로 응답한다. raw error나 stack은 UI에 전달하지 않는다.
+
+Selection snapshot의 `variableBindings.opacity`는 JSON-safe 사실만 보존한다. literal opacity는
+`{ "kind": "literal", "value": 0.5 }`, Figma variable alias는
+`{ "kind": "binding", "variableId": "VariableID:…" }`로 구분한다.
 
 ## Verification boundary
 

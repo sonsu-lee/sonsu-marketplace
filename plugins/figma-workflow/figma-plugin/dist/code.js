@@ -124,8 +124,8 @@
     }
     return observed;
   };
-  async function inspectOrAudit(plan, port2) {
-    const roots = await port2.getSelection();
+  async function inspectOrAudit(plan, port) {
+    const roots = await port.getSelection();
     if (roots.length === 0) return invalid("INVALID_FIELD");
     const nodes = JSON.parse(JSON.stringify(roots));
     if (plan.operation === "inspect-selection") return { status: "inspected", nodes };
@@ -167,7 +167,7 @@
           }
           for (const action of reaction.actions) {
             if (!action.destinationId) continue;
-            if (await port2.readNode(action.destinationId) === null) {
+            if (await port.readNode(action.destinationId) === null) {
               findings.push({ code: "PROTOTYPE_DESTINATION_MISSING", nodeId: node.id, observed: { destinationId: action.destinationId } });
             }
           }
@@ -176,17 +176,17 @@
     }
     return { status: findings.length > 0 ? "findings" : "clean", findings };
   }
-  async function previewPlan(text, port2) {
+  async function previewPlan(text, port) {
     const parsed = parsePlan(text);
     if ("status" in parsed) return parsed;
-    if (!isMutationPlan(parsed)) return inspectOrAudit(parsed, port2);
+    if (!isMutationPlan(parsed)) return inspectOrAudit(parsed, port);
     if (parsed.mode !== "preview") return invalid("INVALID_FIELD");
     const results = [];
     const receiptTargets = [];
     for (const target of parsed.targets) {
       let node;
       try {
-        node = await port2.readNode(target.nodeId);
+        node = await port.readNode(target.nodeId);
       } catch {
         if (parsed.operation === "rename-exact") {
           receiptTargets.push({
@@ -257,7 +257,7 @@
       receipt: { fingerprint: canonicalFingerprint(parsed), targets: receiptTargets }
     };
   }
-  async function applyPlan(text, receipt, port2) {
+  async function applyPlan(text, receipt, port) {
     const parsed = parsePlan(text);
     if ("status" in parsed) return parsed;
     if (!isMutationPlan(parsed) || parsed.mode !== "apply") return invalid("INVALID_FIELD");
@@ -271,7 +271,7 @@
       }
       let node;
       try {
-        node = await port2.readNode(target.nodeId);
+        node = await port.readNode(target.nodeId);
       } catch {
         results.push({ nodeId: target.nodeId, status: "failed", reason: "LOOKUP_FAILED" });
         continue;
@@ -291,14 +291,23 @@
           results.push({ nodeId: target.nodeId, status: "skipped", reason: "STALE_EXPECTED_STATE" });
           continue;
         }
+        let mutation2;
         try {
-          await port2.rename(target.nodeId, renameTarget.newName);
+          mutation2 = await port.renameIfCurrent(target.nodeId, renameTarget.expectedName, renameTarget.newName);
         } catch {
           results.push({ nodeId: target.nodeId, status: "failed", reason: "MUTATION_FAILED" });
           continue;
         }
+        if (mutation2 === "missing") {
+          results.push({ nodeId: target.nodeId, status: "skipped", reason: "MISSING_NODE" });
+          continue;
+        }
+        if (mutation2 === "stale") {
+          results.push({ nodeId: target.nodeId, status: "skipped", reason: "STALE_EXPECTED_STATE" });
+          continue;
+        }
         try {
-          const readback = await port2.readNode(target.nodeId);
+          const readback = await port.readNode(target.nodeId);
           if (readback?.name === renameTarget.newName) {
             results.push({
               nodeId: target.nodeId,
@@ -331,19 +340,32 @@
       }
       let component;
       try {
-        component = await port2.importComponent(iconTarget.replacementComponentKey);
+        component = await port.importComponent(iconTarget.replacementComponentKey);
       } catch {
         results.push({ nodeId: target.nodeId, status: "failed", reason: "IMPORT_FAILED" });
         continue;
       }
+      let mutation;
       try {
-        await port2.replaceIconInstance(target.nodeId, component);
+        mutation = await port.replaceIconInstanceIfCurrent(
+          target.nodeId,
+          iconTarget.expectedMainComponentKey,
+          component
+        );
       } catch {
         results.push({ nodeId: target.nodeId, status: "failed", reason: "MUTATION_FAILED" });
         continue;
       }
+      if (mutation === "missing") {
+        results.push({ nodeId: target.nodeId, status: "skipped", reason: "MISSING_NODE" });
+        continue;
+      }
+      if (mutation === "stale") {
+        results.push({ nodeId: target.nodeId, status: "skipped", reason: "STALE_EXPECTED_STATE" });
+        continue;
+      }
       try {
-        const readback = await port2.readNode(target.nodeId);
+        const readback = await port.readNode(target.nodeId);
         if (readback?.mainComponentKey === iconTarget.replacementComponentKey) {
           results.push({
             nodeId: target.nodeId,
@@ -368,6 +390,22 @@
     const destinationId = asRecord(action)?.destinationId;
     return typeof destinationId === "string" ? destinationId : void 0;
   }
+  function snapshotParent(parent) {
+    const layoutMode = parent.layoutMode;
+    return typeof layoutMode === "string" ? { id: parent.id, type: parent.type, layoutMode } : { id: parent.id, type: parent.type };
+  }
+  function snapshotVariableBindings(node) {
+    const variableNode = node;
+    const bindings = {};
+    if (typeof variableNode.opacity === "number" && Number.isFinite(variableNode.opacity)) {
+      bindings.opacity = { kind: "literal", value: variableNode.opacity };
+    }
+    const opacityBinding = asRecord(asRecord(variableNode.boundVariables)?.opacity);
+    if (opacityBinding?.type === "VARIABLE_ALIAS" && typeof opacityBinding.id === "string") {
+      bindings.opacity = { kind: "binding", variableId: opacityBinding.id };
+    }
+    return Object.keys(bindings).length > 0 ? bindings : void 0;
+  }
   async function snapshotNode(node) {
     const namedNode = node;
     const layoutNode = node;
@@ -390,6 +428,10 @@
     if (typeof layoutNode.layoutPositioning === "string") {
       snapshot.layoutPositioning = layoutNode.layoutPositioning;
     }
+    const parent = node.parent;
+    if (parent) snapshot.parent = snapshotParent(parent);
+    const variableBindings = snapshotVariableBindings(node);
+    if (variableBindings) snapshot.variableBindings = variableBindings;
     const reactionNode = node;
     if (reactionNode.reactions) {
       snapshot.reactions = reactionNode.reactions.map((reaction) => {
@@ -404,11 +446,6 @@
     }
     return snapshot;
   }
-  async function findNode(nodeId) {
-    const node = await figma.getNodeByIdAsync(nodeId);
-    if (!node) throw new Error(`Node not found: ${nodeId}`);
-    return node;
-  }
   var FigmaNodePort = class {
     async getSelection() {
       return Promise.all(figma.currentPage.selection.map(snapshotNode));
@@ -417,21 +454,25 @@
       const node = await figma.getNodeByIdAsync(nodeId);
       return node ? snapshotNode(node) : null;
     }
-    async rename(nodeId, name) {
-      const node = await findNode(nodeId);
-      if (!("name" in node) || typeof node.name !== "string") {
-        throw new Error(`Node cannot be renamed: ${nodeId}`);
-      }
+    async renameIfCurrent(nodeId, expectedName, name) {
+      const node = await figma.getNodeByIdAsync(nodeId);
+      if (!node) return "missing";
+      if (!("name" in node) || node.name !== expectedName) return "stale";
       node.name = name;
+      return "applied";
     }
     async importComponent(componentKey) {
       return figma.importComponentByKeyAsync(componentKey);
     }
-    async replaceIconInstance(nodeId, component) {
-      const node = await findNode(nodeId);
-      if (node.type !== "INSTANCE") throw new Error(`Node is not an instance: ${nodeId}`);
+    async replaceIconInstanceIfCurrent(nodeId, expectedMainComponentKey, component) {
+      const node = await figma.getNodeByIdAsync(nodeId);
+      if (!node) return "missing";
+      if (node.type !== "INSTANCE") return "stale";
       if (!isComponentNode(component)) throw new Error("Imported value is not a component");
+      const currentComponent = await node.getMainComponentAsync();
+      if (currentComponent?.key !== expectedMainComponentKey) return "stale";
       node.swapComponent(component);
+      return "applied";
     }
   };
   function isComponentNode(value) {
@@ -440,18 +481,35 @@
   }
 
   // src/code.ts
-  var port = new FigmaNodePort();
-  figma.showUI(__html__, { width: 520, height: 680, themeColors: true });
-  figma.ui.onmessage = async (message) => {
-    if (typeof message.plan !== "string") return;
-    if (message.type === "preview") {
-      const result = await previewPlan(message.plan, port);
-      figma.ui.postMessage({ type: "result", request: "preview", result });
-      return;
-    }
-    if (message.type === "apply") {
-      const result = await applyPlan(message.plan, message.receipt, port);
-      figma.ui.postMessage({ type: "result", request: "apply", result });
-    }
-  };
+  var invalidField = { status: "invalid", reason: "INVALID_FIELD" };
+  var lookupFailed = { status: "invalid", reason: "LOOKUP_FAILED" };
+  var isRequestId = (value) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+  var isRequest = (value) => typeof value === "object" && value !== null;
+  function createUiMessageHandler(port, post) {
+    return async (message) => {
+      let request = "invalid";
+      let requestId = null;
+      let input = null;
+      let result = invalidField;
+      try {
+        if (isRequest(message) && (message.type === "preview" || message.type === "apply")) {
+          request = message.type;
+          if (typeof message.plan === "string" && typeof message.input === "string" && isRequestId(message.requestId)) {
+            requestId = message.requestId;
+            input = message.input;
+            result = request === "preview" ? await previewPlan(message.plan, port) : await applyPlan(message.plan, message.receipt, port);
+          }
+        }
+      } catch {
+        result = request === "invalid" ? invalidField : lookupFailed;
+      }
+      post({ type: "result", request, requestId, input, result });
+    };
+  }
+  function startPlugin() {
+    const port = new FigmaNodePort();
+    figma.showUI(__html__, { width: 520, height: 680, themeColors: true });
+    figma.ui.onmessage = createUiMessageHandler(port, (message) => figma.ui.postMessage(message));
+  }
+  if (typeof figma !== "undefined" && typeof __html__ !== "undefined") startPlugin();
 })();

@@ -346,10 +346,19 @@ export async function applyPlan(text: string, receipt: unknown, port: NodePort):
         results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'STALE_EXPECTED_STATE' });
         continue;
       }
+      let mutation;
       try {
-        await port.rename(target.nodeId, renameTarget.newName);
+        mutation = await port.renameIfCurrent(target.nodeId, renameTarget.expectedName, renameTarget.newName);
       } catch {
         results.push({ nodeId: target.nodeId, status: 'failed', reason: 'MUTATION_FAILED' });
+        continue;
+      }
+      if (mutation === 'missing') {
+        results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'MISSING_NODE' });
+        continue;
+      }
+      if (mutation === 'stale') {
+        results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'STALE_EXPECTED_STATE' });
         continue;
       }
       try {
@@ -389,10 +398,23 @@ export async function applyPlan(text: string, receipt: unknown, port: NodePort):
       results.push({ nodeId: target.nodeId, status: 'failed', reason: 'IMPORT_FAILED' });
       continue;
     }
+    let mutation;
     try {
-      await port.replaceIconInstance(target.nodeId, component);
+      mutation = await port.replaceIconInstanceIfCurrent(
+        target.nodeId,
+        iconTarget.expectedMainComponentKey,
+        component,
+      );
     } catch {
       results.push({ nodeId: target.nodeId, status: 'failed', reason: 'MUTATION_FAILED' });
+      continue;
+    }
+    if (mutation === 'missing') {
+      results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'MISSING_NODE' });
+      continue;
+    }
+    if (mutation === 'stale') {
+      results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'STALE_EXPECTED_STATE' });
       continue;
     }
     try {

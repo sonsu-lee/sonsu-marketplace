@@ -1,5 +1,5 @@
-import type { NormalizedNodeSnapshot } from './contracts.js';
-import type { NodePort } from './ports.js';
+import type { NormalizedNodeSnapshot, NormalizedVariableBinding } from './contracts.js';
+import type { ConditionalMutationResult, NodePort } from './ports.js';
 
 type NodeWithName = BaseNode & { name: string };
 type NodeWithChildren = BaseNode & { children: readonly BaseNode[] };
@@ -10,6 +10,8 @@ type NodeWithLayout = BaseNode & {
   layoutPositioning?: string;
 };
 type NodeWithReactions = BaseNode & { reactions?: readonly unknown[] };
+type NodeWithParent = BaseNode & { parent: BaseNode | null };
+type NodeWithVariables = BaseNode & { opacity?: unknown; boundVariables?: unknown };
 
 const asRecord = (value: unknown): Record<string, unknown> | undefined =>
   typeof value === 'object' && value !== null ? value as Record<string, unknown> : undefined;
@@ -17,6 +19,26 @@ const asRecord = (value: unknown): Record<string, unknown> | undefined =>
 function readDestinationId(action: unknown): string | undefined {
   const destinationId = asRecord(action)?.destinationId;
   return typeof destinationId === 'string' ? destinationId : undefined;
+}
+
+function snapshotParent(parent: BaseNode): NonNullable<NormalizedNodeSnapshot['parent']> {
+  const layoutMode = (parent as NodeWithLayout).layoutMode;
+  return typeof layoutMode === 'string'
+    ? { id: parent.id, type: parent.type, layoutMode }
+    : { id: parent.id, type: parent.type };
+}
+
+function snapshotVariableBindings(node: BaseNode): Record<string, NormalizedVariableBinding> | undefined {
+  const variableNode = node as NodeWithVariables;
+  const bindings: Record<string, NormalizedVariableBinding> = {};
+  if (typeof variableNode.opacity === 'number' && Number.isFinite(variableNode.opacity)) {
+    bindings.opacity = { kind: 'literal', value: variableNode.opacity };
+  }
+  const opacityBinding = asRecord(asRecord(variableNode.boundVariables)?.opacity);
+  if (opacityBinding?.type === 'VARIABLE_ALIAS' && typeof opacityBinding.id === 'string') {
+    bindings.opacity = { kind: 'binding', variableId: opacityBinding.id };
+  }
+  return Object.keys(bindings).length > 0 ? bindings : undefined;
 }
 
 async function snapshotNode(node: BaseNode): Promise<NormalizedNodeSnapshot> {
@@ -43,6 +65,10 @@ async function snapshotNode(node: BaseNode): Promise<NormalizedNodeSnapshot> {
   if (typeof layoutNode.layoutPositioning === 'string') {
     snapshot.layoutPositioning = layoutNode.layoutPositioning;
   }
+  const parent = (node as NodeWithParent).parent;
+  if (parent) snapshot.parent = snapshotParent(parent);
+  const variableBindings = snapshotVariableBindings(node);
+  if (variableBindings) snapshot.variableBindings = variableBindings;
 
   const reactionNode = node as NodeWithReactions;
   if (reactionNode.reactions) {
@@ -61,12 +87,6 @@ async function snapshotNode(node: BaseNode): Promise<NormalizedNodeSnapshot> {
   return snapshot;
 }
 
-async function findNode(nodeId: string): Promise<BaseNode> {
-  const node = await figma.getNodeByIdAsync(nodeId);
-  if (!node) throw new Error(`Node not found: ${nodeId}`);
-  return node;
-}
-
 export class FigmaNodePort implements NodePort {
   async getSelection(): Promise<NormalizedNodeSnapshot[]> {
     return Promise.all(figma.currentPage.selection.map(snapshotNode));
@@ -77,23 +97,31 @@ export class FigmaNodePort implements NodePort {
     return node ? snapshotNode(node) : null;
   }
 
-  async rename(nodeId: string, name: string): Promise<void> {
-    const node = await findNode(nodeId);
-    if (!('name' in node) || typeof (node as Partial<NodeWithName>).name !== 'string') {
-      throw new Error(`Node cannot be renamed: ${nodeId}`);
-    }
+  async renameIfCurrent(nodeId: string, expectedName: string, name: string): Promise<ConditionalMutationResult> {
+    const node = await figma.getNodeByIdAsync(nodeId);
+    if (!node) return 'missing';
+    if (!('name' in node) || (node as Partial<NodeWithName>).name !== expectedName) return 'stale';
     (node as NodeWithName).name = name;
+    return 'applied';
   }
 
   async importComponent(componentKey: string): Promise<ComponentNode> {
     return figma.importComponentByKeyAsync(componentKey);
   }
 
-  async replaceIconInstance(nodeId: string, component: unknown): Promise<void> {
-    const node = await findNode(nodeId);
-    if (node.type !== 'INSTANCE') throw new Error(`Node is not an instance: ${nodeId}`);
+  async replaceIconInstanceIfCurrent(
+    nodeId: string,
+    expectedMainComponentKey: string,
+    component: unknown,
+  ): Promise<ConditionalMutationResult> {
+    const node = await figma.getNodeByIdAsync(nodeId);
+    if (!node) return 'missing';
+    if (node.type !== 'INSTANCE') return 'stale';
     if (!isComponentNode(component)) throw new Error('Imported value is not a component');
+    const currentComponent = await node.getMainComponentAsync();
+    if (currentComponent?.key !== expectedMainComponentKey) return 'stale';
     node.swapComponent(component);
+    return 'applied';
   }
 }
 

@@ -76,9 +76,14 @@ export type NormalizedNodeSnapshot = {
   layoutSizingVertical?: string;
   layoutPositioning?: string;
   parent?: Pick<NormalizedNodeSnapshot, 'id' | 'type' | 'layoutMode'>;
+  variableBindings?: Record<string, NormalizedVariableBinding>;
   reactions?: Array<{ actions?: Array<{ destinationId?: string }> }>;
   children?: NormalizedNodeSnapshot[];
 };
+
+export type NormalizedVariableBinding =
+  | { kind: 'literal'; value: string | number | boolean | null }
+  | { kind: 'binding'; variableId: string };
 
 export type PreviewReceipt = {
   fingerprint: string;

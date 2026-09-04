@@ -44,10 +44,14 @@
         const status = document.querySelector('#status');
         const applyButton = document.querySelector('[data-action="apply"]');
         let receipt = null;
+        let requestGeneration = 0;
+        let latestRequest = null;
 
         const clearReceipt = () => {
           receipt = null;
           applyButton.disabled = true;
+          latestRequest = null;
+          requestGeneration += 1;
         };
 
         const showResult = (value) => {
@@ -65,10 +69,21 @@
           return text;
         };
 
+        const postRequest = (type, requestPlan, requestReceipt) => {
+          const request = {
+            type,
+            plan: requestPlan,
+            input: plan.value,
+            requestId: ++requestGeneration,
+          };
+          latestRequest = request;
+          parent.postMessage({ pluginMessage: { ...request, receipt: requestReceipt } }, '*');
+        };
+
         plan.addEventListener('input', clearReceipt);
         document.querySelector('[data-action="preview"]').addEventListener('click', () => {
           clearReceipt();
-          parent.postMessage({ pluginMessage: { type: 'preview', plan: plan.value } }, '*');
+          postRequest('preview', plan.value, null);
         });
         applyButton.addEventListener('click', () => {
           let applyPlan;
@@ -78,7 +93,7 @@
             showResult({ status: 'invalid', reason: 'INVALID_JSON' });
             return;
           }
-          parent.postMessage({ pluginMessage: { type: 'apply', plan: applyPlan, receipt } }, '*');
+          postRequest('apply', applyPlan, receipt);
         });
         document.querySelector('[data-action="copy"]').addEventListener('click', async () => {
           try {
@@ -91,6 +106,10 @@
         window.onmessage = (event) => {
           const message = event.data && event.data.pluginMessage;
           if (!message || message.type !== 'result') return;
+          if (!latestRequest || message.request !== latestRequest.type
+            || message.requestId !== latestRequest.requestId
+            || message.input !== latestRequest.input
+            || plan.value !== latestRequest.input) return;
           showResult(message.result);
           if (message.request === 'preview' && message.result && message.result.receipt) {
             receipt = message.result.receipt;

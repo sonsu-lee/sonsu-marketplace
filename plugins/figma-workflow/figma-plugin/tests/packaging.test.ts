@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
-import { access, readFile } from 'node:fs/promises';
+import { access, cp, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
+import { promisify } from 'node:util';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const packageDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const execFileAsync = promisify(execFile);
 
 test('development-plugin manifest points to checked-in companion bundles', async () => {
   const manifestPath = resolve(packageDirectory, 'manifest.json');
@@ -15,11 +18,35 @@ test('development-plugin manifest points to checked-in companion bundles', async
   assert.deepEqual(manifest.editorType, ['figma']);
   assert.equal(manifest.documentAccess, 'dynamic-page');
   assert.deepEqual(manifest.networkAccess, { allowedDomains: ['none'] });
-  assert.equal(typeof manifest.main, 'string');
-  assert.equal(typeof manifest.ui, 'string');
+  assert.equal(manifest.main, 'dist/code.js');
+  assert.equal(manifest.ui, 'dist/ui.html');
 
   await access(resolve(packageDirectory, manifest.main as string));
   await access(resolve(packageDirectory, manifest.ui as string));
+});
+
+test('a temporary rebuild exactly matches checked-in dist artifacts', async () => {
+  const temporaryDirectory = await mkdtemp(resolve(packageDirectory, '.tmp-build-'));
+  try {
+    await cp(resolve(packageDirectory, 'src'), resolve(temporaryDirectory, 'src'), { recursive: true });
+    await cp(resolve(packageDirectory, 'scripts'), resolve(temporaryDirectory, 'scripts'), { recursive: true });
+    await execFileAsync(process.execPath, ['scripts/build.mjs'], { cwd: temporaryDirectory });
+
+    assert.deepEqual(
+      await readFile(resolve(temporaryDirectory, 'dist/code.js')),
+      await readFile(resolve(packageDirectory, 'dist/code.js')),
+    );
+    assert.deepEqual(
+      await readFile(resolve(temporaryDirectory, 'dist/ui.html')),
+      await readFile(resolve(temporaryDirectory, 'src/ui.html')),
+    );
+    assert.deepEqual(
+      await readFile(resolve(packageDirectory, 'dist/ui.html')),
+      await readFile(resolve(packageDirectory, 'src/ui.html')),
+    );
+  } finally {
+    await rm(temporaryDirectory, { recursive: true, force: true });
+  }
 });
 
 test('checked-in bundles expose the UI bridge without dynamic code execution', async () => {
