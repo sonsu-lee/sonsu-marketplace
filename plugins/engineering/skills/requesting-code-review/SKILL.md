@@ -53,6 +53,8 @@ HEAD_SHA=$(git rev-parse HEAD)
 [code-reviewer.md](code-reviewer.md)의 template을 채워 `general-purpose` subagent를 위임한다.
 
 **치환할 placeholder:**
+- `{MODEL}` - 역할과 위험에 맞는 모델
+- `{REASONING_EFFORT}` - 역할과 위험에 맞는 추론도
 - `{DESCRIPTION}` - 구현한 내용의 짧은 요약
 - `{PLAN_OR_REQUIREMENTS}` - 기대 동작
 - `{REVIEW_PACKAGE}` - `scripts/review-package`가 출력한 변경할 수 없는 package 경로
@@ -66,6 +68,24 @@ HEAD_SHA=$(git rev-parse HEAD)
 - 변경된 리비전에서 집중 수정 부분을 다시 리뷰한다.
 
 리뷰 게이트의 artifact, 리비전, 근거, finding, 상태, 반환 대상, 시도 횟수와 decision owner를 기록한다. 필수 판정이 빠진 reviewer 보고서는 `inconclusive`다. 필수 reviewer를 사용할 수 없으면 `blocked` 또는 `not_run`을 사용하며 implementer의 자체 리뷰나 변경 없는 재시도로 대신하지 않는다. 기술적으로 반증된 finding은 근거와 함께 닫을 수 있다. 유효한 미해결 필수 finding은 workflow가 진행되기 전에 artifact 변경 또는 사람의 명시적인 `accepted_risk`가 필요하다.
+
+## Plan-backed red-team completion review
+
+일반 코드 리뷰가 끝난 plan-backed 작업에는 [red-team-reviewer.md](red-team-reviewer.md)를 사용해
+별도의 completion gate를 수행한다. Fast Path처럼 plan이 없는 작업에는 적용하지 않는다.
+
+- reviewer는 이전 implementer·reviewer와 다른 fresh context에서 시작하며 이전 session history,
+  판정, 칭찬 또는 finding을 전달받지 않는다.
+- 원래 목표, 승인된 요구사항·설계, plan 의사코드·mapping, immutable review package와 digest,
+  결정론적 검증 report, 실제 관찰 결과와 알려진 제약의 읽기 전용 경로만 전달한다.
+- 일반 리뷰를 반복하지 않고 문제 정의부터 검증까지 전체 연결을 부정하는 가장 강한 반례를 찾는다.
+- 판정은 정확히 `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
+  `survives_challenge`만 일반 통과로 취급한다.
+- `invalidated` finding은 design, plan, implementation 또는 verification의 실제 소유 단계로
+  돌려보낸다. 새 artifact를 다시 검토할 때에는 새 fresh-context reviewer를 사용하며 변경 없는
+  재시도는 하지 않는다. 자동 시도는 최대 3회다.
+- reviewer를 사용할 수 없거나 필요한 evidence가 없으면 `not_run`, `blocked` 또는
+  `inconclusive`를 그대로 기록한다. 일반 reviewer의 승인을 red-team 통과로 대체하지 않는다.
 
 ## 예시
 
@@ -83,6 +103,8 @@ HEAD_SHA=$(git rev-parse HEAD)
   Revision: sha256:012345...
 
 [Dispatch code reviewer subagent]
+  MODEL: <role-appropriate model>
+  REASONING_EFFORT: <role-appropriate effort>
   DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
   PLAN_OR_REQUIREMENTS: Task 2 from .superpowers/plans/deployment-plan.md
   REVIEW_PACKAGE: /tmp/engineering-review.ABC123.diff

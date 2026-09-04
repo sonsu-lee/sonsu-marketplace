@@ -45,6 +45,11 @@ task를 정의하기 전에 승인된 설계 또는 요구사항과 관련 기�
 회귀 위험을 조정해야 하면 구현 plan을 작성한다. 오탈자, 명백한 한 줄 수정, 기계적인 이름 변경처럼
 별도 구현 plan 없이 바로 범위를 설명하고 검증할 수 있는 작업에는 긴 의사코드를 만들지 않는다.
 
+`engineering:brainstorming`의 Local 또는 Mechanical Fast Path predicate를 모두 충족하면 요청
+자체를 승인된 짧은 설계로 취급하고 plan 없이 제한된 실행으로 보낸다. Code Mode 사용 가능성은
+Mechanical Fast Path의 신호일 수 있지만 단순성의 증거가 아니다. predicate가 false 또는 unknown이거나
+표적 탐색 budget 안에 consumer 범위를 닫지 못하면 plan 필요 여부를 일반 기준으로 다시 판정한다.
+
 구현 plan을 작성하기로 했다면 아래 의사코드 단계를 생략하지 않는다. plan의 세부 정도는 작업
 복잡성에 맞추되 순서는 다음과 같다.
 
@@ -147,7 +152,7 @@ Commit authorization: not granted
 chat 안의 plan을 포함한 모든 plan은 아래 필드로 시작한다. 그래야 handoff 뒤에도 요구사항,
 문서 작업과 Git 경계가 보존된다. 짧은 in-chat plan은 plan 본문에 접근 방식이 이미 있고 추가
 전역 제약이 없을 때에만 `Approach`, `Global Constraints`를 생략할 수 있다. `Requirements source`,
-`Documentation impact`, `Commit authorization`은 반드시 유지한다.
+`Documentation impact`, `Commit authorization`, `Red-team completion gate`는 반드시 유지한다.
 
 `Goal`, 요구사항·문서·권한 context와 전역 제약은 의사코드 앞에 둘 수 있지만, 구현 방식을
 정하는 `Approach`와 파일별 세부사항은 의사코드 뒤에서 도출한다.
@@ -162,6 +167,8 @@ chat 안의 plan을 포함한 모든 plan은 아래 필드로 시작한다. 그�
 **Documentation impact:** [none, update path, create approved path, or supersede decision]
 
 **Commit authorization:** [granted for this plan | not granted]
+
+**Red-team completion gate:** required
 
 ## Global Constraints
 
@@ -252,6 +259,7 @@ handoff 전에 다음을 수행한다.
 6. 각 task의 검증이 의사코드 작성 후 선택됐고 변경 유형과 일치하며 선택 이유가 있는지 확인한다.
 7. 어떤 task도 현재 권한을 넘는 commit, push, PR, merge 또는 배포를 수행하지 않는지 확인한다.
 8. 문서 영향이 기존 project 문서와 일치하는지 확인한다.
+9. `Red-team completion gate: required`가 있고 실행 경로가 fresh-context reviewer를 제공하는지 확인한다.
 
 plan을 제시하기 전에 문제를 그 자리에서 수정한다.
 
@@ -297,4 +305,7 @@ plan의 위치와 commit 권한 상태를 보고한다. 적용 가능한 실행 
 - **직접 실행:** `engineering:executing-plans`를 사용한다. 구현하고 검증한 뒤 승인되지 않은 commit 전에 `diff`를 보고한다.
 - **Subagent 기반 실행:** 파일 기반 plan이 있고, subagent를 사용할 수 있고, task commit이 명시적으로 승인된 경우에만 `engineering:subagent-driven-development`를 사용한다.
 
-실행 mode 선택이 추가 Git 또는 외부 작업 권한을 부여한다고 암시하지 않는다.
+어느 실행 mode든 전체 결정론적 검증과 일반 final review 뒤 fresh-context red-team gate를
+통과해야 한다. fresh context를 제공할 capability가 없으면 controller의 self-review로 대체하지
+않고 `blocked` 또는 `not_run`으로 기록해 사람의 결정을 요청한다. 실행 mode 선택이 추가 Git 또는
+외부 작업 권한을 부여한다고 암시하지 않는다.

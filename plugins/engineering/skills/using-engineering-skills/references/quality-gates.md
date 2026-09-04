@@ -32,6 +32,10 @@ Decision owner: <stage owner or named human decision-maker>
 commit되지 않았다면 content digest 또는 변경할 수 없는 review package를 사용한다. artifact가
 바뀌면 이전 결과는 오래된 것이므로 다음 단계로 진행하기 전에 새 리비전에 필수 검사를 실행한다.
 
+별도 stage가 더 낮은 상한을 선언하지 않는 한 자동 review/fix loop는 최대 3회다. 횟수 상한은
+같은 evaluator와 context를 반복 사용하는 허가가 아니다. 재시도 조건에 evaluator 또는 context
+변경이 포함되면 이전 session history를 상속하지 않는 fresh context에 필요한 artifact만 전달한다.
+
 digest는 내용을 식별하지만 노출하지 않는다. 독립 evaluator가 commit하지 않은 artifact를
 검사해야 한다면 digest와 함께 읽을 수 있는 고정 package를 제공한다. working tree 변경을
 누락한 현재 commit range는 이와 같지 않다.
@@ -65,6 +69,17 @@ check, build, parser, native loader, link/path 검사와 실제 소비 명령이
 - 각 subagent 구현 task
 - 크거나 위험도가 높은 직접 변경과 최종 전체 변경
 
+구현 plan이 있는 작업의 whole-change gate에는 위험도와 관계없이 일반 final review 뒤
+fresh-context red-team challenge가 필요하다. 이는 plan artifact 존재로 trigger하며, plan 없는
+Fast Path에는 적용하지 않는다. challenge verdict는 quality status와 분리해 기록한다.
+
+| Challenge verdict | Quality status | 의미 |
+| --- | --- | --- |
+| `survives_challenge` | `passed` | 전체 전제를 뒤집을 근거가 없고 필수 검사가 충족됨 |
+| `invalidated` | `failed` | 목표·요구사항·설계·plan·구현 또는 review 방향이 근거로 반증됨 |
+| `inconclusive` | `inconclusive` | 판정에 필요한 실제 근거가 부족함 |
+| `blocked` | `blocked` | artifact, capability 또는 외부 상태가 challenge를 막음 |
+
 문서, metadata와 단순 설정에는 보통 변경에 비례한 결정론적 검사가 필요하다. 리뷰가 선택
 사항이고 의도적으로 제외했다면 `not_applicable`로 기록한다. 필수지만 사용할 수 없었다면
 게이트를 조용히 약화하지 말고 `blocked` 또는 `not_run`으로 기록한다.
@@ -80,6 +95,10 @@ check, build, parser, native loader, link/path 검사와 실제 소비 명령이
 | 통합에서만 발생한 실패 | 전체 프로젝트가 아니라 통합 단계 또는 영향받은 구현 |
 | 도구, 권한, service 또는 외부 상태 부재 | `blocked`. capability 변경이나 사람의 조치를 기다린다 |
 | Reviewer 의견 불일치 | 결정적 근거를 수집하거나 요구사항을 명확히 하거나 사람의 판정을 요청한다 |
+| Red-team이 구현을 반증 | 영향받은 task 구현 |
+| Red-team이 task·interface plan을 반증 | `writing-plans`의 영향받은 flow 또는 task |
+| Red-team이 설계·해결책·원래 목표를 반증 | `brainstorming` 또는 사용자 재승인 |
+| Red-team이 실제 효과 근거 부족을 발견 | 검증 단계 또는 제품 실험 |
 
 마지막 green checkpoint와 이미 검증한 작업을 보존한다. 되돌아가기는 표적화된 상태 전환이며,
 재시작이나 재귀적인 자기 호출이 아니다.

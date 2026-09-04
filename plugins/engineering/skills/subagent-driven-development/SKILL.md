@@ -77,10 +77,10 @@ digraph process {
         "Return plan or requirement defect to its owner; stop" [shape=box];
         "Record capability or external-state blocker; stop" [shape=box];
         "Close invalid findings with evidence" [shape=box];
-        "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [shape=box];
+        "Fix round R of 3: R=1 resume; R=2 fresh; R=3 fresh + capability up" [shape=box];
         "Dispatch scoped re-review (./re-review-prompt.md)" [shape=box];
         "All findings addressed?" [shape=diamond];
-        "R = 5?" [shape=diamond];
+        "R = 3?" [shape=diamond];
         "Adjudicate residual implementation findings with evidence" [shape=box];
         "All residual findings disproved?" [shape=diamond];
         "Close residual invalid findings with evidence" [shape=box];
@@ -98,8 +98,11 @@ digraph process {
     "Return to affected implementation or integration stage" [shape=box];
     "Generate final package, dispatch code reviewer" [shape=box];
     "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" [shape=box];
-    "Final gate outcome?" [shape=diamond];
-    "Delete workspace only when final gate passed" [shape=box];
+    "Ordinary final gate outcome?" [shape=diamond];
+    "Dispatch fresh-context red-team reviewer" [shape=box];
+    "Red-team verdict?" [shape=diamond];
+    "Any final gate accepted_risk?" [shape=diamond];
+    "Delete workspace only when both final gates passed" [shape=box];
     "Preserve workspace for accepted_risk" [shape=box];
     "Return to owner or stop" [shape=box];
     "Use engineering:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
@@ -117,13 +120,13 @@ digraph process {
     "Classify findings by owner before retry" -> "Record capability or external-state blocker; stop" [label="blocked"];
     "Classify findings by owner before retry" -> "Close invalid findings with evidence" [label="invalid / out of scope"];
     "Close invalid findings with evidence" -> "All findings addressed?";
-    "Classify findings by owner before retry" -> "R = 5?" [label="valid implementation"];
-    "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" -> "Dispatch scoped re-review (./re-review-prompt.md)";
+    "Classify findings by owner before retry" -> "R = 3?" [label="valid implementation"];
+    "Fix round R of 3: R=1 resume; R=2 fresh; R=3 fresh + capability up" -> "Dispatch scoped re-review (./re-review-prompt.md)";
     "Dispatch scoped re-review (./re-review-prompt.md)" -> "All findings addressed?";
     "All findings addressed?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "All findings addressed?" -> "Classify findings by owner before retry" [label="no"];
-    "R = 5?" -> "Fix round R of 5: R≤3 resume implementer; R≥4 fresh implementer, more capable model" [label="no - next round"];
-    "R = 5?" -> "Adjudicate residual implementation findings with evidence" [label="yes - breaker trips"];
+    "R = 3?" -> "Fix round R of 3: R=1 resume; R=2 fresh; R=3 fresh + capability up" [label="no - next round"];
+    "R = 3?" -> "Adjudicate residual implementation findings with evidence" [label="yes - breaker trips"];
     "Adjudicate residual implementation findings with evidence" -> "All residual findings disproved?";
     "All residual findings disproved?" -> "Close residual invalid findings with evidence" [label="yes"];
     "Close residual invalid findings with evidence" -> "Append completion to ledger, mark todo complete";
@@ -139,11 +142,16 @@ digraph process {
     "Final deterministic verification passed?" -> "Return to affected implementation or integration stage" [label="no"];
     "Final deterministic verification passed?" -> "Generate final package, dispatch code reviewer" [label="yes"];
     "Generate final package, dispatch code reviewer" -> "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals";
-    "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" -> "Final gate outcome?";
-    "Final gate outcome?" -> "Delete workspace only when final gate passed" [label="passed"];
-    "Final gate outcome?" -> "Preserve workspace for accepted_risk" [label="accepted_risk"];
-    "Final gate outcome?" -> "Return to owner or stop" [label="non-advancing status"];
-    "Delete workspace only when final gate passed" -> "Use engineering:finishing-a-development-branch";
+    "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" -> "Ordinary final gate outcome?";
+    "Ordinary final gate outcome?" -> "Dispatch fresh-context red-team reviewer" [label="passed / accepted_risk"];
+    "Ordinary final gate outcome?" -> "Return to owner or stop" [label="non-advancing status"];
+    "Dispatch fresh-context red-team reviewer" -> "Red-team verdict?";
+    "Red-team verdict?" -> "Any final gate accepted_risk?" [label="survives_challenge"];
+    "Any final gate accepted_risk?" -> "Delete workspace only when both final gates passed" [label="no"];
+    "Any final gate accepted_risk?" -> "Preserve workspace for accepted_risk" [label="yes"];
+    "Red-team verdict?" -> "Preserve workspace for accepted_risk" [label="human accepts exact risk"];
+    "Red-team verdict?" -> "Return to owner or stop" [label="invalidated / inconclusive / blocked"];
+    "Delete workspace only when both final gates passed" -> "Use engineering:finishing-a-development-branch";
     "Preserve workspace for accepted_risk" -> "Use engineering:finishing-a-development-branch";
 }
 ```
@@ -209,16 +217,19 @@ Task 1을 위임하기 전에 plan의 충돌을 한 번 검사하고 확인한 �
 **통합과 판단 task**(여러 파일 조정, pattern matching, debugging): 표준 모델을 사용한다.
 
 **Architecture와 설계 task:** 사용 가능한 가장 성능이 높은 모델을 사용한다. 최종 전체 브랜치
-리뷰도 여기에 해당한다. session 기본값이 아니라 사용 가능한 가장 성능이 높은 모델로 위임한다.
+리뷰와 red-team 리뷰도 여기에 해당한다. session 기본값이 아니라 역할에 맞는 모델과 추론도를
+명시해 위임한다.
 
 **리뷰 task:** 같은 판단을 내릴 수 있는 모델 중 diff의 크기, 복잡성과 위험에 맞는 모델을
 선택한다. 작고 기계적인 diff에는 가장 성능이 높은 모델이 필요 없지만 미묘한 concurrency
 변경에는 필요하다. 작은 수정 diff의 범위가 제한된 재리뷰에는 저가에서 중간 tier를 사용한다.
 
-**Fix-loop 상향(4-5회차):** 막힌 implementer보다 적어도 한 tier 높은 모델을 사용한다.
+**Fix-loop 상향(2-3회차):** 새 context에 이전 시도와 열린 finding만 전달하고, 판단 부족이
+원인이면 막힌 implementer보다 적어도 한 tier 높은 모델 또는 추론도를 사용한다.
 
-**subagent를 위임할 때 항상 모델을 명시한다.** 모델을 생략하면 session의 모델을 상속하는데,
-대개 가장 성능이 높고 비싼 모델이어서 이 섹션의 목적을 조용히 무너뜨린다.
+**subagent를 위임할 때 항상 모델과 추론도를 명시한다.** 모델이나 추론도를 생략하면 session
+설정을 상속하여 역할별 비용·품질 정책을 조용히 무너뜨릴 수 있다. 구체적인 Codex 조합은
+[Codex 도구 참고](../using-engineering-skills/references/codex-tools.md)의 역할별 matrix를 따른다.
 
 **Turn 수가 token 가격보다 중요하다.** 실제 시간과 context 비용은 subagent가 사용하는 turn
 수에 비례하며, 가장 저렴한 모델은 여러 단계의 작업에서 흔히 2-3배 많은 turn을 사용해 전체
@@ -275,7 +286,8 @@ child 목록을 확인해 보고 없이 완료한 child를 찾는다. 제한된 
   중복되어 task마다 전체 리뷰 자리 하나를 추가로 사용했다.
 - 이전 task에 현재 task가 건드리는 영역의 accepted-risk 또는 근거로 닫은 finding이 있으면
   dispatch에 해당 ledger 항목의 pointer를 포함한다.
-- dispatch 결과에서 implementer의 agent identity를 기록한다. fix-loop 1-3회차에는 이 에이전트를 재개한다.
+- dispatch 결과에서 implementer의 agent identity를 기록한다. fix-loop 1회차까지만 이 에이전트를
+  재개하며, 2-3회차에는 이전 session history를 상속하지 않는 새 implementer를 위임한다.
 - 충돌을 막기 위해 여러 구현 subagent를 병렬로 위임하지 않는다.
 
 템플릿: [implementer-prompt.md](implementer-prompt.md)
@@ -366,18 +378,21 @@ Minor finding은 loop 전에 제외한다. 진행하면서 progress ledger에 `T
 <one-liner>`로 기록하고 최종 전체 브랜치 리뷰가 이 목록을 보고 merge 전에 수정할 항목을
 분류하게 한다. 아무도 읽지 않는 요약은 조용한 폐기다. Minor finding은 loop에 들어가지 않고
 남은 유효한 구현 finding만 들어간다. 수정 회차는 한 번의 수정 위임과 범위가 제한된 재리뷰로
-구성하며 task마다 최대 5회다.
+구성하며 task마다 최대 3회다.
 
-**1-3회차 — 원래 implementer를 재개한다.** 열린 finding을 그대로 전달한다. context가 남아
+**1회차 — 원래 implementer를 재개한다.** 열린 finding을 그대로 전달한다. context가 남아
 있으므로 task, 코드와 자신의 선택을 알고 있다. harness에서 실행 중인 subagent에게 추가
 메시지를 보낼 수 없다면 brief 경로, report 파일 경로와 finding을 포함해 새 implementer를
 위임한다. 어느 경우든 report 파일이 영속 memory다.
 
-**4-5회차 — 더 성능이 높은 모델로 새 implementer를 위임한다**(Model Selection 기준). brief
-경로, report 파일 경로, 열린 finding과 "이전 implementer가 이 task를 [N]번 시도했습니다.
-이제 이 task를 담당합니다. 시도한 내용은 report 파일을 읽으세요."라는 설명을 제공한다. 세 번
-재개한 뒤에도 loop가 남는다면 implementer가 자신의 문제를 보지 못하는 경우가 많으므로 새로운
-관점과 capability 상향을 한 번에 적용한다.
+**2회차 — fresh-context implementer를 위임한다.** 이전 agent의 session history나 결론을
+상속하지 않는다. brief 경로, report 파일 경로, 현재 열린 finding, 현재 리비전과 이전 시도
+횟수만 전달한다.
+
+**3회차 — 또 다른 fresh context와 상위 capability를 사용한다.** 2회차 agent를 재사용하지 않고
+해당 task에 적합한 한 단계 높은 허용 모델을 우선 사용해 마지막 수정을 위임한다. 상위 모델을
+사용할 수 없으면 가장 가까운 허용 조합과 reasoning effort fallback을 기록한다. 새 관점이 필요한
+시점에 기존 context를 계속 재사용해 같은 오류를 강화하지 않는다.
 
 **모든 회차:** implementer는 문제를 수정하고, 변경된 작업을 다루는 집중 검증을 다시 실행하고,
 같은 report 파일에 수정 보고를 추가하고, 짧은 계약을 반환한다. reviewer를 다시 위임하기 전에
@@ -393,7 +408,7 @@ finding을 ADDRESSED 또는 NOT ADDRESSED로 판정하고 수정 diff의 새 문
 ledger에 기록하며 loop를 확장하지 않는다.
 
 **각 회차 뒤** ledger에 다음을 추가한다.
-`Task <N>: fix round <R>/5 (<X> addressed, <Y> open — <finding one-liners>; commits <a7>..<b7>)`
+`Task <N>: fix round <R>/3 (<X> addressed, <Y> open — <finding one-liners>; commits <a7>..<b7>)`
 
 재시도할 때마다 구현, 근거, 관련 context, evaluator 또는 사용 가능한 capability가 달라져야
 한다. 변경 없는 결정론적 검사를 반복하거나 같은 reviewer에게 같은 package로 다시 시도하라고
@@ -402,7 +417,7 @@ ledger에 기록하며 loop를 확장하지 않는다.
 controller session에서 finding을 직접 수정하지 않는다. context를 조정 작업에 사용할 수 있게
 유지하고 controller의 수정으로 리뷰를 건너뛰지 않는다.
 
-**차단기.** 5회차 재리뷰 뒤에도 구현 finding이 열려 있으면 위임을 중단한다. 가지고 있는 plan,
+**차단기.** 3회차 재리뷰 뒤에도 구현 finding이 열려 있으면 위임을 중단한다. 가지고 있는 plan,
 코드와 검증 근거로 남은 각 finding을 판정한다.
 
 - **명백히 유효하지 않거나 이 게이트의 선언된 범위 밖:** ledger에 근거와 함께 닫는다.
@@ -458,6 +473,27 @@ dispatch에 출력된 경로와 SHA-256 리비전을 포함한다. 그러면 최
 결정을 기다리며 중단한다. 통과한 최종 리뷰로 보류할 수 없다. plan, 전략, evaluator, capability
 변경 또는 사람의 명시적인 `accepted_risk` 없이 두 번째 수정 wave를 실행하지 않는다.
 
+일반 최종 리뷰가 `passed`이거나 정확한 리비전에 대해 사람이 `accepted_risk`를 기록했더라도,
+plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다. 이 게이트는 일반 리뷰를
+강화하는 재리뷰가 아니라 지금까지 선택한 문제 정의, 요구사항, 설계, plan, 구현과 검증이 실제
+목표를 해결하는지를 반증하려는 단계다.
+
+1. 일반 최종 리뷰와 동일한 immutable review package와 digest에 더해 원래 목표, 승인된 요구사항·
+   설계, plan의 의사코드·mapping, 결정론적 검증 report와 관찰된 결과의 읽기 전용 경로를 준비한다.
+2. 이전 implementer, reviewer의 session history, 결론 또는 칭찬을 전달하지 않고 fresh-context
+   reviewer를 위임한다. [red-team-reviewer.md](../requesting-code-review/red-team-reviewer.md)를
+   사용하고 Codex에서는 역할별 matrix의 가장 강한 red-team 조합을 명시한다.
+3. reviewer는 finding 수를 채우지 않으며 가장 강한 반례를 근거로 검증한다. 판정은 정확히
+   `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
+4. `survives_challenge`만 red-team의 일반 통과다. `invalidated`는 finding 소유 단계로 돌아가며
+   요구사항·설계가 바뀌면 brainstorming 재승인, plan이 바뀌면 writing-plans 갱신과 영향 task
+   `reopened`, 구현이면 해당 task 재개, 검증이면 verification 단계 재실행으로 routing한다.
+   `inconclusive` 또는 `blocked`는 통과가 아니며 부족한 근거나 capability의 소유 단계로 돌린다.
+5. 수정 후 새 리비전을 다시 challenge할 때에는 반드시 또 다른 fresh-context reviewer를 사용한다.
+   같은 artifact와 같은 evaluator의 무변경 재시도는 금지하며 red-team 자동 시도도 최대 3회다.
+   상한 뒤 유효한 위험이 남으면 `decision_required`로 중단하고, 사람이 정확한 리비전과 위험을
+   명시적으로 수용한 경우에만 `accepted_risk`로 다음 단계에 갈 수 있다.
+
 ## 마무리
 
 무엇이든 삭제하기 전에 `Ruling:`이 포함된 모든 ledger 줄(preflight 판정과 근거 기반 finding
@@ -466,9 +502,10 @@ dispatch에 출력된 경로와 SHA-256 리비전을 포함한다. 그러면 최
 위험이 있다면 목록에도 있어야 한다. 결정과 남은 위험을 사용자에게 전달하는 유일한 장소다.
 workspace와 함께 사라지는 기록은 몰래 내린 결정이다.
 
-최종 전체 브랜치 게이트가 `passed`이고 수정 내용이 merge되면 현재 plan의 workspace
+일반 최종 브랜치 게이트가 `passed`이고 red-team 판정이 `survives_challenge`이며 수정 내용이
+merge되면 현재 plan의 workspace
 (`rm -rf <workspace>`)를 삭제한다. 이제 git history가 기록이다. sibling 디렉터리는 다른
-plan 소유이므로 그대로 둔다. 최종 게이트가 `accepted_risk`로 진행됐다면 근거와 결정 기록을
+plan 소유이므로 그대로 둔다. 어느 최종 게이트든 `accepted_risk`로 진행됐다면 근거와 결정 기록을
 잃지 않도록 사용자가 브랜치 완료 경로를 선택할 때까지 workspace를 보존한다.
 
 `engineering:finishing-a-development-branch`를 사용한다.
@@ -541,7 +578,7 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
   Magic number — ADDRESSED (src/recovery.js:7). New breakage: none.
   Verdict: all findings addressed.
 
-[Ledger: Task 2: fix round 1/5 (2 addressed, 0 open; commits d4e5f6a..b7c8d9e)]
+[Ledger: Task 2: fix round 1/3 (2 addressed, 0 open; commits d4e5f6a..b7c8d9e)]
 [Ledger: Task 2: complete (commits d4e5f6a..b7c8d9e, review clean)]
 
 ...
@@ -550,6 +587,9 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
 [Run final whole-change deterministic verification; record commands and output]
 [Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final code-reviewer, most capable model]
 Final reviewer: All requirements met. Deferred minors triaged: none block merge.
+
+[Dispatch a new fresh-context red-team reviewer with the same package plus goal/design/plan/evidence paths]
+Red-team reviewer: Verdict: survives_challenge. No evidenced counter-case invalidates the chosen work.
 
 [Delete this plan's workspace — the record now lives in git]
 

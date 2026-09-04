@@ -72,6 +72,13 @@ metadata, 단순 configuration에는 긴 의사코드나 가치 없는 테스트
 승인된 설계나 관찰 가능한 계약을 바꾸는 차이는 사용자 재승인을 받고, 새 plan 리비전의 영향을
 받는 완료 task는 다시 열어 구현·검증·리뷰합니다.
 
+`6.3.0-sonsu.6`부터 모든 predicate가 확인된 plan 없는 작업은 Local 또는 Mechanical Fast Path로
+제한된 비용 안에서 실행하며, 결정론적 orchestration에는 가능한 Codex Code Mode를 사용합니다.
+자동 review/fix loop는 최대 3회이고 2회차부터 fresh context를 사용합니다. plan-backed 작업은
+일반 최종 리뷰 뒤 별도의 fresh-context red-team으로 문제 정의부터 검증까지 반증하며,
+`survives_challenge`만 일반 통과로 취급합니다. Codex 역할별 model과 reasoning effort를 함께
+선택하고, goal은 사용자가 명시적으로 요청한 plan 전체에 최대 하나만 사용합니다.
+
 기존 실행 artifact와 스크립트 호환성을 위해 `.superpowers/` scratch 경로와
 `SUPERPOWERS_DISABLE_TELEMETRY` 환경 변수는 유지합니다. 새 이름인
 `ENGINEERING_DISABLE_TELEMETRY`도 같은 opt-out으로 인식합니다. 원본 아이콘 파일은 provenance
@@ -81,4 +88,5 @@ metadata, 단순 configuration에는 긴 의사코드나 가치 없는 테스트
 [플러그인 독립성 결정](../../docs/decisions/0003-keep-plugins-independent.md)과
 [이름 변경 결정](../../docs/decisions/0005-rename-superpowers-to-engineering.md),
 [quality gate 결정](../../docs/decisions/0007-use-stage-owned-quality-gates.md),
+[Fast Path와 red-team 결정](../../docs/decisions/0009-use-fast-path-and-plan-red-team-gates.md),
 [스킬 라우팅 문서](../../docs/architecture/skill-routing.md)에 기록합니다.

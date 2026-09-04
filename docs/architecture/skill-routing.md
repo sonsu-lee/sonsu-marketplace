@@ -1,7 +1,7 @@
 # 스킬 라우팅
 
 - Status: Current
-- Last reviewed: 2026-09-03
+- Last reviewed: 2026-09-04
 
 ## 플러그인 경계
 
@@ -49,6 +49,44 @@ Engineering, Quality Engineering, Workflow, Research, Prompting, Product와 Flue
 Git·ticket·PR 작업이 독립적으로 동작하고, Engineering만 설치된 환경에서는 자체 개발 및
 branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 트리거가 반복해서 확인되기
 전에는 추가하지 않습니다.
+
+## Engineering 실행 경로
+
+Engineering은 작업을 중앙 orchestrator 하나로 모으지 않고 기존 stage-owned gate를 유지합니다.
+진입 시 bounded 작업을 먼저 분류하되 아래 조건을 모두 확인할 수 있을 때만 plan 없는 Fast Path를
+사용합니다.
+
+```text
+명확한 요청
+  → 대상·관찰 결과·완료 조건이 명시됨
+  → 효과 또는 변환 규칙과 직접 소비자 범위를 표적 탐색 2회 안에 닫음
+  → public contract·schema·상태·권한·migration·호환성 변경 없음
+  → 저렴한 결정론적 검증 존재
+    → Local Fast Path 또는 Mechanical Fast Path
+  그 외
+    → brainstorming → writing-plans → plan-backed execution
+```
+
+Mechanical Fast Path는 파일 수가 아니라 결정론적인 변환 규칙과 닫힌 영향 범위로 판단합니다.
+현재 surface가 Code Mode(`functions.exec` 또는 동등한 orchestration)를 제공하면 반복 검색, parser,
+변환과 postcondition 검사를 묶는 실행 수단으로 우선 사용할 수 있습니다. Code Mode 사용 가능성은
+Fast Path 적합성이나 품질 판정의 근거가 아닙니다.
+
+Fast Path는 표적 탐색 2회, 최초 구현 1회, 집중 수정 1회와 총 자동 시도 2회로 제한하며 독립
+reviewer를 기본으로 만들지 않습니다. 숨은 소비자, 두 번째 의미 판단, public contract, 원인 불명
+실패 또는 넓어진 책임이 발견되면 가장 가까운 일반 workflow로 올립니다.
+
+plan artifact가 있는 모든 실행 경로는 결정론적 검증과 일반 최종 리뷰 뒤에 fresh-context
+red-team completion review를 수행합니다. 이 reviewer는 이전 session history와 verdict를 받지
+않고 원래 목표, 승인된 요구사항·설계, 행동 의사코드·mapping, immutable 전체 변경 package,
+검증 근거와 관찰 결과만으로 전체 구조를 반증합니다. `survives_challenge`만 일반 통과이며
+`invalidated`, `inconclusive`, `blocked`는 각각 실제 design, plan, implementation, verification
+또는 capability 소유 단계로 돌아갑니다. plan 없는 Fast Path에는 이 게이트를 강제하지 않습니다.
+
+Engineering의 자동 review/fix loop는 기본 최대 3회입니다. task fix는 1회차만 원래 implementer를
+재사용하고, 2-3회차는 artifact 중심의 fresh context를 사용합니다. red-team 재시도도 변경된
+리비전과 서로 다른 fresh reviewer로 최대 3회입니다. 상한은 유효한 finding을 통과로 바꾸지
+않습니다.
 
 ## Prompting 조합
 

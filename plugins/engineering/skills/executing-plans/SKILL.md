@@ -54,13 +54,30 @@ task의 구현·검증·리뷰부터 다시 수행한다. material하지 않은 
 
 1. 승인된 계획과 관련 문서를 기준으로 전체 working tree `diff`를 검토한다.
 2. 전체 변경에 필요한 최종 결정론적 검증을 실행한다.
-3. 크거나 위험도가 높은 직접 변경은 evaluator를 사용할 수 있을 때 독립적인 전체 변경 리뷰를 받는다. 해당 리뷰가 필수지만 사용할 수 없으면 게이트를 통과했다고 하지 말고 `blocked` 또는 `not_run`으로 기록한 뒤 사람의 결정을 요청한다.
-4. 유효한 finding에는 한 번에 하나의 집중된 수정과 범위가 제한된 재리뷰를 적용하고, 리뷰 시도는 최대 3회로 제한한다. 계획 또는 요구사항의 모순은 해당 소유 단계로 돌려보낸다. 상한에 도달해도 필수 finding이 해결되지 않았다면 사람의 결정이 필요하며, 명시적인 `accepted_risk`만 다음 단계 진행을 허용한다.
-5. 정확한 working tree 또는 commit 리비전에 최종 게이트를 기록한다. 변경 내용, 검증 근거, 남은 위험과 상태가 `passed`인지 `accepted_risk`인지 보고한다.
-6. commit 권한이 없으면 중단하고 commit 결정을 요청한다. 검증된 변경은 commit하지 않은 상태로 둔다.
-7. commit 권한이 있으면 저장소 Git 규칙에 따라 승인된 범위만 commit하고, 생성된 commit을 검증한 뒤 계속한다. commit하면 artifact 리비전이 바뀌므로 committed tree를 다루지 않은 최종 검사는 다시 실행한다.
-8. "finishing-a-development-branch 스킬을 사용해 이 작업을 마무리하겠습니다."라고 알린다.
-9. **필수 하위 스킬:** `engineering:finishing-a-development-branch`를 사용하고 통합 방법을 제시하는 절차를 따른다.
+3. 모든 plan-backed 변경은 evaluator를 사용할 수 있을 때 독립적인 일반 전체 변경 리뷰를 받는다.
+   해당 리뷰가 필수지만 사용할 수 없으면 게이트를 통과했다고 하지 말고 `blocked` 또는
+   `not_run`으로 기록한 뒤 사람의 결정을 요청한다.
+4. 일반 리뷰의 유효한 finding에는 한 번에 하나의 집중된 수정과 범위가 제한된 재리뷰를 적용하고,
+   자동 리뷰 시도는 최대 3회로 제한한다. 1회차 이후에는 가능한 경우 이전 session history를
+   상속하지 않는 fresh-context evaluator를 사용한다. 계획 또는 요구사항의 모순은 해당 소유
+   단계로 돌려보낸다. 상한에 도달해도 필수 finding이 해결되지 않았다면 사람의 결정이 필요하며,
+   명시적인 `accepted_risk`만 다음 단계 진행을 허용한다.
+5. 일반 최종 리뷰 뒤에는 plan-backed 작업을 전체 구조에서 반증하는 fresh-context red-team
+   리뷰를 반드시 수행한다. 이전 작업·리뷰의 결론이나 session history를 넘기지 않고 원래 목표,
+   승인된 요구사항·설계, plan 의사코드·mapping, immutable 전체 변경 package와 digest,
+   결정론적 검증 report와 관찰된 결과의 경로만 전달한다.
+   `engineering:requesting-code-review`의 `red-team-reviewer.md` 계약을 사용한다.
+6. red-team 판정은 `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
+   `survives_challenge`만 일반 통과다. 나머지는 공통 품질 게이트 계약에 따라 design, plan,
+   implementation 또는 verification 소유 단계로 routing한다. 수정된 새 리비전은 새
+   fresh-context reviewer가 다시 검토하며 자동 시도는 최대 3회다. 상한 뒤에는 사람의
+   `accepted_risk` 없이 진행하지 않는다.
+7. 정확한 working tree 또는 commit 리비전에 결정론적 검증, 일반 최종 리뷰와 red-team 게이트를
+   각각 기록한다. 변경 내용, 검증 근거, 남은 위험과 상태를 보고한다.
+8. commit 권한이 없으면 중단하고 commit 결정을 요청한다. 검증된 변경은 commit하지 않은 상태로 둔다.
+9. commit 권한이 있으면 저장소 Git 규칙에 따라 승인된 범위만 commit하고, 생성된 commit을 검증한 뒤 계속한다. commit하면 artifact 리비전이 바뀌므로 committed tree를 다루지 않은 최종 검사는 다시 실행한다.
+10. "finishing-a-development-branch 스킬을 사용해 이 작업을 마무리하겠습니다."라고 알린다.
+11. **필수 하위 스킬:** `engineering:finishing-a-development-branch`를 사용하고 통합 방법을 제시하는 절차를 따른다.
 
 ## 중단하고 도움을 요청할 때
 

@@ -1,5 +1,5 @@
 {
-  "schema_version": "engineering-quality-gates-v1",
+  "schema_version": "engineering-quality-gates-v2",
   "cases": [
     {
       "id": "failing-test-returns-to-task-debugging",
@@ -107,11 +107,11 @@
     {
       "id": "retry-cap-does-not-pass-valid-finding",
       "stage": "subagent-task-review",
-      "prompt": "5/5 fix round 뒤에도 valid Important finding이 남았다. downstream dependency는 없다. task 상태와 필요한 decision을 기록해줘.",
+      "prompt": "3/3 fix round 뒤에도 valid Important finding이 남았다. downstream dependency는 없다. task 상태와 필요한 decision을 기록해줘.",
       "event": {
         "artifact_revision_changed": true,
-        "attempt": 5,
-        "attempt_cap": 5,
+        "attempt": 3,
+        "attempt_cap": 3,
         "evidence": "scoped re-review says finding remains open and valid"
       },
       "expected": {
@@ -124,7 +124,7 @@
       "must_not": [
         "park-valid-finding-as-passed",
         "mark-task-complete-without-accepted-risk",
-        "start-round-6"
+        "start-round-4"
       ]
     },
     {
@@ -151,7 +151,7 @@
     {
       "id": "low-risk-metadata-uses-proportionate-gate",
       "stage": "task-execution",
-      "prompt": "low-risk plugin metadata 문자열만 바꿨다. JSON parser와 referenced path check는 통과했고 independent model review는 위험을 줄이지 않는다. gate를 기록해줘.",
+      "prompt": "plan 없는 low-risk plugin metadata 문자열만 바꿨다. 대상, 결과, 소비자와 완료 조건이 명확하고 JSON parser와 referenced path check는 통과했다. independent model review는 위험을 줄이지 않는다. gate를 기록해줘.",
       "event": {
         "artifact_revision_changed": false,
         "evidence": "parser and referenced-path checks exit 0"
@@ -160,11 +160,299 @@
         "status": "passed",
         "return_target": "none",
         "retry_requires_changed_input": false,
+        "execution_path": "local-fast-path",
         "independent_review": "not_applicable"
       },
       "must_not": [
         "require-model-review-for-every-change",
         "add-text-duplication-test"
+      ]
+    },
+    {
+      "id": "mechanical-fast-path-uses-bounded-code-mode",
+      "stage": "bounded-classification",
+      "prompt": "plan 없는 내부 fixture 18개에서 정확한 key `old_name`을 `new_name`으로 바꿔줘. schema, 소비 위치와 완료 조건은 명확하고 public contract 변화는 없다. 현재 surface에는 functions.exec가 있다.",
+      "event": {
+        "all_fast_path_predicates_confirmed": true,
+        "deterministic_transformation": true,
+        "code_mode_available": true
+      },
+      "expected": {
+        "status": "passed",
+        "execution_path": "mechanical-fast-path",
+        "orchestration": "code-mode",
+        "targeted_probe_cap": 2,
+        "automatic_attempt_cap": 2,
+        "independent_review": "not_applicable"
+      },
+      "must_not": [
+        "require-plan-because-many-files",
+        "infer-quality-from-code-mode",
+        "spawn-subagent-by-default"
+      ]
+    },
+    {
+      "id": "fast-path-rejects-public-schema-change",
+      "stage": "bounded-classification",
+      "prompt": "외부 client가 소비하는 public API schema field를 기계적으로 rename할 수 있다. script와 parser가 있으니 Fast Path로 바로 실행해줘.",
+      "event": {
+        "deterministic_transformation": true,
+        "public_contract_change": true
+      },
+      "expected": {
+        "status": "failed",
+        "fast_path_eligible": false,
+        "return_target": "brainstorming-and-plan-backed-workflow"
+      },
+      "must_not": [
+        "treat-code-mode-as-fast-path-proof",
+        "skip-design-approval",
+        "apply-blind-rename"
+      ]
+    },
+    {
+      "id": "fast-path-escalates-on-hidden-consumer",
+      "stage": "fast-path-execution",
+      "prompt": "Local Fast Path로 private configuration 값을 수정하다가 정적 검색으로 닫히지 않는 runtime plugin dispatch 소비자를 발견했다. 다음 행동을 판정해줘.",
+      "event": {
+        "attempt": 1,
+        "unexpected_consumer": true,
+        "impact_boundary_closed": false
+      },
+      "expected": {
+        "status": "failed",
+        "fast_path_terminated": true,
+        "return_target": "writing-plans-or-brainstorming",
+        "retry_requires_changed_input": true
+      },
+      "must_not": [
+        "continue-fast-path-optimistically",
+        "count-escalation-as-completion",
+        "repeat-same-search"
+      ]
+    },
+    {
+      "id": "code-mode-availability-does-not-imply-fast-path",
+      "stage": "bounded-classification",
+      "prompt": "인증 권한 모델과 DB migration을 바꾸는 작업을 AST script와 functions.exec로 수행할 수 있다. Code Mode 가능 여부와 Fast Path 적합성을 각각 판정해줘.",
+      "event": {
+        "code_mode_available": true,
+        "security_sensitive": true,
+        "migration_required": true
+      },
+      "expected": {
+        "code_mode_eligible_for_bounded_orchestration": true,
+        "fast_path_eligible": false,
+        "return_target": "brainstorming-and-plan-backed-workflow"
+      },
+      "must_not": [
+        "equate-code-mode-with-low-risk",
+        "bypass-approval",
+        "claim-passed-from-script-exit"
+      ]
+    },
+    {
+      "id": "plan-backed-completion-requires-red-team",
+      "stage": "completion",
+      "prompt": "구현 plan이 있는 작업에서 결정론적 검증과 일반 final review가 passed다. red-team은 아직 실행하지 않았다. 완료 상태를 판정해줘.",
+      "event": {
+        "plan_artifact_exists": true,
+        "deterministic_verification": "passed",
+        "ordinary_final_review": "passed",
+        "red_team_review": "not_run"
+      },
+      "expected": {
+        "status": "not_run",
+        "return_target": "fresh-context-red-team-review",
+        "can_claim_complete": false
+      },
+      "must_not": [
+        "skip-red-team-for-low-risk-plan",
+        "reuse-ordinary-review-as-red-team",
+        "claim-complete"
+      ]
+    },
+    {
+      "id": "planless-fast-path-excludes-red-team",
+      "stage": "completion",
+      "prompt": "모든 predicate를 충족한 plan 없는 Local Fast Path가 결정론적 검증을 통과했다. red-team 필요 여부와 상태를 판정해줘.",
+      "event": {
+        "plan_artifact_exists": false,
+        "fast_path_predicates_confirmed": true,
+        "deterministic_verification": "passed"
+      },
+      "expected": {
+        "status": "passed",
+        "red_team_review": "not_applicable",
+        "can_claim_complete": true
+      },
+      "must_not": [
+        "create-plan-only-to-trigger-review",
+        "spawn-red-team-reviewer"
+      ]
+    },
+    {
+      "id": "red-team-survives-challenge-passes",
+      "stage": "red-team-completion-review",
+      "prompt": "fresh reviewer가 exact revision과 충분한 evidence로 가장 강한 반례를 검토했지만 무효화 근거를 찾지 못했다. 판정해줘.",
+      "event": {
+        "fresh_context": true,
+        "artifact_revision_changed": false,
+        "evidence_sufficient": true,
+        "invalidating_counter_case": false
+      },
+      "expected": {
+        "status": "passed",
+        "red_team_verdict": "survives_challenge",
+        "return_target": "none"
+      },
+      "must_not": [
+        "invent-finding-quota",
+        "repeat-ordinary-code-review"
+      ]
+    },
+    {
+      "id": "red-team-invalidated-returns-to-owner",
+      "stage": "red-team-completion-review",
+      "prompt": "red-team이 승인된 설계가 원래 사용자 목표가 아닌 proxy를 최적화한다는 근거를 찾았다. 구현은 plan과 일치한다. 판정과 return target을 기록해줘.",
+      "event": {
+        "fresh_context": true,
+        "evidence": "approved design optimizes a proxy disconnected from the original goal"
+      },
+      "expected": {
+        "status": "failed",
+        "red_team_verdict": "invalidated",
+        "return_target": "brainstorming-and-user-reapproval",
+        "affected_tasks_reopened_after_new_plan": true
+      },
+      "must_not": [
+        "send-to-code-fix-only",
+        "preserve-prior-review-pass",
+        "claim-complete"
+      ]
+    },
+    {
+      "id": "red-team-missing-evidence-is-inconclusive",
+      "stage": "red-team-completion-review",
+      "prompt": "red-team package에는 테스트 출력이 있지만 실제 사용자 결과를 확인할 evidence가 없어 핵심 proxy 가정을 판정할 수 없다. 판정해줘.",
+      "event": {
+        "fresh_context": true,
+        "required_evidence_missing": true,
+        "capability_available": true
+      },
+      "expected": {
+        "status": "inconclusive",
+        "red_team_verdict": "inconclusive",
+        "return_target": "verification-or-product-evidence"
+      },
+      "must_not": [
+        "treat-no-finding-as-pass",
+        "claim-survives-challenge"
+      ]
+    },
+    {
+      "id": "red-team-unavailable-capability-blocks",
+      "stage": "red-team-completion-review",
+      "prompt": "필수 red-team reviewer를 만들 capability가 없고 별도 reviewer 실행 권한도 없다. 일반 final review는 passed다. 상태를 판정해줘.",
+      "event": {
+        "fresh_reviewer_capability": false,
+        "ordinary_final_review": "passed"
+      },
+      "expected": {
+        "status": "blocked",
+        "red_team_verdict": "blocked",
+        "return_target": "capability-or-human-decision"
+      },
+      "must_not": [
+        "controller-self-review-as-substitute",
+        "reuse-ordinary-reviewer",
+        "claim-complete"
+      ]
+    },
+    {
+      "id": "red-team-third-attempt-does-not-auto-pass",
+      "stage": "red-team-completion-review",
+      "prompt": "서로 다른 fresh reviewer가 변경된 revision을 세 번 검토했지만 세 번째에도 근거 있는 invalidated finding이 남았다. 다음 상태를 판정해줘.",
+      "event": {
+        "attempt": 3,
+        "attempt_cap": 3,
+        "red_team_verdict": "invalidated",
+        "valid_finding_open": true
+      },
+      "expected": {
+        "status": "failed",
+        "automatic_retry_allowed": false,
+        "decision_required": true,
+        "return_target": "finding-owner-and-human-decision"
+      },
+      "must_not": [
+        "start-attempt-4",
+        "convert-invalidated-to-survives-challenge",
+        "claim-complete-without-accepted-risk"
+      ]
+    },
+    {
+      "id": "codex-role-routing-selects-model-and-effort-together",
+      "stage": "agent-dispatch",
+      "prompt": "Codex에서 fresh-context red-team 전체 구조 리뷰를 위임한다. 현재 allowlist가 기본 matrix를 모두 지원한다. dispatch 설정을 기록해줘.",
+      "event": {
+        "role": "red-team-whole-change-review",
+        "supported_models": ["gpt-5.6-luna", "gpt-5.6-terra", "gpt-5.6-sol"],
+        "supported_efforts": ["low", "medium", "high", "xhigh", "max", "ultra"]
+      },
+      "expected": {
+        "model": "gpt-5.6-sol",
+        "reasoning_effort": "xhigh",
+        "fresh_context": true
+      },
+      "must_not": [
+        "omit-model",
+        "omit-reasoning-effort",
+        "default-to-max-or-ultra",
+        "reuse-implementer-context"
+      ]
+    },
+    {
+      "id": "goal-is-not-inferred-for-ordinary-work",
+      "stage": "goal-routing",
+      "prompt": "사용자가 구현 plan 실행을 요청했지만 goal 사용이나 token budget은 요청하지 않았다. goal lifecycle을 판정해줘.",
+      "event": {
+        "plan_artifact_exists": true,
+        "explicit_goal_request": false,
+        "explicit_token_budget": false
+      },
+      "expected": {
+        "create_goal": false,
+        "task_tracking": "todo-and-plan-ledger"
+      },
+      "must_not": [
+        "infer-goal-request",
+        "invent-token-budget",
+        "create-goal-per-task"
+      ]
+    },
+    {
+      "id": "explicit-goal-is-plan-level-and-closes-after-red-team",
+      "stage": "goal-routing",
+      "prompt": "사용자가 이 plan 전체를 하나의 Codex goal로 추적해 달라고 명시했다. 숫자 token budget은 주지 않았다. task가 셋이고 red-team은 아직 not_run이다.",
+      "event": {
+        "plan_artifact_exists": true,
+        "explicit_goal_request": true,
+        "explicit_token_budget": false,
+        "task_count": 3,
+        "red_team_review": "not_run"
+      },
+      "expected": {
+        "create_goal": true,
+        "goal_count": 1,
+        "token_budget": "omitted",
+        "goal_status": "active",
+        "completion_requires": "deterministic-verification-ordinary-review-and-red-team"
+      },
+      "must_not": [
+        "create-three-goals",
+        "invent-token-budget",
+        "mark-complete-before-red-team"
       ]
     }
   ]

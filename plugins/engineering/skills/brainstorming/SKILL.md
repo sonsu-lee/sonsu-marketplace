@@ -13,7 +13,9 @@ description: "기능 생성, component 구축, 기능 추가 또는 동작 변�
 <HARD-GATE>
 하려는 작업을 사용자에게 설명하고 승인을 받기 전에는 implementation 스킬을 호출하거나,
 코드를 작성하거나, project를 scaffold하거나, 구현 작업을 수행하지 않는다. 이는 아래 모든
-경로의 모든 task에 적용된다. 절차의 무게는 task에 맞춰 조절하지만 승인 게이트는 생략하지 않는다.
+경로의 모든 task에 적용된다. 단, 아래 Fast Path의 모든 predicate가 확인되고 사용자 요청 자체에
+대상·관찰 가능한 결과·완료 조건이 명확하면 그 요청을 승인된 짧은 설계로 취급한다. predicate가
+하나라도 false 또는 unknown이면 이 예외를 사용할 수 없다.
 </HARD-GATE>
 
 ## 세 가지 경로
@@ -29,9 +31,9 @@ description: "기능 생성, component 구축, 기능 추가 또는 동작 변�
 - **Bounded** — 이 저장소에 이미 존재하는 코드를 대상으로 범위가 명확한 변경이다. 새 flag,
   작은 endpoint, 한 파일 수정 등이 해당한다. 앱의 종류를 이해한다는 것만으로는 부족하다.
   `bounded`는 변경할 흐름이 이미 존재하여 읽을 수 있다는 뜻이다. 변경할 기존 흐름이 없다면
-  `bounded`가 아니다. 중요한 명확화 질문을 하고, chat 안에서 몇 문장이나 짧은 몇 문단으로
-  설계를 제시한 뒤 중단한다. 사용자가 설계를 승인한 뒤에만 구현을 시작한다. `bounded` task의
-  승인도 `architectural` task와 똑같이 강한 게이트다. spec 파일은 만들지 않는다. 설계 승인 뒤
+  `bounded`가 아니다. 먼저 아래 Fast Path를 판정한다. 해당하지 않으면 중요한 명확화 질문을
+  하고, chat 안에서 몇 문장이나 짧은 몇 문단으로 설계를 제시한 뒤 중단한다. Fast Path가 아닌
+  `bounded` task는 사용자가 설계를 승인한 뒤에만 구현을 시작한다. spec 파일은 만들지 않는다. 설계 승인 뒤
   `engineering:writing-plans`의 plan 필요 조건을 별도로 확인하고, 조건을 충족하면 의사코드 우선
   plan으로 전환한다. 조건을 충족하지 않을 때에만 별도 plan 없이 직접 구현한다.
 - **Architectural** — 새 project, 새 subsystem, component 사이의 구성을 재구성하거나 다른
@@ -42,18 +44,49 @@ description: "기능 생성, component 구축, 기능 추가 또는 동작 변�
 움직인다. task 도중 숨은 복잡성을 발견하면 중단하고 그 사실을 알린 뒤 더 무거운 경로로
 올린다. task 도중에는 경로를 낮추지 않는다.
 
-## 안티패턴: "Too Simple To Need Approval"
+## Bounded Fast Path
 
-모든 경로는 구현 전에 사용자가 의도를 승인하는 것으로 끝난다. todo 목록, 단일 함수 utility,
-config 변경이라면 설계가 chat의 두 문장일 수는 있지만 반드시 제시하고 승인을 받아야 한다.
-"Simple" task일수록 검토하지 않은 가정이 가장 큰 낭비를 만든다. 단순함에 맞춰 줄어드는 것은
-artifact의 크기이지 승인 절차가 아니다.
+Fast Path는 작은 diff가 아니라 의도, 영향 범위, 변환 규칙과 검증 결과를 짧고 결정론적으로
+닫을 수 있는 plan 없는 `bounded` 작업이다. 다음 predicate를 모두 확인한다.
+
+- 요청에 대상, 관찰 가능한 결과와 완료 조건이 명확하다.
+- 효과가 국소적인 Local Fast Path이거나 동일 규칙을 재현할 수 있는 Mechanical Fast Path다.
+- 직접 참조, 호출자와 consumer 범위를 최대 2회의 표적 탐색으로 닫을 수 있다.
+- 새로운 제품·설계 판단이 필요하지 않다.
+- public interface, schema, 상태 모델, 권한, migration 또는 호환성 계약을 바꾸지 않는다.
+- 저렴하고 결정론적인 검증 방법이 있다.
+- 변경이 가역적이며 승인된 범위 안에 있다.
+
+Local Fast Path는 내부 상수, private helper, 오탈자, link, fixture 또는 소비 위치가 명확한
+configuration처럼 효과 경계를 닫을 수 있는 변경이다. runtime dispatch, reflection 또는 plugin
+loading 때문에 정적 검색으로 consumer를 닫을 수 없으면 해당하지 않는다.
+
+Mechanical Fast Path는 formatter, 정확한 key·import·경로 변경, schema가 정해진 data 갱신 또는
+canonical generator, 명시된 규칙의 문자열 정규화처럼 script, AST 변환, command나 Code Mode로
+같은 규칙을 재현할 수 있는 변경이다. 파일 수가 많아도 가능하지만, Code Mode로 실행할 수 있다는
+사실만으로 단순하다고 판정하지 않는다. public API, DB migration, 인증·권한, dependency major
+update, 대량 삭제와 의미가 다른 문자열의 무차별 치환은 제외한다.
+
+Fast Path는 표적 탐색 최대 2회, 최초 구현 1회, 집중 수정 1회, 자동 실행 총 2회로 제한한다.
+모델 상향 또는 fresh-context 재시도는 최대 1회이고 첫 실패와 같은 입력·접근을 반복하지 않는다.
+독립 reviewer는 기본적으로 사용하지 않는다. 예상 밖 consumer, 두 번째 의미 판단, 여러 책임으로
+확장, public contract, 원인 불명의 검사 실패, reviewer 없이는 판정하기 어려운 상태, 관련 없는
+refactoring 또는 두 번째 수정 필요가 드러나면 즉시 Fast Path를 종료하고 가장 가까운 일반
+workflow로 올린다. 완료할 때에는 판정 근거, 실제 변경 범위, 결정론적 검증과 원래 목적과의
+정렬을 짧게 기록한다.
+
+원인이 불명확한 실패는 `engineering:systematic-debugging`, 여러 흐름·interface를 조정해야 하는
+확장은 `engineering:writing-plans`, 요구사항이나 설계를 바꿔야 하는 확장은
+`engineering:brainstorming`으로 보낸다. 이 escalation은 Fast Path의 실패가 아니라 숨은 복잡성을
+발견한 정상적인 routing이다.
 
 ## 위험 신호
 
 | 생각 | 실제 |
 |---------|---------|
-| "This is too simple to need a design" | 단순하다는 것은 설계가 짧다는 뜻이지 없다는 뜻이 아니다. chat에서 두 문장으로 제시한 뒤 승인을 받는다. |
+| "This is too simple to need a design" | Fast Path predicate를 모두 확인하면 요청 자체가 승인된 짧은 설계다. 그렇지 않으면 chat에서 설계를 제시하고 승인을 받는다. |
+| "Code Mode can do it, so it is simple" | Code Mode는 실행 수단이다. 영향 범위와 의미가 닫혀야 Mechanical Fast Path다. |
+| "I am almost done, so I can keep the fast path" | escalation signal이 나오면 남은 budget과 관계없이 일반 workflow로 올린다. |
 | "I'll call it bounded and skip the spec" | 일을 생략하려고 label을 고르는 것 자체가 의심의 신호다. 더 무거운 경로를 선택한다. |
 | "It's bounded and the design is obvious — I'll start while they read it" | 게이트는 설계 길이가 아니라 승인이다. 제시한 뒤 사용자가 동의할 때까지 중단한다. |
 | "I understand this kind of app, so it's bounded" | `bounded`는 익숙함이 아니라 저장소를 기준으로 판단한다. 새 project에는 기존 흐름이 없으므로 `architectural`이다. |
@@ -74,11 +107,12 @@ artifact의 크기이지 승인 절차가 아니다.
 
 **`bounded`(범위 한정):**
 1. **Project context 탐색** — 파일, 문서와 최근 commit을 확인한다.
-2. **명확화 질문** — 중요한 질문을 한 번에 하나씩 한다.
-3. **Chat에서 짧은 설계 제시** — 접근 방식, 예상 동작과 수정할 파일을 설명한다.
-4. **승인 받기** — 중단하고 명시적인 동의를 기다린다. 설계를 제시하면서 바로 시작하면 게이트를 건너뛴 것이다.
-5. **Plan 필요 여부 판단** — 파일 수나 `bounded` label이 아니라 여러 단계·interface·상태 전이·오류 처리·migration·회귀 위험을 조정해야 하는지 확인한다.
-6. **구현으로 전환** — plan이 필요하면 `engineering:writing-plans`를 사용한다. 필요하지 않으면 일반 개발 workflow로 진행하고, 동작과 회귀 위험을 기준으로 TDD 적합성을 판단해 이유와 함께 변경에 비례해 검증한다. 이 경우에는 plan 문서나 긴 의사코드를 만들지 않는다.
+2. **Fast Path 판정** — 모든 predicate를 최대 2회의 표적 탐색으로 확인한다. 해당하면 요청을 승인된 짧은 설계로 취급해 제한된 실행·검증 뒤 종료한다.
+3. **명확화 질문** — Fast Path가 아니면 중요한 질문을 한 번에 하나씩 한다.
+4. **Chat에서 짧은 설계 제시** — 접근 방식, 예상 동작과 수정할 파일을 설명한다.
+5. **승인 받기** — 중단하고 명시적인 동의를 기다린다. 설계를 제시하면서 바로 시작하면 게이트를 건너뛴 것이다.
+6. **Plan 필요 여부 판단** — 파일 수나 `bounded` label이 아니라 여러 단계·interface·상태 전이·오류 처리·migration·회귀 위험을 조정해야 하는지 확인한다.
+7. **구현으로 전환** — plan이 필요하면 `engineering:writing-plans`를 사용한다. 필요하지 않으면 일반 개발 workflow로 진행하고, 동작과 회귀 위험을 기준으로 TDD 적합성을 판단해 이유와 함께 변경에 비례해 검증한다. 이 경우에는 plan 문서나 긴 의사코드를 만들지 않는다.
 
 **`architectural`(아키텍처 변경):**
 1. **Project context 탐색** — 파일, 문서와 최근 commit을 확인한다.
@@ -101,6 +135,8 @@ digraph brainstorming {
     "Classify: spike / bounded / architectural" [shape=diamond];
     "Present question + probe (2-3 sentences)" [shape=box];
     "Ask clarifying questions (bounded)" [shape=box];
+    "All Fast Path predicates confirmed?" [shape=diamond];
+    "Run bounded Fast Path" [shape=doublecircle];
     "Present short design in chat" [shape=box];
     "Human approves?" [shape=diamond];
     "Implementation plan needed?" [shape=diamond];
@@ -121,7 +157,9 @@ digraph brainstorming {
     "Hidden complexity? Upgrade path" [shape=box];
 
     "Classify: spike / bounded / architectural" -> "Present question + probe (2-3 sentences)" [label="spike"];
-    "Classify: spike / bounded / architectural" -> "Ask clarifying questions (bounded)" [label="bounded"];
+    "Classify: spike / bounded / architectural" -> "All Fast Path predicates confirmed?" [label="bounded"];
+    "All Fast Path predicates confirmed?" -> "Run bounded Fast Path" [label="yes"];
+    "All Fast Path predicates confirmed?" -> "Ask clarifying questions (bounded)" [label="no / unknown"];
     "Classify: spike / bounded / architectural" -> "Explore project context" [label="architectural"];
     "Present question + probe (2-3 sentences)" -> "Human approves?";
     "Ask clarifying questions (bounded)" -> "Present short design in chat";
@@ -149,7 +187,8 @@ digraph brainstorming {
 }
 ```
 
-**종료 상태는 각 경로에 종속된다.** `Architectural`에서는 brainstorming 뒤에 호출하는 유일한
+**종료 상태는 각 경로에 종속된다.** Fast Path는 제한된 실행, 결정론적 검증과 목적 정렬 기록으로
+끝난다. `Architectural`에서는 brainstorming 뒤에 호출하는 유일한
 스킬이 `writing-plans`다. `frontend-design`, `mcp-builder` 또는 다른 implementation 스킬을
 호출하지 않는다. `Bounded`에서는 승인 뒤 plan 필요 조건을 확인하고, 조건을 충족하면
 `writing-plans`로 전환하며 그렇지 않으면 일반 개발 workflow로 바로 구현한다. `Spike`의 종료
@@ -159,8 +198,8 @@ digraph brainstorming {
 
 아래 하위 섹션은 `bounded`와 `architectural` 경로에 적용된다(`spike`는 "present the probe,
 get a nod", 즉 probe를 제시하고 동의를 받는 단계에서 끝난다). **접근 방식 탐색** 이후 섹션은 `architectural` 경로에 해당하는
-깊이다. `bounded` 작업의 설계 단계는 context, 몇 가지 질문과 chat 안의 짧은 설계로 끝나며,
-승인 뒤에는 위의 plan 필요 여부 판정을 거친다.
+깊이다. Fast Path가 아닌 `bounded` 작업의 설계 단계는 context, 몇 가지 질문과 chat 안의 짧은
+설계로 끝나며, 승인 뒤에는 위의 plan 필요 여부 판정을 거친다.
 
 **아이디어 이해:**
 

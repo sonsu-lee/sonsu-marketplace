@@ -34,3 +34,4 @@ Considered, Consequences와 Revisit When을 포함합니다.
 - [0006 Keep Prompting as an Independent Plugin](0006-keep-prompting-independent.md)
 - [0007 Use Stage-Owned Quality Gates with Bounded Backtracking](0007-use-stage-owned-quality-gates.md)
 - [0008 Add an Independent Product Plugin](0008-add-product-plugin.md)
+- [0009 Use Fast Paths and Plan-Backed Red-Team Gates](0009-use-fast-path-and-plan-red-team-gates.md)

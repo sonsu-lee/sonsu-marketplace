@@ -28,3 +28,7 @@ JSON 파싱과 schema field 검사는 fixture의 구조만 확인합니다. 실�
 - tool·permission·external state 부재는 `blocked`이며 동일 명령을 반복하지 않습니다.
 - retry cap의 valid required finding은 human `accepted_risk` 없이 `passed`나 `complete`가 아닙니다.
 - quality gate와 Git·PR·publish authorization은 독립적으로 판정합니다.
+- Fast Path는 모든 predicate가 확인된 plan 없는 작업에만 적용되고 숨은 복잡성이 나오면 즉시 일반 workflow로 올라갑니다.
+- Code Mode는 결정론적 실행 수단이며 Fast Path 적합성이나 품질 통과의 증거가 아닙니다.
+- plan-backed 완료에는 일반 최종 리뷰와 별개의 fresh-context red-team 판정이 필요합니다.
+- 모델과 reasoning effort는 역할별로 함께 선택하며 goal은 명시적으로 요청된 plan에 최대 하나입니다.

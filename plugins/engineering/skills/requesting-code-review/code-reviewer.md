@@ -7,6 +7,8 @@ code reviewer subagent를 위임할 때 이 template을 사용한다.
 ```
 Subagent (general-purpose):
   description: "코드 변경 리뷰"
+  model: [MODEL — 필수: 역할과 변경 위험에 맞게 선택한다.]
+  reasoning_effort: [REASONING_EFFORT — 필수: 역할과 변경 위험에 맞게 선택한다.]
   prompt: |
     당신은 software architecture, design pattern과 best practice에 전문성이 있는 Senior Code Reviewer다.
     완료된 작업을 plan 또는 요구사항과 대조해 리뷰하고 문제가 다음 작업으로 번지기 전에 찾아낸다.
@@ -135,6 +137,8 @@ Subagent (general-purpose):
 ```
 
 **치환할 placeholder:**
+- `[MODEL]` — 역할과 변경 위험에 맞는 reviewer 모델
+- `[REASONING_EFFORT]` — 역할과 변경 위험에 맞는 reviewer 추론도
 - `[DESCRIPTION]` — 구현 내용의 짧은 요약
 - `[PLAN_OR_REQUIREMENTS]` — 기대 동작(plan 파일 경로, task 본문 또는 요구사항)
 - `[REVIEW_PACKAGE]` — `scripts/review-package`가 출력한 읽을 수 있는 package 경로

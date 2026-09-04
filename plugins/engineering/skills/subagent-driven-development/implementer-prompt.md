@@ -7,6 +7,7 @@ Subagent (general-purpose):
   description: "Task N 구현: [task name]"
   model: [MODEL — 필수: SKILL.md의 Model Selection에 따라 선택한다. 생략하면
          session에서 가장 비싼 모델을 조용히 상속한다.]
+  reasoning_effort: [REASONING_EFFORT — 필수: SKILL.md와 platform 역할별 matrix에 따라 선택한다.]
   prompt: |
     Task N을 구현한다: [task name]
 

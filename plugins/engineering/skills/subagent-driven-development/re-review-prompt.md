@@ -10,6 +10,7 @@ Subagent (general-purpose):
   description: "Task N 수정 회차 R 재리뷰"
   model: [MODEL — 필수: SKILL.md의 Model Selection에 따라 선택한다. 생략하면
          session에서 가장 비싼 모델을 조용히 상속한다.]
+  reasoning_effort: [REASONING_EFFORT — 필수: SKILL.md와 platform 역할별 matrix에 따라 선택한다.]
   prompt: |
     한 task의 수정 회차를 재리뷰한다. 이전 리뷰에서 finding이 나왔고 implementer가 수정을
     시도했다. 각 finding을 판정하고 수정 diff만 검사한다. 다른 작업은 하지 않는다.
@@ -91,6 +92,7 @@ Subagent (general-purpose):
 
 **치환할 placeholder:**
 - `[MODEL]` — 필수: SKILL.md의 Model Selection에 따른 reviewer 모델. 작은 수정 diff의 범위가 제한된 재리뷰에는 저가에서 중간 tier를 사용한다.
+- `[REASONING_EFFORT]` — 필수: platform 역할별 matrix에 따른 reviewer 추론도.
 - `[BRIEF_FILE]` — task brief 파일(implementer가 작업한 파일과 동일)
 - `[FINDINGS]` — 이전 리뷰의 Critical/Important finding과 spec 공백을 불릿마다 하나씩 그대로 복사
 - `[REPORT_FILE]` — implementer의 report 파일(수정 보고가 추가됨)

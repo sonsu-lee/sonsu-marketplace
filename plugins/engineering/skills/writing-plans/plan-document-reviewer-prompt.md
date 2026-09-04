@@ -9,6 +9,8 @@ plan 문서 reviewer subagent를 위임할 때 이 template을 사용한다.
 ```
 Subagent (general-purpose):
   description: "Plan 문서 리뷰"
+  model: [MODEL — 필수: architecture/plan 역할에 맞게 선택한다.]
+  reasoning_effort: [REASONING_EFFORT — 필수: architecture/plan 역할에 맞게 선택한다.]
   prompt: |
     당신은 plan 문서 reviewer다. 이 plan이 완전하고 구현할 준비가 됐는지 검증한다.
 
@@ -29,6 +31,7 @@ Subagent (general-purpose):
     | 검증 | 의사코드 뒤에 TDD 또는 다른 검증 방법을 선택했고, 각 task에 선택 이유가 있는가 |
     | 승인 | 승인된 요구사항·설계·관찰 가능한 계약을 바꾼 plan 리비전에 사용자의 명시적인 재승인 근거가 있는가. plan-readiness gate를 승인으로 취급하지 않았는가 |
     | 기존 작업 | plan 리비전이 영향을 받는 완료 task를 식별하고 reopened 및 재검증 대상으로 표시했는가 |
+    | 완료 게이트 | plan-backed 작업의 일반 최종 리뷰 뒤 fresh-context red-team completion gate와 반환 경로가 있는가 |
     | 문서 | plan이 승인된 문서 영향과 일치하는가 |
     | 권한 | commit과 외부 작업이 현재 permission을 넘지 않는가 |
 
