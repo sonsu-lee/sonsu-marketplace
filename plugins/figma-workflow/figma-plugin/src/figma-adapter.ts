@@ -91,7 +91,7 @@ function snapshotVariableBindings(node: BaseNode): Record<string, NormalizedVari
   return Object.keys(bindings).length > 0 ? bindings : undefined;
 }
 
-async function snapshotNode(node: BaseNode): Promise<NormalizedNodeSnapshot> {
+async function snapshotNodeShallow(node: BaseNode): Promise<NormalizedNodeSnapshot> {
   const namedNode = node as NodeWithName;
   const layoutNode = node as NodeWithLayout;
   const snapshot: NormalizedNodeSnapshot = {
@@ -128,22 +128,26 @@ async function snapshotNode(node: BaseNode): Promise<NormalizedNodeSnapshot> {
     });
   }
 
+  return snapshot;
+}
+
+async function snapshotSelectionTree(node: BaseNode): Promise<NormalizedNodeSnapshot> {
+  const snapshot = await snapshotNodeShallow(node);
   if ('children' in node) {
     const children = (node as NodeWithChildren).children;
-    snapshot.children = await Promise.all(children.map(snapshotNode));
+    snapshot.children = await Promise.all(children.map(snapshotSelectionTree));
   }
-
   return snapshot;
 }
 
 export class FigmaNodePort implements NodePort {
   async getSelection(): Promise<NormalizedNodeSnapshot[]> {
-    return Promise.all(figma.currentPage.selection.map(snapshotNode));
+    return Promise.all(figma.currentPage.selection.map(snapshotSelectionTree));
   }
 
   async readNode(nodeId: string): Promise<NormalizedNodeSnapshot | null> {
     const node = await figma.getNodeByIdAsync(nodeId);
-    return node ? snapshotNode(node) : null;
+    return node ? snapshotNodeShallow(node) : null;
   }
 
   async renameIfCurrent(nodeId: string, expectedName: string, name: string): Promise<ConditionalMutationResult> {

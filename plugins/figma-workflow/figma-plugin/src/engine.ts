@@ -159,8 +159,16 @@ function hasMatchingReceipt(receipt: unknown, plan: RenamePlan | IconSwapPlan): 
   });
 }
 
-const isAutoLayout = (layoutMode: string | undefined): boolean =>
-  layoutMode === 'HORIZONTAL' || layoutMode === 'VERTICAL';
+type FigmaLayoutMode = 'NONE' | 'HORIZONTAL' | 'VERTICAL' | 'GRID';
+
+const isFigmaLayoutMode = (layoutMode: string | undefined): layoutMode is FigmaLayoutMode =>
+  layoutMode === 'NONE' || layoutMode === 'HORIZONTAL' || layoutMode === 'VERTICAL' || layoutMode === 'GRID';
+
+const isAutoLayout = (layoutMode: FigmaLayoutMode | undefined): boolean =>
+  layoutMode === 'HORIZONTAL' || layoutMode === 'VERTICAL' || layoutMode === 'GRID';
+
+const hasAutoLayoutParent = (layoutMode: string | undefined): boolean =>
+  isFigmaLayoutMode(layoutMode) && isAutoLayout(layoutMode);
 
 const observedFields = (fields: Record<string, string | undefined>): Record<string, string> => {
   const observed: Record<string, string> = {};
@@ -187,7 +195,7 @@ async function inspectOrAudit(plan: ReadOnlyPlan, port: NodePort): Promise<PlanV
   const findings: AuditFinding[] = [];
   if (plan.operation === 'audit-auto-layout') {
     for (const { node, parent } of flattened) {
-      if ((node.layoutSizingHorizontal === 'FILL' || node.layoutSizingVertical === 'FILL') && !isAutoLayout(parent?.layoutMode)) {
+      if ((node.layoutSizingHorizontal === 'FILL' || node.layoutSizingVertical === 'FILL') && !hasAutoLayoutParent(parent?.layoutMode)) {
         findings.push({
           code: 'AUTO_LAYOUT_FILL_WITHOUT_AUTO_PARENT',
           nodeId: node.id,
@@ -198,7 +206,7 @@ async function inspectOrAudit(plan: ReadOnlyPlan, port: NodePort): Promise<PlanV
           }),
         });
       }
-      if (node.layoutPositioning === 'ABSOLUTE' && !isAutoLayout(parent?.layoutMode)) {
+      if (node.layoutPositioning === 'ABSOLUTE' && !hasAutoLayoutParent(parent?.layoutMode)) {
         findings.push({
           code: 'AUTO_LAYOUT_ABSOLUTE_WITHOUT_AUTO_PARENT',
           nodeId: node.id,

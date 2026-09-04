@@ -116,7 +116,9 @@
       return candidate.expectedMainComponentKey === plan.targets[index].expectedMainComponentKey;
     });
   }
-  var isAutoLayout = (layoutMode) => layoutMode === "HORIZONTAL" || layoutMode === "VERTICAL";
+  var isFigmaLayoutMode = (layoutMode) => layoutMode === "NONE" || layoutMode === "HORIZONTAL" || layoutMode === "VERTICAL" || layoutMode === "GRID";
+  var isAutoLayout = (layoutMode) => layoutMode === "HORIZONTAL" || layoutMode === "VERTICAL" || layoutMode === "GRID";
+  var hasAutoLayoutParent = (layoutMode) => isFigmaLayoutMode(layoutMode) && isAutoLayout(layoutMode);
   var observedFields = (fields) => {
     const observed = {};
     for (const [key, value] of Object.entries(fields)) {
@@ -139,7 +141,7 @@
     const findings = [];
     if (plan.operation === "audit-auto-layout") {
       for (const { node, parent } of flattened) {
-        if ((node.layoutSizingHorizontal === "FILL" || node.layoutSizingVertical === "FILL") && !isAutoLayout(parent?.layoutMode)) {
+        if ((node.layoutSizingHorizontal === "FILL" || node.layoutSizingVertical === "FILL") && !hasAutoLayoutParent(parent?.layoutMode)) {
           findings.push({
             code: "AUTO_LAYOUT_FILL_WITHOUT_AUTO_PARENT",
             nodeId: node.id,
@@ -150,7 +152,7 @@
             })
           });
         }
-        if (node.layoutPositioning === "ABSOLUTE" && !isAutoLayout(parent?.layoutMode)) {
+        if (node.layoutPositioning === "ABSOLUTE" && !hasAutoLayoutParent(parent?.layoutMode)) {
           findings.push({
             code: "AUTO_LAYOUT_ABSOLUTE_WITHOUT_AUTO_PARENT",
             nodeId: node.id,
@@ -458,7 +460,7 @@
     }
     return Object.keys(bindings).length > 0 ? bindings : void 0;
   }
-  async function snapshotNode(node) {
+  async function snapshotNodeShallow(node) {
     const namedNode = node;
     const layoutNode = node;
     const snapshot = {
@@ -491,19 +493,23 @@
         return actions === void 0 ? {} : { actions };
       });
     }
+    return snapshot;
+  }
+  async function snapshotSelectionTree(node) {
+    const snapshot = await snapshotNodeShallow(node);
     if ("children" in node) {
       const children = node.children;
-      snapshot.children = await Promise.all(children.map(snapshotNode));
+      snapshot.children = await Promise.all(children.map(snapshotSelectionTree));
     }
     return snapshot;
   }
   var FigmaNodePort = class {
     async getSelection() {
-      return Promise.all(figma.currentPage.selection.map(snapshotNode));
+      return Promise.all(figma.currentPage.selection.map(snapshotSelectionTree));
     }
     async readNode(nodeId) {
       const node = await figma.getNodeByIdAsync(nodeId);
-      return node ? snapshotNode(node) : null;
+      return node ? snapshotNodeShallow(node) : null;
     }
     async renameIfCurrent(nodeId, expectedName, name) {
       let node;

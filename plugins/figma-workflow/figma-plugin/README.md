@@ -32,6 +32,11 @@ Read-only plan은 현재 selection만 읽습니다.
 }
 ```
 
+Selection inventory는 선택한 root와 descendants를 재귀적으로 snapshot한다. 반면 exact target mutation의
+precondition/readback과 prototype destination 존재 확인은 target node 자체만 shallow read하므로, 관계없는
+descendant의 host read failure가 해당 target을 막지 않는다. Auto Layout audit는 `HORIZONTAL`, `VERTICAL`,
+`GRID` parent를 Auto Layout parent로 취급한다.
+
 Mutation plan은 반드시 explicit `nodeId`와 expected state를 사용합니다. 먼저 `mode: "preview"`로
 Preview를 실행하고, 같은 입력을 유지한 채 Apply를 누릅니다. UI는 Apply 전에 내부적으로 mode만
 `apply`로 정규화하며, matching preview receipt가 있을 때만 engine이 mutation을 허용합니다.

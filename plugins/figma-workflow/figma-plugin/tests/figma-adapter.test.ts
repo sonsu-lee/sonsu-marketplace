@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { previewPlan } from '../src/engine.js';
+import { applyPlan, previewPlan } from '../src/engine.js';
 import { FigmaNodePort } from '../src/figma-adapter.js';
 
 async function withFigma<T>(figmaApi: unknown, run: () => Promise<T>): Promise<T> {
@@ -159,5 +159,70 @@ test('prototype snapshots support legacy action and conditional nested destinati
   assert.deepEqual(conditional, {
     status: 'findings',
     findings: [{ code: 'PROTOTYPE_DESTINATION_MISSING', nodeId: 'conditional', observed: { destinationId: 'missing' } }],
+  });
+});
+
+test('exact target reads ignore failing descendants for rename, icon readback, and prototype destinations', async () => {
+  const failingNestedInstance = {
+    id: 'nested', type: 'INSTANCE', name: 'Nested',
+    async getMainComponentAsync() { throw new Error('descendant component lookup failed'); },
+  };
+  const frame = { id: 'frame', type: 'FRAME', name: 'Before', children: [failingNestedInstance] };
+  let iconComponentKey = 'old-key';
+  const icon = {
+    id: 'icon', type: 'INSTANCE', name: 'Icon', children: [failingNestedInstance],
+    async getMainComponentAsync() { return { type: 'COMPONENT', key: iconComponentKey }; },
+    swapComponent(component: { key: string }) { iconComponentKey = component.key; },
+  };
+  const screen = {
+    id: 'screen', type: 'FRAME', name: 'Screen',
+    reactions: [{ actions: [{ destinationId: 'frame' }] }],
+  };
+  await withFigma({
+    currentPage: { selection: [screen] },
+    async getNodeByIdAsync(nodeId: string) {
+      return ({ frame, icon } as Record<string, typeof frame | typeof icon>)[nodeId] ?? null;
+    },
+    async importComponentByKeyAsync(key: string) { return { type: 'COMPONENT', key }; },
+  }, async () => {
+    const port = new FigmaNodePort();
+    const renamePreviewText = JSON.stringify({
+      version: 1, mode: 'preview', operation: 'rename-exact',
+      targets: [{ nodeId: 'frame', expectedName: 'Before', newName: 'After' }],
+    });
+    const renameApplyText = renamePreviewText.replace('"preview"', '"apply"');
+    const renamePreview = await previewPlan(renamePreviewText, port) as { status: string; receipt: unknown };
+    assert.equal(renamePreview.status, 'ready');
+    assert.equal((await applyPlan(renameApplyText, renamePreview.receipt, port) as { status: string }).status, 'applied');
+
+    const iconPreviewText = JSON.stringify({
+      version: 1, mode: 'preview', operation: 'replace-icon-instance-exact',
+      targets: [{ nodeId: 'icon', expectedMainComponentKey: 'old-key', replacementComponentKey: 'new-key' }],
+    });
+    const iconApplyText = iconPreviewText.replace('"preview"', '"apply"');
+    const iconPreview = await previewPlan(iconPreviewText, port) as { status: string; receipt: unknown };
+    assert.equal(iconPreview.status, 'ready');
+    assert.equal((await applyPlan(iconApplyText, iconPreview.receipt, port) as { status: string }).status, 'applied');
+
+    const prototypeResult = await previewPlan(JSON.stringify({
+      version: 1, mode: 'preview', operation: 'audit-prototype-links', scope: { kind: 'selection' },
+    }), port);
+    assert.deepEqual(prototypeResult, { status: 'clean', findings: [] });
+  });
+});
+
+test('selection inventory recursively snapshots descendants', async () => {
+  const child = { id: 'child', type: 'RECTANGLE', name: 'Child' };
+  const frame = { id: 'frame', type: 'FRAME', name: 'Frame', children: [child] };
+  const result = await withFigma({
+    currentPage: { selection: [frame] },
+    async getNodeByIdAsync() { return null; },
+  }, () => previewPlan(JSON.stringify({
+    version: 1, mode: 'preview', operation: 'inspect-selection', scope: { kind: 'selection' },
+  }), new FigmaNodePort()));
+
+  assert.deepEqual(result, {
+    status: 'inspected',
+    nodes: [{ id: 'frame', type: 'FRAME', name: 'Frame', children: [{ id: 'child', type: 'RECTANGLE', name: 'Child' }] }],
   });
 });

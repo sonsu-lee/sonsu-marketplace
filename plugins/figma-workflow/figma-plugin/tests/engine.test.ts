@@ -433,6 +433,22 @@ test('auto-layout audit reports FILL and ABSOLUTE nodes without an Auto Layout p
   });
 });
 
+test('auto-layout audit treats a GRID parent as an Auto Layout parent for ABSOLUTE children', async () => {
+  const result = await previewPlan(JSON.stringify({
+    version: 1, mode: 'preview', operation: 'audit-auto-layout', scope: { kind: 'selection' },
+  }), {
+    async readNode() { return null; },
+    async getSelection() {
+      return [{
+        id: 'grid', type: 'FRAME', name: 'Grid', layoutMode: 'GRID',
+        children: [{ id: 'absolute', type: 'RECTANGLE', name: 'Absolute', layoutPositioning: 'ABSOLUTE' }],
+      }];
+    },
+  });
+
+  assert.deepEqual(result, { status: 'clean', findings: [] });
+});
+
 test('prototype audit reports empty actions and unresolved destinations', async () => {
   const result = await previewPlan(JSON.stringify({
     version: 1, mode: 'preview', operation: 'audit-prototype-links', scope: { kind: 'selection' },
