@@ -4,13 +4,12 @@
 - Date: 2026-09-02
 - Supersedes: None
 - Superseded by: None
-- Naming note: 이 문서의 `Superpowers`는 [0005](0005-rename-superpowers-to-engineering.md)에서 `Engineering`으로 이름이 변경되었습니다.
 - Approval: 사용자가 2026-09-02 현재 대화에서 이 설계와 커밋을 명시적으로 승인했습니다.
 
 ## Context
 
 Research는 여러 외부 출처를 찾아 교차 검증하고, 상충하는 근거를 정리하는 조사 방법을
-제공합니다. Superpowers의 설계·계획·구현 과정에서도 이런 조사가 필요할 수 있지만, 모든 개발
+제공합니다. Engineering의 설계·계획·구현 과정에서도 이런 조사가 필요할 수 있지만, 모든 개발
 작업에 외부 조사가 필요한 것은 아닙니다. 두 플러그인 중 하나만 설치한 환경에서도 각자의 핵심
 기능이 동작해야 합니다.
 
@@ -21,13 +20,13 @@ Exa와 Perplexity 같은 전문 provider는 검색 범위, 최신성 또는 인�
 
 ## Decision
 
-Research를 Superpowers와 분리된 독립 플러그인으로 유지합니다. 두 플러그인의 manifest에 서로의
+Research를 Engineering과 분리된 독립 플러그인으로 유지합니다. 두 플러그인의 manifest에 서로의
 dependency를 선언하지 않고, 한 플러그인의 지침에서 다른 플러그인의 특정 skill ID를 필수로
 호출하지 않습니다. Codex는 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 runtime에
 필요한 스킬을 선택합니다.
 
 직접적인 다중 출처 조사, 사실 검증과 문헌 검토는 Research가 단독으로 처리할 수 있습니다.
-설계·계획·구현 중 외부의 다중 출처 근거가 결과를 좌우하면 Superpowers가 작업 흐름을 유지하면서
+설계·계획·구현 중 외부의 다중 출처 근거가 결과를 좌우하면 Engineering이 작업 흐름을 유지하면서
 Research의 조사 결과를 받아 다음 결정과 구현에 반영합니다. local debugging, 단순한 repository
 탐색과 하나의 공식 문서에서 답을 찾는 조회에는 Research를 기본적으로 선택하지 않습니다.
 
@@ -42,10 +41,10 @@ Codex나 호스트가 관리하는 provider는 읽기 전용 도구 노출, 현�
 
 ## Alternatives Considered
 
-- Research를 Superpowers 안에 포함: 개발 흐름과 조사는 한곳에서 관리할 수 있지만 Research만
-  필요한 사용자도 Superpowers를 설치해야 하고 두 upstream의 변경 경계가 섞입니다.
-- Superpowers가 `research:research`를 직접 필수 호출: 실행 순서는 명확하지만 Research가 없는
-  환경에서 Superpowers의 독립성이 깨지고 skill 이름 변경에도 강하게 결합됩니다.
+- Research를 Engineering 안에 포함: 개발 흐름과 조사는 한곳에서 관리할 수 있지만 Research만
+  필요한 사용자도 Engineering을 설치해야 하고 두 upstream의 변경 경계가 섞입니다.
+- Engineering이 `research:research`를 직접 필수 호출: 실행 순서는 명확하지만 Research가 없는
+  환경에서 Engineering의 독립성이 깨지고 skill 이름 변경에도 강하게 결합됩니다.
 - Exa 또는 Perplexity를 필수 provider로 지정: 결과 품질을 일정하게 맞추기 쉽지만 인증되지 않은
   환경에서 Research를 사용할 수 없고 provider 선택권도 줄어듭니다.
 - Research에 Exa·Perplexity MCP나 CLI를 함께 배포: 설치 직후 경로는 고정할 수 있지만 사용자가
@@ -55,7 +54,7 @@ Codex나 호스트가 관리하는 provider는 읽기 전용 도구 노출, 현�
 
 ## Consequences
 
-Research만 설치한 환경에서는 조사와 근거 보고를 끝까지 수행할 수 있고, Superpowers만 설치한
+Research만 설치한 환경에서는 조사와 근거 보고를 끝까지 수행할 수 있고, Engineering만 설치한
 환경에서는 기존 개발 흐름이 유지됩니다. 둘을 함께 설치하면 외부 근거가 필요한 구간에서만
 Research를 조합할 수 있습니다. Fluent Languages 같은 출력 문체 스킬도 이 책임과 독립적으로
 적용할 수 있습니다.
@@ -67,6 +66,6 @@ Research를 조합할 수 있습니다. Fluent Languages 같은 출력 문체 �
 
 ## Revisit When
 
-Superpowers와 Research 사이의 누락 또는 중복 선택이 실제 작업에서 반복될 때, Codex가 공식적인
+Engineering과 Research 사이의 누락 또는 중복 선택이 실제 작업에서 반복될 때, Codex가 공식적인
 plugin dependency·orchestration 계약을 제공할 때, generic fallback으로 필요한 근거를 반복해서
 확보하지 못할 때, 또는 특정 provider가 모든 지원 환경의 필수 기반으로 확정될 때 재검토합니다.

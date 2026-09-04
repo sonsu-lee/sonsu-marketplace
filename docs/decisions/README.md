@@ -23,6 +23,9 @@ Considered, Consequences와 Revisit When을 포함합니다.
 
 상태는 `Proposed`, `Accepted`, `Rejected`, `Superseded` 중 하나를 사용합니다. 결정을
 대체할 때에는 이전 파일을 덮어쓰지 않고 이전 문서와 새 문서에 서로의 번호를 기록합니다.
+사용자가 제거를 명시적으로 승인한 이전 플러그인 정체성을 직접 포함한 기록은 예외적으로
+[0009 결정](0009-maintain-engineering-as-an-independent-plugin.md)처럼 새 결정에 대상 번호,
+삭제 이유와 현재 계약을 기록한 뒤 이전 파일을 제거할 수 있습니다.
 
 ## 현재 결정
 
@@ -30,8 +33,8 @@ Considered, Consequences와 Revisit When을 포함합니다.
 - [0002 Separate Document and Commit Approval](0002-separate-doc-and-commit-approval.md)
 - [0003 Keep Marketplace Plugins Independent](0003-keep-plugins-independent.md)
 - [0004 Keep Research Independent](0004-keep-research-independent.md)
-- [0005 Rename the Local Superpowers Fork to Engineering](0005-rename-superpowers-to-engineering.md)
 - [0006 Keep Prompting as an Independent Plugin](0006-keep-prompting-independent.md)
 - [0007 Use Stage-Owned Quality Gates with Bounded Backtracking](0007-use-stage-owned-quality-gates.md)
 - [0008 Add an Independent Product Plugin](0008-add-product-plugin.md)
-- [0009 Add an Independent Design Plugin](0009-add-design-plugin.md)
+- [0009 Maintain Engineering as an Independent Plugin](0009-maintain-engineering-as-an-independent-plugin.md)
+- [0010 Add an Independent Design Plugin](0010-add-design-plugin.md)

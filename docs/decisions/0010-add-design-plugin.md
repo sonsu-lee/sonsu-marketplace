@@ -1,4 +1,4 @@
-# 0009 Add an Independent Design Plugin
+# 0010 Add an Independent Design Plugin
 
 - Status: Accepted
 - Date: 2026-09-03

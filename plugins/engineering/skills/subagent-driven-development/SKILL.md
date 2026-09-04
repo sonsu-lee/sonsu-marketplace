@@ -160,7 +160,7 @@ ledger를 만들거나 Task 1을 위임하기 전에 task commit을 승인한 �
 진행 상태를 todo뿐 아니라 ledger 파일에도 추적한다.
 
 - 각 plan은 자체 workspace를 소유한다. 스킬 시작 시 이 스킬의 `scripts/sdd-workspace PLAN_FILE`을
-  실행한다. 이 명령은 plan의 git-ignored 디렉터리(`<repo-root>/.superpowers/sdd/<plan-basename>/`)를
+  실행한다. 이 명령은 plan의 git-ignored 디렉터리(`<repo-root>/.engineering/sdd/<plan-basename>/`)를
   출력하며, 현재 plan의 모든 artifact인 ledger, brief, report와 review package를 이곳에 둔다.
   다른 plan의 디렉터리는 읽거나 쓰지 않는다.
 - `<workspace>/progress.md`에서 현재 plan의 ledger를 확인한다. 첫 줄에 현재 plan 파일이 적혀
@@ -168,8 +168,8 @@ ledger를 만들거나 Task 1을 위임하기 전에 task commit을 승인한 �
   기준으로 판단한다. 최신 상태가 `complete`인 task만 DONE이다. 이후의 `reopened`는 이전
   완료·검증·리뷰를 무효화하므로 가장 이른 reopened 또는 미완료 task부터 재개한다. 마지막 줄이
   수정 회차인 task는 loop 진행 중이므로 다음 회차부터 재개한다.
-  첫 줄에 다른 plan 파일이 적힌 ledger 또는 이전 flat 경로 `.superpowers/sdd/progress.md`의
-  ledger는 다른 plan의 진행 상태다. 그대로 두고 현재 plan용 ledger를 새로 만든다.
+  첫 줄에 다른 plan 파일이 적힌 ledger는 다른 plan의 진행 상태다. 그대로 두고 현재 plan용
+  ledger를 새로 만든다.
 - 첫 줄에 `# SDD ledger — plan: <plan file path>` 식별자를 넣어 ledger를 만든다.
 - ledger는 복구 map이다. 자신의 context가 생성 사실을 기억하지 못해도 ledger에 적힌 commit은
   git에 존재한다. compaction 뒤에는 기억보다 ledger와 `git log`를 신뢰한다.
@@ -493,9 +493,9 @@ plan 소유이므로 그대로 둔다. 최종 게이트가 `accepted_risk`로 �
 You: I'm using Subagent-Driven Development to execute this plan.
 
 [Setup: worktree verified]
-[Read plan file once: .superpowers/plans/feature-plan.md]
+[Read plan file once: .engineering/plans/feature-plan.md]
 [Confirm current conversation explicitly authorizes task commits]
-[Resolve workspace: scripts/sdd-workspace .superpowers/plans/feature-plan.md — no ledger inside, fresh start]
+[Resolve workspace: scripts/sdd-workspace .engineering/plans/feature-plan.md — no ledger inside, fresh start]
 [Create todos for all tasks]
 
 Task 1: Hook installation script
