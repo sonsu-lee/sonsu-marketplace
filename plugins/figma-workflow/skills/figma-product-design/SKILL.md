@@ -22,6 +22,8 @@ composed screen/view는 `figma:figma-use`와 `figma:figma-generate-design`을 �
 
 [Figma quality contract](../../references/figma-quality-contract.md)를 적용한다. 화면과 wrapper를 먼저 만들고 한 visual section씩 작은 write와 readback으로 진행한다. 같은 page subtree, component set, variable collection, prototype graph 또는 selection/current-page state에 의존하는 mutation은 official MCP writer 하나가 직렬화한다.
 
+각 material container를 만들기 전에 한 축 flow, wrap 또는 2차원 track 중 content relationship과 resize intent에 맞는 layout model을 정한다. 웹 handoff에서는 Figma structure를 DOM과 일대일로 복제하지 않으면서 `flex`·`grid` 구현 의도를 복원할 수 있는 속성과 annotation을 남긴다.
+
 기존 component와 semantic variable을 우선한다. 새로운 reusable pattern만 component로 만들고 variant와 component property의 역할을 나눈다. icon 또는 vector는 [icon policy](../../references/icon-policy.md)에 따라 exact component/provenance, accessible name과 intended size를 확인한다.
 
 반복적이고 결과가 명확한 allowlisted 작업만 사용자가 Figma Desktop에서 [Figma Workflow Companion](../../figma-plugin/README.md)을 수동 실행할 수 있다. companion은 `inspect-selection`, `audit-auto-layout`, `audit-prototype-links`, `rename-exact`, `replace-icon-instance-exact`만 받으며 arbitrary JavaScript를 실행하지 않는다. 판단형 layout·UX 결정이나 general canvas write를 companion에 넘기지 않는다.

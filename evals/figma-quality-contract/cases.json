@@ -14,6 +14,18 @@
       "must_not": ["set-invalid-fill-and-continue"]
     },
     {
+      "id": "layout-model-follows-content-relationship",
+      "scenario": "responsive 웹 dashboard에 한 줄 toolbar, 줄바꿈되는 filter chip과 row·column track 및 span이 중요한 card 영역이 있다. 각 card 안에는 vertical content와 horizontal action row가 중첩된다.",
+      "expected": ["horizontal-auto-layout-for-one-axis-toolbar", "wrap-auto-layout-for-reflowing-chips", "grid-auto-layout-for-two-axis-card-tracks", "preserve-nested-one-axis-card-relationships", "layout-grid-is-visual-guide-only", "record-applicable-flex-grid-handoff-properties", "verify-narrow-wide-resize"],
+      "must_not": ["force-one-layout-model-for-every-container", "flatten-independent-one-axis-relationships", "use-layout-grid-as-responsive-structure", "mirror-dom-one-to-one", "simulate-two-axis-tracks-with-absolute-positioning"]
+    },
+    {
+      "id": "non-web-handoff-keeps-platform-native-intent",
+      "scenario": "iOS 화면의 stack과 adaptive collection을 Figma에서 구성하고 SwiftUI 구현으로 handoff한다.",
+      "expected": ["record-structural-layout-intent", "map-to-platform-native-layout-primitives", "preserve-resize-and-content-relationships"],
+      "must_not": ["require-css-flex-grid-terms", "mirror-web-dom-structure"]
+    },
+    {
       "id": "responsive-content-extremes",
       "scenario": "카드 목록이 0개, 1개, 20개이고 제목은 짧은 영어와 긴 일본어 번역을 가진다.",
       "expected": ["test-zero-one-many", "test-short-long-localized-copy", "test-narrow-wide"],

@@ -20,6 +20,7 @@
 - Create skills: <https://developers.figma.com/docs/figma-mcp-server/create-skills/>
 - Auto Layout: <https://help.figma.com/hc/en-us/articles/360040451373-Explore-auto-layout-properties>
 - Auto Layout and CSS Flexbox: <https://help.figma.com/hc/en-us/articles/42031586813719-Use-auto-layout-with-CSS-Flexbox-in-mind>
+- Grid Auto Layout: <https://help.figma.com/hc/en-us/articles/31289469907863-Use-the-grid-auto-layout-flow>
 - Component properties: <https://help.figma.com/hc/en-us/articles/5579474826519-Explore-component-properties>
 - Slots, instance swaps and variants: <https://help.figma.com/hc/en-us/articles/38741465279895-The-difference-between-slots-instance-swaps-and-variants>
 - Variables: <https://help.figma.com/hc/en-us/articles/14506821864087-Overview-of-variables-collections-and-modes>
