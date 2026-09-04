@@ -40,5 +40,5 @@ plugins/<plugin-name>/.codex-plugin/plugin.json
 ```
 
 정적 validator와 Codex 실제 런타임이 지원하는 필드가 다를 수 있습니다. 이 저장소의
-Engineering 매니페스트는 업스트림의 `hooks: {}`를 유지하므로 실제 `plugin/read` 결과를
-최종 호환성 근거로 사용합니다.
+Engineering 매니페스트는 `hooks: {}`를 사용하므로 실제 `plugin/read` 결과를 최종 호환성
+근거로 사용합니다.

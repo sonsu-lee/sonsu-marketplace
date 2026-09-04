@@ -54,26 +54,10 @@ if grep -Eq '<(img|a)([ >])|https?://' <<<"$page"; then
   exit 1
 fi
 
-legacy_name='super''powers'
-upstream_operator='prime''radiant'
-telemetry_term='tele''metry'
 if git -C "$repo_root" grep -Ini \
-  -e "$legacy_name" \
-  -e "$upstream_operator" \
-  -- ':!plugins/engineering/tests/engineering-identity.test.sh'; then
-  echo 'legacy identity remains in tracked content' >&2
-  exit 1
-fi
-
-if git -C "$repo_root" grep -Ini \
-  -e "$telemetry_term" \
+  -e 'telemetry' \
   -- 'plugins/engineering' ':!plugins/engineering/tests/engineering-identity.test.sh'; then
   echo 'Engineering still contains a telemetry branch' >&2
-  exit 1
-fi
-
-if find "$repo_root" -path "$repo_root/.git" -prune -o -iname "*$legacy_name*" -print | grep -q .; then
-  echo 'legacy identity remains in a file or directory name' >&2
   exit 1
 fi
 

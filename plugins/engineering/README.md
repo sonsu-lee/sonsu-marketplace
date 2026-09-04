@@ -2,8 +2,6 @@
 
 Engineering은 소프트웨어 변경을 계획하고, 구현하고, 디버깅하고, 검증하고, 리뷰할 때 문서 상태를 함께 고려하는 방법입니다. 제한적이고 표적화된 되돌아가기와 단계별 소유 품질 게이트를 사용합니다. 조합 가능한 Codex 스킬을 제공하되 Git 전달, 외부 조사와 출력 언어 지침은 별도 플러그인으로 분리합니다.
 
-고정한 원본, 가져온 파일과 로컬 변경은 [UPSTREAM.md](UPSTREAM.md)를 참고하세요.
-
 ## 책임
 
 Engineering은 다음 개발 방법을 담당합니다.
@@ -76,6 +74,6 @@ Scratch plan, subagent ledger와 지속형 brainstorming session은 `.engineerin
 
 선택 사항인 brainstorming visual companion은 외부 브랜드 이미지나 원격 요청 없이 Engineering 버전을 텍스트로 표시합니다.
 
-## Upstream과 라이선스
+## 라이선스
 
-Engineering의 원본, 고정한 커밋, 가져온 범위와 로컬 변경은 [UPSTREAM.md](UPSTREAM.md)에 기록했습니다. 원본 MIT 저작권 고지는 [LICENSE](LICENSE)에 유지합니다.
+Engineering에는 [MIT 라이선스](LICENSE)가 적용됩니다.

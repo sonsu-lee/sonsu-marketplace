@@ -21,9 +21,6 @@
 사용합니다. 자세한 책임과 조합 기준은 [스킬 라우팅 문서](docs/architecture/skill-routing.md)에
 정리되어 있습니다.
 
-Engineering의 고정한 원본과 로컬 변경 범위는
-[Engineering UPSTREAM.md](plugins/engineering/UPSTREAM.md)에 기록합니다.
-
 ## 설치
 
 ### GitHub에서 등록
@@ -138,7 +135,7 @@ JSON parsing, 생성된 Fluent Languages 스킬의 정본 일치 여부와 평�
 저장소 전체에 공통으로 적용되는 root-level 라이선스는 현재 선언하지 않았습니다. 각
 플러그인의 범위는 다음과 같이 구분합니다.
 
-- Engineering은 [MIT 라이선스](plugins/engineering/LICENSE)와 원본 저작권 고지를 유지합니다.
+- Engineering에는 [MIT 라이선스](plugins/engineering/LICENSE)가 적용됩니다.
 - Quality Engineering은 여러 고정 upstream을 기반으로 하며 [Apache-2.0 라이선스](plugins/quality-engineering/LICENSE), [NOTICE](plugins/quality-engineering/NOTICE), [출처 mapping](plugins/quality-engineering/UPSTREAM.md)과 [MIT 원문 고지](plugins/quality-engineering/THIRD_PARTY_NOTICES.md)를 유지합니다.
 - Workflow에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Prompting에는 현재 별도의 라이선스를 선언하지 않았습니다.
