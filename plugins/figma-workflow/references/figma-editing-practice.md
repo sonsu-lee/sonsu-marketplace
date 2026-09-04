@@ -1,31 +1,22 @@
 # Figma native editing practice
 
-This reference helps with human Figma workflow guidance and manual cleanup. It does not turn UI shortcuts into
-MCP or Plugin API capabilities, and shortcut fluency is not an artifact quality gate.
+이 문서는 사람의 Figma workflow와 manual cleanup을 돕는다. UI shortcut을 MCP나 Plugin API capability로
+바꾸지 않으며 shortcut 숙련도는 artifact quality gate가 아니다.
 
-| Native action | Useful intent | Classification | Automation relevance |
-| --- | --- | --- | --- |
-| Deep select or Select layer menu | Reach the intended nested layer without detaching or flattening structure | Safe targeting | API uses node IDs or queries instead of the UI gesture |
-| Parent, child and sibling navigation | Inspect hierarchy while preserving current context | Structural understanding | Equivalent to tree traversal, not keyboard emulation |
-| Select matching layers | Find equivalent roles before a controlled batch change | Safe repetition | Automate only after matching a semantic property, component or stable query |
-| Multi-edit | Apply the same verified property to equivalent nodes | Safe repetition | Batch updates need the same target proof and post-write readback |
-| Multi-edit variants | Compare or change corresponding layers across component variants | Component consistency | Useful concept; API implementation depends on current component structure |
-| Smart selection and Tidy up | Normalize spacing and ordering in repeated manual selections | Human cleanup | Do not use as a substitute for Auto Layout in final structure |
-| Batch rename | Apply an agreed semantic naming pattern | Structure improvement | Preserve unique roles and avoid broad text replacement |
-| Copy/paste properties | Transfer a known compatible appearance or layout property | Safe repetition | Verify token/component bindings are not flattened to raw values |
-| Paste over selection | Replace equivalent selected content while keeping placement | Human speed | Confirm instance, property and asset semantics after replacement |
-| Collapse or expand layers | Reduce navigation noise and inspect one subtree | Human speed | No effect on artifact quality |
-| Measurement | Inspect spacing, size and relationship | Review evidence | Prefer metadata/readback for automated exact values |
-| Nudge amount | Make controlled optical adjustment | Human speed | Do not encode arbitrary nudges as a universal spacing rule |
-| Quick Actions or Actions menu | Find a command without memorizing its location | Human speed | Availability and command names can change; not an API contract |
+| native action | 유용한 목적 | 자동화 시 주의 |
+| --- | --- | --- |
+| deep select, layer menu | nested layer를 structure 손상 없이 target | API는 UI gesture 대신 explicit node ID/query를 사용 |
+| parent/child/sibling navigation | hierarchy 이해 | tree traversal과 동일시하지 않음 |
+| select matching layers, multi-edit | semantic role이 같은 target의 controlled batch edit | component/property/token/explicit target predicate와 readback 필요 |
+| multi-edit variants | variant 간 corresponding layer 일관성 | current component structure와 public contract 확인 |
+| Smart selection, Tidy up | 탐색 중 spacing·ordering 정리 | final repeatable relationship은 Auto Layout으로 표현 |
+| batch rename | 합의한 semantic name 적용 | broad text replace 금지; companion은 exact plan만 허용 |
+| copy/paste properties | compatible appearance/layout transfer | token/component binding flatten 여부 확인 |
+| measurement | spacing·size·relationship 검토 | automated exact claim은 metadata/readback을 우선 |
 
-Before a batch edit, define the equivalence predicate: same component property, semantic role, token binding or
-explicitly selected targets. After the edit, inspect representative first, middle and last nodes and confirm that
-unrelated instances were not changed.
+batch edit 전에는 same component property, semantic role, token binding 또는 explicit target처럼 equivalence
+predicate를 정한다. 후에는 first/middle/last representative node와 unrelated instance를 확인한다. manual optical
+correction은 scoped exception으로 남기고 global spacing rule로 일반화하지 않는다.
 
-Use Tidy up or manual spacing adjustments during exploration, then express the final repeatable relationship with
-Auto Layout when content or item count should control the structure. Preserve intentional optical corrections as
-scoped exceptions rather than converting them into global spacing values.
-
-Keyboard combinations vary by operating system and can change. When the user asks for exact shortcuts, verify the
-current Figma documentation for the user's platform instead of relying on this reference.
+keyboard shortcut은 OS별로 달라지고 변경될 수 있다. 사용자가 exact shortcut을 요청하면 이 문서가 아니라
+현재 Figma 공식 문서를 확인한다.

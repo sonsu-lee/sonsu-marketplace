@@ -1,3 +1,4 @@
 interface:
   display_name: "Figma Prototype Flow"
-  short_description: "Figma-native reaction과 상태 동선을 연결합니다"
+  short_description: "Figma-native reaction과 상태 동선을 검증합니다"
+  default_prompt: "$figma-prototype-flow를 사용해 이 Figma 화면의 modal, back/dismiss와 오류 복구를 포함한 prototype 동선을 연결해 줘."

@@ -6,13 +6,11 @@
 - Source model: locally authored, multi-source guidance
 - External files copied: none
 - License: not declared; decide before public distribution
-- Last reviewed: 2026-09-03
+- Last reviewed: 2026-09-04
 
-이 플러그인은 외부 skill이나 문서를 파일 단위로 가져온 fork가 아닙니다. 공식 tool contract와
-공개된 실무 자료에서 확인한 개념을 현재 Sonsu Marketplace의 독립 plugin 정책에 맞게 새로
-작성했습니다. 원문의 문장, 코드 또는 asset을 복사하지 않습니다.
+이 plugin은 외부 skill이나 문서를 파일 단위로 가져온 fork가 아닙니다. official tool contract와 공개 실무 자료에서 확인한 개념을 Sonsu Marketplace의 독립 plugin 정책에 맞게 새로 작성했습니다. 원문의 문장, code, asset을 복사하지 않습니다.
 
-## Authoritative product sources
+## Consulted authoritative sources
 
 ### Figma
 
@@ -29,35 +27,18 @@
 - Dev Mode: <https://help.figma.com/hc/en-us/articles/15023124644247-Guide-to-Dev-Mode>
 - MCP Server Guide snapshot: <https://github.com/figma/mcp-server-guide/tree/ae7e5e5f80da20f1dd7445e0c6ae5ac58a5b0bce>
 
-Figma source material is referenced for behavior and capability facts. The bundled official plugin identifies
-its license as `LicenseRef-Figma-Developer-Terms`; no Figma skill text is copied into this plugin.
-
-### Paper Design
-
-- MCP documentation: <https://paper.design/docs/mcp>
-- Tokens: <https://paper.design/docs/tokens>
-- Roadmap: <https://paper.design/roadmap>
-- Build log: <https://paper.design/build-log>
-- Agent plugin snapshot: <https://github.com/paper-design/agent-plugins/tree/f6d4f13343dd924fabaadd0898725f1b8718459d>
-
-The Paper agent-plugin snapshot declares `"license": "MIT"` in its plugin manifest, but the reviewed repository
-root did not contain a GitHub-recognized `LICENSE` file. Treat the exact distribution license as unresolved rather
-than inferring permission from the manifest field. No file from it is copied; this plugin relies on the MCP
-capability available in the running environment.
+Figma source는 behavior와 capability fact 확인에만 consulted했다. bundled official plugin의 license는 `LicenseRef-Figma-Developer-Terms`로 식별되지만, 이 plugin에는 Figma skill text나 code가 복사되지 않았다. current connected schema와 required prerequisite가 문서보다 실제 tool 실행의 우선 근거다.
 
 ### OpenAI Codex
 
 - Codex models: <https://developers.openai.com/codex/models/>
 - Codex configuration: <https://developers.openai.com/codex/config-reference/>
 
-Model roles and availability are time-sensitive. The execution reference records the local runtime catalog seen
-on 2026-09-03 and labels Figma-specific recommendations as provisional; it does not turn general model guidance
-into a Figma benchmark claim.
+model role과 availability는 time-sensitive다. 이 plugin은 일반 model recommendation을 Figma benchmark claim으로 바꾸지 않으며 session model을 자동 변경하지 않는다.
 
-## Practitioner and community references
+## Consulted practitioner sources
 
-The following sources informed examples, counterexamples and evaluation cases. They are references rather
-than dependencies or imported content.
+다음 source는 example, counterexample과 evaluation case를 위해 consulted했으며 dependency나 imported content가 아니다.
 
 - Joey Banks, Auto Layout: <https://newsletter.baselinedesign.com/baseline-25-using-auto-layout-in-figma/>
 - Joey Banks, Constraints: <https://newsletter.baselinedesign.com/baseline-23-using-constraints-in-figma/>
@@ -67,8 +48,5 @@ than dependencies or imported content.
 - Brenno Pellegrini, iconography: <https://brennopellegrini.com/articles/iconography/>
 - Alima prototype-to-Figma snapshot: <https://github.com/alima-max/prototype-to-figma-skill/tree/6e2e1bef74f33450804da0799640a388c772351d>
 - Owl Listener designer skills snapshot: <https://github.com/Owl-Listener/designer-skills/tree/20e34c492474534327494e3b8f75ad1d9d43e4d3>
-- Minoan Paper skill snapshot: <https://github.com/tdimino/claude-code-minoan/blob/712b12a7d69eeec344d6d761dba650dc8ac2416f/skills/design-media/paper-design/SKILL.md>
-- Junhan Sim, Paper and Claude Code: <https://medium.com/design-bootcamp/i-tried-paper-with-claude-code-587e9a46f459>
 
-Repository popularity, stars and issue counts are not treated as quality proof. Current provider documentation
-and the actual connected tool schema take precedence over community examples.
+repository popularity, stars와 issue count는 quality proof로 취급하지 않는다. current provider documentation과 actual connected tool schema가 community example보다 우선한다.

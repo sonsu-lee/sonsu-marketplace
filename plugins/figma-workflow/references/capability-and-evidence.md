@@ -2,62 +2,49 @@
 
 ## Capability preflight
 
-Before mutation, identify the current provider tools, required provider skill, target document, authenticated
-identity, permission level and requested scope. A plugin being installed does not prove that a tool, desktop
-application, editable file or full seat is available.
+mutation 전에 current provider tool, required prerequisite skill, target document, authenticated identity,
+permission과 requested scope를 확인한다. plugin 설치는 tool, editable file, Desktop application 또는 full
+seat의 존재를 증명하지 않는다.
 
-Record each capability separately before using it: `structure_read`, `screenshot`, `reaction_write`,
-`reaction_readback`, `prototype_playback`, `font_load`, `asset_import`, `export` and provider cleanup. Use
-`supported`, `unsupported` or `unavailable` for the current environment; one supported capability does not imply
-the others.
+`structure_read`, `screenshot`, `reaction_write`, `reaction_readback`, `prototype_playback`, `font_load`,
+`asset_import`, `export`를 각각 `supported`, `unsupported`, `unavailable`로 기록한다. provider가 tool 전에
+prerequisite skill을 요구하고 설치되어 있으면 현재 contract를 따른다. unavailable skill의 내용을 복제하거나
+tool name을 발명하지 않는다.
 
-When a provider requires a prerequisite skill before a tool call, load that installed skill and follow its current
-contract. Do not reproduce or assume the contents of a provider skill that is unavailable.
-
-Treat the connected runtime tool schema as the operational source of truth. When public documentation, a cached
-skill and the live schema disagree, use only the capability confirmed for the current call and record the mismatch
-as `inconclusive`; do not preserve a stale tool name or assume that a documented limitation still applies. For
-example, image upload support must be decided from the current asset tools rather than a cached statement alone.
+판단형 Figma canvas read/write는 registered official Figma MCP가 유일한 agent writer다. explicit target의
+bounded code도 그 MCP 안에서만 허용한다. [deterministic execution](deterministic-execution.md)에 적힌
+Desktop companion은 사용자가 수동 실행하는 allowlisted JSON 도구이며 raw MCP, local bridge 또는 second
+writer가 아니다.
 
 ## Authorization boundary
 
-Reading or auditing a file does not authorize mutation. Creating or editing a Figma or Paper artifact requires
-the user's request to include that external change and requires an exact target or an approved new file. Creating
-assets, publishing a library, changing Code Connect mappings and exporting files are separate side effects when
-they exceed the requested result.
+read나 audit은 mutation을 승인하지 않는다. Figma artifact 생성·수정은 사용자의 external change 요청과
+정확한 target 또는 승인된 new file이 필요하다. asset 생성, library publish, Code Connect 변경, export는
+요청 결과를 넘는 별도 side effect일 수 있다.
 
 ## Evidence layers
 
-| Claim | Required evidence |
+| claim | 필요한 근거 |
 | --- | --- |
-| Visual layout | Current screenshot of the affected section and whole view when relevant |
-| Structural layout | Node tree, Auto Layout/resizing metadata, DOM or computed style readback |
-| Reuse | Component instance, property and variable bindings or Paper token references |
-| Clickable interaction | Current Figma reaction readback and prototype playback |
-| Paper code handoff | Exact JSX and computed styles, then adaptation to the target codebase |
-| Cleanup | Provider working-state readback or successful finalization call |
+| visual layout | 영향 section과 필요한 경우 전체 view의 current screenshot |
+| structural layout | node tree, Auto Layout/resizing metadata와 readback |
+| reuse | component instance/property, variable binding, icon provenance |
+| clickable interaction | current reaction readback, named state/annotation, prototype playback |
+| companion audit | exact node ID와 observed field를 포함한 JSON output |
+| cleanup | provider working-state readback 또는 finalization 결과 |
 
-Report results as `passed`, `failed`, `blocked`, `inconclusive`, `not_run`, `not_applicable` or
-`accepted_risk`. A screenshot cannot prove structure, an annotation cannot prove a reaction, and a successful
-write response cannot prove the final appearance. Preserve successful partial work, read the latest state and
-retry only the affected scope.
+결과는 `passed`, `failed`, `blocked`, `inconclusive`, `not_run`, `not_applicable`, `accepted_risk`로 구분한다.
+screenshot은 structure를, annotation은 reaction을, write response는 final appearance를 각각 단독으로 증명하지
+못한다. font나 exact asset을 불러올 수 없으면 대체하지 말고 영향 범위만 `blocked` 또는 `inconclusive`로
+보고한다.
 
-If reaction write and readback pass but prototype playback is unsupported, report the first two evidence layers
-as passed, playback as `not_run` and the overall clickable-interaction claim as `inconclusive`. Distinguish an
-unsupported operation from a supported call that failed. If the required font or exact asset cannot be loaded,
-do not substitute it silently; mark only the affected visual scope `blocked` or `inconclusive`.
+reaction write/readback이 성공했지만 playback이 unsupported이면 전자는 `passed`, playback은 `not_run`,
+clickable-interaction claim은 `inconclusive`다. successful partial work는 보존하되 최신 state를 읽고 영향
+범위만 재검증한다.
 
 ## Conflict-domain single writer
 
-Serialize writes that can invalidate each other's target or assumptions. Conflict domains include:
-
-- the same page subtree or connected set of screen frames
-- one component set or instances being changed with its public property contract
-- one variable collection, mode or alias graph
-- one prototype graph, starting point or connected state set
-- writes that depend on the current selection, current page or another mutable editor state
-
-Read-only inspection and separate files can run in parallel. Independent pages in one file may run in parallel only
-when the provider explicitly permits it and there are no shared node, component, variable, prototype or editor-state
-dependencies. Every writer re-reads its exact target immediately before mutation. If another writer changed the
-same conflict domain, serialize, refresh the plan or stop; a file boundary alone is not the lock key.
+같은 page subtree, component set, variable collection/mode/alias graph, prototype graph/starting point,
+selection/current-page state에 의존하는 write는 직렬화한다. read-only inspection과 provider가 명시적으로
+허용한 완전히 독립적인 file/page만 병렬화할 수 있다. writer는 mutation 직전에 exact target을 다시 읽고
+다른 writer가 conflict domain을 바꿨으면 refresh하거나 중단한다.

@@ -1,63 +1,39 @@
 ---
 name: figma-product-design
-description: Figma Design 제품 화면의 Auto Layout, responsive behavior, exact assets와 handoff 품질 계약을 적용하거나 화면 생성·수정 작업을 그 기준으로 보완해 달라는 요청에 사용한다. Prototype connection이 주목적인 작업, 개별 component·library authoring, Figma-to-code 구현, FigJam workshop, system diagram과 읽기 전용 Figma 감사에는 사용하지 않는다.
+description: Figma Design에서 제품 화면이나 composed view를 생성 또는 수정하고, Auto Layout, responsive behavior, component, variable, exact icon과 handoff 품질을 함께 다뤄야 할 때 사용한다. 클릭 가능한 prototype 연결, 읽기 전용 감사, FigJam 워크숍, draw.io 시스템 구조도와 코드 구현에는 사용하지 않는다.
 ---
 
 # Figma product design
 
-Figma가 최종 제품 UI의 source of truth일 때 native frame, Auto Layout, component, variable와 exact
-asset을 사용한다. 시각적 유사성뿐 아니라 resizing, state와 handoff를 검증한다.
+Figma Design이 최종 제품 화면의 source of truth일 때 native frame, Auto Layout, component, variable과 검증된 exact asset으로 화면을 만든다. 시각적 유사성만으로 완료를 판단하지 않고 resize, 상태와 handoff evidence까지 유지한다.
 
-## 시작 전
+## 시작과 실행 선택
 
-1. [tool routing](../../references/tool-routing.md)으로 최종 artifact가 Figma Design인지 확인한다.
-2. [capability and evidence](../../references/capability-and-evidence.md)를 읽고 현재 Figma tool, provider가
-   요구하는 prerequisite skill, identity, target와 edit permission을 확인한다.
-   Model, custom agent 또는 local plugin 선택이 필요한 요청은
-   [execution architecture](../../references/execution-architecture.md)를 함께 읽는다.
-3. 기존 page, selection, nearby screens, components, variables, styles와 Code Connect 정보를 읽는다.
-   create 요청은 허용하지만 기존 system을 읽지 않은 채 primitives부터 만들지 않는다.
+1. [tool routing](../../references/tool-routing.md)으로 최종 artifact가 Figma Design인지 확인한다. 제품 화면, 상태, overlay와 interaction 동선은 Figma 안에서 완결한다. FigJam은 탐색·워크숍, draw.io는 AWS·시스템 구조도에만 사용한다.
+2. [capability and evidence](../../references/capability-and-evidence.md)를 읽어 target, edit permission, connected Figma capability와 provider가 요구하는 prerequisite skill을 확인한다. 환경에 해당 prerequisite가 설치되어 있다면 현재 계약을 먼저 따르며, 없는 tool/API 이름을 추정하지 않는다.
+3. 실행 방식은 [deterministic execution](../../references/deterministic-execution.md)의 분류를 따른다. 판단을 요하는 canvas read/write는 registered official Figma MCP가 유일한 agent writer다. 직접 MCP 작업 또는 explicit target을 가진 bounded code 모두 official MCP 안에서만 수행한다.
+4. 기존 page, selection, nearby screens, components, variables, styles와 Code Connect 정보를 읽는다. 기존 system을 읽지 않은 채 primitives부터 만들지 않는다.
 
-화면이나 composed view를 실제 canvas에 생성·수정할 때 공식 `figma:figma-generate-design`과 mandatory
-prerequisite인 `figma:figma-use`를 함께 사용한다. 이 스킬은 native craft와 검증 계약을 보완하며
-공식 canvas workflow를 대체하지 않는다. 개별 component 생성·library 작업은 공식
-`figma:figma-generate-library`가 담당한다.
+공식 환경에서 화면 생성·수정에 `figma:figma-generate-design`의 prerequisite가 요구되면 그 skill을 먼저 사용한다. 실제 canvas I/O는 현재 연결된 official Figma MCP schema가 정한 경로만 사용하며, 이 skill은 native craft와 evidence 계약을 보완한다. 개별 component·library authoring은 `figma:figma-generate-library`, design-to-code는 `figma:figma-design-to-code`의 범위다.
 
-Write capability가 없으면 screen/layout specification을 제공하고 mutation을 `not_run`으로 보고한다.
-사용자가 지정한 Figma 요청을 다른 제품에 조용히 옮기지 않는다.
+write capability가 없으면 screen/layout specification을 제공하고 mutation을 `not_run`으로 보고한다. raw MCP 설치, agent-callable local bridge 또는 두 번째 agent writer를 제안하지 않는다.
 
 ## 생성과 수정
 
-[Figma quality contract](../../references/figma-quality-contract.md)를 적용한다. 화면과 wrapper를 먼저
-만들고 한 visual section씩 작은 tool call로 작성한다. 같은 page subtree, component set, variable
-collection, prototype graph 또는 selection/current-page state에 의존하는 mutation은 하나의 writer로
-직렬화한다. 독립 영역을 병렬화하더라도 writer는 적용 직전 target을 다시 읽는다.
+[Figma quality contract](../../references/figma-quality-contract.md)를 적용한다. 화면과 wrapper를 먼저 만들고 한 visual section씩 작은 write와 readback으로 진행한다. 같은 page subtree, component set, variable collection, prototype graph 또는 selection/current-page state에 의존하는 mutation은 official MCP writer 하나가 직렬화한다.
 
-기존 component와 semantic variable을 우선한다. 새로운 reusable pattern만 component로 만들고,
-variant와 component property의 역할을 나눈다. icon 또는 vector가 필요하면
-[icon policy](../../references/icon-policy.md)를 따른다.
+기존 component와 semantic variable을 우선한다. 새로운 reusable pattern만 component로 만들고 variant와 component property의 역할을 나눈다. icon 또는 vector는 [icon policy](../../references/icon-policy.md)에 따라 exact component/provenance, accessible name과 intended size를 확인한다.
 
-화면 생성에 interaction이 포함되면 `figma-prototype-flow`를 함께 사용한다. 실제 control의 reaction,
-annotation과 named state topology는 그 스킬이 소유하며 제품 화면 작업은 필요한 visual state와
-component structure를 제공한다.
+반복적이고 결과가 명확한 allowlisted 작업만 사용자가 Figma Desktop에서 [Figma Workflow Companion](../../figma-plugin/README.md)을 수동 실행할 수 있다. companion은 `inspect-selection`, `audit-auto-layout`, `audit-prototype-links`, `rename-exact`, `replace-icon-instance-exact`만 받으며 arbitrary JavaScript를 실행하지 않는다. 판단형 layout·UX 결정이나 general canvas write를 companion에 넘기지 않는다.
 
-사용자가 Figma의 선택, 반복 편집, 정리 방법이나 수동 cleanup 절차를 함께 요청하면
-[Figma editing practice](../../references/figma-editing-practice.md)를 읽는다. Keyboard shortcut 암기를
-artifact 품질로 평가하거나 UI-only 조작을 MCP/API capability처럼 보고하지 않는다.
+화면 생성에 interaction이 포함되면 `figma-prototype-flow`를 함께 사용한다. actual reaction, annotation과 named state topology는 그 skill이 소유하며 이 skill은 필요한 visual state와 component structure를 제공한다.
 
 ## 검증과 결과
 
-각 section과 전체 화면의 screenshot, node hierarchy, sizing과 binding을 다시 읽는다. short/long/localized
-text, absent/extra content, 0/1/many item과 narrow/wide resize를 위험에 맞게 시험한다. Interaction이
-포함됐으면 `figma-prototype-flow`가 보고한 reaction readback과 playback 상태를 handoff에 포함한다.
+각 section과 전체 화면의 screenshot, node hierarchy, Auto Layout sizing, component/variable binding과 icon provenance를 다시 읽는다. short/long/localized text, absent/extra content, 0/1/many item, narrow/wide resize를 위험에 맞게 확인한다. interaction이 있으면 reaction readback과 playback evidence를 별도로 기록한다.
 
-변경한 frame, 재사용한 component·variable·asset, interaction handoff와 실제 검증 상태를 보고한다.
-성공한 write와 검증되지 않은 structure가 섞였으면 `inconclusive`로 구분하고 영향받은 범위만 다시
-검증한다.
+결과에는 변경한 frame, 재사용한 component·variable·asset, accessible icon name/size, interaction handoff와 각 evidence 상태를 기록한다. write가 성공해도 screenshot·structure·reaction readback 중 필요한 근거가 없으면 해당 claim은 `inconclusive` 또는 `not_run`이다. 실제 Desktop companion 실행과 live Figma 실행을 이 문서 작업에서 했다고 주장하지 않는다.
 
 ## 예시
 
-“결제 화면에서 Pay를 누르면 확인 modal이 열리고 성공하면 주문 상세로 이동하게 해 줘”라는 요청은
-이 스킬로 confirmation, submitting, success와 error의 visual state를 만들고 `figma-prototype-flow`로
-actual reaction, annotation과 starting point를 연결·검증한다. 화면 사이에 화살표만 그린 결과는
-완료가 아니다.
+“결제 화면에서 Pay를 누르면 확인 modal이 열리고 성공하면 주문 상세로 이동하게 해 줘”라는 요청에서는 이 skill로 confirmation, submitting, success와 error의 visual state를 만들고 `figma-prototype-flow`로 reaction, annotation과 starting point를 연결·검증한다. 화면 사이에 화살표만 그린 결과는 완료가 아니다.

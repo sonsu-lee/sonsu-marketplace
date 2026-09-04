@@ -2,38 +2,24 @@
 
 ## Source priority
 
-1. Existing design-system icon component
-2. An `INSTANCE_SWAP` property on the consuming component
-3. Preferred instances that identify supported or recommended replacements
-4. Exact SVG from the product codebase or approved icon set
-5. Ask for or locate the exact asset
+1. existing design-system icon component
+2. consuming component의 `INSTANCE_SWAP` property
+3. supported replacement를 식별하는 preferred instance
+4. product codebase 또는 approved icon set의 exact SVG
+5. exact asset 요청 또는 확인
 
-Do not replace a missing icon with emoji, a guessed glyph or a reconstruction made from primitive lines and
-shapes. Do not invent a brand mark. If the exact asset is unavailable, stop the affected scope and preserve the
-rest of the work.
+emoji, guessed glyph, primitive line reconstruction으로 missing icon을 대체하거나 brand mark를 발명하지 않는다.
+exact asset이 없으면 영향 scope를 멈춘다. SVG는 source `viewBox`, aspect ratio, stroke/fill behavior, explicit
+width/height를 보존하고 intended slot(예: 16, 20, 24px)에 맞춘다. `currentColor`는 target system이 요구하는
+literal 또는 semantic variable로 해석하되 meaningful vector structure를 flatten하지 않는다.
 
-For SVG insertion, preserve the source `viewBox`, aspect ratio, stroke/fill behavior and explicit width/height.
-Resize the resulting node to the intended slot such as 16, 20 or 24 pixels. Replace unresolved `currentColor`
-with the literal or semantic variable required by the target system without flattening meaningful vector
-structure.
+Figma asset insertion은 current official provider schema와 required prerequisite가 확인한 path만 사용한다.
+stale community tool name이나 존재하지 않는 API를 사용하지 않는다. 반복적인 exact instance replacement만
+Desktop companion의 `replace-icon-instance-exact` allowlist를 사용할 수 있으며, preview receipt와 apply-time
+readback 계약은 [deterministic execution](deterministic-execution.md)을 따른다.
 
-In Figma, use the provider's current exact-asset path such as `figma.createNodeFromSvg` for SVG source or asset
-upload for a real file. In Paper, use the current SVG or image insertion capability. Follow the provider-required
-skill for exact call syntax rather than preserving a stale community tool name in this policy.
-
-Validate icon family, outlined/filled state, stroke weight, optical alignment, semantic color and behavior across
-enabled, hover, pressed, selected and disabled states that the component actually supports. Icon-only controls
-need an accessible name in the product contract and a useful design annotation when that name is not otherwise
-visible.
-
-Preserve the design system's canvas, safe area, cap, join, corner and pixel-alignment rules. A 16px, 20px or 24px
-asset may require its own optical drawing; do not assume that uniform scaling preserves clarity. Keep Figma and
-code naming aligned with descriptive names and searchable aliases. Do not duplicate every icon state as variants
-inside each consuming component when Instance swap plus the icon system can express the combination.
-
-Keep strokes editable when governance expects continued vector editing. Outline or flatten strokes only when the
-approved export or rendering contract requires it, and confirm that multiple vector paths and color bindings
-survive the conversion.
-
-For changed interactions, compare the relevant before and after states so the icon does not accidentally change
-size, position or meaning.
+icon family, outlined/filled state, stroke weight, optical alignment, semantic color와 실제 지원 state를
+검증한다. icon-only control은 product contract의 accessible name과, 이름이 visible하지 않다면 useful design
+annotation을 둔다. 16px·20px·24px asset은 별도의 optical drawing이 필요할 수 있으므로 균일 scale을
+가정하지 않는다. interaction 변경 뒤에는 before/after state에서 size, position, meaning이 유지됐는지
+확인한다.

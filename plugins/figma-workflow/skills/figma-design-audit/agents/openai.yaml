@@ -1,3 +1,4 @@
 interface:
   display_name: "Figma Design Audit"
   short_description: "Figma 구조와 interaction을 수정 없이 검토합니다"
+  default_prompt: "$figma-design-audit을 사용해 현재 Figma selection의 Auto Layout, icon provenance와 prototype evidence를 수정 없이 검토해 줘."
