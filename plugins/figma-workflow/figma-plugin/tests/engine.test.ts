@@ -87,6 +87,75 @@ test('read-only operations reject apply mode with INVALID_FIELD', () => {
   assert.deepEqual(result, { status: 'invalid', reason: 'INVALID_FIELD' });
 });
 
+test('invalid JSON returns INVALID_JSON', () => {
+  assert.deepEqual(parsePlan('{'), { status: 'invalid', reason: 'INVALID_JSON' });
+});
+
+test('preview rejects a mutation plan in apply mode without reading a node', async () => {
+  const result = await previewPlan(JSON.stringify({
+    version: 1,
+    mode: 'apply',
+    operation: 'rename-exact',
+    targets: [{ nodeId: 'node-1', expectedName: 'Before', newName: 'After' }],
+  }), {
+    async readNode() { throw new Error('must not read'); },
+  });
+
+  assert.deepEqual(result, { status: 'invalid', reason: 'INVALID_FIELD' });
+});
+
+test('rename preview keeps later targets when an earlier lookup fails', async () => {
+  const result = await previewPlan(JSON.stringify({
+    version: 1,
+    mode: 'preview',
+    operation: 'rename-exact',
+    targets: [
+      { nodeId: 'broken', expectedName: 'Before', newName: 'After' },
+      { nodeId: 'ready', expectedName: 'Before', newName: 'After' },
+    ],
+  }), {
+    async readNode(nodeId: string) {
+      if (nodeId === 'broken') throw new Error('lookup broke');
+      return { id: 'ready', type: 'RECTANGLE', name: 'Before' };
+    },
+  });
+
+  assert.deepEqual(result, {
+    status: 'partial',
+    results: [
+      { nodeId: 'broken', status: 'failed', reason: 'LOOKUP_FAILED' },
+      { nodeId: 'ready', status: 'ready', reason: 'READY', before: { name: 'Before' }, after: { name: 'After' } },
+    ],
+    receipt: {
+      fingerprint: '{"operation":"rename-exact","targets":[{"expectedName":"Before","newName":"After","nodeId":"broken"},{"expectedName":"Before","newName":"After","nodeId":"ready"}]}',
+      targets: [
+        { nodeId: 'broken', expectedName: 'Before', disposition: 'LOOKUP_FAILED' },
+        { nodeId: 'ready', expectedName: 'Before', observedName: 'Before', disposition: 'READY' },
+      ],
+    },
+  });
+});
+
+test('preview with only lookup failures reports failed', async () => {
+  const result = await previewPlan(JSON.stringify({
+    version: 1,
+    mode: 'preview',
+    operation: 'rename-exact',
+    targets: [{ nodeId: 'broken', expectedName: 'Before', newName: 'After' }],
+  }), {
+    async readNode() { throw new Error('lookup broke'); },
+  });
+
+  assert.deepEqual(result, {
+    status: 'failed',
+    results: [{ nodeId: 'broken', status: 'failed', reason: 'LOOKUP_FAILED' }],
+    receipt: {
+      fingerprint: '{"operation":"rename-exact","targets":[{"expectedName":"Before","newName":"After","nodeId":"broken"}]}',
+      targets: [{ nodeId: 'broken', expectedName: 'Before', disposition: 'LOOKUP_FAILED' }],
+    },
+  });
+});
+
 test('rename preview marks a matching node READY', async () => {
   const result = await previewPlan(JSON.stringify({
     version: 1,
@@ -106,7 +175,7 @@ test('rename preview marks a matching node READY', async () => {
     }],
     receipt: {
       fingerprint: '{"operation":"rename-exact","targets":[{"expectedName":"Before","newName":"After","nodeId":"node-1"}]}',
-      targets: [{ nodeId: 'node-1', expectedName: 'Before', observedName: 'Before' }],
+      targets: [{ nodeId: 'node-1', expectedName: 'Before', observedName: 'Before', disposition: 'READY' }],
     },
   });
 });
@@ -124,7 +193,7 @@ test('rename preview marks an already renamed node ALREADY_DESIRED', async () =>
     results: [{ nodeId: 'node-1', status: 'skipped', reason: 'ALREADY_DESIRED' }],
     receipt: {
       fingerprint: '{"operation":"rename-exact","targets":[{"expectedName":"Before","newName":"After","nodeId":"node-1"}]}',
-      targets: [{ nodeId: 'node-1', expectedName: 'Before', observedName: 'After' }],
+      targets: [{ nodeId: 'node-1', expectedName: 'Before', observedName: 'After', disposition: 'ALREADY_DESIRED' }],
     },
   });
 });
@@ -142,7 +211,7 @@ test('rename preview marks a mismatched expected name STALE_EXPECTED_STATE', asy
     results: [{ nodeId: 'node-1', status: 'skipped', reason: 'STALE_EXPECTED_STATE' }],
     receipt: {
       fingerprint: '{"operation":"rename-exact","targets":[{"expectedName":"Before","newName":"After","nodeId":"node-1"}]}',
-      targets: [{ nodeId: 'node-1', expectedName: 'Before', observedName: 'Changed externally' }],
+      targets: [{ nodeId: 'node-1', expectedName: 'Before', observedName: 'Changed externally', disposition: 'STALE_EXPECTED_STATE' }],
     },
   });
 });
@@ -167,7 +236,7 @@ test('icon preview requires an INSTANCE with the expected component key', async 
     results: [{ nodeId: 'icon-1', status: 'skipped', reason: 'WRONG_NODE_TYPE' }],
     receipt: {
       fingerprint: '{"operation":"replace-icon-instance-exact","targets":[{"expectedMainComponentKey":"old-key","nodeId":"icon-1","replacementComponentKey":"new-key"}]}',
-      targets: [{ nodeId: 'icon-1', expectedMainComponentKey: 'old-key', observedMainComponentKey: 'old-key' }],
+      targets: [{ nodeId: 'icon-1', expectedMainComponentKey: 'old-key', observedMainComponentKey: 'old-key', disposition: 'WRONG_NODE_TYPE' }],
     },
   });
   assert.deepEqual(staleKey, {
@@ -175,7 +244,7 @@ test('icon preview requires an INSTANCE with the expected component key', async 
     results: [{ nodeId: 'icon-1', status: 'skipped', reason: 'STALE_EXPECTED_STATE' }],
     receipt: {
       fingerprint: '{"operation":"replace-icon-instance-exact","targets":[{"expectedMainComponentKey":"old-key","nodeId":"icon-1","replacementComponentKey":"new-key"}]}',
-      targets: [{ nodeId: 'icon-1', expectedMainComponentKey: 'old-key', observedMainComponentKey: 'other-key' }],
+      targets: [{ nodeId: 'icon-1', expectedMainComponentKey: 'old-key', observedMainComponentKey: 'other-key', disposition: 'STALE_EXPECTED_STATE' }],
     },
   });
 });
@@ -429,4 +498,149 @@ test('icon apply classifies import and icon readback errors without rollback', a
       { nodeId: 'mismatch', status: 'failed', reason: 'READBACK_MISMATCH', observed: { mainComponentKey: 'old' } },
     ],
   });
+});
+
+test('rename preview records MISSING_NODE as its target disposition', async () => {
+  const result = await previewPlan(JSON.stringify({
+    version: 1, mode: 'preview', operation: 'rename-exact',
+    targets: [{ nodeId: 'gone', expectedName: 'Before', newName: 'After' }],
+  }), new MemoryPort({}));
+
+  assert.deepEqual(result, {
+    status: 'no_changes',
+    results: [{ nodeId: 'gone', status: 'skipped', reason: 'MISSING_NODE' }],
+    receipt: {
+      fingerprint: '{"operation":"rename-exact","targets":[{"expectedName":"Before","newName":"After","nodeId":"gone"}]}',
+      targets: [{ nodeId: 'gone', expectedName: 'Before', disposition: 'MISSING_NODE' }],
+    },
+  });
+});
+
+test('apply only reads and mutates targets whose preview disposition was READY', async () => {
+  const previewText = JSON.stringify({
+    version: 1, mode: 'preview', operation: 'rename-exact',
+    targets: [
+      { nodeId: 'gone', expectedName: 'Before', newName: 'After' },
+      { nodeId: 'ready', expectedName: 'Before', newName: 'After' },
+    ],
+  });
+  const applyText = previewText.replace('"preview"', '"apply"');
+  const node = { id: 'ready', type: 'RECTANGLE', name: 'Before' };
+  let phase: 'preview' | 'apply' = 'preview';
+  const port = {
+    async readNode(nodeId: string) {
+      if (phase === 'apply' && nodeId === 'gone') throw new Error('skipped target was read');
+      return nodeId === 'ready' ? node : null;
+    },
+    async rename(nodeId: string, name: string) {
+      assert.equal(nodeId, 'ready');
+      node.name = name;
+    },
+  };
+  const preview = await previewPlan(previewText, port) as { receipt: unknown };
+  phase = 'apply';
+
+  const result = await applyPlan(applyText, preview.receipt, port);
+
+  assert.deepEqual(result, {
+    status: 'partial',
+    results: [
+      { nodeId: 'gone', status: 'skipped', reason: 'PREVIEW_NOT_READY' },
+      { nodeId: 'ready', status: 'applied', reason: 'READY', before: { name: 'Before' }, after: { name: 'After' } },
+    ],
+  });
+});
+
+test('apply honors a receipt disposition changed from READY without reading the target', async () => {
+  const previewText = JSON.stringify({
+    version: 1, mode: 'preview', operation: 'rename-exact',
+    targets: [{ nodeId: 'ready', expectedName: 'Before', newName: 'After' }],
+  });
+  const applyText = previewText.replace('"preview"', '"apply"');
+  let phase: 'preview' | 'apply' = 'preview';
+  const port = {
+    async readNode() {
+      if (phase === 'apply') throw new Error('receipt-skipped target was read');
+      return { id: 'ready', type: 'RECTANGLE', name: 'Before' };
+    },
+    async rename() { throw new Error('receipt-skipped target was mutated'); },
+  };
+  const preview = await previewPlan(previewText, port) as {
+    receipt: { targets: Array<Record<string, unknown>> };
+  };
+  preview.receipt.targets[0].disposition = 'STALE_EXPECTED_STATE';
+  phase = 'apply';
+
+  const result = await applyPlan(applyText, preview.receipt, port);
+
+  assert.deepEqual(result, {
+    status: 'no_changes',
+    results: [{ nodeId: 'ready', status: 'skipped', reason: 'PREVIEW_NOT_READY' }],
+  });
+});
+
+test('apply with no preview-ready targets skips without reading or mutating', async () => {
+  const previewText = JSON.stringify({
+    version: 1, mode: 'preview', operation: 'rename-exact',
+    targets: [{ nodeId: 'gone', expectedName: 'Before', newName: 'After' }],
+  });
+  const applyText = previewText.replace('"preview"', '"apply"');
+  let phase: 'preview' | 'apply' = 'preview';
+  const port = {
+    async readNode() {
+      if (phase === 'apply') throw new Error('all-skipped target was read');
+      return null;
+    },
+    async rename() { throw new Error('all-skipped target was mutated'); },
+  };
+  const preview = await previewPlan(previewText, port) as { receipt: unknown };
+  phase = 'apply';
+
+  const result = await applyPlan(applyText, preview.receipt, port);
+
+  assert.deepEqual(result, {
+    status: 'no_changes',
+    results: [{ nodeId: 'gone', status: 'skipped', reason: 'PREVIEW_NOT_READY' }],
+  });
+});
+
+test('icon apply reports a successful replacement after readback', async () => {
+  const previewText = JSON.stringify({
+    version: 1, mode: 'preview', operation: 'replace-icon-instance-exact',
+    targets: [{ nodeId: 'icon', expectedMainComponentKey: 'old', replacementComponentKey: 'new' }],
+  });
+  const applyText = previewText.replace('"preview"', '"apply"');
+  const node = { id: 'icon', type: 'INSTANCE', name: 'Icon', mainComponentKey: 'old' };
+  const port = {
+    async readNode() { return node; },
+    async importComponent(key: string) { return { key }; },
+    async replaceIconInstance(_nodeId: string, component: { key: string }) { node.mainComponentKey = component.key; },
+  };
+  const preview = await previewPlan(previewText, port) as { receipt: unknown };
+
+  const result = await applyPlan(applyText, preview.receipt, port);
+
+  assert.deepEqual(result, {
+    status: 'applied',
+    results: [{
+      nodeId: 'icon', status: 'applied', reason: 'READY',
+      before: { mainComponentKey: 'old' }, after: { mainComponentKey: 'new' },
+    }],
+  });
+});
+
+test('auto-layout audit returns clean when every checked node has an Auto Layout parent', async () => {
+  const result = await previewPlan(JSON.stringify({
+    version: 1, mode: 'preview', operation: 'audit-auto-layout', scope: { kind: 'selection' },
+  }), {
+    async getSelection() {
+      return [{
+        id: 'root', type: 'FRAME', name: 'Root', layoutMode: 'VERTICAL',
+        children: [{ id: 'fill', type: 'RECTANGLE', name: 'Fill', layoutSizingHorizontal: 'FILL' }],
+      }];
+    },
+    async readNode() { return null; },
+  });
+
+  assert.deepEqual(result, { status: 'clean', findings: [] });
 });

@@ -7,6 +7,7 @@ export type ReasonCode =
   | 'DUPLICATE_TARGET'
   | 'PREVIEW_REQUIRED'
   | 'PLAN_CHANGED'
+  | 'PREVIEW_NOT_READY'
   | 'READY'
   | 'MISSING_NODE'
   | 'WRONG_NODE_TYPE'
@@ -83,6 +84,7 @@ export type PreviewReceipt = {
   fingerprint: string;
   targets: Array<{
     nodeId: string;
+    disposition: ReasonCode;
     expectedName?: string;
     expectedMainComponentKey?: string;
     observedName?: string;
@@ -100,7 +102,7 @@ export type TargetResult = {
 };
 
 export type PreviewResult = {
-  status: 'ready' | 'partial' | 'no_changes';
+  status: 'failed' | 'ready' | 'partial' | 'no_changes';
   results: TargetResult[];
   receipt: PreviewReceipt;
 };

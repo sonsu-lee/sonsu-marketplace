@@ -127,8 +127,13 @@ const canonicalFingerprint = (plan: RenamePlan | IconSwapPlan): string => {
 };
 
 function aggregatePreview(results: TargetResult[]): PreviewResult['status'] {
-  if (results.every((result) => result.status === 'skipped')) return 'no_changes';
-  return results.some((result) => result.status === 'skipped') ? 'partial' : 'ready';
+  const ready = results.some((result) => result.status === 'ready');
+  const failed = results.some((result) => result.status === 'failed');
+  const skipped = results.some((result) => result.status === 'skipped');
+  if (failed && !ready) return 'failed';
+  if (ready && (failed || skipped)) return 'partial';
+  if (ready) return 'ready';
+  return 'no_changes';
 }
 
 function aggregateApply(results: TargetResult[]): ApplyResult['status'] {
@@ -146,6 +151,7 @@ function hasMatchingReceipt(receipt: unknown, plan: RenamePlan | IconSwapPlan): 
   if (receipt.targets.length !== plan.targets.length) return false;
   return receipt.targets.every((candidate, index) => {
     if (!isRecord(candidate) || candidate.nodeId !== plan.targets[index].nodeId) return false;
+    if (typeof candidate.disposition !== 'string') return false;
     if (plan.operation === 'rename-exact') {
       return candidate.expectedName === plan.targets[index].expectedName;
     }
@@ -223,21 +229,44 @@ export async function previewPlan(text: string, port: NodePort): Promise<PlanVal
   const parsed = parsePlan(text);
   if ('status' in parsed) return parsed;
   if (!isMutationPlan(parsed)) return inspectOrAudit(parsed, port);
+  if (parsed.mode !== 'preview') return invalid('INVALID_FIELD');
 
   const results: TargetResult[] = [];
   const receiptTargets: PreviewReceipt['targets'] = [];
   for (const target of parsed.targets) {
-    const node = await port.readNode(target.nodeId);
+    let node;
+    try {
+      node = await port.readNode(target.nodeId);
+    } catch {
+      if (parsed.operation === 'rename-exact') {
+        receiptTargets.push({
+          nodeId: target.nodeId,
+          expectedName: (target as RenameTarget).expectedName,
+          disposition: 'LOOKUP_FAILED',
+        });
+      } else {
+        receiptTargets.push({
+          nodeId: target.nodeId,
+          expectedMainComponentKey: (target as IconSwapTarget).expectedMainComponentKey,
+          disposition: 'LOOKUP_FAILED',
+        });
+      }
+      results.push({ nodeId: target.nodeId, status: 'failed', reason: 'LOOKUP_FAILED' });
+      continue;
+    }
     if (parsed.operation === 'rename-exact') {
       const renameTarget = target as RenameTarget;
-      receiptTargets.push({ nodeId: target.nodeId, expectedName: renameTarget.expectedName, observedName: node?.name });
       if (node === null) {
+        receiptTargets.push({ nodeId: target.nodeId, expectedName: renameTarget.expectedName, disposition: 'MISSING_NODE' });
         results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'MISSING_NODE' });
       } else if (node.name === renameTarget.newName) {
+        receiptTargets.push({ nodeId: target.nodeId, expectedName: renameTarget.expectedName, observedName: node.name, disposition: 'ALREADY_DESIRED' });
         results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'ALREADY_DESIRED' });
       } else if (node.name !== renameTarget.expectedName) {
+        receiptTargets.push({ nodeId: target.nodeId, expectedName: renameTarget.expectedName, observedName: node.name, disposition: 'STALE_EXPECTED_STATE' });
         results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'STALE_EXPECTED_STATE' });
       } else {
+        receiptTargets.push({ nodeId: target.nodeId, expectedName: renameTarget.expectedName, observedName: node.name, disposition: 'READY' });
         results.push({
           nodeId: target.nodeId,
           status: 'ready',
@@ -250,20 +279,20 @@ export async function previewPlan(text: string, port: NodePort): Promise<PlanVal
     }
 
     const iconTarget = target as IconSwapTarget;
-    receiptTargets.push({
-      nodeId: target.nodeId,
-      expectedMainComponentKey: iconTarget.expectedMainComponentKey,
-      observedMainComponentKey: node?.mainComponentKey,
-    });
     if (node === null) {
+      receiptTargets.push({ nodeId: target.nodeId, expectedMainComponentKey: iconTarget.expectedMainComponentKey, disposition: 'MISSING_NODE' });
       results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'MISSING_NODE' });
     } else if (node.type !== 'INSTANCE') {
+      receiptTargets.push({ nodeId: target.nodeId, expectedMainComponentKey: iconTarget.expectedMainComponentKey, observedMainComponentKey: node.mainComponentKey, disposition: 'WRONG_NODE_TYPE' });
       results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'WRONG_NODE_TYPE' });
     } else if (node.mainComponentKey === iconTarget.replacementComponentKey) {
+      receiptTargets.push({ nodeId: target.nodeId, expectedMainComponentKey: iconTarget.expectedMainComponentKey, observedMainComponentKey: node.mainComponentKey, disposition: 'ALREADY_DESIRED' });
       results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'ALREADY_DESIRED' });
     } else if (node.mainComponentKey !== iconTarget.expectedMainComponentKey) {
+      receiptTargets.push({ nodeId: target.nodeId, expectedMainComponentKey: iconTarget.expectedMainComponentKey, observedMainComponentKey: node.mainComponentKey, disposition: 'STALE_EXPECTED_STATE' });
       results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'STALE_EXPECTED_STATE' });
     } else {
+      receiptTargets.push({ nodeId: target.nodeId, expectedMainComponentKey: iconTarget.expectedMainComponentKey, observedMainComponentKey: node.mainComponentKey, disposition: 'READY' });
       results.push({
         nodeId: target.nodeId,
         status: 'ready',
@@ -289,7 +318,11 @@ export async function applyPlan(text: string, receipt: unknown, port: NodePort):
   if (!hasMatchingReceipt(receipt, parsed)) return invalid('PLAN_CHANGED');
 
   const results: TargetResult[] = [];
-  for (const target of parsed.targets) {
+  for (const [index, target] of parsed.targets.entries()) {
+    if (receipt.targets[index].disposition !== 'READY') {
+      results.push({ nodeId: target.nodeId, status: 'skipped', reason: 'PREVIEW_NOT_READY' });
+      continue;
+    }
     let node;
     try {
       node = await port.readNode(target.nodeId);
