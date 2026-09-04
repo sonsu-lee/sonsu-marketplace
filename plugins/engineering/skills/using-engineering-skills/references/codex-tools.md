@@ -72,7 +72,8 @@ default_subagent_reasoning_effort = "medium"
 | --- | --- | --- |
 | 정확한 문자열·metadata·경로 변경 | `gpt-5.6-luna` | `low` |
 | 명확한 1~2개 파일 구현 | `gpt-5.6-luna` | `medium` |
-| Mechanical Fast Path와 Code Mode orchestration | `gpt-5.6-luna` | `low` 또는 `medium` |
+| Fast Path classifier (유일한 Fast Path subagent slot) | `gpt-5.6-luna` | `low` |
+| Mechanical Fast Path와 Code Mode orchestration | controller 직접 실행 | 해당 없음 |
 | 여러 파일 통합·일반 debugging | `gpt-5.6-terra` | `high` |
 | 일반 task review | `gpt-5.6-terra` | `medium` 또는 `high` |
 | 범위가 제한된 기계적 re-review | `gpt-5.6-luna` | `medium` |
@@ -80,8 +81,11 @@ default_subagent_reasoning_effort = "medium"
 | 일반 final whole-change review | `gpt-5.6-sol` | `high` |
 | fresh-context red-team whole-structure review | `gpt-5.6-sol` | `xhigh` |
 
-`max`와 `ultra`는 기본값으로 사용하지 않는다. 단순 Fast Path에는 subagent를 만들지 않으며,
-model 상향은 변경 없는 입력을 다시 시도할 근거가 아니다.
+`max`와 `ultra`는 기본값으로 사용하지 않는다. Fast Path에서는 independent classifier만 한 슬롯으로
+만들 수 있으며 implementation 또는 reviewer subagent는 Fast Path 기본 경로에서 만들지 않는다.
+classifier는 fresh `gpt-5.6-luna` / `low`로 request, target, controller evidence, proposed oracle,
+unknowns만 받고 독립 targeted search를 정확히 한 번 실행한다. model 상향은 변경 없는 입력을 다시
+시도할 근거가 아니다.
 
 ## Code Mode
 

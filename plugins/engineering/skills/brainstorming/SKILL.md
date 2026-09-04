@@ -47,7 +47,23 @@ description: "기존 코드·문서·metadata의 국소적 또는 기계적 변�
 ## Bounded Fast Path
 
 Fast Path는 작은 diff가 아니라 의도, 영향 범위, 변환 규칙과 검증 결과를 짧고 결정론적으로
-닫을 수 있는 plan 없는 `bounded` 작업이다. 다음 predicate를 모두 확인한다.
+닫을 수 있는 plan 없는 `bounded` 작업이다. controller가 classifier를 부르기 전에 stable todo ID를
+사용하거나 target discovery 전에 UUID를 한 번만 생성한다. 그 ID는 target에서 다시 유도하지 않으며
+task 전체에서 고정한다. **모든 Fast Path entry에서** 먼저
+`.engineering/fast-path/<task-id>.state`를 `fast-path-state check`로 읽고, `disqualified`이면 classifier,
+predicate와 실행을 건너뛰어 가장 가까운 일반 workflow로 보낸다. 상태 파일은 context compaction 뒤에도
+남으며 handoff에는 항상 task ID와 state-file path를 포함한다.
+
+`unclassified`일 때만 controller가 reference, consumer, public-contract risk와 verification oracle을
+한 번 표적 탐색해 request, target, controller evidence, proposed deterministic oracle, unknowns만 담은
+brief를 만든다. 그 다음 fresh `gpt-5.6-luna` / `low` **Fast Path classifier**가 이전 history 없이
+독립 표적 reference/consumer search를 정확히 한 번 실행한다. controller와 classifier를 합친 탐색
+예산은 2회다. classifier는 `eligible | escalate | inconclusive | blocked` verdict, evidence digest,
+exact candidate revision을 돌려준다. `eligible`은 다음 predicate가 모두 proven이고 hidden-risk signal이
+없을 때만 허용된다. `eligible` 외의 verdict, classifier unavailable, false 또는 unknown predicate는
+`fast-path-state record ... disqualified ...`로 영속 latch를 먼저 기록하고 일반 workflow로 route한다.
+
+다음 predicate를 모두 확인한다.
 
 - 요청에 대상, 관찰 가능한 결과와 완료 조건이 명확하다.
 - 효과가 국소적인 Local Fast Path이거나 동일 규칙을 재현할 수 있는 Mechanical Fast Path다.
@@ -68,17 +84,19 @@ canonical generator, 명시된 규칙의 문자열 정규화처럼 script, AST �
 update, 대량 삭제와 의미가 다른 문자열의 무차별 치환은 제외한다.
 
 Fast Path는 표적 탐색 최대 2회, 최초 구현 1회, 집중 수정 1회, 자동 실행 총 2회로 제한한다.
-모델 상향 또는 fresh-context 재시도는 최대 1회이고 첫 실패와 같은 입력·접근을 반복하지 않는다.
-독립 reviewer는 기본적으로 사용하지 않는다. 예상 밖 consumer, 두 번째 의미 판단, 여러 책임으로
-확장, public contract, 원인 불명의 검사 실패, reviewer 없이는 판정하기 어려운 상태, 관련 없는
-refactoring 또는 두 번째 수정 필요가 드러나면 즉시 Fast Path를 종료하고 가장 가까운 일반
-workflow로 올린다. 완료할 때에는 판정 근거, 실제 변경 범위, 결정론적 검증과 원래 목적과의
-정렬을 짧게 기록한다.
+classifier가 유일한 Fast Path subagent slot이며 implementation/reviewer subagent는 이 기본 경로에서
+만들지 않는다. 모델 상향 또는 fresh-context 재시도는 최대 1회이고 첫 실패와 같은 입력·접근을
+반복하지 않는다. 예상 밖 consumer, 두 번째 의미 판단, 여러 책임으로 확장, public contract, 원인
+불명의 검사 실패, reviewer 없이는 판정하기 어려운 상태, 관련 없는 refactoring 또는 두 번째 수정
+필요가 드러나면 `fast-path-state record ... disqualified ...`를 먼저 실행하고 즉시 Fast Path를
+종료한다. 이 one-way owner escalation은 classifier, predicate 또는 Fast Path 실행으로 돌아가지
+않는다. 완료할 때에는 판정 근거, 실제 변경 범위, 결정론적 검증과 원래 목적과의 정렬을 짧게 기록한다.
 
 원인이 불명확한 실패는 `engineering:systematic-debugging`, 여러 흐름·interface를 조정해야 하는
 확장은 `engineering:writing-plans`, 요구사항이나 설계를 바꿔야 하는 확장은
 `engineering:brainstorming`으로 보낸다. 이 escalation은 Fast Path의 실패가 아니라 숨은 복잡성을
-발견한 정상적인 routing이다.
+발견한 정상적인 routing이다. 어느 경로든 task ID와 state-file path를 전달하며, latched task를 다시
+Fast Path로 분류하지 않는다.
 
 ## 위험 신호
 
@@ -107,7 +125,7 @@ workflow로 올린다. 완료할 때에는 판정 근거, 실제 변경 범위, 
 
 **`bounded`(범위 한정):**
 1. **Project context 탐색** — 파일, 문서와 최근 commit을 확인한다.
-2. **Fast Path 판정** — 모든 predicate를 최대 2회의 표적 탐색으로 확인한다. 해당하면 요청을 승인된 짧은 설계로 취급해 제한된 실행·검증 뒤 종료한다.
+2. **Fast Path latch 확인과 독립 판정** — target discovery 전 stable todo ID 또는 한 번 생성한 UUID를 고정하고 state를 확인한다. `disqualified`면 classifier 없이 일반 workflow로 route한다. `unclassified`이면 controller search 1회와 fresh classifier의 독립 search 1회로만 판정한다. classifier verdict가 `eligible`일 때만 exact candidate revision과 digest를 state에 기록해 요청을 승인된 짧은 설계로 취급한다. 그 외 verdict와 unavailable은 disqualified로 latch한 뒤 일반 workflow로 route한다.
 3. **명확화 질문** — Fast Path가 아니면 중요한 질문을 한 번에 하나씩 한다.
 4. **Chat에서 짧은 설계 제시** — 접근 방식, 예상 동작과 수정할 파일을 설명한다.
 5. **승인 받기** — 중단하고 명시적인 동의를 기다린다. 설계를 제시하면서 바로 시작하면 게이트를 건너뛴 것이다.
@@ -135,10 +153,14 @@ digraph brainstorming {
     "Classify: spike / bounded / architectural" [shape=diamond];
     "Present question + probe (2-3 sentences)" [shape=box];
     "Ask clarifying questions (bounded)" [shape=box];
+    "Check Fast Path latch" [shape=diamond];
+    "Fast Path classifier verdict" [shape=diamond];
     "All Fast Path predicates confirmed?" [shape=diamond];
     "Run bounded Fast Path" [shape=box];
     "Hidden complexity during Fast Path?" [shape=diamond];
     "Fast Path verified" [shape=doublecircle];
+    "Latch disqualified; stop Fast Path" [shape=box];
+    "Route nearest normal workflow" [shape=doublecircle];
     "Present short design in chat" [shape=box];
     "Human approves?" [shape=diamond];
     "Implementation plan needed?" [shape=diamond];
@@ -158,12 +180,17 @@ digraph brainstorming {
     "Invoke writing-plans skill" [shape=doublecircle];
 
     "Classify: spike / bounded / architectural" -> "Present question + probe (2-3 sentences)" [label="spike"];
-    "Classify: spike / bounded / architectural" -> "All Fast Path predicates confirmed?" [label="bounded"];
-    "All Fast Path predicates confirmed?" -> "Run bounded Fast Path" [label="yes"];
+    "Classify: spike / bounded / architectural" -> "Check Fast Path latch" [label="bounded"];
+    "Check Fast Path latch" -> "Fast Path classifier verdict" [label="unclassified: controller search + one independent classifier search"];
+    "Check Fast Path latch" -> "Route nearest normal workflow" [label="disqualified: do not re-enter Fast Path"];
+    "Fast Path classifier verdict" -> "All Fast Path predicates confirmed?" [label="eligible"];
+    "Fast Path classifier verdict" -> "Latch disqualified; stop Fast Path" [label="escalate / inconclusive / blocked / unavailable"];
+    "All Fast Path predicates confirmed?" -> "Run bounded Fast Path" [label="eligible"];
     "Run bounded Fast Path" -> "Hidden complexity during Fast Path?";
-    "Hidden complexity during Fast Path?" -> "Classify: spike / bounded / architectural" [label="yes: upgrade only"];
+    "Hidden complexity during Fast Path?" -> "Latch disqualified; stop Fast Path" [label="yes: one-way owner escalation"];
     "Hidden complexity during Fast Path?" -> "Fast Path verified" [label="no"];
-    "All Fast Path predicates confirmed?" -> "Ask clarifying questions (bounded)" [label="no / unknown"];
+    "All Fast Path predicates confirmed?" -> "Latch disqualified; stop Fast Path" [label="false / unknown"];
+    "Latch disqualified; stop Fast Path" -> "Route nearest normal workflow" [label="task ID + state-file path"];
     "Classify: spike / bounded / architectural" -> "Explore project context" [label="architectural"];
     "Present question + probe (2-3 sentences)" -> "Human approves?";
     "Ask clarifying questions (bounded)" -> "Present short design in chat";

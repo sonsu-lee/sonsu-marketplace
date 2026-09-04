@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'usage: fast-path-state check ROOT TASK_ID | record ROOT TASK_ID eligible CANDIDATE_REVISION EVIDENCE_DIGEST | record ROOT TASK_ID disqualified REASON EVIDENCE_DIGEST\n' >&2
+  exit 64
+}
+
+fail_closed() {
+  printf 'fast-path-state: %s\n' "$1" >&2
+  exit 1
+}
+
+[[ $# -ge 1 ]] || usage
+command=$1
+
+case "$command" in
+  check)
+    [[ $# -eq 3 ]] || usage
+    root=$2
+    task_id=$3
+    ;;
+  record)
+    [[ $# -eq 6 ]] || usage
+    root=$2
+    task_id=$3
+    verdict=$4
+    detail=$5
+    digest=$6
+    ;;
+  *) usage ;;
+esac
+
+[[ "$root" == /* ]] || fail_closed 'state root must be an absolute path'
+[[ "$task_id" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]] || fail_closed 'unsafe task ID'
+
+mkdir -p "$root" || fail_closed 'cannot create state root'
+[[ ! -L "$root" && -d "$root" ]] || fail_closed 'unsafe state root'
+root=$(cd "$root" && pwd -P) || fail_closed 'cannot resolve state root'
+state="$root/$task_id.state"
+lock="$root/$task_id.state.lock"
+
+validate_value() {
+  local value=$1
+  [[ -n "$value" && ${#value} -le 512 && "$value" != *$'\n'* && "$value" != *$'\r'* ]]
+}
+
+read_state() {
+  local line key value lines=0
+  state_verdict=''
+  [[ ! -L "$state" ]] || return 1
+  [[ -f "$state" && -s "$state" ]] || return 1
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    lines=$((lines + 1))
+    key=${line%%=*}
+    value=${line#*=}
+    [[ "$key" != "$line" && -n "$value" ]] || return 1
+    case "$key" in
+      version) [[ "$lines" -eq 1 && "$value" == 1 ]] || return 1 ;;
+      verdict) [[ "$lines" -eq 2 && ( "$value" == eligible || "$value" == disqualified ) ]] || return 1; state_verdict=$value ;;
+      detail) [[ "$lines" -eq 3 ]] || return 1; validate_value "$value" || return 1 ;;
+      evidence_digest) [[ "$lines" -eq 4 ]] || return 1; validate_value "$value" || return 1 ;;
+      *) return 1 ;;
+    esac
+  done < "$state"
+  [[ "$lines" -eq 4 && -n "$state_verdict" ]]
+}
+
+case "$command" in
+  check)
+    if [[ ! -e "$state" && ! -L "$state" ]]; then
+      printf 'unclassified\n'
+    elif read_state; then
+      printf '%s\n' "$state_verdict"
+    else
+      fail_closed 'malformed or unsafe state'
+    fi
+    ;;
+  record)
+    case "$verdict" in eligible|disqualified) ;; *) fail_closed 'unsupported verdict' ;; esac
+    validate_value "$detail" || fail_closed 'invalid record detail'
+    validate_value "$digest" || fail_closed 'invalid evidence digest'
+
+    attempts=0
+    while ! mkdir "$lock" 2>/dev/null; do
+      [[ ! -L "$lock" && -d "$lock" ]] || fail_closed 'unsafe state lock'
+      attempts=$((attempts + 1))
+      [[ "$attempts" -lt 50 ]] || fail_closed 'state lock is busy'
+      sleep 0.05
+    done
+    cleanup_lock() { rmdir "$lock" 2>/dev/null || true; }
+    trap cleanup_lock EXIT HUP INT TERM
+
+    if [[ -e "$state" || -L "$state" ]]; then
+      read_state || fail_closed 'malformed or unsafe state'
+      if [[ "$state_verdict" == disqualified && "$verdict" == eligible ]]; then
+        fail_closed 'task is permanently disqualified'
+      fi
+      if [[ "$state_verdict" == disqualified || "$verdict" == eligible ]]; then
+        exit 0
+      fi
+    fi
+
+    tmp=$(mktemp "$root/.${task_id}.state.XXXXXX") || fail_closed 'cannot create temporary state'
+    cleanup_tmp() { rm -f "$tmp" 2>/dev/null || true; cleanup_lock; }
+    trap cleanup_tmp EXIT HUP INT TERM
+    printf 'version=1\nverdict=%s\ndetail=%s\nevidence_digest=%s\n' "$verdict" "$detail" "$digest" > "$tmp"
+    mv -f "$tmp" "$state" || fail_closed 'cannot persist state'
+    ;;
+esac

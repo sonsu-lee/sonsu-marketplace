@@ -87,6 +87,26 @@ challenge verdict는 quality status와 분리해 기록한다.
 사항이고 의도적으로 제외했다면 `not_applicable`로 기록한다. 필수지만 사용할 수 없었다면
 게이트를 조용히 약화하지 말고 `blocked` 또는 `not_run`으로 기록한다.
 
+## Fast Path classifier와 latch gate
+
+plan 없는 Fast Path의 eligibility gate는 controller가 소유한다. target discovery 전에 stable todo ID를
+고정하거나 UUID를 한 번 생성하고, **매 Fast Path entry 전에** repository
+`.engineering/fast-path/<task-id>.state`를 확인한다. `disqualified`는 classifier, predicate와 execution을
+건너뛰어 가장 가까운 normal workflow로 보낸다.
+
+`unclassified`일 때만 controller가 표적 탐색을 한 번 하고 request, target, controller evidence,
+proposed deterministic oracle, unknowns로 짧은 brief를 만든다. fresh `gpt-5.6-luna` / `low` classifier가
+독립 targeted search를 정확히 한 번 실행하므로 Fast Path 전체 탐색 예산은 2회다. verdict는
+`eligible | escalate | inconclusive | blocked`다. `eligible`만 exact candidate revision과 evidence digest로
+기록할 수 있다. `escalate`, `inconclusive`, `blocked`, unavailable 또는 false/unknown predicate는 먼저
+`disqualified`를 영속 기록하고 nearest normal workflow로 routing한다.
+
+unexpected consumer, semantic decision, public contract, unexplained failure, widened responsibility, related
+refactor 또는 second correction도 같은 disqualified latch를 기록한다. 이 one-way owner escalation은
+`systematic-debugging`, `writing-plans` 또는 `brainstorming`으로만 향하며 Fast Path classifier, predicate,
+execution으로 되돌아갈 수 없다. 모든 handoff는 task ID와 state-file path를 포함한다. 이 gate는
+implementation, subagent, commit 또는 다른 권한을 부여하지 않는다.
+
 ## 가장 가까운 소유 단계로 돌아간다
 
 | 실패 | 반환 대상 |

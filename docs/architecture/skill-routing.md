@@ -57,16 +57,23 @@ branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 �
 ## Engineering 실행 경로
 
 Engineering은 작업을 중앙 orchestrator 하나로 모으지 않고 기존 stage-owned gate를 유지합니다.
-진입 시 bounded 작업을 먼저 분류하되 아래 조건을 모두 확인할 수 있을 때만 plan 없는 Fast Path를
-사용합니다.
+Fast Path는 target discovery 전에 stable todo ID 또는 한 번 생성한 UUID를 고정하고 매 entry에서
+`.engineering/fast-path/<task-id>.state`를 먼저 확인합니다. 이미 `disqualified`인 task는 classifier,
+predicate, execution을 건너뛰고 가장 가까운 일반 workflow로 갑니다. `unclassified` task만 아래의
+독립 classifier gate를 통과해야 plan 없는 Fast Path를 사용합니다.
 
 ```text
 명확한 요청
-  → 대상·관찰 결과·완료 조건이 명시됨
-  → 효과 또는 변환 규칙과 직접 소비자 범위를 표적 탐색 2회 안에 닫음
+  → controller 표적 탐색 1회: 대상·관찰 결과·완료 조건, references, consumers, public-contract risk, oracle
+  → fresh gpt-5.6-luna/low classifier의 독립 표적 탐색 1회
+  → classifier verdict eligible | escalate | inconclusive | blocked
+  → eligible일 때만 exact candidate revision과 evidence digest를 state에 기록
+  → 효과 또는 변환 규칙과 직접 소비자 범위를 두 탐색 안에 닫음
   → public contract·schema·상태·권한·migration·호환성 변경 없음
   → 저렴한 결정론적 검증 존재
     → Local Fast Path 또는 Mechanical Fast Path
+  classifier non-eligible, unavailable, false 또는 unknown predicate
+    → persistent disqualified latch → nearest normal workflow
   그 외
     → brainstorming → 승인된 짧은 설계
       → plan 필요: writing-plans → plan-backed execution
@@ -78,9 +85,13 @@ Mechanical Fast Path는 파일 수가 아니라 결정론적인 변환 규칙과
 변환과 postcondition 검사를 묶는 실행 수단으로 우선 사용할 수 있습니다. Code Mode 사용 가능성은
 Fast Path 적합성이나 품질 판정의 근거가 아닙니다.
 
-Fast Path는 표적 탐색 2회, 최초 구현 1회, 집중 수정 1회와 총 자동 시도 2회로 제한하며 독립
-reviewer를 기본으로 만들지 않습니다. 숨은 소비자, 두 번째 의미 판단, public contract, 원인 불명
-실패 또는 넓어진 책임이 발견되면 가장 가까운 일반 workflow로 올립니다.
+Fast Path는 표적 탐색 2회, 최초 구현 1회, 집중 수정 1회와 총 자동 시도 2회로 제한합니다. fresh
+`gpt-5.6-luna` / `low` classifier가 유일한 Fast Path subagent slot이며 implementation/reviewer subagent는
+기본 경로에서 만들지 않습니다. 숨은 소비자, 두 번째 의미 판단, public contract, 원인 불명 실패,
+넓어진 책임, related refactor 또는 second correction이 발견되면 `disqualified`를 영속 latch하고
+task ID와 state-file path를 handoff에 넣어 one-way owner escalation을 실행합니다. 원인 불명은
+`systematic-debugging`, multi-flow/interface는 `writing-plans`, requirement/design 변경은
+`brainstorming`으로 보내며 이 경로는 classifier, predicate, execution으로 재진입하지 않습니다.
 
 plan artifact가 있는 모든 실행 경로는 결정론적 검증과 일반 최종 리뷰 뒤에 fresh-context
 red-team completion review를 수행합니다. 이 reviewer는 이전 session history와 verdict를 받지
@@ -386,10 +397,16 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
 
 ```text
 요청
-  → spike / bounded / architectural 분류와 표적 탐색
-  → bounded이고 Fast Path 조건을 모두 충족하는가?
-      → yes: plan 없는 Local/Mechanical Fast Path → 결정론적 검증 → 목적 정렬 기록
-      → no/unknown: 짧은 설계 승인 → plan 필요 여부 판정
+  → spike / bounded / architectural 분류와 stable task ID 고정
+  → 매 Fast Path entry에서 persistent latch 확인
+      → disqualified: classifier/predicate/execution을 건너뛰고 nearest normal workflow
+      → unclassified: controller search 1회 → fresh classifier search 1회
+          → eligible: state에 exact candidate revision + digest 기록 → plan 없는 Local/Mechanical Fast Path
+          → escalate/inconclusive/blocked/unavailable/false/unknown: disqualified latch → nearest normal workflow
+  → Fast Path 실행 중 hidden complexity
+      → disqualified latch → systematic-debugging / writing-plans / brainstorming (Fast Path 재진입 없음)
+  → plan 없는 Fast Path: 결정론적 검증 → 목적 정렬 기록
+  → plan 없는 일반 bounded: 짧은 설계 승인 → plan 필요 여부 판정
   → architectural 또는 plan 필요 bounded:
       설계 승인과 필요한 design-document gate
       → 의사코드로 전체 흐름 정의
