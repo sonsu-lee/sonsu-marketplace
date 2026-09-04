@@ -38,15 +38,25 @@ TASK_ID="red-routing-$$"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
-# RED: Task 2 must provide this state helper.  Exercise it in two processes so
-# a transient in-memory latch cannot make disqualified -> eligible possible.
+# RED: Task 2 must provide this state helper. Each invocation is a new process,
+# so the latch must be persisted rather than held only in memory.
 [[ -x "$STATE" ]] || { "$STATE" check "$WORK" "$TASK_ID"; }
 initial=$($STATE check "$WORK" "$TASK_ID") || fail 'initial state failed'
-[[ "$initial" == eligible ]] || fail "initial state: $initial"
-$STATE eligible "$WORK" "$TASK_ID" candidate-rev classifier-digest >/dev/null || fail 'eligible record failed'
-$STATE disqualify "$WORK" "$TASK_ID" 'unexpected consumer' >/dev/null || fail 'disqualify failed'
-! $STATE check "$WORK" "$TASK_ID" || fail 'disqualified state accepted eligibility check'
-route=$($STATE route "$WORK" "$TASK_ID") || fail 'route command failed'
-[[ "$route" == normal* ]] || fail "unexpected route: $route"
+[[ "$initial" == unclassified ]] || fail "initial state: $initial"
+
+$STATE record "$WORK" "$TASK_ID" eligible candidate-rev classifier-digest \
+  || fail 'eligible record failed'
+eligible=$($STATE check "$WORK" "$TASK_ID") || fail 'eligible state check failed'
+[[ "$eligible" == eligible ]] || fail "eligible state: $eligible"
+
+$STATE record "$WORK" "$TASK_ID" disqualified 'unexpected consumer' escalation-digest \
+  || fail 'disqualified record failed'
+disqualified=$($STATE check "$WORK" "$TASK_ID") || fail 'disqualified state check failed'
+[[ "$disqualified" == disqualified ]] || fail "disqualified state: $disqualified"
+
+! $STATE record "$WORK" "$TASK_ID" eligible candidate-rev classifier-digest \
+  || fail 'disqualified state accepted a later eligible record'
+persisted=$($STATE check "$WORK" "$TASK_ID") || fail 'persisted state check failed'
+[[ "$persisted" == disqualified ]] || fail "persisted state: $persisted"
 
 printf 'PASS: fast-path routing regression checks\n'
