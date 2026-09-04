@@ -98,6 +98,8 @@ digraph process {
     "Return to affected implementation or integration stage" [shape=box];
     "Generate final package, dispatch code reviewer" [shape=box];
     "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" [shape=box];
+    "Artifact changed after ordinary review?" [shape=diamond];
+    "Regenerate full package and refresh whole-change review" [shape=box];
     "Ordinary final gate outcome?" [shape=diamond];
     "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" [shape=box];
     "Red-team verdict?" [shape=diamond];
@@ -147,7 +149,10 @@ digraph process {
     "Final deterministic verification passed?" -> "Return to affected implementation or integration stage" [label="no"];
     "Final deterministic verification passed?" -> "Generate final package, dispatch code reviewer" [label="yes"];
     "Generate final package, dispatch code reviewer" -> "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals";
-    "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" -> "Ordinary final gate outcome?";
+    "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" -> "Artifact changed after ordinary review?";
+    "Artifact changed after ordinary review?" -> "Regenerate full package and refresh whole-change review" [label="yes"];
+    "Artifact changed after ordinary review?" -> "Ordinary final gate outcome?" [label="no"];
+    "Regenerate full package and refresh whole-change review" -> "Ordinary final gate outcome?";
     "Ordinary final gate outcome?" -> "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" [label="passed / accepted_risk"];
     "Ordinary final gate outcome?" -> "Return to owner or stop" [label="non-advancing status"];
     "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" -> "Red-team verdict?";
@@ -483,6 +488,12 @@ dispatch에 출력된 경로와 SHA-256 리비전을 포함한다. 그러면 최
 결정을 기다리며 중단한다. 통과한 최종 리뷰로 보류할 수 없다. plan, 전략, evaluator, capability
 변경 또는 사람의 명시적인 `accepted_risk` 없이 두 번째 수정 wave를 실행하지 않는다.
 
+scoped 재리뷰는 원래 finding과 수정 diff만 판정하므로 변경된 전체 브랜치의 final gate가 아니다.
+finding이 모두 닫히면 현재 `MERGE_BASE..HEAD` 전체 package를 새 고유 경로로 다시 만들고 이전
+session history를 상속하지 않는 whole-change reviewer로 일반 final gate를 갱신한다. 이 refresh도
+일반 리뷰 최대 3회에 포함한다. current HEAD 전체의 gate가 `passed` 또는 사람이 그 정확한
+리비전에 대해 `accepted_risk`를 기록하기 전에는 red-team을 시작하지 않는다.
+
 일반 최종 리뷰가 `passed`이거나 정확한 리비전에 대해 사람이 `accepted_risk`를 기록했더라도,
 plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다. 이 게이트는 일반 리뷰를
 강화하는 재리뷰가 아니라 지금까지 선택한 문제 정의, 요구사항, 설계, plan, 구현과 검증이 실제
@@ -598,6 +609,9 @@ Implementer: Added progress reporting, extracted PROGRESS_INTERVAL constant.
 Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
   Magic number — ADDRESSED (src/recovery.js:7). New breakage: none.
   Verdict: all findings addressed.
+
+[Regenerate review-package PLAN_FILE MERGE_BASE current HEAD]
+[Dispatch a fresh-context whole-change reviewer; record the ordinary final gate for current HEAD]
 
 [Ledger: Task 2: fix round 1/3 (2 addressed, 0 open; commits d4e5f6a..b7c8d9e)]
 [Ledger: Task 2: complete (commits d4e5f6a..b7c8d9e, review clean)]

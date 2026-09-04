@@ -513,6 +513,27 @@
       ]
     },
     {
+      "id": "ordinary-final-review-refreshes-full-package-after-fix",
+      "stage": "ordinary-final-review",
+      "prompt": "일반 whole-change review가 MERGE_BASE..A에서 finding을 냈고 수정 range A..B의 scoped 재리뷰는 모두 addressed다. red-team 전 현재 일반 final gate를 판정해줘.",
+      "event": {
+        "ordinary_whole_change_review": "MERGE_BASE-to-A",
+        "scoped_fix_review": "A-to-B-addressed",
+        "current_head": "B"
+      },
+      "expected": {
+        "prior_whole_change_gate_stale": true,
+        "regenerate_full_package": "MERGE_BASE-to-B",
+        "fresh_context_whole_change_review": true,
+        "red_team_allowed_before_refresh": false
+      },
+      "must_not": [
+        "treat-scoped-review-as-current-whole-change-pass",
+        "preserve-MERGE_BASE-to-A-gate-for-B",
+        "dispatch-red-team-before-ordinary-gate-refresh"
+      ]
+    },
+    {
       "id": "red-team-bundle-freezes-all-required-inputs",
       "stage": "red-team-package-preparation",
       "prompt": "red-team 직전 전체 diff package는 고정됐지만 목표, 요구사항, plan, 검증 report와 관찰 결과는 별도 파일 경로에 있다. reviewer 입력을 준비해줘.",

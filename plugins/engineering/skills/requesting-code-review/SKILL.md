@@ -66,6 +66,9 @@ HEAD_SHA=$(git rev-parse HEAD)
 - Minor 문제는 나중에 처리하도록 기록한다.
 - reviewer가 틀렸다면 근거를 들어 반박한다.
 - 변경된 리비전에서 집중 수정 부분을 다시 리뷰한다.
+- plan-backed final review에서 artifact가 바뀌었다면 scoped 재리뷰가 finding을 닫은 뒤에도 현재
+  전체 `BASE..HEAD` package를 다시 만들고 fresh-context whole-change reviewer로 일반 final gate를
+  갱신한다. scoped 결과만 현재 전체 리비전의 `passed`로 기록하지 않는다.
 
 리뷰 게이트의 artifact, 리비전, 근거, finding, 상태, 반환 대상, 시도 횟수와 decision owner를 기록한다. 필수 판정이 빠진 reviewer 보고서는 `inconclusive`다. 필수 reviewer를 사용할 수 없으면 `blocked` 또는 `not_run`을 사용하며 implementer의 자체 리뷰나 변경 없는 재시도로 대신하지 않는다. 기술적으로 반증된 finding은 근거와 함께 닫을 수 있다. 유효한 미해결 필수 finding은 workflow가 진행되기 전에 artifact 변경 또는 사람의 명시적인 `accepted_risk`가 필요하다.
 

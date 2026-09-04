@@ -61,7 +61,11 @@ task의 구현·검증·리뷰부터 다시 수행한다. material하지 않은 
    자동 리뷰 시도는 최대 3회로 제한한다. 1회차 이후에는 가능한 경우 이전 session history를
    상속하지 않는 fresh-context evaluator를 사용한다. 계획 또는 요구사항의 모순은 해당 소유
    단계로 돌려보낸다. 상한에 도달해도 필수 finding이 해결되지 않았다면 사람의 결정이 필요하며,
-   명시적인 `accepted_risk`만 다음 단계 진행을 허용한다.
+   명시적인 `accepted_risk`만 다음 단계 진행을 허용한다. scoped 재리뷰는 finding 수정만 닫으며
+   변경된 전체 artifact의 final gate를 대신하지 않는다. 수정이 있었다면 현재 `BASE..HEAD`의 전체
+   package를 다시 생성해 fresh-context whole-change reviewer로 일반 final gate를 갱신한다. 이 전체
+   review도 3회 상한에 포함하며, 현재 전체 리비전의 gate가 `passed` 또는 `accepted_risk`일 때만
+   red-team으로 진행한다.
 5. 일반 최종 리뷰 뒤에는 plan-backed 작업을 전체 구조에서 반증하는 fresh-context red-team
    리뷰를 반드시 수행한다. 이전 작업·리뷰의 결론이나 session history를 넘기지 않는다. red-team 직전에
    현재 전체 commit range 또는 전체 working tree를 저장소 root에서
