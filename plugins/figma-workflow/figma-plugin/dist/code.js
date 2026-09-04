@@ -168,6 +168,17 @@
             continue;
           }
           for (const action of reaction.actions) {
+            if (action.type === "NODE" && !action.destinationId) {
+              findings.push({
+                code: "PROTOTYPE_DESTINATION_MISSING",
+                nodeId: node.id,
+                observed: {
+                  actionType: action.type,
+                  destinationId: action.destinationId === null ? "null" : "missing"
+                }
+              });
+              continue;
+            }
             if (!action.destinationId) continue;
             if (await port.readNode(action.destinationId) === null) {
               findings.push({ code: "PROTOTYPE_DESTINATION_MISSING", nodeId: node.id, observed: { destinationId: action.destinationId } });
@@ -396,14 +407,20 @@
 
   // src/figma-adapter.ts
   var asRecord = (value) => typeof value === "object" && value !== null ? value : void 0;
-  function readDestinationId(action) {
-    const destinationId = asRecord(action)?.destinationId;
-    return typeof destinationId === "string" ? destinationId : void 0;
+  function snapshotAction(action) {
+    const record = asRecord(action);
+    if (!record) return void 0;
+    const snapshot = {};
+    if (typeof record.type === "string") snapshot.type = record.type;
+    if (record.destinationId === null || typeof record.destinationId === "string") {
+      snapshot.destinationId = record.destinationId;
+    }
+    return snapshot;
   }
   function snapshotActions(action) {
     const record = asRecord(action);
     if (!record) return [];
-    const actions = [{ destinationId: readDestinationId(action) }];
+    const actions = [snapshotAction(action) ?? {}];
     const conditionalBlocks = record.conditionalBlocks;
     if (!Array.isArray(conditionalBlocks)) return actions;
     for (const block of conditionalBlocks) {

@@ -16,15 +16,23 @@ type NodeWithVariables = BaseNode & { opacity?: unknown; boundVariables?: unknow
 const asRecord = (value: unknown): Record<string, unknown> | undefined =>
   typeof value === 'object' && value !== null ? value as Record<string, unknown> : undefined;
 
-function readDestinationId(action: unknown): string | undefined {
-  const destinationId = asRecord(action)?.destinationId;
-  return typeof destinationId === 'string' ? destinationId : undefined;
+type NormalizedAction = { type?: string; destinationId?: string | null };
+
+function snapshotAction(action: unknown): NormalizedAction | undefined {
+  const record = asRecord(action);
+  if (!record) return undefined;
+  const snapshot: NormalizedAction = {};
+  if (typeof record.type === 'string') snapshot.type = record.type;
+  if (record.destinationId === null || typeof record.destinationId === 'string') {
+    snapshot.destinationId = record.destinationId;
+  }
+  return snapshot;
 }
 
-function snapshotActions(action: unknown): Array<{ destinationId?: string }> {
+function snapshotActions(action: unknown): NormalizedAction[] {
   const record = asRecord(action);
   if (!record) return [];
-  const actions: Array<{ destinationId?: string }> = [{ destinationId: readDestinationId(action) }];
+  const actions: NormalizedAction[] = [snapshotAction(action) ?? {}];
   const conditionalBlocks = record.conditionalBlocks;
   if (!Array.isArray(conditionalBlocks)) return actions;
   for (const block of conditionalBlocks) {
@@ -35,7 +43,7 @@ function snapshotActions(action: unknown): Array<{ destinationId?: string }> {
   return actions;
 }
 
-function snapshotReactionActions(reaction: unknown): Array<{ destinationId?: string }> | undefined {
+function snapshotReactionActions(reaction: unknown): NormalizedAction[] | undefined {
   const record = asRecord(reaction);
   if (!record) return undefined;
   const actions = Array.isArray(record.actions)

@@ -162,6 +162,26 @@ test('prototype snapshots support legacy action and conditional nested destinati
   });
 });
 
+test('prototype snapshots preserve NODE action type and a null destination', async () => {
+  const result = await withFigma({
+    currentPage: { selection: [{
+      id: 'screen', type: 'FRAME', name: 'Screen',
+      reactions: [{ actions: [{ type: 'NODE', destinationId: null }] }],
+    }] },
+    async getNodeByIdAsync() { return null; },
+  }, () => previewPlan(JSON.stringify({
+    version: 1, mode: 'preview', operation: 'inspect-selection', scope: { kind: 'selection' },
+  }), new FigmaNodePort()));
+
+  assert.deepEqual(result, {
+    status: 'inspected',
+    nodes: [{
+      id: 'screen', type: 'FRAME', name: 'Screen',
+      reactions: [{ actions: [{ type: 'NODE', destinationId: null }] }],
+    }],
+  });
+});
+
 test('exact target reads ignore failing descendants for rename, icon readback, and prototype destinations', async () => {
   const failingNestedInstance = {
     id: 'nested', type: 'INSTANCE', name: 'Nested',

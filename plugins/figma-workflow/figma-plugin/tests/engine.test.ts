@@ -471,6 +471,29 @@ test('prototype audit reports empty actions and unresolved destinations', async 
   });
 });
 
+test('prototype audit reports NODE actions whose destination is null', async () => {
+  const result = await previewPlan(JSON.stringify({
+    version: 1, mode: 'preview', operation: 'audit-prototype-links', scope: { kind: 'selection' },
+  }), {
+    async readNode() { throw new Error('a null destination must not be looked up'); },
+    async getSelection() {
+      return [{
+        id: 'screen-1', type: 'FRAME', name: 'Screen',
+        reactions: [{ actions: [{ type: 'NODE', destinationId: null }, { type: 'BACK' }] }],
+      }];
+    },
+  });
+
+  assert.deepEqual(result, {
+    status: 'findings',
+    findings: [{
+      code: 'PROTOTYPE_DESTINATION_MISSING',
+      nodeId: 'screen-1',
+      observed: { actionType: 'NODE', destinationId: 'null' },
+    }],
+  });
+});
+
 test('apply reports READBACK_MISMATCH when a successful mutation cannot be observed', async () => {
   const previewText = JSON.stringify({
     version: 1, mode: 'preview', operation: 'rename-exact',

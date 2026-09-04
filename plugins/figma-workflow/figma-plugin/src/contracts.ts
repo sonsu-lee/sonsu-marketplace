@@ -77,7 +77,7 @@ export type NormalizedNodeSnapshot = {
   layoutPositioning?: string;
   parent?: Pick<NormalizedNodeSnapshot, 'id' | 'type' | 'layoutMode'>;
   variableBindings?: Record<string, NormalizedVariableBinding>;
-  reactions?: Array<{ actions?: Array<{ destinationId?: string }> }>;
+  reactions?: Array<{ actions?: Array<{ type?: string; destinationId?: string | null }> }>;
   children?: NormalizedNodeSnapshot[];
 };
 
