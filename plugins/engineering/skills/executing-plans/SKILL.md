@@ -11,7 +11,7 @@ description: 별도 session에서 review checkpoint와 함께 실행할 작성�
 
 **시작할 때 알린다:** "executing-plans 스킬을 사용해 이 계획을 구현하겠습니다."
 
-**참고:** Engineering은 subagent를 사용할 수 있을 때 훨씬 잘 동작한다고 사용자에게 알린다(Claude Code, Codex CLI, Codex App, Copilot CLI, Gemini CLI가 모두 해당하며 `../using-engineering-skills/references/`의 플랫폼별 도구 참고 문서를 확인한다). subagent를 사용할 수 있으면 이 스킬 대신 `engineering:subagent-driven-development`를 사용한다.
+**참고:** Engineering은 subagent를 사용할 수 있을 때 훨씬 잘 동작한다고 사용자에게 알린다(Claude Code, Codex CLI, Codex App, Copilot CLI, Gemini CLI가 모두 해당하며 `../using-engineering-skills/references/`의 플랫폼별 도구 참고 문서를 확인한다). subagent capability가 있고 현재 plan의 task commit을 사용자가 명시적으로 승인한 경우에만 이 스킬 대신 `engineering:subagent-driven-development`를 사용한다. subagent가 있어도 task commit이 승인되지 않았다면 이 스킬에서 직접 실행하며 SDD로 전환하지 않는다.
 
 ## 절차
 

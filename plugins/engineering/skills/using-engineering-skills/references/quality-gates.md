@@ -97,7 +97,8 @@ Fast Path에는 적용하지 않는다. challenge verdict는 quality status와 �
 | Reviewer 의견 불일치 | 결정적 근거를 수집하거나 요구사항을 명확히 하거나 사람의 판정을 요청한다 |
 | Red-team이 구현을 반증 | 영향받은 task 구현 |
 | Red-team이 task·interface plan을 반증 | `writing-plans`의 영향받은 flow 또는 task |
-| Red-team이 설계·해결책·원래 목표를 반증 | `brainstorming` 또는 사용자 재승인 |
+| Red-team이 설계·해결책을 반증 | `brainstorming` |
+| Red-team이 원래 문제 정의·사용자 목표를 반증 | 사용자 재승인 |
 | Red-team이 실제 효과 근거 부족을 발견 | 검증 단계 또는 제품 실험 |
 | Red-team이 기존 review finding·수정 방향을 반증 | finding을 근거와 함께 무효화하고 영향 task를 `reopened` |
 

@@ -80,7 +80,8 @@ Subagent (general-purpose):
 
     `invalidated` finding마다 가장 가까운 반환 대상을 지정한다.
 
-    - 문제 정의·승인 요구사항·설계 → `brainstorming`
+    - 원래 문제 정의·사용자 목표 → 사용자 재승인
+    - 승인 요구사항·설계 → `brainstorming`
     - plan, 의사코드, mapping, task 분해 → `writing-plans`
     - 구현 결함 → 영향받은 implementation task
     - 검증이 잘못된 proxy이거나 근거 부족 → verification

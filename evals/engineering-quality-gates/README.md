@@ -30,10 +30,14 @@ classification과 정상 escalation은 `quality_status`, `classification_outcome
 - tool·permission·external state 부재는 `blocked`이며 동일 명령을 반복하지 않습니다.
 - retry cap의 valid required finding은 human `accepted_risk` 없이 `passed`나 `complete`가 아닙니다.
 - quality gate와 Git·PR·publish authorization은 독립적으로 판정합니다.
+- subagent capability가 있어도 task commit 승인이 없으면 plan 실행은 `executing-plans`에 남고
+  `subagent-driven-development`로 순환하지 않습니다.
 - Fast Path는 모든 predicate가 확인된 plan 없는 작업에만 적용되고 숨은 복잡성이 나오면 즉시 일반 workflow로 올라갑니다.
+- Fast Path의 숨은 복잡성 upgrade와 red-team의 변경 입력 기반 재시도는 flow diagram에서도 실제로 도달 가능해야 합니다.
 - Fast Path eligibility와 실행 전 classification은 quality `passed`가 아니며 정상 escalation도 quality failure가 아닙니다.
 - Code Mode는 결정론적 실행 수단이며 Fast Path 적합성이나 품질 통과의 증거가 아닙니다.
 - plan-backed 완료에는 일반 최종 리뷰와 별개의 fresh-context red-team 판정이 필요합니다.
+- red-team이 원래 문제 정의나 사용자 목표를 무효화하면 brainstorming만으로 닫지 않고 사용자 재승인으로 돌아갑니다.
 - red-team 직전에는 현재 HEAD의 전체 변경 package를 다시 고정하고, 잘못된 기존 review finding은
   verdict·칭찬이 제거된 finding-to-fix provenance로 반증한 뒤 근거와 함께 무효화하여 영향 task를
   다시 엽니다.

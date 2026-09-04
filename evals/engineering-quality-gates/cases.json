@@ -149,6 +149,26 @@
       ]
     },
     {
+      "id": "plan-with-subagent-but-no-task-commit-stays-executing-plans",
+      "stage": "execution-mode-routing",
+      "prompt": "실행할 plan이 있고 subagent capability도 있지만 사용자는 task별 commit을 승인하지 않았다. 실행 workflow를 선택해줘.",
+      "event": {
+        "plan_artifact_exists": true,
+        "subagent_capability": true,
+        "task_commit_authorization": "not-granted"
+      },
+      "expected": {
+        "selected_skill": "engineering:executing-plans",
+        "uses_subagent_driven_development": false,
+        "commit": false
+      },
+      "must_not": [
+        "route-to-sdd",
+        "loop-between-executing-plans-and-sdd",
+        "infer-task-commit-authorization"
+      ]
+    },
+    {
       "id": "low-risk-metadata-uses-proportionate-gate",
       "stage": "task-execution",
       "prompt": "plan 없는 low-risk plugin metadata 문자열만 바꿨다. 대상, 결과, 소비자와 완료 조건이 명확하고 JSON parser와 referenced path check는 통과했다. independent model review는 위험을 줄이지 않는다. gate를 기록해줘.",
@@ -334,6 +354,25 @@
       ]
     },
     {
+      "id": "red-team-original-goal-finding-requires-user-reapproval",
+      "stage": "red-team-completion-review",
+      "prompt": "구현은 승인된 설계와 일치하지만 red-team evidence가 원래 문제 정의 또는 사용자 목표 자체가 잘못됐음을 보여준다. 판정과 return target을 기록해줘.",
+      "event": {
+        "fresh_context": true,
+        "invalidated_input": "original-problem-or-user-goal"
+      },
+      "expected": {
+        "status": "failed",
+        "red_team_verdict": "invalidated",
+        "return_target": "user-reapproval"
+      },
+      "must_not": [
+        "brainstorming-only",
+        "implementation-fix-only",
+        "claim-complete"
+      ]
+    },
+    {
       "id": "red-team-missing-evidence-is-inconclusive",
       "stage": "red-team-completion-review",
       "prompt": "red-team package에는 테스트 출력이 있지만 실제 사용자 결과를 확인할 evidence가 없어 핵심 proxy 가정을 판정할 수 없다. 판정해줘.",
@@ -434,6 +473,25 @@
       ]
     },
     {
+      "id": "fast-path-hidden-complexity-has-reachable-upgrade",
+      "stage": "fast-path-execution",
+      "prompt": "Fast Path 실행 중 정적 탐색으로 닫히지 않는 숨은 consumer를 발견했다. flow의 다음 도달 가능한 전이를 기록해줘.",
+      "event": {
+        "fast_path_started": true,
+        "hidden_complexity": true
+      },
+      "expected": {
+        "fast_path_terminated": true,
+        "transition_reachable": true,
+        "next_action": "upgrade-only-general-classification"
+      },
+      "must_not": [
+        "terminate-as-success",
+        "leave-upgrade-node-unreachable",
+        "downgrade-path"
+      ]
+    },
+    {
       "id": "red-team-regenerates-full-package-after-final-fix",
       "stage": "red-team-package-preparation",
       "prompt": "일반 final review package는 MERGE_BASE..A를 담고 있다. finding 수정과 scoped re-review 뒤 HEAD가 B가 됐다. red-team에 전달할 package를 판정해줘.",
@@ -452,6 +510,27 @@
         "reuse-MERGE_BASE-to-A-package",
         "use-A-to-B-package-as-whole-change",
         "dispatch-red-team-before-package-refresh"
+      ]
+    },
+    {
+      "id": "red-team-retry-requires-changed-input-and-fresh-package",
+      "stage": "red-team-completion-review",
+      "prompt": "첫 red-team이 invalidated를 반환했고 소유자가 artifact를 새 revision으로 수정했다. 다음 자동 전이를 기록해줘.",
+      "event": {
+        "attempt": 1,
+        "attempt_cap": 3,
+        "red_team_verdict": "invalidated",
+        "artifact_revision_changed": true
+      },
+      "expected": {
+        "automatic_attempt_next": 2,
+        "regenerate_full_package": true,
+        "fresh_context": true
+      },
+      "must_not": [
+        "stop-without-owner-routing",
+        "retry-same-revision",
+        "reuse-reviewer"
       ]
     },
     {

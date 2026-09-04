@@ -101,6 +101,10 @@ digraph process {
     "Ordinary final gate outcome?" [shape=diamond];
     "Dispatch fresh-context red-team reviewer" [shape=box];
     "Red-team verdict?" [shape=diamond];
+    "Red-team attempt cap reached?" [shape=diamond];
+    "Return red-team finding to owner; wait for changed input" [shape=box];
+    "Regenerate full package; dispatch new fresh red-team reviewer" [shape=box];
+    "Record red-team decision_required; stop" [shape=doublecircle];
     "Preserve workspace through branch decision" [shape=box];
     "Merged result verified?" [shape=diamond];
     "Delete workspace after verified merge" [shape=box];
@@ -149,7 +153,11 @@ digraph process {
     "Dispatch fresh-context red-team reviewer" -> "Red-team verdict?";
     "Red-team verdict?" -> "Preserve workspace through branch decision" [label="survives_challenge"];
     "Red-team verdict?" -> "Preserve workspace through branch decision" [label="human accepts exact risk"];
-    "Red-team verdict?" -> "Return to owner or stop" [label="invalidated / inconclusive / blocked"];
+    "Red-team verdict?" -> "Red-team attempt cap reached?" [label="invalidated / inconclusive / blocked"];
+    "Red-team attempt cap reached?" -> "Record red-team decision_required; stop" [label="yes: 3 attempts"];
+    "Red-team attempt cap reached?" -> "Return red-team finding to owner; wait for changed input" [label="no"];
+    "Return red-team finding to owner; wait for changed input" -> "Regenerate full package; dispatch new fresh red-team reviewer" [label="revision / evidence / capability changed"];
+    "Regenerate full package; dispatch new fresh red-team reviewer" -> "Red-team verdict?";
     "Preserve workspace through branch decision" -> "Use engineering:finishing-a-development-branch";
     "Use engineering:finishing-a-development-branch" -> "Merged result verified?";
     "Merged result verified?" -> "Delete workspace after verified merge" [label="yes"];
@@ -493,8 +501,9 @@ plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다.
 3. reviewer는 finding 수를 채우지 않으며 가장 강한 반례를 근거로 검증한다. 판정은 정확히
    `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
 4. `survives_challenge`만 red-team의 일반 통과다. `invalidated`는 finding 소유 단계로 돌아가며
-   요구사항·설계가 바뀌면 brainstorming 재승인, plan이 바뀌면 writing-plans 갱신과 영향 task
-   `reopened`, 구현이면 해당 task 재개, 검증이면 verification 단계 재실행으로 routing한다.
+   원래 문제 정의·사용자 목표가 틀렸으면 사용자 재승인, 요구사항·설계가 바뀌면 brainstorming
+   재승인, plan이 바뀌면 writing-plans 갱신과 영향 task `reopened`, 구현이면 해당 task 재개,
+   검증이면 verification 단계 재실행으로 routing한다.
    `inconclusive` 또는 `blocked`는 통과가 아니며 부족한 근거나 capability의 소유 단계로 돌린다.
 5. 수정 후 새 리비전을 다시 challenge할 때에는 반드시 또 다른 fresh-context reviewer를 사용한다.
    같은 artifact와 같은 evaluator의 무변경 재시도는 금지하며 red-team 자동 시도도 최대 3회다.

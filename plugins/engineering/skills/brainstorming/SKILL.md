@@ -136,7 +136,9 @@ digraph brainstorming {
     "Present question + probe (2-3 sentences)" [shape=box];
     "Ask clarifying questions (bounded)" [shape=box];
     "All Fast Path predicates confirmed?" [shape=diamond];
-    "Run bounded Fast Path" [shape=doublecircle];
+    "Run bounded Fast Path" [shape=box];
+    "Hidden complexity during Fast Path?" [shape=diamond];
+    "Fast Path verified" [shape=doublecircle];
     "Present short design in chat" [shape=box];
     "Human approves?" [shape=diamond];
     "Implementation plan needed?" [shape=diamond];
@@ -154,11 +156,13 @@ digraph brainstorming {
     "Design-document quality gate" [shape=diamond];
     "User reviews written doc?" [shape=diamond];
     "Invoke writing-plans skill" [shape=doublecircle];
-    "Hidden complexity? Upgrade path" [shape=box];
 
     "Classify: spike / bounded / architectural" -> "Present question + probe (2-3 sentences)" [label="spike"];
     "Classify: spike / bounded / architectural" -> "All Fast Path predicates confirmed?" [label="bounded"];
     "All Fast Path predicates confirmed?" -> "Run bounded Fast Path" [label="yes"];
+    "Run bounded Fast Path" -> "Hidden complexity during Fast Path?";
+    "Hidden complexity during Fast Path?" -> "Classify: spike / bounded / architectural" [label="yes: upgrade only"];
+    "Hidden complexity during Fast Path?" -> "Fast Path verified" [label="no"];
     "All Fast Path predicates confirmed?" -> "Ask clarifying questions (bounded)" [label="no / unknown"];
     "Classify: spike / bounded / architectural" -> "Explore project context" [label="architectural"];
     "Present question + probe (2-3 sentences)" -> "Human approves?";
@@ -168,7 +172,6 @@ digraph brainstorming {
     "Human approves?" -> "Implementation plan needed?" [label="bounded: yes"];
     "Implementation plan needed?" -> "Invoke writing-plans skill" [label="yes"];
     "Implementation plan needed?" -> "Implement via normal workflow (no plan doc)" [label="no"];
-    "Hidden complexity? Upgrade path" -> "Classify: spike / bounded / architectural";
     "Explore project context" -> "Ask clarifying questions";
     "Ask clarifying questions" -> "Propose 2-3 approaches";
     "Propose 2-3 approaches" -> "Present design sections";

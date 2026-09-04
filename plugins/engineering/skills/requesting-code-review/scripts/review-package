@@ -49,15 +49,15 @@ case "$mode" in
     [ $# -ge 2 ] && [ $# -le 3 ] || usage
     base=$1
     head=$2
-    git rev-parse --verify --quiet "${base}^{commit}" >/dev/null || {
+    git -C "$repo_root" rev-parse --verify --quiet "${base}^{commit}" >/dev/null || {
       echo "bad BASE: $base" >&2
       exit 2
     }
-    git rev-parse --verify --quiet "${head}^{commit}" >/dev/null || {
+    git -C "$repo_root" rev-parse --verify --quiet "${head}^{commit}" >/dev/null || {
       echo "bad HEAD: $head" >&2
       exit 2
     }
-    if git diff --quiet "${base}..${head}" --; then
+    if git -C "$repo_root" diff --quiet "${base}..${head}" --; then
       echo "empty review range: ${base}..${head}" >&2
       exit 2
     fi
@@ -66,23 +66,23 @@ case "$mode" in
     {
       echo "# Review package"
       echo "Mode: committed range"
-      echo "Base: $(git rev-parse "${base}^{commit}")"
-      echo "Head: $(git rev-parse "${head}^{commit}")"
+      echo "Base: $(git -C "$repo_root" rev-parse "${base}^{commit}")"
+      echo "Head: $(git -C "$repo_root" rev-parse "${head}^{commit}")"
       echo
       echo "## Commits"
-      git log --oneline "${base}..${head}"
+      git -C "$repo_root" log --oneline "${base}..${head}"
       echo
       echo "## Files changed"
-      git diff --stat --no-ext-diff "${base}..${head}"
+      git -C "$repo_root" diff --stat --no-ext-diff "${base}..${head}"
       echo
       echo "## Diff"
-      git diff --binary --no-ext-diff -U10 "${base}..${head}"
+      git -C "$repo_root" diff --binary --no-ext-diff -U10 "${base}..${head}"
     } > "$out"
     ;;
 
   working-tree)
     [ $# -le 1 ] || usage
-    status=$(git status --short --untracked-files=all)
+    status=$(git -C "$repo_root" status --short --untracked-files=all)
     [ -n "$status" ] || {
       echo "working tree has no changes to review" >&2
       exit 2
@@ -98,18 +98,18 @@ case "$mode" in
     untracked_files=()
     while IFS= read -r -d '' file; do
       untracked_files+=("$file")
-    done < <(git ls-files --others --exclude-standard -z)
+    done < <(git -C "$repo_root" ls-files --others --exclude-standard -z)
 
     {
       echo "# Review package"
       echo "Mode: working tree"
-      echo "Base HEAD: $(git rev-parse HEAD)"
+      echo "Base HEAD: $(git -C "$repo_root" rev-parse HEAD)"
       echo
       echo "## Status"
       printf '%s\n' "$status"
       echo
       echo "## Tracked, staged, and unstaged diff"
-      git diff --binary --no-ext-diff -U10 HEAD --
+      git -C "$repo_root" diff --binary --no-ext-diff -U10 HEAD --
 
       # Bash 3.2 treats an empty array expansion as an unset variable under
       # `set -u`, so guard the expansion when the tree has no untracked files.
@@ -118,7 +118,7 @@ case "$mode" in
           echo
           printf '## Untracked file: %q\n' "$file"
           set +e
-          git diff --no-index --binary -U10 -- /dev/null "$file"
+          git -C "$repo_root" diff --no-index --binary -U10 -- /dev/null "$file"
           diff_status=$?
           set -e
           [ "$diff_status" -le 1 ] || exit "$diff_status"
