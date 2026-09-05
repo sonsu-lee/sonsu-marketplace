@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# Freeze every red-team input into one immutable, content-addressed bundle.
+set -euo pipefail
+
+usage() {
+  echo "usage: red-team-package DIFF_PACKAGE ORIGINAL_GOAL REQUIREMENTS_AND_DESIGN PLAN_AND_MAPPING VERIFICATION_REPORT OBSERVED_OUTCOMES REVIEW_FINDING_PROVENANCE [OUTFILE]" >&2
+  exit 2
+}
+
+[ $# -ge 7 ] && [ $# -le 8 ] || usage
+
+inputs=("$1" "$2" "$3" "$4" "$5" "$6" "$7")
+labels=(
+  "whole-change-diff"
+  "original-goal"
+  "requirements-and-design"
+  "plan-and-flow-mapping"
+  "verification-report"
+  "observed-outcomes-and-constraints"
+  "review-finding-provenance"
+)
+
+for input in "${inputs[@]}"; do
+  [ -f "$input" ] && [ -r "$input" ] || {
+    echo "required component is missing or unreadable: $input" >&2
+    exit 2
+  }
+  [ -s "$input" ] || {
+    echo "required component is empty: $input" >&2
+    exit 2
+  }
+done
+
+cleanup() {
+  if [ -n "${staging:-}" ]; then
+    rm -f "$staging"
+  fi
+}
+
+publish_exact_path() {
+  python3 - "$1" "$2" <<'PY'
+import os
+import sys
+
+try:
+    os.link(sys.argv[1], sys.argv[2])
+except OSError:
+    raise SystemExit(1)
+PY
+}
+
+explicit_out=false
+if [ $# -eq 8 ]; then
+  explicit_out=true
+  out_parent=$(cd "$(dirname "$8")" && pwd -P)
+  out="$out_parent/$(basename "$8")"
+  [ ! -e "$out" ] && [ ! -L "$out" ] || {
+    echo "output already exists: $out" >&2
+    exit 2
+  }
+  staging=$(mktemp "$out.staging.XXXXXX")
+else
+  temp_root=${TMPDIR:-/tmp}
+  out=$(mktemp "${temp_root%/}/engineering-red-team.XXXXXX")
+  staging=$out
+fi
+trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+chmod 600 "$staging"
+
+{
+  echo "# Red-team review bundle"
+  echo "Format: engineering-red-team-bundle-v1"
+  for index in 0 1 2 3 4 5 6; do
+    input=${inputs[$index]}
+    label=${labels[$index]}
+    bytes=$(wc -c < "$input" | tr -d ' ')
+    echo
+    echo "## Component: $label"
+    echo "Source: $input"
+    echo "Bytes: $bytes"
+    echo
+    command cat "$input"
+    echo
+  done
+} > "$staging"
+
+if command -v shasum >/dev/null 2>&1; then
+  digest=$(shasum -a 256 "$staging" | awk '{print $1}')
+elif command -v sha256sum >/dev/null 2>&1; then
+  digest=$(sha256sum "$staging" | awk '{print $1}')
+else
+  echo "neither shasum nor sha256sum is available" >&2
+  exit 2
+fi
+
+if [ "$explicit_out" = true ]; then
+  if ! publish_exact_path "$staging" "$out"; then
+    echo "output already exists or cannot be published without replacement: $out" >&2
+    exit 2
+  fi
+  rm -f "$staging"
+fi
+staging=
+
+printf 'Package: %s\nRevision: sha256:%s\n' "$out" "$digest"

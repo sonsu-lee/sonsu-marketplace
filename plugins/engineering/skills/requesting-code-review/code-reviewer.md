@@ -7,6 +7,8 @@ code reviewer subagent를 위임할 때 이 template을 사용한다.
 ```
 Subagent (general-purpose):
   description: "코드 변경 리뷰"
+  model: [MODEL — 실제 schema가 두 override를 모두 지원할 때 역할과 변경 위험에 맞게 선택한다.]
+  reasoning_effort: [REASONING_EFFORT — model과 함께 지원될 때 역할과 변경 위험에 맞게 선택한다.]
   prompt: |
     당신은 software architecture, design pattern과 best practice에 전문성이 있는 Senior Code Reviewer다.
     완료된 작업을 plan 또는 요구사항과 대조해 리뷰하고 문제가 다음 작업으로 번지기 전에 찾아낸다.
@@ -26,10 +28,18 @@ Subagent (general-purpose):
 
     리뷰하기 전에 package를 읽는다. 이 package에는 정확한 committed range 또는 working tree
     snapshot과 provenance, 상태, 전체 diff가 들어 있다. SHA-256 digest가 선언된 리비전과
-    일치하는지 확인한다. package가 없거나, 읽을 수 없거나, 비어 있거나, digest가 다르면 다른
-    artifact를 재구성하거나 승인하지 말고 `inconclusive`로 판정한다. 사용할 수 있는
-    `shasum -a 256 [REVIEW_PACKAGE]` 또는 `sha256sum [REVIEW_PACKAGE]`을 사용해 결과를
-    `[REVIEW_REVISION]`과 비교한다.
+    일치하는지 확인한다. package가 없거나 읽을 수 없으면 다른 artifact를 재구성하거나 승인하지
+    말고 `blocked`로 판정한다. package가 비어 있거나 digest가 다르면 `inconclusive`로 판정한다.
+    이 preflight가 실패하면 아래 일반 리뷰를 수행하지 말고 다음 형식으로 즉시 반환한다.
+
+    - `Gate status: blocked | inconclusive`
+    - `Cause: missing | unreadable | empty | digest-mismatch`와 확인한 근거
+    - `Return target: artifact-owner`
+    - `Review performed: no`
+
+    사용할 수 있는 `shasum -a 256 [REVIEW_PACKAGE]` 또는 `sha256sum [REVIEW_PACKAGE]`을
+    사용해 결과를 `[REVIEW_REVISION]`과 비교한다. preflight가 통과한 경우에만 아래 리뷰와
+    정상 판정을 수행한다.
 
     ## 읽기 전용 리뷰
 
@@ -44,6 +54,13 @@ Subagent (general-purpose):
     리뷰하고 보고서에 그 사실을 밝힌다.
 
     ## 확인할 내용
+
+    최초 whole-change review는 전체 변경을 검토한다. 수정 재리뷰에서는 이전 finding과 수정으로
+    생긴 회귀에 집중한다. 현재 delta가 목표·승인 계약·설계·dependency 경계를 바꾸거나 영향이
+    불명확하면 전체 리뷰 재개방을 요청한다. 국소 수정이면 이전 근거 중 유효한 범위, delta,
+    새 검증과 남은 조건을 명시하여 controller가 현재 gate에 연결할 수 있게 한다.
+    지적 개수를 채우지 않는다. 차단 finding에는 위반한 요구사항 또는 도달 가능한 실패 경로를
+    제시하고, 새 요구사항·추가 hardening·취향은 별도 권고로 구분한다.
 
     **Plan 정합성:**
     - 구현이 plan 또는 요구사항과 일치하는가?
@@ -113,6 +130,8 @@ Subagent (general-purpose):
 
     ### 판정
 
+    **Gate status:** [passed | failed]
+
     **Merge 준비가 됐는가?** [Yes | No | With fixes]
 
     **근거:** [1-2문장의 기술적 판정]
@@ -135,12 +154,15 @@ Subagent (general-purpose):
 ```
 
 **치환할 placeholder:**
+- `[MODEL]`, `[REASONING_EFFORT]` — 실제 tool schema가 두 override를 모두 지원할 때 역할과 변경
+  위험에 맞는 조합을 함께 명시한다. 지원하지 않으면 platform reference의 fallback을 기록한다.
 - `[DESCRIPTION]` — 구현 내용의 짧은 요약
 - `[PLAN_OR_REQUIREMENTS]` — 기대 동작(plan 파일 경로, task 본문 또는 요구사항)
 - `[REVIEW_PACKAGE]` — `scripts/review-package`가 출력한 읽을 수 있는 package 경로
 - `[REVIEW_REVISION]` — 해당 package에 대해 출력된 SHA-256 리비전
 
-**Reviewer 반환값:** 잘된 점, 문제(Critical / Important / Minor), 권고 사항, 판정
+**Reviewer 반환값:** package preflight 실패 시 gate status, 원인, 반환 대상과 review 미실행 여부.
+정상 package이면 잘된 점, 문제(Critical / Important / Minor), 권고 사항, gate status와 merge 판정
 
 ## 출력 예시
 
@@ -173,9 +195,11 @@ Subagent (general-purpose):
 - Add progress reporting for user experience
 - Consider config file for excluded projects (portability)
 
-### Assessment
+### 판정
 
-**Ready to merge: With fixes**
+**Gate status:** failed
 
-**Reasoning:** Core implementation is solid with good architecture and tests. Important issues (help text, date validation) are easily fixed and don't affect core functionality.
+**Merge 준비가 됐는가?** With fixes
+
+**근거:** Core implementation is solid with good architecture and tests. Important issues (help text, date validation) are easily fixed and don't affect core functionality.
 ```

@@ -5,8 +5,8 @@ implementer subagent를 위임할 때 이 template을 사용한다.
 ```
 Subagent (general-purpose):
   description: "Task N 구현: [task name]"
-  model: [MODEL — 필수: SKILL.md의 Model Selection에 따라 선택한다. 생략하면
-         session에서 가장 비싼 모델을 조용히 상속한다.]
+  model: [MODEL — 실제 schema가 두 override를 모두 지원할 때 SKILL.md에 따라 선택한다.]
+  reasoning_effort: [REASONING_EFFORT — model과 함께 지원될 때 platform 역할별 matrix에 따라 선택한다.]
   prompt: |
     Task N을 구현한다: [task name]
 
@@ -127,7 +127,9 @@ Subagent (general-purpose):
 
     ## 보고 형식
 
-    전체 보고를 [REPORT_FILE]에 작성한다.
+    전체 보고를 [REPORT_FILE]에 작성한다. 이 report는 controller/reviewer 기록이다. 원래 implementer가
+    사용할 수 없거나 4~5회차라 fresh fix implementer를 쓰면 full report 대신 shared
+    `../executing-plans/fix-implementer-prompt.md`의 concise factual handoff를 제공한다.
     - 구현한 내용(blocked라면 시도한 내용)
     - 구현한 의사코드 flow ID와 material deviation 여부
     - 검증한 내용, 사용한 명령과 결과

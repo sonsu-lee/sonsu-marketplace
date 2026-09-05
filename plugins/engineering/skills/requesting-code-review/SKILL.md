@@ -53,6 +53,8 @@ HEAD_SHA=$(git rev-parse HEAD)
 [code-reviewer.md](code-reviewer.md)의 template을 채워 `general-purpose` subagent를 위임한다.
 
 **치환할 placeholder:**
+- `{MODEL}`, `{REASONING_EFFORT}` - 실제 tool schema가 두 override를 모두 지원할 때 역할과
+  위험에 맞는 조합을 함께 명시한다. 지원하지 않으면 platform reference의 fallback을 기록한다.
 - `{DESCRIPTION}` - 구현한 내용의 짧은 요약
 - `{PLAN_OR_REQUIREMENTS}` - 기대 동작
 - `{REVIEW_PACKAGE}` - `scripts/review-package`가 출력한 변경할 수 없는 package 경로
@@ -64,8 +66,57 @@ HEAD_SHA=$(git rev-parse HEAD)
 - Minor 문제는 나중에 처리하도록 기록한다.
 - reviewer가 틀렸다면 근거를 들어 반박한다.
 - 변경된 리비전에서 집중 수정 부분을 다시 리뷰한다.
+- 수정 재리뷰는 기존 finding과 수정으로 생긴 회귀에 집중한다. 관련 없는 개선 제안은 분리한다.
+- plan-backed final review도 공통 계약의 **변경 영향에 따른 근거 갱신**을 따른다. 국소 수정은
+  이전 전체 리뷰의 유효한 근거와 scoped 검증을 현재 리비전에 연결한다. 목표·계약·설계·dependency
+  경계가 바뀌거나 영향이 불명확한 경우 전체 리뷰를 다시 연다. scoped 판정만 전체 pass로 복사하지 않는다.
 
 리뷰 게이트의 artifact, 리비전, 근거, finding, 상태, 반환 대상, 시도 횟수와 decision owner를 기록한다. 필수 판정이 빠진 reviewer 보고서는 `inconclusive`다. 필수 reviewer를 사용할 수 없으면 `blocked` 또는 `not_run`을 사용하며 implementer의 자체 리뷰나 변경 없는 재시도로 대신하지 않는다. 기술적으로 반증된 finding은 근거와 함께 닫을 수 있다. 유효한 미해결 필수 finding은 workflow가 진행되기 전에 artifact 변경 또는 사람의 명시적인 `accepted_risk`가 필요하다.
+
+## Plan-backed red-team completion review
+
+일반 코드 리뷰가 끝난 plan-backed 작업에는 [red-team-reviewer.md](red-team-reviewer.md)를 사용해
+별도의 completion gate를 수행한다. Fast Path처럼 plan이 없는 작업에는 적용하지 않는다.
+
+- reviewer는 이전 implementer·reviewer와 다른 fresh context에서 시작하며 이전 session history,
+  판정, 칭찬 또는 완료에 가까워 보인다는 진행 신호를 전달받지 않는다. Codex에서는 실제 tool
+  metadata를 확인한 뒤 `fork_turns: "none"`을 사용한다.
+- red-team 직전에 전체 변경 package, 원래 목표, 승인된 요구사항·설계, plan 의사코드·mapping,
+  결정론적 검증 report, 실제 관찰 결과와 알려진 제약을 각각 파일로 고정한다. 이 component와
+  아래 provenance를 `scripts/red-team-package`로 하나의 bundle에 복사해 bundle 전체의 SHA-256을
+  기록한다. mutable source 경로를 bundle과 별도로 reviewer에게 전달하지 않는다.
+- 일반 review finding이 artifact 변경을 유도했다면 finding 원문·근거와 적용된 revision·path의
+  중립적인 finding-to-fix provenance만 전달한다. verdict, 칭찬과 reviewer 권위를 제거하고 red-team이
+  구속력 없는 반증 대상으로 취급하게 한다. finding이 없거나 artifact에 영향을 주지 않았다면
+  provenance 파일에 `none`을 기록한다.
+- bundle은 다음 순서의 일곱 component를 모두 내장한다: 전체 변경 package, 원래 목표,
+  요구사항·설계, plan·flow mapping, 검증 report, 관찰 결과·제약, finding-to-fix provenance.
+  reviewer에는 bundle 경로와 bundle digest만 전달한다. 일반 리뷰 뒤 artifact가 바뀌었다면 전체
+  변경 package와 모든 영향 component를 새로 고정해 새 bundle을 만든다.
+- 최초 challenge는 일반 리뷰를 반복하지 않고 목표·설계·구현·실제 검증의 연결을 독립 평가한다.
+  기존 결론을 정답으로 전제하지 않되, 결함을 반드시 발견해야 하는 것은 아니다.
+- 판정은 정확히 `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
+  `survives_challenge`만 일반 통과로 취급한다.
+- `invalidated` finding은 design, plan, implementation 또는 verification의 실제 소유 단계로
+  돌려보낸다. 기존 review finding이나 그 수정 방향이 틀렸다면 근거와 함께 해당 finding을
+  무효화하고 영향 task를 `reopened`한다. 수정 뒤에는 영향받은 검증과 일반 gate를 공통 계약에
+  따라 현재 리비전에 갱신하고 새 bundle을 만든다. 국소 수정이면 다음 fresh reviewer는 이전
+  반례와 수정 회귀를 확인한다. 목표·계약·설계·dependency 경계 변경 또는 불명확한 영향에는
+  전체 challenge를 다시 연다. 이전 반례·수정 범위·검증 사실은 provenance에 남기되 이전 판정은
+  전달하지 않는다. 자동 시도는 최대 5회이며 owner 반환이나 session 교체로 초기화하지 않는다.
+  각 재시도에는 변경된 근거, 새 bundle과 fresh-context reviewer가 필요하다.
+- reviewer를 사용할 수 없거나 필요한 evidence가 없으면 `not_run`, `blocked` 또는
+  `inconclusive`를 그대로 기록한다. 일반 reviewer의 승인을 red-team 통과로 대체하지 않는다.
+
+```bash
+./scripts/red-team-package \
+  "$WHOLE_CHANGE_PACKAGE" "$ORIGINAL_GOAL_FILE" "$REQUIREMENTS_FILE" \
+  "$PLAN_AND_MAPPING_FILE" "$VERIFICATION_REPORT" "$OUTCOMES_FILE" \
+  "$PROVENANCE_FILE" "$RED_TEAM_BUNDLE"
+```
+
+필수 component가 없거나 비어 있으면 script가 bundle 생성을 거부한다. 기존 output 경로도
+덮어쓰지 않는다. 같은 range를 다시 challenge하더라도 attempt별 새 output 경로를 사용한다.
 
 ## 예시
 
@@ -83,6 +134,8 @@ HEAD_SHA=$(git rev-parse HEAD)
   Revision: sha256:012345...
 
 [Dispatch code reviewer subagent]
+  MODEL: <role-appropriate model>
+  REASONING_EFFORT: <role-appropriate effort>
   DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
   PLAN_OR_REQUIREMENTS: Task 2 from .engineering/plans/deployment-plan.md
   REVIEW_PACKAGE: /tmp/engineering-review.ABC123.diff
@@ -93,9 +146,14 @@ HEAD_SHA=$(git rev-parse HEAD)
   Issues:
     Important: Missing progress indicators
     Minor: Magic number (100) for reporting interval
-  Assessment: Ready to proceed
+  ### 판정
+  **Gate status:** failed
+  **Merge 준비가 됐는가?** With fixes
+  **근거:** Important finding이 열려 있으므로 수정과 재리뷰가 필요하다.
 
 You: [Fix progress indicators]
+[Regenerate the changed revision package and run a scoped re-review]
+[Re-review returns Gate status: passed]
 [Continue to Task 3]
 ```
 

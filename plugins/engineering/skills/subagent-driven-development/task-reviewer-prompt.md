@@ -3,14 +3,19 @@
 task reviewer subagent를 위임할 때 이 template을 사용한다. reviewer는 task의 diff를 한 번
 읽고 spec 준수 여부와 코드 품질의 두 가지 판정을 반환한다.
 
+이 review의 full report, rationale, verdict, praise와 reviewer identity는 controller/reviewer 기록이다.
+fresh fix implementer에게는 승인된 brief, 현재 exact binary-safe package, 열린 finding과 관찰한
+명령·결과 및 이전 실패만 `Fact:`와 `Hypothesis:`를 구분해 전달한다. 형식은 shared
+`../executing-plans/fix-implementer-prompt.md`를 따른다.
+
 **목적:** 한 task의 구현이 요구사항과 정확히 일치하고 과하거나 부족한 부분이 없으며, 깔끔하고
 적절히 검증되고 유지보수 가능하게 구현됐는지 확인한다.
 
 ```
 Subagent (general-purpose):
   description: "Task N 리뷰(spec + quality)"
-  model: [MODEL — 필수: SKILL.md의 Model Selection에 따라 선택한다. 생략하면
-         session에서 가장 비싼 모델을 조용히 상속한다.]
+  model: [MODEL — 실제 schema가 두 override를 모두 지원할 때 SKILL.md에 따라 선택한다.]
+  reasoning_effort: [REASONING_EFFORT — model과 함께 지원될 때 platform 역할별 matrix에 따라 선택한다.]
   prompt: |
     한 task의 구현을 리뷰한다. 먼저 요구사항과 일치하는지, 그다음 적절하게 구현됐는지
     확인한다. 이것은 task 범위의 게이트이며 merge 리뷰가 아니다. 모든 task가 완료된 뒤
@@ -170,7 +175,8 @@ Subagent (general-purpose):
 ```
 
 **치환할 placeholder:**
-- `[MODEL]` — 필수: SKILL.md의 Model Selection에 따른 reviewer 모델
+- `[MODEL]`, `[REASONING_EFFORT]` — 실제 schema가 두 override를 모두 지원할 때 함께 명시한다.
+  지원하지 않으면 Codex 도구 참고의 fallback을 기록한다.
 - `[BRIEF_FILE]` — 필수: task brief 파일(`scripts/task-brief PLAN N`이 경로를 출력하며 implementer가 작업한 파일과 동일)
 - `[GLOBAL_CONSTRAINTS]` — plan의 Global Constraints 섹션 또는 spec에서 그대로 복사한 필수 요구사항. 정확한 값, 형식과 component 사이의 명시된 관계를 포함한다. process 규칙은 이미 이 template에 있으므로 제외한다.
 - `[REPORT_FILE]` — 필수: implementer가 상세 report를 작성한 파일

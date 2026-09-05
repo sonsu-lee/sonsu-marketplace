@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
-# Generate a review package: commit list, stat summary, and the net
-# diff with extended context, written to a file the reviewer reads in one
-# call. Using the recorded per-task BASE (not HEAD~1) keeps multi-commit
-# tasks intact.
-#
-# Usage: review-package PLAN_FILE BASE HEAD [OUTFILE]
-# Default OUTFILE: <repo-root>/.engineering/sdd/<plan-basename>/review-<base7>..<head7>.diff
-# (named per range, so a re-review after fixes gets a distinct fresh file).
+# Preserve the SDD call signature and workspace ownership while delegating
+# package construction to the canonical binary-safe review-package helper.
 set -euo pipefail
 
 if [ $# -lt 3 ] || [ $# -gt 4 ]; then
@@ -19,38 +13,29 @@ base=$2
 head=$3
 [ -f "$plan" ] || { echo "no such plan file: $plan" >&2; exit 2; }
 
-git rev-parse --verify --quiet "$base" >/dev/null || { echo "bad BASE: $base" >&2; exit 2; }
-git rev-parse --verify --quiet "$head" >/dev/null || { echo "bad HEAD: $head" >&2; exit 2; }
+script_dir=$(cd "$(dirname "$0")" && pwd -P)
+repo_root=$(git rev-parse --show-toplevel)
+repo_root=$(cd "$repo_root" && pwd -P)
+canonical="$script_dir/../../requesting-code-review/scripts/review-package"
+[ -x "$canonical" ] || { echo "canonical review-package is not executable: $canonical" >&2; exit 2; }
+
+git -C "$repo_root" rev-parse --verify --quiet "${base}^{commit}" >/dev/null || {
+  echo "bad BASE: $base" >&2
+  exit 2
+}
+git -C "$repo_root" rev-parse --verify --quiet "${head}^{commit}" >/dev/null || {
+  echo "bad HEAD: $head" >&2
+  exit 2
+}
 
 if [ $# -eq 4 ]; then
   out=$4
 else
-  dir=$("$(cd "$(dirname "$0")" && pwd)/sdd-workspace" "$plan")
-  out="$dir/review-$(git rev-parse --short "$base")..$(git rev-parse --short "$head").diff"
+  workspace=$("$script_dir/sdd-workspace" "$plan")
+  base_short=$(git -C "$repo_root" rev-parse --short "$base")
+  head_short=$(git -C "$repo_root" rev-parse --short "$head")
+  package_dir=$(mktemp -d "$workspace/review-${base_short}..${head_short}.XXXXXX")
+  out="$package_dir/package.diff"
 fi
 
-{
-  echo "# Review package: ${base}..${head}"
-  echo
-  echo "## Commits"
-  git log --oneline "${base}..${head}"
-  echo
-  echo "## Files changed"
-  git diff --stat "${base}..${head}"
-  echo
-  echo "## Diff"
-  git diff -U10 "${base}..${head}"
-} > "$out"
-
-if command -v shasum >/dev/null 2>&1; then
-  digest=$(shasum -a 256 "$out" | awk '{print $1}')
-elif command -v sha256sum >/dev/null 2>&1; then
-  digest=$(sha256sum "$out" | awk '{print $1}')
-else
-  echo "neither shasum nor sha256sum is available" >&2
-  exit 2
-fi
-
-commits=$(git rev-list --count "${base}..${head}")
-echo "wrote ${out}: ${commits} commit(s), $(wc -c < "$out" | tr -d ' ') bytes"
-printf 'Package: %s\nRevision: sha256:%s\n' "$out" "$digest"
+"$canonical" range "$base" "$head" "$out"

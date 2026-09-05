@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "기능 생성, component 구축, 기능 추가 또는 동작 변경 같은 창의적인 작업 전에 반드시 사용한다. 구현 전에 사용자의 의도, 요구사항과 설계를 탐색한다."
+description: "기존 코드·문서·metadata의 국소적 또는 기계적 변경을 포함해 구현이나 동작 변경을 분류하고 설계 경계를 정해야 할 때 사용한다. 새 기능, component, bounded 수정과 architectural 변경의 구현 전에 사용한다."
 ---
 
 # brainstorming: 아이디어를 설계로 구체화하기
@@ -13,7 +13,9 @@ description: "기능 생성, component 구축, 기능 추가 또는 동작 변�
 <HARD-GATE>
 하려는 작업을 사용자에게 설명하고 승인을 받기 전에는 implementation 스킬을 호출하거나,
 코드를 작성하거나, project를 scaffold하거나, 구현 작업을 수행하지 않는다. 이는 아래 모든
-경로의 모든 task에 적용된다. 절차의 무게는 task에 맞춰 조절하지만 승인 게이트는 생략하지 않는다.
+경로의 모든 task에 적용된다. 단, 아래 Fast Path의 모든 predicate가 확인되고 사용자 요청 자체에
+대상·관찰 가능한 결과·완료 조건이 명확하면 그 요청을 승인된 짧은 설계로 취급한다. predicate가
+하나라도 false 또는 unknown이면 이 예외를 사용할 수 없다.
 </HARD-GATE>
 
 ## 세 가지 경로
@@ -29,9 +31,9 @@ description: "기능 생성, component 구축, 기능 추가 또는 동작 변�
 - **Bounded** — 이 저장소에 이미 존재하는 코드를 대상으로 범위가 명확한 변경이다. 새 flag,
   작은 endpoint, 한 파일 수정 등이 해당한다. 앱의 종류를 이해한다는 것만으로는 부족하다.
   `bounded`는 변경할 흐름이 이미 존재하여 읽을 수 있다는 뜻이다. 변경할 기존 흐름이 없다면
-  `bounded`가 아니다. 중요한 명확화 질문을 하고, chat 안에서 몇 문장이나 짧은 몇 문단으로
-  설계를 제시한 뒤 중단한다. 사용자가 설계를 승인한 뒤에만 구현을 시작한다. `bounded` task의
-  승인도 `architectural` task와 똑같이 강한 게이트다. spec 파일은 만들지 않는다. 설계 승인 뒤
+  `bounded`가 아니다. 먼저 아래 Fast Path를 판정한다. 해당하지 않으면 중요한 명확화 질문을
+  하고, chat 안에서 몇 문장이나 짧은 몇 문단으로 설계를 제시한 뒤 중단한다. Fast Path가 아닌
+  `bounded` task는 사용자가 설계를 승인한 뒤에만 구현을 시작한다. spec 파일은 만들지 않는다. 설계 승인 뒤
   `engineering:writing-plans`의 plan 필요 조건을 별도로 확인하고, 조건을 충족하면 의사코드 우선
   plan으로 전환한다. 조건을 충족하지 않을 때에만 별도 plan 없이 직접 구현한다.
 - **Architectural** — 새 project, 새 subsystem, component 사이의 구성을 재구성하거나 다른
@@ -42,18 +44,91 @@ description: "기능 생성, component 구축, 기능 추가 또는 동작 변�
 움직인다. task 도중 숨은 복잡성을 발견하면 중단하고 그 사실을 알린 뒤 더 무거운 경로로
 올린다. task 도중에는 경로를 낮추지 않는다.
 
-## 안티패턴: "Too Simple To Need Approval"
+## Bounded Fast Path
 
-모든 경로는 구현 전에 사용자가 의도를 승인하는 것으로 끝난다. todo 목록, 단일 함수 utility,
-config 변경이라면 설계가 chat의 두 문장일 수는 있지만 반드시 제시하고 승인을 받아야 한다.
-"Simple" task일수록 검토하지 않은 가정이 가장 큰 낭비를 만든다. 단순함에 맞춰 줄어드는 것은
-artifact의 크기이지 승인 절차가 아니다.
+Fast Path는 작은 diff가 아니라 의도, 영향 범위, 변환 규칙과 검증 결과를 짧고 결정론적으로
+닫을 수 있는 plan 없는 `bounded` 작업이다. target discovery 전에 stable todo ID를 사용하거나 UUID를
+한 번만 생성한다. `TASK_ID`는 target에서 다시 유도하거나 resume, context compaction, handoff에서
+초기화하지 않고 task 전체에서 고정한다. 별도의 `EXECUTION_ID`는 현재 중단 없는 controller 실행을
+위해 한 번만 생성하며 handoff에 전달하거나 state 파일에서 복구하지 않는다.
+
+Fast Path에 들어갈 때 `.engineering/fast-path/<task-id>.state`를 다음과 같이 시작한다.
+
+```bash
+STATE_ROOT="$REPOSITORY_ROOT/.engineering/fast-path"
+STATE_FILE="$STATE_ROOT/$TASK_ID.state"
+plugins/engineering/skills/brainstorming/scripts/fast-path-state begin \
+  "$STATE_ROOT" "$TASK_ID" "$EXECUTION_ID"
+```
+
+`disqualified`이면 판정과 실행을 건너뛰어 가장 가까운 일반 workflow로 보낸다. legacy v1 state,
+다른 `EXECUTION_ID`로 돌아온 resume 또는 이미 latch된 task도 `disqualified`이다. `active`는 현재
+실행의 예산 추적 상태일 뿐 Fast Path 승인이나 eligibility가 아니다. `EXECUTION_ID`도 승인 인증이
+아니라 예산을 현재 실행에 연결하는 표식이다. context loss와 reentry를 판단해 새 ID를 만들고 이전
+ID를 state나 대화에서 복구하지 않는 책임은 controller에 있다.
+
+controller는 **현재 실제 파일**을 대상으로 reference, consumer, public-contract risk, unknown과
+deterministic verification oracle을 한 번만 묶어서 판정한다. 필요할 때만 표적 탐색을 사용하며
+task 전체에서 최대 2회다. 각 탐색 직전에 다음 예약을 먼저 기록한다.
+
+```bash
+plugins/engineering/skills/brainstorming/scripts/fast-path-state reserve \
+  "$STATE_ROOT" "$TASK_ID" "$EXECUTION_ID" search
+```
+
+별도 classifier나 classifier subagent는 요구하지 않는다. 다음 predicate가 모두 proven이고
+hidden-risk signal이 없을 때에만 현재 실행에서 곧바로 Fast Path를 진행한다. 이 positive 판정은
+state에 기록하지 않으며, unchanged `HEAD`도 dirty file이나 context drift를 포함한 이후 실행의
+재사용 가능한 승인이 아니다. false 또는 unknown predicate는 다음과 같이 먼저 영속 latch를 남긴다.
+
+```bash
+plugins/engineering/skills/brainstorming/scripts/fast-path-state disqualify \
+  "$STATE_ROOT" "$TASK_ID" "$EXECUTION_ID" "$REASON"
+```
+
+다음 predicate를 모두 확인한다.
+
+- 요청에 대상, 관찰 가능한 결과와 완료 조건이 명확하다.
+- 효과가 국소적인 Local Fast Path이거나 동일 규칙을 재현할 수 있는 Mechanical Fast Path다.
+- 직접 참조, 호출자와 consumer 범위를 최대 2회의 표적 탐색으로 닫을 수 있다.
+- 새로운 제품·설계 판단이 필요하지 않다.
+- public interface, schema, 상태 모델, 권한, migration 또는 호환성 계약을 바꾸지 않는다.
+- 저렴하고 결정론적인 검증 방법이 있다.
+- 변경이 가역적이며 승인된 범위 안에 있다.
+
+Local Fast Path는 내부 상수, private helper, 오탈자, link, fixture 또는 소비 위치가 명확한
+configuration처럼 효과 경계를 닫을 수 있는 변경이다. runtime dispatch, reflection 또는 plugin
+loading 때문에 정적 검색으로 consumer를 닫을 수 없으면 해당하지 않는다.
+
+Mechanical Fast Path는 formatter, 정확한 key·import·경로 변경, schema가 정해진 data 갱신 또는
+canonical generator, 명시된 규칙의 문자열 정규화처럼 script, AST 변환, command나 Code Mode로
+같은 규칙을 재현할 수 있는 변경이다. 파일 수가 많아도 가능하지만, Code Mode로 실행할 수 있다는
+사실만으로 단순하다고 판정하지 않는다. public API, DB migration, 인증·권한, dependency major
+update, 대량 삭제와 의미가 다른 문자열의 무차별 치환은 제외한다.
+
+Fast Path는 표적 탐색 최대 2회, 최초 구현 1회와 집중 수정 1회로 제한한다. 최초 구현과 수정은
+각 action 직전에 `fast-path-state reserve "$STATE_ROOT" "$TASK_ID" "$EXECUTION_ID" action`으로
+예산을 먼저 기록한다. 현재 실행에서 알고 있는 자기 변경과 그에 대한 한 번의 집중 수정은 resume이나
+file drift가 아니다. 예상 밖 file drift나 consumer, context loss 또는 reentry, 두 번째 의미 판단,
+여러 책임으로 확장, public contract, 원인 불명의 검사 실패, reviewer 없이는 판정하기 어려운 상태,
+관련 없는 refactoring 또는 두 번째 수정 필요가 드러나면 `fast-path-state disqualify ...`를 먼저
+실행하고 즉시 Fast Path를 종료한다. 이 one-way owner escalation은 predicate 또는 Fast Path 실행으로
+돌아가지 않는다. 완료할 때에는 판정 근거, 실제 변경 범위, 결정론적 검증과 원래 목적과의 정렬을
+짧게 기록한다.
+
+원인이 불명확한 실패는 `engineering:systematic-debugging`, 여러 흐름·interface를 조정해야 하는
+확장은 `engineering:writing-plans`, 요구사항이나 설계를 바꿔야 하는 확장은
+`engineering:brainstorming`으로 보낸다. 이 escalation은 Fast Path의 실패가 아니라 숨은 복잡성을
+발견한 정상적인 routing이다. 어느 경로든 task ID와 state-file path를 전달하되 `EXECUTION_ID`는
+전달하지 않는다. latched task를 다시 Fast Path로 분류하지 않는다.
 
 ## 위험 신호
 
 | 생각 | 실제 |
 |---------|---------|
-| "This is too simple to need a design" | 단순하다는 것은 설계가 짧다는 뜻이지 없다는 뜻이 아니다. chat에서 두 문장으로 제시한 뒤 승인을 받는다. |
+| "This is too simple to need a design" | Fast Path predicate를 모두 확인하면 요청 자체가 승인된 짧은 설계다. 그렇지 않으면 chat에서 설계를 제시하고 승인을 받는다. |
+| "Code Mode can do it, so it is simple" | Code Mode는 실행 수단이다. 영향 범위와 의미가 닫혀야 Mechanical Fast Path다. |
+| "I am almost done, so I can keep the fast path" | escalation signal이 나오면 남은 budget과 관계없이 일반 workflow로 올린다. |
 | "I'll call it bounded and skip the spec" | 일을 생략하려고 label을 고르는 것 자체가 의심의 신호다. 더 무거운 경로를 선택한다. |
 | "It's bounded and the design is obvious — I'll start while they read it" | 게이트는 설계 길이가 아니라 승인이다. 제시한 뒤 사용자가 동의할 때까지 중단한다. |
 | "I understand this kind of app, so it's bounded" | `bounded`는 익숙함이 아니라 저장소를 기준으로 판단한다. 새 project에는 기존 흐름이 없으므로 `architectural`이다. |
@@ -74,11 +149,12 @@ artifact의 크기이지 승인 절차가 아니다.
 
 **`bounded`(범위 한정):**
 1. **Project context 탐색** — 파일, 문서와 최근 commit을 확인한다.
-2. **명확화 질문** — 중요한 질문을 한 번에 하나씩 한다.
-3. **Chat에서 짧은 설계 제시** — 접근 방식, 예상 동작과 수정할 파일을 설명한다.
-4. **승인 받기** — 중단하고 명시적인 동의를 기다린다. 설계를 제시하면서 바로 시작하면 게이트를 건너뛴 것이다.
-5. **Plan 필요 여부 판단** — 파일 수나 `bounded` label이 아니라 여러 단계·interface·상태 전이·오류 처리·migration·회귀 위험을 조정해야 하는지 확인한다.
-6. **구현으로 전환** — plan이 필요하면 `engineering:writing-plans`를 사용한다. 필요하지 않으면 일반 개발 workflow로 진행하고, 동작과 회귀 위험을 기준으로 TDD 적합성을 판단해 이유와 함께 변경에 비례해 검증한다. 이 경우에는 plan 문서나 긴 의사코드를 만들지 않는다.
+2. **Fast Path latch와 controller 판정** — target discovery 전 stable `TASK_ID`를 고정하고 현재 중단 없는 실행에만 쓸 `EXECUTION_ID`를 만든다. `fast-path-state begin ROOT TASK_ID EXECUTION_ID`이 `disqualified`이면 일반 workflow로 route한다. `active`이면 현재 실제 파일을 한 번 묶어서 판정하며, 최대 2회의 표적 탐색은 각각 `reserve ... search`로 먼저 기록한다. 모든 predicate를 입증한 positive 판정은 저장하지 않고 현재 실행에서만 즉시 사용한다. false, unknown, resume, context loss 또는 예상 밖 drift는 `disqualify`로 latch한다.
+3. **명확화 질문** — Fast Path가 아니면 중요한 질문을 한 번에 하나씩 한다.
+4. **Chat에서 짧은 설계 제시** — 접근 방식, 예상 동작과 수정할 파일을 설명한다.
+5. **승인 받기** — 중단하고 명시적인 동의를 기다린다. 설계를 제시하면서 바로 시작하면 게이트를 건너뛴 것이다.
+6. **Plan 필요 여부 판단** — 파일 수나 `bounded` label이 아니라 여러 단계·interface·상태 전이·오류 처리·migration·회귀 위험을 조정해야 하는지 확인한다.
+7. **구현으로 전환** — plan이 필요하면 `engineering:writing-plans`를 사용한다. 필요하지 않으면 일반 개발 workflow로 진행하고, 동작과 회귀 위험을 기준으로 TDD 적합성을 판단해 이유와 함께 변경에 비례해 검증한다. 이 경우에는 plan 문서나 긴 의사코드를 만들지 않는다.
 
 **`architectural`(아키텍처 변경):**
 1. **Project context 탐색** — 파일, 문서와 최근 commit을 확인한다.
@@ -101,6 +177,14 @@ digraph brainstorming {
     "Classify: spike / bounded / architectural" [shape=diamond];
     "Present question + probe (2-3 sentences)" [shape=box];
     "Ask clarifying questions (bounded)" [shape=box];
+    "Check Fast Path latch" [shape=diamond];
+    "Assess current files once\n(up to two reserved searches)" [shape=box];
+    "All Fast Path predicates confirmed?" [shape=diamond];
+    "Run bounded Fast Path" [shape=box];
+    "Hidden complexity during Fast Path?" [shape=diamond];
+    "Fast Path verified" [shape=doublecircle];
+    "Latch disqualified; stop Fast Path" [shape=box];
+    "Route nearest normal workflow" [shape=doublecircle];
     "Present short design in chat" [shape=box];
     "Human approves?" [shape=diamond];
     "Implementation plan needed?" [shape=diamond];
@@ -118,10 +202,18 @@ digraph brainstorming {
     "Design-document quality gate" [shape=diamond];
     "User reviews written doc?" [shape=diamond];
     "Invoke writing-plans skill" [shape=doublecircle];
-    "Hidden complexity? Upgrade path" [shape=box];
 
     "Classify: spike / bounded / architectural" -> "Present question + probe (2-3 sentences)" [label="spike"];
-    "Classify: spike / bounded / architectural" -> "Ask clarifying questions (bounded)" [label="bounded"];
+    "Classify: spike / bounded / architectural" -> "Check Fast Path latch" [label="bounded"];
+    "Check Fast Path latch" -> "Assess current files once\n(up to two reserved searches)" [label="active"];
+    "Check Fast Path latch" -> "Route nearest normal workflow" [label="disqualified: do not re-enter Fast Path"];
+    "Assess current files once\n(up to two reserved searches)" -> "All Fast Path predicates confirmed?";
+    "All Fast Path predicates confirmed?" -> "Run bounded Fast Path" [label="eligible"];
+    "Run bounded Fast Path" -> "Hidden complexity during Fast Path?";
+    "Hidden complexity during Fast Path?" -> "Latch disqualified; stop Fast Path" [label="yes: one-way owner escalation"];
+    "Hidden complexity during Fast Path?" -> "Fast Path verified" [label="no"];
+    "All Fast Path predicates confirmed?" -> "Latch disqualified; stop Fast Path" [label="false / unknown"];
+    "Latch disqualified; stop Fast Path" -> "Route nearest normal workflow" [label="task ID + state-file path"];
     "Classify: spike / bounded / architectural" -> "Explore project context" [label="architectural"];
     "Present question + probe (2-3 sentences)" -> "Human approves?";
     "Ask clarifying questions (bounded)" -> "Present short design in chat";
@@ -130,7 +222,6 @@ digraph brainstorming {
     "Human approves?" -> "Implementation plan needed?" [label="bounded: yes"];
     "Implementation plan needed?" -> "Invoke writing-plans skill" [label="yes"];
     "Implementation plan needed?" -> "Implement via normal workflow (no plan doc)" [label="no"];
-    "Hidden complexity? Upgrade path" -> "Classify: spike / bounded / architectural";
     "Explore project context" -> "Ask clarifying questions";
     "Ask clarifying questions" -> "Propose 2-3 approaches";
     "Propose 2-3 approaches" -> "Present design sections";
@@ -149,7 +240,8 @@ digraph brainstorming {
 }
 ```
 
-**종료 상태는 각 경로에 종속된다.** `Architectural`에서는 brainstorming 뒤에 호출하는 유일한
+**종료 상태는 각 경로에 종속된다.** Fast Path는 제한된 실행, 결정론적 검증과 목적 정렬 기록으로
+끝난다. `Architectural`에서는 brainstorming 뒤에 호출하는 유일한
 스킬이 `writing-plans`다. `frontend-design`, `mcp-builder` 또는 다른 implementation 스킬을
 호출하지 않는다. `Bounded`에서는 승인 뒤 plan 필요 조건을 확인하고, 조건을 충족하면
 `writing-plans`로 전환하며 그렇지 않으면 일반 개발 workflow로 바로 구현한다. `Spike`의 종료
@@ -159,8 +251,8 @@ digraph brainstorming {
 
 아래 하위 섹션은 `bounded`와 `architectural` 경로에 적용된다(`spike`는 "present the probe,
 get a nod", 즉 probe를 제시하고 동의를 받는 단계에서 끝난다). **접근 방식 탐색** 이후 섹션은 `architectural` 경로에 해당하는
-깊이다. `bounded` 작업의 설계 단계는 context, 몇 가지 질문과 chat 안의 짧은 설계로 끝나며,
-승인 뒤에는 위의 plan 필요 여부 판정을 거친다.
+깊이다. Fast Path가 아닌 `bounded` 작업의 설계 단계는 context, 몇 가지 질문과 chat 안의 짧은
+설계로 끝나며, 승인 뒤에는 위의 plan 필요 여부 판정을 거친다.
 
 **아이디어 이해:**
 
@@ -234,7 +326,7 @@ get a nod", 즉 probe를 제시하고 동의를 받는 단계에서 끝난다). 
 
 1. 항상 위의 자체 리뷰와 적용 가능한 link, 경로, schema 또는 저장소 문서 검사를 실행한다.
 2. architecture 또는 고위험 영속 문서, 혹은 독립 리뷰가 계획 위험을 실질적으로 줄이는 경우 [spec-document-reviewer-prompt.md](spec-document-reviewer-prompt.md)로 reviewer를 위임한다. 저위험 수정은 해당 검사를 `not_applicable`로 기록할 수 있다.
-3. 리뷰 시도는 최대 3회로 제한한다(초기 리뷰와 수정 후 리뷰 2회). 재시도할 때에는 영향을 받은 문서 섹션, 요구사항 근거 또는 evaluator context가 달라져야 한다.
+3. 리뷰 시도는 최대 5회로 제한한다(초기 리뷰와 수정 후 리뷰 4회). 재시도할 때에는 영향을 받은 문서 섹션, 요구사항 근거 또는 evaluator context가 달라져야 한다.
 4. 유효한 finding은 영향을 받은 가장 작은 설계 또는 문서 섹션으로 돌려보낸다. 요구사항 모순은 관련 없는 섹션을 다시 쓰는 대신 해당 설계 결정으로 돌려보낸다.
 5. 현재 리비전이 `passed`이거나 사람이 `accepted_risk`를 기록한 경우에만 진행한다. 필수 reviewer를 사용할 수 없으면 암묵적 pass가 아니라 `blocked` 또는 `not_run`이다.
 

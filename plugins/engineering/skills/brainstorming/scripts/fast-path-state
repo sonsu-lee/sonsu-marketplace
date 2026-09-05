@@ -1,0 +1,248 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'usage: fast-path-state begin ROOT TASK_ID EXECUTION_ID | reserve ROOT TASK_ID EXECUTION_ID search|action | disqualify ROOT TASK_ID EXECUTION_ID REASON\n' >&2
+  exit 64
+}
+
+fail_closed() {
+  printf 'fast-path-state: %s\n' "$1" >&2
+  exit 1
+}
+
+[[ $# -ge 1 ]] || usage
+command=$1
+
+case "$command" in
+  begin)
+    [[ $# -eq 4 ]] || usage
+    root=$2
+    task_id=$3
+    execution_id=$4
+    ;;
+  reserve)
+    [[ $# -eq 5 ]] || usage
+    root=$2
+    task_id=$3
+    execution_id=$4
+    reservation=$5
+    [[ "$reservation" == search || "$reservation" == action ]] || usage
+    ;;
+  disqualify)
+    [[ $# -eq 5 ]] || usage
+    root=$2
+    task_id=$3
+    execution_id=$4
+    reason=$5
+    ;;
+  *) usage ;;
+esac
+
+[[ "$root" == /* ]] || fail_closed 'state root must be an absolute path'
+[[ "$root" != / && "$root" != */ ]] || fail_closed 'unsafe state root'
+case "$root" in
+  *'//'*|*/./*|*/../*|*/.|*/..) fail_closed 'state root must be canonical' ;;
+esac
+[[ "$task_id" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]] || fail_closed 'unsafe task ID'
+[[ "$execution_id" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]] || fail_closed 'unsafe execution ID'
+
+validate_text() {
+  local value=$1
+  [[ -n "$value" && ${#value} -le 512 && "$value" != *$'\n'* && "$value" != *$'\r'* ]]
+}
+
+if [[ "$command" == disqualify ]]; then
+  validate_text "$reason" || fail_closed 'invalid disqualification reason'
+fi
+
+canonicalize_state_root() {
+  local candidate=$root component parent logical_ancestor physical_ancestor logical_root physical_root
+  local target attempts=0 missing_components=''
+
+  while [[ ! -e "$candidate" && ! -L "$candidate" ]]; do
+    component=${candidate##*/}
+    [[ -n "$component" && "$component" != "$candidate" ]] || fail_closed 'cannot resolve state root ancestor'
+    missing_components=$component${missing_components:+/$missing_components}
+    parent=${candidate%/*}
+    candidate=${parent:-/}
+    attempts=$((attempts + 1))
+    [[ "$attempts" -le 256 ]] || fail_closed 'state root path is too deep'
+  done
+
+  [[ ! -L "$candidate" && -d "$candidate" ]] || fail_closed 'unsafe state root ancestor'
+  logical_ancestor=$(cd -L "$candidate" 2>/dev/null && pwd -L) || fail_closed 'cannot resolve state root ancestor'
+  physical_ancestor=$(cd -P "$candidate" 2>/dev/null && pwd -P) || fail_closed 'cannot resolve state root ancestor'
+  [[ "$logical_ancestor" == "$physical_ancestor" ]] || fail_closed 'state root ancestor contains a symlink'
+
+  root=$physical_ancestor
+  while [[ -n "$missing_components" ]]; do
+    component=${missing_components%%/*}
+    if [[ "$missing_components" == */* ]]; then
+      missing_components=${missing_components#*/}
+    else
+      missing_components=''
+    fi
+    target=${root%/}/$component
+    if [[ -e "$target" || -L "$target" ]]; then
+      [[ ! -L "$target" && -d "$target" ]] || fail_closed 'unsafe state root component'
+    else
+      mkdir "$target" || fail_closed 'cannot create state root component'
+    fi
+    root=$target
+  done
+
+  logical_root=$(cd -L "$root" 2>/dev/null && pwd -L) || fail_closed 'cannot resolve state root'
+  physical_root=$(cd -P "$root" 2>/dev/null && pwd -P) || fail_closed 'cannot resolve state root'
+  [[ "$logical_root" == "$physical_root" && "$root" == "$physical_root" ]] || fail_closed 'state root contains a symlink'
+  root=$physical_root
+}
+
+canonicalize_state_root
+state="$root/$task_id.state"
+lock="$root/$task_id.state.lock"
+
+acquire_lock() {
+  local attempts=0
+  while ! mkdir "$lock" 2>/dev/null; do
+    [[ ! -L "$lock" && -d "$lock" ]] || fail_closed 'unsafe state lock'
+    attempts=$((attempts + 1))
+    [[ "$attempts" -lt 50 ]] || fail_closed 'state lock is busy'
+    sleep 0.05
+  done
+  trap 'rmdir "$lock" 2>/dev/null || true' EXIT HUP INT TERM
+}
+
+read_state() {
+  local line key value lines=0 first=''
+  state_status=''
+  state_execution=''
+  state_searches=''
+  state_actions=''
+  state_reason=''
+  state_version=''
+
+  [[ ! -L "$state" && -f "$state" && -s "$state" ]] || return 1
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    lines=$((lines + 1))
+    [[ "$lines" -ne 1 ]] || first=$line
+    key=${line%%=*}
+    value=${line#*=}
+    [[ "$key" != "$line" ]] || return 1
+    case "$key" in
+      version) [[ "$lines" -eq 1 && ( "$value" == 1 || "$value" == 2 ) ]] || return 1; state_version=$value ;;
+      status) [[ "$lines" -eq 2 && ( "$value" == active || "$value" == disqualified ) ]] || return 1; state_status=$value ;;
+      execution_id) [[ "$lines" -eq 3 && "$value" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]] || return 1; state_execution=$value ;;
+      searches) [[ "$lines" -eq 4 && "$value" =~ ^[0-2]$ ]] || return 1; state_searches=$value ;;
+      actions) [[ "$lines" -eq 5 && "$value" =~ ^[0-2]$ ]] || return 1; state_actions=$value ;;
+      reason) [[ "$lines" -eq 6 ]] || return 1; state_reason=$value ;;
+      verdict|detail|evidence_digest) ;;
+      *) return 1 ;;
+    esac
+  done < "$state"
+
+  if [[ "$first" == version=1 ]]; then
+    state_version=1
+    return 0
+  fi
+
+  [[ "$lines" -eq 6 && "$state_version" == 2 && -n "$state_status" \
+    && -n "$state_execution" && -n "$state_searches" && -n "$state_actions" ]] || return 1
+  if [[ "$state_status" == active ]]; then
+    [[ "$state_reason" == none ]]
+  else
+    validate_text "$state_reason"
+  fi
+}
+
+write_state() {
+  local status=$1 execution=$2 searches=$3 actions=$4 reason_text=$5 tmp
+  tmp=$(mktemp "$root/.${task_id}.state.XXXXXX") || fail_closed 'cannot create temporary state'
+  trap 'rm -f "$tmp" 2>/dev/null || true; rmdir "$lock" 2>/dev/null || true' EXIT HUP INT TERM
+  printf 'version=2\nstatus=%s\nexecution_id=%s\nsearches=%s\nactions=%s\nreason=%s\n' \
+    "$status" "$execution" "$searches" "$actions" "$reason_text" > "$tmp"
+  mv -f "$tmp" "$state" || fail_closed 'cannot persist state'
+  trap 'rmdir "$lock" 2>/dev/null || true' EXIT HUP INT TERM
+}
+
+latch_disqualified() {
+  local reason_text=$1
+  write_state disqualified "$execution_id" "${state_searches:-0}" "${state_actions:-0}" "$reason_text"
+}
+
+acquire_lock
+
+if [[ ! -e "$state" && ! -L "$state" ]]; then
+  if [[ "$command" == reserve ]]; then
+    fail_closed 'task has not begun'
+  fi
+  if [[ "$command" == disqualify ]]; then
+    state_searches=0
+    state_actions=0
+    latch_disqualified "$reason"
+    printf 'disqualified\n'
+    exit 0
+  fi
+  write_state active "$execution_id" 0 0 none
+  printf 'active\n'
+  exit 0
+fi
+
+read_state || fail_closed 'malformed or unsafe state'
+
+if [[ "$state_version" == 1 ]]; then
+  state_searches=0
+  state_actions=0
+  latch_disqualified legacy-v1-state
+  if [[ "$command" == begin ]]; then
+    printf 'disqualified\n'
+    exit 0
+  fi
+  fail_closed 'legacy v1 state is disqualified'
+fi
+
+if [[ "$state_status" == disqualified ]]; then
+  if [[ "$command" == begin || "$command" == disqualify ]]; then
+    printf 'disqualified\n'
+    exit 0
+  fi
+  fail_closed 'task is disqualified'
+fi
+
+if [[ "$state_execution" != "$execution_id" ]]; then
+  latch_disqualified resumed-task
+  if [[ "$command" == begin ]]; then
+    printf 'disqualified\n'
+    exit 0
+  fi
+  fail_closed 'resumed task is disqualified'
+fi
+
+case "$command" in
+  begin)
+    printf 'active\n'
+    ;;
+  disqualify)
+    latch_disqualified "$reason"
+    printf 'disqualified\n'
+    ;;
+  reserve)
+    if [[ "$reservation" == search ]]; then
+      if [[ "$state_searches" -ge 2 ]]; then
+        latch_disqualified search-budget-exhausted
+        fail_closed 'search budget exhausted'
+      fi
+      state_searches=$((state_searches + 1))
+      write_state active "$execution_id" "$state_searches" "$state_actions" none
+      printf 'search=%s\n' "$state_searches"
+    else
+      if [[ "$state_actions" -ge 2 ]]; then
+        latch_disqualified action-budget-exhausted
+        fail_closed 'action budget exhausted'
+      fi
+      state_actions=$((state_actions + 1))
+      write_state active "$execution_id" "$state_searches" "$state_actions" none
+      printf 'action=%s\n' "$state_actions"
+    fi
+    ;;
+esac

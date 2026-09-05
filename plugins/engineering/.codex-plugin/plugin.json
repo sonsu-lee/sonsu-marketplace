@@ -1,7 +1,7 @@
 {
   "name": "engineering",
-  "version": "1.0.0",
-  "description": "문서 상태와 의사코드 우선 계획을 바탕으로 구현, 디버깅, 검증과 리뷰를 수행하고 단계별 소유 품질 게이트를 적용하는 엔지니어링 방법입니다.",
+  "version": "1.1.0",
+  "description": "단순 작업의 Fast Path와 계획 작업의 의사코드, 검증, 일반 리뷰 및 fresh-context red-team 게이트를 적용하는 엔지니어링 방법입니다.",
   "author": {
     "name": "sonsu-lee",
     "url": "https://github.com/sonsu-lee"
@@ -22,8 +22,8 @@
   "hooks": {},
   "interface": {
     "displayName": "Engineering",
-    "shortDescription": "범위가 명확한 품질 게이트를 갖춘 엔지니어링 워크플로",
-    "longDescription": "문서를 확인하고 의사코드에서 파일·task별 구현 계획을 도출한 뒤 위험에 맞는 검증을 선택하도록 안내합니다. 구현, 체계적인 디버깅, 코드 리뷰와 브랜치 완료에 단계별 소유 품질 게이트, 제한된 되돌아가기와 명시적인 승인 지점을 적용합니다.",
+    "shortDescription": "Fast Path와 red-team 게이트를 갖춘 엔지니어링 워크플로",
+    "longDescription": "명확한 단순 작업은 제한된 Fast Path로 처리하고, 계획이 필요한 작업은 의사코드에서 파일·task별 구현 계획을 도출한 뒤 위험에 맞는 검증을 선택하도록 안내합니다. 구현, 체계적인 디버깅, 일반 코드 리뷰와 fresh-context red-team 완료 리뷰에 단계별 소유 품질 게이트, 제한된 되돌아가기와 명시적인 승인 지점을 적용합니다.",
     "developerName": "sonsu-lee",
     "category": "Developer Tools",
     "capabilities": [
