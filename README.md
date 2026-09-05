@@ -12,7 +12,7 @@
 | [Quality Engineering](plugins/quality-engineering/README.md) | `0.1.0` | 도메인 형태의 구현과 단순성·유지보수성·실패 모드·운용 가능성 검토 | `domain-shaped-code`, `simplify-code`, `review-quality` 등 8개 |
 | [Workflow](plugins/workflow/) | `0.7.0` | branch·commit, ticket 생성·lifecycle과 GitHub pull request 작업 | `git-workflow`, `to-ticket`, `ticket-lifecycle`, `to-pr` |
 | [Fluent Languages](plugins/fluent-languages/) | `0.1.0-beta.4` | 기술 내용을 보존하는 한국어, 일본어와 영어 출력 지침 | `fluent-korean`, `fluent-japanese`, `fluent-english` |
-| [Research](plugins/research/README.md) | `0.7.0-sonsu.2` | 여러 출처의 탐색, 원문 교차 검증과 인용 감사 | `research` |
+| [Research](plugins/research/README.md) | `0.7.0-sonsu.3` | 여러 출처의 탐색, 원문 교차 검증과 인용 감사 | `research` |
 | [Prompting](plugins/prompting/README.md) | `0.1.0` | Codex, ChatGPT와 OpenAI API용 프롬프트 작성·재작성·최적화 | `prompt-builder` |
 | [Product](plugins/product/README.md) | `0.1.0` | 제품 기회 탐색, 근거 종합, 도메인 발견, 검증과 PRD 변환 | `product-brainstorming`, `product-discovery`, `synthesize-product-evidence`, `product-domain-discovery`, `design-product-test`, `assess-product-test`, `to-prd` |
 | [Figma Workflow](plugins/figma-workflow/README.md) | `0.1.0` | 공식 Figma MCP와 수동 companion의 경계를 지키는 Figma 화면·prototype·handoff 품질 | `figma-product-design`, `figma-prototype-flow`, `figma-design-audit` |

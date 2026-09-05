@@ -24,3 +24,23 @@ assignee에서 검증하고 다른 assignee를 유지해야 합니다. `all`은 
 평가 실행을 대신하지 않습니다. 모델 기반 실행은 격리된 읽기 전용 fixture에서 수행하고 원격
 push, ticket 게시와 PR 생성은 허용하지 않습니다. 결과는 `pass`, `fail`, `not_run`,
 `inconclusive`로 구분하며, 선택 attribution을 확인할 수 없으면 `pass`로 판정하지 않습니다.
+
+검색 공급자 사례의 `host_search_policy`는 해당 README 절의 Markdown 코드 블록만 호스트
+지침으로 제공합니다. `installed_plugins`의 Research와 Exa Search description을 함께 노출하되
+본문은 모델이 선택하여 읽게 합니다. Exa 전용 스킬의 정확한 버전과 description·본문의 hash를
+실행 기록에 남깁니다. 관리형 Exa·Perplexity 검색 도구가 둘 다 노출·인증·가용한 동일 조건으로
+시작하며 실제 schema나 고정된 모의 schema를 기록합니다. 기대 field는 실행 모델에게 주지 않습니다.
+
+`expected_first_search_provider`는 fetch가 아닌 첫 검색 호출을 검사합니다.
+`expected_first_tool`이 있으면 해당 목적에서 사용할 실제 도구까지 확인합니다.
+`must_select_provider_before_specialist_skill`은 일반 요청에서 공급자 전용 스킬 본문을 읽기
+전에 이번 검색 목적에 따라 공급자를 선택했는지 확인합니다. `optional_after_provider_selection`은
+그 선택 뒤에만 추가로 읽을 수 있는 스킬이며 필수 순서에 포함하지 않습니다. 사용자의 명시적
+전용 스킬 요청은 이 순서의 예외입니다. `expected_sequence: []`인 짧은 조회도 호스트 정책의
+공급자 선택은 검사합니다. `must_not_select`는 이 fixture의 첫 검색 준비 단계에 적용하며 후속
+증거 목적 변경이나 실제 실패 시의 정상 fallback까지 금지하는 영구 규칙이 아닙니다.
+
+모델이 모의 tool name·args를 출력하는 routing 평가, 실제 provider 연결 smoke test, Codex의
+native 자동 skill selection은 별개의 검증입니다. 모의 trace나 JSON 검사만으로 native 선택이
+보장된다고 보고하지 않습니다. Research 단독 조건과 호스트 지침·Exa 스킬 동시 설치 조건은
+별도로 실행하고 baseline·변경 후의 입력과 모델 설정을 맞춥니다.

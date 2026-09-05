@@ -528,6 +528,55 @@
       "prompt": "현재 diff를 broad quality review로 검토하고 결과를 자연스러운 한국어로 보고해줘.",
       "expected_sequence": ["quality-engineering:review-quality", "fluent-languages:fluent-korean"],
       "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "research-and-exa-current-technical-comparison",
+      "installed_plugins": ["research", "app-69ea4ed2cf7c8191b742ef3622479ddd"],
+      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
+      "prompt": "TanStack Query와 SWR의 현재 React 지원 범위와 최근 변경을 비교해줘.",
+      "expected_sequence": ["research:research"],
+      "expected_first_search_provider": "perplexity",
+      "must_select_provider_before_specialist_skill": true,
+      "must_not_select": ["app-69ea4ed2cf7c8191b742ef3622479ddd:Search"]
+    },
+    {
+      "id": "research-and-exa-ambiguous-technical-explanation",
+      "installed_plugins": ["research", "app-69ea4ed2cf7c8191b742ef3622479ddd"],
+      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
+      "prompt": "Rust retry 설계의 장단점을 조사해서 설명해줘.",
+      "expected_sequence": ["research:research"],
+      "expected_first_search_provider": "perplexity",
+      "must_select_provider_before_specialist_skill": true,
+      "must_not_select": ["app-69ea4ed2cf7c8191b742ef3622479ddd:Search"]
+    },
+    {
+      "id": "research-and-exa-unknown-candidates",
+      "installed_plugins": ["research", "app-69ea4ed2cf7c8191b742ef3622479ddd"],
+      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
+      "prompt": "이름을 아직 모르는 Rust retry 구현 저장소를 폭넓게 찾아줘.",
+      "expected_sequence": ["research:research"],
+      "expected_first_search_provider": "exa",
+      "optional_after_provider_selection": ["app-69ea4ed2cf7c8191b742ef3622479ddd:Search"],
+      "must_select_provider_before_specialist_skill": true
+    },
+    {
+      "id": "explicit-exa-skill-overrides-host-default",
+      "installed_plugins": ["research", "app-69ea4ed2cf7c8191b742ef3622479ddd"],
+      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
+      "prompt": "Exa Search 스킬을 사용해서 오늘 TypeScript 변경 소식을 검색해줘.",
+      "expected_sequence": ["app-69ea4ed2cf7c8191b742ef3622479ddd:Search"],
+      "expected_first_search_provider": "exa"
+    },
+    {
+      "id": "host-lookup-without-research-still-routes",
+      "installed_plugins": ["research", "app-69ea4ed2cf7c8191b742ef3622479ddd"],
+      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
+      "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
+      "expected_sequence": [],
+      "expected_first_search_provider": "perplexity",
+      "expected_first_tool": "perplexity_search",
+      "must_select_provider_before_specialist_skill": true,
+      "must_not_select": ["research:research", "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"]
     }
   ]
 }
