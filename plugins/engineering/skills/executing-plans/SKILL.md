@@ -51,8 +51,8 @@ description: 별도 session에서 review checkpoint와 함께 실행할 작성�
 `fork_turns: "none"` fresh implementer를 사용할 수 있지만, 아래의 factual handoff만 전달한다.
 
 4~5회차에는 이전 conversation을 상속하지 않는 `fork_turns: "none"` fresh implementer를 사용한다.
-4회차는 해당 문제를 해결할 수 있는 모델을 선택하고, 앞선 실패가 판단력 부족을 보여 주었으며 더 높은
-capability를 사용할 수 있으면 한 단계 높인다. 5회차도 현재 사용 가능한 가장 적합한 capable model을
+4회차는 해당 문제를 해결할 수 있는 모델을 선택하고, 앞선 실패가 판단력 부족을 보여 주면 필요한
+판단 수준에 맞춰 모델과 추론도를 직접 선택한다. 정해진 tier 순서를 거치지 않는다. 5회차도 현재 사용 가능한 가장 적합한 capable model을
 선택한다. 사용할 수 없는 특정 tier를 기다리느라 자동으로 막히지는 않지만, 실제로 필요한 capability가
 없으면 `blocked`와 `decision_required`를 기록한다.
 

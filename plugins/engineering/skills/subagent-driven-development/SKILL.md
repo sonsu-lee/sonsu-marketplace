@@ -251,8 +251,8 @@ model을 사용한다. scoped 재리뷰는 범위가 작더라도 finding의 의
 **Fix-loop model 선택:** 1~3회차에는 원래 implementer를 재개한다. 4~5회차 또는 원래 implementer를
 사용할 수 없거나 새 반례에도 같은 잘못된 가정을 반복해 진전이 없는 더 이른 회차에는
 `spawn_agent {fork_turns: "none"}` fresh implementer를 사용한다.
-앞선 실패가 판단력 부족을 보여 주었고 더 높은 capability를 사용할 수 있으면 한 단계 높이되, 회차
-번호만으로 특정 tier를 강제하지 않는다. 현재 finding을 해결할 수 있는 역할 적합성을 우선한다.
+앞선 실패가 판단력 부족을 보여 주면 필요한 판단 수준에 맞춰 모델과 추론도를 직접 선택한다.
+회차 번호나 정해진 tier 순서가 아니라 현재 finding을 해결할 수 있는 역할 적합성을 우선한다.
 
 **subagent를 위임할 때 실제 schema가 두 override를 모두 지원하면 모델과 추론도를 함께
 명시한다.** 한쪽만 override하지 않는다. 지원하지 않으면 확인 가능한 role·preset·machine
@@ -335,7 +335,7 @@ getting large")이라면 기록하고 리뷰로 진행한다.
 
 **BLOCKED:** implementer가 task를 완료할 수 없다. blocker를 평가한다.
 1. context 문제라면 context를 추가하고 같은 모델로 다시 위임한다.
-2. task에 더 많은 reasoning이 필요하면 더 성능이 높은 모델로 다시 위임한다.
+2. task에 더 많은 reasoning이 필요하면 현재 모델의 추론도를 조정하거나 더 적합한 모델을 선택해 다시 위임한다.
 3. task가 너무 크다면 더 작은 단위로 나눈다.
 4. plan 자체가 틀렸거나 구현에 material deviation이 필요하다면 차이와 이유를 기록하고 중단한다.
    승인된 요구사항·설계·관찰 가능한 계약을 바꾸는 차이는 `engineering:brainstorming`으로 돌아가
@@ -417,8 +417,8 @@ implementer를 `followup_task`로 재개한다. context가 남아 있으므로 t
 
 **4~5회차 — fresh implementer를 사용한다.** 이전 conversation을 상속하지 않는
 `spawn_agent {fork_turns: "none"}`를 사용한다. 현재 finding을 해결할 수 있는 역할 적합한 모델을
-선택하고, 앞선 실패가 판단력 부족을 보여 주었으며 더 높은 capability를 사용할 수 있으면 한 단계
-높인다. 회차 번호만으로 사용할 수 없는 특정 tier를 강제하지 않는다. 실제로 필요한 capability가
+선택하고, 앞선 실패가 판단력 부족을 보여 주면 필요한 판단 수준에 맞춰 모델과 추론도를 직접 선택한다.
+회차 번호나 정해진 tier 순서를 강제하지 않는다. 실제로 필요한 capability가
 없으면 `blocked`와 `decision_required`를 기록한다.
 
 **Fresh handoff:** [공유 fix prompt](../executing-plans/fix-implementer-prompt.md)에 다음 경로와 정확한
@@ -509,8 +509,8 @@ Critical/Important 문제가 열려 있다면 다음 task로 이동하지 않는
 반환 대상, 시도 횟수와 decision owner를 기록한다. `scripts/review-package PLAN_FILE MERGE_BASE HEAD`
 (MERGE_BASE는 브랜치가 시작된 commit, 예: `git merge-base main HEAD`)를 실행하고 최종 리뷰
 dispatch에 출력된 경로와 SHA-256 리비전을 포함한다. 그러면 최종 reviewer가 git 명령으로
-브랜치 diff를 다시 만들지 않고 한 파일만 읽는다. Model Selection에 따라 사용 가능한 가장
-성능이 높은 모델로 위임하며, `engineering:requesting-code-review`의
+브랜치 diff를 다시 만들지 않고 한 파일만 읽는다. Model Selection의 platform 역할 matrix에서
+현재 작업에 적합한 최종 리뷰 모델·추론도로 위임하며, `engineering:requesting-code-review`의
 [code-reviewer.md](../requesting-code-review/code-reviewer.md)를 사용한다. merge 전에 수정할
 항목을 분류할 수 있도록 ledger의 deferred-minor, 근거로 닫은 finding과 accepted-risk 줄을 가리킨다.
 
@@ -553,7 +553,7 @@ plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다.
    전달하지 않는다.
 3. 이전 implementer, reviewer의 session history, 결론 또는 칭찬을 전달하지 않고 fresh-context
    reviewer를 위임한다. [red-team-reviewer.md](../requesting-code-review/red-team-reviewer.md)를
-   사용하고 Codex에서는 역할별 matrix의 가장 강한 red-team 조합을 명시한다.
+   사용하고 Codex에서는 역할별 matrix에서 현재 작업에 적합한 red-team 모델·추론도를 명시한다.
 4. reviewer는 finding 수를 채우지 않으며 가장 강한 반례를 근거로 검증한다. 판정은 정확히
    `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
 5. `survives_challenge`만 red-team의 일반 통과다. `invalidated`는 finding 소유 단계로 돌아가며
@@ -667,7 +667,7 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
 
 [After all tasks]
 [Run final whole-change deterministic verification; record commands and output]
-[Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final code-reviewer, most capable model]
+[Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final code-reviewer with task-appropriate model and reasoning effort from the platform role matrix]
 Final reviewer: Important — repair mode bypasses the permission boundary required by the plan.
 
 [Apply one focused final-review fix and rerun affected plus whole-change deterministic checks]
