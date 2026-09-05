@@ -1,20 +1,29 @@
 ## Subagent 위임에는 multi-agent 지원이 필요하다
 
-Codex 설정(`~/.codex/config.toml`)에 다음을 추가한다.
+현재 노출된 collaboration 도구와 schema를 먼저 확인한다. 로컬 Codex는 사용자 또는 적용되는
+프로젝트·스킬 지시가 위임을 요청할 때 subagent를 생성한다. 도구 존재나 Ultra 선택만으로
+재귀 위임을 허용하지 않는다. 도구가 이미 제공되는 실행에는 설정 변경이 필요하지 않다.
+사용자가 설정을 요청한 경우에만 설치된 제품·버전이 지원하는 설정을 적용한다.
+
+로컬 Codex CLI 0.152.1의 `features --help`는 `--enable multi_agent`가
+`-c features.multi_agent=true`와 동등하다고 안내한다. 이 feature flag의 설정 형식은 다음과 같다.
 
 ```toml
 [features]
 multi_agent = true
 ```
 
-이 설정은 `dispatching-parallel-agents`, `subagent-driven-development` 같은
-스킬이 사용하는 multi-agent 도구를 활성화한다. 제공되는 도구는 모델 preset이 선택한
-multi-agent 버전에 따라 달라진다(현재 preset은 V2, 이전 preset은 V1을 사용한다). 이 표를
-포함한 문서와 실제 도구 목록이 다르면 실제 목록을 신뢰한다.
+공식 문서(2026-09-06)는 `[agents] enabled = true`와 기본 true를 안내하지만, CLI 0.152.1의
+`features list`에서 두 키를 각각 단독으로 바꿔 확인하니 `agents.enabled=false/true`는 baseline의
+활성 상태(true)를 바꾸지 않았고 `features.multi_agent=false/true`는 각각 false/true로 표시됐다.
+이 문서의 키를 모든 Codex surface에 그대로 적용하지 않는다. 현재 host의 capability와
+실제 설정 효과를 확인한다. `agents.max_concurrent_threads_per_session`은 활성화와 별개인
+동시수 설정이다(주 agent 제외). [공식 subagent 설정](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agents)
 
 - **생성:** `spawn_agent {fork_turns: "none"}`으로 child에게 깨끗한 context를 제공한다.
-  기본값 `"all"`은 전체 transcript를 child에 복사한다. Codex 0.145 이상에서는
-  `~/.codex/agents/` 아래의 role 파일을 `agent_type`으로 격리 fork에 연결한다.
+  현재 도구의 기본값 `"all"`은 전체 transcript를 child에 복사하며 이 경우 model/effort override가
+  허용되지 않을 수 있다. 사용자 지정 role 파일은 `~/.codex/agents/` 또는 `.codex/agents/`에
+  둘 수 있지만 현재 schema에 없는 `agent_type`을 전송하지 않는다.
   현재 tool schema가 허용하는 `fork_turns`와 model override 조합을 신뢰한다. 격리 reviewer는
   `fork_turns: "none"`을 사용하고 필요한 artifact만 prompt에 넣는다.
 - **수정 회차:** 1~3회차는 `followup_task`로 원래 implementer를 재개한다. direct 실행은 controller가
@@ -25,11 +34,10 @@ multi-agent 버전에 따라 달라진다(현재 preset은 V2, 이전 preset은 
   접근을 전달한다. 관찰과 가설을 구분하고 전체 대화, 자기 정당화와 이전 pass/praise는 제외한다.
   구체적인 handoff는 `executing-plans/fix-implementer-prompt.md`를 따른다. session 변경은 task 예산을
   초기화하지 않으며 Fast Path는 별도의 더 낮은 예산과 재진입 금지 규칙을 따른다.
-- **Lifecycle:** V2에는 `close_agent`가 없다. slot이 필요하면 완료된 child는 자동으로
-  제거되므로 닫지 않아도 비용이 들지 않는다. V1 session에만 `close_agent`가 있다. V1에서는
-  reviewer가 결과를 반환하면 닫고, implementer는 해당 task 리뷰가 통과한 뒤 닫는다.
+- **Lifecycle:** 현재 surface의 완료 이벤트와 agent 상태를 확인한다. `close_agent`가 없으면
+  호출하지 않는다. 완료된 agent의 slot 회수·재사용은 runtime에 맡기고 추정한 종료 명령을 만들지 않는다.
 - **모델 이름:** 현재 spawn allowlist와 대조하지 않고 스킬, 표 또는 이전 session의 모델 이름을
-  `spawn_agent`에 복사하지 않는다. V2는 V2를 지원하는 preset만 허용하고 나머지는 오류로 거부한다.
+  `spawn_agent`에 복사하지 않는다. 모델별 지원 effort도 함께 확인한다.
 
 ## Child를 기다리는 방법
 
@@ -50,10 +58,16 @@ timeout된 짧은 poll이었다.
 
 ## 생성 시 모델 routing
 
-자신이 fan-out을 실행하는 child인 경우를 포함해 `spawn_agent`의 실제 schema가 두 override를
+위임이 허용된 controller가 생성할 때 `spawn_agent`의 실제 schema가 두 override를
 모두 지원하면 실행 중인 스킬의 Model Selection 규칙에 따라 `model`과 `reasoning_effort`를 함께
 명시한다. 한쪽만 설정하면 의도하지 않은 기본값을 쓰거나 schema validation에 실패할 수 있으므로
 부분 override는 하지 않는다.
+
+공식 설정의 `model_reasoning_effort`와 spawn 도구의 `reasoning_effort`는 서로 다른 입력
+표면의 이름이다. 둘을 바꾸어 전송하지 않는다. custom agent 파일의 model/effort가 앞서
+결정된 spawn·default·parent 값을 덮어쓸 수 있으므로 사용한 role 파일도 확인한다. 설정을
+생략하면 parent/default를 상속할 수 있으며, 본문에 모델명이나 “깊게 생각하라”를 쓰는 것으로
+실행 설정이 바뀌지 않는다. [설정 우선순위](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agents)
 
 실제 schema가 두 field 중 하나라도 지원하지 않으면 존재하지 않는 field를 보내지 않는다. 노출된
 `agent_type`, role 또는 preset이 있으면 같은 역할의 가장 가까운 조합을 사용하고, 그렇지 않으면
@@ -111,6 +125,68 @@ Luna보다 낮은 모델로 내리는 것도 총 완료 비용의 근거가 있�
 `low`, `xhigh`, `max`와 `ultra`를 새 상시 기본값으로 두지 않는다. Fast Path에는 classifier,
 implementation 또는 reviewer subagent를 기본으로 만들지 않는다. 독립 판단이 필요할 만큼 불확실하면
 일반 workflow로 올린다. model 상향은 변경 없는 입력을 다시 시도할 근거가 아니다.
+
+### 모델·추론도·팀을 따로 선택한다
+
+기존 medium/high 기본값을 기준선으로 유지하고 다음 조건에서 선택적으로 조정한다.
+
+| 선택 | 조건과 확인할 근거 |
+| --- | --- |
+| `low` / Light | 정답 형태와 범위가 명확한 조회·추출·짧은 후속 작업. 낮춰도 필수 근거와 정확성이 유지되는지 비교 |
+| `medium` | 일반적인 agent 작업의 균형점. Astra의 어려운 전체 작업도 우선 후보 |
+| `high` | 복잡한 논리, 상태·복구·권한 경계와 가정을 추적해야 하는 역할 |
+| `xhigh` / Extra High | high에서 남는 중요한 분석 문제에 추가 판단이 유효한지 비교 |
+| `max` | 속도·사용량보다 깊이가 중요한 가장 어려운 단일 문제. 해당 단계가 끝나면 다음 역할에 맞게 재선택 |
+| `ultra` | 독립 부분으로 나뉘는 복합 작업 후보. 실제 host의 effort 지원과 위임 trigger·동시수·재귀 제한을 별도로 확인 |
+
+API의 effort 목록을 Codex allowlist로 사용하지 않는다. Ultra는 공식 모델 안내에서 subagent를
+활용하는 실행으로 설명하지만, 로컬 위임은 사용자 또는 프로젝트·스킬 지시를 따른다. worker와
+reviewer의 재위임 금지는 유지한다. 같은 effort 이름이 다른 모델의 같은 품질·계산량을 뜻하지
+않으며 `Terra high = Sol medium` 같은 등식을 만들지 않는다.
+
+Astra를 처음부터 선택할 예는 브라우저 재현·API·저장소 상태를 오가며 원인을 좁히는 장애,
+여러 서비스의 권한·데이터·복구 계약을 함께 바꾸는 구현, 개별 task 결과를 전체 사용자 목표와
+연결하는 어려운 검증이다. 여러 파일이라는 이유만으로 선택하지 않는다. 여러 도구가 있어도
+작업 사이에 새 판단이 없는 반복 변환은 결정론적 실행으로 처리한다.
+
+### 역할별 실행 순서
+
+| 작업 | 소유와 인계 |
+| --- | --- |
+| 분류·작은 변경 | controller 직접 처리. Fast Path에는 기본 team을 만들지 않음 |
+| 설계·계획 | Sol 또는 어려운 전체 작업의 Astra가 결정 책임. 조사자는 독립된 근거만 반환 |
+| task 구현 | task별 구현자 한 명. SDD 기본 loop는 직렬; 병렬 구현에는 닫힌 계약·독립 쓰기 범위 또는 별도 worktree와 통합 소유자 필요 |
+| task 검증·리뷰 | 결정론적 검증 뒤 fresh reviewer. 구현 이력 대신 계약·고정 artifact·검증 사실을 전달 |
+| 전체 통합·리뷰 | 통합 소유자 한 명과 전체 변경 reviewer. 전문 리뷰는 명명된 독립 위험에만 추가 |
+| red-team·수정 | 일반 전체 리뷰 뒤 별도 fresh red-team. 수정은 같은 task 예산과 영향 기반 재검증 규칙 유지 |
+
+controller는 독립성과 예상 이득을 확인한 작업만 위임하고 유한한 동시수·호출 예산을 정한다.
+2–3개의 독립 worker는 비교를 시작할 수 있는 예시이지 최적값이나 필수 최소수는 아니다.
+역할 수와 동시 실행 수는 다르다. 같은 파일·브라우저 세션·테스트 DB·port를 함께 쓰면 자원
+소유권을 분리하거나 직렬화한다. 작은 작업에서 새 agent를 만들어 controller 모델을 바꾸는
+간접 경로를 사용하지 않는다.
+
+### 모델별 prompt 조정
+
+목표·근거·제약·완료 조건을 보존하고 같은 지시는 한 번만 전달한다. 아래 차이는 모델별
+복제 스킬이 아니라 기존 brief에 필요한 부분만 적용한다.
+
+| 모델 | brief에서 강조할 내용 |
+| --- | --- |
+| Luna | 좁은 대상, 입력·기대 결과, 필요한 경계 사례와 범위 밖 결정의 반환 조건 |
+| Terra | 담당 범위, 확인할 경로·자료, 근거를 포함한 짧은 결과와 controller 인계 지점 |
+| Sol | 목표·tradeoff·완료 기준, 해법을 제한하는 실제 계약. 해법 선택과 무관한 절차 나열은 줄임 |
+| Astra | 승인된 작업의 지속, 결과를 바꾸는 질문 조건, 허용된 독립 위임 범위와 검증 종료 조건 |
+
+GPT-5.6 지침은 Sol과 제품군 공통 가이드다. Luna·Terra의 위 조정은 공식 역할 안내에서 도출한
+운영 권고이며 별도 전용 프롬프트의 검증 결과가 아니다. Astra는 스킬 지시에 민감하므로
+“모든 불확실성에서 질문”과 “일상적인 선택은 진행” 같은 충돌을 먼저 제거한다. 중단이 필요하면
+읽은 스킬의 정확한 규칙과 실제 필요한 결정을 controller에 반환한다. 기존 권한을 다시 받는
+절차, 무조건적인 재귀 위임이나 반복 검증을 추가하지 않는다.
+
+공식 근거: [Codex 모델·추론도](https://learn.chatgpt.com/docs/models),
+[GPT-5.6 prompt 가이드](https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6),
+[Astra prompt 가이드](https://developers.openai.com/api/docs/guides/latest-model#prompting-best-practices).
 
 생성 뒤에는 [공통 실행 계약](agent-execution.md)에 따라 요청값과 native 관측값을 별도 기록한다.
 현재 surface의 spawn 결과·실행 metadata·CLI turn context 중 실제 제공되는 출처를 사용한다.
