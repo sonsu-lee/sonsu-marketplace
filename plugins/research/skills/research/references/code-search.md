@@ -59,7 +59,7 @@ hard gate를 통과한 사례만 같은 `quality_rubric_version` 안에서 비�
 | `provenance` | 버전·수정 이유·릴리스 관계 확인 | commit, PR, issue, changelog, release |
 | `counterexample` | 실패·폐기·regression 탐색 | deprecated, bug, race, leak, flaky, regression |
 
-처음에는 의미 기반 탐색이나 일반 웹 검색으로 repository 후보를 만들 수 있다. 이후에는 GitHub code search, repository 내부 검색과 git history처럼 정확한 식별자를 다루는 경로로 좁힌다. 공급자별 현재 qualifier, pagination, query 길이, result cap과 default-branch 범위는 실행 시 도구 schema·공식 문서·help에서 확인하며 기억한 한도를 고정값으로 가정하지 않는다.
+처음에는 의미 기반 탐색이나 일반 웹 검색으로 repository 후보를 만들 수 있다. 이름을 모르는 넓은 후보 발견에는 Exa, 이미 정해진 구현·라이브러리의 사실·현재 지원·비교에는 Perplexity를 우선하며, 기술 주제 자체를 Exa 선택 근거로 삼지 않는다. 후보를 고른 뒤에는 GitHub code search, repository 내부 검색과 git history처럼 정확한 식별자를 다루는 경로로 좁힌다. 검색 목적이 바뀌면 [도구 라우팅](tool-routing.md)을 재적용한다. 공급자별 현재 qualifier, pagination, query 길이, result cap과 default-branch 범위는 실행 시 도구 schema·공식 문서·help에서 확인하며 기억한 한도를 고정값으로 가정하지 않는다.
 
 ## 수집과 검증
 
