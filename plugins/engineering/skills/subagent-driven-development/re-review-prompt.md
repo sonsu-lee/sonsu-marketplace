@@ -3,9 +3,10 @@
 수정 회차 뒤 재리뷰를 위임할 때 이 template을 사용한다. 재리뷰어는 finding이 해결됐는지
 검증하고 수정 diff에 새 문제가 생겼는지 확인한다. 전체 리뷰는 이미 끝났으므로 새로운 리뷰가 아니다.
 
-이 re-review의 full report, finding 판정, rationale, verdict와 agent identity는 controller/reviewer 기록이다.
-round 2-5 fresh fix implementer에게 전달하지 않는다. 후속 fresh fix에는 shared
-`../executing-plans/fix-implementer-prompt.md`의 verified immutable bundle path/digest만 전달한다.
+이 re-review의 full report, rationale, verdict와 agent identity는 controller/reviewer 기록이다.
+fresh fix implementer에게는 승인된 brief, 현재 exact binary-safe package, 열린 finding과 관찰한
+명령·결과 및 이전 실패만 `Fact:`와 `Hypothesis:`를 구분해 전달한다. 형식은 shared
+`../executing-plans/fix-implementer-prompt.md`를 따른다.
 
 **목적:** 이전 리뷰의 각 finding을 해결했고 수정 자체가 다른 동작을 깨뜨리지 않았는지 검증한다.
 
@@ -53,10 +54,12 @@ Subagent (general-purpose):
 
     ## 범위
 
-    범위는 finding 목록과 수정 diff다. 모든 finding을 판정한다. 수정 자체가 만든 새 문제가
-    있는지 수정 diff를 검사한다. 수정에서 건드리지 않은 코드를 다시 리뷰하지 않는다. 수정
-    diff 밖의 문제를 발견하면 범위 밖 관찰에 보고한다. 이 항목은 task를 막거나 loop를
-    확장하지 않는다. 모든 task가 완료된 뒤 전체 브랜치를 대상으로 넓은 리뷰를 수행한다.
+    범위는 원래 finding 목록과 수정 diff다. 모든 원래 finding을 판정하고 수정 자체가 만든
+    회귀가 있는지 검사한다. 수정에서 건드리지 않은 코드를 다시 리뷰하지 않는다. 새로운 scope
+    아이디어나 수정 diff 밖의 문제는 범위 밖 관찰에 보고하며 task를 막거나 loop를 확장하지
+    않는다. 수정이 승인된 목표·계약·설계나 dependency boundary를 바꿨다면 finding을 억지로
+    닫지 말고 owner-stage routing과 사용자 재승인이 필요하다고 보고한다. reviewer는 위험을
+    자동 수용하지 않는다. 모든 task가 완료된 뒤 전체 브랜치를 대상으로 넓은 리뷰를 수행한다.
 
     ## 검증
 
@@ -77,9 +80,9 @@ Subagent (general-purpose):
     - **[finding 한 줄 요약]** — ADDRESSED | NOT ADDRESSED와 `file:line` 근거.
       "Attempted"는 해결이 아니다. 해당 결함이 더 이상 존재하지 않아야 한다.
 
-    ### 수정 diff의 새 문제
+    ### 수정 diff의 새 회귀
 
-    수정 자체가 깨뜨리거나 새로 만든 문제를 심각도(Critical/Important/Minor), `file:line`과
+    수정 자체가 깨뜨리거나 새로 만든 회귀를 심각도(Critical/Important/Minor), `file:line`과
     함께 적는다. 문제가 없으면 "None"이라고 쓴다.
 
     ### 범위 밖 관찰
@@ -104,5 +107,5 @@ Subagent (general-purpose):
 - `[HEAD_SHA]` — 현재 commit
 - `[DIFF_FILE]` — `scripts/review-package PLAN_FILE FIX_BASE HEAD`가 출력한 경로
 
-**Re-reviewer 반환값:** finding별 판정(ADDRESSED / NOT ADDRESSED), 수정 diff의 새 문제,
+**Re-reviewer 반환값:** finding별 판정(ADDRESSED / NOT ADDRESSED), 수정 diff의 새 회귀,
 범위 밖 관찰과 회차 판정.

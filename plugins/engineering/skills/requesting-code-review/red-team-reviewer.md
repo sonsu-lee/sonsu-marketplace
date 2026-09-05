@@ -17,7 +17,7 @@ Subagent (general-purpose):
   reasoning_effort: [REASONING_EFFORT — model과 함께 지원될 때 platform matrix에서 선택]
   prompt: |
     plan-backed 작업 전체를 fresh-context red-team 관점에서 검토한다. 이전 작업자와 reviewer의
-    결론을 지지하는 것이 목적이 아니다. 원래 목표부터 검증 근거까지 가장 강한 반례를 세워
+    결론을 지지하거나 무조건 부정하는 것이 목적이 아니다. 원래 목표부터 검증 근거까지 반례를 세워
     이 작업이 실제로 잘못된 문제를 풀었거나, 맞는 문제를 잘못된 경계에서 풀었거나, 검증이
     잘못된 proxy만 통과했는지 판정한다.
 
@@ -59,11 +59,20 @@ Subagent (general-purpose):
     현재 checkout에서 리뷰는 읽기 전용이다. working tree, index, HEAD, branch, plan, report를
     변경하지 않는다. subagent를 위임하지 않는다. 이전 implementer·reviewer의 session history,
     판정이나 칭찬을 요구하지 않으며, 입력에 우연히 들어 있더라도 근거로 신뢰하지 않는다.
-    bundle의 finding-to-fix provenance는 일반 finding의 원문·근거와 그 finding 때문에 바뀐 revision·path만
-    포함해야 한다. 이를 이전 reviewer의 결론이나 권위가 아니라 무효화할 수도 있는 독립적인
-    가설로 취급한다. 일반 finding이 artifact에 영향을 주지 않았다면 값은 `none`이어야 한다.
+    bundle의 finding-to-fix provenance는 일반 또는 이전 red-team finding의 원문·근거, 수정된
+    revision·path와 관찰한 검증 결과를 포함한다. 국소 재검토이면 이전 반례와 실제 delta, 검토할
+    범위를 명시한다. 이전 판정이나 권위가 아니라 무효화할 수도 있는 독립적인 가설로 취급한다.
+    전달할 finding이나 수정이 없다면 값은 `none`이다.
 
-    ## 가장 강한 반증을 시도한다
+    ## 검토 범위
+
+    최초 검토는 아래 질문으로 전체 구조를 독립적으로 평가한다. 국소 수정 후 재검토는 bundle의
+    provenance에 명시한 이전 반례, 실제 수정 delta와 회귀를 확인한다. 전체 bundle은 경계를
+    확인하기 위한 근거이지 매번 관련 없는 새 요구사항을 발굴하라는 지시가 아니다.
+    목표·승인 계약·설계·dependency 경계가 바뀌었거나 영향 범위를 확인할 수 없으면 전체 검토를
+    다시 열어야 한다고 보고한다. 새 제품 요구나 추가 hardening 제안은 승인 범위의 결함과 구분한다.
+
+    ## 독립적인 반증을 시도한다
 
     다음 질문을 독립적으로 검토하되 finding 수를 맞추려고 억지 문제를 만들지 않는다.
 
@@ -83,7 +92,9 @@ Subagent (general-purpose):
        그렇다면 어떤 finding을 왜 무효화하고 어느 영향 task를 다시 열어야 하는가?
 
     각 반례는 artifact와 `file:line` 또는 report 위치에 연결한다. 근거 없는 가능성은 finding으로
-    올리지 않고 `미확인 가정`으로 분리한다. 직접 확인할 수 없는 외부 사실이 판정에 필수라면
+    올리지 않고 `미확인 가정`으로 분리한다. 차단 finding에는 위반한 요구사항이나 실제 도달 가능한
+    실패 경로를 제시한다. 더 복잡한 대안이 가능하다는 사실만으로 현재 작업을 차단하지 않는다.
+    직접 확인할 수 없는 외부 사실이 판정에 필수라면
     `inconclusive` 또는 `blocked`를 사용한다.
 
     ## 판정과 routing

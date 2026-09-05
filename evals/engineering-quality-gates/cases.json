@@ -84,30 +84,31 @@
       ]
     },
     {
-      "id": "executing-plans-task-fix-rounds-isolate-implementers",
+      "id": "executing-plans-task-fix-rounds-escalate-context",
       "stage": "plan-execution-task-fix-loop",
       "prompt": "task의 valid Important finding이 재리뷰 뒤에도 남을 때 executing-plans의 1~5회차 implementer와 capability 전환, 사용할 수 없을 때 상태를 기록해줘.",
       "event": {
         "plan_execution_mode": "executing-plans",
         "finding_owner": "task-implementation",
         "attempt_cap": 5,
-        "judgment_shortage_contributed_at_round_3": true
+        "round_3_failed_with_new_test_evidence": true
       },
       "expected": {
         "round_1": "original-implementer-focused-fix",
-        "round_2": "fresh-context-implementer-with-brief-artifact-and-evidence-only",
-        "round_3": "different-fresh-context-implementer-with-capability-up",
-        "round_4": "different-fresh-context-high-capability-role-appropriate-implementer",
-        "round_5": "different-fresh-context-strongest-role-appropriate-default-implementer",
-        "rounds_2_to_5_input": "new-immutable-evidence-only-bundle-path-and-digest",
+        "round_2": "original-implementer-direct-continuation",
+        "round_3": "original-implementer-direct-continuation",
+        "round_4": "fresh-context-capable-implementer",
+        "round_5": "fresh-context-capable-implementer",
+        "rounds_4_to_5_input": "concise-task-artifact-finding-failed-attempts-and-test-evidence",
+        "handoff_separates_facts_from_hypotheses": true,
         "scoped_verification_and_rereview_each_round": true,
         "unavailable_required_context_or_capability": "blocked-and-decision-required"
       },
       "must_not": [
-        "reuse-original-implementer-for-round-2",
-        "reuse-any-prior-implementer-for-rounds-2-to-5",
-        "replace-missing-fresh-context-with-controller-retry",
-        "default-round-5-to-max-or-ultra",
+        "force-fresh-context-before-round-4",
+        "include-full-conversation-self-justification-praise-or-verdict",
+        "require-strict-json-tar-or-fix-handoff-helper",
+        "select-model-tier-from-file-count-alone",
         "start-round-6"
       ]
     },
@@ -242,7 +243,10 @@
       "event": {
         "all_fast_path_predicates_confirmed": true,
         "deterministic_transformation": true,
-        "code_mode_available": true
+        "code_mode_available": true,
+        "task_id_stable": true,
+        "execution_uninterrupted": true,
+        "searches_reserved": 2
       },
       "expected": {
         "fast_path_eligible": true,
@@ -252,12 +256,15 @@
         "orchestration": "code-mode",
         "targeted_probe_cap": 2,
         "automatic_attempt_cap": 2,
+        "actions": "initial-plus-one-focused-correction",
+        "budget_persisted_before_each-search-and-action": true,
         "independent_review": "not_applicable"
       },
       "must_not": [
         "require-plan-because-many-files",
         "infer-quality-from-code-mode",
-        "spawn-subagent-by-default"
+        "spawn-subagent-by-default",
+        "reset-budget-on-resumption"
       ]
     },
     {
@@ -482,21 +489,27 @@
     {
       "id": "codex-role-routing-selects-model-and-effort-together",
       "stage": "agent-dispatch",
-      "prompt": "Codex에서 fresh-context red-team 전체 구조 리뷰를 위임한다. 현재 allowlist가 기본 matrix를 모두 지원한다. dispatch 설정을 기록해줘.",
+      "prompt": "Codex에서 여러 dependency boundary와 외부 side effect를 포함한 fresh-context red-team 전체 구조 리뷰를 위임한다. 파일 수는 적지만 불확실성과 회귀 위험이 높고 약한 모델의 반복 turn까지 합친 총 시간·비용을 고려해야 한다. dispatch 설정을 기록해줘.",
       "event": {
         "role": "red-team-whole-change-review",
+        "uncertainty": "high",
+        "regression_risk": "high",
+        "file_count": 3,
+        "total_time_and_cost_considered": true,
         "supported_models": ["gpt-5.6-luna", "gpt-5.6-terra", "gpt-5.6-sol"],
         "supported_efforts": ["low", "medium", "high", "xhigh", "max", "ultra"]
       },
       "expected": {
         "model": "gpt-5.6-sol",
         "reasoning_effort": "xhigh",
-        "fresh_context": true
+        "fresh_context": true,
+        "selection_basis": "uncertainty-risk-and-expected-total-time-cost"
       },
       "must_not": [
         "omit-model",
         "omit-reasoning-effort",
         "default-to-max-or-ultra",
+        "select-tier-from-file-count-alone",
         "reuse-implementer-context"
       ]
     },
@@ -560,24 +573,26 @@
       ]
     },
     {
-      "id": "ordinary-final-review-refreshes-full-package-after-fix",
+      "id": "ordinary-final-review-composes-bounded-fix-evidence",
       "stage": "ordinary-final-review",
-      "prompt": "일반 whole-change review가 MERGE_BASE..A에서 finding을 냈고 수정 range A..B의 scoped 재리뷰는 모두 addressed다. red-team 전 현재 일반 final gate를 판정해줘.",
+      "prompt": "일반 whole-change review가 MERGE_BASE..A에서 finding을 냈다. A..B 수정은 한 함수 안에 닫히고 contract와 dependency는 바뀌지 않았으며 scoped test와 재리뷰가 finding 및 회귀 없음을 확인했다. red-team 전 현재 일반 gate를 판정해줘.",
       "event": {
         "ordinary_whole_change_review": "MERGE_BASE-to-A",
         "scoped_fix_review": "A-to-B-addressed",
-        "current_head": "B"
+        "current_head": "B",
+        "impact_known_and_bounded": true,
+        "goal_contract_design_dependency_changed": false
       },
       "expected": {
-        "prior_whole_change_gate_stale": true,
-        "regenerate_full_package": "MERGE_BASE-to-B",
-        "fresh_context_whole_change_review": true,
-        "red_team_allowed_before_refresh": false
+        "current_gate_evidence": "unaffected-prior-whole-review-plus-delta-scoped-checks-review-and-impact-rationale",
+        "fresh_whole_change_review_required": false,
+        "current_full_bundle_available_to_red_team": true,
+        "red_team_allowed_after_composed-gate": true
       },
       "must_not": [
         "treat-scoped-review-as-current-whole-change-pass",
-        "preserve-MERGE_BASE-to-A-gate-for-B",
-        "dispatch-red-team-before-ordinary-gate-refresh"
+        "discard-impact-rationale",
+        "force-fresh-whole-review-for-every-bounded-fix"
       ]
     },
     {
@@ -647,27 +662,31 @@
     {
       "id": "red-team-retry-requires-changed-input-and-fresh-package",
       "stage": "red-team-completion-review",
-      "prompt": "첫 red-team이 invalidated를 반환했고 소유자가 artifact를 새 revision으로 수정했다. 다음 자동 전이를 기록해줘.",
+      "prompt": "첫 red-team이 한 bounded implementation defect를 invalidated로 반환했고 소유자가 contract나 dependency 변경 없이 새 revision으로 수정했다. 다음 자동 전이를 기록해줘.",
       "event": {
         "attempt": 1,
         "attempt_cap": 5,
         "red_team_verdict": "invalidated",
-        "artifact_revision_changed": true
+        "artifact_revision_changed": true,
+        "impact_known_and_bounded": true,
+        "material_goal_contract_design_dependency_changed": false
       },
       "expected": {
         "automatic_attempt_next": 2,
         "owner_scoped_verification_and_rereview": true,
-        "full_deterministic_verification_for_current_revision": true,
-        "ordinary_whole_change_review_for_current_revision": "passed-or-accepted-risk-before-red-team",
-        "regenerate_full_package": true,
-        "fresh_context": true
+        "ordinary_gate_current_evidence": "unaffected-prior-evidence-plus-delta-scoped-checks-review-and-impact-rationale",
+        "current_full_bundle_available": true,
+        "fresh_context": true,
+        "red_team_scope": "previous-challenge-and-fix-regression",
+        "full_challenge_required": false
       },
       "must_not": [
         "stop-without-owner-routing",
         "retry-same-revision",
         "reuse-reviewer",
         "dispatch-red-team-directly-after-owner-fix",
-        "reuse-stale-ordinary-review-gate"
+        "reuse-stale-ordinary-review-gate",
+        "force-unrelated-new-scope-ideas-into-blocking-findings"
       ]
     },
     {
@@ -875,130 +894,132 @@
         "goal_count": 1,
         "token_budget": "omitted",
         "goal_status": "active",
-        "completion_requires": "deterministic-verification-ordinary-review-and-red-team"
+        "goal_subject": "observable-user-outcome",
+        "completion_requires": "observable-outcome-plus-deterministic-verification-ordinary-review-and-red-team"
       },
       "must_not": [
         "create-three-goals",
         "invent-token-budget",
+        "define-goal-as-test-total",
         "mark-complete-before-red-team"
       ]
     },
     {
-      "id": "fast-path-independent-classifier-eligible",
+      "id": "fast-path-controller-assesses-current-files",
       "stage": "fast-path-classification",
-      "prompt": "controller가 target discovery 전에 stable task ID를 고정했고 exact candidate revision을 capture했다. controller search 1회 뒤 fresh classifier가 별도 context에서 consumer search 1회를 수행해 모든 predicate와 oracle을 증명했다. Fast Path entry를 판정해줘.",
+      "prompt": "controller가 target discovery 전에 stable task ID를 고정했다. 현재 working tree의 실제 target과 consumer를 targeted search 2회 안에 확인했고 모든 predicate와 oracle이 닫혔다. 별도 classifier는 없다. Fast Path entry를 판정해줘.",
       "event": {
         "task_id_stable_before_target_discovery": true,
-        "persistent_state": "unclassified",
-        "controller_targeted_searches": 1,
-        "classifier_fresh_context": true,
-        "classifier_independent_targeted_searches": 1,
-        "classifier_verdict": "eligible",
-        "classifier_revision_matches_candidate": true,
-        "classifier_evidence_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-        "all_fast_path_predicates_proven": true
+        "controller_targeted_searches": 2,
+        "current_worktree_assessed": true,
+        "classifier_available": false,
+        "all_fast_path_predicates_confirmed": true,
+        "search_budget_consumed_before": 0
       },
       "expected": {
         "classification_outcome": "eligible",
         "execution_path": "local-or-mechanical-fast-path",
         "total_targeted_search_budget": 2,
-        "state_record": "eligible-with-stable-task-id-exact-revision-and-evidence-digest"
+        "persistent_state_record": "stable-task-id-search-and-execution-consumption-only",
+        "classifier_required": false
       },
       "must_not": [
-        "treat-controller-self-classification-as-independent",
         "perform-third-targeted-search",
-        "record-eligible-without-matching-revision-or-digest"
+        "persist-eligible-capability",
+        "treat-head-match-as-approval"
       ]
     },
     {
-      "id": "fast-path-noneligible-or-unavailable-falls-back",
-      "stage": "fast-path-classification",
-      "prompt": "controller search 뒤 classifier가 unavailable이거나 predicate가 unknown이라 eligible verdict를 낼 수 없다. Fast Path와 state를 판정해줘.",
+      "id": "fast-path-unknown-predicate-falls-back",
+      "stage": "fast-path-controller-assessment",
+      "prompt": "controller가 현재 파일을 두 번 targeted search했지만 runtime consumer 영향이 unknown이다. Fast Path와 state를 판정해줘.",
       "event": {
-        "persistent_state": "unclassified",
-        "classifier_available": false,
-        "predicate_status": "unknown"
+        "task_id_stable": true,
+        "targeted_searches_consumed": 2,
+        "predicate_status": "unknown",
+        "current_execution_uninterrupted": true
       },
       "expected": {
         "classification_outcome": "general-workflow",
-        "state_record": "persistent-disqualified-latch-before-routing",
+        "state_record": "search-consumption-and-disqualified-before-routing",
         "return_target": "nearest-normal-workflow"
       },
       "must_not": [
         "guess-eligible",
-        "continue-fast-path-without-classifier",
-        "retry-classifier-or-search-after-unavailable"
+        "perform-third-targeted-search",
+        "reset-budget-with-new-task-id"
       ]
     },
     {
-      "id": "fast-path-latched-escalation-cannot-reenter",
+      "id": "fast-path-resumption-cannot-replay-positive-record",
       "stage": "fast-path-execution",
-      "prompt": "eligible Fast Path 실행 중 unexpected consumer가 발견되어 task state가 disqualified로 기록됐다. context compaction 뒤 같은 task를 다시 Fast Path로 분류해 달라는 요청을 받았다. routing을 판정해줘.",
+      "prompt": "과거 형식의 eligible record가 있는 Fast Path task가 context compaction 뒤 재개됐다. disqualified는 없지만 search 2회와 initial execution 1회를 이미 소비했다. routing을 판정해줘.",
       "event": {
         "task_id_stable": true,
-        "persistent_state": "disqualified",
-        "disqualification_reason": "unexpected-consumer",
-        "context_compacted": true
+        "legacy_positive_record": "eligible-at-old-head",
+        "searches_consumed": 2,
+        "actions_consumed": 1,
+        "context_compacted": true,
+        "resumption": true
       },
       "expected": {
         "execution_outcome": "escalated",
         "fast_path_reentry_allowed": false,
-        "return_target": "nearest-normal-workflow-with-task-id-and-state-file-path"
+        "state_record": "disqualified-with-existing-consumption",
+        "return_target": "nearest-normal-workflow"
       },
       "must_not": [
-        "rerun-classifier",
-        "rerun-fast-path-predicates",
+        "replay-legacy-positive-record",
+        "approve-from-head-match",
         "resume-fast-path-execution",
-        "clear-disqualified-latch"
+        "reset-search-or-execution-budget"
       ]
     },
     {
-      "id": "round-2-evidence-handoff-verifies-extracted-snapshot",
+      "id": "round-4-fresh-handoff-preserves-failed-evidence",
       "stage": "plan-execution-task-fix-handoff",
-      "prompt": "round 2 fix handoff에 exact task brief, exact-revision binary-safe artifact package, normalized finding-evidence JSON, normalized verification-evidence JSON, round와 bundle digest가 있다. fresh implementer의 preflight와 읽기 범위를 판정해줘.",
+      "prompt": "원래 implementer의 1~3회 수정 뒤 최초 구현 hunk의 finding이 남아 round 4를 fresh implementer에게 넘긴다. 이 hunk는 마지막 수정 delta에는 없다. handoff 내용을 판정해줘.",
       "event": {
-        "round": 2,
-        "bundle_immutable": true,
-        "bundle_digest_matches": true,
-        "task_brief_present": true,
-        "artifact_package_binary_safe": true,
-        "artifact_revision_exact": true,
-        "finding_evidence_normalized": true,
-        "verification_evidence_normalized": true
+        "round": 4,
+        "task_and_current_artifact_present": true,
+        "original_finding_present": true,
+        "failed_attempts_and_test_outputs_present": true,
+        "facts_and_hypotheses_separated": true
       },
       "expected": {
-        "handoff_outcome": "verified-evidence-only",
-        "preflight": "fix-handoff-verify-before-read-extract-or-edit",
-        "readable_input": "verified-extracted-snapshot-only",
-        "fresh_context": true
+        "handoff_outcome": "concise-evidence-preserving-handoff",
+        "artifact_range": "original-task-base-to-current-head",
+        "fresh_context": true,
+        "capability": "sufficient-for-current-uncertainty-and-risk"
       },
       "must_not": [
-        "read-bundle-before-verify",
-        "reopen-bundle-after-verify",
-        "direct-tar-extract",
-        "reuse-prior-session-history"
+        "include-full-prior-conversation",
+        "include-self-justification-praise-or-verdict",
+        "require-strict-json-tar-or-fix-handoff-helper",
+        "discard-failed-test-evidence",
+        "handoff-only-last-fix-delta"
       ]
     },
     {
-      "id": "round-3-evidence-handoff-rejects-report-contamination",
-      "stage": "plan-execution-task-fix-handoff",
-      "prompt": "round 3 fresh fix handoff에 이전 implementer report와 self-review를 추가하려 한다. evidence-only handoff의 입력을 판정해줘.",
+      "id": "nested-fix-loop-consumes-parent-budget",
+      "stage": "plan-execution-task-fix-loop",
+      "prompt": "상위 task fix gate가 이미 3회를 소비한 뒤 round 4 implementer가 내부 helper에게 수정을 위임하려 한다. 남은 자동 budget을 판정해줘.",
       "event": {
-        "round": 3,
-        "bundle_contains_prior_report": true,
-        "bundle_contains_self_review": true,
-        "fresh_context_requested": true
+        "task_gate_cap": 5,
+        "task_gate_attempts_consumed": 3,
+        "owner_changed": true,
+        "nested_fix_requested": true
       },
       "expected": {
-        "handoff_outcome": "inconclusive",
-        "return_target": "handoff-preparation",
-        "prior_context_reuse": false
+        "remaining_parent_attempts": 2,
+        "nested_attempt_gets_new_budget": false,
+        "owner_change_resets_budget": false,
+        "next_attempt_number": 4
       },
       "must_not": [
-        "dispatch-contaminated-bundle",
-        "treat-report-as-raw-evidence",
-        "reuse-original-or-round-2-implementer",
-        "skip-exact-key-evidence-validation"
+        "grant-five-new-nested-attempts",
+        "reset-on-owner-session-or-handoff",
+        "start-round-1-for-same-task"
       ]
     }
   ]

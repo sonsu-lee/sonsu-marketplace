@@ -5,7 +5,7 @@
 - Last amended: 2026-09-05
 - Supersedes: None
 - Superseded by: None
-- Approval: 사용자가 2026-09-04 현재 대화에서 Fast Path, Code Mode, plan 기반 fresh-context red-team, Codex model·reasoning effort와 goal lifecycle 방향을 승인했고, 2026-09-05에 자동 task review/fix, design/plan review, whole-change review와 red-team 상한을 최대 5회로 변경하도록 승인했습니다.
+- Approval: 사용자가 2026-09-04 현재 대화에서 Fast Path, Code Mode, plan 기반 fresh-context red-team, Codex model·reasoning effort와 goal lifecycle 방향을 승인했고, 2026-09-05에 최대 5회 상한과 research 기반 단순화를 승인했습니다.
 
 ## Context
 
@@ -21,6 +21,8 @@ red-team을 실행하는 방식도 분류 오류가 검토 누락으로 이어�
 Codex는 역할별 model과 reasoning effort, 격리된 subagent context, Code Mode와 goal 도구를
 제공할 수 있지만 Engineering의 generic 계약과 Codex 전용 mapping이 분리돼 있지 않았습니다.
 
+설계 동기는 원본 [`subagent-driven-development`](https://github.com/obra/superpowers/blob/b36e0829c6d0140e93cfef2ca599b1b07d4a7797/skills/subagent-driven-development/SKILL.md)의 implement-review 반복 구조와 [무한 review/test ratchet 사례](https://github.com/obra/superpowers/issues/2112), 반복 피드백을 다음 시도에 사용하는 [Reflexion](https://arxiv.org/abs/2303.11366), 요구사항이 여러 turn에 나뉠 때 premature assumption과 anchoring이 누적되는 현상을 다룬 [LLMs Get Lost In Multi-Turn Conversation](https://arxiv.org/html/2505.06120v1), agent system의 coordination과 성능 관계를 다룬 [scaling 연구](https://arxiv.org/abs/2512.08296v3)에서 얻었습니다. 이 자료는 bounded retry, fresh context와 비용 인식 routing의 방향을 뒷받침하는 참고 자료이며, 아래 계약이 Codex에서 더 높은 품질이나 성능을 낸다는 직접적인 경험적 검증은 아닙니다.
+
 ## Decision
 
 Engineering은 기존 [0007 stage-owned quality gate](0007-use-stage-owned-quality-gates.md)와 권한
@@ -29,46 +31,44 @@ Engineering은 기존 [0007 stage-owned quality gate](0007-use-stage-owned-quali
 1. `bounded` 요청 중 명확한 결과, 닫힌 영향 범위, 결정론적 검증과 가역성을 모두 갖춘 작업은
    plan 없는 Fast Path로 실행할 수 있습니다. 효과가 국소적인 Local Fast Path와 동일 규칙을
    재현할 수 있는 Mechanical Fast Path를 구분합니다. controller는 target discovery 전에 stable
-   todo ID를 고정하거나 UUID를 한 번만 만들고, 이를 target에서 다시 유도하지 않습니다.
-   모든 Fast Path entry에서 `.engineering/fast-path/<task_id>.state`를 확인해 `disqualified`
-   latch를 먼저 거부합니다. 조건이 하나라도 확인되지 않거나 classifier를 사용할 수 없으면
-   일반 workflow로 올리고, 같은 task는 Fast Path에 다시 들어올 수 없습니다.
-2. Fast Path 요청 자체에 대상·결과·완료 조건이 명확하면 이를 승인된 짧은 설계로 취급합니다.
-   controller의 표적 탐색 1회와 fresh-context classifier의 독립 표적 탐색 1회만 허용하므로 전체
-   search budget은 2회입니다. classifier는 controller의 자기 판정을 대신하지 않으며 `eligible`은
-   controller가 capture한 exact candidate revision과 일치하는 revision 및 64-character lowercase
-   SHA-256 evidence digest를 state에 기록할 때만 성립합니다. missing revision, revision mismatch,
-   false 또는 unknown predicate는 fail closed합니다. 구현과 집중 수정은 각 1회로 제한하며, 예상 밖
-   의존성이나 두 번째 의미 판단이 드러나면 `disqualified`를 영속 기록하고 Fast Path를 종료합니다.
+   task ID를 고정하고 실제 현재 파일과 consumer를 최대 2회의 targeted search로 확인합니다.
+   별도 classifier subagent는 필수가 아니며, 과거 `eligible` 기록이나 `HEAD` 일치는 미커밋 변경을
+   포함한 현재 상태의 승인으로 사용하지 않습니다.
+2. 영속 Fast Path state에는 stable task ID별로 소비한 search·execution budget과 `disqualified`만
+   기록합니다. 최초 구현과 한 번의 집중 수정은 같은 중단 없는 실행 안에서 허용합니다. resumption,
+   context loss, handoff, 설명되지 않는 파일 drift 또는 추가 의미 판단이 발생하면 `disqualified`를
+   기록하고 일반 workflow로 올립니다. task ID·session·owner를 바꾸어 예산을 초기화하지 않으며,
+   legacy positive eligibility record는 replay하지 않습니다.
 3. Code Mode는 결정론적 탐색·변환·검증의 실행 수단입니다. Code Mode를 사용할 수 있다는 사실은
    Fast Path 적합성이나 품질 통과의 근거가 아니며, 실제 consumer와 postcondition을 별도로
    검증합니다.
-4. 자동 task review/fix, design/plan review와 whole-change review loop는 각각 최대 5회입니다. task fix는
-   1회차에 원래 implementer를 사용하고, 2~5회차에는 서로 다른 fresh-context implementer에게 exact task
-   brief, exact-revision binary-safe artifact package, exact-key normalized
-   finding-evidence JSON 및 verification-evidence JSON만 immutable bundle에 고정해 fresh-context
-   implementer에게 전달합니다. 이 implementer는 이전 report, implementation narrative, rationale,
-   self-review, completion verdict, reviewer verdict, agent identity와 session history를 받지 않습니다.
-   읽기·추출·수정 전 canonical `fix-handoff verify BUNDLE DIGEST`를 실행하고, 성공한 뒤 stdout의
-   verified `Extracted:` snapshot만 읽습니다. 판단 부족이 원인에 기여한 3회차에는 capability를 지원되는
-   한 단계 이상 높이고, 4회차에는 역할에 맞는 high-capability 조합, 5회차에는 `max`·`ultra`가 아닌
-   가장 강한 role-appropriate default 조합을 적용합니다. 상한의 미해결 필수 finding은 자동 통과하지 않습니다.
-5. 구현 plan이 존재하는 모든 작업은 현재 exact revision의 전체 결정론적 검증과 일반 final review 뒤에 별도의
-   fresh-context red-team gate를 거칩니다. 이는 위험도 분류가 아니라 plan artifact 존재로
-   trigger합니다. reviewer는 목표·요구사항·설계·의사코드·plan·전체 diff·검증 근거를 바탕으로
-   지금까지의 전제를 반증하며 구현에 참여하거나 코드를 수정하지 않습니다. 이 모든 입력은
-   경로 포인터가 아니라 하나의 immutable content bundle에 복사하고 bundle 전체 digest로 고정합니다.
+4. 자동 task review/fix, design/plan review, whole-change review와 red-team loop는 각각 최대 5회입니다.
+   task fix 1~3회차는 원래 implementer가 직접 이어서 수정할 수 있고, 4~5회차는 fresh context와
+   작업에 충분한 capability를 사용합니다. fresh handoff에는 task, 현재 artifact, 원래 finding,
+   실패한 시도와 실제 test evidence를 간결하게 전달하며 사실과 가설을 구분합니다. 이전 대화 전체,
+   자기 정당화, 칭찬, completion/reviewer verdict는 전달하지 않습니다. 특정 JSON key, tar layout이나
+   helper command를 handoff의 필수 조건으로 만들지 않습니다. 5회 뒤 유효한 필수 finding은 자동
+   통과하지 않으며 사람의 결정을 기다립니다.
+5. 구현 plan이 존재하는 모든 작업은 현재 전체 변경의 결정론적 검증과 일반 whole-change review 뒤에
+   별도의 fresh-context red-team gate를 최초 한 번 수행합니다. reviewer는 목표·요구사항·설계·의사코드·
+   plan·전체 diff·검증 근거를 바탕으로 전제를 독립적으로 검토하며 구현에 참여하거나 코드를 수정하지
+   않습니다. 목표는 결함 수를 채우는 것이 아니며 근거 있는 결함이 없으면 통과할 수 있습니다.
 6. red-team verdict는 `survives_challenge`, `invalidated`, `inconclusive`, `blocked`를 사용합니다.
-   첫 verdict만 quality gate의 `passed`로 연결합니다. 나머지는 가장 가까운 소유 단계로
-   반환하며, artifact가 바뀌면 현재 exact revision의 deterministic verification, ordinary whole-change
-   review 및 immutable red-team bundle을 다시 고정합니다. 최대 5개의 서로 다른 fresh-context reviewer
-   뒤에는 `decision_required`로 중단합니다.
-7. generic skill은 capability tier만 정의하고, Codex 전용 reference가 허용된 model과
-   `reasoning_effort`를 함께 mapping합니다. 사용할 수 없는 조합의 fallback은 기록하며
+   첫 verdict만 quality gate의 `passed`로 연결합니다. bounded fix 뒤에는 현재 전체 bundle을 계속
+   제공하되 fresh reviewer가 이전 challenge와 fix regression을 scoped recheck합니다. 일반 gate도
+   영향받지 않은 이전 whole-review 근거, 실제 delta, scoped checks/review와 impact rationale을 합쳐
+   현재 상태를 판정할 수 있습니다. material goal·contract·design·dependency 변경 또는 영향이
+   불명확할 때에만 해당 whole review와 full challenge를 다시 엽니다. 새로운 scope 아이디어는
+   승인 범위의 결함과 분리하며 자동으로 차단하지 않습니다.
+7. 모든 자동 loop의 5회 상한은 session, owner 또는 소유 단계 반환으로 초기화하지 않습니다. nested
+   호출은 상위 task/gate의 남은 예산 안에서만 수행합니다. generic skill은 capability tier를
+   uncertainty, regression risk, 독립 판단 필요성 및 예상 총 시간·비용으로 선택하고, Codex 전용
+   reference가 허용된 model과 `reasoning_effort`를 함께 mapping합니다. 파일 수만으로 tier를 정하거나
    `max`·`ultra`를 기본값으로 사용하지 않습니다.
-8. Codex goal은 사용자가 명시적으로 요청한 plan-backed 작업에 최대 하나만 사용합니다. 세부
-   task는 todo와 ledger로 추적하고, 필수 final review와 red-team gate까지 끝나야 goal을 완료할
-   수 있습니다. 평범한 요청에서 goal이나 token budget을 추론하지 않습니다.
+8. Codex goal은 사용자가 명시적으로 요청한 plan-backed 작업에 최대 하나만 사용합니다. goal은
+   test 개수나 gate 통과 수가 아니라 사용자가 요청한 관찰 가능한 결과를 추적합니다. 세부 task는
+   todo와 ledger로 추적하고 필수 final review와 red-team gate까지 끝나야 완료할 수 있습니다.
+   평범한 요청에서 goal이나 token budget을 추론하지 않습니다.
 
 0007의 exact revision, 상태 구분, changed-input retry, nearest-owner return과 authorization 분리
 원칙은 계속 적용합니다. 이번 결정은 독립 reviewer 적용 기준, retry cap과 Codex 실행 routing을
@@ -85,17 +85,15 @@ Engineering은 기존 [0007 stage-owned quality gate](0007-use-stage-owned-quali
 
 ## Consequences
 
-명확하고 결정론적인 변경은 독립 classifier의 확인 뒤 제한된 탐색 비용으로 끝낼 수 있습니다.
-단순하다고 분류한 작업이 예상보다 커지거나 classifier가 non-eligible 또는 unavailable이면,
-`disqualified` latch를 먼저 기록하고 남은 Fast Path budget을 소비하지 않은 채 일반 workflow로
-올라갑니다. 계획이 필요한 작업은 코드가 요구사항을 만족한다는 일반 리뷰 외에 요구사항과
-접근 자체를 부정하는 독립 검토를 받습니다.
+명확하고 결정론적인 변경은 controller의 제한된 현재 상태 확인 뒤 끝낼 수 있습니다. 예상보다
+범위가 커지거나 실행 연속성이 끊기면 `disqualified`를 기록하고 일반 workflow로 올라갑니다.
+계획이 필요한 작업은 코드가 요구사항을 만족한다는 일반 리뷰 외에 요구사항과 접근 자체를
+독립적으로 검토받습니다.
 
-red-team은 강한 model과 새 context를 사용하므로 plan-backed 작업의 비용이 증가합니다. 이를
-plan 존재라는 고정 trigger, 최대 5회 상한, immutable artifact package와 역할별 model routing으로
-제한합니다. Fast Path classifier와 evidence-only handoff의 실제 runtime model compliance, 그리고
-품질·비용 효과는 deterministic fixture나 native loading만으로 입증되지 않으며 별도 승인된 behavior
-evaluation이 필요합니다.
+red-team은 별도 model과 새 context를 사용할 수 있어 plan-backed 작업의 비용이 증가합니다. 이를
+plan 존재라는 고정 trigger, 영향 기반 재검토와 최대 5회 상한으로 제한합니다. Fast Path와
+fresh-context review의 실제 runtime model compliance 및 품질·비용 효과는 deterministic fixture나
+native loading만으로 입증되지 않으며 별도 승인된 behavior evaluation이 필요합니다.
 
 ## Revisit When
 

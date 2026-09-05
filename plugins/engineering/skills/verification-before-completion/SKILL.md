@@ -47,6 +47,8 @@ Skip any step = lying, not verifying
 - `blocked`, `inconclusive`와 필수 `not_run`은 완료 주장을 뒷받침하지 못한다.
 - `accepted_risk`에는 정확한 리비전에 대한 사람의 명시적인 결정이 필요하다. 미해결 위험을 보고하며, 테스트나 게이트가 통과했다고 바꿔 말하지 않는다.
 - 검사에서 결과 리비전까지 다뤘음이 명백하지 않다면 artifact 변경으로 이전 근거는 오래된 것이 된다.
+- 공통 계약의 변경 영향 규칙으로 이전 유효 근거와 새 scoped 검증을 현재 리비전에 연결할 수 있다.
+  이전 pass를 복사하는 것과 구분하며, 실제 delta·영향 경계·필수 조건 전체의 coverage를 확인한다.
 - plan-backed 작업은 결정론적 검증과 일반 최종 리뷰만으로 완료할 수 없다. 같은 전체 변경
   리비전에 대한 fresh-context red-team gate가 `survives_challenge`여야 한다. reviewer를 사용할
   수 없거나 판정이 `invalidated`, `inconclusive`, `blocked`, 필수 `not_run`이면 완료 주장을

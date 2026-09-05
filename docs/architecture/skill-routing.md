@@ -57,26 +57,29 @@ branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 �
 ## Engineering 실행 경로
 
 Engineering은 작업을 중앙 orchestrator 하나로 모으지 않고 기존 stage-owned gate를 유지합니다.
-Fast Path는 target discovery 전에 stable todo ID 또는 한 번 생성한 UUID를 고정하고 target에서 다시
-유도하지 않습니다. 매 entry에서 current `HEAD`의 exact candidate revision을 capture해
-`.engineering/fast-path/<task-id>.state`에 `plugins/engineering/skills/brainstorming/scripts/fast-path-state check ROOT TASK_ID EXPECTED_REVISION`을 먼저 실행합니다.
-stored eligible revision이 expected revision과 다르거나 expected revision이 없으면 fail closed합니다.
-이미 `disqualified`인 task는 classifier,
-predicate, execution을 건너뛰고 가장 가까운 일반 workflow로 갑니다. `unclassified` task만 아래의
-독립 classifier gate를 통과해야 plan 없는 Fast Path를 사용합니다.
+Fast Path는 target discovery 전에 stable task ID를 고정하고, 그 ID의 소비한 search·execution
+budget과 `disqualified` 상태를 확인합니다. controller가 실제 현재 파일과 consumer를 최대 2회의
+targeted search로 확인합니다. classifier subagent, persisted `eligible` capability와 `HEAD`-bound
+approval은 필수가 아닙니다. 이전 형식의 positive eligibility record는 현재 판정으로 replay하지
+않습니다.
+
+현재 helper API는 `fast-path-state begin ROOT TASK_ID EXECUTION_ID`, 각 탐색·수정 전에
+`fast-path-state reserve ROOT TASK_ID EXECUTION_ID search|action`, 탈락 시
+`fast-path-state disqualify ROOT TASK_ID EXECUTION_ID REASON`입니다. `EXECUTION_ID`는 중단 없는
+현재 controller 실행의 예산을 연결할 뿐 승인 토큰이 아니며 state에서 복구하거나 handoff에
+전달하지 않습니다.
 
 ```text
 명확한 요청
-  → controller 표적 탐색 1회: 대상·관찰 결과·완료 조건, references, consumers, public-contract risk, oracle
-  → fresh gpt-5.6-luna/low classifier의 독립 표적 탐색 1회
-  → classifier verdict eligible | escalate | inconclusive | blocked
-  → eligible일 때만 controller-captured revision과 일치하는 exact candidate revision 및 64-character lowercase SHA-256 evidence digest를 state에 기록
-  → 효과 또는 변환 규칙과 직접 소비자 범위를 두 탐색 안에 닫음
+  → stable task ID와 남은 persistent budget 확인
+  → controller가 현재 파일에서 최대 2회 targeted search
+  → 대상·관찰 결과·완료 조건, references, consumers, public-contract risk, oracle 확인
+  → 효과 또는 변환 규칙과 직접 소비자 범위를 search budget 안에 닫음
   → public contract·schema·상태·권한·migration·호환성 변경 없음
   → 저렴한 결정론적 검증 존재
-    → Local Fast Path 또는 Mechanical Fast Path
-  classifier non-eligible, unavailable, false 또는 unknown predicate
-    → persistent disqualified latch → nearest normal workflow
+    → Local Fast Path 또는 Mechanical Fast Path: 최초 구현 1회 + 집중 수정 1회
+  predicate false·unknown, resumption, context loss, handoff 또는 unexplained drift
+    → persistent disqualified → nearest normal workflow
   그 외
     → brainstorming → 승인된 짧은 설계
       → plan 필요: writing-plans → plan-backed execution
@@ -89,27 +92,42 @@ Mechanical Fast Path는 파일 수가 아니라 결정론적인 변환 규칙과
 Fast Path 적합성이나 품질 판정의 근거가 아닙니다.
 
 Fast Path는 표적 탐색 2회, 최초 구현 1회, 집중 수정 1회와 총 자동 시도 2회로 제한합니다. fresh
-`gpt-5.6-luna` / `low` classifier가 유일한 Fast Path subagent slot이며 implementation/reviewer subagent는
-기본 경로에서 만들지 않습니다. 숨은 소비자, 두 번째 의미 판단, public contract, 원인 불명 실패,
-넓어진 책임, related refactor 또는 second correction이 발견되면 `disqualified`를 영속 latch하고
-task ID와 state-file path를 handoff에 넣어 one-way owner escalation을 실행합니다. 원인 불명은
+최초 구현과 한 번의 집중 수정은 같은 중단 없는 controller 실행에서만 허용합니다. 별도 classifier는
+필요하지 않으며 필요한 경우 사용해도 전체 2회 search budget을 늘리지 않습니다. 숨은 소비자,
+두 번째 의미 판단, public contract, 원인 불명 실패, 넓어진 책임, related refactor, second correction,
+재개·context loss·handoff 또는 설명되지 않는 파일 변경이 발견되면 `disqualified`를 영속 기록하고
+task ID와 소비한 budget을 handoff에 넣어 one-way owner escalation을 실행합니다. 원인 불명은
 `systematic-debugging`, multi-flow/interface는 `writing-plans`, requirement/design 변경은
-`brainstorming`으로 보내며 이 경로는 classifier, predicate, execution으로 재진입하지 않습니다.
+`brainstorming`으로 보내며 이 경로는 Fast Path로 재진입하지 않습니다. session이나 owner가 바뀌어도
+budget과 탈락 상태는 초기화하지 않습니다.
 
 plan artifact가 있는 모든 실행 경로는 결정론적 검증과 일반 최종 리뷰 뒤에 fresh-context
-red-team completion review를 수행합니다. 이 reviewer는 이전 session history와 verdict를 받지
-않고 원래 목표, 승인된 요구사항·설계, 행동 의사코드·mapping, immutable 전체 변경 package,
-검증 근거와 관찰 결과만으로 전체 구조를 반증합니다. `survives_challenge`만 일반 통과이며
+red-team completion review를 최초 한 번 수행합니다. 이 reviewer는 이전 session history와 verdict를
+받지 않고 원래 목표, 승인된 요구사항·설계, 행동 의사코드·mapping, 현재 전체 변경 bundle,
+검증 근거와 관찰 결과로 전체 구조를 독립적으로 검토합니다. 결함을 강제로 만들지 않으며
+`survives_challenge`만 일반 통과입니다.
 `invalidated`, `inconclusive`, `blocked`는 각각 실제 design, plan, implementation, verification
 또는 capability 소유 단계로 돌아갑니다. plan 없는 Fast Path에는 이 게이트를 강제하지 않습니다.
 
 Engineering의 자동 task review/fix, design/plan review, whole-change review와 red-team loop는
-각각 최대 5회입니다. task fix는 1회차만 원래 implementer를 재사용하고, 2-5회차는 매번 서로 다른
-fresh implementer가 evidence-only bundle만 받습니다. 판단 부족이 원인에 기여한 3회차에는 capability를
-높이고, 4회차에는 역할에 맞는 high-capability 조합, 5회차에는 예외적인 최대 effort mode가 아닌
-가장 강한 role-appropriate default 조합을 사용합니다. red-team 재시도도 changed input, 새 bundle과
-서로 다른 fresh reviewer를 요구합니다. 상한은 유효한 finding을 통과로 바꾸지 않으며
-`decision_required`로 중단합니다.
+각각 최대 5회입니다. task fix 1~3회차는 원래 implementer가 직접 이어서 수행하고, 4~5회차는
+fresh context와 충분한 capability를 사용합니다. handoff는 task, current artifact, 원래 finding,
+실제 실패 시도와 test evidence만 간결하게 보존하며 사실과 가설을 분리합니다. 이전 대화 전체,
+자기 정당화, 칭찬이나 verdict는 전달하지 않고 특정 tar·strict JSON·helper protocol을 요구하지
+않습니다.
+
+최초 ordinary final review와 최초 red-team은 전체 목표와 변경을 검토합니다. bounded fix 뒤 일반
+gate는 영향받지 않은 이전 whole-review evidence, 현재 delta, scoped checks/review와 영향 rationale의
+합으로 현재 artifact를 판정할 수 있습니다. fresh red-team reviewer도 현재 전체 bundle을 사용할 수
+있지만 이전 challenge와 fix regression을 scoped recheck합니다. material goal·contract·design·dependency
+변경 또는 영향이 불명확한 경우에만 해당 whole review와 full challenge를 다시 엽니다. 새로운 scope
+아이디어는 승인된 목표의 결함과 구분하고 자동 차단하지 않습니다.
+
+5회 상한은 목표 횟수가 아니며 task/gate ID에 귀속됩니다. session, owner, handoff 또는 소유 단계
+반환으로 초기화하지 않고 nested 호출도 상위 gate의 남은 budget 안에서 수행합니다. 유효한 finding은
+상한에서 통과로 바뀌지 않습니다. capability tier는 파일 수가 아니라 uncertainty, regression risk,
+독립 판단 필요성과 예상 총 시간·비용을 함께 고려합니다. goal을 명시적으로 사용할 때는 test totals가
+아니라 사용자가 요청한 관찰 가능한 결과를 추적합니다.
 
 ## Prompting 조합
 
@@ -404,12 +422,11 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
 ```text
 요청
   → spike / bounded / architectural 분류와 stable task ID 고정
-  → 매 Fast Path entry에서 persistent latch 확인
-      → disqualified: classifier/predicate/execution을 건너뛰고 nearest normal workflow
-      → unclassified: current HEAD exact revision capture → controller search 1회 → fresh classifier search 1회
-          → eligible: controller revision과 일치하는 exact revision + 64-hex digest 기록 → plan 없는 Local/Mechanical Fast Path
-          → escalate/inconclusive/blocked/unavailable/false/unknown: disqualified latch → nearest normal workflow
-  → Fast Path 실행 중 hidden complexity
+  → Fast Path에서 persistent search/execution consumption과 disqualified 확인
+      → controller가 실제 현재 파일을 최대 2회 targeted search
+          → 모든 predicate 확인: plan 없는 Local/Mechanical Fast Path의 initial + focused correction
+          → false/unknown: disqualified 기록 → nearest normal workflow
+  → Fast Path resumption/context loss/handoff/unexplained drift/hidden complexity
       → disqualified latch → systematic-debugging / writing-plans / brainstorming (Fast Path 재진입 없음)
   → plan 없는 Fast Path: 결정론적 검증 → 목적 정렬 기록
   → plan 없는 일반 bounded: 짧은 설계 승인 → plan 필요 여부 판정
@@ -417,10 +434,13 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
       설계 승인과 필요한 design-document gate
       → 의사코드로 전체 흐름 정의
       → 파일·task·dependency별 구현 계획과 검증 이유 → plan-readiness gate
-      → worktree 확인 또는 생성 → 구현 → task gate와 targeted fix (R=1 original, R=2..5 distinct fresh bundle-only)
-      → final deterministic verification → 일반 whole-change review (changed input으로 최대 5회)
-      → 목표·요구사항·설계·plan·전체 diff·검증을 하나의 immutable bundle로 고정
-      → fresh-context red-team completion gate (새 bundle·reviewer로 최대 5회)
+      → worktree 확인 또는 생성 → 구현 → task gate와 targeted fix (R=1..3 original, R=4..5 fresh capable context)
+      → final deterministic verification → 최초 일반 whole-change review
+      → 목표·요구사항·설계·plan·현재 전체 diff·검증을 current bundle로 제공
+      → 최초 fresh-context whole-goal red-team completion gate
+      → bounded fix: prior unaffected evidence + delta + scoped checks/review + impact rationale
+          → fresh red-team이 previous challenge + fix regression을 scoped recheck
+      → material boundary change 또는 unknown impact: 해당 full review/challenge reopen
   → plan 없는 일반 bounded:
       승인된 짧은 설계 → 구현 → 변경에 비례한 결정론적 final gate
   → diff와 gate 상태 보고 → 명시적인 커밋 승인 → commit
@@ -435,7 +455,8 @@ worktree를 만드는 원본 정책을 유지합니다. 다만 스킬 안의 com
 Engineering의 공통 [quality gate 계약](../../plugins/engineering/skills/using-engineering-skills/references/quality-gates.md)은
 gate ID, artifact와 exact revision, 필수 검사, evidence, finding, status, return target,
 attempt/cap과 decision owner를 기록합니다. `passed`, `failed`, `blocked`, `inconclusive`,
-`not_run`, `not_applicable`, `accepted_risk`를 구분하며 artifact가 바뀌면 이전 pass는 stale입니다.
+`not_run`, `not_applicable`, `accepted_risk`를 구분합니다. artifact가 바뀌면 이전 pass를 그대로
+복사하지 않고 변경 영향에 따라 유효한 이전 근거와 새 근거를 현재 artifact에 연결합니다.
 quality gate는 문서 작성, 구현, commit, push, PR, merge, deploy 또는 publish 권한을 부여하지
 않습니다.
 

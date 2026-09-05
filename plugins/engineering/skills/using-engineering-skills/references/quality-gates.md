@@ -30,11 +30,15 @@ Decision owner: <stage owner or named human decision-maker>
 
 첫 실행 전에 필수 검사, 통과 조건, 반환 대상과 유한한 시도 횟수 상한을 정한다. 파일이
 commit되지 않았다면 content digest 또는 변경할 수 없는 review package를 사용한다. artifact가
-바뀌면 이전 결과는 오래된 것이므로 다음 단계로 진행하기 전에 새 리비전에 필수 검사를 실행한다.
+바뀌면 이전 판정을 그대로 복사하지 않는다. 아래 변경 영향 규칙으로 필요한 검증과 리뷰를
+갱신하고, 재사용한 근거와 새 근거가 현재 리비전 전체의 필수 조건을 다루는지 기록한다.
 
 별도 stage가 더 낮은 상한을 선언하지 않는 한 자동 review/fix loop는 최대 5회다. 횟수 상한은
 같은 evaluator와 context를 반복 사용하는 허가가 아니다. 재시도 조건에 evaluator 또는 context
 변경이 포함되면 이전 session history를 상속하지 않는 fresh context에 필요한 artifact만 전달한다.
+상한은 목표 횟수가 아니다. task/gate ID와 소비한 횟수를 유지하며 session 교체, owner 반환,
+package 재생성으로 예산을 초기화하지 않는다. 각 owner 호출은 남은 상위 gate 예산 안에서
+수행하고 종료 조건을 먼저 정한다. 중첩 loop마다 새 5회 예산을 발급하지 않는다.
 
 digest는 내용을 식별하지만 노출하지 않는다. 독립 evaluator가 commit하지 않은 artifact를
 검사해야 한다면 digest와 함께 읽을 수 있는 고정 package를 제공한다. working tree 변경을
@@ -87,28 +91,16 @@ challenge verdict는 quality status와 분리해 기록한다.
 사항이고 의도적으로 제외했다면 `not_applicable`로 기록한다. 필수지만 사용할 수 없었다면
 게이트를 조용히 약화하지 말고 `blocked` 또는 `not_run`으로 기록한다.
 
-## Fast Path classifier와 latch gate
+## Fast Path의 현재 판단과 영속 예산
 
-plan 없는 Fast Path의 eligibility gate는 controller가 소유한다. target discovery 전에 stable todo ID를
-고정하거나 UUID를 한 번 생성하고, task ID를 target에서 다시 유도하지 않는다. **매 Fast Path entry 전에**
-current `HEAD`의 exact candidate revision을 capture해 repository
-`.engineering/fast-path/<task-id>.state`에 `plugins/engineering/skills/brainstorming/scripts/fast-path-state check ROOT TASK_ID EXPECTED_REVISION`을 실행한다. stored eligible
-revision이 expected revision과 다르거나 expected revision이 없으면 fail closed한다. `disqualified`는 classifier, predicate와 execution을
-건너뛰어 가장 가까운 normal workflow로 보낸다.
-
-`unclassified`일 때만 controller가 표적 탐색을 한 번 하고 request, target, controller evidence,
-proposed deterministic oracle, unknowns로 짧은 brief를 만든다. fresh `gpt-5.6-luna` / `low` classifier가
-독립 targeted search를 정확히 한 번 실행하므로 Fast Path 전체 탐색 예산은 2회다. verdict는
-`eligible | escalate | inconclusive | blocked`다. `eligible`만 controller-captured revision과 일치하는
-exact candidate revision 및 64-character lowercase SHA-256 evidence digest로 기록할 수 있다. 기존 eligible
-record는 revision과 digest가 완전히 같을 때만 idempotent다. `escalate`, `inconclusive`, `blocked`, unavailable 또는 false/unknown predicate는 먼저
-`disqualified`를 영속 기록하고 nearest normal workflow로 routing한다.
-
-unexpected consumer, semantic decision, public contract, unexplained failure, widened responsibility, related
-refactor 또는 second correction도 같은 disqualified latch를 기록한다. 이 one-way owner escalation은
-`systematic-debugging`, `writing-plans` 또는 `brainstorming`으로만 향하며 Fast Path classifier, predicate,
-execution으로 되돌아갈 수 없다. 모든 handoff는 task ID와 state-file path를 포함한다. 이 gate는
-implementation, subagent, commit 또는 다른 권한을 부여하지 않는다.
+Fast Path의 판정과 실행은 [brainstorming](../../brainstorming/SKILL.md)의 bounded 계약을 따른다.
+controller가 실제 현재 파일과 consumer를 확인하며, 별도 classifier subagent는 필수가 아니다.
+`HEAD` 일치나 과거 `eligible` 기록은 미커밋 변경을 포함한 현재 작업의 자격을 증명하지 않는다.
+긍정 판정은 중단 없는 현재 실행에만 사용한다. 영속 상태에는 stable task ID의 소비한 탐색·실행
+예산과 `disqualified`만 남긴다. 재개, context 손실, handoff 또는 설명되지 않는 파일 변경에서는
+과거 판정을 복구하지 않고 일반 workflow로 올린다. 같은 실행에서 확인한 자신의 수정과 허용된
+집중 수정은 재개로 취급하지 않는다. ID 교체나 재분류로 예산 또는 탈락 기록을 초기화하지 않는다.
+이 gate는 구현, 위임 또는 Git 권한을 부여하지 않는다.
 
 ## 가장 가까운 소유 단계로 돌아간다
 
@@ -131,13 +123,28 @@ implementation, subagent, commit 또는 다른 권한을 부여하지 않는다.
 마지막 green checkpoint와 이미 검증한 작업을 보존한다. 되돌아가기는 표적화된 상태 전환이며,
 재시작이나 재귀적인 자기 호출이 아니다.
 
-whole-change review의 finding을 수정한 뒤 수행하는 scoped 재리뷰는 그 finding을 닫는 근거이지
-변경된 전체 artifact의 final gate가 아니다. 현재 전체 package를 다시 생성해 whole-change gate를
-같은 exact revision으로 갱신한 뒤에만 후속 completion gate로 진행한다.
+## 변경 영향에 따른 근거 갱신
 
-red-team finding을 소유 단계에서 수정해 artifact revision이 바뀌어도 같은 원칙을 적용한다.
-소유 단계의 scoped 검증·재리뷰 뒤 전체 결정론적 검증과 일반 whole-change gate를 새 리비전에
-다시 묶고, 그 결과를 포함한 새 bundle을 만든 뒤에만 다음 fresh-context challenge를 시작한다.
+최초 일반 final review와 최초 red-team은 전체 변경을 검토한다. 수정 후에는 기존 finding의
+해결 여부와 수정으로 생긴 회귀를 검토한다. unrelated 개선안이나 새로운 위협 모델을 자동으로
+완료 조건에 추가하지 않는다. 승인 범위의 결함과 새 요구사항을 구분하고 후자는 별도 결정으로 올린다.
+
+국소 수정의 영향이 확인되면 전체 리뷰를 다시 시작하지 않고 다음 근거를 현재 gate에 연결한다.
+
+- 이전 전체 리뷰의 artifact/revision과 아직 유효한 검증 범위
+- 이전 revision부터 현재 revision까지의 실제 delta와 영향을 받는 계약·consumer
+- 변경 부분의 검증 명령·결과와 scoped reviewer의 finding별 판정 및 회귀 확인
+- 영향받지 않은 근거를 재사용하는 이유, 남은 필수 조건과 현재 artifact/revision
+
+scoped 결과만으로 전체 `passed`를 만들지 않는다. 위 근거의 합이 현재 전체 필수 조건을
+충족해야 한다. reviewer가 영향 경계를 확인할 수 없거나 목표·승인 계약·설계·dependency 경계가
+바뀌면 해당 전체 gate를 다시 연다. 설계 변경에는 사용자 재승인이 먼저 필요하다.
+required full test suite는 영향 범위에 따라 계속 실행하되, 같은 bytes에 대한 검증은 중복하지 않는다.
+
+red-team도 최초에는 전체 목표를 독립 검토하고, 국소 수정 뒤에는 현재 전체 bundle을 제공하되
+이전 반례와 수정 회귀에 범위를 제한한 새 context로 검토한다. 전체 전제가 바뀌거나 영향이
+불명확하면 broad challenge를 다시 연다. 일반 gate와 red-team gate는 별도로 현재 리비전에
+기록하며 어느 한쪽의 통과가 다른 쪽을 대신하지 않는다.
 
 ## 정보가 달라졌을 때 재시도한다
 

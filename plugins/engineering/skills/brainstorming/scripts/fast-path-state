@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-  printf 'usage: fast-path-state check ROOT TASK_ID EXPECTED_REVISION | record ROOT TASK_ID eligible CANDIDATE_REVISION EVIDENCE_DIGEST | record ROOT TASK_ID disqualified REASON EVIDENCE_DIGEST\n' >&2
+  printf 'usage: fast-path-state begin ROOT TASK_ID EXECUTION_ID | reserve ROOT TASK_ID EXECUTION_ID search|action | disqualify ROOT TASK_ID EXECUTION_ID REASON\n' >&2
   exit 64
 }
 
@@ -15,19 +15,26 @@ fail_closed() {
 command=$1
 
 case "$command" in
-  check)
+  begin)
     [[ $# -eq 4 ]] || usage
     root=$2
     task_id=$3
-    expected_revision=$4
+    execution_id=$4
     ;;
-  record)
-    [[ $# -eq 6 ]] || usage
+  reserve)
+    [[ $# -eq 5 ]] || usage
     root=$2
     task_id=$3
-    verdict=$4
-    detail=$5
-    digest=$6
+    execution_id=$4
+    reservation=$5
+    [[ "$reservation" == search || "$reservation" == action ]] || usage
+    ;;
+  disqualify)
+    [[ $# -eq 5 ]] || usage
+    root=$2
+    task_id=$3
+    execution_id=$4
+    reason=$5
     ;;
   *) usage ;;
 esac
@@ -38,16 +45,21 @@ case "$root" in
   *'//'*|*/./*|*/../*|*/.|*/..) fail_closed 'state root must be canonical' ;;
 esac
 [[ "$task_id" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]] || fail_closed 'unsafe task ID'
-if [[ "$command" == check ]]; then
-  [[ "$expected_revision" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]] || fail_closed 'invalid expected revision'
+[[ "$execution_id" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]] || fail_closed 'unsafe execution ID'
+
+validate_text() {
+  local value=$1
+  [[ -n "$value" && ${#value} -le 512 && "$value" != *$'\n'* && "$value" != *$'\r'* ]]
+}
+
+if [[ "$command" == disqualify ]]; then
+  validate_text "$reason" || fail_closed 'invalid disqualification reason'
 fi
 
 canonicalize_state_root() {
   local candidate=$root component parent logical_ancestor physical_ancestor logical_root physical_root
   local target attempts=0 missing_components=''
 
-  # Walk only to the nearest existing path. A bounded walk prevents malformed
-  # input from turning state-root initialization into an unbounded traversal.
   while [[ ! -e "$candidate" && ! -L "$candidate" ]]; do
     component=${candidate##*/}
     [[ -n "$component" && "$component" != "$candidate" ]] || fail_closed 'cannot resolve state root ancestor'
@@ -71,11 +83,7 @@ canonicalize_state_root() {
     else
       missing_components=''
     fi
-    if [[ "$root" == / ]]; then
-      target=/$component
-    else
-      target=$root/$component
-    fi
+    target=${root%/}/$component
     if [[ -e "$target" || -L "$target" ]]; then
       [[ ! -L "$target" && -d "$target" ]] || fail_closed 'unsafe state root component'
     else
@@ -91,98 +99,150 @@ canonicalize_state_root() {
 }
 
 canonicalize_state_root
-logical_root=$(cd -L "$root" 2>/dev/null && pwd -L) || fail_closed 'cannot resolve state root'
-physical_root=$(cd -P "$root" 2>/dev/null && pwd -P) || fail_closed 'cannot resolve state root'
-[[ "$logical_root" == "$physical_root" ]] || fail_closed 'state root contains a symlink'
-root=$physical_root
 state="$root/$task_id.state"
 lock="$root/$task_id.state.lock"
 
-validate_text() {
-  local value=$1
-  [[ -n "$value" && ${#value} -le 512 && "$value" != *$'\n'* && "$value" != *$'\r'* ]]
+acquire_lock() {
+  local attempts=0
+  while ! mkdir "$lock" 2>/dev/null; do
+    [[ ! -L "$lock" && -d "$lock" ]] || fail_closed 'unsafe state lock'
+    attempts=$((attempts + 1))
+    [[ "$attempts" -lt 50 ]] || fail_closed 'state lock is busy'
+    sleep 0.05
+  done
+  trap 'rmdir "$lock" 2>/dev/null || true' EXIT HUP INT TERM
 }
 
-validate_revision() { [[ "$1" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]]; }
-validate_digest() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
-
 read_state() {
-  local line key value lines=0
-  state_verdict=''
-  state_detail=''
-  state_digest=''
-  [[ ! -L "$state" ]] || return 1
-  [[ -f "$state" && -s "$state" ]] || return 1
+  local line key value lines=0 first=''
+  state_status=''
+  state_execution=''
+  state_searches=''
+  state_actions=''
+  state_reason=''
+  state_version=''
+
+  [[ ! -L "$state" && -f "$state" && -s "$state" ]] || return 1
   while IFS= read -r line || [[ -n "$line" ]]; do
     lines=$((lines + 1))
+    [[ "$lines" -ne 1 ]] || first=$line
     key=${line%%=*}
     value=${line#*=}
-    [[ "$key" != "$line" && -n "$value" ]] || return 1
+    [[ "$key" != "$line" ]] || return 1
     case "$key" in
-      version) [[ "$lines" -eq 1 && "$value" == 1 ]] || return 1 ;;
-      verdict) [[ "$lines" -eq 2 && ( "$value" == eligible || "$value" == disqualified ) ]] || return 1; state_verdict=$value ;;
-      detail) [[ "$lines" -eq 3 ]] || return 1; state_detail=$value ;;
-      evidence_digest) [[ "$lines" -eq 4 ]] || return 1; state_digest=$value ;;
+      version) [[ "$lines" -eq 1 && ( "$value" == 1 || "$value" == 2 ) ]] || return 1; state_version=$value ;;
+      status) [[ "$lines" -eq 2 && ( "$value" == active || "$value" == disqualified ) ]] || return 1; state_status=$value ;;
+      execution_id) [[ "$lines" -eq 3 && "$value" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$ ]] || return 1; state_execution=$value ;;
+      searches) [[ "$lines" -eq 4 && "$value" =~ ^[0-2]$ ]] || return 1; state_searches=$value ;;
+      actions) [[ "$lines" -eq 5 && "$value" =~ ^[0-2]$ ]] || return 1; state_actions=$value ;;
+      reason) [[ "$lines" -eq 6 ]] || return 1; state_reason=$value ;;
+      verdict|detail|evidence_digest) ;;
       *) return 1 ;;
     esac
   done < "$state"
-  [[ "$lines" -eq 4 && -n "$state_verdict" ]] || return 1
-  validate_digest "$state_digest" || return 1
-  if [[ "$state_verdict" == eligible ]]; then
-    validate_revision "$state_detail"
+
+  if [[ "$first" == version=1 ]]; then
+    state_version=1
+    return 0
+  fi
+
+  [[ "$lines" -eq 6 && "$state_version" == 2 && -n "$state_status" \
+    && -n "$state_execution" && -n "$state_searches" && -n "$state_actions" ]] || return 1
+  if [[ "$state_status" == active ]]; then
+    [[ "$state_reason" == none ]]
   else
-    validate_text "$state_detail"
+    validate_text "$state_reason"
   fi
 }
 
+write_state() {
+  local status=$1 execution=$2 searches=$3 actions=$4 reason_text=$5 tmp
+  tmp=$(mktemp "$root/.${task_id}.state.XXXXXX") || fail_closed 'cannot create temporary state'
+  trap 'rm -f "$tmp" 2>/dev/null || true; rmdir "$lock" 2>/dev/null || true' EXIT HUP INT TERM
+  printf 'version=2\nstatus=%s\nexecution_id=%s\nsearches=%s\nactions=%s\nreason=%s\n' \
+    "$status" "$execution" "$searches" "$actions" "$reason_text" > "$tmp"
+  mv -f "$tmp" "$state" || fail_closed 'cannot persist state'
+  trap 'rmdir "$lock" 2>/dev/null || true' EXIT HUP INT TERM
+}
+
+latch_disqualified() {
+  local reason_text=$1
+  write_state disqualified "$execution_id" "${state_searches:-0}" "${state_actions:-0}" "$reason_text"
+}
+
+acquire_lock
+
+if [[ ! -e "$state" && ! -L "$state" ]]; then
+  if [[ "$command" == reserve ]]; then
+    fail_closed 'task has not begun'
+  fi
+  if [[ "$command" == disqualify ]]; then
+    state_searches=0
+    state_actions=0
+    latch_disqualified "$reason"
+    printf 'disqualified\n'
+    exit 0
+  fi
+  write_state active "$execution_id" 0 0 none
+  printf 'active\n'
+  exit 0
+fi
+
+read_state || fail_closed 'malformed or unsafe state'
+
+if [[ "$state_version" == 1 ]]; then
+  state_searches=0
+  state_actions=0
+  latch_disqualified legacy-v1-state
+  if [[ "$command" == begin ]]; then
+    printf 'disqualified\n'
+    exit 0
+  fi
+  fail_closed 'legacy v1 state is disqualified'
+fi
+
+if [[ "$state_status" == disqualified ]]; then
+  if [[ "$command" == begin || "$command" == disqualify ]]; then
+    printf 'disqualified\n'
+    exit 0
+  fi
+  fail_closed 'task is disqualified'
+fi
+
+if [[ "$state_execution" != "$execution_id" ]]; then
+  latch_disqualified resumed-task
+  if [[ "$command" == begin ]]; then
+    printf 'disqualified\n'
+    exit 0
+  fi
+  fail_closed 'resumed task is disqualified'
+fi
+
 case "$command" in
-  check)
-    if [[ ! -e "$state" && ! -L "$state" ]]; then
-      printf 'unclassified\n'
-    elif read_state; then
-      if [[ "$state_verdict" == eligible ]]; then
-        [[ "$state_detail" == "$expected_revision" ]] || fail_closed 'eligible state revision mismatch'
-      fi
-      printf '%s\n' "$state_verdict"
-    else
-      fail_closed 'malformed or unsafe state'
-    fi
+  begin)
+    printf 'active\n'
     ;;
-  record)
-    case "$verdict" in eligible|disqualified) ;; *) fail_closed 'unsupported verdict' ;; esac
-    validate_digest "$digest" || fail_closed 'invalid evidence digest'
-    if [[ "$verdict" == eligible ]]; then
-      validate_revision "$detail" || fail_closed 'invalid candidate revision'
+  disqualify)
+    latch_disqualified "$reason"
+    printf 'disqualified\n'
+    ;;
+  reserve)
+    if [[ "$reservation" == search ]]; then
+      if [[ "$state_searches" -ge 2 ]]; then
+        latch_disqualified search-budget-exhausted
+        fail_closed 'search budget exhausted'
+      fi
+      state_searches=$((state_searches + 1))
+      write_state active "$execution_id" "$state_searches" "$state_actions" none
+      printf 'search=%s\n' "$state_searches"
     else
-      validate_text "$detail" || fail_closed 'invalid disqualification reason'
-    fi
-
-    attempts=0
-    while ! mkdir "$lock" 2>/dev/null; do
-      [[ ! -L "$lock" && -d "$lock" ]] || fail_closed 'unsafe state lock'
-      attempts=$((attempts + 1))
-      [[ "$attempts" -lt 50 ]] || fail_closed 'state lock is busy'
-      sleep 0.05
-    done
-    cleanup_lock() { rmdir "$lock" 2>/dev/null || true; }
-    trap cleanup_lock EXIT HUP INT TERM
-
-    if [[ -e "$state" || -L "$state" ]]; then
-      read_state || fail_closed 'malformed or unsafe state'
-      if [[ "$state_verdict" == disqualified ]]; then
-        [[ "$verdict" != eligible ]] || fail_closed 'task is permanently disqualified'
-        exit 0
+      if [[ "$state_actions" -ge 2 ]]; then
+        latch_disqualified action-budget-exhausted
+        fail_closed 'action budget exhausted'
       fi
-      if [[ "$verdict" == eligible ]]; then
-        [[ "$state_detail" == "$detail" && "$state_digest" == "$digest" ]] || fail_closed 'eligible state does not match current candidate'
-        exit 0
-      fi
+      state_actions=$((state_actions + 1))
+      write_state active "$execution_id" "$state_searches" "$state_actions" none
+      printf 'action=%s\n' "$state_actions"
     fi
-
-    tmp=$(mktemp "$root/.${task_id}.state.XXXXXX") || fail_closed 'cannot create temporary state'
-    cleanup_tmp() { rm -f "$tmp" 2>/dev/null || true; cleanup_lock; }
-    trap cleanup_tmp EXIT HUP INT TERM
-    printf 'version=1\nverdict=%s\ndetail=%s\nevidence_digest=%s\n' "$verdict" "$detail" "$digest" > "$tmp"
-    mv -f "$tmp" "$state" || fail_closed 'cannot persist state'
     ;;
 esac

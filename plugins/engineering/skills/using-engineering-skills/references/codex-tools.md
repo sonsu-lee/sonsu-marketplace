@@ -17,21 +17,13 @@ multi-agent 버전에 따라 달라진다(현재 preset은 V2, 이전 preset은 
   `~/.codex/agents/` 아래의 role 파일을 `agent_type`으로 격리 fork에 연결한다.
   현재 tool schema가 허용하는 `fork_turns`와 model override 조합을 신뢰한다. 격리 reviewer는
   `fork_turns: "none"`을 사용하고 필요한 artifact만 prompt에 넣는다.
-- **수정 회차:** round 1만 `followup_task`로 원래 implementer를 재개할 수 있다. round 2~5는
-  항상 `spawn_agent {fork_turns: "none"}`으로 이전 모든 회차와 다른 fresh implementer를 만든다.
-  3회차에는 판단 부족이 원인에 기여했을 때 model tier 또는 reasoning effort를 지원되는 한 단계 이상
-  높인다. 4회차에는 fresh high-capability 역할 조합을 사용하고, 5회차에는 fresh strongest
-  role-appropriate default 조합을 사용한다. controller는 canonical
-  committed-range review package의 유일한 40-hex `Head:`를 revision으로 선택하고, canonical working-tree
-  package와 그 밖의 binary-safe artifact는 exact artifact bytes의 64-hex SHA-256을 선택한다.
-  committed-range package의 `Base:`·`Head:` header가 missing, duplicate, malformed이거나 artifact와
-  revision을 결합할 수 없으면 dispatch하지 않고 handoff preparation으로 돌아간다. `fix-handoff create`가
-  출력한 immutable bundle path와 SHA-256만 전달한다. fresh implementer는 bundle을
-  읽거나 추출하거나 수정하기 전에 canonical `fix-handoff verify BUNDLE DIGEST`를 실행하고, 성공 뒤에는
-  stdout의 `Extracted:` directory만 읽는다. bundle path를 다시 열거나 직접 tar extract하지 않는다. 검증 실패는
-  missing/unreadable이면 `blocked`, malformed/schema/digest mismatch이면 `inconclusive`으로 handoff
-  preparation에 반환하며 이전 agent·report·session history를 재사용하지 않는다. Fast Path classifier는
-  이 일반 수정 규칙의 예외가 아니며 기존 독립 탐색·재진입 금지 규칙을 그대로 따른다.
+- **수정 회차:** 1~3회차는 `followup_task`로 원래 implementer를 재개한다. direct 실행은 controller가
+  계속한다. 원래 agent를 재개할 수 없으면 사실 중심 handoff로 새 implementer를 만든다.
+  4~5회차는 `spawn_agent {fork_turns: "none"}`으로 새 관점을 확보하고 필요에 맞는 상위 capability를
+  선택한다. 승인된 brief, 현재 exact artifact package, 미해결 finding, 실제 명령·결과와 이미 실패한
+  접근을 전달한다. 관찰과 가설을 구분하고 전체 대화, 자기 정당화와 이전 pass/praise는 제외한다.
+  구체적인 handoff는 `executing-plans/fix-implementer-prompt.md`를 따른다. session 변경은 task 예산을
+  초기화하지 않으며 Fast Path는 별도의 더 낮은 예산과 재진입 금지 규칙을 따른다.
 - **Lifecycle:** V2에는 `close_agent`가 없다. slot이 필요하면 완료된 child는 자동으로
   제거되므로 닫지 않아도 비용이 들지 않는다. V1 session에만 `close_agent`가 있다. V1에서는
   reviewer가 결과를 반환하면 닫고, implementer는 해당 task 리뷰가 통과한 뒤 닫는다.
@@ -83,8 +75,8 @@ default_subagent_reasoning_effort = "medium"
 | 역할 | Model | Reasoning effort |
 | --- | --- | --- |
 | 정확한 문자열·metadata·경로 변경 | `gpt-5.6-luna` | `low` |
-| 명확한 1~2개 파일 구현 | `gpt-5.6-luna` | `medium` |
-| Fast Path classifier (유일한 Fast Path subagent slot) | `gpt-5.6-luna` | `low` |
+| 의미 판단이 끝난 명확한 구현 | `gpt-5.6-luna` | `medium` |
+| Fast Path 범위 판정 | controller 직접 실행 | 해당 없음 |
 | Mechanical Fast Path와 Code Mode orchestration | controller 직접 실행 | 해당 없음 |
 | 여러 파일 통합·일반 debugging | `gpt-5.6-terra` | `high` |
 | 일반 task review | `gpt-5.6-terra` | `medium` 또는 `high` |
@@ -95,11 +87,14 @@ default_subagent_reasoning_effort = "medium"
 | 일반 final whole-change review | `gpt-5.6-sol` | `high` |
 | fresh-context red-team whole-structure review | `gpt-5.6-sol` | `xhigh` |
 
-`max`와 `ultra`는 5회차를 포함해 기본값으로 사용하지 않는다. Fast Path에서는 independent classifier만 한 슬롯으로
-만들 수 있으며 implementation 또는 reviewer subagent는 Fast Path 기본 경로에서 만들지 않는다.
-classifier는 fresh `gpt-5.6-luna` / `low`로 request, target, controller evidence, proposed oracle,
-unknowns만 받고 독립 targeted search를 정확히 한 번 실행한다. model 상향은 변경 없는 입력을 다시
-시도할 근거가 아니다.
+이 표는 측정으로 보장된 최적 조합이 아니라 시작 기본값이다. 파일 수보다 판단의 어려움,
+불확실성, 실패 비용과 총 완료 시간(재탐색·tool 왕복·재작업 포함)으로 조정한다. 문장으로만 주어진
+모호한 구현은 작은 파일이어도 중간 tier 이상이 적합할 수 있다. 같은 형태의 독립적인 기계적 변경은
+하나로 묶고, 결정론적 실행으로 끝낼 수 있으면 위임하지 않는다.
+
+`max`와 `ultra`는 5회차를 포함해 기본값으로 사용하지 않는다. Fast Path에는 classifier,
+implementation 또는 reviewer subagent를 기본으로 만들지 않는다. 독립 판단이 필요할 만큼 불확실하면
+일반 workflow로 올린다. model 상향은 변경 없는 입력을 다시 시도할 근거가 아니다.
 
 ## Code Mode
 
@@ -126,6 +121,8 @@ Codex goal은 사용자가 goal 사용을 명시적으로 요청한 경우에만
 숫자로 명시했을 때만 설정한다.
 
 - plan의 `Goal`과 active goal objective를 정렬한다.
+- 완료 조건에는 사용자가 관찰할 결과를 포함한다. goal 상태와 테스트 개수는 정확성의 증거가 아니며
+  실제 동작·consumer 결과와 해당 검증의 한계를 기록한다.
 - red-team package에 원래 goal objective를 포함한다.
 - 결정론적 검증, 일반 final review와 필수 red-team gate까지 끝난 뒤에만 `complete`로 갱신한다.
 - retry cap, 시간 또는 token 부족을 완료로 바꾸지 않는다.

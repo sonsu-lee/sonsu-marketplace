@@ -47,26 +47,44 @@ description: "기존 코드·문서·metadata의 국소적 또는 기계적 변�
 ## Bounded Fast Path
 
 Fast Path는 작은 diff가 아니라 의도, 영향 범위, 변환 규칙과 검증 결과를 짧고 결정론적으로
-닫을 수 있는 plan 없는 `bounded` 작업이다. controller가 classifier를 부르기 전에 stable todo ID를
-사용하거나 target discovery 전에 UUID를 한 번만 생성한다. 그 ID는 target에서 다시 유도하지 않으며
-task 전체에서 고정한다. **모든 Fast Path entry에서** repository의 current `HEAD` commit을 exact candidate
-revision으로 capture한 뒤 `.engineering/fast-path/<task-id>.state`를
-`plugins/engineering/skills/brainstorming/scripts/fast-path-state check ROOT TASK_ID EXPECTED_REVISION`로 읽는다. `eligible`은 expected revision이 stored
-candidate revision과 정확히 같을 때만 통과하며, missing 또는 mismatched revision은 fail closed한다.
-`disqualified`이면 classifier,
-predicate와 실행을 건너뛰어 가장 가까운 일반 workflow로 보낸다. 상태 파일은 context compaction 뒤에도
-남으며 handoff에는 항상 task ID와 state-file path를 포함한다.
+닫을 수 있는 plan 없는 `bounded` 작업이다. target discovery 전에 stable todo ID를 사용하거나 UUID를
+한 번만 생성한다. `TASK_ID`는 target에서 다시 유도하거나 resume, context compaction, handoff에서
+초기화하지 않고 task 전체에서 고정한다. 별도의 `EXECUTION_ID`는 현재 중단 없는 controller 실행을
+위해 한 번만 생성하며 handoff에 전달하거나 state 파일에서 복구하지 않는다.
 
-`unclassified`일 때만 controller가 reference, consumer, public-contract risk와 verification oracle을
-한 번 표적 탐색해 request, target, controller evidence, proposed deterministic oracle, unknowns만 담은
-brief를 만든다. 그 다음 fresh `gpt-5.6-luna` / `low` **Fast Path classifier**가 이전 history 없이
-독립 표적 reference/consumer search를 정확히 한 번 실행한다. controller와 classifier를 합친 탐색
-예산은 2회다. classifier는 `eligible | escalate | inconclusive | blocked` verdict, evidence digest,
-exact candidate revision을 돌려준다. controller는 classifier revision이 entry 때 capture한 revision과
-같은지 확인하고 evidence digest가 64-character lowercase SHA-256 hex인지 확인한다. `eligible`은 다음
-predicate가 모두 proven이고 hidden-risk signal이 없을 때만 허용된다. `eligible` 외의 verdict,
-classifier unavailable, false 또는 unknown predicate는
-`plugins/engineering/skills/brainstorming/scripts/fast-path-state record ... disqualified ...`로 영속 latch를 먼저 기록하고 일반 workflow로 route한다.
+Fast Path에 들어갈 때 `.engineering/fast-path/<task-id>.state`를 다음과 같이 시작한다.
+
+```bash
+STATE_ROOT="$REPOSITORY_ROOT/.engineering/fast-path"
+STATE_FILE="$STATE_ROOT/$TASK_ID.state"
+plugins/engineering/skills/brainstorming/scripts/fast-path-state begin \
+  "$STATE_ROOT" "$TASK_ID" "$EXECUTION_ID"
+```
+
+`disqualified`이면 판정과 실행을 건너뛰어 가장 가까운 일반 workflow로 보낸다. legacy v1 state,
+다른 `EXECUTION_ID`로 돌아온 resume 또는 이미 latch된 task도 `disqualified`이다. `active`는 현재
+실행의 예산 추적 상태일 뿐 Fast Path 승인이나 eligibility가 아니다. `EXECUTION_ID`도 승인 인증이
+아니라 예산을 현재 실행에 연결하는 표식이다. context loss와 reentry를 판단해 새 ID를 만들고 이전
+ID를 state나 대화에서 복구하지 않는 책임은 controller에 있다.
+
+controller는 **현재 실제 파일**을 대상으로 reference, consumer, public-contract risk, unknown과
+deterministic verification oracle을 한 번만 묶어서 판정한다. 필요할 때만 표적 탐색을 사용하며
+task 전체에서 최대 2회다. 각 탐색 직전에 다음 예약을 먼저 기록한다.
+
+```bash
+plugins/engineering/skills/brainstorming/scripts/fast-path-state reserve \
+  "$STATE_ROOT" "$TASK_ID" "$EXECUTION_ID" search
+```
+
+별도 classifier나 classifier subagent는 요구하지 않는다. 다음 predicate가 모두 proven이고
+hidden-risk signal이 없을 때에만 현재 실행에서 곧바로 Fast Path를 진행한다. 이 positive 판정은
+state에 기록하지 않으며, unchanged `HEAD`도 dirty file이나 context drift를 포함한 이후 실행의
+재사용 가능한 승인이 아니다. false 또는 unknown predicate는 다음과 같이 먼저 영속 latch를 남긴다.
+
+```bash
+plugins/engineering/skills/brainstorming/scripts/fast-path-state disqualify \
+  "$STATE_ROOT" "$TASK_ID" "$EXECUTION_ID" "$REASON"
+```
 
 다음 predicate를 모두 확인한다.
 
@@ -88,20 +106,21 @@ canonical generator, 명시된 규칙의 문자열 정규화처럼 script, AST �
 사실만으로 단순하다고 판정하지 않는다. public API, DB migration, 인증·권한, dependency major
 update, 대량 삭제와 의미가 다른 문자열의 무차별 치환은 제외한다.
 
-Fast Path는 표적 탐색 최대 2회, 최초 구현 1회, 집중 수정 1회, 자동 실행 총 2회로 제한한다.
-classifier가 유일한 Fast Path subagent slot이며 implementation/reviewer subagent는 이 기본 경로에서
-만들지 않는다. 모델 상향 또는 fresh-context 재시도는 최대 1회이고 첫 실패와 같은 입력·접근을
-반복하지 않는다. 예상 밖 consumer, 두 번째 의미 판단, 여러 책임으로 확장, public contract, 원인
-불명의 검사 실패, reviewer 없이는 판정하기 어려운 상태, 관련 없는 refactoring 또는 두 번째 수정
-필요가 드러나면 `plugins/engineering/skills/brainstorming/scripts/fast-path-state record ... disqualified ...`를 먼저 실행하고 즉시 Fast Path를
-종료한다. 이 one-way owner escalation은 classifier, predicate 또는 Fast Path 실행으로 돌아가지
-않는다. 완료할 때에는 판정 근거, 실제 변경 범위, 결정론적 검증과 원래 목적과의 정렬을 짧게 기록한다.
+Fast Path는 표적 탐색 최대 2회, 최초 구현 1회와 집중 수정 1회로 제한한다. 최초 구현과 수정은
+각 action 직전에 `fast-path-state reserve "$STATE_ROOT" "$TASK_ID" "$EXECUTION_ID" action`으로
+예산을 먼저 기록한다. 현재 실행에서 알고 있는 자기 변경과 그에 대한 한 번의 집중 수정은 resume이나
+file drift가 아니다. 예상 밖 file drift나 consumer, context loss 또는 reentry, 두 번째 의미 판단,
+여러 책임으로 확장, public contract, 원인 불명의 검사 실패, reviewer 없이는 판정하기 어려운 상태,
+관련 없는 refactoring 또는 두 번째 수정 필요가 드러나면 `fast-path-state disqualify ...`를 먼저
+실행하고 즉시 Fast Path를 종료한다. 이 one-way owner escalation은 predicate 또는 Fast Path 실행으로
+돌아가지 않는다. 완료할 때에는 판정 근거, 실제 변경 범위, 결정론적 검증과 원래 목적과의 정렬을
+짧게 기록한다.
 
 원인이 불명확한 실패는 `engineering:systematic-debugging`, 여러 흐름·interface를 조정해야 하는
 확장은 `engineering:writing-plans`, 요구사항이나 설계를 바꿔야 하는 확장은
 `engineering:brainstorming`으로 보낸다. 이 escalation은 Fast Path의 실패가 아니라 숨은 복잡성을
-발견한 정상적인 routing이다. 어느 경로든 task ID와 state-file path를 전달하며, latched task를 다시
-Fast Path로 분류하지 않는다.
+발견한 정상적인 routing이다. 어느 경로든 task ID와 state-file path를 전달하되 `EXECUTION_ID`는
+전달하지 않는다. latched task를 다시 Fast Path로 분류하지 않는다.
 
 ## 위험 신호
 
@@ -130,7 +149,7 @@ Fast Path로 분류하지 않는다.
 
 **`bounded`(범위 한정):**
 1. **Project context 탐색** — 파일, 문서와 최근 commit을 확인한다.
-2. **Fast Path latch 확인과 독립 판정** — target discovery 전 stable todo ID 또는 한 번 생성한 UUID를 고정한다. 매 entry에서 current `HEAD`의 exact candidate revision을 capture하고 `plugins/engineering/skills/brainstorming/scripts/fast-path-state check ROOT TASK_ID EXPECTED_REVISION`으로 state를 확인한다. stored eligible revision이 다르거나 expected revision이 없으면 fail closed한다. `disqualified`면 classifier 없이 일반 workflow로 route한다. `unclassified`이면 controller search 1회와 fresh classifier의 독립 search 1회로만 판정한다. classifier revision이 controller-captured revision과 같고 digest가 64-character lowercase SHA-256 hex인 `eligible`만 state에 기록해 요청을 승인된 짧은 설계로 취급한다. 그 외 verdict와 unavailable은 disqualified로 latch한 뒤 일반 workflow로 route한다.
+2. **Fast Path latch와 controller 판정** — target discovery 전 stable `TASK_ID`를 고정하고 현재 중단 없는 실행에만 쓸 `EXECUTION_ID`를 만든다. `fast-path-state begin ROOT TASK_ID EXECUTION_ID`이 `disqualified`이면 일반 workflow로 route한다. `active`이면 현재 실제 파일을 한 번 묶어서 판정하며, 최대 2회의 표적 탐색은 각각 `reserve ... search`로 먼저 기록한다. 모든 predicate를 입증한 positive 판정은 저장하지 않고 현재 실행에서만 즉시 사용한다. false, unknown, resume, context loss 또는 예상 밖 drift는 `disqualify`로 latch한다.
 3. **명확화 질문** — Fast Path가 아니면 중요한 질문을 한 번에 하나씩 한다.
 4. **Chat에서 짧은 설계 제시** — 접근 방식, 예상 동작과 수정할 파일을 설명한다.
 5. **승인 받기** — 중단하고 명시적인 동의를 기다린다. 설계를 제시하면서 바로 시작하면 게이트를 건너뛴 것이다.
@@ -159,7 +178,7 @@ digraph brainstorming {
     "Present question + probe (2-3 sentences)" [shape=box];
     "Ask clarifying questions (bounded)" [shape=box];
     "Check Fast Path latch" [shape=diamond];
-    "Fast Path classifier verdict" [shape=diamond];
+    "Assess current files once\n(up to two reserved searches)" [shape=box];
     "All Fast Path predicates confirmed?" [shape=diamond];
     "Run bounded Fast Path" [shape=box];
     "Hidden complexity during Fast Path?" [shape=diamond];
@@ -186,10 +205,9 @@ digraph brainstorming {
 
     "Classify: spike / bounded / architectural" -> "Present question + probe (2-3 sentences)" [label="spike"];
     "Classify: spike / bounded / architectural" -> "Check Fast Path latch" [label="bounded"];
-    "Check Fast Path latch" -> "Fast Path classifier verdict" [label="unclassified: controller search + one independent classifier search"];
+    "Check Fast Path latch" -> "Assess current files once\n(up to two reserved searches)" [label="active"];
     "Check Fast Path latch" -> "Route nearest normal workflow" [label="disqualified: do not re-enter Fast Path"];
-    "Fast Path classifier verdict" -> "All Fast Path predicates confirmed?" [label="eligible"];
-    "Fast Path classifier verdict" -> "Latch disqualified; stop Fast Path" [label="escalate / inconclusive / blocked / unavailable"];
+    "Assess current files once\n(up to two reserved searches)" -> "All Fast Path predicates confirmed?";
     "All Fast Path predicates confirmed?" -> "Run bounded Fast Path" [label="eligible"];
     "Run bounded Fast Path" -> "Hidden complexity during Fast Path?";
     "Hidden complexity during Fast Path?" -> "Latch disqualified; stop Fast Path" [label="yes: one-way owner escalation"];

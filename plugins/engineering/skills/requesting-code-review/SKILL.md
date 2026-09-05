@@ -66,9 +66,10 @@ HEAD_SHA=$(git rev-parse HEAD)
 - Minor 문제는 나중에 처리하도록 기록한다.
 - reviewer가 틀렸다면 근거를 들어 반박한다.
 - 변경된 리비전에서 집중 수정 부분을 다시 리뷰한다.
-- plan-backed final review에서 artifact가 바뀌었다면 scoped 재리뷰가 finding을 닫은 뒤에도 현재
-  전체 `BASE..HEAD` package를 다시 만들고 fresh-context whole-change reviewer로 일반 final gate를
-  갱신한다. scoped 결과만 현재 전체 리비전의 `passed`로 기록하지 않는다.
+- 수정 재리뷰는 기존 finding과 수정으로 생긴 회귀에 집중한다. 관련 없는 개선 제안은 분리한다.
+- plan-backed final review도 공통 계약의 **변경 영향에 따른 근거 갱신**을 따른다. 국소 수정은
+  이전 전체 리뷰의 유효한 근거와 scoped 검증을 현재 리비전에 연결한다. 목표·계약·설계·dependency
+  경계가 바뀌거나 영향이 불명확한 경우 전체 리뷰를 다시 연다. scoped 판정만 전체 pass로 복사하지 않는다.
 
 리뷰 게이트의 artifact, 리비전, 근거, finding, 상태, 반환 대상, 시도 횟수와 decision owner를 기록한다. 필수 판정이 빠진 reviewer 보고서는 `inconclusive`다. 필수 reviewer를 사용할 수 없으면 `blocked` 또는 `not_run`을 사용하며 implementer의 자체 리뷰나 변경 없는 재시도로 대신하지 않는다. 기술적으로 반증된 finding은 근거와 함께 닫을 수 있다. 유효한 미해결 필수 finding은 workflow가 진행되기 전에 artifact 변경 또는 사람의 명시적인 `accepted_risk`가 필요하다.
 
@@ -92,16 +93,18 @@ HEAD_SHA=$(git rev-parse HEAD)
   요구사항·설계, plan·flow mapping, 검증 report, 관찰 결과·제약, finding-to-fix provenance.
   reviewer에는 bundle 경로와 bundle digest만 전달한다. 일반 리뷰 뒤 artifact가 바뀌었다면 전체
   변경 package와 모든 영향 component를 새로 고정해 새 bundle을 만든다.
-- 일반 리뷰를 반복하지 않고 문제 정의부터 검증까지 전체 연결을 부정하는 가장 강한 반례를 찾는다.
+- 최초 challenge는 일반 리뷰를 반복하지 않고 목표·설계·구현·실제 검증의 연결을 독립 평가한다.
+  기존 결론을 정답으로 전제하지 않되, 결함을 반드시 발견해야 하는 것은 아니다.
 - 판정은 정확히 `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
   `survives_challenge`만 일반 통과로 취급한다.
 - `invalidated` finding은 design, plan, implementation 또는 verification의 실제 소유 단계로
   돌려보낸다. 기존 review finding이나 그 수정 방향이 틀렸다면 근거와 함께 해당 finding을
-  무효화하고 영향 task를 `reopened`한다. 소유 단계에서 artifact가 바뀌면 scoped 검증·재리뷰,
-  전체 결정론적 검증과 현재 전체 리비전의 fresh-context 일반 whole-change review를 다시 통과한
-  뒤 새 bundle을 만든다. 그 다음 red-team에는 새 fresh-context reviewer를 사용하며 변경 없는
-  재시도는 하지 않는다. 자동 시도는 최대 5회이며, 각 시도에는 새로 고정한 bundle과 서로 다른
-  fresh-context reviewer가 필요하다.
+  무효화하고 영향 task를 `reopened`한다. 수정 뒤에는 영향받은 검증과 일반 gate를 공통 계약에
+  따라 현재 리비전에 갱신하고 새 bundle을 만든다. 국소 수정이면 다음 fresh reviewer는 이전
+  반례와 수정 회귀를 확인한다. 목표·계약·설계·dependency 경계 변경 또는 불명확한 영향에는
+  전체 challenge를 다시 연다. 이전 반례·수정 범위·검증 사실은 provenance에 남기되 이전 판정은
+  전달하지 않는다. 자동 시도는 최대 5회이며 owner 반환이나 session 교체로 초기화하지 않는다.
+  각 재시도에는 변경된 근거, 새 bundle과 fresh-context reviewer가 필요하다.
 - reviewer를 사용할 수 없거나 필요한 evidence가 없으면 `not_run`, `blocked` 또는
   `inconclusive`를 그대로 기록한다. 일반 reviewer의 승인을 red-team 통과로 대체하지 않는다.
 

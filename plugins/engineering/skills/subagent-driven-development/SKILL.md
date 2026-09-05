@@ -77,7 +77,7 @@ digraph process {
         "Return plan or requirement defect to its owner; stop" [shape=box];
         "Record capability or external-state blocker; stop" [shape=box];
         "Close invalid findings with evidence" [shape=box];
-        "Fix round R of 5: R=1 resume; R=2..5 distinct fresh bundle-only; R=3 conditional capability-up; R=4 high capability; R=5 strongest default" [shape=box];
+        "Fix round R of 5: R=1..3 original implementer; R=4..5 fresh factual handoff" [shape=box];
         "Dispatch scoped re-review (./re-review-prompt.md)" [shape=box];
         "All findings addressed?" [shape=diamond];
         "R = 5?" [shape=diamond];
@@ -97,8 +97,9 @@ digraph process {
     "Final deterministic verification passed?" [shape=diamond];
     "Return to affected implementation or integration stage" [shape=box];
     "Generate final package, dispatch code reviewer" [shape=box];
-    "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" [shape=box];
-    "Artifact changed after ordinary review?" [shape=diamond];
+    "Final findings? bounded fix attempt, scoped verification/re-review, adjudicate residuals" [shape=box];
+    "Boundary changed or bounded impact unknown?" [shape=diamond];
+    "Map prior evidence + scoped gate to current artifact" [shape=box];
     "Regenerate full package and refresh whole-change review" [shape=box];
     "Ordinary final gate outcome?" [shape=diamond];
     "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" [shape=box];
@@ -106,7 +107,8 @@ digraph process {
     "Red-team attempt cap reached?" [shape=diamond];
     "Return red-team finding to owner; wait for changed input" [shape=box];
     "Owner resolves finding; scoped verification/re-review for artifact changes" [shape=box];
-    "Artifact revision changed after red-team return?" [shape=diamond];
+    "Red-team fix changed boundary or lacks bounded impact?" [shape=diamond];
+    "Fresh scoped red-team checks prior challenge + regressions with current full bundle" [shape=box];
     "Record red-team decision_required; stop" [shape=doublecircle];
     "Preserve workspace through branch decision" [shape=box];
     "Merged result verified?" [shape=diamond];
@@ -129,11 +131,11 @@ digraph process {
     "Classify findings by owner before retry" -> "Close invalid findings with evidence" [label="invalid / out of scope"];
     "Close invalid findings with evidence" -> "All findings addressed?";
     "Classify findings by owner before retry" -> "R = 5?" [label="valid implementation"];
-    "Fix round R of 5: R=1 resume; R=2..5 distinct fresh bundle-only; R=3 conditional capability-up; R=4 high capability; R=5 strongest default" -> "Dispatch scoped re-review (./re-review-prompt.md)";
+    "Fix round R of 5: R=1..3 original implementer; R=4..5 fresh factual handoff" -> "Dispatch scoped re-review (./re-review-prompt.md)";
     "Dispatch scoped re-review (./re-review-prompt.md)" -> "All findings addressed?";
     "All findings addressed?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "All findings addressed?" -> "Classify findings by owner before retry" [label="no"];
-    "R = 5?" -> "Fix round R of 5: R=1 resume; R=2..5 distinct fresh bundle-only; R=3 conditional capability-up; R=4 high capability; R=5 strongest default" [label="no - next round"];
+    "R = 5?" -> "Fix round R of 5: R=1..3 original implementer; R=4..5 fresh factual handoff" [label="no - next round"];
     "R = 5?" -> "Adjudicate residual implementation findings with evidence" [label="yes - breaker trips"];
     "Adjudicate residual implementation findings with evidence" -> "All residual findings disproved?";
     "All residual findings disproved?" -> "Close residual invalid findings with evidence" [label="yes"];
@@ -149,10 +151,11 @@ digraph process {
     "Run final whole-change deterministic verification" -> "Final deterministic verification passed?";
     "Final deterministic verification passed?" -> "Return to affected implementation or integration stage" [label="no"];
     "Final deterministic verification passed?" -> "Generate final package, dispatch code reviewer" [label="yes"];
-    "Generate final package, dispatch code reviewer" -> "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals";
-    "Final findings? ONE fix, rerun oracle, scoped re-review, adjudicate residuals" -> "Artifact changed after ordinary review?";
-    "Artifact changed after ordinary review?" -> "Regenerate full package and refresh whole-change review" [label="yes"];
-    "Artifact changed after ordinary review?" -> "Ordinary final gate outcome?" [label="no"];
+    "Generate final package, dispatch code reviewer" -> "Final findings? bounded fix attempt, scoped verification/re-review, adjudicate residuals";
+    "Final findings? bounded fix attempt, scoped verification/re-review, adjudicate residuals" -> "Boundary changed or bounded impact unknown?";
+    "Boundary changed or bounded impact unknown?" -> "Regenerate full package and refresh whole-change review" [label="yes"];
+    "Boundary changed or bounded impact unknown?" -> "Map prior evidence + scoped gate to current artifact" [label="no"];
+    "Map prior evidence + scoped gate to current artifact" -> "Ordinary final gate outcome?";
     "Regenerate full package and refresh whole-change review" -> "Ordinary final gate outcome?";
     "Ordinary final gate outcome?" -> "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" [label="passed / accepted_risk"];
     "Ordinary final gate outcome?" -> "Return to owner or stop" [label="non-advancing status"];
@@ -163,9 +166,10 @@ digraph process {
     "Red-team attempt cap reached?" -> "Record red-team decision_required; stop" [label="yes: 5 attempts"];
     "Red-team attempt cap reached?" -> "Return red-team finding to owner; wait for changed input" [label="no"];
     "Return red-team finding to owner; wait for changed input" -> "Owner resolves finding; scoped verification/re-review for artifact changes" [label="changed input"];
-    "Owner resolves finding; scoped verification/re-review for artifact changes" -> "Artifact revision changed after red-team return?";
-    "Artifact revision changed after red-team return?" -> "Run final whole-change deterministic verification" [label="yes"];
-    "Artifact revision changed after red-team return?" -> "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" [label="no: evidence / capability only"];
+    "Owner resolves finding; scoped verification/re-review for artifact changes" -> "Red-team fix changed boundary or lacks bounded impact?";
+    "Red-team fix changed boundary or lacks bounded impact?" -> "Run final whole-change deterministic verification" [label="yes"];
+    "Red-team fix changed boundary or lacks bounded impact?" -> "Fresh scoped red-team checks prior challenge + regressions with current full bundle" [label="no"];
+    "Fresh scoped red-team checks prior challenge + regressions with current full bundle" -> "Red-team verdict?";
     "Preserve workspace through branch decision" -> "Use engineering:finishing-a-development-branch";
     "Use engineering:finishing-a-development-branch" -> "Merged result verified?";
     "Merged result verified?" -> "Delete workspace after verified merge" [label="yes"];
@@ -192,7 +196,9 @@ ledger를 만들거나 Task 1을 위임하기 전에 task commit을 승인한 �
   있으면 task별 `Task <N>: complete`와 `Task <N>: reopened` 항목 가운데 가장 나중 상태를
   기준으로 판단한다. 최신 상태가 `complete`인 task만 DONE이다. 이후의 `reopened`는 이전
   완료·검증·리뷰를 무효화하므로 가장 이른 reopened 또는 미완료 task부터 재개한다. 마지막 줄이
-  수정 회차인 task는 loop 진행 중이므로 다음 회차부터 재개한다.
+  수정 회차인 task는 loop 진행 중이므로 다음 회차부터 재개한다. task와 각 final gate의 자동
+  review attempt 수는 session 재진입, compaction, 원래 implementer 재개 또는 소유 단계 복귀에도
+  초기화하지 않는다.
   첫 줄에 다른 plan 파일이 적힌 ledger는 다른 plan의 진행 상태다. 그대로 두고 현재 plan용
   ledger를 새로 만든다.
 - 첫 줄에 `# SDD ledger — plan: <plan file path>` 식별자를 넣어 ledger를 만든다.
@@ -227,44 +233,32 @@ Task 1을 위임하기 전에 plan의 충돌을 한 번 검사하고 확인한 �
 
 ## 모델 선택
 
-비용을 줄이고 속도를 높이도록 각 역할을 처리할 수 있는 가장 가벼운 모델을 사용한다.
+정확도, 재작업 가능성, 예상 turn 수와 비용을 함께 고려해 **예상 총완료시간**이 가장 짧은
+역할 적합 모델을 선택한다. 가장 싼 모델이나 가장 강한 모델을 일률적으로 선택하지 않는다.
 
-**기계적인 구현 task**(격리된 함수, 명확한 spec, 1-2개 파일): 빠르고 저렴한 모델을 사용한다. plan이 명확하면 대부분의 구현 task는 기계적이다.
+우선 신호는 의미 판단의 어려움, 요구사항의 불확실성, cross-component 추론, 실패 시 영향과 회귀
+위험이다. 변경 파일 수와 diff 크기는 context surface를 가늠하는 보조 신호일 뿐이며 capability를
+단독으로 결정하지 않는다. 작은 보안·동시성 변경은 강한 판단이 필요할 수 있고, 여러 파일의
+기계적 치환은 가벼운 모델로 충분할 수 있다.
 
-**통합과 판단 task**(여러 파일 조정, pattern matching, debugging): 표준 모델을 사용한다.
+Architecture·설계, 최종 전체 브랜치 리뷰와 red-team 리뷰에는 그 위험을 감당할 수 있는 capable
+model을 사용한다. scoped 재리뷰는 범위가 작더라도 finding의 의미 난이도와 회귀 위험에 맞춘다.
 
-**Architecture와 설계 task:** 사용 가능한 가장 성능이 높은 모델을 사용한다. 최종 전체 브랜치
-리뷰와 red-team 리뷰도 여기에 해당한다. session 기본값이 아니라 역할에 맞는 모델과 추론도를
-명시해 위임한다.
-
-**리뷰 task:** 같은 판단을 내릴 수 있는 모델 중 diff의 크기, 복잡성과 위험에 맞는 모델을
-선택한다. 작고 기계적인 diff에는 가장 성능이 높은 모델이 필요 없지만 미묘한 concurrency
-변경에는 필요하다. 작은 수정 diff의 범위가 제한된 재리뷰에는 저가에서 중간 tier를 사용한다.
-
-**Fix-loop 상향(2-5회차):** 이전 시도나 열린 finding을 전달하지 않는다. current raw evidence를
-immutable fix-handoff bundle에 고정하고 `spawn_agent {fork_turns: "none"}` fresh implementer에게
-bundle path/digest만 전달한다. 각 회차에는 이전 회차와 다른 implementer를 사용한다. 3회차에는 판단
-부족이 원인이면 막힌 implementer보다 적어도 한 tier 높은 모델 또는 추론도를 사용한다. 4회차에는
-역할에 맞는 high-capability 조합을, 5회차에는 역할에 맞는 가장 강한 default 조합을 사용하며 플랫폼의
-예외적인 최대 effort mode를 자동 기본값으로 선택하지 않는다.
+**Fix-loop model 선택:** 1~3회차에는 원래 implementer를 재개한다. 4~5회차 또는 원래 implementer를
+사용할 수 없는 더 이른 회차에는 `spawn_agent {fork_turns: "none"}` fresh implementer를 사용한다.
+앞선 실패가 판단력 부족을 보여 주었고 더 높은 capability를 사용할 수 있으면 한 단계 높이되, 회차
+번호만으로 특정 tier를 강제하지 않는다. 현재 finding을 해결할 수 있는 역할 적합성을 우선한다.
 
 **subagent를 위임할 때 실제 schema가 두 override를 모두 지원하면 모델과 추론도를 함께
 명시한다.** 한쪽만 override하지 않는다. 지원하지 않으면 확인 가능한 role·preset·machine
 default를 사용하고 fallback을 기록한다. 구체적인 Codex 조합과 fallback은
 [Codex 도구 참고](../using-engineering-skills/references/codex-tools.md)를 따른다.
-단, Fix-loop 3회차의 필수 한 단계 capability 증가와 4·5회차의 필수 조합에는 이 일반 fallback을
-적용하지 않는다. 해당 capability를 제공할 수 없으면 `blocked`와 `decision_required`로 중단한다.
+fix-loop에서도 확인 가능한 role·preset·machine default를 사용할 수 있다. 다만 실제로 필요한
+capability를 제공할 수 없으면 `blocked`와 `decision_required`로 중단한다.
 
-**Turn 수가 token 가격보다 중요하다.** 실제 시간과 context 비용은 subagent가 사용하는 turn
-수에 비례하며, 가장 저렴한 모델은 여러 단계의 작업에서 흔히 2-3배 많은 turn을 사용해 전체
-비용이 더 커진다. reviewer와 산문 설명을 바탕으로 작업하는 implementer에는 적어도 중간 tier
-모델을 사용한다. task의 plan 본문에 작성할 전체 코드가 있다면 구현은 옮겨 적고 테스트하는
-작업이므로 가장 저렴한 tier를 사용한다. 한 파일의 기계적인 수정에도 가장 저렴한 tier를 사용한다.
-
-**Task 복잡성 신호(구현 task):**
-- 완전한 spec으로 1-2개 파일 수정 → 저렴한 모델
-- 통합 문제를 포함해 여러 파일 수정 → 표준 모델
-- 설계 판단 또는 넓은 codebase 이해 필요 → 가장 성능이 높은 모델
+모델 선택 근거는 ledger에 짧게 남긴다. 예: `low semantic ambiguity, bounded regression surface` 또는
+`cross-boundary behavior and costly rollback require stronger judgment`. 근거 없는 속도·비용 배수를
+일반화하지 않는다.
 
 ## Task loop(작업 반복)
 
@@ -310,9 +304,9 @@ child 목록을 확인해 보고 없이 완료한 child를 찾는다. 제한된 
   중복되어 task마다 전체 리뷰 자리 하나를 추가로 사용했다.
 - 이전 task에 현재 task가 건드리는 영역의 accepted-risk 또는 근거로 닫은 finding이 있으면
   dispatch에 해당 ledger 항목의 pointer를 포함한다.
-- dispatch 결과에서 implementer의 agent identity를 기록한다. fix-loop 1회차까지만 이 에이전트를
-  재개하며, 2-5회차에는 매번 `spawn_agent {fork_turns: "none"}`의 서로 다른 새 implementer에게 verified immutable
-  bundle path/digest만 전달한다.
+- dispatch 결과에서 implementer의 agent identity를 기록한다. fix-loop 1~3회차에는 이 에이전트를
+  재개한다. 4~5회차 또는 이 에이전트를 사용할 수 없는 더 이른 회차에는
+  `spawn_agent {fork_turns: "none"}` fresh implementer에게 concise factual handoff를 전달한다.
 - 충돌을 막기 위해 여러 구현 subagent를 병렬로 위임하지 않는다.
 
 템플릿: [implementer-prompt.md](implementer-prompt.md)
@@ -366,9 +360,9 @@ task 리뷰를 생략하거나 두 판정 중 하나가 빠진 report를 받아�
   포함된 전체 diff를 본다. implementer를 위임하기 전에 기록한 BASE를 사용하며 여러 commit의
   task를 조용히 잘라내는 `HEAD~1`을 사용하지 않는다. diff 파일 없이 task reviewer를 위임하지 않는다.
 - **Reviewer 입력:** task reviewer는 같은 brief 파일, report 파일, review package의 세 경로와
-  task에 적용되는 전역 제약을 받는다. 이 full report는 controller/reviewer 기록이다. round 2-5 fresh
-  fix implementer에게는 report 또는 reviewer의 판단을 전달하지 않으며, raw evidence만 normalized JSON으로
-  고정한 immutable fix-handoff bundle에 넣는다.
+  task에 적용되는 전역 제약을 받는다. 이 full report는 controller/reviewer 기록이다. fresh fix
+  implementer에게는 full report 대신 승인된 brief, 현재 exact binary-safe package, 열린 finding,
+  관찰한 명령·결과와 이미 시도한 실패만 사실과 가설을 구분해 전달한다.
 - reviewer에게 전달하는 global-constraints block은 주의할 내용을 정하는 lens다. plan의 Global
   Constraints 섹션 또는 spec에서 구속력 있는 요구사항을 그대로 복사한다. 정확한 값, 형식과
   component 사이의 명시된 관계("same layout as X", "matches Y")를 포함한다. reviewer
@@ -407,59 +401,47 @@ Minor finding은 loop 전에 제외한다. 진행하면서 progress ledger에 `T
 남은 유효한 구현 finding만 들어간다. 수정 회차는 한 번의 수정 위임과 범위가 제한된 재리뷰로
 구성하며 task마다 최대 5회다.
 
-**1회차 — 원래 implementer를 재개한다.** 열린 finding을 그대로 전달하며 이 회차에만
-`followup_task`를 사용할 수 있다. context가 남아 있으므로 task, 코드와 자신의 선택을 알고 있다.
-harness에서 실행 중인 subagent에게 추가 메시지를 보낼 수 없다면 brief 경로, report 파일 경로와 finding을
-포함해 새 implementer를 위임한다. 어느 경우든 report 파일이 영속 memory다.
+**1~3회차 — 원래 implementer를 재개한다.** 열린 finding과 새 관찰 evidence를 전달하고 같은
+implementer를 `followup_task`로 재개한다. context가 남아 있으므로 task, 코드와 앞선 선택을 다시
+설명하지 않는다. harness에서 원래 implementer를 더 이상 사용할 수 없다면 이 회차에도
+`spawn_agent {fork_turns: "none"}` fresh implementer를 사용할 수 있으며 아래 handoff 계약을 따른다.
 
-**2회차 — immutable evidence-only handoff를 만든다.** controller가 task brief, current artifact package,
-normalized finding-evidence JSON, normalized verification-evidence JSON, round `2`와 exact revision을
-`../executing-plans/scripts/fix-handoff create`로 고정한다. canonical committed-range review package면
-유일한 40-hex `Head:`를 revision으로 선택하고, canonical working-tree package와 그 밖의 binary-safe
-artifact면 exact artifact bytes의 64-hex SHA-256을 선택한다. committed-range package의
-`Base:`·`Head:` header가 missing, duplicate, malformed이거나 artifact와 revision을 결합할 수 없으면
-dispatch하지 않고 handoff preparation으로 돌아간다. `spawn_agent {fork_turns: "none"}`으로 새 implementer를
-위임하고 [공유 fix prompt](../executing-plans/fix-implementer-prompt.md)와 bundle path/digest만
-전달한다. report 파일, reviewer 판단, finding 원문, agent identity와 session history를 전달하지 않는다.
-새 implementer는 어떤 bundle 읽기·추출·수정 전에도 canonical `fix-handoff verify BUNDLE DIGEST`를 실행한다.
-성공한 뒤 stdout의 `Extracted:` absolute directory만 읽고 bundle path를 다시 열거나 직접 tar extract하지 않는다.
-실패하면 missing/unreadable은 `blocked`, malformed/schema/digest mismatch는 `inconclusive`으로 handoff
-preparation에 돌려보내며 prior context를 재사용하지 않는다.
+**4~5회차 — fresh implementer를 사용한다.** 이전 conversation을 상속하지 않는
+`spawn_agent {fork_turns: "none"}`를 사용한다. 현재 finding을 해결할 수 있는 역할 적합한 모델을
+선택하고, 앞선 실패가 판단력 부족을 보여 주었으며 더 높은 capability를 사용할 수 있으면 한 단계
+높인다. 회차 번호만으로 사용할 수 없는 특정 tier를 강제하지 않는다. 실제로 필요한 capability가
+없으면 `blocked`와 `decision_required`를 기록한다.
 
-**3회차 — 또 다른 immutable handoff를 사용하고 필요할 때 capability를 높인다.** 2회차 agent를 재사용하지 않고
-`spawn_agent {fork_turns: "none"}`으로 다른 fresh implementer를 위임한다. 새 current revision과 raw evidence를
-같은 선택 규칙으로 다시 고정해 bundle path/digest만 전달한다. binding 실패는 handoff preparation으로
-돌려보낸다. 판단 부족이 원인에 기여했다면 해당 task에 적합한 model tier 또는 reasoning effort를
-지원되는 한 단계 이상 높인다. 실제 한 단계 이상의 capability 증가를 제공할 수 없으면 더 약한 fallback으로
-계속하지 않고 `blocked`와 `decision_required`를 기록한 뒤 중단한다. 새 관점이 필요한 시점에 기존 context를
-계속 재사용해 같은 오류를 강화하지 않는다.
+**Fresh handoff:** [공유 fix prompt](../executing-plans/fix-implementer-prompt.md)에 다음 경로와 정확한
+current revision을 채운다.
 
-**4회차 — fresh high-capability 조합을 사용한다.** 3회차까지의 agent를 재사용하지 않는다. 새 current
-revision과 raw evidence로 immutable bundle을 다시 만들고, 역할에 맞는 high-capability 조합의
-`spawn_agent {fork_turns: "none"}` implementer에게 bundle path/digest만 전달한다. 같은 artifact/revision
-binding 규칙을 적용하며 실패하면 handoff preparation으로 돌아간다. 필요한 high-capability 조합을 제공할
-수 없으면 더 약한 fallback으로 계속하지 않고 `blocked`와 `decision_required`를 기록한 뒤 중단한다.
+- 승인된 task brief
+- task 최초 구현 전의 `BASE`를 유지한 `scripts/review-package PLAN_FILE BASE HEAD`가 만든 현재
+  task 전체 binary-safe artifact package. 마지막 수정분만 담은 `FIX_BASE..HEAD`로 대체하지 않는다.
+- 아직 열린 finding만 담은 간결한 파일
+- 관찰한 검증 명령·결과와 이미 시도한 실패를 `Fact:`와 `Hypothesis:`로 구분한 evidence 파일
 
-**5회차 — fresh strongest role-appropriate default 조합을 사용한다.** 이전 agent를 재사용하지 않고
-새 current revision과 raw evidence를 다시 고정한다. 역할에 맞는 가장 강한 default model과 reasoning
-effort를 함께 선택하되 플랫폼의 예외적인 최대 effort mode를 자동 기본값으로 사용하지 않는다. 같은
-artifact/revision binding 규칙을 적용하며 실패하면 handoff preparation으로 돌아간다. 필요한 strongest
-role-appropriate default 조합을 제공할 수 없으면 더 약한 fallback으로 계속하지 않고 `blocked`와
-`decision_required`를 기록한 뒤 중단한다.
+전체 conversation, 장문의 구현 서사·자기변호, self-review, reviewer 칭찬·통과 판정, agent identity는
+handoff에 넣지 않는다. exact-key JSON 정규화나 fix 전용 tar bundle은 요구하지 않는다. current package와
+revision의 결합을 확인할 수 없거나 필수 evidence를 읽을 수 없으면 추측하지 않고 `blocked`로 반환한다.
 
-**보고와 재리뷰:** round 1 implementer만 기존 report 파일에 수정 보고를 append한다. round 2-5 implementer는
-report 경로나 내용을 받지 않고 concise raw result만 반환한다. controller가 그 raw result를 자체 report와 ledger에
-기록한다. 어느 경우든 reviewer를 다시 위임하기 전에 controller 기록에 해당 검사, 실행한 명령과 출력이 모두
-있는지 확인한다. 세 가지가 모두 있으면 재리뷰를 위임한다. 코드 동작은 수정 메시지에 관련 테스트 파일을 적고,
-문서, metadata와 단순 configuration 수정에는 변경에 비례한 검사를 사용한다.
+**보고와 재리뷰:** 원래 implementer는 기존 report 파일에 수정 보고를 append한다. fresh implementer는
+concise raw result를 반환하고 controller가 report와 ledger에 기록한다. 어느 경우든 재리뷰 전에 변경 내용,
+실행한 명령과 관찰 출력이 모두 있는지 확인한다. 코드 동작에는 관련 집중 검사를, 문서·metadata·단순
+configuration에는 변경에 비례한 검사를 사용한다.
 
-**재리뷰의 범위는 제한된다.** 각 회차에는 이전 회차와 다른 fresh-context reviewer를 사용한다.
-이전 리뷰에서 확인한 head를 FIX_BASE로 사용하여
-`scripts/review-package PLAN_FILE FIX_BASE HEAD`를 실행한다. finding 목록, brief, report 파일과
-출력된 diff 경로를 [re-review-prompt.md](re-review-prompt.md)에 넣어 위임한다. 재리뷰어는 각
-finding을 ADDRESSED 또는 NOT ADDRESSED로 판정하고 수정 diff의 새 문제만 표시한다. 수정 diff의
-새 Critical/Important 문제는 열린 finding 목록에 추가한다. 범위 밖 관찰은 deferred minor로
-ledger에 기록하며 loop를 확장하지 않는다.
+**재리뷰의 범위는 제한된다.** 각 회차에는 fresh-context reviewer를 사용한다. 이전 리뷰에서 확인한
+head를 FIX_BASE로 삼아 `scripts/review-package PLAN_FILE FIX_BASE HEAD`를 실행하고, finding 목록, brief,
+report와 출력된 diff 경로를 [re-review-prompt.md](re-review-prompt.md)에 넣는다. 재리뷰어는 원래 열린
+finding을 ADDRESSED 또는 NOT ADDRESSED로 판정하고 수정이 만든 Critical/Important 회귀만 새 finding으로
+추가한다. 다른 새 scope 아이디어는 deferred로 ledger에 기록하며 loop를 확장하지 않는다. 수정이 승인된
+목표·계약·설계나 dependency boundary를 바꾼다면 해당 소유 단계와 사용자 재승인으로 routing한다.
+controller나 reviewer가 위험을 자동 수용하지 않는다.
+
+bounded fix 뒤에는 이전 게이트 리비전, `FIX_BASE..HEAD` delta, 다룬 finding과 scoped 검사, 영향받지
+않은 기존 evidence를 재사용할 수 있는 이유, 현재 리비전의 새 scoped gate를 ledger에 기록한다.
+승인된 목표·계약·설계·dependency boundary가 바뀌었거나 bounded impact를 근거로 확정할 수 없을 때에만
+whole review를 다시 연다. 모든 artifact edit 때문에 전체 review를 자동 반복하지 않는다.
 
 **각 회차 뒤** ledger에 다음을 추가한다.
 `Task <N>: fix round <R>/5 (<X> addressed, <Y> open — <finding one-liners>; commits <a7>..<b7>)`
@@ -516,22 +498,25 @@ dispatch에 출력된 경로와 SHA-256 리비전을 포함한다. 그러면 최
 [code-reviewer.md](../requesting-code-review/code-reviewer.md)를 사용한다. merge 전에 수정할
 항목을 분류할 수 있도록 ledger의 deferred-minor, 근거로 닫은 finding과 accepted-risk 줄을 가리킨다.
 
-최종 전체 브랜치 리뷰에서 finding이 나오면 finding마다 fixer를 하나씩 두지 말고 전체 finding
-목록을 하나의 수정 subagent에게 위임한다. finding별 fixer는 각각 context를 다시 만들고 suite를
-다시 실행한다. 실제 session에서 최종 리뷰의 수정 wave가 모든 task의 합보다 비용이 많이 든
-사례가 있다. 새 HEAD에서 영향을 받은 검사와 필수 전체 변경 결정론적 검사를 다시 실행한다.
-통과한 뒤에만 수정 wave의 범위가 제한된 재리뷰를 정확히 한 번 실행한다(수정 range에
-`scripts/review-package PLAN_FILE FIX_BASE HEAD`, [re-review-prompt.md](re-review-prompt.md)).
-남은 finding은 task loop의 차단기처럼 분류한다. 명백히 유효하지 않은 finding은 근거와 함께
-닫을 수 있다. 유효한 미해결 필수 finding은 `failed`와 `decision_required`를 기록하고 사람의
-결정을 기다리며 중단한다. 통과한 최종 리뷰로 보류할 수 없다. plan, 전략, evaluator, capability
-변경 또는 사람의 명시적인 `accepted_risk` 없이 두 번째 수정 wave를 실행하지 않는다.
+최종 전체 브랜치 리뷰에서 finding이 나오면 finding마다 fixer를 하나씩 두지 말고 열린 finding
+목록을 한 수정 owner에게 함께 전달한다. 수정 뒤 새 HEAD에서 영향을 받은 검사를 실행하고
+`scripts/review-package PLAN_FILE FIX_BASE HEAD`와 [re-review-prompt.md](re-review-prompt.md)로
+범위가 제한된 재리뷰를 수행한다. 재리뷰는 원래 finding과 수정이 만든 회귀만 판정한다. 다른 새
+scope 아이디어는 deferred로 기록한다.
 
-scoped 재리뷰는 원래 finding과 수정 diff만 판정하므로 변경된 전체 브랜치의 final gate가 아니다.
-finding이 모두 닫히면 현재 `MERGE_BASE..HEAD` 전체 package를 새 고유 경로로 다시 만들고 이전
-session history를 상속하지 않는 whole-change reviewer로 일반 final gate를 갱신한다. 이 refresh도
-일반 리뷰 최대 5회에 포함한다. current HEAD 전체의 gate가 `passed` 또는 사람이 그 정확한
-리비전에 대해 `accepted_risk`를 기록하기 전에는 red-team을 시작하지 않는다.
+수정이 bounded하면 이전 whole-review 리비전, `FIX_BASE..HEAD` delta, 다룬 finding·검사, 영향받지
+않은 기존 evidence를 재사용하는 근거와 현재 HEAD의 새 scoped gate를 ledger에 기록한다. 이 mapping으로
+일반 final gate를 현재 artifact에 연결한다. 승인된 목표·계약·설계·dependency boundary가 바뀌었거나
+bounded impact를 근거로 확정할 수 없을 때에만 현재 `MERGE_BASE..HEAD` 전체 package를 다시 만들고
+fresh whole-change reviewer로 일반 gate를 다시 연다. artifact가 수정됐다는 사실만으로 전체 리뷰를
+반복하지 않는다.
+
+일반 리뷰의 자동 시도는 scoped와 reopened whole review를 합쳐 게이트마다 최대 5회이며 ledger에
+누적한다. task, owner 또는 session 복귀로 이 수를 초기화하지 않는다. 명백히 유효하지 않은 finding은
+근거와 함께 닫을 수 있다. 유효한 미해결 필수 finding은 상한에서 `failed`와 `decision_required`를
+기록하고 사람의 결정을 기다린다. agent가 위험을 자동 수용하거나 이전 통과 판정으로 보류할 수 없다.
+현재 HEAD의 일반 gate가 `passed` 또는 사람이 정확한 리비전에 `accepted_risk`를 기록하기 전에는
+red-team을 시작하지 않는다.
 
 일반 최종 리뷰가 `passed`이거나 정확한 리비전에 대해 사람이 `accepted_risk`를 기록했더라도,
 plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다. 이 게이트는 일반 리뷰를
@@ -560,16 +545,20 @@ plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다.
    재승인, plan이 바뀌면 writing-plans 갱신과 영향 task `reopened`, 구현이면 해당 task 재개,
    검증이면 verification 단계 재실행으로 routing한다.
    `inconclusive` 또는 `blocked`는 통과가 아니며 부족한 근거나 capability의 소유 단계로 돌린다.
-6. 소유 단계가 artifact를 수정했다면 해당 task 또는 결정의 scoped 검증·재리뷰를 먼저 완료한다.
-   이어서 전체 결정론적 검증을 다시 실행하고 현재 `MERGE_BASE..HEAD` package로 일반
-   whole-change review를 fresh context에서 갱신한다. 일반 gate가 `passed` 또는 exact revision의
-   `accepted_risk`가 된 뒤에만 모든 입력을 새 bundle로 고정하고 또 다른 fresh-context red-team
-   reviewer를 사용한다. evidence 또는 capability만 달라지고 artifact revision이 같다면 현재
-   일반 gate는 유지할 수 있지만 영향 component와 bundle은 다시 고정한다. 같은 artifact와 같은
-   evaluator의 무변경 재시도는 금지하며 red-team 자동 시도도 최대 5회다. 각 시도는 새로 고정한
-   bundle과 서로 다른 fresh-context reviewer를 사용한다. 상한 뒤 유효한 위험이
-   남으면 `decision_required`로 중단하고, 사람이 정확한 리비전과 위험을 명시적으로 수용한 경우에만
-   `accepted_risk`로 다음 단계에 갈 수 있다.
+6. 최초 red-team은 위의 fresh immutable whole-goal bundle로 수행한다. 소유 단계가 bounded fix를
+   적용했다면 해당 task 또는 결정의 scoped 검증·재리뷰를 먼저 완료한다. 이전 ordinary gate 리비전,
+   fix delta, 다룬 finding·검사, bounded impact 근거를 기록해 영향받지 않은 evidence를 현재 리비전의
+   ordinary gate에 연결한다. 이어서 모든 현재 full input을 새 immutable bundle로 고정하고, 이를 제공받은
+   fresh scoped red-team reviewer가 이전 challenge와 수정이 만든 회귀만 판정한다. 이전 red-team 리비전,
+   fix delta, 다룬 challenge·검사, bounded impact 근거와 현재 리비전의 새 scoped red-team gate도 기록한다.
+   unrelated issue를 반복해서 찾게 하지 않는다. 목표·계약·설계·dependency boundary가
+   바뀌었거나 bounded impact를 확정할 수 없을 때에만 전체 결정론적 검증과 일반 whole-change review를
+   갱신한 뒤 새 whole-goal bundle로 red-team을 처음부터 다시 연다. evidence 또는 capability만
+   바뀌고 artifact revision이 같다면 현재 일반 gate는 유지할 수 있지만 영향 component와 bundle은
+   다시 고정한다. 같은 artifact와 같은 evaluator의 무변경 재시도는 금지한다. red-team 자동 시도도
+   게이트마다 최대 5회이며 ledger에 누적하고 owner 또는 session 복귀로 초기화하지 않는다. 상한 뒤
+   유효한 위험이 남으면 `decision_required`로 중단하고, 사람이 정확한 리비전과 위험을 명시적으로
+   수용한 경우에만 `accepted_risk`로 다음 단계에 갈 수 있다.
 
 ## 마무리
 
@@ -595,7 +584,7 @@ workspace와 함께 사라지는 기록은 몰래 내린 결정이다.
 | "I'll fix it myself, dispatching is overhead" | controller의 수정은 context를 오염시키고 리뷰를 건너뛴다. implementer를 재개한다. |
 | "One more round will converge" | 상한을 넘으면 자동 회차를 중단한다. 실제 게이트 상태를 기록하고 결정을 routing한다. |
 | "The reviewer will just find something new anyway" | 범위가 제한된 재리뷰는 수정 내용을 검증하며 범위를 벗어날 수 없다. 건드리지 않은 코드의 새 finding은 loop가 아니라 ledger로 보낸다. |
-| "This finding is obviously wrong, I'll drop it" | 상한에서만 판정하고 근거가 있을 때에만 닫으며 모든 판정을 기록한다. 조용한 폐기는 금지한다. |
+| "This finding is obviously wrong, I'll drop it" | 근거가 있을 때에만 닫고 모든 판정을 기록한다. 조용한 폐기나 자동 위험 수용은 금지한다. |
 | "The fix was small, skip the re-review" | 리뷰하지 않은 수정으로 회귀가 반영된다. 모든 회차는 범위가 제한된 재리뷰로 끝난다. |
 | "Reviews slow the loop down" | 리뷰 없는 loop는 검증되지 않은 반복일 뿐이다. 리뷰는 loop의 제동 장치와 조향 장치다. |
 | "Ledger bookkeeping is overhead" | compaction 뒤에도 ledger가 남는다. ledger가 없던 controller가 완료한 전체 task sequence를 다시 위임한 사례가 있다. |
@@ -668,8 +657,8 @@ Final reviewer: Important — repair mode bypasses the permission boundary requi
 [Apply one focused final-review fix and rerun affected plus whole-change deterministic checks]
 [Run review-package PLAN_FILE FIX_BASE HEAD; dispatch scoped re-review]
 Re-reviewer: Original finding — ADDRESSED. New breakage: none.
-[Regenerate review-package PLAN_FILE MERGE_BASE current HEAD]
-[Dispatch a fresh-context whole-change reviewer; record passed for current HEAD]
+[Map the prior whole-review revision, FIX_BASE..HEAD delta, addressed finding/checks,
+ unaffected evidence, and bounded-impact rationale to a new current-HEAD scoped gate]
 
 [Regenerate the full binary-safe MERGE_BASE..current HEAD package]
 [Freeze goal/design/plan/evidence/provenance contents with the diff into a new red-team bundle and digest]
