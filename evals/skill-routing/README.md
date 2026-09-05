@@ -28,8 +28,26 @@ push, ticket 게시와 PR 생성은 허용하지 않습니다. 결과는 `pass`,
 검색 공급자 사례의 `host_search_policy`는 해당 README 절의 Markdown 코드 블록만 호스트
 지침으로 제공합니다. `installed_plugins`의 Research와 Exa Search description을 함께 노출하되
 본문은 모델이 선택하여 읽게 합니다. Exa 전용 스킬의 정확한 버전과 description·본문의 hash를
-실행 기록에 남깁니다. 관리형 Exa·Perplexity 검색 도구가 둘 다 노출·인증·가용한 동일 조건으로
-시작하며 실제 schema나 고정된 모의 schema를 기록합니다. 기대 field는 실행 모델에게 주지 않습니다.
+실행 기록에 남깁니다. 별도 `fixture`가 없으면 관리형 Exa·Perplexity 검색 도구가 둘 다
+노출·인증·가용한 동일 조건으로 시작합니다. `fixture`가 있으면 그 연결 유형과 capability만
+제공하며 선언되지 않은 도구는 노출하지 않습니다. 실제 schema나 고정된 모의 schema를
+기록하고 기대 field는 실행 모델에게 주지 않습니다.
+
+호스트 자격 사례의 `provider_access`는 `managed`, `direct_adapter`, `unknown` 연결 유형을
+제공합니다. 직접 adapter의 `opt_in_marker_valid`는 설치 manifest로 고정한 plugin-root README의
+파일·marker·매핑 검증 결과이며, `secret_present`는 allowlist된 `secret_name`의 안전한 존재
+확인 결과입니다. 실제 비밀값은 제공하지 않습니다. `qualification_reference_available: true`이면
+모의 설치 manifest에서 Research root를 확인하고 그 아래 `skills/research/references/tool-routing.md`를
+읽을 수 있게 합니다. false이면 규칙 경로를 확인할 수 없습니다. 이 reference만 읽는 것은
+Research 전체 스킬 선택으로 세지 않습니다. `capability_state`의 성공 값은 호출할 경우의 모의
+응답이며, 직접 adapter의 사전 자격 확인을 대체하는 기존 성공 증거로 제공하지 않습니다.
+`generic_web`은 호스트가 허용한 `web_search` 모의 도구입니다.
+
+`must_check_direct_qualification_before_request`는 직접 또는 불명확한 연결에서 reference·opt-in·
+secret 존재 확인이 외부 요청보다 먼저 이뤄졌는지 검사합니다. 확인할 수 없는 조건에서는
+호출을 차단해야 하며, `must_not_call_providers`는 최소 인증 시험 검색을 포함해 해당 공급자의
+모든 외부 호출이 없는지 검사합니다. 관리형 기본 사례는 marker·secret 확인 없이 정상 검색해야
+합니다. fixture 관찰과 실제 도구 선택·차단 순서를 trace에 함께 남깁니다.
 
 `expected_first_search_provider`는 fetch가 아닌 첫 검색 호출을 검사합니다.
 `expected_first_tool`이 있으면 해당 목적에서 사용할 실제 도구까지 확인합니다.

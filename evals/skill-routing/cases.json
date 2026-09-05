@@ -577,6 +577,189 @@
       "expected_first_tool": "perplexity_search",
       "must_select_provider_before_specialist_skill": true,
       "must_not_select": ["research:research", "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"]
+    },
+    {
+      "installed_plugins": [
+        "research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd"
+      ],
+      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
+      "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
+      "expected_sequence": [],
+      "must_not_select": [
+        "research:research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
+      ],
+      "id": "host-lookup-direct-missing-opt-in",
+      "fixture": {
+        "provider_access": [
+          {
+            "provider": "perplexity",
+            "connection": "direct_adapter",
+            "opt_in_marker_valid": false,
+            "secret_name": "PERPLEXITY_API_KEY",
+            "secret_present": true
+          }
+        ],
+        "qualification_reference_available": true,
+        "capability_state": [
+          {
+            "provider": "perplexity",
+            "capability": "discover",
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true
+          },
+          {
+            "provider": "generic_web",
+            "capability": "discover",
+            "available": true
+          }
+        ]
+      },
+      "expected_first_search_provider": "generic_web",
+      "expected_first_tool": "web_search",
+      "must_check_direct_qualification_before_request": true,
+      "must_not_call_providers": [
+        "perplexity"
+      ]
+    },
+    {
+      "installed_plugins": [
+        "research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd"
+      ],
+      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
+      "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
+      "expected_sequence": [],
+      "must_not_select": [
+        "research:research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
+      ],
+      "id": "host-lookup-direct-missing-secret",
+      "fixture": {
+        "provider_access": [
+          {
+            "provider": "perplexity",
+            "connection": "direct_adapter",
+            "opt_in_marker_valid": true,
+            "secret_name": "PERPLEXITY_API_KEY",
+            "secret_present": false
+          }
+        ],
+        "qualification_reference_available": true,
+        "capability_state": [
+          {
+            "provider": "perplexity",
+            "capability": "discover",
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true
+          },
+          {
+            "provider": "generic_web",
+            "capability": "discover",
+            "available": true
+          }
+        ]
+      },
+      "expected_first_search_provider": "generic_web",
+      "expected_first_tool": "web_search",
+      "must_check_direct_qualification_before_request": true,
+      "must_not_call_providers": [
+        "perplexity"
+      ]
+    },
+    {
+      "installed_plugins": [
+        "research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd"
+      ],
+      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
+      "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
+      "expected_sequence": [],
+      "must_not_select": [
+        "research:research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
+      ],
+      "id": "host-lookup-unknown-connection-no-rules",
+      "fixture": {
+        "provider_access": [
+          {
+            "provider": "perplexity",
+            "connection": "unknown"
+          }
+        ],
+        "qualification_reference_available": false,
+        "capability_state": [
+          {
+            "provider": "perplexity",
+            "capability": "discover",
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true
+          },
+          {
+            "provider": "generic_web",
+            "capability": "discover",
+            "available": true
+          }
+        ]
+      },
+      "expected_first_search_provider": "generic_web",
+      "expected_first_tool": "web_search",
+      "must_check_direct_qualification_before_request": true,
+      "must_not_call_providers": [
+        "perplexity"
+      ]
+    },
+    {
+      "installed_plugins": [
+        "research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd"
+      ],
+      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
+      "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
+      "expected_sequence": [],
+      "must_not_select": [
+        "research:research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
+      ],
+      "id": "host-lookup-direct-qualified",
+      "fixture": {
+        "provider_access": [
+          {
+            "provider": "perplexity",
+            "connection": "direct_adapter",
+            "opt_in_marker_valid": true,
+            "secret_name": "PERPLEXITY_API_KEY",
+            "secret_present": true
+          }
+        ],
+        "qualification_reference_available": true,
+        "capability_state": [
+          {
+            "provider": "perplexity",
+            "capability": "discover",
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true
+          },
+          {
+            "provider": "generic_web",
+            "capability": "discover",
+            "available": true
+          }
+        ]
+      },
+      "expected_first_search_provider": "perplexity",
+      "expected_first_tool": "perplexity_search",
+      "must_check_direct_qualification_before_request": true,
+      "must_not_call_providers": []
     }
   ]
 }
