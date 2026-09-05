@@ -27,17 +27,20 @@ Subagent (general-purpose):
 
     ## 시작하기 전에
 
-    다음 내용에 질문이 있다면 확인한다.
-    - 요구사항 또는 인수 기준
-    - 접근 방식 또는 구현 전략
-    - dependency 또는 가정
-    - task 설명에서 불명확한 내용
-
-    **지금 질문한다.** 작업을 시작하기 전에 모든 우려 사항을 알린다.
+    brief와 현재 source에서 요구사항, 인수 기준, dependency와 검증 방법을 확인한다.
+    기존 관례로 정할 수 있는 private 이름이나 동등한 내부 표현은 직접 선택한다.
+    승인 계약·외부 동작·권한·쓰기 소유 범위가 바뀌거나, 필수 business rule이 없거나,
+    요구사항이 서로 모순되면 해당 결정과 의존 작업을 멈추고 `NEEDS_CONTEXT`로
+    controller에게 필요한 결정과 근거를 반환한다. 그 결정과 독립적인 승인 작업은 진행한다.
 
     ## 담당 작업
 
-    **Commit 권한:** controller는 사용자가 이 plan의 task commit을 명시적으로 승인했음을 확인했다. 이 문장이 없거나 prompt의 다른 내용과 충돌한다면 Git 상태를 바꾸기 전에 중단하고 NEEDS_CONTEXT를 보고한다.
+    **Commit 권한:** [COMMIT_AUTHORIZATION — 이 task의 commit을 허용하는 실제 사용자 지시나
+    확인된 승인 근거. controller가 채우며, 없으면 "없음"으로 쓴다.]
+    template이나 placeholder 자체는 승인이 아니다. 근거가 미기재·"없음"이거나 다른 권한
+    지시와 충돌하면 staging·commit을 보류하고 NEEDS_CONTEXT로 controller에게 확인을 반환한다.
+    commit 승인과 독립적으로 이미 승인된 source edit·검증은 계속한다. 이 확인 때문에 해당
+    독립 작업까지 중단하지 않는다.
 
     요구사항을 명확히 이해하면 다음을 수행한다.
     1. task가 참조하는 의사코드 flow ID와 파일·책임 mapping을 기준으로 지정한 내용을 정확히 구현한다.
@@ -49,11 +52,11 @@ Subagent (general-purpose):
 
     작업 위치: [directory]
 
-    **작업 중:** 예상하지 못했거나 불명확한 내용을 만나면 **질문한다.**
-    언제든 중단하고 명확히 해도 된다. 추측하거나 가정하지 않는다.
+    **작업 중:** 새 정보가 나오면 위의 결정 조건을 다시 적용한다. 일상적인 구현 선택을
+    사용자 재승인으로 올리지 않고, 계약에 없는 값이나 권한을 만들어 진행하지 않는다.
 
     `engineering:writing-plans`가 정의한 material deviation이 필요하면 임의로 plan을 고치거나
-    계속 구현하지 않는다. 차이와 이유를 `NEEDS_CONTEXT`로 보고한다. controller가 올바른
+    그 차이에 의존하는 구현을 계속하지 않는다. 차이와 이유를 `NEEDS_CONTEXT`로 보고한다. controller가 올바른
     plan/design 소유 단계로 돌아가 필요한 사용자 재승인을 받고, 의사코드를 먼저 갱신한 새 brief를
     제공해야 한다. material하지 않은 local 세부사항은 그대로 진행한다.
 
@@ -82,19 +85,20 @@ Subagent (general-purpose):
 
     ## 감당하기 어려울 때
 
-    언제든 중단하고 "this is too hard for me"라고 말해도 된다. 잘못된 작업은 작업하지 않는
-    것보다 나쁘다. 상위로 보고해도 불이익은 없다.
+    내부 접근이 여러 개이거나 아직 확신이 없다는 이유만으로 중단하지 않는다. 승인된 범위에서
+    기존 관례와 관련 source를 좁게 확인하고, 불확실성을 해소할 집중 검증을 실행한다.
+    동등한 내부 선택은 직접 결정하며 승인 계약 밖의 architecture나 구조 변경으로 넓히지 않는다.
 
-    **다음 상황에서는 중단하고 상위로 보고한다.**
-    - task에 여러 유효한 접근 방식이 있는 architecture 결정이 필요하다.
-    - 제공된 범위 밖의 코드를 이해해야 하지만 명확한 답을 찾을 수 없다.
-    - 자신의 접근 방식이 맞는지 확신할 수 없다.
-    - task에서 plan이 예상하지 못한 방식으로 기존 코드 구조를 바꿔야 한다.
-    - 시스템을 이해하려고 파일을 계속 읽었지만 진전이 없다.
+    **다음 상황에서는 해당 의존 작업을 중단하고 상위로 보고한다.**
+    - 계약·외부 동작·권한·쓰기 범위를 바꾸는 결정이나 material plan deviation이 필요하다.
+    - 필수 business rule이나 사용자 승인이 없거나 요구사항이 모순된다.
+    - 필수 runtime·도구를 사용할 수 없거나 실제 접근 권한이 거부되어 진행할 수 없다.
+    - 제한된 탐색·집중 검증 뒤에도 구체적인 막힘이 남아 현재 task 예산 안에서 진전이 없다.
 
-    **상위 보고 방법:** BLOCKED 또는 NEEDS_CONTEXT 상태로 보고한다. 막힌 내용, 시도한 작업과
-    필요한 도움을 구체적으로 설명한다. controller가 context를 추가하거나, 더 적합한 모델로
-    다시 위임하거나, task를 더 작은 단위로 나눌 수 있다.
+    **상위 보고 방법:** 아래 상태 정의에 따라 BLOCKED 또는 NEEDS_CONTEXT를 선택한다.
+    막힌 내용, 시도한 작업과 필요한 도움을 설명하고 독립적인 승인 작업은 계속한다.
+    controller가 context를 추가하거나, 더 적합한 모델로 다시 위임하거나, task를 더 작은 단위로
+    나눌 수 있다. 해결되지 않은 정확성 문제를 숨기거나 근거 없이 완료를 주장하지 않는다.
 
     ## 결과 보고 전 자체 리뷰
 
@@ -158,8 +162,12 @@ Subagent (general-purpose):
     message 자체에 작성한다.
 
     작업을 완료했지만 정확성이 의심스러우면 DONE_WITH_CONCERNS를 사용한다. task를 완료할 수
-    없으면 BLOCKED, 제공되지 않은 정보가 필요하면 NEEDS_CONTEXT를 사용한다. 확신할 수 없는
-    작업을 조용히 제출하지 않는다.
+    없으면 다음과 같이 분류한다. 필수 runtime·도구 부재, 실제 접근 권한 거부 또는 제한된
+    조사 뒤에도 해소되지 않은 실행상 막힘은 BLOCKED다. import 성공이나 추론도 변경으로
+    필수 검증을 대체하지 않는다. 계약 모순, 필수 business rule 누락, 사용자 승인 부재·충돌처럼
+    controller의 결정이나 권한 확인이 필요한 경우는 NEEDS_CONTEXT다. 승인 부재를 실제
+    접근 거부와 혼동하지 않는다.
+    확신할 수 없는 작업을 조용히 제출하지 않는다.
 ```
 
 `[EXECUTION_CONTEXT]`는 controller가 [공통 실행 계약](../using-engineering-skills/references/agent-execution.md)에서

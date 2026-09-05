@@ -65,6 +65,12 @@ Codex의 잠정 기본값은 좁고 명확한 구현에 Luna medium, 보조 조�
 이 배치는 공식 역할 안내를 반영한 운영값이며 Sol을 포함한 전체 workflow의 최적 조합을 비교 검증한
 결과는 아닙니다. 구체적인 대응은 [Codex reference](skills/using-engineering-skills/references/codex-tools.md)를 따릅니다.
 
+모델·추론도·team 크기는 각각 선택합니다. Codex reference에는 단계별 인계, 선택적 low·xhigh·
+max·ultra 조건과 GPT-5.6/Astra의 prompt 조정을 함께 둡니다. private 이름처럼 기존 관례로
+정할 수 있는 선택은 진행하고, 계약·외부 동작·권한·쓰기 범위 변경이나 필수 규칙 누락·모순은
+controller에 반환합니다. 그 결정과 독립적인 승인 작업은 계속합니다. 필수 검증이 충족되면
+새 변경·실패·미해결 위험이 있을 때만 검사를 확대하며, 후속 필수 리뷰와 red-team은 유지합니다.
+
 reviewer는 구현자 대화·자체 판정 대신 고정 artifact와 검증 사실을 받습니다. 병렬 구현은 독립된
 쓰기 소유권이나 분리 worktree와 통합 소유자가 있을 때 사용하고 SDD의 기본 task loop는 직렬로
 유지합니다. 3+2/max5는 같은 task의 수정 운영값입니다. 새 반례에도 잘못된 가정을 반복하면 조기

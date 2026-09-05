@@ -1,7 +1,7 @@
 # 스킬 라우팅
 
 - Status: Current
-- Last reviewed: 2026-09-05
+- Last reviewed: 2026-09-06
 
 ## 플러그인 경계
 
@@ -55,6 +55,38 @@ branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 �
 전에는 추가하지 않습니다.
 
 ## Engineering 실행 경로
+
+### Codex의 작업별 모델·팀 구성
+
+모델, 추론도와 team 크기는 각각 판단합니다. 기존 Engineering 기본값은 유지하며, 아래 표는
+그 밖의 작업에 공식 역할 안내를 적용한 잠정 권고입니다. 플러그인별 성능 비교 결과나 고정
+pipeline이 아닙니다. 현재 요청에 필요한 단계만 선택하고 각 플러그인의 단독 실행을 유지합니다.
+
+| 작업 | 모델·추론도 시작 후보 | 별도 agent가 필요한 경우 |
+| --- | --- | --- |
+| 정형 추출·변환·좁은 조회 | Luna medium, 속도 우선의 검증된 작업은 low | 독립 자료가 많고 결과를 간추려 전달할 수 있을 때 |
+| Product 근거 정리·합의 내용의 PRD 변환 | Terra medium | 자료별 독립 조사. 새로운 제품 결정을 대신 확정하지 않음 |
+| Product 문제·도메인 규칙·실험 설계 | Sol medium/high | 상충 근거 또는 독립 가정의 검토가 결과를 바꿀 때 |
+| Research 수집·종합 | 조사 Terra medium, 종합 Sol medium/high | 출처·증거 목적이 겹치지 않는 조사와 필요시 검증자 |
+| Figma 화면·prototype·검증 | 정해진 작업 Terra medium, 흐름·시각 판단 Sol medium/high | 독립 자료·구현 조사. 동일 canvas와 UI 세션의 writer는 한 명 |
+| Quality Engineering 검토 | 일반 Terra/Sol medium, 복잡한 실패·복구·trust boundary Sol high | 현재 변경의 명명된 독립 위험. 모든 lens별 고정 team은 만들지 않음 |
+| Workflow·Fluent Languages의 확정 사실 전달 | Luna/Terra medium | 단일 변환에는 별도 team 불필요. 원격 변경은 승인된 단일 실행 소유자가 재조회까지 담당 |
+| 위 작업을 여러 시스템·도구·단계에 걸쳐 끝까지 통합하는 가장 어려운 작업 | Astra medium, 깊은 경계 분석 high | 조정자는 전체 목표·결정을 유지하고 독립 작업만 worker에 위임 |
+
+모델 capability와 실제 도구 가용성은 별도로 확인합니다. 모델을 높여도 없는 Figma·browser
+도구나 실행 환경이 생기지 않으며 시각 작업은 실제 렌더링·interaction 근거가 필요합니다.
+기존 Engineering의 [역할·추론도·prompt 대응](../../plugins/engineering/skills/using-engineering-skills/references/codex-tools.md)은
+해당 플러그인의 실행 reference입니다. 다른 플러그인의 설치 의존성이나 필수 선행 호출로
+사용하지 않습니다. 각 역할의 brief는 목표, 현재 근거, 소유 범위와 완료 조건을 중심으로
+간결하게 만들고 단순한 task에는 기존 controller를 그대로 사용합니다.
+
+이 권고는 [공식 모델 안내](https://learn.chatgpt.com/docs/models),
+[Codex subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents),
+[GPT-5.6 prompt 지침](https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6)과
+[Astra prompt 지침](https://developers.openai.com/api/docs/guides/latest-model#prompting-best-practices)을
+2026-09-06에 대조했습니다. API 실행 옵션과 Codex 도구 schema를 혼용하지 않습니다.
+
+### 단계별 소유와 실행 경계
 
 Engineering은 작업을 중앙 orchestrator 하나로 모으지 않고 기존 stage-owned gate를 유지합니다.
 Fast Path는 target discovery 전에 stable task ID를 고정하고, 그 ID의 소비한 search·execution
