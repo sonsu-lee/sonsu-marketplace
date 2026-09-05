@@ -61,6 +61,9 @@ ENGINEERING 스킬이 현재 TASK에 적용된다면 선택의 여지가 없다.
 
 ## 플랫폼별 조정
 
+agent를 위임하거나 재개할 때에는 [공통 실행·context 계약](references/agent-execution.md)을 적용한다.
+스킬은 routing과 gate를 소유하고, 별도 session은 집중된 실행과 독립 리뷰를 담당한다.
+
 사용 중인 harness가 아래에 있으면 해당 참고 파일에서 특별 지침을 읽는다.
 
 - Codex: `references/codex-tools.md`

@@ -51,6 +51,26 @@ codex plugin add engineering@sonsu-marketplace
 
 공통 [품질 게이트 계약](skills/using-engineering-skills/references/quality-gates.md)은 근거 기록, 상태, 오래된 리비전 처리, 반환 대상, 재시도 변경과 시도 횟수 상한에서의 동작을 정의합니다. 품질 판정은 문서, Git, PR, merge, 배포 또는 게시 권한을 부여하지 않습니다.
 
+## 모델과 에이전트 실행
+
+스킬은 routing·검증·예산·인계를 관리하고 별도 agent/session은 집중된 구현·조사·리뷰를 맡습니다.
+[공통 실행 계약](skills/using-engineering-skills/references/agent-execution.md)은 요청한 모델·추론도와
+관측된 적용값, task/gate ID, 현재 revision, session 관계, 검증 환경·scratch와 남은 예산을 연결합니다.
+
+Codex 기본값은 좁고 명확한 구현에 Luna medium, 보조 조사·일반 task review에 Terra medium,
+복잡한 구현·debugging에 기존 Terra high, 영향 큰 설계·전체 리뷰·fresh red-team에 Astra high입니다.
+결정론적 처리는 controller 도구로 실행합니다. 실제 allowlist와 사용자 선택이 우선하며 Sol/mini는
+선택 대안입니다. 구체적인 대응은 [Codex reference](skills/using-engineering-skills/references/codex-tools.md)를 따릅니다.
+
+reviewer는 구현자 대화·자체 판정 대신 고정 artifact와 검증 사실을 받습니다. 병렬 구현은 독립된
+쓰기 소유권이나 분리 worktree와 통합 소유자가 있을 때 사용하고 SDD의 기본 task loop는 직렬로
+유지합니다. 3+2/max5는 같은 task의 수정 운영값입니다. 새 반례에도 잘못된 가정을 반복하면 조기
+fresh 전환이 가능하지만 남은 예산은 유지하며, 무관한 세 작업 뒤 세션을 자동 폐기하지 않습니다.
+실행 미완료·환경 오류·무효 oracle·미실행 검사를 코드 실패 또는 pass로 바꾸지 않습니다.
+
+기본값의 근거와 실험 한계는 [0012 결정](../../docs/decisions/0012-use-role-routing-and-execution-evidence.md)에
+기록합니다. 모델의 보편적인 순위, 최적 수정 횟수와 전체 workflow의 품질 향상을 보장하지 않습니다.
+
 ## 스킬
 
 | 영역 | 스킬 |

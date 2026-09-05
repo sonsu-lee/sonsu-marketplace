@@ -233,6 +233,10 @@ Task 1을 위임하기 전에 plan의 충돌을 한 번 검사하고 확인한 �
 
 ## 모델 선택
 
+[공통 실행·context 계약](../using-engineering-skills/references/agent-execution.md)을 적용한다.
+controller는 requested/observed model·effort, session lineage, 현재 source revision, 실제 검증 환경과
+실행 완료 여부를 같은 task/gate 기록에 연결한다. native 관측이 없으면 확인됐다고 쓰지 않는다.
+
 정확도, 재작업 가능성, 예상 turn 수와 비용을 함께 고려해 **예상 총완료시간**이 가장 짧은
 역할 적합 모델을 선택한다. 가장 싼 모델이나 가장 강한 모델을 일률적으로 선택하지 않는다.
 
@@ -245,7 +249,8 @@ Architecture·설계, 최종 전체 브랜치 리뷰와 red-team 리뷰에는 �
 model을 사용한다. scoped 재리뷰는 범위가 작더라도 finding의 의미 난이도와 회귀 위험에 맞춘다.
 
 **Fix-loop model 선택:** 1~3회차에는 원래 implementer를 재개한다. 4~5회차 또는 원래 implementer를
-사용할 수 없는 더 이른 회차에는 `spawn_agent {fork_turns: "none"}` fresh implementer를 사용한다.
+사용할 수 없거나 새 반례에도 같은 잘못된 가정을 반복해 진전이 없는 더 이른 회차에는
+`spawn_agent {fork_turns: "none"}` fresh implementer를 사용한다.
 앞선 실패가 판단력 부족을 보여 주었고 더 높은 capability를 사용할 수 있으면 한 단계 높이되, 회차
 번호만으로 특정 tier를 강제하지 않는다. 현재 finding을 해결할 수 있는 역할 적합성을 우선한다.
 
@@ -305,9 +310,11 @@ child 목록을 확인해 보고 없이 완료한 child를 찾는다. 제한된 
 - 이전 task에 현재 task가 건드리는 영역의 accepted-risk 또는 근거로 닫은 finding이 있으면
   dispatch에 해당 ledger 항목의 pointer를 포함한다.
 - dispatch 결과에서 implementer의 agent identity를 기록한다. fix-loop 1~3회차에는 이 에이전트를
-  재개한다. 4~5회차 또는 이 에이전트를 사용할 수 없는 더 이른 회차에는
+  재개한다. 4~5회차 또는 이 에이전트를 사용할 수 없거나 새 반례에도 진전이 없는 더 이른 회차에는
   `spawn_agent {fork_turns: "none"}` fresh implementer에게 concise factual handoff를 전달한다.
 - 충돌을 막기 위해 여러 구현 subagent를 병렬로 위임하지 않는다.
+  이 SDD task/commit ledger의 기본 실행은 직렬이다. 독립된 소유 범위나 별도 worktree로 병렬
+  구현할 경우 `dispatching-parallel-agents`에서 controller가 자원·예산·통합 소유권을 먼저 정한다.
 
 템플릿: [implementer-prompt.md](implementer-prompt.md)
 
@@ -359,8 +366,9 @@ task 리뷰를 생략하거나 두 판정 중 하나가 빠진 report를 받아�
   context에 들어가지 않고 reviewer는 한 번의 Read 호출로 commit 목록, stat 요약과 binary-safe context가
   포함된 전체 diff를 본다. implementer를 위임하기 전에 기록한 BASE를 사용하며 여러 commit의
   task를 조용히 잘라내는 `HEAD~1`을 사용하지 않는다. diff 파일 없이 task reviewer를 위임하지 않는다.
-- **Reviewer 입력:** task reviewer는 같은 brief 파일, report 파일, review package의 세 경로와
-  task에 적용되는 전역 제약을 받는다. 이 full report는 controller/reviewer 기록이다. fresh fix
+- **Reviewer 입력:** task reviewer는 같은 brief 파일, 사실 중심 검증 사본, review package의 세 경로와
+  task에 적용되는 전역 제약을 받는다. controller는 원 report의 명령·출력, 변경 범위와 제약을 고정
+  사본으로 만들고 구현 서사·자기 정당화·자체 pass 판정·칭찬은 제외한다. 원 report는 보존한다. fresh fix
   implementer에게는 full report 대신 승인된 brief, 현재 exact binary-safe package, 열린 finding,
   관찰한 명령·결과와 이미 시도한 실패만 사실과 가설을 구분해 전달한다.
 - reviewer에게 전달하는 global-constraints block은 주의할 내용을 정하는 lens다. plan의 Global
@@ -403,7 +411,8 @@ Minor finding은 loop 전에 제외한다. 진행하면서 progress ledger에 `T
 
 **1~3회차 — 원래 implementer를 재개한다.** 열린 finding과 새 관찰 evidence를 전달하고 같은
 implementer를 `followup_task`로 재개한다. context가 남아 있으므로 task, 코드와 앞선 선택을 다시
-설명하지 않는다. harness에서 원래 implementer를 더 이상 사용할 수 없다면 이 회차에도
+설명하지 않되 현재 revision, 반례와 검증 환경은 명시한다. harness에서 원래 implementer를 더 이상
+사용할 수 없거나 새 반례에도 같은 잘못된 가정이 반복되어 진전이 없다면 이 회차에도
 `spawn_agent {fork_turns: "none"}` fresh implementer를 사용할 수 있으며 아래 handoff 계약을 따른다.
 
 **4~5회차 — fresh implementer를 사용한다.** 이전 conversation을 상속하지 않는
@@ -420,6 +429,10 @@ current revision을 채운다.
   task 전체 binary-safe artifact package. 마지막 수정분만 담은 `FIX_BASE..HEAD`로 대체하지 않는다.
 - 아직 열린 finding만 담은 간결한 파일
 - 관찰한 검증 명령·결과와 이미 시도한 실패를 `Fact:`와 `Hypothesis:`로 구분한 evidence 파일
+- stable task/gate ID, 소비·남은 부모 예산과 deadline, 허용된 작업 범위와 runtime·scratch
+
+3+2/max5는 운영값이며 세 번째 이후 context 열화를 입증한 경계가 아니다. 조기 fresh 진단도
+같은 부모 예산을 소비한다. 무관한 작업 세 개를 완료했다고 session을 자동 폐기하지 않는다.
 
 전체 conversation, 장문의 구현 서사·자기변호, self-review, reviewer 칭찬·통과 판정, agent identity는
 handoff에 넣지 않는다. exact-key JSON 정규화나 fix 전용 tar bundle은 요구하지 않는다. current package와
@@ -429,10 +442,13 @@ revision의 결합을 확인할 수 없거나 필수 evidence를 읽을 수 없�
 concise raw result를 반환하고 controller가 report와 ledger에 기록한다. 어느 경우든 재리뷰 전에 변경 내용,
 실행한 명령과 관찰 출력이 모두 있는지 확인한다. 코드 동작에는 관련 집중 검사를, 문서·metadata·단순
 configuration에는 변경에 비례한 검사를 사용한다.
+controller는 각 수정 뒤 현재 revision의 명령·출력, 변경 범위와 제약을 원 report에서 새 고정
+검증 사본으로 추출한다. 구현 서사·자기 정당화·자체 pass 판정·칭찬은 제외하고 원 report는
+보존한다. 이전 회차의 사본이나 append 중인 원 report를 재리뷰 입력으로 재사용하지 않는다.
 
 **재리뷰의 범위는 제한된다.** 각 회차에는 fresh-context reviewer를 사용한다. 이전 리뷰에서 확인한
 head를 FIX_BASE로 삼아 `scripts/review-package PLAN_FILE FIX_BASE HEAD`를 실행하고, finding 목록, brief,
-report와 출력된 diff 경로를 [re-review-prompt.md](re-review-prompt.md)에 넣는다. 재리뷰어는 원래 열린
+새 고정 검증 사본과 출력된 diff 경로를 [re-review-prompt.md](re-review-prompt.md)에 넣는다. 재리뷰어는 원래 열린
 finding을 ADDRESSED 또는 NOT ADDRESSED로 판정하고 수정이 만든 Critical/Important 회귀만 새 finding으로
 추가한다. 다른 새 scope 아이디어는 deferred로 ledger에 기록하며 loop를 확장하지 않는다. 수정이 승인된
 목표·계약·설계나 dependency boundary를 바꾼다면 해당 소유 단계와 사용자 재승인으로 routing한다.

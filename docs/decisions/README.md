@@ -39,3 +39,4 @@ Considered, Consequences와 Revisit When을 포함합니다.
 - [0009 Maintain Engineering as an Independent Plugin](0009-maintain-engineering-as-an-independent-plugin.md)
 - [0010 Add Figma Workflow Plugin](0010-add-figma-workflow-plugin.md)
 - [0011 Use Fast Paths and Plan-Backed Red-Team Gates](0011-use-fast-path-and-plan-red-team-gates.md)
+- [0012 Use Role Routing and Execution Evidence](0012-use-role-routing-and-execution-evidence.md)

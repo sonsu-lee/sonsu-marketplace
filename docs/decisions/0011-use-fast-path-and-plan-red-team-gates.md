@@ -5,6 +5,7 @@
 - Last amended: 2026-09-05
 - Supersedes: None
 - Superseded by: None
+- Related: [0012](0012-use-role-routing-and-execution-evidence.md) refines role routing, early fresh handoff and execution evidence; other gates remain unchanged.
 - Approval: 사용자가 2026-09-04 현재 대화에서 Fast Path, Code Mode, plan 기반 fresh-context red-team, Codex model·reasoning effort와 goal lifecycle 방향을 승인했고, 2026-09-05에 최대 5회 상한과 research 기반 단순화를 승인했습니다.
 
 ## Context

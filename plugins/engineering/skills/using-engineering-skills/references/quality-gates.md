@@ -28,6 +28,9 @@ Attempt: <current>/<cap>
 Decision owner: <stage owner or named human decision-maker>
 ```
 
+agent 실행은 [공통 실행·context 계약](agent-execution.md)의 routing, session, 환경과 실행 상태를
+같은 task/gate ID에 연결한다. `Attempt`는 session이 아니라 task/gate의 누적 횟수다.
+
 첫 실행 전에 필수 검사, 통과 조건, 반환 대상과 유한한 시도 횟수 상한을 정한다. 파일이
 commit되지 않았다면 content digest 또는 변경할 수 없는 review package를 사용한다. artifact가
 바뀌면 이전 판정을 그대로 복사하지 않는다. 아래 변경 영향 규칙으로 필요한 검증과 리뷰를
@@ -61,6 +64,22 @@ controller, implementer, reviewer, retry 상한, 일정 또는 token budget은 �
 위험을 수용하고 진행할 때에는 finding, 결과, 범위, 리비전과 결정 근거를 보존한다.
 
 ## 판단보다 저렴한 oracle을 먼저 실행한다
+
+실행 완료 여부와 검사 자체의 유효성은 위 quality status와 별도로 기록한다.
+`incomplete`와 `invalid_oracle_setup`은 quality status의 새 값이 아니다. 게이트에는 위 표의
+상태를 사용하며, 별도 실행/검사 기록으로 원인을 보존한다.
+
+- deadline·취소로 완료 이벤트가 없으면 `execution: incomplete`와 원인을 남긴다. 일부 출력이나
+  수정 파일만으로 완료·코드 pass/fail을 선언하지 않는다. 알려진 환경 부재는 `blocked`, 원인이
+  불명확하고 충분한 판정 근거가 없으면 `inconclusive`로 남긴다. 미실행 검사는 `not_run`이다.
+- runtime·권한·dependency 오류는 관련 환경을 먼저 고친다. 동작을 실행하지 못한 사실을
+  candidate 코드 결함이나 특정 모델의 품질 실패로 계산하지 않는다.
+- oracle이 계약에 없는 출력 literal·내부 helper 위치·interpreter를 강제했거나 fixture를 잘못
+  구성했다면 `check_validity: invalid_oracle_setup`과 근거를 기록한다. 원 결과를 보존하고
+  검사 소유 단계에서 수정한 뒤 같은 계약의 현재 artifact에 다시 실행한다. 무효 검사를 pass로
+  바꾸거나 알려진 실제 코드 실패까지 제외하지 않는다.
+- 오류 주입이 candidate의 실행 경로에 도달하지 못했으면 그 경계는 `inconclusive`다.
+  검사 횟수를 독립 결함 수로 세지 않으며 필수 미검증이 남으면 전체 gate는 `passed`가 아니다.
 
 추론 기반 리뷰 전에 질문을 판정할 수 있는 결정론적 검사를 실행한다. 여기에는 테스트, type
 check, build, parser, native loader, link/path 검사와 실제 소비 명령이 포함된다. 독립 reviewer는

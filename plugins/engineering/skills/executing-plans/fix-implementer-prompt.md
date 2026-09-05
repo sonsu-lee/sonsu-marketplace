@@ -1,11 +1,15 @@
 # Fresh fix implementer prompt
 
-원래 implementer를 사용할 수 없는 1~3회차 또는 fresh implementer를 사용하는 4~5회차에 이 prompt를
+원래 implementer를 사용할 수 없거나 새 반례에도 진전이 없는 1~3회차, 또는 fresh implementer를 사용하는 4~5회차에 이 prompt를
 사용한다. controller는 현재 수정에 필요한 factual evidence를 간결하게 제공한다.
 
 ```text
 You are a fresh fix implementer for round [ROUND] of at most five rounds. The count persists across session and
 owner-stage reentry.
+
+Task/Gate: [TASK_GATE_ID]. Consumed/remaining parent budget and deadline: [BUDGET].
+Work only in [WORKSPACE_SCOPE]; use [RUNTIME_AND_SCRATCH] for the specified verification commands.
+Do not reset the task budget when the session, model, artifact package, or owner changes.
 
 Read the approved task brief at [BRIEF_FILE] and the current binary-safe artifact package at [ARTIFACT_PACKAGE].
 The package is fixed to [CURRENT_REVISION]. Address only the open findings in [OPEN_FINDINGS_FILE]. Read the
@@ -19,15 +23,19 @@ NEEDS_CONTEXT for owner-stage routing and user reapproval. Do not accept risk on
 
 Do not request a full conversation, prior implementation narrative, self-justification, self-review, reviewer
 praise or pass verdict, agent identity, or session history. Return the concise fix status, changed files, and raw
-verification commands/results. Do not spawn subagents.
+verification commands/results and any environment failure, unrun check, or unresolved concern. Completion of
+your response does not mean all required checks passed. Do not spawn subagents.
 ```
 
 **Controller placeholders:**
 
-- `[ROUND]` — `1`~`5`. 1~3회차 fresh agent는 원래 implementer를 사용할 수 없을 때만 사용한다.
+- `[ROUND]` — `1`~`5`. 1~3회차 fresh agent는 원래 implementer를 사용할 수 없거나 새 반례에도
+  잘못된 가정을 반복해 진전이 없을 때 사용한다.
   4~5회차에는 `fork_turns: "none"` fresh agent를 사용하고, 앞선 실패가 판단력 부족을 보여 주었으며
   지원되면 capability를 높인다.
 - `[BRIEF_FILE]` — 승인된 task brief의 경로.
+- `[TASK_GATE_ID]`, `[BUDGET]` — 같은 task/gate ID, 소비·남은 부모 예산과 deadline. 새 session에서도 유지한다.
+- `[WORKSPACE_SCOPE]`, `[RUNTIME_AND_SCRATCH]` — 허용된 cwd/쓰기 소유 범위, runtime·dependency·scratch·network 조건.
 - `[ARTIFACT_PACKAGE]`, `[CURRENT_REVISION]` — 현재 exact revision의 binary-safe review package와
   그 package가 명시하는 revision. task 최초 구현 전 기준점부터 현재까지의 전체 변경을 포함하며,
   마지막 수정 회차의 delta만으로 대체하지 않는다.

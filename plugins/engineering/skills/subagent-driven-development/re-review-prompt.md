@@ -29,8 +29,12 @@ Subagent (general-purpose):
 
     ## 수정 내용
 
-    implementer의 report를 읽는다(수정 보고는 끝에 추가된다).
+    controller가 이번 수정의 명령·출력, 변경 범위와 제약을 추출한 고정 검증 사본을 읽는다.
+    구현 서사·자기 정당화·자체 pass 판정·칭찬과 이전 session history는 받지 않는다.
     [REPORT_FILE]
+
+    실행 계약: [EXECUTION_CONTEXT] — 같은 task/gate ID, 현재 revision, read-only 범위,
+    허용된 runtime/scratch, 소비·남은 부모 예산과 deadline을 따른다.
 
     **수정 base:** [FIX_BASE_SHA] (이전 리뷰에서 확인한 head)
     **Head:** [HEAD_SHA]
@@ -68,6 +72,8 @@ Subagent (general-purpose):
     확인하고 주장을 diff와 대조한다. report를 확인하려고 같은 검증을 반복하지 않는다. diff를
     읽다가 기존 근거로 답할 수 없는 구체적인 의문이 생긴 경우에만 명령을 실행하며, 관련 없는
     package 전체 suite가 아니라 집중된 검사를 사용한다.
+    실행 미완료, 환경 오류와 무효 oracle는 코드 실패와 구분한다. 필요한 검증 근거가 부족하면
+    해결된 것으로 표시하지 않고 `inconclusive` 또는 `blocked`와 verification 반환 대상을 보고한다.
 
     ## 출력 형식
 
@@ -93,7 +99,9 @@ Subagent (general-purpose):
     ### 판정
 
     **수정 회차:** [All findings addressed, no new Critical/Important
-    breakage | Findings remain open] — 남은 항목을 나열한다.
+    breakage | Findings remain open | Inconclusive | Blocked] — 남은 항목을 나열한다.
+
+    **Gate status:** [passed | failed | inconclusive | blocked]
 ```
 
 **치환할 placeholder:**
@@ -102,7 +110,8 @@ Subagent (general-purpose):
   Codex 도구 참고의 fallback을 기록한다.
 - `[BRIEF_FILE]` — task brief 파일(implementer가 작업한 파일과 동일)
 - `[FINDINGS]` — 이전 리뷰의 Critical/Important finding과 spec 공백을 불릿마다 하나씩 그대로 복사
-- `[REPORT_FILE]` — implementer의 report 파일(수정 보고가 추가됨)
+- `[REPORT_FILE]` — controller가 이번 수정 report에서 추출하고 고정한 사실 중심 검증 사본
+- `[EXECUTION_CONTEXT]` — 같은 task/gate ID, revision, runtime/scratch, 소비·남은 예산과 deadline
 - `[FIX_BASE_SHA]` — 이전 리뷰에서 확인한 head
 - `[HEAD_SHA]` — 현재 commit
 - `[DIFF_FILE]` — `scripts/review-package PLAN_FILE FIX_BASE HEAD`가 출력한 경로
