@@ -43,13 +43,36 @@ codex plugin add engineering@sonsu-marketplace
    복원하지 않으며, task ID·예산·탈락 기록은 session이 바뀌어도 유지합니다.
 2. **using-git-worktrees**는 기존 linked `worktree`를 재사용하거나 격리가 필요할 때 새로 만듭니다.
 3. **writing-plans**는 기본적으로 대화 안에 계획을 작성합니다. 의사코드로 전체 흐름을 정의하고 파일·task·dependency에 연결한 뒤, 이유가 있는 검증 방법을 선택하여 계획 준비 상태를 판정합니다.
-4. **executing-plans**는 계획을 직접 실행하고, **subagent-driven-development**는 파일 기반 계획과 task 커밋이 승인된 경우 task별 구현·리뷰를 위임합니다. 수정은 최대 5회이며 1~3회차는 원래 구현자를 재사용하고 4~5회차는 새 context와 적합한 상위 capability를 사용합니다. 새 구현자에게 승인된 brief, 현재 artifact, 미해결 finding과 실제 실패·검증 기록을 전달하되 전체 대화와 자기 정당화는 제외합니다. 재리뷰는 기존 finding과 수정 회귀를 확인합니다. 최초 전체 일반 리뷰와 독립 red-team은 유지하고, 국소 수정은 유효한 이전 근거와 scoped 검증을 현재 리비전에 연결합니다. 목표·계약·설계·dependency 경계가 바뀌거나 영향이 불명확하면 전체 검토를 다시 엽니다.
+4. **executing-plans**는 계획을 직접 실행하고, **subagent-driven-development**는 파일 기반 계획과 task 커밋이 승인된 경우 task별 구현·리뷰를 위임합니다. 수정은 최대 5회이며 기본적으로 1~3회차는 원래 구현자를 재사용하고 4~5회차는 새 context와 현재 finding에 적합한 모델·추론도를 사용합니다. 새 구현자에게 승인된 brief, 현재 artifact, 미해결 finding과 실제 실패·검증 기록을 전달하되 전체 대화와 자기 정당화는 제외합니다. 재리뷰는 기존 finding과 수정 회귀를 확인합니다. 최초 전체 일반 리뷰와 독립 red-team은 유지하고, 국소 수정은 유효한 이전 근거와 scoped 검증을 현재 리비전에 연결합니다. 목표·계약·설계·dependency 경계가 바뀌거나 영향이 불명확하면 전체 검토를 다시 엽니다.
 5. **test-driven-development**는 기능, 결함, 로직, 상태 전이와 오류 처리처럼 동작·회귀 위험이 있는 변경에서 적합성을 판단한 뒤, 선택된 task에 RED–GREEN–REFACTOR를 적용합니다. 문서, metadata와 단순 설정에는 변경에 적합한 검사를 사용합니다.
 6. **requesting-code-review**와 **receiving-code-review**는 검증되지 않은 피드백을 사실로 취급하지 않으면서 리뷰를 처리합니다.
 7. **verification-before-completion**은 성공을 주장하기 전에 정확한 리비전의 현재 근거를 요구합니다.
 8. **finishing-a-development-branch**는 최종 게이트가 통과하거나 사람이 문서화된 위험을 명시적으로 수용한 뒤에만 통합 방법을 제시합니다.
 
 공통 [품질 게이트 계약](skills/using-engineering-skills/references/quality-gates.md)은 근거 기록, 상태, 오래된 리비전 처리, 반환 대상, 재시도 변경과 시도 횟수 상한에서의 동작을 정의합니다. 품질 판정은 문서, Git, PR, merge, 배포 또는 게시 권한을 부여하지 않습니다.
+
+## 모델과 에이전트 실행
+
+스킬은 routing·검증·예산·인계를 관리하고 별도 agent/session은 집중된 구현·조사·리뷰를 맡습니다.
+[공통 실행 계약](skills/using-engineering-skills/references/agent-execution.md)은 요청한 모델·추론도와
+관측된 적용값, task/gate ID, 현재 revision, session 관계, 검증 환경·scratch와 남은 예산을 연결합니다.
+
+Codex의 잠정 기본값은 좁고 명확한 구현에 Luna medium, 보조 조사·일반 task review에 Terra medium,
+계약·해법이 분명한 복잡한 구현에 Terra high입니다. 모호한 구현과 일반 전체 리뷰에는 Sol medium,
+복잡한 논리·가정·경계 검토와 영향 큰 설계·fresh red-team에는 Sol high를 선택합니다. 여러 시스템·도구·단계를
+아우르는 가장 어려운 작업은 Astra medium/high를 직접 선택합니다. 모델을 순서대로 거칠 필요는 없습니다.
+결정론적 처리는 controller 도구로 실행하고 실제 allowlist와 사용자 선택을 우선합니다.
+이 배치는 공식 역할 안내를 반영한 운영값이며 Sol을 포함한 전체 workflow의 최적 조합을 비교 검증한
+결과는 아닙니다. 구체적인 대응은 [Codex reference](skills/using-engineering-skills/references/codex-tools.md)를 따릅니다.
+
+reviewer는 구현자 대화·자체 판정 대신 고정 artifact와 검증 사실을 받습니다. 병렬 구현은 독립된
+쓰기 소유권이나 분리 worktree와 통합 소유자가 있을 때 사용하고 SDD의 기본 task loop는 직렬로
+유지합니다. 3+2/max5는 같은 task의 수정 운영값입니다. 새 반례에도 잘못된 가정을 반복하면 조기
+fresh 전환이 가능하지만 남은 예산은 유지하며, 무관한 세 작업 뒤 세션을 자동 폐기하지 않습니다.
+실행 미완료·환경 오류·무효 oracle·미실행 검사를 코드 실패 또는 pass로 바꾸지 않습니다.
+
+기본값의 근거와 실험 한계는 [0012 결정](../../docs/decisions/0012-use-role-routing-and-execution-evidence.md)에
+기록합니다. 모델의 보편적인 순위, 최적 수정 횟수와 전체 workflow의 품질 향상을 보장하지 않습니다.
 
 ## 스킬
 

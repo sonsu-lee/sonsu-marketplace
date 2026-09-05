@@ -18,9 +18,10 @@ multi-agent 버전에 따라 달라진다(현재 preset은 V2, 이전 preset은 
   현재 tool schema가 허용하는 `fork_turns`와 model override 조합을 신뢰한다. 격리 reviewer는
   `fork_turns: "none"`을 사용하고 필요한 artifact만 prompt에 넣는다.
 - **수정 회차:** 1~3회차는 `followup_task`로 원래 implementer를 재개한다. direct 실행은 controller가
-  계속한다. 원래 agent를 재개할 수 없으면 사실 중심 handoff로 새 implementer를 만든다.
-  4~5회차는 `spawn_agent {fork_turns: "none"}`으로 새 관점을 확보하고 필요에 맞는 상위 capability를
-  선택한다. 승인된 brief, 현재 exact artifact package, 미해결 finding, 실제 명령·결과와 이미 실패한
+  계속한다. 원래 agent를 재개할 수 없거나 새 반례에도 잘못된 가정이 반복되어 진전이 없으면
+  사실 중심 handoff로 새 implementer를 만든다.
+  4~5회차는 `spawn_agent {fork_turns: "none"}`으로 새 관점을 확보하고 현재 finding에 적합한 모델과
+  추론도를 선택한다. 승인된 brief, 현재 exact artifact package, 미해결 finding, 실제 명령·결과와 이미 실패한
   접근을 전달한다. 관찰과 가설을 구분하고 전체 대화, 자기 정당화와 이전 pass/praise는 제외한다.
   구체적인 handoff는 `executing-plans/fix-implementer-prompt.md`를 따른다. session 변경은 task 예산을
   초기화하지 않으며 Fast Path는 별도의 더 낮은 예산과 재진입 금지 규칙을 따른다.
@@ -60,8 +61,8 @@ timeout된 짧은 poll이었다.
 기록한다. 필요한 capability를 어떤 지원 경로로도 제공할 수 없을 때에만 해당 reviewer를
 `blocked`로 판정한다. tool metadata의 부재를 무시하고 잘못된 호출을 반복하지 않는다.
 
-누락된 spawn이 session에서 가장 비싼 모델을 조용히 상속하지 않고 의도한 tier로 routing되도록
-사용자에게 `~/.codex/config.toml`에 machine-level backstop을 추가해 달라고 요청한다.
+machine-level backstop은 사용자가 설정을 요청했을 때 선택할 수 있는 보완책이다. 다음 설정을
+자동으로 쓰거나 매 작업마다 설정 승인을 요구하지 않는다. 현재 도구로 가능한 명시적 routing을 우선한다.
 
 ```toml
 [agents]
@@ -74,27 +75,49 @@ default_subagent_reasoning_effort = "medium"
 
 | 역할 | Model | Reasoning effort |
 | --- | --- | --- |
-| 정확한 문자열·metadata·경로 변경 | `gpt-5.6-luna` | `low` |
-| 의미 판단이 끝난 명확한 구현 | `gpt-5.6-luna` | `medium` |
+| 정확한 문자열·metadata·경로 변경 | controller의 결정론적 도구 | 해당 없음 |
+| 좁은 탐색·명시적 계약의 작은 구현·국소 수정 | `gpt-5.6-luna` | `medium` |
 | Fast Path 범위 판정 | controller 직접 실행 | 해당 없음 |
 | Mechanical Fast Path와 Code Mode orchestration | controller 직접 실행 | 해당 없음 |
-| 여러 파일 통합·일반 debugging | `gpt-5.6-terra` | `high` |
-| 일반 task review | `gpt-5.6-terra` | `medium` 또는 `high` |
+| 탐색 결과 정리·일반 task review | `gpt-5.6-terra` | `medium` |
+| 계약·해법이 분명한 여러 모듈·상태·복구·Bash/Git/파일시스템 통합 구현·debugging | `gpt-5.6-terra` | `high` |
+| 요구 해석·해법 선택이 모호한 복잡한 구현·debugging | `gpt-5.6-sol` | `medium`; 복잡한 논리·가정·경계 검토는 `high` |
 | 범위가 제한된 기계적 re-review | `gpt-5.6-luna` | `medium` |
-| fix round 4 high-capability implementer | `gpt-5.6-sol` | `high` |
-| fix round 5 strongest default implementer | `gpt-5.6-sol` | `xhigh` |
-| architecture와 구현 plan | `gpt-5.6-sol` | `high` |
-| 일반 final whole-change review | `gpt-5.6-sol` | `high` |
-| fresh-context red-team whole-structure review | `gpt-5.6-sol` | `xhigh` |
+| fix round 4–5 fresh implementer | 현재 finding의 역할 적합 모델; 회차별 고정 승격 없음 | 복잡도·실패 원인에 맞춤 |
+| 영향 큰 architecture·구현 plan·어려운 원인 판단 | `gpt-5.6-sol` | `high` |
+| 일반 final whole-change review | `gpt-5.6-sol` | `medium`; 복잡한 논리·가정·경계 검토는 `high` |
+| fresh-context red-team whole-structure review | `gpt-5.6-sol` | `high` |
+| 위 역할 중 여러 시스템·도구·단계를 아우르며 지속적인 판단이 필요한 가장 어려운 작업 | `gpt-6-astra` | `medium`; 깊은 분석·경계 검증이 필요하면 `high` |
 
 이 표는 측정으로 보장된 최적 조합이 아니라 시작 기본값이다. 파일 수보다 판단의 어려움,
 불확실성, 실패 비용과 총 완료 시간(재탐색·tool 왕복·재작업 포함)으로 조정한다. 문장으로만 주어진
 모호한 구현은 작은 파일이어도 중간 tier 이상이 적합할 수 있다. 같은 형태의 독립적인 기계적 변경은
 하나로 묶고, 결정론적 실행으로 끝낼 수 있으면 위임하지 않는다.
 
-`max`와 `ultra`는 5회차를 포함해 기본값으로 사용하지 않는다. Fast Path에는 classifier,
+모델과 추론도는 별도로 선택한다. Sol은 복잡하고 모호한 작업의 정상적인 선택 후보이며,
+Astra도 해당 역할에서 처음부터 선택할 수 있다. Luna→Terra→Sol→Astra를 순서대로 거치거나
+회차만으로 승격하지 않는다. 사용자 지정·현재 allowlist를 우선하고 선택 이유를 brief에 남긴다.
+
+위 표는 [공식 모델 역할·추론도 안내](https://learn.chatgpt.com/docs/models)에 따른 잠정 운영값이다.
+일반 리뷰의 Sol medium과 red-team의 Sol high도 해당 workflow에서 비교 검증된 최적값은 아니다.
+작은 tool-free 리뷰에서는 모든 설정이 사전 결함을 찾았고 사후 추가 결함에서 차이가 관찰됐다.
+후속 tool-enabled 실험은 Sol과 Terra high 구현을 비교하지 않았으며, 완료된 한 artifact 리뷰에서는
+Astra medium/high가 같은 결함을 찾았다. 이 결과는 Sol 제외나 모든 리뷰의 high 필수화를 지지하지 않는다.
+공식 안내, 로컬 관찰과 미검증 선택의 구분은 [ADR 0012](../../../../../docs/decisions/0012-use-role-routing-and-execution-evidence.md)를 따른다.
+
+Luna보다 낮은 모델로 내리는 것도 총 완료 비용의 근거가 있을 때 선택한다. 현재 가격·속도 설정,
+입력·캐시·출력·추론량, tool 왕복과 재작업을 함께 비교하며 단가나 token 수만으로 최적이라고 하지 않는다.
+
+`low`, `xhigh`, `max`와 `ultra`를 새 상시 기본값으로 두지 않는다. Fast Path에는 classifier,
 implementation 또는 reviewer subagent를 기본으로 만들지 않는다. 독립 판단이 필요할 만큼 불확실하면
 일반 workflow로 올린다. model 상향은 변경 없는 입력을 다시 시도할 근거가 아니다.
+
+생성 뒤에는 [공통 실행 계약](agent-execution.md)에 따라 요청값과 native 관측값을 별도 기록한다.
+현재 surface의 spawn 결과·실행 metadata·CLI turn context 중 실제 제공되는 출처를 사용한다.
+자기보고나 요청 JSON만으로 적용을 확인하지 않는다. 관측 불가와 mismatch는 각각 그대로 남기고
+필수 capability·사용자 제약 충족 여부에 따라 fallback 또는 blocked를 결정한다.
+fresh/resume/fork와 parent/session ID는 controller 기록에 남기되 fresh child에게 이전 이력을
+읽게 하지 않는다. 이 계약을 구현하기 위해 사용자 설정을 자동으로 덮어쓰지 않는다.
 
 ## Code Mode
 

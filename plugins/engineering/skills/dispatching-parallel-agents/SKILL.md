@@ -9,9 +9,34 @@ description: Use when facing 2+ independent tasks that can be worked on without 
 
 You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
-When you have multiple unrelated failures (different test files, different subsystems, different bugs), investigating them sequentially wastes time. Each investigation is independent and can happen in parallel.
+Multiple unrelated failures can be investigated in parallel when each investigation has enough context and
+does not depend on another's result. Coordination overhead can outweigh the benefit for small tasks.
 
-**Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
+**Core principle:** Dispatch only independently useful work within controller-owned scope and budgets.
+
+Apply the [shared execution/context contract](../using-engineering-skills/references/agent-execution.md).
+The controller owns routing, findings and integration. Workers do not recursively create helpers or reviewers.
+Use the platform's actual model/effort schema; record requested and observed settings separately.
+
+## Ownership and evidence before dispatch
+
+- Give each worker the current contract/source revision, task/gate ID, writable scope, runtime and isolated
+  scratch, expected evidence, remaining parent budget and deadline. Select a finite concurrency cap within
+  current capacity; two or three workers is not a proven optimum.
+- Separate sessions do not isolate files. Parallel implementations need disjoint write ownership or separate
+  worktrees, with one integration owner. Shared lockfiles, generated output, test databases and Git index/HEAD
+  updates also count as shared state. If those boundaries cannot be closed, execute sequentially.
+- In a shared checkout, serialize all index/commit operations through the integration owner. In separate
+  worktrees, serialize integration and validate the resulting combined revision. Worktree isolation does not
+  make conflicting interface changes independent.
+- Parallel reviewers receive the same immutable artifact and evidence in fresh contexts. Do not provide writer
+  transcripts, self-pass judgments, or another reviewer's findings before their independent first responses.
+  Re-review may receive the findings it must verify. Adjudicate with reproducible evidence, not majority vote.
+- Specialist reviews cover a named independent risk; they do not replace the whole-change reviewer or the
+  ordinary-review-then-red-team sequence. The SDD task/commit loop remains sequential by default.
+- Keep the same task/gate budget across retries, model/session changes and owner returns. Child calls use
+  the remaining parent budget rather than creating nested retry allowances. Preserve incomplete executions
+  and environment failures separately from code findings.
 
 ## When to Use
 
@@ -62,10 +87,12 @@ Each agent gets:
 - **Clear goal:** Make these tests pass
 - **Constraints:** Don't change other code
 - **Expected output:** Summary of what you found and fixed
+- **Execution contract:** Revision, task/gate ID, write ownership, runtime/scratch and shared budget
 
 ### 3. Dispatch in Parallel
 
-Issue all three subagent dispatches in the same response — they run in parallel:
+If ownership and the concurrency budget permit three independent workers, issue their dispatches without
+waiting for one worker's completion before starting the next:
 
 ```text
 Subagent (general-purpose): "Fix agent-tool-abort.test.ts failures"
@@ -74,14 +101,14 @@ Subagent (general-purpose): "Fix tool-approval-race-conditions.test.ts failures"
 # All three run concurrently.
 ```
 
-Multiple dispatch calls in one response = parallel execution. One per response = sequential.
+Dispatch alone does not prove overlap. Use the runtime's actual start/completion state and concurrency limit.
 
 ### 4. Review and Integrate
 
 When agents return:
 - Read each summary
 - Verify fixes don't conflict
-- Run full test suite
+- Run the checks required by the combined change and its integration risks
 - Integrate all changes
 
 ## Agent Prompt Structure
@@ -163,5 +190,5 @@ Agent 3 → Fix tool-approval-race-conditions.test.ts
 After agents return:
 1. **Review each summary** - Understand what changed
 2. **Check for conflicts** - Did agents edit same code?
-3. **Run full suite** - Verify all fixes work together
+3. **Verify integration** - Run the required focused or full checks on the combined revision
 4. **Spot check** - Agents can make systematic errors

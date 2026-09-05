@@ -20,6 +20,11 @@ Subagent (general-purpose):
 
     [배경: 이 task의 위치, dependency, architecture context]
 
+    실행 계약: [EXECUTION_CONTEXT]
+    controller가 지정한 stable task/gate ID, 현재 계약/source revision, 쓰기 소유 범위,
+    runtime·dependency·scratch·network 조건과 소비·남은 예산을 따른다. source가 바뀌면
+    기존 session 기억보다 현재 파일을 확인한다. 설정 요청이나 자기보고를 native 적용 증거로 삼지 않는다.
+
     ## 시작하기 전에
 
     다음 내용에 질문이 있다면 확인한다.
@@ -127,12 +132,14 @@ Subagent (general-purpose):
 
     ## 보고 형식
 
-    전체 보고를 [REPORT_FILE]에 작성한다. 이 report는 controller/reviewer 기록이다. 원래 implementer가
-    사용할 수 없거나 4~5회차라 fresh fix implementer를 쓰면 full report 대신 shared
+    전체 보고를 [REPORT_FILE]에 작성한다. 원 report는 controller 기록으로 보존하고 reviewer에는
+    사실 중심 검증 사본을 제공한다. 원래 implementer가 없거나 새 반례에도 진전이 없거나
+    4~5회차라 fresh fix implementer를 쓰면 full report 대신 shared
     `../executing-plans/fix-implementer-prompt.md`의 concise factual handoff를 제공한다.
     - 구현한 내용(blocked라면 시도한 내용)
     - 구현한 의사코드 flow ID와 material deviation 여부
     - 검증한 내용, 사용한 명령과 결과
+    - 환경 오류, 미실행·불명확한 검사와 남은 예산. 실행 완료와 필수 검증 통과를 구분한다.
     - **TDD 근거**(이 task에 TDD가 필요했던 경우)
       - RED: 실행한 명령, 구현 전 관련 실패 출력과 예상된 실패인 이유
       - GREEN: 실행한 명령과 구현 후 관련 성공 출력
@@ -154,3 +161,7 @@ Subagent (general-purpose):
     없으면 BLOCKED, 제공되지 않은 정보가 필요하면 NEEDS_CONTEXT를 사용한다. 확신할 수 없는
     작업을 조용히 제출하지 않는다.
 ```
+
+`[EXECUTION_CONTEXT]`는 controller가 [공통 실행 계약](../using-engineering-skills/references/agent-execution.md)에서
+현재 task에 필요한 정보를 채운다. session lineage는 controller 기록으로 남기고 fresh child에게
+이전 transcript 탐색 경로를 전달하지 않는다.

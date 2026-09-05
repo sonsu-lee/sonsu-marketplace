@@ -21,6 +21,10 @@ Subagent (general-purpose):
 
     [PLAN_OR_REQUIREMENTS]
 
+    실행 계약: [EXECUTION_CONTEXT] — task/gate ID, 현재 revision, read-only source와 허용된
+    runtime/scratch, 소비·남은 예산과 deadline. 검증 자료는 controller가 고정한 명령·출력,
+    변경 범위와 제약이다. 구현자 transcript·자기 정당화·자체 pass 판정·칭찬은 받지 않는다.
+
     ## 고정된 리뷰 artifact
 
     **Package:** [REVIEW_PACKAGE]
@@ -88,6 +92,8 @@ Subagent (general-purpose):
     - TDD를 선택했다면 RED–GREEN–REFACTOR 근거가 있고 mock이 아니라 실제 동작을 검증하는가?
     - TDD를 선택하지 않았다면 syntax, static check, path, native loader, build 또는 실제 소비 명령 중 변경에 비례한 근거가 있는가?
     - 중요한 edge case와 오류 조건을 다루며 보고한 검사가 통과하는가?
+    - 실행 미완료, 환경 오류와 무효 oracle를 코드 결함과 구분했는가? 필요한 근거가 없으면
+      `inconclusive` 또는 `blocked`로 해당 verification owner에 반환한다.
 
     **Production 준비 상태:**
     - schema가 바뀌었다면 migration 전략이 있는가?
@@ -130,7 +136,7 @@ Subagent (general-purpose):
 
     ### 판정
 
-    **Gate status:** [passed | failed]
+    **Gate status:** [passed | failed | inconclusive | blocked]
 
     **Merge 준비가 됐는가?** [Yes | No | With fixes]
 
@@ -158,6 +164,7 @@ Subagent (general-purpose):
   위험에 맞는 조합을 함께 명시한다. 지원하지 않으면 platform reference의 fallback을 기록한다.
 - `[DESCRIPTION]` — 구현 내용의 짧은 요약
 - `[PLAN_OR_REQUIREMENTS]` — 기대 동작(plan 파일 경로, task 본문 또는 요구사항)
+- `[EXECUTION_CONTEXT]` — 공통 실행 계약의 task/gate ID, revision, runtime/scratch, 예산·deadline과 고정 검증 자료
 - `[REVIEW_PACKAGE]` — `scripts/review-package`가 출력한 읽을 수 있는 package 경로
 - `[REVIEW_REVISION]` — 해당 package에 대해 출력된 SHA-256 리비전
 

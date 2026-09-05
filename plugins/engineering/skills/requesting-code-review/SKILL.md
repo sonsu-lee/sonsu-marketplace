@@ -11,6 +11,11 @@ description: task를 완료할 때, 주요 기능을 구현한 뒤 또는 merge 
 
 공통 [품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)을 읽는다.
 리뷰는 선언한 하나의 artifact 리비전에 대한 근거이며 이후 수정까지 포괄적으로 승인하지 않는다.
+[공통 실행·context 계약](../using-engineering-skills/references/agent-execution.md)에 따라 reviewer는
+fresh context에서 고정 artifact와 사실 중심 검증 사본을 받는다. 구현자 transcript, 자기 정당화와
+자체 pass 판정은 제외한다. 최초 독립 리뷰들에 서로의 finding을 미리 보여 주지 않는다.
+read-only source와 shell/test scratch 권한은 분리하며, 병렬 리뷰의 호출·동시수 예산은 controller가
+정한다. 여러 reviewer의 동의 수보다 계약 위반을 재현하는 근거로 finding을 판정한다.
 
 ## 리뷰 요청 시점
 
@@ -57,6 +62,7 @@ HEAD_SHA=$(git rev-parse HEAD)
   위험에 맞는 조합을 함께 명시한다. 지원하지 않으면 platform reference의 fallback을 기록한다.
 - `{DESCRIPTION}` - 구현한 내용의 짧은 요약
 - `{PLAN_OR_REQUIREMENTS}` - 기대 동작
+- `{EXECUTION_CONTEXT}` - 같은 task/gate ID, revision, source/scratch 권한, 검증 자료와 소비·남은 예산·deadline
 - `{REVIEW_PACKAGE}` - `scripts/review-package`가 출력한 변경할 수 없는 package 경로
 - `{REVIEW_REVISION}` - 해당 package에 대해 출력된 SHA-256 리비전
 

@@ -31,9 +31,12 @@ Subagent (general-purpose):
     이 task에 적용되는 spec/design의 전역 제약:
     [GLOBAL_CONSTRAINTS]
 
-    ## Implementer가 구현했다고 주장하는 내용
+    ## 고정된 검증 근거
 
-    implementer의 report를 읽는다: [REPORT_FILE]
+    controller가 원 report에서 명령·출력, 변경 범위와 제약을 추출한 고정 사본을 읽는다: [REPORT_FILE]
+    구현 서사·자기 정당화·자체 pass 판정·칭찬과 이전 session history는 받지 않는다.
+    실행 계약: [EXECUTION_CONTEXT] — task/gate ID, 현재 revision, read-only 범위,
+    허용된 runtime/scratch와 남은 부모 예산·deadline을 따른다.
 
     ## 리뷰할 diff
 
@@ -80,7 +83,9 @@ Subagent (general-purpose):
     횟수의 반복 loop가 아니라 집중된 검사를 사용한다. 더 무거운 검증이 필요해 보이면 직접
     실행하지 말고 report에서 권고한다. 현재 환경에서 명령을 실행할 수 없다면 실행할 검사를 밝힌다.
 
-    보고된 출력에 관련 오류, warning 또는 설명되지 않은 noise가 있으면 finding이다.
+    관련 오류·warning을 확인하되 코드 결함, 환경 문제와 잘못된 oracle를 구분한다. 완료 이벤트 없는
+    실행과 필요한 미검증을 pass/fail로 꾸미지 않는다. 필수 근거가 없으면 `inconclusive` 또는
+    `blocked`와 해당 verification owner를 반환한다.
 
     보이지 않는 근거가 존재하지 않는 것은 아니다. report 또는 검증 근거가 잘린 것으로 보이거나
     주장한 결과를 찾을 수 없다면 명시된 경로의 파일을 다시 읽는다. 실제로 없거나 깨져 있다면
@@ -169,7 +174,9 @@ Subagent (general-purpose):
 
     ### 판정
 
-    **Task 품질:** [Approved | Needs fixes]
+    **Task 품질:** [Approved | Needs fixes | Inconclusive | Blocked]
+
+    **Gate status:** [passed | failed | inconclusive | blocked]
 
     **근거:** [1-2문장의 기술적 판정]
 ```
@@ -179,7 +186,8 @@ Subagent (general-purpose):
   지원하지 않으면 Codex 도구 참고의 fallback을 기록한다.
 - `[BRIEF_FILE]` — 필수: task brief 파일(`scripts/task-brief PLAN N`이 경로를 출력하며 implementer가 작업한 파일과 동일)
 - `[GLOBAL_CONSTRAINTS]` — plan의 Global Constraints 섹션 또는 spec에서 그대로 복사한 필수 요구사항. 정확한 값, 형식과 component 사이의 명시된 관계를 포함한다. process 규칙은 이미 이 template에 있으므로 제외한다.
-- `[REPORT_FILE]` — 필수: implementer가 상세 report를 작성한 파일
+- `[REPORT_FILE]` — 필수: 원 report의 사실 중심 검증 사본. controller가 고정하며 원 report는 보존한다.
+- `[EXECUTION_CONTEXT]` — 공통 실행 계약의 task/gate ID, revision, runtime/scratch, 예산과 deadline.
 - `[BASE_SHA]` — 현재 task 전의 commit
 - `[HEAD_SHA]` — 현재 commit
 - `[DIFF_FILE]` — 필수: controller가 review package를 작성한 경로(`scripts/review-package PLAN_FILE BASE HEAD`가 고유 경로를 출력하며 package는 controller context에 들어가지 않는다.)

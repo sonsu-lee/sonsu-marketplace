@@ -11,7 +11,11 @@ description: 별도 session에서 review checkpoint와 함께 실행할 작성�
 
 **시작할 때 알린다:** "executing-plans 스킬을 사용해 이 계획을 구현하겠습니다."
 
-**참고:** Engineering은 subagent를 사용할 수 있을 때 훨씬 잘 동작한다고 사용자에게 알린다(Claude Code, Codex CLI, Codex App, Copilot CLI, Gemini CLI가 모두 해당하며 `../using-engineering-skills/references/`의 플랫폼별 도구 참고 문서를 확인한다). subagent capability가 있고 현재 plan의 task commit을 사용자가 명시적으로 승인한 경우에만 이 스킬 대신 `engineering:subagent-driven-development`를 사용한다. subagent가 있어도 task commit이 승인되지 않았다면 이 스킬에서 직접 실행하며 SDD로 전환하지 않는다.
+**참고:** 독립된 실행·리뷰에는 subagent를 사용할 수 있다. 효과는 작업 분해와 context 구성에
+따라 달라지며 subagent가 있다는 사실만으로 품질 향상을 보장하지 않는다. 지원 도구는
+`../using-engineering-skills/references/`의 플랫폼별 참고 문서를 확인한다. subagent capability가 있고
+현재 plan의 task commit을 사용자가 명시적으로 승인한 경우에만 `engineering:subagent-driven-development`를
+선택할 수 있다. task commit이 승인되지 않았다면 이 스킬에서 직접 실행한다.
 
 ## 절차
 
@@ -29,6 +33,9 @@ description: 별도 session에서 review checkpoint와 함께 실행할 작성�
 ### 2단계: Task 실행
 
 각 task에서 다음을 수행한다.
+실행 또는 위임 전에 [공통 실행·context 계약](../using-engineering-skills/references/agent-execution.md)을
+현재 task/gate 기록에 연결한다. 실제 model/effort, source revision, 환경과 완료 상태를 구분한다.
+
 1. `in_progress`로 표시한다.
 2. 각 단계를 정확히 따른다. 계획은 작은 실행 단위로 작성되어 있다.
 3. 지정된 검증을 실행한다.
@@ -39,12 +46,13 @@ description: 별도 session에서 review checkpoint와 함께 실행할 작성�
 유효한 task 구현 finding의 자동 수정은 task마다 최대 5회다. 회차 수는 ledger 또는 plan 실행 기록에
 남겨 session 재진입, compaction, 소유 단계 복귀 뒤에도 이어서 센다. 1~3회차에는 원래 implementer가
 수정한다. 이 스킬처럼 controller가 직접 구현했다면 같은 controller가 집중 수정하고, child implementer가
-있다면 그 child를 재개한다. 원래 implementer가 종료됐거나 사용할 수 없을 때에는 더 이른 회차에도
+있다면 그 child를 재개한다. 원래 implementer가 종료됐거나 사용할 수 없거나, 새 반례에도 같은
+잘못된 가정을 반복해 진전이 없을 때에는 더 이른 회차에도
 `fork_turns: "none"` fresh implementer를 사용할 수 있지만, 아래의 factual handoff만 전달한다.
 
 4~5회차에는 이전 conversation을 상속하지 않는 `fork_turns: "none"` fresh implementer를 사용한다.
-4회차는 해당 문제를 해결할 수 있는 모델을 선택하고, 앞선 실패가 판단력 부족을 보여 주었으며 더 높은
-capability를 사용할 수 있으면 한 단계 높인다. 5회차도 현재 사용 가능한 가장 적합한 capable model을
+4회차는 해당 문제를 해결할 수 있는 모델을 선택하고, 앞선 실패가 판단력 부족을 보여 주면 필요한
+판단 수준에 맞춰 모델과 추론도를 직접 선택한다. 정해진 tier 순서를 거치지 않는다. 5회차도 현재 사용 가능한 가장 적합한 capable model을
 선택한다. 사용할 수 없는 특정 tier를 기다리느라 자동으로 막히지는 않지만, 실제로 필요한 capability가
 없으면 `blocked`와 `decision_required`를 기록한다.
 
@@ -53,6 +61,8 @@ fresh implementer에게는 [fix-implementer-prompt.md](fix-implementer-prompt.md
 finding, 관찰한 검증 명령과 결과, 이전에 시도했지만 실패한 접근. 관찰 사실과 원인·해법 가설을 명시적으로
 구분한다. 전체 conversation, 장문의 구현 서사나 자기변호, self-review, reviewer 칭찬·통과 판정과 agent
 identity는 전달하지 않는다. strict normalized JSON schema나 별도의 fix 전용 tar 형식은 요구하지 않는다.
+같은 task/gate ID, 소비·남은 부모 예산, deadline과 허용된 작업·scratch 범위도 전달한다. 조기 fresh
+진단은 별도 무료 loop가 아니다. 3+2는 운영값이며 서로 다른 작업 세 개 뒤 세션을 폐기하는 규칙이 아니다.
 현재 artifact는 task 최초 구현 전 기준점부터 현재까지의 전체 변경을 포함한다. direct working-tree
 실행에서도 누적 변경과 현재 exact artifact를 고정하며, 마지막 수정 delta만으로 handoff하지 않는다.
 마지막 수정 전후의 delta는 아래 scoped 재리뷰용이다.
