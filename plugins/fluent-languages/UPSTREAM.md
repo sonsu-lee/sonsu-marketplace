@@ -99,6 +99,14 @@ No source text, code, examples or test fixtures from these consulted-only reposi
 
 These references constrain when a Japanese rule applies. They do not establish that this skill's model outputs have passed native-speaker review.
 
+### Written Japanese and Korean-to-Japanese transfer (2026-09-06)
+
+The local `書き言葉の表記と翻訳` section adds six conditional rules: document-specific conventions; kanji and reading scope; auxiliary/formal versus substantive usage; context-sensitive Sino-Japanese and native vocabulary; Korean-to-Japanese meaning, part-of-speech and argument structure; and correction of a confirmed usage error even when it occurs only once. It does not add a word blacklist, kanji ratio, corpus-frequency threshold or spoken-language workflow.
+
+The [research catalog](../../docs/research/fluent-japanese-writing-catalog.md) records 85 contextual rule/example/counterexample entries, exact source locators, original versus adapted examples, and exceptions. Sources include the JTF guide, the Agency for Cultural Affairs, Mochizuki (2010), Ishihara (2013), Ko (2017), Uematsu (2017), Liu (2017), Yoon (2012), and current dictionary entries. The catalog distinguishes written examples from spoken data, scoped editorial preferences from grammatical errors, and attested usage from frequency claims. No individual BCCWJ frequency search was performed.
+
+The JTF-derived guidance and catalog are local paraphrases/adaptations with attribution under CC BY 4.0; see the third-party notice. The [evaluation protocol](../../evals/fluent-japanese/README.md) separates injected-instruction A/B results, native plugin loading, and Japanese native-speaker review. Model-only evaluation does not remove the beta qualification.
+
 ## English evidence consulted
 
 - [WALS Online, English order of subject, object and verb](https://wals.info/valuesets/81A-eng)
