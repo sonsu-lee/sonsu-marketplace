@@ -1,66 +1,96 @@
 # Sonsu Marketplace
 
-개인적으로 사용하는 Codex 플러그인을 한곳에서 배포하고 관리하는 마켓플레이스입니다.
-개발 방법론, 제품 탐색, 제품 디자인, Git 산출물, 출력 언어, 리서치와 프롬프트 작성을 서로
-독립적인 플러그인으로 나누어 필요한 기능만 설치할 수 있습니다.
+[한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-## 플러그인
+개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex 플러그인 모음입니다.
+필요한 플러그인만 골라 설치하고, Codex에 평소처럼 작업을 요청하세요.
 
-| 플러그인 | 버전 | 역할 | 주요 스킬 |
-| --- | --- | --- | --- |
-| [Engineering](plugins/engineering/README.md) | `1.2.1` | 단순 작업 Fast Path와 plan-backed red-team quality gate를 둔 구현, 디버깅, 검토와 검증 | `brainstorming`, `writing-plans`, `using-git-worktrees`, `test-driven-development` 등 14개 |
-| [Quality Engineering](plugins/quality-engineering/README.md) | `0.1.0` | 도메인 형태의 구현과 단순성·유지보수성·실패 모드·운용 가능성 검토 | `domain-shaped-code`, `simplify-code`, `review-quality` 등 8개 |
-| [Workflow](plugins/workflow/) | `0.7.0` | branch·commit, ticket 생성·lifecycle과 GitHub pull request 작업 | `git-workflow`, `to-ticket`, `ticket-lifecycle`, `to-pr` |
-| [Fluent Languages](plugins/fluent-languages/) | `0.1.0-beta.4` | 기술 내용을 보존하는 한국어, 일본어와 영어 출력 지침 | `fluent-korean`, `fluent-japanese`, `fluent-english` |
-| [Research](plugins/research/README.md) | `0.7.0-sonsu.3` | 여러 출처의 탐색, 원문 교차 검증과 인용 감사 | `research` |
-| [Prompting](plugins/prompting/README.md) | `0.1.0` | Codex, ChatGPT와 OpenAI API용 프롬프트 작성·재작성·최적화 | `prompt-builder` |
-| [Product](plugins/product/README.md) | `0.1.0` | 제품 기회 탐색, 근거 종합, 도메인 발견, 검증과 PRD 변환 | `product-brainstorming`, `product-discovery`, `synthesize-product-evidence`, `product-domain-discovery`, `design-product-test`, `assess-product-test`, `to-prd` |
-| [Figma Workflow](plugins/figma-workflow/README.md) | `0.1.0` | 공식 Figma MCP와 수동 companion의 경계를 지키는 Figma 화면·prototype·handoff 품질 | `figma-product-design`, `figma-prototype-flow`, `figma-design-audit` |
-
-각 플러그인은 다른 플러그인을 설치하거나 먼저 실행했다고 가정하지 않습니다. 여러 영역을
-포함한 요청에서는 Codex가 설치된 스킬의 설명과 요청 목적을 바탕으로 필요한 플러그인을 함께
-사용합니다. 자세한 책임과 조합 기준은 [스킬 라우팅 문서](docs/architecture/skill-routing.md)에
-정리되어 있습니다.
+[설치](#설치) · [플러그인](#플러그인) · [사용 예시](#사용-예시) · [문서](docs/README.md)
 
 ## 설치
 
-### GitHub에서 등록
-
-일반적인 사용 환경에서는 GitHub 저장소를 마켓플레이스 소스로 등록합니다.
+`codex plugin` 명령을 지원하는 Codex CLI에서 마켓플레이스를 등록합니다.
 
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
-codex plugin list --marketplace sonsu-marketplace
 ```
 
-필요한 플러그인만 선택해 설치합니다.
+필요한 플러그인을 설치합니다. 예를 들어 개발 작업에는 Engineering을 사용할 수 있습니다.
 
 ```sh
 codex plugin add engineering@sonsu-marketplace
-codex plugin add quality-engineering@sonsu-marketplace
-codex plugin add workflow@sonsu-marketplace
-codex plugin add fluent-languages@sonsu-marketplace
-codex plugin add research@sonsu-marketplace
-codex plugin add prompting@sonsu-marketplace
-codex plugin add product@sonsu-marketplace
-codex plugin add figma-workflow@sonsu-marketplace
 ```
 
-등록된 Git 마켓플레이스의 최신 snapshot을 가져오려면 다음 명령을 실행합니다.
+다른 플러그인은 아래 표의 설치 이름으로 바꿔 설치하세요. Workflow의 설치 예시는 다음과 같습니다.
+
+```sh
+codex plugin add workflow@sonsu-marketplace
+```
+
+설치 후에는 새 Codex 작업을 시작하세요. 등록된 플러그인 목록은 다음 명령으로 확인할 수 있습니다.
+
+```sh
+codex plugin list --marketplace sonsu-marketplace
+```
+
+## 플러그인
+
+| 플러그인 | 용도 | 설치 이름 |
+| --- | --- | --- |
+| [Engineering](plugins/engineering/README.md) | 소프트웨어 변경 설계, 구현, 디버깅과 검증 | `engineering` |
+| [Quality Engineering](plugins/quality-engineering/README.md) | 코드 단순화와 유지보수성, 실패 경로, 운영 문제 검토 | `quality-engineering` |
+| [Workflow](plugins/workflow/) | Git branch·commit·push, 티켓과 GitHub PR 작업 | `workflow` |
+| [Fluent Languages](plugins/fluent-languages/) | 기술 내용을 보존하는 자연스러운 한국어·일본어·영어 작성 | `fluent-languages` |
+| [Research](plugins/research/README.md) | 여러 출처 조사, 사실 검증과 근거를 갖춘 답변 작성 | `research` |
+| [Prompting](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API용 프롬프트 작성과 개선 | `prompting` |
+| [Product](plugins/product/README.md) | 제품 아이디어 탐색, 사용자 근거 정리, 가설 검증과 PRD 작성 | `product` |
+| [Figma Workflow](plugins/figma-workflow/README.md) | Figma 제품 화면, 클릭 가능한 프로토타입과 디자인 품질 검토 | `figma-workflow` |
+
+각 플러그인은 독립적으로 사용할 수 있습니다. 포함된 스킬과 상세 사용법은 위 링크에서 확인하세요.
+
+## 사용 예시
+
+관련 플러그인을 설치한 뒤 Codex에 다음과 같이 요청할 수 있습니다.
+
+| 플러그인 | 요청 예시 |
+| --- | --- |
+| Engineering | “이 버그의 원인을 찾아 수정하고, 재현 조건으로 검증해 줘.” |
+| Quality Engineering | “현재 diff에서 불필요한 추상화와 도달 가능한 실패 경로를 검토해 줘.” |
+| Workflow | “현재 변경을 커밋하고 Draft PR을 만들어 줘.” |
+| Fluent Languages | “이 일본어 기술 설명을 의미와 코드 식별자를 유지하면서 자연스럽게 다듬어 줘.” |
+| Research | “이 두 서비스의 요금과 제한 사항을 공식 자료로 비교해 줘.” |
+| Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
+| Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
+| Figma Workflow | “이 Figma 화면의 Auto Layout과 프로토타입 연결을 검토해 줘.” |
+
+Codex는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
+여러 플러그인을 함께 사용할 때의 역할은 [스킬 라우팅 문서](docs/architecture/skill-routing.md)에 정리되어 있습니다.
+
+Research의 Exa·Perplexity 연동은 선택 사항이며, 사용 가능한 web·browser·connector와 로컬 자료로도 조사할 수 있습니다.
+Figma Workflow의 캔버스 작업에는 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
+설정과 도구 요구사항은 각 플러그인의 문서를 참고하세요.
+
+## 업데이트
+
+등록된 Git 마켓플레이스의 최신 snapshot을 가져옵니다.
 
 ```sh
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-플러그인을 설치하거나 업데이트한 뒤에는 새 Codex 작업을 시작해 최신 스킬 목록을 불러옵니다.
-이전에 다른 마켓플레이스의 `fluent-languages` 또는 standalone
-`prompt-builder`, `product-discovery` 또는 `to-prd`를 설치했다면 같은 이름의 스킬이 중복되지
-않도록 기존 복사본을 먼저
-제거합니다.
+플러그인을 설치하거나 업데이트한 뒤에는 새 Codex 작업을 시작해 최신 스킬 목록을 불러오세요.
 
-### 로컬 저장소에서 등록
+<details>
+<summary>이전에 같은 스킬을 설치했다면</summary>
 
-플러그인을 수정하거나 검증할 때는 clone한 저장소 루트를 로컬 소스로 등록할 수 있습니다.
+다른 마켓플레이스의 `fluent-languages`나 standalone `prompt-builder`, `product-discovery`, `to-prd`를
+설치했다면 같은 이름의 스킬이 중복되지 않도록 기존 복사본을 먼저 제거하세요.
+
+</details>
+
+## 개발 및 기여
+
+플러그인을 수정하거나 추가하려면 저장소를 clone하고 로컬 마켓플레이스로 등록합니다.
 
 ```sh
 git clone https://github.com/sonsu-lee/sonsu-marketplace.git
@@ -69,51 +99,31 @@ codex plugin marketplace add .
 codex plugin list --marketplace sonsu-marketplace
 ```
 
-GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용하므로 한 환경에서는 목적에
-맞는 한 가지 방식으로 등록합니다. 저장소 파일을 수정하거나 커밋하는 작업과 Codex에
-마켓플레이스·플러그인을 등록하는 작업은 서로 별개입니다.
+GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용하므로 한 환경에서는 한 가지 방식으로 등록합니다.
 
-## 플러그인 경계
+- [플러그인 추가 가이드](docs/guides/adding-a-plugin.md) — 디렉터리 구성과 manifest 등록
+- [문서 안내](docs/README.md) — 아키텍처, 설계 결정과 플러그인 계약
+- [업스트림 업데이트 런북](docs/runbooks/updating-upstream-plugin.md) — 원본과 로컬 변경을 구분해 갱신하는 절차
+- [평가 도구](evals/) — 언어 출력, 스킬 라우팅과 플러그인 품질 검증
+- [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues) — 버그 보고와 개선 제안
 
-| 작업 | 담당 플러그인 |
-| --- | --- |
-| 소프트웨어 변경의 설계, 구현, 디버깅과 검증 | Engineering |
-| 코드의 shape, 단순성, 유지보수성, 실패 모드와 운용 가능성 | Quality Engineering |
-| Git branch·commit·push, ticket와 pull request 산출물 | Workflow |
-| 한국어·일본어·영어 설명문의 자연스러움과 기술 내용 보존 | Fluent Languages |
-| 여러 외부 출처가 필요한 조사와 사실 검증 | Research |
-| Codex·ChatGPT·OpenAI API용 프롬프트 산출물 | Prompting |
-| 제품 기회, 문제, 근거, 도메인 규칙, 검증과 PRD | Product |
-| Figma 제품 화면·prototype의 구조, interaction과 handoff 품질 | Figma Workflow |
+<details>
+<summary>저장소 구조와 검증 명령</summary>
 
-Research의 Exa와 Perplexity 연동은 선택 사항입니다. 사용할 수 있는 전문 provider가 없으면
-Codex가 이미 제공하는 web, browser, connector와 로컬 자료로 가능한 범위에서 조사하며,
-provider를 자동으로 설치하거나 인증하지 않습니다.
-
-## 저장소 구조
+### 저장소 구조
 
 ```text
 sonsu-marketplace/
-├── .agents/plugins/marketplace.json
+├── .agents/plugins/marketplace.json  # 플러그인 목록
 ├── plugins/
 │   └── <plugin>/
-│       ├── .codex-plugin/plugin.json
-│       └── skills/
-├── docs/
-├── evals/
-└── README.md
+│       ├── .codex-plugin/plugin.json # 플러그인 정보
+│       └── skills/                  # 스킬과 참고 자료
+├── docs/                            # 유지보수 문서
+└── evals/                           # 평가 fixture와 검증 도구
 ```
 
-- [마켓플레이스 문서](docs/README.md): 아키텍처, 결정 기록, 제품 요구사항, 가이드, 참조와 런북
-- [플러그인 추가 가이드](docs/guides/adding-a-plugin.md): 새 플러그인의 디렉터리와 manifest 등록 절차
-- [업스트림 업데이트 런북](docs/runbooks/updating-upstream-plugin.md): 원본 기준선과 로컬 변경을 분리해 갱신하는 절차
-- [`evals/`](evals/): 언어 출력, 스킬 라우팅과 Figma Workflow 품질 계약의 fixture 및 정적 평가 도구
-
-마켓플레이스 식별자는 `sonsu-marketplace`, 표시 이름은 `Sonsu Marketplace`입니다. Codex는
-저장소 루트의 [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json)에서 각
-플러그인의 로컬 경로를 찾습니다.
-
-## 검증
+### 검증
 
 저장소 루트에서 다음 정적 검사를 실행합니다.
 
@@ -126,12 +136,13 @@ python3 -m unittest -v evals/language-style/test_eval.py
 git diff --check
 ```
 
-JSON parsing, 생성된 Fluent Languages 스킬의 정본 일치 여부와 평가 fixture·runner의 구조를
-확인하는 명령입니다. 정적 검사는 실제 모델의 스킬 선택이나 출력 품질을 증명하지 않습니다.
-플러그인 구조를 변경한 뒤에는 격리된 Codex 환경에서 마켓플레이스 등록, 플러그인 설치와
-스킬 노출까지 별도로 확인합니다.
+이 명령은 JSON 구문, 생성된 스킬의 정본 일치 여부와 평가 fixture·runner의 구조를 확인합니다.
+실제 모델의 스킬 선택이나 출력 품질은 별도 검증이 필요합니다. 플러그인 구조를 변경했다면
+격리된 Codex 환경에서 마켓플레이스 등록, 플러그인 설치와 스킬 노출도 확인하세요.
 
-마켓플레이스 경로, CLI 등록과 source 형식은 [OpenAI 공식 플러그인 패키징 문서](https://developers.openai.com/plugins/build/plugins)를 따릅니다.
+마켓플레이스 형식은 [OpenAI 공식 플러그인 패키징 문서](https://developers.openai.com/plugins/build/plugins)를 따릅니다.
+
+</details>
 
 ## 라이선스와 출처
 
