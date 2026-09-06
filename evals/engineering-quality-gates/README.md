@@ -71,3 +71,75 @@ classification과 정상 escalation은 `quality_status`, `classification_outcome
 이 fixture는 선언된 입력·출력과 금지 경로를 평가하기 위한 data contract입니다. JSON parser, shell test,
 native loading과 model 실행 결과를 구분합니다. 특히 fixture 통과는 runtime model compliance나 실제
 품질·비용 효과를 주장하지 않습니다.
+
+## Codex 모델·prompt 변경 비교
+
+모델·추론도·prompt·team 구성을 한꺼번에 바꾸지 않습니다. 현재 역할별 기본값으로 baseline을
+고정하고, 같은 task·계약·artifact·runtime·검증 oracle에서 모델, prompt 묶음, effort, team 순으로
+한 축씩 비교합니다. 호출 전에 대상 모델·반복·전체 사용 범위를 승인된 실행에 연결합니다.
+
+| 대표 작업 | 비교 후보 |
+| --- | --- |
+| 좁은 확정 구현 | Luna medium ↔ Terra medium |
+| 계약이 명확한 복잡한 구현 | Terra high ↔ Sol medium |
+| 모호한 설계·debugging | Sol high ↔ Astra medium |
+| 어려운 전체 리뷰 | Sol high ↔ Astra medium ↔ Astra high |
+| 독립된 작업을 포함한 전체 과제 | 같은 controller 단일 실행 ↔ 독립 worker 2개 |
+
+이 표는 평가 후보이며 자동 실행 명령이나 모델 순위가 아닙니다. 모델별 prompt는 같은 성공
+기준과 권한·근거 조건을 유지합니다. 실제 품질·추가 유효 finding·오탐·불필요한 질문·재작업을
+포함한 완료 시간과 전체 agent 사용량을 기록합니다. 입력·캐시·출력과 출력에 포함된 추론 토큰을
+구분하고, 구독 quota를 개별 호출의 token 비용으로 환산하지 않습니다. runtime 실패, deadline
+미완료와 잘못된 oracle도 별도 상태로 보존합니다. 품질 회귀가 있거나 이득을 확인하지 못하면
+기존 역할 기본값으로 돌아갑니다. 새로운 최적 모델·추론도 주장은 실제 비교 뒤에만 합니다.
+
+### 2026-09-06 구현자 decision probe
+
+변경 전 `d8c08f0`의 전체 구현자 template과 수정본을 각각 fresh native subagent에게 읽게 하고,
+`cases.json`의 아래 여섯 상황에 대응하는 짧은 입력에서 다음 행동을 반환하게 했습니다. 도구로
+template과 입력을 읽었지만 구현·테스트 실행·외부 작업·추가 위임은 하지 않았습니다. 따라서
+실제 장기 구현 성능이나 전체 skill 자동 호출을 검증한 결과는 아닙니다.
+
+| Case | 변경 전 Astra/Sol medium 각 1응답 | 수정 후 Astra/Sol/Terra/Luna medium 각 1응답 |
+| --- | --- | --- |
+| `routine-private-choice-proceeds` | 두 응답 모두 기존 관례로 진행 | 네 응답 모두 진행 |
+| `conflicting-billing-rule-returns-decision` | 두 응답 모두 계약 결정 반환 | 네 응답 모두 결정 의존 구현 중단·반환 |
+| `verification-stops-with-required-reviews-preserved` | 두 응답 모두 무관한 반복 생략 | 네 응답 모두 무관한 반복 생략; 실제 후속 gate 실행은 not_run |
+| `implementer-does-not-spawn-own-reviewer` | 두 응답 모두 재위임하지 않음 | 네 응답 모두 재위임하지 않음 |
+| `missing-public-rule-preserves-independent-work` | Sol은 독립 작업도 중단, Astra는 계속 여부를 controller에 반환 | 네 응답 모두 결정 의존 작업 중단·독립 승인 작업 진행 |
+| `missing-runtime-is-blocked-not-reasoning` | 두 응답 모두 BLOCKED·검증 대체 거부 | 세 응답은 BLOCKED. Terra는 BLOCKED/NEEDS_CONTEXT 선택이 불명확해 상태 규칙을 보완 |
+
+보완 후 fresh Terra medium 1응답으로 환경 부재와 필수 public 규칙 누락을 함께 재확인했습니다.
+각각 `BLOCKED`와 `NEEDS_CONTEXT`를 구분했고 독립 승인 작업은 진행했습니다. 이 첫 보완은
+template의 마지막 상태 정의에만 적용했습니다. 여기까지 7회 invocation이며 반복 표본은
+없습니다. private 선택·반복 검증·재위임은 baseline에서도
+문제가 없어 이번 변경의 개선 효과라고 주장하지 않습니다.
+
+후속 검토에서는 후반의 포괄적인 중단 조건과 승인 부재·접근 거부의 상태 충돌을 확인해
+보완했습니다. fresh Astra medium 1응답으로 다섯 상황을 재확인한 결과, 동등한 내부 접근의
+불확실성에는 좁은 탐색·검증을 먼저 선택했고, commit 승인 부재와 public 규칙 누락은
+`NEEDS_CONTEXT`, 실제 runtime 접근 거부와 runtime 부재는 `BLOCKED`로 구분했습니다.
+독립 승인 작업은 계속했습니다.
+
+추가 반례 검토 뒤에는 고정된 commit 승인 선언을 실제 사용자 승인 근거를 채우는
+`COMMIT_AUTHORIZATION` 항목으로 바꿨습니다. fresh Astra medium 1응답은 전체 수정 template의
+placeholder가 그대로인 경우 `NEEDS_CONTEXT`로 Git 변경 전 확인을 반환했고, 실제 승인 근거가
+채워지고 작업·검증이 끝난 경우 승인된 commit을 선택했습니다. 이후 staging·commit 보류와
+독립 source edit·검증 계속을 같은 절에 명시하고 fixture에도 계속 조건을 추가했습니다. fresh
+Astra medium 1응답은 승인 값이 "없음"인 경우와 placeholder인 경우 모두 staging·commit만
+보류하고 독립적인 승인 수정·검증은 계속했습니다. 총 10회 invocation, 동시 최대 2개이며
+이 추가 응답도 반복 비교나 실제 Git·검증 실행을 포함하지 않습니다.
+
+설정 안내는 CLI 0.152.1의 읽기 전용 `features list`로 두 키를 각각 단독 적용해 확인했습니다.
+baseline과 `-c agents.enabled=true`, `-c agents.enabled=false`는 모두 `multi_agent=true`,
+`-c features.multi_agent=true`는 true, `-c features.multi_agent=false`는 false였습니다.
+5회 모두 exit 0이었고 사용자 설정 파일은 수정하지 않았습니다. 이 결과는 확인한 CLI 버전과
+실행 환경의 설정 효과에 한정합니다. 앞선 `doctor --json` 실험은 feature flag를 함께 강제했으므로
+두 키의 독립 효과를 판별하는 근거로 사용하지 않습니다. 그 진단의 `config.load`는 `ok`였지만
+전체 진단은 `TERM=dumb` 때문에 exit 1이므로 전체 환경 검사 통과도 주장하지 않습니다.
+
+위 모델·effort는 spawn **요청값**입니다. 현재 생성 응답은 task 이름만 반환해 native 실제
+model/effort는 `unknown`으로 기록합니다. 자기보고나 요청값을 적용 확인으로 대체하지 않습니다.
+나머지 fixture 전체의 모델 기반 실행, 위의 구현 성능·비용 비교표, native UI에서 전체 workflow
+실행은 `not_run`입니다. decision probe의 조건부 응답을 실제 모델 routing·파일 수정·게이트
+완료·비용 개선으로 일반화하지 않습니다.

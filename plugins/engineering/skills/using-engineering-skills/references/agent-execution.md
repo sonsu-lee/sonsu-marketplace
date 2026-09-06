@@ -15,6 +15,7 @@ Task / Gate: stable ID + 승인된 계약 revision
 Artifact: 현재 source/diff revision + 읽을 수 있는 고정 package
 Role / Scope: 역할, 필요한 capability, 작업 cwd와 쓰기 소유 범위
 Routing: requested model/effort → observed model/effort, 관측 출처 또는 unknown, fallback 이유
+Selection: 역할·불확실성에 따른 선택 이유, 적용한 prompt reference/revision, 필요한 team 구성
 Session: fresh | resume | fork, 현재/부모 session ID 또는 unavailable
 Environment: 검증 명령, runtime/dependencies, 허용된 source와 scratch, network 조건
 Budget: 해당 task/gate의 소비량/상한, 남은 부모 예산, deadline, controller의 동시 실행 상한
@@ -50,6 +51,21 @@ source가 read-only인 reviewer도 shell/test용 writable scratch가 필요할 �
 별도 기록할 수 있지만 미완료 응답 자체를 pass/fail로 바꾸지는 않는다.
 
 ## Context와 역할
+
+brief는 목표, 현재 계약과 근거, 쓰기 소유 범위, 필수 검증과 완료 조건을 중심으로 작성한다.
+공통 정책은 한 곳에서 참조하고 같은 지시를 여러 역할에 반복 복사하지 않는다. controller는
+모델, reasoning effort, team 구성을 별도로 선택한다. 모델의 이름만 바꾸면서 역할·context·검증
+조건까지 암묵적으로 바꾸지 않는다. 모델별 조정은 platform reference를 사용하며 공통 권한과
+품질 게이트를 약화하지 않는다.
+
+- 승인 계약·외부 동작·권한·쓰기 소유 범위가 바뀌거나 필수 규칙 누락·계약 모순이 있으면,
+  implementer는 해당 결정과 의존 작업을 멈추고 controller에게 필요한 결정과 근거를 반환한다.
+  controller는 확인된 승인으로 해결할 수 있는지 판단하고, 새 사용자 결정이 필요한 경우에만
+  요청한다. 그 결정과 독립적인 승인 작업은 계속한다.
+- 기존 관례로 정할 수 있는 private 이름이나 동등한 내부 표현은 직접 선택하고 필요한 가정만
+  보고한다. 필수 business rule과 권한을 일상적인 선택으로 취급하지 않는다.
+- 현재 revision의 필수 검사가 충족되고 새 변경·실패·미해결 위험이 없으면 해당 검증을 끝낸다.
+  후속 필수 리뷰·red-team은 유지하며, 확신을 더 얻으려고 무관한 suite나 같은 검사를 반복하지 않는다.
 
 - **Implementer:** 승인 계약, 적용할 의사코드, 현재 source와 검증 환경을 받는다. 같은 task의
   집중 수정에는 열린 finding, 새 반례와 현재 revision을 전달한다. 오래된 session 기억을 현재
