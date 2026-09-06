@@ -2,9 +2,13 @@
 
 import importlib.util
 import json
+import datetime as dt
 from pathlib import Path
+import stat
+import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 MODULE = Path(__file__).with_name("eval.py")
@@ -47,8 +51,8 @@ def write_fixture(root: Path):
     base = root / "baseline.md"
     candidate = root / "candidate.md"
     protocol = root / "protocol.md"
-    base.write_text("---\nname: baseline-ja\n---\nbase", encoding="utf-8")
-    candidate.write_text("---\nname: candidate-ja\n---\ncandidate", encoding="utf-8")
+    base.write_text("---\nname: fluent-japanese\n---\nbase", encoding="utf-8")
+    candidate.write_text("---\nname: fluent-japanese\n---\ncandidate", encoding="utf-8")
     protocol.write_text("# Frozen protocol\n", encoding="utf-8")
     return case_path, base, candidate, protocol
 
@@ -175,6 +179,197 @@ class ManifestAndGateTests(unittest.TestCase):
         gate = evaluation.effect_claim_gate(8, 0, evaluation.exact_two_sided_sign_test(8, 0), 0, 0, [], completeness)
         self.assertEqual(gate["status"], "inconclusive_missing_data")
         self.assertTrue(gate["requirements"]["two_sided_p_lt_0_05"])
+
+
+class ReviewRegressionTests(unittest.TestCase):
+    def make_manifest(self, root):
+        cases, base, candidate, protocol = write_fixture(root)
+        path = root / "runs" / "manifest.json"
+        return path, evaluation.create_manifest(cases, base, candidate, path, seed=5, protocol_path=protocol)
+
+    def seed_results(self, manifest):
+        for run in manifest["runs"]:
+            path = evaluation._result_path(manifest, run)
+            output = path.parent / "output.md"
+            evaluation._write_text(output, "answer")
+            evaluation._write_json(path, {
+                "schema_version": evaluation.RESULT_VERSION,
+                "manifest_id": manifest["manifest_id"],
+                **{key: run[key] for key in ("run_id", "case_id", "arm", "repetition")},
+                "execution_status": "complete", "structural_status": "pass", "check": {},
+                "artifacts": {"output": str(output), "output_sha256": evaluation._sha_file(output)},
+            })
+
+    def test_generation_identity_is_checked_in_grade_resume_and_summary(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path, manifest = self.make_manifest(Path(directory))
+            self.seed_results(manifest)
+            self.assertEqual(len(evaluation._completed_pairs(manifest)), 2)
+            run = manifest["runs"][0]
+            record_path = evaluation._result_path(manifest, run)
+            original = evaluation._load_json(record_path)
+            for key, bad in (("manifest_id", "other"), ("run_id", "other"), ("case_id", "other"), ("arm", "other"), ("repetition", 99)):
+                evaluation._write_json(record_path, {**original, key: bad})
+                consumers = {
+                    "grade": lambda: evaluation._completed_pairs(manifest),
+                    "resume": lambda: evaluation._execute_one(manifest, run, manifest["generation_cases"][0], 600),
+                    "summary": lambda: evaluation.summarize(path),
+                }
+                for consumer, call in consumers.items():
+                    with self.subTest(key=key, consumer=consumer), self.assertRaises(evaluation.ValidationError):
+                        call()
+            evaluation._write_json(record_path, original)
+            self.assertTrue(evaluation.summarize(path)["complete"])
+
+    def test_another_manifests_preflight_cannot_authorize_execution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path, manifest = self.make_manifest(Path(directory))
+            self.seed_results(manifest)
+            proof = Path(manifest["artifact_dir"]) / "preflight" / "result.json"
+            evaluation._write_json(proof, {"status": "pass", "manifest_id": "other"})
+            with self.assertRaises(evaluation.ValidationError):
+                evaluation.run_manifest(path, workers=1)
+            evaluation._write_json(proof, {"status": "pass", "manifest_id": manifest["manifest_id"]})
+            self.assertTrue(evaluation.run_manifest(path, workers=1)["complete"])
+
+    def test_timeout_above_protocol_limit_is_rejected_before_execution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path, manifest = self.make_manifest(Path(directory))
+            self.seed_results(manifest)
+            evaluation._write_json(Path(manifest["artifact_dir"]) / "preflight" / "result.json", {"status": "pass", "manifest_id": manifest["manifest_id"]})
+            for timeout in (601, 3600):
+                with self.subTest(timeout=timeout), self.assertRaises(evaluation.ValidationError):
+                    evaluation.run_manifest(path, workers=1, timeout=timeout)
+            self.assertTrue(evaluation.run_manifest(path, workers=1, timeout=600)["complete"])
+
+    def test_writing_artifacts_preserves_existing_directory_mode(self):
+        with tempfile.TemporaryDirectory() as directory:
+            shared = Path(directory) / "shared"
+            shared.mkdir(mode=0o755)
+            shared.chmod(0o755)
+            for filename, writer, value in (("one.json", evaluation._write_json, {}), ("two.txt", evaluation._write_text, "text")):
+                writer(shared / filename, value)
+                self.assertEqual(stat.S_IMODE(shared.stat().st_mode), 0o755)
+            leaf = shared / "private"
+            evaluation._write_json(leaf / "record.json", {})
+            self.assertEqual(stat.S_IMODE(leaf.stat().st_mode), 0o700)
+
+    def test_plan_rejects_wrong_language_missing_frontmatter_and_unresolved_include(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cases, base, candidate, protocol = write_fixture(root)
+            invalid = (
+                "---\nname: fluent-english\n---\nbody",
+                "body\nname: fluent-japanese\n",
+                "---\nname: fluent-japanese\n---\n{{ include: common.md }}",
+            )
+            for index, text in enumerate(invalid):
+                base.write_text(text, encoding="utf-8")
+                with self.subTest(index=index), self.assertRaises(evaluation.ValidationError):
+                    evaluation.create_manifest(cases, base, candidate, root / ("invalid-%d.json" % index), protocol_path=protocol)
+
+    def test_fenced_headings_and_structural_markers_do_not_count_as_document_structure(self):
+        case = {"expectations": {"exact": {"required_headings": ["## A"], "ordered_markers": ["1. first", "2. second"]}}}
+        body = "## A\n1. first\n2. second\n"
+        self.assertEqual(evaluation.hard_check(case, body)["status"], "pass")
+        for opening, closing in (("```markdown", "```"), ("~~~~markdown", "~~~~"), ("   ```markdown", "   ```"), ("```markdown", "")):
+            with self.subTest(opening=opening, closing=closing):
+                result = evaluation.hard_check(case, opening + "\n" + body + closing)
+                self.assertEqual(result["status"], "fail")
+                self.assertIn("required_heading", {failure["gate"] for failure in result["failures"]})
+                self.assertIn("ordered_marker", {failure["gate"] for failure in result["failures"]})
+
+    def test_fence_content_still_participates_in_literal_and_exact_code_checks(self):
+        block = "```sh\nfirst\nsecond\n```"
+        case = {"expectations": {"exact": {"required_headings": ["## A"], "protected_literals": ["first"], "exact_code_blocks": [block], "literal_counts": {"first": 1}}}}
+        self.assertEqual(evaluation.hard_check(case, "## A\n" + block)["status"], "pass")
+
+    def test_preflight_normalizes_actual_scratch_under_default_and_custom_temp_roots(self):
+        real_tempdir = tempfile.TemporaryDirectory
+        for temp_root in (None, "/tmp"):
+            with real_tempdir(dir=temp_root) as directory:
+                path, _ = self.make_manifest(Path(directory))
+                for different_rule in (False, True):
+                    arm_index = iter((0, 1))
+                    # Replace only the external CLI; retain parsing and the pass gate.
+                    def prompt_input(argv, cwd, stdin, timeout, stdout, stderr):
+                        index = next(arm_index)
+                        config = next(value for value in argv if value.startswith("developer_instructions="))
+                        developer = json.loads(config.split("=", 1)[1])
+                        rule = "rule B" if different_rule and index else "rule A"
+                        messages = [{"role": "developer", "content": developer}, {"role": "user", "content": "Return exactly: PRELIGHT_OK"}, {"role": "system", "content": "cwd=" + str(cwd) + "\n" + rule + "\nfixed=/var/folders/shared/rules"}]
+                        stdout.write_text(json.dumps(messages), encoding="utf-8")
+                        stderr.write_text("")
+                        return {"returncode": 0, "timed_out": False, "spawn_error": None, "latency_seconds": 0}
+                    raw = evaluation._load_json(path)
+                    attempt = Path(directory) / ("different" if different_rule else "same")
+                    raw["artifact_dir"] = str(attempt)
+                    attempt_path = attempt / "manifest.json"
+                    evaluation._write_json(attempt_path, raw)
+                    def scratch_dir(**kwargs):
+                        return real_tempdir(prefix="jp-writing-preflight-", dir=directory)
+                    with patch.object(evaluation, "_run_process", side_effect=prompt_input), patch.object(evaluation.tempfile, "TemporaryDirectory", side_effect=scratch_dir):
+                        result = evaluation.preflight(attempt_path)
+                    with self.subTest(temp_root=temp_root, different_rule=different_rule):
+                        self.assertEqual(result["status"], "fail" if different_rule else "pass")
+                        common = evaluation._load_json(attempt / "preflight/baseline.common-context.json")
+                        self.assertIn("fixed=/var/folders/shared/rules", json.dumps(common["entries"]))
+
+    def test_unknown_and_tool_items_are_inconclusive_in_generation(self):
+        process = {"timed_out": False, "spawn_error": None, "returncode": 0}
+        case = {"expectations": {"exact": {}}}
+        for item_type in ("web_search", "file_change", "image_view", "image_generation", "future_tool", "todo_list", "error", "command_execution"):
+            events = [{"type": "item.completed", "item": {"type": item_type}}, {"type": "turn.completed"}]
+            with self.subTest(item_type=item_type):
+                self.assertEqual(evaluation._classify(process, "answer", events, [], case)[0], "inconclusive")
+        events = [{"type": "item.completed", "item": {"type": "reasoning", "text": "thinking"}}, {"type": "item.completed", "item": {"type": "agent_message", "text": "answer"}}, {"type": "turn.completed"}]
+        self.assertEqual(evaluation._classify(process, "answer", events, [], case)[0], "complete")
+
+    def test_process_records_start_and_completion_around_real_child_execution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            result = evaluation._run_process([sys.executable, "-c", "import datetime; print(datetime.datetime.now(datetime.timezone.utc).isoformat())"], root, "", 30, root / "stdout", root / "stderr")
+            self.assertIn("started_at", result)
+            self.assertIn("completed_at", result)
+            child_time = dt.datetime.fromisoformat((root / "stdout").read_text().strip())
+            self.assertLessEqual(dt.datetime.fromisoformat(result["started_at"].replace("Z", "+00:00")), child_time)
+            self.assertLessEqual(child_time, dt.datetime.fromisoformat(result["completed_at"].replace("Z", "+00:00")))
+            self.assertEqual(result.get("timeout_seconds"), 30)
+
+    def test_generation_retains_process_timestamps_and_records_effective_timeout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            _, manifest = self.make_manifest(Path(directory))
+            run = manifest["runs"][0]
+            process_record = {"returncode": 0, "timed_out": False, "spawn_error": None, "latency_seconds": 2.0, "started_at": "2026-09-06T00:00:00+00:00", "completed_at": "2026-09-06T00:00:02+00:00", "timeout_seconds": 45}
+            def process(argv, cwd, stdin, timeout, stdout, stderr):
+                Path(argv[argv.index("--output-last-message") + 1]).write_text("answer")
+                stdout.write_text('{"type":"turn.completed"}\n')
+                stderr.write_text("")
+                return process_record
+            with patch.object(evaluation, "_run_process", side_effect=process):
+                result = evaluation._execute_one(manifest, run, manifest["generation_cases"][0], 45)
+            self.assertEqual(result["started_at"], "2026-09-06T00:00:00+00:00")
+            self.assertEqual(result["completed_at"], "2026-09-06T00:00:02+00:00")
+            self.assertEqual(result["timeout_seconds"], 45)
+            command = evaluation._load_json(Path(result["artifacts"]["command"]))
+            self.assertEqual(command["timeout_seconds"], 45)
+
+    def test_judge_rejects_tool_and_future_items_even_with_valid_votes(self):
+        pair = {"pair_id": "one-r1", "case": {"prompt": "p", "evidence": "e", "expectations": {}}, "outputs": {"baseline": "b", "candidate": "c"}}
+        for item_type in ("agent_message", "web_search", "future_tool"):
+            with tempfile.TemporaryDirectory() as directory:
+                manifest = {"manifest_id": "m", "artifact_dir": directory}
+                def process(argv, cwd, stdin, timeout, stdout, stderr):
+                    item_id = json.loads(stdin)["items"][0]["item_id"]
+                    item = {"item_id": item_id, "semantic_ok": {"X": True, "Y": True}, "target_ok": {"X": True, "Y": True}, "overcorrection": {"X": False, "Y": False}, "preference": "tie", "rationale": "equivalent"}
+                    Path(argv[argv.index("--output-last-message") + 1]).write_text(json.dumps({"items": [item]}))
+                    stdout.write_text(json.dumps({"type": "item.completed", "item": {"type": item_type}}) + '\n{"type":"turn.completed"}\n')
+                    stderr.write_text("")
+                    return {"returncode": 0, "timed_out": False, "spawn_error": None, "latency_seconds": 0}
+                with patch.object(evaluation, "_run_process", side_effect=process):
+                    result = evaluation._judge_one(manifest, [pair], "batch-001", 1, evaluation._grade_plan(manifest, [pair], 1))
+                with self.subTest(item_type=item_type):
+                    self.assertEqual(result["execution_status"], "complete" if item_type == "agent_message" else "inconclusive")
 
 
 if __name__ == "__main__":

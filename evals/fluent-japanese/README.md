@@ -68,6 +68,13 @@ tool call이나 다른 Fluent 본문이 발견되면 비교 대상에서 제외�
 
 러너의 상태·순서·구조 판정은 다음으로 검사한다.
 
+계획 단계에서 두 snapshot의 `fluent-japanese` frontmatter와 미해결 include 부재를
+확인한다. 실행 전 preflight와 재사용하는 생성 기록은 현재 manifest/run 식별자와
+일치해야 한다. 다른 실험의 기록이 있으면 새 실험 디렉터리에서 다시 계획한다.
+`--timeout`은 30–600초이며 실제 값과 프로세스 시작·종료 시각을 기록한다.
+알 수 없는 Codex item은 성공으로 간주하지 않는다. 제목·절차 marker는 fenced code를
+제외한 본문에서 검사하고, 코드·보호 문자열은 원출력에서 검사한다.
+
 ```sh
 python3 -B -m unittest evals/fluent-japanese/test_eval.py -v
 ```

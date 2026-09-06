@@ -135,11 +135,11 @@ def _external(path: Path, label: str) -> Path:
 
 
 def _private_dir(path: Path) -> None:
-    path.mkdir(parents=True, exist_ok=True)
     try:
-        path.chmod(0o700)
-    except OSError:
-        pass
+        path.mkdir(parents=True, mode=0o700)
+    except FileExistsError:
+        if not path.is_dir():
+            raise
 
 
 def _write_json(path: Path, value: Any) -> None:
@@ -195,10 +195,13 @@ def _read_skill(path: Path, label: str) -> Dict[str, Any]:
     text = path.read_text(encoding="utf-8")
     if not text.strip() or "\x00" in text:
         raise ValidationError("%s skill is empty or contains NUL" % label)
-    match = re.search(r"(?m)^name:\s*([^\s#]+)\s*$", text)
-    if not match:
-        raise ValidationError("%s skill has no frontmatter name" % label)
-    return {"label": label, "path": str(path), "name": match.group(1), "sha256": _sha_file(path), "text": text}
+    frontmatter = re.match(r"\A---\r?\n(.*?)\r?\n---(?:\r?\n|$)", text, re.DOTALL)
+    names = re.findall(r"(?m)^name:[ \t]*([^\n]+)$", frontmatter.group(1)) if frontmatter else []
+    if len(names) != 1 or names[0].strip().strip("\"'") != "fluent-japanese":
+        raise ValidationError("%s skill must have fluent-japanese frontmatter" % label)
+    if re.search(r"\{\{\s*include\s*:", text):
+        raise ValidationError("%s skill contains an unresolved include; render the snapshot first" % label)
+    return {"label": label, "path": str(path), "name": "fluent-japanese", "sha256": _sha_file(path), "text": text}
 
 
 def _load_cases(path: Path) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -318,6 +321,7 @@ def _codex_argv(developer: str, output_path: Path, scratch: Path, json_mode: boo
 
 
 def _run_process(argv: Sequence[str], cwd: Path, stdin: str, timeout: int, stdout_path: Path, stderr_path: Path) -> Dict[str, Any]:
+    started_at = dt.datetime.now(dt.timezone.utc).isoformat()
     started = time.monotonic()
     returncode: Optional[int] = None
     timed_out = False
@@ -338,7 +342,7 @@ def _run_process(argv: Sequence[str], cwd: Path, stdin: str, timeout: int, stdou
             returncode = process.returncode
     except OSError as exc:
         spawn_error = "%s: %s" % (type(exc).__name__, exc)
-    return {"returncode": returncode, "timed_out": timed_out, "spawn_error": spawn_error, "latency_seconds": round(time.monotonic() - started, 3)}
+    return {"returncode": returncode, "timed_out": timed_out, "spawn_error": spawn_error, "latency_seconds": round(time.monotonic() - started, 3), "started_at": started_at, "completed_at": dt.datetime.now(dt.timezone.utc).isoformat(), "timeout_seconds": timeout}
 
 
 def _parse_jsonl(path: Path) -> Tuple[List[Any], List[str]]:
@@ -369,20 +373,46 @@ def _objects(value: Any) -> Iterable[Dict[str, Any]]:
 
 
 def _trace_info(events: Sequence[Any]) -> Dict[str, Any]:
-    tool_types = {"command_execution", "function_call", "tool_call", "mcp_tool_call", "computer_tool_call", "dynamic_tool_call"}
+    tool_types = {"command_execution", "function_call", "tool_call", "mcp_tool_call", "computer_tool_call", "dynamic_tool_call", "web_search", "file_change", "image_view", "image_generation"}
     tools = []
+    unexpected = []
     models = []
     completed = False
     for event in events:
         if isinstance(event, dict) and event.get("type") == "turn.completed":
             completed = True
+        if isinstance(event, dict) and str(event.get("type", "")).startswith("item."):
+            item = event.get("item")
+            item_type = item.get("type") if isinstance(item, dict) else None
+            # Only output and reasoning are admitted. Unknown future items do
+            # not silently acquire permission to participate in the experiment.
+            if item_type not in {"agent_message", "reasoning"} and item_type not in tool_types:
+                unexpected.append(str(item_type or "missing_item_type"))
         for obj in _objects(event):
             if str(obj.get("type", "")).lower() in tool_types:
                 tools.append(obj.get("type"))
             for key in ("model", "model_name"):
                 if isinstance(obj.get(key), str):
                     models.append(obj[key])
-    return {"turn_completed": completed, "tool_types": sorted(set(tools)), "observed_models": sorted(set(models)) or ["unknown"]}
+    return {"turn_completed": completed, "tool_types": sorted(set(tools)), "unexpected_item_types": sorted(set(unexpected)), "observed_models": sorted(set(models)) or ["unknown"]}
+
+
+def _outside_fenced_code(text: str) -> str:
+    """Mask fenced blocks, including unclosed fences, for body structure checks."""
+    visible = []
+    fence = None
+    for line in text.splitlines(keepends=True):
+        if fence is None:
+            opening = re.match(r"^ {0,3}(`{3,}|~{3,})([^\r\n]*)", line)
+            if opening and not (opening.group(1)[0] == "`" and "`" in opening.group(2)):
+                fence = opening.group(1)
+            else:
+                visible.append(line)
+                continue
+        elif re.match(r"^ {0,3}" + re.escape(fence[0]) + r"{" + str(len(fence)) + r",}[ \t]*(?:\r?\n)?$", line):
+            fence = None
+        visible.append("\n")
+    return "".join(visible)
 
 
 def _extract_blocks(text: str) -> List[str]:
@@ -429,7 +459,8 @@ def hard_check(case: Mapping[str, Any], output: str) -> Dict[str, Any]:
     for literal in exact.get("protected_literals", []):
         if literal not in output:
             failures.append({"gate": "protected_literal", "detail": literal})
-    headings = [re.sub(r"\s+#+\s*$", "", m.group(1)).strip() for m in re.finditer(r"(?m)^ {0,3}(#{1,6}\s+.+?)\s*$", output)]
+    body = _outside_fenced_code(output)
+    headings = [re.sub(r"\s+#+\s*$", "", m.group(1)).strip() for m in re.finditer(r"(?m)^ {0,3}(#{1,6}\s+.+?)\s*$", body)]
     positions = []
     for heading in exact.get("required_headings", []):
         if heading not in headings:
@@ -440,7 +471,7 @@ def hard_check(case: Mapping[str, Any], output: str) -> Dict[str, Any]:
         failures.append({"gate": "heading_order", "detail": exact["required_headings"]})
     cursor = 0
     for marker in exact.get("ordered_markers", []):
-        pos = output.find(marker, cursor)
+        pos = body.find(marker, cursor)
         if pos < 0:
             failures.append({"gate": "ordered_marker", "detail": marker})
         else:
@@ -469,6 +500,8 @@ def _classify(process: Mapping[str, Any], output: str, events: Sequence[Any], tr
         return "inconclusive", "invalid_or_incomplete_trace", trace, check
     if trace["tool_types"]:
         return "inconclusive", "tool_use_observed", trace, check
+    if trace["unexpected_item_types"]:
+        return "inconclusive", "unexpected_item_observed", trace, check
     if not output.strip():
         return "inconclusive", "empty_output", trace, check
     return "complete", "completed", trace, check
@@ -489,15 +522,15 @@ def _preflight_messages(value: Any) -> List[Tuple[str, str]]:
     return found
 
 
-def _normalize_common_text(text: str) -> str:
-    """Remove per-run scratch locations, retaining all instruction content."""
-    text = re.sub(r"/private/var/folders/[^\s<\"]+(?:/scratch)?", "<scratch>", text)
-    text = re.sub(r"/var/folders/[^\s<\"]+(?:/scratch)?", "<scratch>", text)
+def _normalize_common_text(text: str, scratch: Path) -> str:
+    """Normalize the actual run cwd (including its resolved spelling), on any OS."""
+    for location in sorted({str(scratch), str(scratch.resolve())}, key=len, reverse=True):
+        text = text.replace(location, "<scratch>")
     return text
 
 
-def _common_context(messages: Sequence[Tuple[str, str]], developer: str, probe: str) -> Dict[str, Any]:
-    common = [(role, _normalize_common_text(text)) for role, text in messages if text != developer and text != probe]
+def _common_context(messages: Sequence[Tuple[str, str]], developer: str, probe: str, scratch: Path) -> Dict[str, Any]:
+    common = [(role, _normalize_common_text(text, scratch)) for role, text in messages if text != developer and text != probe]
     # A catalog entry such as `fluent-japanese: ... (file: .../SKILL.md)` is an
     # observed common covariate.  An actual second Fluent body is not allowed.
     alternate_body = []
@@ -539,7 +572,7 @@ def preflight(manifest_path: Path) -> Dict[str, Any]:
             messages = _preflight_messages(raw)
             developer_count = sum(text == developer for role, text in messages if role == "developer")
             user_count = sum(text == probe for role, text in messages if role == "user")
-            common = _common_context(messages, developer, probe)
+            common = _common_context(messages, developer, probe, scratch)
             common_path = preflight_dir / (arm + ".common-context.json")
             _write_json(common_path, common)
             common_summary = {"path": str(common_path), "sha256": common["sha256"], "entries_count": len(common["entries"]), "alternate_fluent_bodies": common["alternate_fluent_bodies"]}
@@ -559,13 +592,19 @@ def _result_path(manifest: Mapping[str, Any], run: Mapping[str, Any]) -> Path:
     return Path(manifest["artifact_dir"]) / "runs" / run["run_id"] / "result.json"
 
 
+def _load_generation_result(manifest: Mapping[str, Any], run: Mapping[str, Any]) -> Dict[str, Any]:
+    path = _result_path(manifest, run)
+    row = _load_json(path)
+    expected = {"manifest_id": manifest["manifest_id"], **{key: run[key] for key in ("run_id", "case_id", "arm", "repetition")}}
+    if not isinstance(row, dict) or any(type(row.get(key)) is not type(value) or row.get(key) != value for key, value in expected.items()):
+        raise ValidationError("generation result does not match frozen manifest/run: %s" % path)
+    return row
+
+
 def _execute_one(manifest: Mapping[str, Any], run: Mapping[str, Any], case: Mapping[str, Any], timeout: int) -> Dict[str, Any]:
     result_path = _result_path(manifest, run)
     if result_path.exists():
-        existing = _load_json(result_path)
-        if existing.get("manifest_id") != manifest["manifest_id"]:
-            raise ValidationError("existing result belongs to another manifest")
-        return existing
+        return _load_generation_result(manifest, run)
     run_dir = result_path.parent
     _private_dir(run_dir)
     arm = run["arm"]
@@ -580,12 +619,12 @@ def _execute_one(manifest: Mapping[str, Any], run: Mapping[str, Any], case: Mapp
         scratch.mkdir()
         developer = _developer(skill)
         argv = _codex_argv(developer, output, scratch)
-        _write_json(command, {"argv": argv, "cwd": str(scratch), "requested_model": MODEL, "requested_reasoning_effort": REASONING, "stdin_sha256": _sha_bytes(prompt.encode("utf-8")), "developer_sha256": _sha_bytes(developer.encode("utf-8")), "isolation": ISOLATION_CONFIG})
+        _write_json(command, {"argv": argv, "cwd": str(scratch), "requested_model": MODEL, "requested_reasoning_effort": REASONING, "stdin_sha256": _sha_bytes(prompt.encode("utf-8")), "developer_sha256": _sha_bytes(developer.encode("utf-8")), "isolation": ISOLATION_CONFIG, "timeout_seconds": timeout})
         process = _run_process(argv, scratch, prompt, timeout, trace, stderr)
     output_text = output.read_text(encoding="utf-8") if output.is_file() else ""
     events, trace_errors = _parse_jsonl(trace)
     status, reason, trace_info, check = _classify(process, output_text, events, trace_errors, case)
-    record = {"schema_version": RESULT_VERSION, "manifest_id": manifest["manifest_id"], "run_id": run["run_id"], "case_id": run["case_id"], "arm": arm, "repetition": run["repetition"], "execution_status": status, "reason": reason, "structural_status": check["status"], "check": check, "trace_errors": trace_errors, "trace": trace_info, "requested_model": MODEL, "requested_reasoning_effort": REASONING, "observed_model": trace_info["observed_models"], "started_at": _now(), **process, "artifacts": {"output": str(output), "output_sha256": _sha_file(output) if output.is_file() else None, "trace": str(trace), "trace_sha256": _sha_file(trace) if trace.is_file() else None, "stderr": str(stderr), "stderr_sha256": _sha_file(stderr) if stderr.is_file() else None, "command": str(command), "command_sha256": _sha_file(command)}}
+    record = {"schema_version": RESULT_VERSION, "manifest_id": manifest["manifest_id"], "run_id": run["run_id"], "case_id": run["case_id"], "arm": arm, "repetition": run["repetition"], "execution_status": status, "reason": reason, "structural_status": check["status"], "check": check, "trace_errors": trace_errors, "trace": trace_info, "requested_model": MODEL, "requested_reasoning_effort": REASONING, "observed_model": trace_info["observed_models"], **process, "artifacts": {"output": str(output), "output_sha256": _sha_file(output) if output.is_file() else None, "trace": str(trace), "trace_sha256": _sha_file(trace) if trace.is_file() else None, "stderr": str(stderr), "stderr_sha256": _sha_file(stderr) if stderr.is_file() else None, "command": str(command), "command_sha256": _sha_file(command)}}
     _write_json(result_path, record)
     return record
 
@@ -593,12 +632,13 @@ def _execute_one(manifest: Mapping[str, Any], run: Mapping[str, Any], case: Mapp
 def run_manifest(manifest_path: Path, workers: int = 4, timeout: int = TIMEOUT_SECONDS) -> Dict[str, Any]:
     if workers < 1 or workers > 4:
         raise ValidationError("workers must be in 1..4")
-    if timeout < 30 or timeout > 3600:
-        raise ValidationError("timeout must be in 30..3600")
+    if timeout < 30 or timeout > TIMEOUT_SECONDS:
+        raise ValidationError("timeout must be in 30..%d" % TIMEOUT_SECONDS)
     manifest = load_manifest(manifest_path, check_sources=True)
     proof = Path(manifest["artifact_dir"]) / "preflight" / "result.json"
-    if not proof.is_file() or _load_json(proof).get("status") != "pass":
-        raise ValidationError("preflight must pass before execution")
+    proof_record = _load_json(proof) if proof.is_file() else {}
+    if not isinstance(proof_record, dict) or proof_record.get("status") != "pass" or proof_record.get("manifest_id") != manifest["manifest_id"]:
+        raise ValidationError("preflight must pass for the current manifest before execution")
     cases = {case["id"]: case for case in manifest["generation_cases"]}
     results: List[Dict[str, Any]] = []
     ordered = sorted(manifest["runs"], key=lambda row: row["order"])
@@ -618,7 +658,7 @@ def _completed_pairs(manifest: Mapping[str, Any]) -> List[Dict[str, Any]]:
     for run in manifest["runs"]:
         path = _result_path(manifest, run)
         if path.is_file():
-            row = _load_json(path)
+            row = _load_generation_result(manifest, run)
             if row.get("execution_status") == "complete":
                 rows[(run["case_id"], run["repetition"])][run["arm"]] = row
     pairs = []
@@ -749,7 +789,7 @@ def _judge_one(manifest: Mapping[str, Any], batch: Sequence[Mapping[str, Any]], 
         scratch = Path(temp) / "scratch"
         scratch.mkdir()
         argv = _codex_argv(developer, output, scratch)
-        _write_json(command, {"argv": argv, "cwd": str(scratch), "requested_model": MODEL, "requested_reasoning_effort": REASONING, "blind": True, **expected_identity})
+        _write_json(command, {"argv": argv, "cwd": str(scratch), "requested_model": MODEL, "requested_reasoning_effort": REASONING, "blind": True, "timeout_seconds": TIMEOUT_SECONDS, **expected_identity})
         process = _run_process(argv, scratch, visible, TIMEOUT_SECONDS, trace, stderr)
     text = output.read_text(encoding="utf-8") if output.is_file() else ""
     events, errors = _parse_jsonl(trace)
@@ -761,7 +801,7 @@ def _judge_one(manifest: Mapping[str, Any], batch: Sequence[Mapping[str, Any]], 
         status, reason = "timeout", "deadline"
     elif process["spawn_error"] or process["returncode"] != 0:
         status, reason = "error", "spawn_error" if process["spawn_error"] else "codex_exit_%s" % process["returncode"]
-    elif errors or not info["turn_completed"] or info["tool_types"]:
+    elif errors or not info["turn_completed"] or info["tool_types"] or info["unexpected_item_types"]:
         status, reason = "inconclusive", "trace_or_tool_violation"
     else:
         try:
@@ -909,7 +949,7 @@ def summarize(manifest_path: Path) -> Dict[str, Any]:
     for run in manifest["runs"]:
         path = _result_path(manifest, run)
         if path.is_file():
-            records.append(_load_json(path))
+            records.append(_load_generation_result(manifest, run))
     status = Counter(row["execution_status"] for row in records)
     structural = Counter((row["arm"], row["structural_status"]) for row in records if row["execution_status"] == "complete")
     grade_path = Path(manifest["artifact_dir"]) / "grade-summary.json"
