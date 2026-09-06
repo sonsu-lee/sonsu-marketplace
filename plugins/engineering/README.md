@@ -51,6 +51,19 @@ codex plugin add engineering@sonsu-marketplace
 
 공통 [품질 게이트 계약](skills/using-engineering-skills/references/quality-gates.md)은 근거 기록, 상태, 오래된 리비전 처리, 반환 대상, 재시도 변경과 시도 횟수 상한에서의 동작을 정의합니다. 품질 판정은 문서, Git, PR, merge, 배포 또는 게시 권한을 부여하지 않습니다.
 
+리뷰에서는 [공통 리뷰 기준](skills/requesting-code-review/review-criteria.md)에 따라 현재 요구사항과
+framework·library·provider의 기본 동작, 유효 설정을 확인합니다. 동작 결함은 실패 경로로 설명하고,
+아키텍처·유지보수성·단순화 문제는 현재의 이해·수정 비용과 대안을 근거로 지적합니다. 구조 문제를 지적할 때
+런타임 버그 재현을 요구하지 않으며, 비차단 지적은 보고하되 자동 수정 loop로 넘기지 않습니다.
+기본 출력에는 판정, 근거 있는 지적, 판정에 필수인 근거 공백을 담습니다.
+
+검토 관점은 [Thermo의 구조 품질](https://github.com/cursor/plugins/blob/93b00b89ef425a9c1bac0d0b317dfc49c930ac99/cursor-team-kit/skills/thermo-nuclear-code-quality-review/SKILL.md),
+[Ponytail의 복잡성 제거](https://github.com/DietrichGebert/ponytail/blob/974d940a1c5344210874150b98ff0d2c861fab6a/skills/ponytail-review/SKILL.md),
+[OpenAI의 근거 중심 실패 검토](https://github.com/openai/codex-plugin-cc/blob/db52e28f4d9ded852ab3942cea316258ae4ef346/plugins/codex/prompts/adversarial-review.md)와
+대조했습니다. 고정된 파일 길이 기준, 삭제한 줄 수에 따른 점수, 추가 실행기는 도입하지 않습니다. 해당 계열의
+상세 검토 스킬은 이미 [Quality Engineering](../quality-engineering/README.md)에 있으며,
+Engineering은 그 플러그인 설치 없이 위의 간결한 공통 기준으로 동작합니다.
+
 ## 모델과 에이전트 실행
 
 스킬은 routing·검증·예산·인계를 관리하고 별도 agent/session은 집중된 구현·조사·리뷰를 맡습니다.

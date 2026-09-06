@@ -63,6 +63,13 @@ digest는 내용을 식별하지만 노출하지 않는다. 독립 evaluator가 
 controller, implementer, reviewer, retry 상한, 일정 또는 token budget은 이를 만들 수 없다.
 위험을 수용하고 진행할 때에는 finding, 결과, 범위, 리비전과 결정 근거를 보존한다.
 
+## 리뷰 finding을 채택한다
+
+[공통 리뷰 기준](../../requesting-code-review/review-criteria.md)을 적용한다. controller는
+reviewer prompt에 이 기준을 포함한다. 반환된 지적을 동작 또는 구조의 근거, 기본 동작, 유효 설정과
+영향에 비추어 검토한 뒤 유효한 차단 지적만 수정 loop에 넣는다. 근거로 무효화한 지적은 이유와 함께 닫는다.
+근거 있는 비차단 구조 지적은 보고하되 자동 backlog나 필수 gate로 넘기지 않는다.
+
 ## 판단보다 저렴한 oracle을 먼저 실행한다
 
 실행 완료 여부와 검사 자체의 유효성은 위 quality status와 별도로 기록한다.
@@ -179,5 +186,4 @@ red-team도 최초에는 전체 목표를 독립 검토하고, 국소 수정 뒤
 3. 새 리비전이 통과하거나 사람이 현재 리비전에 대해 `accepted_risk`를 명시적으로 기록한
    뒤에만 진행한다.
 
-경미한 권고 사항이 통과 조건에 포함된 적이 없다면 나중으로 미룰 수 있다. retry 상한에
-도달했다는 이유만으로 유효한 필수 finding이 `passed`가 되지는 않는다.
+retry 상한에 도달했다는 이유만으로 유효한 필수 finding이 `passed`가 되지는 않는다.

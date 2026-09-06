@@ -143,3 +143,17 @@ model/effort는 `unknown`으로 기록합니다. 자기보고나 요청값을 �
 나머지 fixture 전체의 모델 기반 실행, 위의 구현 성능·비용 비교표, native UI에서 전체 workflow
 실행은 `not_run`입니다. decision probe의 조건부 응답을 실제 모델 routing·파일 수정·게이트
 완료·비용 개선으로 일반화하지 않습니다.
+
+## 간결한 리뷰와 기본 동작
+
+`review-respects-confirmed-provider-default`부터 `review-allows-equivalent-simple-implementation`까지
+일곱 사례는 확인된 기본 동작, 실제 override, 추측성 timeout 제안, 부족한 기본값, 판정에 필수인
+불확실성, 잘못된 Important 지적과 불필요한 추상화를 구분합니다. 사례에 쓰인 숫자와 framework 동작은
+합성 fixture에서 정한 계약이며, 실제 Terraform provider나 framework의 기본값을 주장하지 않습니다.
+새 사례의 모델 기반 실행은 `not_run`입니다. JSON 구조 검사와 문서 리뷰를 오탐 감소나 실제
+장기 workflow 개선의 증거로 취급하지 않습니다.
+
+`review-reports-structural-cost-without-runtime-bug`부터 다섯 사례는 동작이 맞아도 구조 문제를
+보고하는지, 비차단 개선과 명시된 아키텍처 계약 위반을 구분하는지, 파일 길이·호출자 수만으로
+불필요한 분할·삭제를 요구하지 않는지 평가합니다. 이 사례도 합성 계약이며 모델 실행은
+`not_run`입니다. 기존의 기본값·override·추측성 timeout 사례도 유지합니다.
