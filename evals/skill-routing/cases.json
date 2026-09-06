@@ -2,6 +2,356 @@
   "schema_version": "skill-routing-cases-v1",
   "cases": [
     {
+      "id": "bug-intake-without-cause",
+      "prompt": "Windows 11 Chrome에서 CSV를 다운로드하면 한글 이름이 깨진다는 고객 보고가 있어. 원인과 정확한 재현 절차는 아직 몰라. 버그 티켓 초안을 한국어로 작성해 줘.",
+      "expected_template": "bug",
+      "expected_readiness": "intake",
+      "must_not_invent_cause_or_acceptance": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
+      "id": "feature-request-before-adoption",
+      "prompt": "운영자가 월말에 같은 필터를 반복 설정해서 저장 기능을 제안했어. 아직 채택 여부와 구현 범위는 정하지 않았어. 검토용 티켓 초안으로 만들어 줘.",
+      "expected_template": "feature-request",
+      "expected_readiness": "intake",
+      "must_not_invent_cause_or_acceptance": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
+      "id": "insufficient-ticket-context",
+      "prompt": "이거 티켓으로 만들어 줘. 추가 맥락이나 첨부 자료는 없어.",
+      "expected_readiness": "needs-information",
+      "must_not_invent_cause_or_acceptance": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
+      "id": "parent-feature-with-release-condition",
+      "prompt": "검색 필터 저장 기능은 승인됐어. 사용자별 저장·목록 조회와 삭제를 각각 독립 결과로 추적하고, 운영 환경에서 저장 후 재사용·삭제되는지 확인해야 전체 완료야. 부모 티켓과 자식 초안을 써줘. 구현 방법은 작업자가 정해.",
+      "expected_template": "feature",
+      "expected_structure": "parent",
+      "expected_readiness": "execution-ready",
+      "must_preserve_whole_completion": true,
+      "expected_child_count": 3,
+      "must_map_parent_and_child_keys": true,
+      "must_not_duplicate_type_and_structure_headings": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
+      "id": "ticket-revise-korean-preserves-existing-records",
+      "prompt": "Linear Acme workspace ENG-42 본문에 Safari 18에서도 재현된다는 새 관찰만 반영해 줘. 기존 결정·검증 기록은 유지해. 한국어로 작성해 줘.",
+      "installed_plugins": [
+        "workflow",
+        "fluent-languages"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket",
+        "fluent-languages:fluent-korean"
+      ],
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "must_verify_canonical_ticket": true,
+      "must_read_full_body": true,
+      "must_preserve_unrequested_content": true,
+      "must_limit_update_to_content": true,
+      "must_reread_before_write": true,
+      "must_reread_after_mutation": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "revise-and-start-composes-lifecycle",
+      "prompt": "Linear Acme workspace ENG-42에 승인된 복구 조건을 반영한 뒤 작업 시작 상태로 변경해 줘.",
+      "expected_sequence": [
+        "workflow:to-ticket",
+        "workflow:ticket-lifecycle"
+      ],
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "expected_intent": "start",
+      "must_limit_update_to_content": true,
+      "must_reread_after_mutation": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "revise-drift-conflict-stops-write",
+      "prompt": "GitHub acme/example#42 본문의 \"CSV 보존 기간: 7일\"을 \"CSV 보존 기간: 14일\"로 반영해 줘.",
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "fixture": {
+        "original_body": "## 결정\nCSV 보존 기간: 7일\n\n## 작업 기록\n기존 기록 A",
+        "before_write_body": "## 결정\nCSV 보존 기간: 30일\n\n## 작업 기록\n기존 기록 A\n새 기록 B"
+      },
+      "must_report_conflict": true,
+      "must_not_propose_mutation": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "revise-unknown-response-no-retry",
+      "prompt": "Linear Acme workspace ENG-42 본문 끝에 승인된 검증 결과 \"Safari 18: 재현됨\"을 반영해 줘.",
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "fixture": {
+        "original_body": "## 관찰\nChrome에서 재현됨",
+        "update_response": "timeout",
+        "readback_response": "temporarily unavailable"
+      },
+      "must_not_retry_uncertain_mutation": true,
+      "must_report_unknown": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "jira-rich-text-revision-preserves-nodes",
+      "prompt": "Jira Acme site PAY-7의 설명에서 \"대기중\"만 \"검토중\"으로 바꿔서 반영해 줘. 첨부·링크는 유지해.",
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "fixture": {
+        "body_format": "ADF",
+        "read_tool": "plain-text-only; attachment and link nodes omitted",
+        "update_tool": "whole ADF replacement only"
+      },
+      "must_not_propose_mutation": true,
+      "must_report_format_preservation_limit": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "must_not_assume_plugin_dependency": true
+    },
+    {
+      "id": "native-template-keeps-fixed-headings",
+      "prompt": "이 CSV 버그를 팀 양식으로 초안 작성해 줘. Windows에서 한글 이름이 깨지고 UTF-8 CSV로 정상 표시되는 것이 기존 계약이야. 본문 설명은 한국어로 써 줘.",
+      "fixture": {
+        "repository_template": "absent",
+        "team_template": {
+          "headings": [
+            "Context",
+            "Evidence",
+            "Acceptance"
+          ],
+          "required": [
+            "Context",
+            "Evidence",
+            "Acceptance"
+          ]
+        },
+        "reproduction": "Windows Chrome download observation"
+      },
+      "expected_template_source": "team",
+      "must_preserve_template_headings": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
+      "id": "unverified-team-template-is-temporary-draft",
+      "prompt": "Linear ENG 팀의 CSV 버그 티켓 초안을 써 줘. Windows Chrome에서 한글 이름이 깨진다는 보고가 있어.",
+      "fixture": {
+        "repository_template": "absent",
+        "team_template": "access unavailable"
+      },
+      "expected_template": "bug",
+      "expected_template_source": "temporary-fallback",
+      "must_not_claim_template_absent": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
+      "id": "workflow-alone-does-not-install-fluent",
+      "prompt": "고객이 CSV 한글 깨짐을 보고했어. 접수용 한국어 티켓 초안을 만들어 줘.",
+      "expected_template": "bug",
+      "expected_readiness": "intake",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_install_plugin": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
+      "id": "restored-incident-does-not-close-problem",
+      "prompt": "어제 API 장애는 복구됐지만 같은 장애가 3번 반복됐고 원인은 아직 몰라. 재발 원인과 관리 결정을 추적할 티켓 초안을 만들어 줘.",
+      "expected_template": "problem",
+      "must_not_claim_prevention_complete": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
+      "id": "postmortem-keeps-followups-distinct",
+      "prompt": "복구된 API 장애에 대해 확인된 타임라인·영향·기여 요인·후속 조치를 기록하는 회고 문서 작업 티켓 초안을 만들어 줘. 후속 구현 완료는 별도로 추적해.",
+      "expected_template": "postmortem",
+      "must_not_claim_followups_complete": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
+      "id": "rollout-completion-requires-delivery",
+      "prompt": "구현은 merge됐어. 승인된 일본 대상군 10%에 feature flag를 켜고 오류율이 기존 기준을 넘으면 중단하는 공개 작업을 별도로 추적할 티켓 초안을 써줘.",
+      "expected_template": "rollout",
+      "must_preserve_whole_completion": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
+      "id": "linear-branch-omits-id-despite-convention",
+      "prompt": "Linear ENG-123의 검색 필터 작업용 branch 이름을 제안해 줘. 이 repo 관례와 integration 추천 이름에는 ENG-123이 들어 있어. codex/ prefix를 사용해.",
+      "expected_sequence": [
+        "workflow:git-workflow"
+      ],
+      "must_omit_linear_id_from_branch": true,
+      "installed_plugins": [
+        "workflow"
+      ]
+    },
+    {
+      "id": "linear-branch-explicit-exact-name-wins",
+      "prompt": "Linear ENG-123 작업용 branch 이름은 정확히 codex/feat/ENG-123-search로 사용할 거야. 그 이름을 확인해 줘.",
+      "expected_sequence": [
+        "workflow:git-workflow"
+      ],
+      "expected_branch_name": "codex/feat/ENG-123-search",
+      "installed_plugins": [
+        "workflow"
+      ]
+    },
+    {
+      "id": "security-intake-protects-restricted-details",
+      "prompt": "제한된 내부 보안 보고서를 바탕으로 공개 GitHub 저장소에 취약점 접수 티켓 초안을 만들어 줘. 보고서에는 token과 고객 개인정보가 있고 공개 범위 승인은 아직 없어.",
+      "expected_template": "security",
+      "expected_readiness": "intake",
+      "must_not_disclose_restricted_content": true,
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
+    },
+    {
       "id": "direct-commit-routes-to-workflow",
       "installed_plugins": ["engineering", "workflow"],
       "prompt": "현재 변경 중 API 수정만 Conventional Commit으로 커밋해줘. push는 하지 마.",

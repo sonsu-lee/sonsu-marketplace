@@ -1,13 +1,13 @@
 ---
 name: ticket-lifecycle
-description: 기존 Linear, GitHub Issues 또는 Jira 티켓의 상태·담당자·blocking·related·duplicate 관계를 시작, review, 완료, reopen, cancel, assign, unassign, block, unblock 요청에 따라 변경하거나 lifecycle 결과를 확인해야 할 때 사용한다. 티켓 생성·초안, Git 작업 또는 PR 작성만 요청한 경우에는 사용하지 않는다.
+description: 기존 Linear, GitHub Issues 또는 Jira 티켓의 상태·담당자·blocking·related·duplicate 관계를 시작, review, 완료, reopen, cancel, assign, unassign, block, unblock 요청에 따라 변경하거나 lifecycle 결과를 확인해야 할 때 사용한다. 티켓 생성·초안·제목·본문 수정, Git 작업 또는 PR 작성만 요청한 경우에는 사용하지 않는다.
 ---
 
-# ticket-lifecycle: 기존 티켓 변경하기
+# ticket-lifecycle: 상태·담당자·관계 변경
 
 ## 책임과 권한을 구분한다
 
-기존 티켓의 상태·담당자·native relation만 변경한다. 함께 요청된 새 티켓, Git과 PR 책임은 runtime에서 독립적으로 조합한다.
+기존 티켓의 상태·담당자·native relation만 변경한다. 제목·본문 작성과 수정은 `to-ticket`의 책임이다. 함께 요청된 내용 수정·새 티켓·Git·PR은 runtime에서 독립적으로 조합한다. 본문 보강만으로 상태를 전이하지 않는다.
 
 조회·설명 요청은 원격 쓰기를 허가하지 않는다. 티켓과 변경 의도를 명시해야 mutation할 수 있다. 일반 코드 작업이나 branch ID만으로 바꾸지 않는다. `ENG-123`처럼 모호한 key는 URL, 사용자 맥락, tracker 또는 integration으로 확인한다.
 
@@ -56,7 +56,7 @@ status, transition, assignee, relation, automation과 권한을 읽는다. 이�
 
 ## relation과 status를 섞지 않는다
 
-`block`과 `unblock`은 native blocked-by·blocking relation을 먼저 처리한다. Waiting 또는 Blocked status는 대상 공간에 독립적인 정책과 유효한 transition이 있을 때만 별도 operation으로 적용한다. `related`와 `duplicate`도 native relation을 우선하고 관련 없는 status를 바꾸지 않는다. native operation에 provider 고유의 필수 상태 효과가 있으면 실행 전에 확인한다. 요청이 그 효과를 금지하면 원격 호출 없이 operation을 `unapplied`, reason을 `conflict`로 보고한다. 구조화된 relation이 없으면 `unsupported`로 보고하며, body 수정까지 명시적으로 요청받은 경우에만 의미를 본문에 보존한다.
+`block`과 `unblock`은 native blocked-by·blocking relation을 먼저 처리한다. Waiting 또는 Blocked status는 대상 공간에 독립적인 정책과 유효한 transition이 있을 때만 별도 operation으로 적용한다. `related`와 `duplicate`도 native relation을 우선하고 관련 없는 status를 바꾸지 않는다. native operation에 provider 고유의 필수 상태 효과가 있으면 실행 전에 확인한다. 요청이 그 효과를 금지하면 원격 호출 없이 operation을 `unapplied`, reason을 `conflict`로 보고한다. 구조화된 relation이 없으면 `unsupported`로 보고하며, body 수정까지 명시적으로 요청받은 경우에만 내용 수정 책임을 `to-ticket`과 조합해 의미를 본문에 보존한다.
 
 PR event automation이 구성되었으면 그 event의 status effect를 직접 중복 적용하지 않는다. automation 부재·비적용, 현재 상태, 목표 transition, 권한과 전이 의도가 모두 확인된 경우에만 직접 fallback한다. 비동기 결과가 불명확하면 `unknown`으로 보고하고 전이하지 않는다.
 

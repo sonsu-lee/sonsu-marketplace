@@ -1,6 +1,6 @@
-# Jira 게시 규칙
+# Jira 작성·게시 규칙
 
-Jira용 payload를 작성하거나 게시하라는 요청이 있을 때만 읽는다.
+Jira용 payload를 작성·게시하거나 기존 제목·본문을 조회·수정할 때 읽는다.
 
 Jira Cloud의 현재 UI 문서에서는 `work item`, `work type`, `space`, `Title`을 사용하지만 REST API, JQL과 이전 UI에서는 `issue`, `issue type`, `project`, `summary`가 계속 나타날 수 있다. 사용자에게 보이는 설명은 대상 site의 용어를 따르고 tool payload는 실제 schema의 field 이름을 그대로 사용한다.
 
@@ -29,7 +29,7 @@ Atlassian MCP의 현재 tool schema를 먼저 확인한다. Rovo MCP v2는 도�
 
 connector가 `description`에 Markdown을 받더라도 직접 REST API를 사용할 때에는 multi-line rich text field가 Atlassian Document Format을 요구할 수 있다. 항상 실제 tool 또는 endpoint schema를 따른다. 생성만 요청받으면 workflow의 초기 status를 유지한다. 상태 transition과 sprint 배치는 생성과 별도 작업이며 명시적인 요청이 있을 때만 수행한다.
 
-## 게시하고 검증한다
+## 생성하고 검증한다
 
 1. 연결된 site와 `cloudId`, project와 issue type을 확인한다.
 2. create-field metadata와 같은 목적의 기존 issue를 조회한다.
@@ -39,5 +39,11 @@ connector가 `description`에 Markdown을 받더라도 직접 REST API를 사용
 6. 생성 payload에 포함되지 않은 metadata와 issue link를 하나씩 적용하고 매번 key로 티켓을 다시 읽어 URL, summary, status, 실제 field와 관계를 확인한다.
 
 필수 field를 확인할 수 없거나 연결되지 않았으면 게시하지 않는다. 생성 결과가 불명확하면 같은 payload를 반복하지 말고 JQL이나 정확한 key 조회로 실제 상태를 먼저 확인하며, 확인되지 않으면 `unknown`으로 남긴다. 후속 operation은 재조회에서 미적용이 확인된 경우에만 재시도한다.
+
+## 기존 제목·본문 수정
+
+`revise`에서는 정확한 site·project·canonical key와 현재 summary·전체 description을 먼저 읽는다. 생성 metadata 대신 현재 issue의 edit 가능 field·update schema를 확인한다. 본문은 Markdown 문자열인지 ADF 같은 rich-text document인지 구분하고, 읽은 표현을 다시 쓸 때 기존 node·링크·첨부 참조를 보존할 수 있는지 확인한다. 손실 없는 수정이 불가능하면 변경 제안만 반환한다.
+
+payload에는 canonical 식별자와 요청한 summary·description만 넣고 work type·status·assignee·parent·link는 포함하지 않는다. status transition을 내용 edit에 섞지 않는다. 쓰기 직전에 원문·지원되는 revision marker를 다시 읽고 공통 Revise 규칙을 적용한다. 수정 뒤 전체 summary·description을 재조회하여 요청 밖의 내용과 형식의 보존까지 비교한다.
 
 공식 interface와 개념 참고: [Atlassian Rovo MCP supported tools](https://support.atlassian.com/atlassian-ai-gateway/docs/supported-tools/), [Jira Cloud issue API](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/), [Jira work types](https://support.atlassian.com/jira-cloud-administration/docs/what-are-issue-types/), [Jira work item 생성](https://support.atlassian.com/jira-software-cloud/docs/create-a-work-item-and-a-subtask/), [Jira Service Management request type과 work type](https://support.atlassian.com/jira-service-management-cloud/docs/whats-the-difference-between-request-types-and-issue-types/)

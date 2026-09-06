@@ -1,4 +1,4 @@
 interface:
   display_name: "To Ticket"
-  short_description: "실행 가능한 티켓을 작성해 tracker에 게시합니다"
-  default_prompt: "$to-ticket을 사용해 정리된 이 작업을 실행 가능한 티켓으로 만들어 줘."
+  short_description: "상황에 맞는 티켓을 작성하거나 기존 내용을 보강합니다"
+  default_prompt: "$to-ticket을 사용해 이 요청에 맞는 티켓 초안을 작성하거나 지정한 티켓 내용을 보강해 줘."

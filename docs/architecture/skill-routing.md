@@ -23,7 +23,7 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | error ownership, logging과 운용 가능성 검토 | `quality-engineering:review-operability` |
 | 여러 quality lens를 아우르는 broad review | `quality-engineering:review-quality` |
 | branch, staging, commit, 일반 push와 Git 변경 검토 | `workflow:git-workflow` |
-| ticket·issue·backlog 초안 또는 생성 metadata를 포함한 게시 | `workflow:to-ticket` |
+| ticket·issue·backlog 접수·초안·게시 또는 기존 제목·본문 보강 | `workflow:to-ticket` |
 | 기존 ticket의 작업 시작·review·완료 상태, 담당자와 native relation 변경 | `workflow:ticket-lifecycle` |
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
@@ -280,17 +280,41 @@ contract가 허용하는 범위에서만 사용하고, companion의 manual opera
 질문을 추가하지 않습니다. 공통 router는 실제 반복 충돌이 확인되고 별도 결정이 승인되기 전에는
 추가하지 않습니다.
 
-## Ticket 생성과 lifecycle
+## Ticket 작성·수정과 lifecycle
 
-Workflow는 ticket 생성, 기존 ticket의 lifecycle 변경과 PR 연동을 서로 다른 책임으로 나눕니다.
+Workflow는 ticket 접수·작성·내용 수정, 기존 ticket의 lifecycle 변경과 PR 연동을 서로 다른 책임으로 나눕니다.
 
 | 이벤트 | 담당 | 책임 |
 | --- | --- | --- |
-| ticket 초안·생성 | `workflow:to-ticket` | body, 초기 status와 생성 metadata를 확정하고 게시 결과를 검증 |
+| ticket 접수·초안·생성 | `workflow:to-ticket` | 종류·구조·준비 상태에 맞는 title·body와 생성 metadata를 준비하고 허가된 게시 결과를 검증 |
+| 기존 title·body 보강 | `workflow:to-ticket` | canonical 원문을 읽고 요청한 내용만 수정·재조회; 기존 결정·기록과 요청 밖 field 보존 |
 | 작업 시작·상태 변경 | `workflow:ticket-lifecycle` | canonical ticket의 현재 상태를 읽고 허용된 transition, 담당자와 native relation을 변경 |
 | branch 생성 | `workflow:git-workflow` | Git branch만 관리하고 ticket mutation은 runtime에서 `ticket-lifecycle`과 조합 |
 | PR 초안·게시 | `workflow:to-pr` | canonical ticket의 연결 의도와 provider 문법을 PR에 표현하고 status effect를 검증 |
 | PR·merge·release event | tracker의 native integration | 구성된 workflow automation을 적용하고, Workflow skill은 직접 중복 전이하지 않음 |
+
+### 종류·구조·준비 상태를 나누어 작성한다
+
+`to-ticket`은 사용자 지정 양식, 적용 가능한 repository·팀 양식, 플러그인 기본형 순서로 선택합니다.
+양식 확인 불가를 없음으로 간주하지 않습니다. 기본형은 bug, feature-request, feature, investigation,
+maintenance, validation, incident, problem, postmortem, rollout, migration, service-request, security를
+제공하며 선택한 파일 하나만 읽습니다. `single | parent | child` 구조는 종류와 별개이며 같은 의미의
+heading을 중복해서 붙이지 않습니다. native type·label·hierarchy는 실제 tracker 설정을 따릅니다.
+
+`intake | execution-ready | needs-information`은 작성 준비 상태입니다. 원인 미상의 버그 보고나 채택
+전 기능 요청도 사실과 질문으로 접수할 수 있으며, 실행 범위·수용 기준이나 tracker status를 새로
+결정하지 않습니다. 같은 결과의 구체화는 기존 티켓에 보강하고 독립적인 결과·책임·완료 판정이 필요한
+경우에만 분리합니다. 부모의 완료 조건은 전체 결과이며 자식 완료나 merge만으로 대신하지 않습니다.
+
+기존 제목·본문 수정은 `revise`로 처리합니다. 최신 canonical 원문에서 요청한 부분을 수정하고 쓰기
+직전에 재조회합니다. 충돌하는 동시 수정은 덮어쓰지 않으며, 쓰기 응답이 불명확하면 재전송하지 않고
+조회로 판정합니다. 형식을 보존할 수 없는 rich-text 본문은 제안만 반환합니다. 상태·담당자·native
+relation 변경도 함께 요청받았을 때에만 `ticket-lifecycle`과 조합합니다.
+
+새 문장·기존 본문 수정·결과 보고에는 출력 언어에 맞는 Fluent Languages 스킬 사용을 권장합니다.
+현재 inventory에 있는 스킬만 조합하며 미설치를 작업 차단이나 자동 설치 사유로 삼지 않습니다.
+고정 양식·식별자·링크·의무 수준·사실의 의미를 보존하고 `to-ticket`이 내용과 게시 책임을 유지합니다.
+제품·기술 의사결정은 Product·Engineering의 책임이며 두 플러그인은 필수 의존성이 아닙니다.
 
 ### 생성 metadata를 같은 publish 흐름에서 완성한다
 
@@ -370,6 +394,10 @@ branch 생성이 함께 요청되면 `ticket-lifecycle`과 `git-workflow`을 run
 
 ### PR은 연결하고 native automation을 우선한다
 
+Linear 티켓의 새 branch에는 ID를 자동으로 넣지 않습니다. repository의 ID 관례나 integration의 추천
+branch도 예외가 아니며, 사용자가 정확한 이름이나 ID 포함을 직접 지정했을 때만 따릅니다. 기존 branch를
+자동 rename하지 않고 PR metadata를 연결 채널로 사용합니다.
+
 `to-pr`은 canonical ticket의 `complete`, `contribute`, `relate` 또는 `suppress` 의도를 provider의
 정확한 PR title·body·link 문법으로 표현합니다. Linear magic word, GitHub closing keyword와 Jira
 work item key는 서로 바꾸어 사용하지 않습니다. 같은 작업이 여러 tracker에 동기화되어 있으면
@@ -398,6 +426,10 @@ trigger를 지원합니다. GitHub Issue 자체의 state는 open·closed 중심�
 [GitHub Projects built-in automation](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-built-in-automations)
 
 ### 검증할 대표 경로
+
+- 미승인 기능 요청·원인 미상 버그를 접수하고, 실행 준비와 실제 tracker status를 구분하는가?
+- 기존 내용 수정에서 요청 밖 기록·형식과 동시 변경을 보존하고 불명확한 쓰기를 반복하지 않는가?
+- 팀 양식·부모 전체 완료 조건·Fluent 미설치 경계를 보존하는가?
 
 - Linear ticket 생성에서 label, priority, estimate, assignee, project, milestone과 relation을 실제
   workspace 선택지에 맞춰 적용하고 전부 재조회하는가?

@@ -55,7 +55,7 @@ Draft PR 생성은 GitHub Issue나 Project item의 review 시작을 뜻하지 �
 
 ## Linear
 
-PR body의 magic word를 기본 채널로 사용한다. title의 ID는 repository 관례나 사용자의 명시가 있을 때만 사용한다.
+PR body의 magic word를 기본 채널로 사용한다. Linear 연결을 위해 새 branch 이름에 티켓 ID를 추가하거나 ID 추가를 Git workflow에 요청하지 않는다. title의 ID는 repository 관례나 사용자의 명시가 있을 때만 사용한다.
 
 | 의도 | 표현 | 효과 |
 | --- | --- | --- |
