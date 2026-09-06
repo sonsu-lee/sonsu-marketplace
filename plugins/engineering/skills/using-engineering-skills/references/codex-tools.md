@@ -17,8 +17,12 @@ multi_agent = true
 `features list`에서 두 키를 각각 단독으로 바꿔 확인하니 `agents.enabled=false/true`는 baseline의
 활성 상태(true)를 바꾸지 않았고 `features.multi_agent=false/true`는 각각 false/true로 표시됐다.
 이 문서의 키를 모든 Codex surface에 그대로 적용하지 않는다. 현재 host의 capability와
-실제 설정 효과를 확인한다. `agents.max_concurrent_threads_per_session`은 활성화와 별개인
-동시수 설정이다(주 agent 제외). [공식 subagent 설정](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agents)
+실제 설정 효과를 확인한다. [공식 subagent 설정](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agents)
+
+`agents.max_concurrent_threads_per_session`은 Codex CLI 0.152.1에서 지원을 확인한 동시수
+설정이다(주 agent 제외). 0.144.0-alpha.4의 [설정 스키마](https://github.com/openai/codex/blob/rust-v0.144.0-alpha.4/codex-rs/core/config.schema.json)는
+이 키를 지원하지 않으므로 그대로 추가하지 않는다. 설치 버전의 설정 스키마에서 지원 여부를
+확인한 뒤 적용한다. 0.152.1을 최초 지원 버전이나 유일한 지원 버전으로 단정하지 않는다.
 
 - **생성:** `spawn_agent {fork_turns: "none"}`으로 child에게 깨끗한 context를 제공한다.
   현재 도구의 기본값 `"all"`은 전체 transcript를 child에 복사하며 이 경우 model/effort override가
