@@ -1,6 +1,6 @@
 {
   "name": "fluent-languages",
-  "version": "0.1.0-beta.4",
+  "version": "0.1.0-beta.4+codex.20260906021214",
   "description": "Personal Codex guidance for natural Korean, Japanese, and English output.",
   "author": {
     "name": "sonsu",
@@ -25,6 +25,6 @@
     "capabilities": [
       "Write"
     ],
-    "defaultPrompt": "요청한 출력 언어에 맞춰 자연스럽고 정확하게 설명해 줘."
+    "defaultPrompt": "\uc694\uccad\ud55c \ucd9c\ub825 \uc5b8\uc5b4\uc5d0 \ub9de\ucdb0 \uc790\uc5f0\uc2a4\ub7fd\uace0 \uc815\ud655\ud558\uac8c \uc124\uba85\ud574 \uc918."
   }
 }

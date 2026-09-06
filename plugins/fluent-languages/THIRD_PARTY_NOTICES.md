@@ -2,6 +2,12 @@
 
 The local plugin license is in [`LICENSE`](LICENSE). The following notices apply to the incorporated upstream material identified in [`UPSTREAM.md`](UPSTREAM.md).
 
+## JTF Japanese Standard Style Guide, version 4.0
+
+Source: [JTF日本語標準スタイルガイド（翻訳用）第4.0版](https://www.jtf.jp/pdf/jtf_style_guide.pdf), copyright 一般社団法人 日本翻訳連盟 (Japan Translation Federation).
+
+The guide is licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/). Its scoped orthographic guidance and short examples inform the local Japanese writing rules and the repository research catalog. This adaptation adds categorization, Korean explanations, contextual examples and exceptions; it is not an unchanged copy or an endorsement by JTF. The CC BY terms continue to apply to the adapted JTF material.
+
 ## `im-not-ai`
 
 Source: <https://github.com/epoko77-ai/im-not-ai/tree/31a66d165a9cc6c26c4c1246553f95d0468d27fb>
