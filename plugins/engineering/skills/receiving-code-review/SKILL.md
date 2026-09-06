@@ -1,211 +1,25 @@
 ---
 name: receiving-code-review
-description: 코드 리뷰 피드백을 받고 제안을 구현하기 전에 사용하며, 특히 피드백이 불명확하거나 기술적으로 의심스러울 때 적용한다. 보여 주기식 동의나 무조건적인 구현이 아니라 기술적 엄밀함과 검증을 요구한다
+description: 코드 리뷰 피드백을 받고 제안을 구현하기 전에 사용하며, 특히 피드백이 불명확하거나 기술적으로 의심스러울 때 적용한다
 ---
 
-# receiving-code-review: 코드 리뷰 수용
+# 리뷰 피드백 처리
 
-## 개요
+리뷰 의견은 검토가 필요한 주장이다. [공통 리뷰 기준](../requesting-code-review/review-criteria.md)으로
+현재 코드·요구사항·사용 중인 버전의 기본 동작과 유효 설정을 대조한 뒤 수정 여부를 정한다.
 
-코드 리뷰에는 감정적인 연기가 아니라 기술적인 평가가 필요하다.
+1. 동작 문제는 발생 조건을, 구조 문제는 현재의 이해·수정 비용과 영향을 확인한다.
+   reviewer의 심각도 라벨이나 "더 안전하다"는 표현은 수정 근거가 아니다. 기존 처리로 충족되는 동작이면 해당 근거를 들어 지적을 닫는다.
+2. 유효한 차단 지적과 사용자가 수정을 요청한 지적은 최소한의 변경으로 해결하고, 영향받은
+   동작을 검증한다. 필요한 보호는 유지하며, 추가 설정·timeout·추상화는 현재 처리로 부족한 이유가 있을 때만 만든다.
+3. 미확인 가정은 필요한 코드·설정·문서로 확인한다. 판정에 필수인 공백만 반환하고, 근거 없는
+   권고는 닫는다. 근거 있는 비차단 구조 지적은 보고하고 자동 수정·backlog·재리뷰로 넘기지 않는다.
+4. 승인된 계약이나 권한을 바꿔야 하면 해당 결정만 사용자에게 확인한다. 기존 승인으로 해결할
+   수 있는 선택은 직접 처리하고 독립적인 승인 작업은 계속한다.
+5. 결과는 수정·근거로 기각·비차단 보고·필수 확인 필요 중 실제 상태에 맞게 이유와 함께 짧게 보고한다.
+   게이트의 차단 지적은 원래 revision과 finding을 보존하고 [품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)에 따라 집중 재리뷰한다.
 
-**핵심 원칙:** 구현하기 전에 검증한다. 가정하기 전에 질문한다. 사회적 편안함보다 기술적 정확성이 우선이다.
+예: "timeout 추가" 권고를 받으면 현재 provider 버전·resource의 기본 제한과 override를 먼저
+확인한다. 이미 요구를 충족하면 중복 설정을 추가하지 않고, 실제 부족이 확인되면 그 범위만 고친다.
 
-피드백이 Engineering 품질 게이트에 속하면 공통
-[품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)을 읽는다.
-나중에 범위를 제한한 재리뷰에서 정확히 해당 finding을 해결했는지 판단할 수 있도록 원래 artifact 리비전과 finding 식별자를 유지한다.
-
-## 대응 pattern
-
-```
-WHEN receiving code review feedback:
-
-1. READ: Complete feedback without reacting
-2. UNDERSTAND: Restate requirement in own words (or ask)
-3. VERIFY: Check against codebase reality
-4. EVALUATE: Technically sound for THIS codebase?
-5. RESPOND: Technical acknowledgment or reasoned pushback
-6. ROUTE: Send a valid finding to the nearest implementation, plan, or design owner
-7. IMPLEMENT: One item at a time, test each
-8. RE-REVIEW: Verify the changed revision with focused evidence
-```
-
-## 금지하는 응답
-
-**절대 하지 않는다.**
-- "You're absolutely right!" (명시적인 지침 파일 위반)
-- "Great point!" / "Excellent feedback!" (과장된 반응)
-- "Let me implement that now" (검증 전)
-
-**대신 다음과 같이 대응한다.**
-- 기술 요구사항을 다시 설명한다.
-- 명확화 질문을 한다.
-- 틀렸다면 기술적 근거를 들어 반박한다.
-- 말보다 행동으로 바로 작업을 시작한다.
-
-## 불명확한 피드백 처리
-
-```
-IF any item is unclear:
-  STOP - do not implement anything yet
-  ASK for clarification on unclear items
-
-WHY: Items may be related. Partial understanding = wrong implementation.
-```
-
-**예시:**
-```
-your human partner: "Fix 1-6"
-You understand 1,2,3,6. Unclear on 4,5.
-
-❌ WRONG: Implement 1,2,3,6 now, ask about 4,5 later
-✅ RIGHT: "I understand items 1,2,3,6. Need clarification on 4 and 5 before proceeding."
-```
-
-## 출처별 처리
-
-### 사용자에게 받은 피드백
-- **신뢰한다.** 이해한 뒤 구현한다.
-- 범위가 불명확하면 **여전히 질문한다.**
-- **보여 주기식으로 동의하지 않는다.**
-- **바로 행동하거나** 기술적으로 이해한 내용을 확인한다.
-
-### 외부 reviewer에게 받은 피드백
-```
-BEFORE implementing:
-  1. Check: Technically correct for THIS codebase?
-  2. Check: Breaks existing functionality?
-  3. Check: Reason for current implementation?
-  4. Check: Works on all platforms/versions?
-  5. Check: Does reviewer understand full context?
-
-IF suggestion seems wrong:
-  Push back with technical reasoning
-
-IF can't easily verify:
-  Say so: "I can't verify this without [X]. Should I [investigate/ask/proceed]?"
-
-IF conflicts with your human partner's prior decisions:
-  Stop and discuss with your human partner first
-```
-
-**사용자의 규칙:** "External feedback - be skeptical, but check carefully"
-
-## "Professional" 기능의 YAGNI 확인
-
-```
-IF reviewer suggests "implementing properly":
-  grep codebase for actual usage
-
-  IF unused: "This endpoint isn't called. Remove it (YAGNI)?"
-  IF used: Then implement properly
-```
-
-**사용자의 규칙:** "You and reviewer both report to me. If we don't need this feature, don't add it."
-
-## 구현 순서
-
-```
-FOR multi-item feedback:
-  1. Clarify anything unclear FIRST
-  2. Then implement in this order:
-     - Blocking issues (breaks, security)
-     - Simple fixes (typos, imports)
-     - Complex fixes (refactoring, logic)
-  3. Test each fix individually
-  4. Verify no regressions
-```
-
-## 반박해야 할 때
-
-다음 상황에서는 반박한다.
-- 제안이 기존 기능을 깨뜨린다.
-- reviewer에게 전체 context가 없다.
-- 사용하지 않는 기능을 추가해 YAGNI를 위반한다.
-- 현재 stack에서 기술적으로 틀렸다.
-- legacy 또는 compatibility 사유가 있다.
-- 사용자의 architecture 결정과 충돌한다.
-
-**반박 방법:**
-- 방어적인 태도가 아니라 기술적 근거를 사용한다.
-- 구체적인 질문을 한다.
-- 동작하는 테스트와 코드를 참조한다.
-- architecture 문제라면 사용자를 참여시킨다.
-
-**공개적으로 반박하기 불편하다면:** 그 불편함을 밝힌 뒤 발견한 문제를 사용자에게 설명한다. 사용자는 솔직한 설명을 이해할 것이다.
-
-## 올바른 피드백 확인
-
-피드백이 올바를 때:
-```
-✅ "Fixed. [Brief description of what changed]"
-✅ "Good catch - [specific issue]. Fixed in [location]."
-✅ [Just fix it and show in the code]
-
-❌ "You're absolutely right!"
-❌ "Great point!"
-❌ "Thanks for catching that!"
-❌ "Thanks for [anything]"
-❌ ANY gratitude expression
-```
-
-**감사를 표현하지 않는 이유:** 행동으로 보여 준다. 수정하면 코드 자체가 피드백을 반영했음을 보여 준다.
-
-**"Thanks"라고 쓰려는 자신을 발견했다면:** 삭제하고 대신 수정 내용을 말한다.
-
-## 잘못된 반박을 바로잡기
-
-반박했지만 자신이 틀렸다면 다음처럼 대응한다.
-```
-✅ "You were right - I checked [X] and it does [Y]. Implementing now."
-✅ "Verified this and you're correct. My initial understanding was wrong because [reason]. Fixing."
-
-❌ Long apology
-❌ Defending why you pushed back
-❌ Over-explaining
-```
-
-수정된 사실을 담담하게 밝히고 다음으로 넘어간다.
-
-## 자주 하는 실수
-
-| 실수 | 수정 방법 |
-|---------|-----|
-| 보여 주기식 동의 | 요구사항을 말하거나 바로 행동한다. |
-| 무조건적인 구현 | 먼저 codebase와 대조해 검증한다. |
-| 테스트 없이 일괄 처리 | 한 번에 하나씩 처리하고 각각 테스트한다. |
-| reviewer가 옳다고 가정 | 기존 동작을 깨뜨리는지 확인한다. |
-| 반박 회피 | 편안함보다 기술적 정확성이 우선이다. |
-| 일부만 구현 | 먼저 모든 항목을 명확히 한다. |
-| 검증할 수 없는데 진행 | 제한을 밝히고 방향을 질문한다. |
-
-## 실제 예시
-
-**보여 주기식 동의(나쁜 예):**
-```
-Reviewer: "Remove legacy code"
-❌ "You're absolutely right! Let me remove that..."
-```
-
-**기술적 검증(좋은 예):**
-```
-Reviewer: "Remove legacy code"
-✅ "Checking... build target is 10.15+, this API needs 13+. Need legacy for backward compat. Current impl has wrong bundle ID - fix it or drop pre-13 support?"
-```
-
-**YAGNI(좋은 예):**
-```
-Reviewer: "Implement proper metrics tracking with database, date filters, CSV export"
-✅ "Grepped codebase - nothing calls this endpoint. Remove it (YAGNI)? Or is there usage I'm missing?"
-```
-
-**불명확한 항목(좋은 예):**
-```
-your human partner: "Fix items 1-6"
-You understand 1,2,3,6. Unclear on 4,5.
-✅ "Understand 1,2,3,6. Need clarification on 4 and 5 before implementing."
-```
-
-## GitHub thread 답글
-
-GitHub의 inline review comment에 답할 때에는 최상위 PR comment가 아니라 해당 comment thread(`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`)에 답한다.
+GitHub 리뷰 답글은 사용자가 전송을 승인한 경우 해당 inline comment thread에 남긴다.

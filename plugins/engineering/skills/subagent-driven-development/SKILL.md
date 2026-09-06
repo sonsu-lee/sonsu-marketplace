@@ -378,14 +378,10 @@ task 리뷰를 생략하거나 두 판정 중 하나가 빠진 report를 받아�
   block에는 현재 project의 spec이 요구하는 내용을 넣는다.
 - 구체적이고 task에 한정된 이유 없이 "check all uses" 또는 "run race tests if useful" 같은 열린 지침을 추가하지 않는다.
 - implementer가 같은 작업에서 이미 실행한 검증을 reviewer에게 반복하라고 하지 않는다. implementer report가 근거를 전달한다.
-- reviewer의 finding을 미리 판정하지 않는다. 특정 문제를 무시하거나 보고하지 말라고 지시하지
-  않는다. finding이 false positive라고 생각하더라도 reviewer가 제기하게 한 뒤 review loop에서
-  판정한다. 작성 중인 prompt에 "do not flag", "don't treat X as a defect", "at most Minor" 또는
-  "the plan chose"가 있다면 중단한다. review loop를 피하려고 미리 판정하고 있을 가능성이 크다.
-task reviewer는 변경되지 않은 코드에 있거나 여러 task에 걸쳐 있는 요구사항을 "⚠️ Cannot verify
-from diff" 항목으로 보고할 수 있다. 이 항목은 나머지 리뷰를 막지 않지만 task를 완료로 표시하기
-전에 각 항목을 직접 해결해야 한다. reviewer에게 없는 plan과 task 간 context를 가지고 있기
-때문이다. 실제 공백으로 확인되면 실패한 spec 리뷰로 취급해 다른 finding과 함께 fix loop에 넣는다.
+- reviewer에게 [공통 리뷰 기준](../requesting-code-review/review-criteria.md)을 전달한다. 특정 지적의
+  결론을 미리 정하지 않으며 기본 동작·현재 설정·실제 영향으로 판단하게 한다.
+판정에 필수인 근거 공백은 controller가 관련 자료를 확인해 해소한다. diff 밖에서 이미 충족된
+요구사항을 위해 추가로 구현하지 않는다. 실제 구현 공백이 확인된 경우에만 fix loop에 넣는다.
 
 템플릿: [task-reviewer-prompt.md](task-reviewer-prompt.md)
 
@@ -397,17 +393,15 @@ from diff" 항목으로 보고할 수 있다. 이 항목은 나머지 리뷰를 
 - task 세부사항 또는 interface 결함은 `engineering:writing-plans`로 돌려보낸다.
 - 승인된 요구사항 또는 설계의 모순은 `engineering:brainstorming`으로 돌려보낸다.
 - 빠진 capability, 권한, service, dependency 또는 외부 상태는 재개에 필요한 조건과 함께 `blocked`로 기록한다.
-- 유효한 구현 finding만 범위가 제한된 fix loop에 넣는다.
+- 유효한 차단 구현 finding만 범위가 제한된 fix loop에 넣는다.
 
 이 소유 단계 분류는 routing이며 상한 도달 시의 판정이 아니다. 실패한 입력을 바꿀 수 없는 코드
 재시도를 막는다. loop는 유효한 구현 finding, 즉 spec ❌, Critical 또는 Important 문제,
 구현 공백으로 확인한 ⚠️ 항목에만 시작한다.
 
-Minor finding은 loop 전에 제외한다. 진행하면서 progress ledger에 `Task <N>: minor (deferred):
-<one-liner>`로 기록하고 최종 전체 브랜치 리뷰가 이 목록을 보고 merge 전에 수정할 항목을
-분류하게 한다. 아무도 읽지 않는 요약은 조용한 폐기다. Minor finding은 loop에 들어가지 않고
-남은 유효한 구현 finding만 들어간다. 수정 회차는 한 번의 수정 위임과 범위가 제한된 재리뷰로
-구성하며 task마다 최대 5회다.
+근거 없는 권고는 닫고 비차단 구조 지적은 보고한다. 비차단 항목만으로 fix loop나 backlog를
+만들거나 최종 리뷰로 넘기지 않는다. 추가 구현은 사용자가 요청한 범위에서 다룬다.
+각 수정 회차는 한 번의 수정 위임과 집중 재리뷰로 구성하며, task마다 최대 5회까지 진행한다.
 
 **1~3회차 — 원래 implementer를 재개한다.** 열린 finding과 새 관찰 evidence를 전달하고 같은
 implementer를 `followup_task`로 재개한다. context가 남아 있으므로 task, 코드와 앞선 선택을 다시
@@ -449,8 +443,8 @@ controller는 각 수정 뒤 현재 revision의 명령·출력, 변경 범위와
 **재리뷰의 범위는 제한된다.** 각 회차에는 fresh-context reviewer를 사용한다. 이전 리뷰에서 확인한
 head를 FIX_BASE로 삼아 `scripts/review-package PLAN_FILE FIX_BASE HEAD`를 실행하고, finding 목록, brief,
 새 고정 검증 사본과 출력된 diff 경로를 [re-review-prompt.md](re-review-prompt.md)에 넣는다. 재리뷰어는 원래 열린
-finding을 ADDRESSED 또는 NOT ADDRESSED로 판정하고 수정이 만든 Critical/Important 회귀만 새 finding으로
-추가한다. 다른 새 scope 아이디어는 deferred로 ledger에 기록하며 loop를 확장하지 않는다. 수정이 승인된
+finding을 ADDRESSED 또는 NOT ADDRESSED로 판정하고, INVALID 제안은 controller가 근거를 확인해 닫는다.
+수정으로 생긴 Critical/Important 회귀만 새 finding으로 추가한다. 수정이 승인된
 목표·계약·설계나 dependency boundary를 바꾼다면 해당 소유 단계와 사용자 재승인으로 routing한다.
 controller나 reviewer가 위험을 자동 수용하지 않는다.
 
@@ -487,10 +481,10 @@ controller session에서 finding을 직접 수정하지 않는다. context를 �
 
 ### 5. Task 완료
 
-리뷰가 clean이거나, 남은 모든 finding을 근거로 반증했거나, 사람이 정확한 리비전의 남은 위험을
-명시적으로 수용하면 다른 bookkeeping과 같은 메시지에서 ledger에 완료 줄을 추가한다.
+필수 검증과 리뷰 gate가 passed이거나 사람이 정확한 리비전의 남은 위험을 명시적으로 수용하면,
+다른 bookkeeping을 처리하는 메시지에서 ledger에 완료 줄도 추가한다. 비차단 지적은 보고에 남긴다.
 
-- `Task <N>: complete (commits <base7>..<head7>, review clean)`
+- `Task <N>: complete (commits <base7>..<head7>, review passed)`
 - `Task <N>: complete (commits <base7>..<head7>, accepted_risk: <decision evidence>)`
 - `Task <N>: reopened (plan <old> -> <new>; <reason>)`
 
@@ -511,14 +505,13 @@ Critical/Important 문제가 열려 있다면 다음 task로 이동하지 않는
 dispatch에 출력된 경로와 SHA-256 리비전을 포함한다. 그러면 최종 reviewer가 git 명령으로
 브랜치 diff를 다시 만들지 않고 한 파일만 읽는다. Model Selection의 platform 역할 matrix에서
 현재 작업에 적합한 최종 리뷰 모델·추론도로 위임하며, `engineering:requesting-code-review`의
-[code-reviewer.md](../requesting-code-review/code-reviewer.md)를 사용한다. merge 전에 수정할
-항목을 분류할 수 있도록 ledger의 deferred-minor, 근거로 닫은 finding과 accepted-risk 줄을 가리킨다.
+[code-reviewer.md](../requesting-code-review/code-reviewer.md)를 사용한다. 근거로 닫은 finding과
+accepted-risk는 현재 판정에 필요한 경우 해당 기록의 위치를 안내한다.
 
-최종 전체 브랜치 리뷰에서 finding이 나오면 finding마다 fixer를 하나씩 두지 말고 열린 finding
-목록을 한 수정 owner에게 함께 전달한다. 수정 뒤 새 HEAD에서 영향을 받은 검사를 실행하고
+최종 전체 브랜치 리뷰에서 유효한 차단 finding이 나오면 finding마다 fixer를 하나씩 두지 말고
+해당 목록을 한 수정 owner에게 함께 전달한다. 수정 뒤 새 HEAD에서 영향을 받은 검사를 실행하고
 `scripts/review-package PLAN_FILE FIX_BASE HEAD`와 [re-review-prompt.md](re-review-prompt.md)로
-범위가 제한된 재리뷰를 수행한다. 재리뷰는 원래 finding과 수정이 만든 회귀만 판정한다. 다른 새
-scope 아이디어는 deferred로 기록한다.
+범위가 제한된 재리뷰를 수행한다. 재리뷰는 원래 finding과 수정이 만든 회귀만 판정한다.
 
 수정이 bounded하면 이전 whole-review 리비전, `FIX_BASE..HEAD` delta, 다룬 finding·검사, 영향받지
 않은 기존 evidence를 재사용하는 근거와 현재 HEAD의 새 scoped gate를 ledger에 기록한다. 이 mapping으로
@@ -591,97 +584,3 @@ workspace와 함께 사라지는 기록은 몰래 내린 결정이다.
 현재 plan의 workspace를 삭제한다. worktree 정리가 workspace를 함께 제거하면 별도로
 `rm -rf`하지 않는다. sibling 디렉터리는 다른 plan 소유이므로 그대로 둔다. 어느 최종 게이트든
 `accepted_risk`였다면 삭제 전 final message에 보존한 근거와 결정 기록이 있는지 확인한다.
-
-## 자주 하는 합리화
-
-| 변명 | 실제 |
-|--------|---------|
-| "Close enough on spec compliance" | reviewer가 spec 공백을 발견했다면 완료가 아니다. 수정하거나 상한에서 근거로 반증하거나 사람의 명시적인 `accepted_risk`를 받아야 한다. |
-| "I'll fix it myself, dispatching is overhead" | controller의 수정은 context를 오염시키고 리뷰를 건너뛴다. implementer를 재개한다. |
-| "One more round will converge" | 상한을 넘으면 자동 회차를 중단한다. 실제 게이트 상태를 기록하고 결정을 routing한다. |
-| "The reviewer will just find something new anyway" | 범위가 제한된 재리뷰는 수정 내용을 검증하며 범위를 벗어날 수 없다. 건드리지 않은 코드의 새 finding은 loop가 아니라 ledger로 보낸다. |
-| "This finding is obviously wrong, I'll drop it" | 근거가 있을 때에만 닫고 모든 판정을 기록한다. 조용한 폐기나 자동 위험 수용은 금지한다. |
-| "The fix was small, skip the re-review" | 리뷰하지 않은 수정으로 회귀가 반영된다. 모든 회차는 범위가 제한된 재리뷰로 끝난다. |
-| "Reviews slow the loop down" | 리뷰 없는 loop는 검증되지 않은 반복일 뿐이다. 리뷰는 loop의 제동 장치와 조향 장치다. |
-| "Ledger bookkeeping is overhead" | compaction 뒤에도 ledger가 남는다. ledger가 없던 controller가 완료한 전체 task sequence를 다시 위임한 사례가 있다. |
-| "The implementer spawned its own reviewer — free extra assurance" | 같은 diff를 리뷰하는 중복 자리이며 task 리뷰가 게이트다. worker가 생성한 reviewer는 엄밀함이 아니라 보고할 결함이다. |
-
-## Workflow 예시
-
-```
-You: I'm using Subagent-Driven Development to execute this plan.
-
-[Setup: worktree verified]
-[Read plan file once: .engineering/plans/feature-plan.md]
-[Confirm current conversation explicitly authorizes task commits]
-[Resolve workspace: scripts/sdd-workspace .engineering/plans/feature-plan.md — no ledger inside, fresh start]
-[Create todos for all tasks]
-
-Task 1: Hook installation script
-
-[Run task-brief for Task 1; dispatch implementer with brief + report paths + context]
-
-Implementer: "Before I begin - should the hook be installed at user or system level?"
-
-You: "User level (~/.config/engineering/hooks/)"
-
-Implementer: [Later]
-  - Implemented install-hook command
-  - Added tests, 5/5 passing
-  - Self-review: Found I missed --force flag, added it
-  - Committed
-
-[Run review-package PLAN_FILE BASE HEAD; dispatch task reviewer with the printed path]
-Task reviewer: Spec ✅ - all requirements met, nothing extra.
-  Strengths: Good test coverage, clean. Issues: None. Task quality: Approved.
-
-[Ledger: Task 1: complete (commits a1b2c3d..d4e5f6a, review clean)]
-
-Task 2: Recovery modes
-
-[Run task-brief for Task 2; dispatch implementer with brief + report paths + context]
-
-Implementer: [No questions]
-  - Added verify/repair modes
-  - 8/8 tests passing
-  - Committed
-
-[Run review-package PLAN_FILE BASE HEAD; dispatch task reviewer with the printed path]
-Task reviewer: Spec ❌:
-  - Missing: Progress reporting (spec says "report every 100 items")
-  Issues (Important): Magic number (100)
-
-[Fix round 1: resume the implementer with both findings]
-Implementer: Added progress reporting, extracted PROGRESS_INTERVAL constant.
-  Re-ran test/recovery.test.js — 10/10 passing. Fix report appended.
-
-[Run review-package PLAN_FILE FIX_BASE HEAD; dispatch scoped re-review]
-Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
-  Magic number — ADDRESSED (src/recovery.js:7). New breakage: none.
-  Verdict: all findings addressed.
-
-[Ledger: Task 2: fix round 1/5 (2 addressed, 0 open; commits d4e5f6a..b7c8d9e)]
-[Ledger: Task 2: complete (commits d4e5f6a..b7c8d9e, review clean)]
-
-...
-
-[After all tasks]
-[Run final whole-change deterministic verification; record commands and output]
-[Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final code-reviewer with task-appropriate model and reasoning effort from the platform role matrix]
-Final reviewer: Important — repair mode bypasses the permission boundary required by the plan.
-
-[Apply one focused final-review fix and rerun affected plus whole-change deterministic checks]
-[Run review-package PLAN_FILE FIX_BASE HEAD; dispatch scoped re-review]
-Re-reviewer: Original finding — ADDRESSED. New breakage: none.
-[Map the prior whole-review revision, FIX_BASE..HEAD delta, addressed finding/checks,
- unaffected evidence, and bounded-impact rationale to a new current-HEAD scoped gate]
-
-[Regenerate the full binary-safe MERGE_BASE..current HEAD package]
-[Freeze goal/design/plan/evidence/provenance contents with the diff into a new red-team bundle and digest]
-[Dispatch a new fresh-context red-team reviewer with only that bundle and digest]
-Red-team reviewer: Verdict: survives_challenge. No evidenced counter-case invalidates the chosen work.
-
-[Preserve this plan's workspace]
-[Use engineering:finishing-a-development-branch]
-[Delete the workspace only after a local merge and merged-result verification; preserve it for PR/keep]
-```

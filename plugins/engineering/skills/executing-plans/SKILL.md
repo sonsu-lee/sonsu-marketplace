@@ -43,7 +43,7 @@ description: 별도 session에서 review checkpoint와 함께 실행할 작성�
 5. 검사가 실패하면 영향을 받은 가장 작은 구현 단계로 돌아간다. 원인을 모르면 `engineering:systematic-debugging`을 사용한 뒤 변경된 artifact에 집중된 검사를 다시 실행한다.
 6. task 게이트가 `passed`이거나 사람이 해당 리비전에 대해 `accepted_risk`를 명시적으로 기록한 경우에만 `completed`로 표시한다.
 
-유효한 task 구현 finding의 자동 수정은 task마다 최대 5회다. 회차 수는 ledger 또는 plan 실행 기록에
+task 구현의 유효한 차단 finding은 task마다 최대 5회까지 자동으로 수정한다. 회차 수는 ledger 또는 plan 실행 기록에
 남겨 session 재진입, compaction, 소유 단계 복귀 뒤에도 이어서 센다. 1~3회차에는 원래 implementer가
 수정한다. 이 스킬처럼 controller가 직접 구현했다면 같은 controller가 집중 수정하고, child implementer가
 있다면 그 child를 재개한다. 원래 implementer가 종료됐거나 사용할 수 없거나, 새 반례에도 같은
@@ -67,8 +67,8 @@ identity는 전달하지 않는다. strict normalized JSON schema나 별도의 f
 실행에서도 누적 변경과 현재 exact artifact를 고정하며, 마지막 수정 delta만으로 handoff하지 않는다.
 마지막 수정 전후의 delta는 아래 scoped 재리뷰용이다.
 
-각 회차 뒤에는 원래 finding과 수정이 만든 회귀만 대상으로 scoped 검증과 재리뷰를 수행한다. 새로운
-범위 아이디어는 deferred로 기록한다. 수정이 승인된 목표·계약·설계나 dependency boundary를 바꾼다면
+각 회차 뒤에는 원래 finding과 수정으로 생긴 회귀만 대상으로 scoped 검증과 재리뷰를 수행한다.
+수정이 승인된 목표·계약·설계나 dependency boundary를 바꾼다면
 해당 소유 단계와 `engineering:brainstorming`의 재승인으로 돌아가며, agent가 위험을 자동 수용하지 않는다.
 5회 뒤에도 유효한 필수 finding이 남으면 `failed`와 `decision_required`를 기록하고 자동 반복을 중단한다.
 정확한 리비전에 대한 사람의 명시적인 `accepted_risk` 없이는 task를 완료하지 않는다.
@@ -94,11 +94,12 @@ task의 구현·검증·리뷰부터 다시 수행한다. material하지 않은 
 3. 모든 plan-backed 변경은 evaluator를 사용할 수 있을 때 독립적인 일반 전체 변경 리뷰를 받는다.
    해당 리뷰가 필수지만 사용할 수 없으면 게이트를 통과했다고 하지 말고 `blocked` 또는
    `not_run`으로 기록한 뒤 사람의 결정을 요청한다.
-4. 일반 리뷰의 유효한 finding에는 집중된 수정과 범위가 제한된 재리뷰를 적용하고, 자동 리뷰 시도는
+4. 일반 리뷰의 유효한 차단 finding에는 집중된 수정과 범위가 제한된 재리뷰를 적용하고, 자동 리뷰 시도는
    게이트마다 최대 5회로 제한한다. 소유 단계나 원래 session으로 돌아가도 회차 수를 초기화하지 않는다.
    계획 또는 요구사항의 모순은 해당 소유 단계로 돌려보낸다. 상한에 도달해도 필수 finding이 해결되지
    않았다면 `decision_required`이며, 명시적인 `accepted_risk`만 다음 단계 진행을 허용한다. scoped
-   재리뷰는 원래 finding과 수정이 만든 회귀만 판정하고 새로운 범위 아이디어는 deferred로 기록한다.
+   재리뷰는 원래 finding과 수정으로 생긴 회귀만 판정한다. 새로운 개선 아이디어는 사용자가
+   요청한 경우에만 별도로 다룬다.
    수정 뒤에는 이전 전체 게이트의 리비전, 현재 delta, 이 delta가 다룬 finding·검사, 영향이 제한됐다고
    판단한 근거와 현재 리비전의 새 게이트를 기록해 영향받지 않은 기존 evidence를 현재 artifact에
    연결한다. 승인된 목표·계약·설계·dependency boundary가 바뀌거나 bounded impact를 근거로 확정할 수
