@@ -45,6 +45,8 @@ status intent는 최대 하나다. “나”도 현재 tracker identity 없이 a
 
 status, transition, assignee, relation, automation과 권한을 읽는다. 이름과 ID를 추정하지 않는다. completed·canceled 티켓은 명시적인 `reopen` 없이 되돌리지 않는다.
 
+내용 수정 성공을 전제로 인계받은 작업은 먼저 [수정 결과와 후속 lifecycle](../to-ticket/SKILL.md#수정-결과와-후속-lifecycle)의 선행 조건과 동일 canonical ticket의 검증 근거를 확인한다. 필요한 content field에 `unapplied`·`unknown` 또는 근거 누락이 있으면 후속 mutation을 보류한다. 독립 수행이 명시된 요청에만 별도 진행을 허용하며, 인계된 과거 status를 그대로 사용하지 않고 실행 시점의 현재 상태·권한을 읽는다.
+
 각 operation은 순서대로 처리한다.
 
 1. 이미 목표 상태·담당자·relation이면 `no-op`으로 기록한다.

@@ -2,6 +2,446 @@
   "schema_version": "skill-routing-cases-v1",
   "cases": [
     {
+      "id": "revise-unapplied-defers-dependent-start",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
+      "fixture": {
+        "continuation_observation": {
+          "canonical": {
+            "provider": "linear",
+            "workspace": "Acme",
+            "key": "ENG-42",
+            "id": "uuid-42"
+          },
+          "initial_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "requested_content": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "prewrite_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "content_write_attempted": true,
+          "content_write_response": "rejected",
+          "content_readback": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "lifecycle_state_at_handoff": "unstarted",
+          "supported_start_state": "started-1",
+          "current_assignee": {
+            "id": "user-a",
+            "verified": true
+          },
+          "lifecycle_operations_so_far": []
+        }
+      },
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "expected_intent": "start",
+      "expected_lifecycle_mutation_allowed": false,
+      "must_check_content_prerequisite": true,
+      "must_reread_lifecycle_state": false,
+      "expected_content_result": "unapplied"
+    },
+    {
+      "id": "revise-timeout-unknown-defers-dependent-start",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
+      "fixture": {
+        "continuation_observation": {
+          "canonical": {
+            "provider": "linear",
+            "workspace": "Acme",
+            "key": "ENG-42",
+            "id": "uuid-42"
+          },
+          "initial_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "requested_content": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "prewrite_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "content_write_attempted": true,
+          "content_write_response": "timeout",
+          "content_readback": "unavailable",
+          "lifecycle_state_at_handoff": "unstarted",
+          "supported_start_state": "started-1",
+          "current_assignee": {
+            "id": "user-a",
+            "verified": true
+          },
+          "lifecycle_operations_so_far": []
+        }
+      },
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "expected_intent": "start",
+      "expected_lifecycle_mutation_allowed": false,
+      "must_check_content_prerequisite": true,
+      "must_reread_lifecycle_state": false,
+      "expected_content_result": "unknown",
+      "must_not_retry_uncertain_mutation": true
+    },
+    {
+      "id": "revise-partial-content-defers-dependent-start",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
+      "fixture": {
+        "continuation_observation": {
+          "canonical": {
+            "provider": "linear",
+            "workspace": "Acme",
+            "key": "ENG-42",
+            "id": "uuid-42"
+          },
+          "initial_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "requested_content": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "prewrite_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "content_write_attempted": true,
+          "content_write_response": "partial",
+          "content_readback": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "lifecycle_state_at_handoff": "unstarted",
+          "supported_start_state": "started-1",
+          "current_assignee": {
+            "id": "user-a",
+            "verified": true
+          },
+          "lifecycle_operations_so_far": []
+        }
+      },
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "expected_intent": "start",
+      "expected_lifecycle_mutation_allowed": false,
+      "must_check_content_prerequisite": true,
+      "must_reread_lifecycle_state": false,
+      "expected_content_result": "partial"
+    },
+    {
+      "id": "revise-verified-noop-allows-dependent-start",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
+      "fixture": {
+        "continuation_observation": {
+          "canonical": {
+            "provider": "linear",
+            "workspace": "Acme",
+            "key": "ENG-42",
+            "id": "uuid-42"
+          },
+          "initial_content": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "requested_content": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "prewrite_content": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "content_write_attempted": false,
+          "content_write_response": "not_attempted",
+          "content_readback": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "lifecycle_state_at_handoff": "unstarted",
+          "supported_start_state": "started-1",
+          "current_assignee": {
+            "id": "user-a",
+            "verified": true
+          },
+          "lifecycle_operations_so_far": []
+        }
+      },
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "expected_intent": "start",
+      "expected_lifecycle_mutation_allowed": true,
+      "must_check_content_prerequisite": true,
+      "must_reread_lifecycle_state": true,
+      "expected_content_result": "no-op"
+    },
+    {
+      "id": "revise-timeout-confirmed-allows-dependent-start",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
+      "fixture": {
+        "continuation_observation": {
+          "canonical": {
+            "provider": "linear",
+            "workspace": "Acme",
+            "key": "ENG-42",
+            "id": "uuid-42"
+          },
+          "initial_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "requested_content": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "prewrite_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "content_write_attempted": true,
+          "content_write_response": "timeout",
+          "content_readback": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "lifecycle_state_at_handoff": "unstarted",
+          "supported_start_state": "started-1",
+          "current_assignee": {
+            "id": "user-a",
+            "verified": true
+          },
+          "lifecycle_operations_so_far": []
+        }
+      },
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "expected_intent": "start",
+      "expected_lifecycle_mutation_allowed": true,
+      "must_check_content_prerequisite": true,
+      "must_reread_lifecycle_state": true,
+      "expected_content_result": "applied",
+      "must_not_retry_uncertain_mutation": true
+    },
+    {
+      "id": "revise-success-without-readback-defers-start",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
+      "fixture": {
+        "continuation_observation": {
+          "canonical": {
+            "provider": "linear",
+            "workspace": "Acme",
+            "key": "ENG-42",
+            "id": "uuid-42"
+          },
+          "initial_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "requested_content": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "prewrite_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "content_write_attempted": true,
+          "content_write_response": "success",
+          "content_readback": "unavailable",
+          "lifecycle_state_at_handoff": "unstarted",
+          "supported_start_state": "started-1",
+          "current_assignee": {
+            "id": "user-a",
+            "verified": true
+          },
+          "lifecycle_operations_so_far": []
+        }
+      },
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "expected_intent": "start",
+      "expected_lifecycle_mutation_allowed": false,
+      "must_check_content_prerequisite": true,
+      "must_reread_lifecycle_state": false,
+      "expected_content_result": "unknown"
+    },
+    {
+      "id": "revise-unverified-noop-defers-start",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
+      "fixture": {
+        "continuation_observation": {
+          "canonical": {
+            "provider": "linear",
+            "workspace": "Acme",
+            "key": "ENG-42",
+            "id": "uuid-42"
+          },
+          "initial_content": "unavailable",
+          "requested_content": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "prewrite_content": "unavailable",
+          "content_write_attempted": false,
+          "content_write_response": "not_attempted",
+          "content_readback": "unavailable",
+          "lifecycle_state_at_handoff": "unstarted",
+          "supported_start_state": "started-1",
+          "current_assignee": {
+            "id": "user-a",
+            "verified": true
+          },
+          "lifecycle_operations_so_far": []
+        }
+      },
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "expected_intent": "start",
+      "expected_lifecycle_mutation_allowed": false,
+      "must_check_content_prerequisite": true,
+      "must_reread_lifecycle_state": false,
+      "expected_content_result": "unknown"
+    },
+    {
+      "id": "revise-independent-unassign-survives-content-failure",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "Linear Acme workspace ENG-42 본문에 승인된 UTF-8 복구 조건을 반영해 줘. 본문 수정 성공과 무관하게 현재 담당자 user-a는 해제해 줘. 상태는 바꾸지 마.",
+      "fixture": {
+        "continuation_observation": {
+          "canonical": {
+            "provider": "linear",
+            "workspace": "Acme",
+            "key": "ENG-42",
+            "id": "uuid-42"
+          },
+          "initial_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "requested_content": {
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "prewrite_content": {
+            "title": "CSV 오류",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A"
+          },
+          "content_write_attempted": true,
+          "content_write_response": "timeout",
+          "content_readback": "unavailable",
+          "lifecycle_state_at_handoff": "unstarted",
+          "supported_start_state": "started-1",
+          "current_assignee": {
+            "id": "user-a",
+            "verified": true
+          },
+          "lifecycle_operations_so_far": []
+        }
+      },
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "expected_intent": "none",
+      "expected_lifecycle_mutation_allowed": true,
+      "must_check_content_prerequisite": true,
+      "must_reread_lifecycle_state": true,
+      "expected_content_result": "unknown",
+      "expected_assignee_change": {
+        "action": "unassign",
+        "target": "user-a"
+      },
+      "must_not_retry_uncertain_mutation": true
+    },
+    {
+      "id": "lifecycle-only-needs-no-content-prerequisite",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "Linear Acme workspace ENG-42 작업을 시작해 줘. 제목과 본문은 수정하지 마.",
+      "fixture": {
+        "continuation_observation": {
+          "canonical": {
+            "provider": "linear",
+            "workspace": "Acme",
+            "key": "ENG-42",
+            "id": "uuid-42"
+          },
+          "lifecycle_state_at_handoff": "unstarted",
+          "supported_start_state": "started-1",
+          "lifecycle_operations_so_far": []
+        }
+      },
+      "expected_mode": "publish",
+      "expected_intent": "start",
+      "expected_lifecycle_mutation_allowed": true,
+      "must_check_content_prerequisite": false,
+      "must_reread_lifecycle_state": true
+    },
+    {
+      "id": "revise-missing-handoff-evidence-defers-start",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
+      "fixture": {
+        "continuation_observation": {
+          "canonical": {
+            "provider": "linear",
+            "workspace": "Acme",
+            "key": "ENG-42",
+            "id": "uuid-42"
+          },
+          "handoff": {
+            "intent": "start",
+            "summary": "수정 작업이 끝났음"
+          },
+          "requested_content": {
+            "title": "CSV 한글 깨짐",
+            "body": "## 관찰\nCSV 한글 깨짐\n\n## 기록\n기존 확인 A\n\n## 복구 조건\nWindows Chrome 다운로드에서 한글 이름이 UTF-8 계약대로 표시됨"
+          },
+          "lifecycle_state_at_handoff": "unstarted",
+          "supported_start_state": "started-1",
+          "lifecycle_operations_so_far": []
+        }
+      },
+      "expected_action": "revise",
+      "expected_mode": "publish",
+      "expected_intent": "start",
+      "expected_lifecycle_mutation_allowed": false,
+      "must_check_content_prerequisite": true,
+      "must_reread_lifecycle_state": false,
+      "expected_content_result": "unknown"
+    },
+    {
       "id": "bug-intake-without-cause",
       "prompt": "Windows 11 Chrome에서 CSV를 다운로드하면 한글 이름이 깨진다는 고객 보고가 있어. 원인과 정확한 재현 절차는 아직 몰라. 버그 티켓 초안을 한국어로 작성해 줘.",
       "expected_template": "bug",

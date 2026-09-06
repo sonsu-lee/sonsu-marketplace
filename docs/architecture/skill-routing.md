@@ -311,6 +311,11 @@ heading을 중복해서 붙이지 않습니다. native type·label·hierarchy는
 조회로 판정합니다. 형식을 보존할 수 없는 rich-text 본문은 제안만 반환합니다. 상태·담당자·native
 relation 변경도 함께 요청받았을 때에만 `ticket-lifecycle`과 조합합니다.
 
+내용 반영 후 시작처럼 수정 성공에 의존하는 후속 lifecycle은 필요한 content field 전체가 재조회로
+`applied` 또는 검증된 `no-op`임을 확인한 뒤에만 인계합니다. `unapplied`·`unknown`·부분 성공이나
+근거 누락이면 해당 후속 변경을 보류합니다. timeout 자체보다 실제 readback 결과로 판정하며,
+본문 성공과 무관하게 수행하라고 명시된 요청만 현재 상태·권한을 새로 확인해 독립적으로 처리합니다.
+
 새 문장·기존 본문 수정·결과 보고에는 출력 언어에 맞는 Fluent Languages 스킬 사용을 권장합니다.
 현재 inventory에 있는 스킬만 조합하며 미설치를 작업 차단이나 자동 설치 사유로 삼지 않습니다.
 고정 양식·식별자·링크·의무 수준·사실의 의미를 보존하고 `to-ticket`이 내용과 게시 책임을 유지합니다.
@@ -429,6 +434,8 @@ trigger를 지원합니다. GitHub Issue 자체의 state는 open·closed 중심�
 
 - 미승인 기능 요청·원인 미상 버그를 접수하고, 실행 준비와 실제 tracker status를 구분하는가?
 - 기존 내용 수정에서 요청 밖 기록·형식과 동시 변경을 보존하고 불명확한 쓰기를 반복하지 않는가?
+- 내용 수정과 lifecycle을 함께 요청했을 때 선행 내용의 실패·불명확·부분 성공은 의존 상태 변경을 막고,
+  검증된 `no-op`·timeout 후 실제 적용 확인과 명시적으로 독립된 요청은 구분하는가?
 - 팀 양식·부모 전체 완료 조건·Fluent 미설치 경계를 보존하는가?
 
 - Linear ticket 생성에서 label, priority, estimate, assignee, project, milestone과 relation을 실제

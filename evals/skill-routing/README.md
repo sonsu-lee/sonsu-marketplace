@@ -81,3 +81,21 @@ Linear branch 사례는 repository 관례·integration 추천이 있어도 ID를
 사용자 지정 정확한 이름의 예외를 함께 검사합니다. branch 제안 사례는 생성 권한을 부여하지 않습니다.
 새 사례의 정적 등록과 모의 모델 실행, 실제 host의 native skill selection, 실제 tracker read/write는
 각각 별개의 검증으로 보고합니다.
+
+## 내용 수정 후 lifecycle 인계
+
+`fixture.continuation_observation`은 내용 수정 이후 시점까지 이미 관찰한 요청·쓰기 응답·readback과
+현재 인계 정보를 제공합니다. 미래 도구 응답이 아닙니다. `content_write_response`가 success여도
+`content_readback`이 unavailable이면 실제 반영은 확인되지 않은 상태이며, timeout이어도 readback이
+목표 내용과 보존할 내용을 담으면 실제 반영을 판정할 수 있습니다. no-op은 쓰지 않았다는 사실만으로
+성립하지 않고 최신 내용이 목표와 같다는 근거가 필요합니다.
+
+이 continuation 사례는 첫 skill 선택 순서를 고정하지 않습니다. `expected_lifecycle_mutation_allowed`는
+후속 상태·담당자·관계 mutation이 허용되는지, `expected_content_result`는 field별 결과와 전체 선행
+조건의 판정을 검사합니다. partial은 새 원격 상태가 아니라 field별 성공·실패가 섞였다는 평가 요약입니다.
+`must_check_content_prerequisite`는 요청한 내용 성공이 선행 조건인지 확인하고,
+`must_reread_lifecycle_state`는 허용된 후속 작업도 최신 상태·권한으로 진행하는지 검사합니다.
+명시적으로 독립된 담당자 해제와 lifecycle 단독 요청에는 무관한 본문 성공 조건을 붙이지 않습니다.
+
+모델에는 기대 field와 판정을 암시하는 case 이름을 제외하고 opaque ID, 요청과 관찰 이력만 줍니다.
+원격 mutation 없이 다음에 제안한 operation과 인계 근거를 읽어 판정하며 native 실행과 구분합니다.
