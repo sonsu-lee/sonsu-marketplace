@@ -8,7 +8,7 @@ Languages를 함께 또는 각각 설치했을 때의 기대 라우팅을 정의
 `target_pr_state`가 무엇인지도 선언할 수 있습니다. 이 경우에도 평가는 원격 PR을 만들지 않고
 모델이 제안한 계획과 payload만 확인합니다.
 
-`workflow:to-ticket`과 `workflow:ticket-lifecycle` 사례는 생성과 기존 티켓 변경을 분리하고,
+`workflow:to-ticket`과 `workflow:ticket-lifecycle` 사례는 생성·내용 수정과 lifecycle 변경을 분리하고,
 `expected_intent`, `expected_relation`, `expected_assignee_change`, canonical ticket·assignee 확인,
 mutation 후 재조회와 native automation 중복 방지 같은 기대 효과를 선언할 수 있습니다. 이 필드는 모델이 제안한 작업과
 결과 보고를 평가하기 위한 계약이며 실제 원격 ticket 생성·수정 권한을 부여하지 않습니다.
@@ -62,3 +62,40 @@ secret 존재 확인이 외부 요청보다 먼저 이뤄졌는지 검사합니�
 native 자동 skill selection은 별개의 검증입니다. 모의 trace나 JSON 검사만으로 native 선택이
 보장된다고 보고하지 않습니다. Research 단독 조건과 호스트 지침·Exa 스킬 동시 설치 조건은
 별도로 실행하고 baseline·변경 후의 입력과 모델 설정을 맞춥니다.
+
+## 티켓 종류·내용 수정 사례
+
+`expected_action`은 create/revise, `expected_mode`는 draft/publish를 구분합니다.
+`expected_template`, `expected_structure`, `expected_readiness`는 본문 선택 판단이며 native
+label·type·status 값이 아닙니다. `expected_template_source`는 team과 temporary-fallback 등의
+출처 확인을 검사합니다. `must_preserve_*`는 실제 초안·수정 payload에서 해당 내용이 유지되는지,
+`expected_child_count`와 `must_map_parent_and_child_keys`는 사용자가 지정한 분해 경계와 게시 전
+부모·자식 참조를 실제 초안에서 확인합니다. `must_limit_update_to_content`는 식별자 이외의 변경 field가 요청한 제목·본문에 한정되는지 검사합니다.
+
+`fixture`는 정확히 그 시점에 확인 가능한 모의 응답만 제공합니다. `before_write_body`는 쓰기 직전
+재조회 결과이며 첫 읽기에 제공하지 않습니다. `update_response`·`readback_response`도 해당 모의
+operation 뒤에만 노출합니다. 기대 field는 실행 모델에게 제공하지 않습니다. 응답 불명확·ADF 손실·
+동시 수정 충돌에서 제안한 쓰기 횟수와 보존 결과를 읽어 판정하며, 원격 mutation은 수행하지 않습니다.
+
+Linear branch 사례는 repository 관례·integration 추천이 있어도 ID를 자동 삽입하지 않는지와
+사용자 지정 정확한 이름의 예외를 함께 검사합니다. branch 제안 사례는 생성 권한을 부여하지 않습니다.
+새 사례의 정적 등록과 모의 모델 실행, 실제 host의 native skill selection, 실제 tracker read/write는
+각각 별개의 검증으로 보고합니다.
+
+## 내용 수정 후 lifecycle 인계
+
+`fixture.continuation_observation`은 내용 수정 이후 시점까지 이미 관찰한 요청·쓰기 응답·readback과
+현재 인계 정보를 제공합니다. 미래 도구 응답이 아닙니다. `content_write_response`가 success여도
+`content_readback`이 unavailable이면 실제 반영은 확인되지 않은 상태이며, timeout이어도 readback이
+목표 내용과 보존할 내용을 담으면 실제 반영을 판정할 수 있습니다. no-op은 쓰지 않았다는 사실만으로
+성립하지 않고 최신 내용이 목표와 같다는 근거가 필요합니다.
+
+이 continuation 사례는 첫 skill 선택 순서를 고정하지 않습니다. `expected_lifecycle_mutation_allowed`는
+후속 상태·담당자·관계 mutation이 허용되는지, `expected_content_result`는 field별 결과와 전체 선행
+조건의 판정을 검사합니다. partial은 새 원격 상태가 아니라 field별 성공·실패가 섞였다는 평가 요약입니다.
+`must_check_content_prerequisite`는 요청한 내용 성공이 선행 조건인지 확인하고,
+`must_reread_lifecycle_state`는 허용된 후속 작업도 최신 상태·권한으로 진행하는지 검사합니다.
+명시적으로 독립된 담당자 해제와 lifecycle 단독 요청에는 무관한 본문 성공 조건을 붙이지 않습니다.
+
+모델에는 기대 field와 판정을 암시하는 case 이름을 제외하고 opaque ID, 요청과 관찰 이력만 줍니다.
+원격 mutation 없이 다음에 제안한 operation과 인계 근거를 읽어 판정하며 native 실행과 구분합니다.

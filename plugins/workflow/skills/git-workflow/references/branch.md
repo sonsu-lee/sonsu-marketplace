@@ -17,7 +17,11 @@ branch 이름을 준비하거나 새 branch를 만들 때 읽는다.
 
 ## 티켓 ID를 후순위로 다룬다
 
-branch 이름은 tracker 연결의 기본 채널로 사용하지 않는다. 다음 중 하나가 확인된 경우에만 티켓 ID를 새 branch 이름에 포함한다.
+branch 이름은 tracker 연결의 기본 채널로 사용하지 않는다.
+
+Linear 티켓 작업의 새 branch는 위의 prefix·type·작업 설명으로 구성하고 티켓 ID를 자동으로 넣지 않는다. repository의 ID 포함 관례나 integration이 제공하는 branch 이름도 Linear ID를 추가할 근거로 사용하지 않는다. 예를 들어 `ENG-123`의 검색 필터 작업은 `feat/add-search-filter` 또는 실행 환경에 맞는 `codex/feat/add-search-filter`로 표현하고, 티켓 연결은 PR metadata에서 처리한다. 사용자가 정확한 이름이나 ID 포함을 직접 지정한 경우에는 그 명시적 요청을 따른다.
+
+Linear 이외의 tracker는 다음 중 하나가 확인된 경우에만 티켓 ID를 새 branch 이름에 포함한다.
 
 - 사용자가 정확한 이름이나 ID 포함을 요청했다.
 - repository의 현재 branch 규칙이 이를 요구한다.

@@ -1,6 +1,6 @@
-# GitHub Issues 게시 규칙
+# GitHub Issues 작성·게시 규칙
 
-GitHub Issues용 payload를 작성하거나 게시하라는 요청이 있을 때만 읽는다.
+GitHub Issues용 payload를 작성·게시하거나 기존 제목·본문을 조회·수정할 때 읽는다.
 
 ## 대상과 관례를 확인한다
 
@@ -25,7 +25,7 @@ milestone은 MCP에서 숫자 ID를, CLI에서 이름을 요구할 수 있다. �
 
 priority, estimate와 Status가 GitHub Project custom field이면 issue field가 아니다. issue를 한 번 생성한 뒤 확인된 project item으로 추가하고, 실제 project·item·field와 option ID 또는 현재 CLI가 검증한 이름을 사용하여 field별로 갱신한다. 권한이나 project scope가 없으면 issue 생성 성공과 project field 미적용을 분리해 보고한다. 생성만 요청받은 issue를 임의의 In Progress 계열 Status로 바꾸지 않는다.
 
-## 게시하고 검증한다
+## 생성하고 검증한다
 
 1. 접근 가능한 repository와 인증 주체를 비밀값 없이 확인한다.
 2. 최종 제목, Markdown 본문과 지원되는 metadata를 확정한다.
@@ -34,5 +34,11 @@ priority, estimate와 Status가 GitHub Project custom field이면 issue field가
 5. 각 별도 operation 뒤 번호나 URL로 issue와 필요한 project item을 다시 읽어 제목, 상태, assignee, label, milestone, type, project field와 관계를 확인한다.
 
 관계나 project 연결이 별도 원격 작업이고 기존 게시 권한 범위에 포함되지 않으면 수행하지 않는다. 도구가 구조화된 관계를 지원하지 않으면 본문에 의미를 보존하고 제한을 보고한다. 생성 응답이 불명확하면 같은 명령을 반복하지 않고 repository에서 제목과 본문을 검색하며, 확인되지 않으면 `unknown`으로 남긴다. 후속 operation은 재조회에서 미적용이 확인된 경우에만 재시도한다.
+
+## 기존 제목·본문 수정
+
+`revise`에서는 정확한 host·repository·issue 번호와 최신 title·전체 body를 먼저 읽는다. PR을 issue로 오인하지 않도록 대상 종류도 확인한다. MCP의 현재 update schema 또는 `gh issue edit --help`를 확인하고 기존 issue locator와 요청한 title·body만 보낸다. CLI 본문은 정확한 임시 파일을 `--body-file`로 전달한다.
+
+label·assignee·milestone·Project field·sub-issue·dependency는 내용 수정 payload에 섞지 않는다. 생성 form을 다시 적용해 기존 heading·작업 기록을 삭제하지 않는다. 쓰기 직전 원문과 지원되는 revision marker를 확인하고 공통 Revise 규칙을 따른다. 수정 뒤 title·전체 body를 재조회해 실제 변경과 보존 내용을 비교한다.
 
 공식 interface와 개념 참고: [GitHub CLI `gh issue create`](https://cli.github.com/manual/gh_issue_create), [GitHub Project item 추가](https://cli.github.com/manual/gh_project_item-add), [GitHub Project field 변경](https://cli.github.com/manual/gh_project_item-edit), [GitHub issue types](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/managing-issue-types-in-an-organization), [GitHub sub-issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-sub-issues)

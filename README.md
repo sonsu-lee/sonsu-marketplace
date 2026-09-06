@@ -39,7 +39,7 @@ codex plugin list --marketplace sonsu-marketplace
 | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | 소프트웨어 변경 설계, 구현, 디버깅과 검증 | `engineering` |
 | [Quality Engineering](plugins/quality-engineering/README.md) | 코드 단순화와 유지보수성, 실패 경로, 운영 문제 검토 | `quality-engineering` |
-| [Workflow](plugins/workflow/) | Git branch·commit·push, 티켓과 GitHub PR 작업 | `workflow` |
+| [Workflow](plugins/workflow/) | Git branch·commit·push, 티켓 작성·수정·상태 관리와 GitHub PR 작업 | `workflow` |
 | [Fluent Languages](plugins/fluent-languages/) | 기술 내용을 보존하는 자연스러운 한국어·일본어·영어 작성 | `fluent-languages` |
 | [Research](plugins/research/README.md) | 여러 출처 조사, 사실 검증과 근거를 갖춘 답변 작성 | `research` |
 | [Prompting](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API용 프롬프트 작성과 개선 | `prompting` |

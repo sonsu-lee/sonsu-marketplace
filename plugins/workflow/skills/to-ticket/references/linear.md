@@ -1,6 +1,6 @@
-# Linear 게시 규칙
+# Linear 작성·게시 규칙
 
-Linear용 payload를 작성하거나 게시하라는 요청이 있을 때만 읽는다.
+Linear용 payload를 작성·게시하거나 기존 제목·본문을 조회·수정할 때 읽는다.
 
 ## 대상과 필드를 확인한다
 
@@ -23,7 +23,7 @@ Linear MCP의 현재 tool schema를 먼저 확인한다. Codex connector에서 �
 
 필요한 값만 `list_teams`, `list_issue_statuses`, `list_issue_labels`, project·cycle 조회 도구로 확인한다. 유사 티켓은 `list_issues`나 검색 도구에서 team, 제목, 설명과 범위를 함께 비교한다. 여러 workspace를 추정하여 전환하거나 새 인증 context를 만들지 않는다.
 
-## 게시하고 검증한다
+## 생성하고 검증한다
 
 1. workspace 연결, team과 선택 metadata를 읽는다.
 2. 최종 제목, description과 지원되는 metadata를 확정한다.
@@ -32,5 +32,11 @@ Linear MCP의 현재 tool schema를 먼저 확인한다. Codex connector에서 �
 5. 각 operation 뒤 ID를 관계 포함 옵션으로 다시 읽어 URL, 제목, team, state, metadata와 관계를 확인한다.
 
 인증이 만료되었거나 연결되지 않았으면 로그인이나 계정 전환을 자동으로 수행하지 않는다. 생성 응답이 불명확하면 같은 payload를 반복하지 말고 먼저 제목, 설명과 team으로 검색하며, 확인되지 않으면 `unknown`으로 남긴다. 후속 operation은 재조회에서 미적용이 확인된 경우에만 재시도한다.
+
+## 기존 제목·본문 수정
+
+`revise`에서는 정확한 workspace·team의 canonical ID와 현재 title·전체 description을 먼저 읽는다. 생성에 쓰는 `save_issue`가 갱신도 지원한다면 현재 schema에서 확인한 기존 ID 인자를 반드시 포함한다. ID가 없거나 갱신 경로를 확인할 수 없으면 생성 호출로 대체하지 않는다.
+
+갱신 payload에는 식별자와 요청한 title·description만 넣는다. state·assignee·label·parent·relation이나 생성 template 기본값을 함께 보내지 않는다. 최신 원문·수정 시각을 쓰기 직전에 다시 확인하고, drift·conditional update·불명확한 응답은 공통 Revise 규칙으로 처리한다. 갱신 후 title·전체 description을 읽어 요청 밖의 내용도 보존됐는지 확인한다.
 
 공식 interface와 개념 참고: [Linear MCP server](https://linear.app/docs/mcp), [Linear issue 생성 규칙](https://linear.app/docs/creating-issues), [Issue relation](https://linear.app/docs/issue-relations), [Issue labels](https://linear.app/docs/labels), [Issue templates](https://linear.app/docs/issue-templates), [Jira와의 issue type 차이](https://linear.app/docs/jira)
