@@ -1,0 +1,6 @@
+interface:
+  display_name: "Memory Manager"
+  short_description: "Codex와 Claude Code의 저장된 메모리를 수동으로 점검하고 정리"
+  default_prompt: "$memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘."
+policy:
+  allow_implicit_invocation: false

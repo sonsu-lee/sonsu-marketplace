@@ -1,0 +1,19 @@
+{
+  "name": "memory-manager",
+  "version": "0.1.0",
+  "description": "명시적으로 호출해 Codex와 Claude Code의 저장된 메모리를 점검하고 정리합니다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Memory Manager",
+    "shortDescription": "코딩 에이전트 메모리의 수동 점검과 정리",
+    "longDescription": "저장된 메모리의 중복, 충돌, 오래된 사실과 프로젝트 범위를 확인합니다. 현재 환경이 허용하는 직접 편집 또는 수정 노트 경로를 따르고 실제 반영 여부를 구분해 보고합니다.",
+    "developerName": "sonsu",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "defaultPrompt": "$memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘."
+  }
+}
