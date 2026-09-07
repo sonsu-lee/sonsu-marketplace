@@ -1,0 +1,37 @@
+{
+  "name": "precision-operations-console-v1",
+  "color": {
+    "canvas": "#F4F6F8",
+    "surface": "#FFFFFF",
+    "border": "#E1E7EF",
+    "sidebar": "#1D2B3C",
+    "sidebarHover": "#24364A",
+    "textPrimary": "#0F172A",
+    "textSecondary": "#64748B",
+    "textDisabled": "#94A3B8",
+    "primary": "#356BD6",
+    "primaryHover": "#2858BA",
+    "primarySubtle": "#EAF1FF",
+    "success": "#26734D",
+    "successSubtle": "#E8F5EE",
+    "warning": "#9A6700",
+    "warningSubtle": "#FFF2CC",
+    "danger": "#D92D20",
+    "dangerSubtle": "#FDECEC"
+  },
+  "layout": {
+    "sidebarWidth": 240,
+    "topbarHeight": 48,
+    "contentPadding": 24,
+    "sectionGap": 16
+  },
+  "density": {
+    "controlHeight": 36,
+    "compactControlHeight": 32,
+    "tableRowHeight": 48
+  },
+  "shape": {
+    "radius": 10,
+    "radiusSmall": 6
+  }
+}

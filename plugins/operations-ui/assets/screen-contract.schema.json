@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sonsu.dev/schemas/operations-ui-screen-contract-v1.json",
+  "title": "Operations UI Screen Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "mode",
+    "surface",
+    "actors",
+    "jobs",
+    "entities",
+    "lifecycle",
+    "primary_decision",
+    "actions",
+    "permissions",
+    "risks",
+    "view_states",
+    "viewports",
+    "requirements",
+    "evidence_scenarios",
+    "exclusions",
+    "unresolved_decisions"
+  ],
+  "properties": {
+    "schema_version": {"const": "operations-ui-screen-contract-v1"},
+    "id": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["greenfield", "redesign", "audit"]},
+    "surface": {"enum": ["standalone-console", "embedded-view"]},
+    "actors": {"$ref": "#/$defs/nonEmptyStrings"},
+    "jobs": {"$ref": "#/$defs/nonEmptyStrings"},
+    "entities": {"$ref": "#/$defs/nonEmptyStrings"},
+    "lifecycle": {"$ref": "#/$defs/nonEmptyStrings"},
+    "primary_decision": {"type": "string", "minLength": 1},
+    "actions": {"$ref": "#/$defs/nonEmptyStrings"},
+    "permissions": {"$ref": "#/$defs/nonEmptyStrings"},
+    "risks": {"$ref": "#/$defs/nonEmptyStrings"},
+    "view_states": {
+      "type": "array",
+      "uniqueItems": true,
+      "allOf": [
+        {"contains": {"const": "loading"}},
+        {"contains": {"const": "empty"}},
+        {"contains": {"const": "error"}},
+        {"contains": {"const": "permission-denied"}},
+        {"contains": {"const": "zero"}},
+        {"contains": {"const": "one"}},
+        {"contains": {"const": "many"}},
+        {"contains": {"const": "long-localized"}}
+      ],
+      "items": {"type": "string", "minLength": 1}
+    },
+    "viewports": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "type": "object",
+        "properties": {
+          "id": {"const": "wide"},
+          "width": {"const": 1440},
+          "height": {"const": 900}
+        },
+        "required": ["id", "width", "height"]
+      },
+      "items": {
+        "type": "object",
+        "required": ["id", "width", "height"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "width": {"type": "integer", "minimum": 1},
+          "height": {"type": "integer", "minimum": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "scenario_ids"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "text": {"type": "string", "minLength": 1},
+          "scenario_ids": {"$ref": "#/$defs/nonEmptyStrings"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence_scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "requirement_ids", "initial_state", "actions", "expected", "required_viewports", "coverage"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "requirement_ids": {"$ref": "#/$defs/nonEmptyStrings"},
+          "initial_state": {"type": "string", "minLength": 1},
+          "actions": {"$ref": "#/$defs/nonEmptyStrings"},
+          "expected": {"type": "string", "minLength": 1},
+          "required_viewports": {"$ref": "#/$defs/nonEmptyStrings"},
+          "coverage": {
+            "type": "object",
+            "required": ["actions", "permissions", "risks", "view_states"],
+            "properties": {
+              "actions": {"$ref": "#/$defs/stringSet"},
+              "permissions": {"$ref": "#/$defs/stringSet"},
+              "risks": {"$ref": "#/$defs/stringSet"},
+              "view_states": {"$ref": "#/$defs/stringSet"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "check_ids", "reason"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["embedded-shell", "desktop-only", "capability-absent"]},
+          "check_ids": {"$ref": "#/$defs/nonEmptyStrings"},
+          "reason": {"type": "string", "minLength": 1},
+          "minimum_viewport": {
+            "type": "object",
+            "required": ["width", "height"],
+            "properties": {
+              "width": {"type": "integer", "minimum": 1, "maximum": 1440},
+              "height": {"type": "integer", "minimum": 1, "maximum": 900}
+            },
+            "additionalProperties": false
+          },
+          "operational_reason": {"type": "string", "minLength": 20}
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"kind": {"const": "desktop-only"}}},
+            "then": {"required": ["minimum_viewport", "operational_reason"]}
+          }
+        ],
+        "additionalProperties": false
+      }
+    },
+    "unresolved_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "area", "reason", "evidence_needed", "gate_ids"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "area": {"type": "string", "minLength": 1},
+          "reason": {"type": "string", "minLength": 1},
+          "evidence_needed": {"type": "string", "minLength": 1},
+          "gate_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"enum": ["G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7"]}
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "current_behavior_inventory": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "observed", "evidence", "decision", "reason", "implementation_target", "scenario_ids"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["feature", "state", "action", "permission", "data-shape"]},
+          "observed": {"type": "string", "minLength": 1},
+          "evidence": {"$ref": "#/$defs/nonEmptyStrings"},
+          "decision": {"enum": ["preserve", "change"]},
+          "reason": {"type": "string", "minLength": 1},
+          "implementation_target": {"type": "string", "minLength": 1},
+          "scenario_ids": {"$ref": "#/$defs/nonEmptyStrings"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "change_contract": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "inventory_ids", "requirement_ids", "description"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "inventory_ids": {"$ref": "#/$defs/nonEmptyStrings"},
+          "requirement_ids": {"$ref": "#/$defs/nonEmptyStrings"},
+          "description": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"mode": {"const": "redesign"}}},
+      "then": {"required": ["current_behavior_inventory", "change_contract"]}
+    },
+    {
+      "if": {"properties": {"mode": {"enum": ["greenfield", "redesign"]}}},
+      "then": {"properties": {"unresolved_decisions": {"maxItems": 0}}}
+    },
+    {
+      "anyOf": [
+        {
+          "properties": {
+            "viewports": {
+              "contains": {
+                "type": "object",
+                "properties": {"id": {"const": "narrow"}},
+                "required": ["id"]
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "exclusions": {
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "kind": {"const": "desktop-only"},
+                  "check_ids": {"contains": {"const": "narrow-or-excluded"}}
+                },
+                "required": ["kind", "check_ids"]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "$defs": {
+    "nonEmptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "stringSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "additionalProperties": false
+}
