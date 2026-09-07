@@ -25,6 +25,13 @@ ENGINEERING 스킬이 현재 TASK에 적용된다면 선택의 여지가 없다.
 이 게이트는 `using-git-worktrees`의 ignore 파일 commit 단계와 플랫폼별 완료 지침을 포함하여 자동으로 commit하라고 하는 하위 지침보다 우선한다. commit 권한이 없으면 가능한 경우 commit하지 않은 상태로 workspace를 안전하게 만들고, `diff`를 보고한 뒤 commit 결정을 요청한다.
 </GIT-AUTHORIZATION-GATE>
 
+## 작업 연속성
+
+현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
+[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
+컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
+별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+
 ## 규칙
 
 명확화 질문, codebase 탐색 또는 파일 확인을 포함한 **모든 응답이나 행동보다 먼저 적용 가능한 Engineering 스킬과 위 정책에 따라 선택한 외부 스킬을 호출한다.** 선택한 스킬이 상황에 맞지 않는 것으로 드러나면 계속 사용할 필요는 없다.

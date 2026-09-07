@@ -1,5 +1,18 @@
 # 스킬 라우팅
 
+## 컴팩션과 작업 연속성
+
+8개 플러그인은 각각 자기 namespace의 `task-continuity`를 제공합니다. 현재 메인 controller가
+여러 단계의 작업을 소유하거나 외부 쓰기 결과를 이어서 확인해야 할 때 기존 작업 스킬에서
+같은 플러그인의 연속성 스킬을 사용합니다. 다른 플러그인의 연속성 스킬을 필수 호출하지 않습니다.
+짧은 단발 산출물과 다른 작업의 출력 문체만 담당하는 Fluent Languages에는 별도 기록이 없습니다.
+
+`SessionStart(compact|resume)` hook은 현재 session/worktree의 활성 checkpoint가 있을 때만
+자기 스킬과 기록 경로를 전달합니다. 모델은 최신 사용자 지시·원장·실제 대상을 대조한 뒤 현재
+작업 스킬로 돌아갑니다. hook은 중앙 router나 새 권한·정본이 아니며 종료 기록과 다른 session을
+자동 선택하지 않습니다. fresh reviewer와 subagent는 controller의 checkpoint를 자동 상속하지 않습니다.
+저장·예산·권한·외부 작업 중복 방지 규칙은 [작업 연속성 계약](../reference/task-continuity.md)에 있습니다.
+
 - Status: Current
 - Last reviewed: 2026-09-06
 

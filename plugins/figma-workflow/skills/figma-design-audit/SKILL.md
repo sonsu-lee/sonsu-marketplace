@@ -7,6 +7,13 @@ description: 기존 Figma file, page, frame 또는 selection의 Auto Layout, res
 
 현재 Figma artifact를 source of truth로 읽고 구조, 재사용, 상호작용과 handoff의 실제 evidence를 검토한다. 감사 요청은 mutation 권한이 아니다.
 
+## 작업 연속성
+
+현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
+[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
+컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
+별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+
 ## 대상과 evidence
 
 [tool routing](../../references/tool-routing.md), [capability and evidence](../../references/capability-and-evidence.md)를 읽는다. 정확한 file/page/frame이 주어지지 않았으면 현재 selection을 사용할 수 있는지 확인하고, 안전한 단일 target이 없을 때만 하나를 요청한다. 읽기 전용이라도 `use_figma`를 실제 호출한다면 먼저 `figma:figma-use`를 invoke하고 tool call의 `skillNames`에 `figma-use`를 포함한다. 설치·노출되지 않았으면 tool/API를 가정하지 않고 `blocked`, `not_run` 또는 `inconclusive`로 보고한다.

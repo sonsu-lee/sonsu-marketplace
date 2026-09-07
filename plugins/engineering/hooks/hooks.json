@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "^(compact|resume)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/task-continuity.py\" hook",
+            "timeout": 5,
+            "additionalContextLimit": 600
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -5,6 +5,13 @@ description: 버그, 테스트 실패 또는 예상하지 못한 동작을 만�
 
 # systematic-debugging: 체계적인 디버깅
 
+## 작업 연속성
+
+현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
+[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
+컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
+별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+
 ## 개요
 
 **핵심 원칙:** 수정하기 전에 항상 근본 원인을 찾습니다. 증상만 고치는 것은 실패입니다.

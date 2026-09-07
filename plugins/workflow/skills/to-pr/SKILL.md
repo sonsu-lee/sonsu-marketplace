@@ -7,6 +7,13 @@ description: 현재 Git branch를 새 GitHub Pull Request 초안이나 게시 pa
 
 현재 branch의 실제 변경을 검토 가능한 새 GitHub Pull Request로 표현한다. 티켓 연결은 PR metadata를 우선하고, 화면 변경에는 필요한 시각 증거와 게시 가능한 미디어 계획을 포함한다.
 
+## 작업 연속성
+
+현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
+[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
+컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
+별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+
 ## 책임 경계를 지킨다
 
 이 스킬은 새 PR의 초안과 게시를 담당한다. branch·worktree·commit 생성, branch rename, commit rewrite, rebase·squash, force push, merge와 기존 PR 수정은 담당하지 않는다. 다만 현재 publish 흐름에서 방금 만든 GitHub Draft PR에 검토한 미디어를 첨부하고, 필수 첨부를 모두 검증한 뒤 사용자가 명시한 ready 상태로 전환할 수 있다. 코드 구현, 일반적인 작업 완료, 티켓 작성, code review 또는 push 요청만으로 자동 실행하지 않는다.

@@ -8,6 +8,13 @@ description: task를 완료할 때, 주요 기능을 구현한 뒤 또는 merge 
 리뷰어에게 승인된 요구사항, 정확한 변경 내용과 검증 사실을 전달한다. 리뷰어는
 [공통 리뷰 기준](review-criteria.md)에 따라 현재 작업의 동작과 구조 품질을 검토한다.
 
+## 작업 연속성
+
+현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
+[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
+컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
+별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+
 ## 시점과 입력
 
 - subagent-driven development의 각 task 이후, 주요 기능 완료 이후, main merge 이전에 리뷰한다.

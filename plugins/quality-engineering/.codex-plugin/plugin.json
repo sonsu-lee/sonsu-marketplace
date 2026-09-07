@@ -1,6 +1,6 @@
 {
   "name": "quality-engineering",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "도메인 구조를 반영한 구현과 단순성, 유지보수성, 실패 모드 및 운용 가능성에 대한 근거 중심 리뷰를 제공합니다.",
   "author": {
     "name": "sonsu-lee",
@@ -24,5 +24,6 @@
       "이 diff에서 과도한 설계와 유지보수성 위험을 검토해 줘.",
       "이 변경에서 도달 가능한 실패 모드와 운용상 공백을 검토해 줘."
     ]
-  }
+  },
+  "hooks": "./hooks/hooks.json"
 }
