@@ -1,11 +1,11 @@
 # 스킬 라우팅
 
 - Status: Current
-- Last reviewed: 2026-09-07
+- Last reviewed: 2026-09-08
 
 ## 플러그인 경계
 
-Engineering, Quality Engineering, Workflow, Research, Prompting, Product, Figma Workflow, Memory Manager와 Fluent Languages는
+Engineering, Quality Engineering, Workflow, Research, Prompting, Product, Figma Workflow, Operations UI, Memory Manager와 Fluent Languages는
 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
 Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
@@ -39,11 +39,21 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | Figma 제품 화면 생성·수정과 responsive layout | `figma-workflow:figma-product-design` |
 | Figma의 실제 prototype connection, overlay와 상태 동선 | `figma-workflow:figma-prototype-flow` |
 | 기존 Figma artifact의 구조·interaction에 대한 읽기 전용 감사 | `figma-workflow:figma-design-audit` |
+| 신규 운영형 B2B·admin·back-office 화면의 코드 우선 설계와 구현 | `operations-ui:design-operations-ui` |
+| 기존 운영 화면의 동작을 보존하거나 명시적으로 변경하는 재설계 | `operations-ui:redesign-operations-ui` |
+| 기존 운영 화면과 증거의 읽기 전용 품질 감사 | `operations-ui:audit-operations-ui` |
+| 명시적으로 요청된 Figma 운영 화면을 Screen Contract와 구현 handoff에 연결 | `operations-ui:figma-operations-flow` |
 
 Memory Manager는 `policy.allow_implicit_invocation: false`를 사용합니다. `$memory-manager`로
 명시적으로 호출할 때만 실행하며, 일반 작업이나 “기억해 줘”라는 요청에서 자동 선택하지 않습니다.
 점검 요청은 읽기 전용이고 정리 요청은 대상 호스트가 허용하는 직접 편집 또는 수정 노트
 방식으로 수행합니다. 수정 노트 생성과 원본 메모리 반영은 별도 결과로 보고합니다.
+
+Operations UI는 WMS나 배송처럼 특정 산업명이 아니라 상태 판단, 반복 작업, 권한과 위험한
+행동, 고밀도 데이터가 중심인 화면에 적용합니다. marketing·editorial·brand page는 대상이
+아닙니다. Figma 자체 화면·component·prototype 생성과 수정은 Figma Workflow가 담당하며,
+Operations UI의 Figma skill은 사용자가 명시했을 때 그 artifact를 Screen Contract와 이후
+코드 구현·브라우저 게이트에 연결합니다.
 
 직접적인 산출물과 관점 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
 요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는

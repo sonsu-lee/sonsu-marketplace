@@ -23,7 +23,7 @@ CHECK_IDS = {
     "G7": ["actual-app-provenance", "required-scenario-coverage", "screenshots", "console-runtime"],
 }
 PNG_BYTES = base64.b64decode(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+X7BqWQAAAABJRU5ErkJggg=="
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAX+XDSwAAAABJRU5ErkJggg=="
 )
 
 
@@ -366,6 +366,39 @@ class ValidatorCliTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("unsupported screenshot content", result.stdout)
 
+    def test_passed_report_rejects_truncated_png_signature(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            screen = self.write_json(directory, "screen.json", valid_screen_contract())
+            report = self.write_json(directory, "report.json", valid_quality_report())
+            (directory / "evidence" / "S1-wide.png").write_bytes(
+                b"\x89PNG\r\n\x1a\n"
+            )
+
+            result = self.run_validator("quality-report", str(report), str(screen))
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("unsupported screenshot content", result.stdout)
+
+    def test_passed_report_rejects_webp_without_image_payload(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            screen = self.write_json(directory, "screen.json", valid_screen_contract())
+            report = self.write_json(directory, "report.json", valid_quality_report())
+            extended_header = b"VP8X" + (10).to_bytes(4, "little") + bytes(10)
+            webp = (
+                b"RIFF"
+                + (len(extended_header) + 4).to_bytes(4, "little")
+                + b"WEBP"
+                + extended_header
+            )
+            (directory / "evidence" / "S1-wide.png").write_bytes(webp)
+
+            result = self.run_validator("quality-report", str(report), str(screen))
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("unsupported screenshot content", result.stdout)
+
     def test_passed_report_rejects_absolute_evidence_paths(self) -> None:
         with tempfile.TemporaryDirectory() as raw_directory:
             directory = Path(raw_directory)
@@ -421,6 +454,68 @@ class ValidatorCliTests(unittest.TestCase):
 
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("100%", result.stdout)
+
+    def test_inventory_id_cannot_map_to_multiple_change_contracts(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            payload = valid_redesign_contract()
+            payload["change_contract"].append(
+                {
+                    "id": "CC2",
+                    "inventory_ids": ["CB1"],
+                    "requirement_ids": ["R1"],
+                    "description": "replace the preserved workflow with another contract",
+                }
+            )
+            screen = self.write_json(directory, "screen.json", payload)
+
+            result = self.run_validator("screen-contract", str(screen))
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("mapped by multiple change contracts", result.stdout)
+
+    def test_greenfield_rejects_null_unresolved_decisions(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            payload = valid_screen_contract()
+            payload["unresolved_decisions"] = None
+            screen = self.write_json(directory, "screen.json", payload)
+
+            result = self.run_validator("screen-contract", str(screen))
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("unresolved_decisions must be an empty array", result.stdout)
+
+    def test_screen_contract_rejects_null_exclusions(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            payload = valid_screen_contract()
+            payload["exclusions"] = None
+            screen = self.write_json(directory, "screen.json", payload)
+
+            result = self.run_validator("screen-contract", str(screen))
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exclusions must be an array", result.stdout)
+
+    def test_quality_report_handles_null_exclusions_without_traceback(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            screen_payload = valid_screen_contract()
+            screen_payload["exclusions"] = None
+            screen = self.write_json(directory, "screen.json", screen_payload)
+            report_payload = valid_quality_report()
+            check = report_payload["gates"][5]["checks"][1]
+            check["status"] = "not_applicable"
+            check["exclusion_id"] = "EX1"
+            check["not_applicable_reason"] = "desktop-only workflow"
+            report = self.write_json(directory, "report.json", report_payload)
+
+            result = self.run_validator("quality-report", str(report), str(screen))
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exclusions must be an array", result.stdout)
+            self.assertNotIn("Traceback", result.stderr)
 
     def test_valid_redesign_traceability_passes(self) -> None:
         with tempfile.TemporaryDirectory() as raw_directory:

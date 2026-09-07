@@ -14,6 +14,14 @@ description: 기존 운영형 B2B, admin, back-office 또는 data-work 화면을
 3. 각 inventory ID에 `preserve` 또는 `change`, evidence, reason, implementation target과 scenario ID를 지정한다.
 4. decision이나 mapping이 하나라도 없으면 구현하지 않고 `blocked`로 반환한다.
 
+Current Behavior Inventory와 Change Contract를 포함한 Screen Contract JSON을 만든 직후 현재
+스킬 위치에서 `../../scripts/validate_contracts.py`의 실제 경로를 해석해 검증한다. 실패하면
+재설계를 시작하지 않고 inventory 또는 mapping 단계로 돌아간다.
+
+```bash
+python3 <operations-ui-plugin-root>/scripts/validate_contracts.py screen-contract <screen-contract.json>
+```
+
 사용자 요청이 읽기 전용 검토라면 `audit-operations-ui`를 사용한다. 기존 화면이 없으면 `design-operations-ui`를 사용한다.
 
 ## 재설계
@@ -31,3 +39,10 @@ description: 기존 운영형 B2B, admin, back-office 또는 data-work 화면을
 [quality contract](../../references/quality-contract.md), [evidence contract](../../references/evidence-contract.md), [accessibility](../../references/accessibility.md)을 사용한다. preserve/change mapping coverage가 100%인지 확인하고 기존 scenario와 새 scenario를 actual browser에서 실행한다.
 
 하나라도 보존 회귀가 있으면 inventory/change mapping 또는 구현 단계로 되돌린다. screenshot만 있거나 브라우저 실행이 없으면 G7은 통과하지 않는다. 결과에는 inventory, Change Contract, mapping coverage, 변경 파일, checks, Quality Report와 browser receipt를 포함한다.
+
+Quality Report JSON을 만든 뒤에는 같은 validator로 report와 Screen Contract를 함께 검증한다.
+실패하면 출력된 contract 또는 gate의 책임 단계로 돌아가며 `overall: passed`를 보고하지 않는다.
+
+```bash
+python3 <operations-ui-plugin-root>/scripts/validate_contracts.py quality-report <quality-report.json> <screen-contract.json>
+```

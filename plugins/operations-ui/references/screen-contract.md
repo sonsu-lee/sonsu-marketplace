@@ -40,4 +40,4 @@
 
 하나라도 decision, implementation target 또는 scenario mapping이 없으면 구현을 시작하지 않는다. 보존·변경 ID의 mapping coverage가 100%가 아니면 재설계를 완료로 판정하지 않는다.
 
-`current_behavior_inventory`와 `change_contract`는 `mode: redesign`의 필수 필드다. Change Contract의 `inventory_ids` 합집합은 inventory ID 전체와 정확히 일치해야 하며 각 항목은 존재하는 requirement와 browser scenario를 참조한다. 하나의 Change Contract 묶음에 들어간 모든 inventory와 requirement는 적어도 하나의 동일한 scenario를 공유해야 한다. 공유하지 않으면 서로 다른 묶음으로 나눈다.
+`current_behavior_inventory`와 `change_contract`는 `mode: redesign`의 필수 필드다. Change Contract의 `inventory_ids` 합집합은 inventory ID 전체와 정확히 일치해야 하고, 각 inventory ID는 정확히 하나의 Change Contract에만 속해야 하며 각 항목은 존재하는 requirement와 browser scenario를 참조한다. 하나의 Change Contract 묶음에 들어간 모든 inventory와 requirement는 적어도 하나의 동일한 scenario를 공유해야 한다. 공유하지 않으면 서로 다른 묶음으로 나눈다.

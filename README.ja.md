@@ -46,6 +46,7 @@ codex plugin list --marketplace sonsu-marketplace
 | [Product](plugins/product/README.md) | プロダクトのアイデア探索、ユーザーに関する根拠の整理、仮説検証、PRD作成 | `product` |
 | [Figma Workflow](plugins/figma-workflow/README.md) | Figmaでのプロダクト画面・クリック可能なプロトタイプの作成とデザイン品質のレビュー | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | 明示的に呼び出してコーディングエージェントのメモリを点検・整理 | `memory-manager` |
+| [Operations UI](plugins/operations-ui/README.md) | 状態とデータを扱うB2B運用画面の設計・再設計・品質監査 | `operations-ui` |
 
 各プラグインは独立して利用できます。含まれるスキルや詳しい使い方は、上のリンクから確認してください。
 
@@ -64,6 +65,7 @@ codex plugin list --marketplace sonsu-marketplace
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
 | Figma Workflow | 「このFigma画面のAuto Layoutとプロトタイプの接続をレビューして。」 |
 | Memory Manager | 「$memory-manager このプロジェクトのCodexメモリを点検して。」 |
+| Operations UI | 「この受注運用画面をScreen Contractから実装し、ブラウザーの証跡で検証して。」 |
 
 Codexは依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
 Memory Managerは、`$memory-manager`で明示的に呼び出したときだけ動作します。
@@ -157,6 +159,7 @@ git diff --check
 - Promptingには、現在個別のライセンスを宣言していません。
 - Productには、現在個別のライセンスを宣言していません。
 - Memory Managerは独自に作成したプラグインで、現在個別のライセンスを宣言していません。設計で参照した出典は[UPSTREAM.md](plugins/memory-manager/UPSTREAM.md)に記録しています。
+- Operations UIは外部のUIコードやアセットをコピーせずに独自に作成したプラグインで、現在個別のライセンスを宣言していません。設計で参照した出典は[UPSTREAM.md](plugins/operations-ui/UPSTREAM.md)に記録しています。
 - Figma Workflowは外部ファイルをコピーせずに独自に作成したプラグインで、現在個別のライセンスを宣言していません。参照した出典と外部ファイルをコピーしない方針は、[UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md)に記録しています。
 - Fluent Languagesのライセンスと各ソースの出典は、[LICENSE](plugins/fluent-languages/LICENSE)、[UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md)、[THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md)に記録しています。
 - Researchは基準とした元のソースでライセンスファイルを確認できておらず、利用が許可されているとは推定していません。基準コミットと収録範囲は、[UPSTREAM.md](plugins/research/UPSTREAM.md)に記録しています。

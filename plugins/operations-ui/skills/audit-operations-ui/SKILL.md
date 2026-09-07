@@ -24,4 +24,14 @@ submit, create, update, delete, persisted toggle, test-data creation, code forma
 
 audit의 `unresolved_decisions`가 남아 있으면 G0, 각 항목의 `gate_ids`와 `overall`을 `passed`로 판정하지 않는다. 다른 gate는 독립적인 증거가 있으면 별도로 판정할 수 있다.
 
+감사용 Screen Contract와 Quality Report JSON을 만든 뒤 현재 스킬 위치에서
+`../../scripts/validate_contracts.py`의 실제 경로를 해석해 두 명령을 실행한다. 첫 명령이
+실패하면 contract 복원 단계로, 두 번째 명령이 실패하면 출력된 gate 판정 단계로 돌아간다.
+검증 실패를 finding 부재나 `overall: passed`로 바꾸지 않는다.
+
+```bash
+python3 <operations-ui-plugin-root>/scripts/validate_contracts.py screen-contract <screen-contract.json>
+python3 <operations-ui-plugin-root>/scripts/validate_contracts.py quality-report <quality-report.json> <screen-contract.json>
+```
+
 결과는 findings와 Quality Report이며 대상 파일을 변경하지 않았다고 명시한다.

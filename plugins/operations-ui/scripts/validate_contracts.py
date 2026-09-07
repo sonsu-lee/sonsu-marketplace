@@ -7,6 +7,7 @@ import argparse
 import json
 import re
 import sys
+import zlib
 from pathlib import Path
 from typing import Any
 
@@ -259,17 +260,161 @@ def reject_unknown_fields(
         errors.append(f"{context} has unknown fields: {unknown}")
 
 
+def is_valid_png(data: bytes) -> bool:
+    if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return False
+    offset = 8
+    saw_header = False
+    saw_image_data = False
+    while offset < len(data):
+        if len(data) - offset < 12:
+            return False
+        length = int.from_bytes(data[offset : offset + 4], "big")
+        chunk_type = data[offset + 4 : offset + 8]
+        chunk_end = offset + 12 + length
+        if chunk_end > len(data):
+            return False
+        chunk_data = data[offset + 8 : offset + 8 + length]
+        expected_crc = int.from_bytes(data[offset + 8 + length : chunk_end], "big")
+        if zlib.crc32(chunk_type + chunk_data) & 0xFFFFFFFF != expected_crc:
+            return False
+        if not saw_header:
+            if chunk_type != b"IHDR" or length != 13:
+                return False
+            width = int.from_bytes(chunk_data[0:4], "big")
+            height = int.from_bytes(chunk_data[4:8], "big")
+            if width == 0 or height == 0:
+                return False
+            saw_header = True
+        elif chunk_type == b"IHDR":
+            return False
+        if chunk_type == b"IDAT" and length > 0:
+            saw_image_data = True
+        if chunk_type == b"IEND":
+            return length == 0 and saw_header and saw_image_data and chunk_end == len(data)
+        offset = chunk_end
+    return False
+
+
+def is_valid_jpeg(data: bytes) -> bool:
+    if len(data) < 4 or not data.startswith(b"\xff\xd8"):
+        return False
+    offset = 2
+    saw_frame = False
+    saw_scan = False
+    frame_markers = {
+        0xC0,
+        0xC1,
+        0xC2,
+        0xC3,
+        0xC5,
+        0xC6,
+        0xC7,
+        0xC9,
+        0xCA,
+        0xCB,
+        0xCD,
+        0xCE,
+        0xCF,
+    }
+    while offset < len(data):
+        if data[offset] != 0xFF:
+            return False
+        marker_start = offset
+        while offset < len(data) and data[offset] == 0xFF:
+            offset += 1
+        if offset >= len(data):
+            return False
+        marker = data[offset]
+        offset += 1
+        if marker == 0xD9:
+            return saw_frame and saw_scan and offset == len(data)
+        if marker == 0x00 or marker == 0xD8:
+            return False
+        if marker == 0x01 or 0xD0 <= marker <= 0xD7:
+            continue
+        if len(data) - offset < 2:
+            return False
+        segment_length = int.from_bytes(data[offset : offset + 2], "big")
+        if segment_length < 2 or offset + segment_length > len(data):
+            return False
+        segment = data[offset + 2 : offset + segment_length]
+        if marker in frame_markers:
+            if len(segment) < 6:
+                return False
+            height = int.from_bytes(segment[1:3], "big")
+            width = int.from_bytes(segment[3:5], "big")
+            if width == 0 or height == 0:
+                return False
+            saw_frame = True
+        offset += segment_length
+        if marker != 0xDA:
+            continue
+        saw_scan = True
+        while offset < len(data):
+            marker_start = data.find(b"\xff", offset)
+            if marker_start < 0:
+                return False
+            marker_offset = marker_start + 1
+            while marker_offset < len(data) and data[marker_offset] == 0xFF:
+                marker_offset += 1
+            if marker_offset >= len(data):
+                return False
+            marker = data[marker_offset]
+            if marker == 0x00 or 0xD0 <= marker <= 0xD7:
+                offset = marker_offset + 1
+                continue
+            offset = marker_start
+            break
+    return False
+
+
+def is_valid_webp(data: bytes) -> bool:
+    if (
+        len(data) < 20
+        or data[0:4] != b"RIFF"
+        or data[8:12] != b"WEBP"
+        or int.from_bytes(data[4:8], "little") + 8 != len(data)
+    ):
+        return False
+    offset = 12
+    saw_image_chunk = False
+    while offset < len(data):
+        if len(data) - offset < 8:
+            return False
+        chunk_type = data[offset : offset + 4]
+        chunk_size = int.from_bytes(data[offset + 4 : offset + 8], "little")
+        chunk_end = offset + 8 + chunk_size
+        padded_end = chunk_end + (chunk_size % 2)
+        if chunk_end > len(data) or padded_end > len(data):
+            return False
+        chunk_data = data[offset + 8 : chunk_end]
+        if chunk_type == b"VP8 ":
+            if (
+                len(chunk_data) < 10
+                or chunk_data[3:6] != b"\x9d\x01\x2a"
+                or int.from_bytes(chunk_data[6:8], "little") & 0x3FFF == 0
+                or int.from_bytes(chunk_data[8:10], "little") & 0x3FFF == 0
+            ):
+                return False
+            saw_image_chunk = True
+        elif chunk_type == b"VP8L":
+            if len(chunk_data) < 5 or chunk_data[0] != 0x2F:
+                return False
+            saw_image_chunk = True
+        elif chunk_type == b"VP8X":
+            if len(chunk_data) != 10:
+                return False
+        offset = padded_end
+    return saw_image_chunk and offset == len(data)
+
+
 def is_supported_image(path: Path) -> bool:
     try:
-        with path.open("rb") as image:
-            header = image.read(12)
+        data = path.read_bytes()
     except OSError:
         return False
-    return (
-        header.startswith(b"\x89PNG\r\n\x1a\n")
-        or header.startswith(b"\xff\xd8\xff")
-        or (header.startswith(b"RIFF") and header[8:12] == b"WEBP")
-    )
+    return is_valid_png(data) or is_valid_jpeg(data) or is_valid_webp(data)
 
 
 def is_placeholder(value: str) -> bool:
@@ -347,9 +492,9 @@ def validate_screen_contract(payload: Any) -> list[str]:
 
     unresolved = payload.get("unresolved_decisions")
     if mode in ("greenfield", "redesign"):
-        if unresolved is not None and unresolved != []:
+        if unresolved != []:
             errors.append(
-                "unresolved_decisions must be empty before greenfield or redesign implementation"
+                "unresolved_decisions must be an empty array before greenfield or redesign implementation"
             )
     elif mode == "audit":
         if not isinstance(unresolved, list):
@@ -386,9 +531,9 @@ def validate_screen_contract(payload: Any) -> list[str]:
 
     exclusions = payload.get("exclusions")
     valid_exclusions: dict[str, dict[str, Any]] = {}
-    if exclusions is not None and not isinstance(exclusions, list):
+    if not isinstance(exclusions, list):
         errors.append("exclusions must be an array")
-    elif isinstance(exclusions, list):
+    else:
         for index, exclusion in enumerate(exclusions):
             if not isinstance(exclusion, dict):
                 errors.append(f"exclusions[{index}] must be an object")
@@ -766,6 +911,7 @@ def validate_redesign_traceability(
         errors.append("redesign change_contract must be a non-empty array")
         change_contract = []
     mapped_inventory_ids: set[str] = set()
+    inventory_mapping_owner: dict[str, int] = {}
     change_contract_ids: set[str] = set()
     for index, item in enumerate(change_contract):
         if not isinstance(item, dict):
@@ -791,6 +937,15 @@ def validate_redesign_traceability(
                 f"change_contract[{index}].inventory_ids must be a non-empty array of strings"
             )
         else:
+            for inventory_id in linked_inventory:
+                previous_owner = inventory_mapping_owner.get(inventory_id)
+                if previous_owner is not None and previous_owner != index:
+                    errors.append(
+                        f"inventory id {inventory_id} is mapped by multiple change contracts: "
+                        f"change_contract[{previous_owner}] and change_contract[{index}]"
+                    )
+                else:
+                    inventory_mapping_owner[inventory_id] = index
             mapped_inventory_ids.update(linked_inventory)
             unknown = sorted(set(linked_inventory) - known_inventory_ids)
             if unknown:
