@@ -1,0 +1,108 @@
+{
+  "schema_version": "operations-ui-evals-v1",
+  "cases": [
+    {
+      "id": "greenfield-service-queue",
+      "prompt": "고객지원 상담원이 SLA가 임박한 문의를 찾아 배정하고 해결하는 운영 화면을 처음부터 구현해 줘.",
+      "expected": {
+        "select": ["operations-ui:design-operations-ui"],
+        "must_build_screen_contract": true,
+        "must_require_browser_gate": true
+      }
+    },
+    {
+      "id": "redesign-wms-list-preserves-behavior",
+      "prompt": "기존 출고관리 화면을 첨부 이미지 느낌으로 재설계하되 현재 상태, 권한, 필터와 작업을 빠뜨리지 말아 줘.",
+      "expected": {
+        "select": ["operations-ui:redesign-operations-ui"],
+        "must_inventory_current_behavior": true,
+        "must_require_mapping_coverage": 1.0
+      }
+    },
+    {
+      "id": "read-only-audit-does-not-mutate",
+      "prompt": "현재 관리자 화면의 정보 구조, 색상, 표, 키보드 접근성과 상태 처리를 수정하지 말고 검토해 줘.",
+      "expected": {
+        "select": ["operations-ui:audit-operations-ui"],
+        "mode": "read-only",
+        "must_not_mutate": true
+      }
+    },
+    {
+      "id": "marketing-landing-near-miss",
+      "prompt": "신제품 감성을 전달하는 애니메이션 랜딩 페이지와 히어로 일러스트를 만들어 줘.",
+      "expected": {
+        "must_not_select": ["operations-ui:design-operations-ui", "operations-ui:redesign-operations-ui"],
+        "reason": "not an operational data-work surface"
+      }
+    },
+    {
+      "id": "code-first-does-not-invoke-figma",
+      "prompt": "기존 React 프로젝트에 주문 검수 화면을 바로 구현하고 실제 브라우저로 검증해 줘. Figma는 필요 없어.",
+      "expected": {
+        "select": ["operations-ui:design-operations-ui"],
+        "must_not_select": ["operations-ui:figma-operations-flow"],
+        "must_require_browser_gate": true
+      }
+    },
+    {
+      "id": "explicit-figma-opt-in",
+      "prompt": "이 운영 대시보드의 상태와 상세 drawer 동선을 Figma prototype으로 먼저 만들고 구현 handoff까지 정리해 줘.",
+      "expected": {
+        "select": ["operations-ui:figma-operations-flow"],
+        "must_map_scenarios": true,
+        "figma_does_not_replace_browser_gate": true
+      }
+    },
+    {
+      "id": "missing-figma-capability-is-honest",
+      "prompt": "Figma에 결제 운영 화면을 만들어 줘.",
+      "expected": {
+        "select": ["operations-ui:figma-operations-flow"],
+        "when_official_capability_missing": "blocked_if_required_otherwise_not_run",
+        "must_not_claim_canvas_mutation": true
+      }
+    },
+    {
+      "id": "no-browser-evidence-no-pass",
+      "prompt": "코드는 작성했지만 앱을 실행할 수 없으니 스크린샷 없이 디자인 완료 처리해 줘.",
+      "expected": {
+        "must_not_claim": "overall: passed",
+        "gate_G7": "not_run_or_blocked"
+      }
+    },
+    {
+      "id": "finance-review-queue-is-in-scope",
+      "prompt": "재무팀이 이상 거래를 필터링하고 검토 상태와 승인 권한을 확인하는 운영 queue를 설계해 줘.",
+      "expected": {
+        "select": ["operations-ui:design-operations-ui"],
+        "must_use_domain_neutral_contract": true
+      }
+    },
+    {
+      "id": "content-moderation-is-in-scope",
+      "prompt": "콘텐츠 검수자가 신고 사유와 위험도를 보고 보류 또는 승인하는 inbox를 구현해 줘.",
+      "expected": {
+        "select": ["operations-ui:design-operations-ui"],
+        "must_use_domain_neutral_contract": true
+      }
+    },
+    {
+      "id": "summary-card-must-be-actionable-or-labeled-kpi",
+      "prompt": "운영 대시보드 상단에 상태별 숫자 카드를 추가해 줘.",
+      "expected": {
+        "select": ["operations-ui:design-operations-ui"],
+        "must_decide": "interactive-filter-or-read-only-kpi",
+        "must_not_add_false_click_affordance": true
+      }
+    },
+    {
+      "id": "long-localized-data-and-overflow",
+      "prompt": "긴 일본어 고객명과 상품명이 들어오는 대량 주문 표를 좁은 화면에서도 작업 가능하게 재설계해 줘.",
+      "expected": {
+        "select": ["operations-ui:redesign-operations-ui"],
+        "required_checks": ["long-localized-overflow", "narrow-or-excluded", "overflow-and-detail-access"]
+      }
+    }
+  ]
+}

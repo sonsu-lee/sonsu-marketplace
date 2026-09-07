@@ -1,0 +1,6 @@
+interface:
+  display_name: "Figma Operations Flow"
+  short_description: "명시된 Figma 운영 화면과 동선을 contract에 연결합니다"
+  default_prompt: "$figma-operations-flow를 사용해 이 운영 화면의 상태와 prototype을 Figma에서 Screen Contract scenario에 연결하고 구현 handoff를 만들어 줘."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sonsu.dev/schemas/operations-ui-evals-v1.json",
+  "title": "Operations UI evaluation fixtures",
+  "type": "object",
+  "required": ["schema_version", "cases"],
+  "properties": {
+    "schema_version": {"const": "operations-ui-evals-v1"},
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "prompt", "expected"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "prompt": {"type": "string", "minLength": 1},
+          "expected": {
+            "type": "object",
+            "minProperties": 1,
+            "properties": {
+              "select": {"$ref": "#/$defs/skillIds"},
+              "must_not_select": {"$ref": "#/$defs/skillIds"},
+              "must_build_screen_contract": {"type": "boolean"},
+              "must_require_browser_gate": {"type": "boolean"},
+              "must_inventory_current_behavior": {"type": "boolean"},
+              "must_require_mapping_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+              "mode": {"const": "read-only"},
+              "must_not_mutate": {"type": "boolean"},
+              "reason": {"type": "string", "minLength": 1},
+              "must_map_scenarios": {"type": "boolean"},
+              "figma_does_not_replace_browser_gate": {"type": "boolean"},
+              "when_official_capability_missing": {"const": "blocked_if_required_otherwise_not_run"},
+              "must_not_claim_canvas_mutation": {"type": "boolean"},
+              "must_not_claim": {"type": "string", "minLength": 1},
+              "gate_G7": {"const": "not_run_or_blocked"},
+              "must_use_domain_neutral_contract": {"type": "boolean"},
+              "must_decide": {"type": "string", "minLength": 1},
+              "must_not_add_false_click_affordance": {"type": "boolean"},
+              "required_checks": {"$ref": "#/$defs/checkIds"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "skillIds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "operations-ui:design-operations-ui",
+          "operations-ui:redesign-operations-ui",
+          "operations-ui:audit-operations-ui",
+          "operations-ui:figma-operations-flow"
+        ]
+      }
+    },
+    "checkIds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "contract-artifact", "requirement-scenario-coverage",
+          "pattern-decision", "information-hierarchy", "actual-wide-render",
+          "token-mapping", "shell-and-navigation", "semantic-color", "density-and-components",
+          "state-matrix", "loading-empty-error-permission", "zero-one-many", "long-localized-overflow",
+          "primary-secondary-actions", "bulk-destructive-actions", "feedback-and-selection",
+          "wide-viewport", "narrow-or-excluded", "overflow-and-detail-access",
+          "keyboard-focus", "names-roles-states", "non-color-status", "contrast",
+          "actual-app-provenance", "required-scenario-coverage", "screenshots", "console-runtime"
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

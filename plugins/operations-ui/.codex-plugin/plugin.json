@@ -1,0 +1,36 @@
+{
+  "name": "operations-ui",
+  "version": "0.1.0",
+  "description": "운영형 B2B 화면을 하나의 디자인 언어로 설계, 재설계하고 증거 기반 품질 게이트로 검토합니다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "keywords": [
+    "operations-ui",
+    "b2b",
+    "admin",
+    "design-system",
+    "accessibility",
+    "browser-evidence"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Operations UI",
+    "shortDescription": "운영형 B2B 화면을 설계하고 검증합니다.",
+    "longDescription": "Precision Operations Console 디자인 시스템과 Screen Contract를 사용해 범용 운영 화면을 code-first로 설계·재설계하고, 실제 브라우저 증거가 있는 경우에만 품질 통과를 판정합니다.",
+    "developerName": "sonsu",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "brandColor": "#356BD6",
+    "defaultPrompt": [
+      "이 운영 화면을 $design-operations-ui로 설계하고 실제 브라우저 품질까지 검증해 줘.",
+      "기존 관리 화면을 $redesign-operations-ui로 기능을 보존하면서 재설계해 줘.",
+      "이 운영 UI를 $audit-operations-ui로 수정 없이 감사해 줘."
+    ]
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "schema_version": "operations-ui-screen-contract-v1",
+  "id": "outbound-request-workspace",
+  "mode": "redesign",
+  "surface": "standalone-console",
+  "actors": ["warehouse-operator", "warehouse-supervisor"],
+  "jobs": ["find outbound requests", "assign a route", "cancel an invalid request"],
+  "entities": ["outbound-request", "shipment"],
+  "lifecycle": ["requested", "preparing", "shipped", "delivered", "cancelled"],
+  "primary_decision": "which outbound request should be handled next",
+  "actions": ["filter", "assign-route", "upload-waybill", "cancel-request"],
+  "permissions": ["outbound:read", "outbound:route", "outbound:upload-waybill", "outbound:cancel"],
+  "risks": ["cancelling the wrong request", "assigning an invalid route", "losing selection after filtering"],
+  "view_states": ["loading", "empty", "error", "permission-denied", "zero", "one", "many", "long-localized"],
+  "viewports": [
+    {"id": "wide", "width": 1440, "height": 900},
+    {"id": "narrow", "width": 768, "height": 1024}
+  ],
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "Operators can narrow requests by lifecycle state and open the matching row",
+      "scenario_ids": ["S1"]
+    }
+  ],
+  "evidence_scenarios": [
+    {
+      "id": "S1",
+      "requirement_ids": ["R1"],
+      "initial_state": "many outbound requests with long recipient and product names",
+      "actions": ["filter", "assign-route", "upload-waybill", "cancel-request"],
+      "expected": "the filtered count and selected request detail are visible without losing access to row actions",
+      "required_viewports": ["wide", "narrow"],
+      "coverage": {
+        "actions": ["filter", "assign-route", "upload-waybill", "cancel-request"],
+        "permissions": ["outbound:read", "outbound:route", "outbound:upload-waybill", "outbound:cancel"],
+        "risks": ["cancelling the wrong request", "assigning an invalid route", "losing selection after filtering"],
+        "view_states": ["loading", "empty", "error", "permission-denied", "zero", "one", "many", "long-localized"]
+      }
+    }
+  ],
+  "current_behavior_inventory": [
+    {
+      "id": "CB1",
+      "kind": "feature",
+      "observed": "operators filter outbound requests by lifecycle status",
+      "evidence": ["example: provided current-screen screenshot"],
+      "decision": "preserve",
+      "reason": "status filtering is required for the primary decision",
+      "implementation_target": "target outbound list workspace",
+      "scenario_ids": ["S1"]
+    },
+    {
+      "id": "CB2",
+      "kind": "action",
+      "observed": "operators open row actions after filtering",
+      "evidence": ["example: provided current-screen screenshot"],
+      "decision": "preserve",
+      "reason": "row actions complete the outbound handling workflow",
+      "implementation_target": "target outbound table and detail surface",
+      "scenario_ids": ["S1"]
+    },
+    {
+      "id": "CB3",
+      "kind": "data-shape",
+      "observed": "recipient and product values can be longer than the visible column",
+      "evidence": ["example: provided current-screen screenshot"],
+      "decision": "change",
+      "reason": "the redesign must preserve access to full values at both viewports",
+      "implementation_target": "target outbound table overflow and detail behavior",
+      "scenario_ids": ["S1"]
+    }
+  ],
+  "change_contract": [
+    {
+      "id": "CC1",
+      "inventory_ids": ["CB1", "CB2", "CB3"],
+      "requirement_ids": ["R1"],
+      "description": "preserve filtering and row actions while making long data and detail access resilient"
+    }
+  ],
+  "exclusions": [],
+  "unresolved_decisions": []
+}

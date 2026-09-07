@@ -1,0 +1,89 @@
+{
+  "schema_version": "operations-ui-quality-report-v1",
+  "screen_contract_id": "outbound-request-workspace",
+  "overall": "not_run",
+  "design_profile": {
+    "name": "precision-operations-console-v1",
+    "canvas": "#F4F6F8",
+    "surface": "#FFFFFF",
+    "sidebar": "#1D2B3C",
+    "primary": "#356BD6",
+    "sidebar_width": 240,
+    "topbar_height": 48,
+    "content_padding": 24,
+    "section_gap": 16,
+    "control_height": 36,
+    "table_row_height": 48,
+    "radius": 10
+  },
+  "gates": [
+    {
+      "id": "G0", "required": true, "status": "not_run", "evidence": ["example/contract-coverage.json"],
+      "checks": [
+        {"id": "contract-artifact", "status": "not_run", "evidence": ["example/screen-contract.json"]},
+        {"id": "requirement-scenario-coverage", "status": "not_run", "evidence": ["example/contract-coverage.json"]}
+      ]
+    },
+    {
+      "id": "G1", "required": true, "status": "not_run", "evidence": ["example/pattern-decision.md"],
+      "checks": [
+        {"id": "pattern-decision", "status": "not_run", "evidence": ["example/pattern-decision.md"]},
+        {"id": "information-hierarchy", "status": "not_run", "evidence": ["example/S1-wide.png"]},
+        {"id": "actual-wide-render", "status": "not_run", "evidence": ["example/S1-wide.png"]}
+      ]
+    },
+    {
+      "id": "G2", "required": true, "status": "not_run", "evidence": ["example/token-audit.json"],
+      "checks": [
+        {"id": "token-mapping", "status": "not_run", "evidence": ["example/token-audit.json"]},
+        {"id": "shell-and-navigation", "status": "not_run", "evidence": ["example/S1-wide.png"]},
+        {"id": "semantic-color", "status": "not_run", "evidence": ["example/token-audit.json"]},
+        {"id": "density-and-components", "status": "not_run", "evidence": ["example/S1-wide.png"]}
+      ]
+    },
+    {
+      "id": "G3", "required": true, "status": "not_run", "evidence": ["example/state-matrix.json"],
+      "checks": [
+        {"id": "state-matrix", "status": "not_run", "evidence": ["example/state-matrix.json"]},
+        {"id": "loading-empty-error-permission", "status": "not_run", "evidence": ["example/state-captures/"]},
+        {"id": "zero-one-many", "status": "not_run", "evidence": ["example/state-captures/"]},
+        {"id": "long-localized-overflow", "status": "not_run", "evidence": ["example/S1-wide.png", "example/S1-narrow.png"]}
+      ]
+    },
+    {
+      "id": "G4", "required": true, "status": "not_run", "evidence": ["example/interaction-trace.json"],
+      "checks": [
+        {"id": "primary-secondary-actions", "status": "not_run", "evidence": ["example/interaction-trace.json"]},
+        {"id": "bulk-destructive-actions", "status": "not_run", "evidence": ["example/interaction-trace.json"]},
+        {"id": "feedback-and-selection", "status": "not_run", "evidence": ["example/interaction-trace.json"]}
+      ]
+    },
+    {
+      "id": "G5", "required": true, "status": "not_run", "evidence": ["example/viewport-observation.json"],
+      "checks": [
+        {"id": "wide-viewport", "status": "not_run", "evidence": ["example/S1-wide.png"]},
+        {"id": "narrow-or-excluded", "status": "not_run", "evidence": ["example/S1-narrow.png"]},
+        {"id": "overflow-and-detail-access", "status": "not_run", "evidence": ["example/viewport-observation.json"]}
+      ]
+    },
+    {
+      "id": "G6", "required": true, "status": "not_run", "evidence": ["example/accessibility-observation.json"],
+      "checks": [
+        {"id": "keyboard-focus", "status": "not_run", "evidence": ["example/accessibility-observation.json"]},
+        {"id": "names-roles-states", "status": "not_run", "evidence": ["example/accessibility-observation.json"]},
+        {"id": "non-color-status", "status": "not_run", "evidence": ["example/accessibility-observation.json"]},
+        {"id": "contrast", "status": "not_run", "evidence": ["example/contrast-results.json"]}
+      ]
+    },
+    {
+      "id": "G7", "required": true, "status": "not_run", "evidence": ["example/browser-receipts.json"],
+      "checks": [
+        {"id": "actual-app-provenance", "status": "not_run", "evidence": ["example/browser-receipts.json"]},
+        {"id": "required-scenario-coverage", "status": "not_run", "evidence": ["example/browser-receipts.json"]},
+        {"id": "screenshots", "status": "not_run", "evidence": ["example/S1-wide.png", "example/S1-narrow.png"]},
+        {"id": "console-runtime", "status": "not_run", "evidence": ["example/browser-receipts.json"]}
+      ]
+    }
+  ],
+  "browser_receipts": []
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Redesign Operations UI"
+  short_description: "기존 운영 화면의 동작을 보존하며 재설계합니다"
+  default_prompt: "$redesign-operations-ui를 사용해 현재 기능과 상태를 inventory로 고정한 뒤 이 운영 화면을 재설계하고 browser에서 회귀를 검증해 줘."
+policy:
+  allow_implicit_invocation: true
