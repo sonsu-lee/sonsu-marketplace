@@ -15,6 +15,12 @@ Write English explanatory prose that fits the requested genre, audience, voice, 
 - For code, code comments, commit messages, interface text, and other project-controlled strings, follow the user's request and the project's conventions before this guidance.
 - This skill guides generated prose. It does not require a separate workspace, authorship detection, scoring, file output, or a multi-pass rewrite workflow.
 
+## 작업 연속성 / Task continuity / 作業の継続
+
+장문·여러 문서의 편집을 여러 단계로 진행하는 메인 controller는 같은 플러그인의
+[task-continuity](../task-continuity/SKILL.md)를 적용한다. 다른 작업의 출력 문체 적용과 짧은 번역에는
+별도 기록을 만들지 않는다. 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+
 ## 공통 의사소통 원칙
 
 - 사용자가 요청한 내용, 독자, 목적, 장르, 어조와 출력 형식을 따릅니다.

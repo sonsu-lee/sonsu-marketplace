@@ -15,6 +15,8 @@ Write English explanatory prose that fits the requested genre, audience, voice, 
 - For code, code comments, commit messages, interface text, and other project-controlled strings, follow the user's request and the project's conventions before this guidance.
 - This skill guides generated prose. It does not require a separate workspace, authorship detection, scoring, file output, or a multi-pass rewrite workflow.
 
+{{ include: ../core/continuity.md }}
+
 {{ include: ../core/communication.md }}
 
 {{ include: ../core/integrity.md }}

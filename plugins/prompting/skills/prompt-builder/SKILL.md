@@ -7,6 +7,13 @@ description: Codex, ChatGPT 또는 OpenAI API 모델에서 바로 사용할 수 
 
 사용자가 의도한 결과와 제약을 보존하는 가장 작은 프롬프트를 작성한다.
 
+## 작업 연속성
+
+현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
+[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
+컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
+별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+
 ## 산출물을 정한다
 
 - 사용자가 명시한 모델, 제품, 독자, 언어, 역할, 원본 자료와 출력 형식을 보존한다.

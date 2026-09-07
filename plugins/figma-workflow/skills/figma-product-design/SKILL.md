@@ -7,6 +7,13 @@ description: Figma Design에서 제품 화면이나 composed view를 생성 또�
 
 Figma Design이 최종 제품 화면의 source of truth일 때 native frame, Auto Layout, component, variable과 검증된 exact asset으로 화면을 만든다. 시각적 유사성만으로 완료를 판단하지 않고 resize, 상태와 handoff evidence까지 유지한다.
 
+## 작업 연속성
+
+현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
+[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
+컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
+별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+
 ## 시작과 실행 선택
 
 1. [tool routing](../../references/tool-routing.md)으로 최종 artifact가 Figma Design인지 확인한다. 제품 화면, 상태, overlay와 interaction 동선은 Figma 안에서 완결한다. FigJam은 탐색·워크숍, draw.io는 AWS·시스템 구조도에만 사용한다.

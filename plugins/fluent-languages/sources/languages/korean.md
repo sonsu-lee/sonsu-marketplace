@@ -15,6 +15,8 @@ description: 한국어 답변, 보고서, 설명문과 문서를 자연스럽게
 - 코드, 코드 주석, commit message처럼 프로젝트 관례가 적용되는 텍스트는 해당 관례와 사용자의 지시를 따릅니다.
 - 이 스킬은 출력 문체만 안내합니다. 별도의 workspace 생성, 파일 출력, 위험도 점수나 등급 산정, 진단·수정용 다중 호출 pipeline을 요구하지 않습니다.
 
+{{ include: ../core/continuity.md }}
+
 {{ include: ../core/communication.md }}
 
 {{ include: ../core/integrity.md }}

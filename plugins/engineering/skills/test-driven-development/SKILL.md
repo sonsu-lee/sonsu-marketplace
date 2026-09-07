@@ -5,6 +5,13 @@ description: 프로덕션 코드의 동작을 변경하거나 결함을 수정�
 
 # test-driven-development: 테스트 주도 개발(TDD)
 
+## 작업 연속성
+
+현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
+[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
+컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
+별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+
 ## 개요
 
 테스트를 먼저 작성하고 실패하는 모습을 확인한 뒤, 통과하는 데 필요한 최소한의 코드를 작성합니다.
