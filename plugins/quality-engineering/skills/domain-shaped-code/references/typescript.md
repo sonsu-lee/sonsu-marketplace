@@ -3,11 +3,18 @@
 TypeScript에서는 compiler가 이미 정확히 추론하는 타입을 기본으로 사용한다. annotation과 별도
 타입 이름은 계약, 제약 또는 재사용 경계를 더 명확하게 만들 때만 추가한다.
 
+JS·TS의 nullish 값, `satisfies`, API 경계, type guard와 async 패턴에 대한 구체적인 판단은
+[`../../../references/javascript-typescript-review.md`](../../../references/javascript-typescript-review.md)를
+함께 적용한다.
+
 ## 추론을 우선한다
 
 - 지역 변수, 명백한 반환값과 callback parameter의 타입은 추론에 맡긴다.
 - public API, 재귀 함수, overload 경계, 생성된 선언의 안정성 또는 의도한 widening을 제어해야
   할 때는 annotation을 사용한다.
+- object literal이 target type을 만족하는지 검사하면서 구체적인 key·literal 정보를 유지할
+  때는 `satisfies`를 사용한다. mutable 값의 widening이나 public 계약 고정에는 annotation을
+  사용한다.
 - `ReturnType`, 깊은 conditional type와 type-level program은 직접 타입보다 계약이 더 선명하고
   실제 중복을 줄일 때만 사용한다.
 - 한 번만 쓰이며 구조 자체가 충분히 명확한 object shape에는 이름을 만들지 않는다.
@@ -27,6 +34,8 @@ TypeScript에서는 compiler가 이미 정확히 추론하는 타입을 기본�
 - 내부의 이미 신뢰된 값을 습관적으로 `unknown`으로 되돌리지 않는다.
 - type guard는 런타임 검사와 반환 타입이 같은 사실을 증명해야 한다. 타입만 만족시키는 guard를
   만들지 않는다.
+- 외부 입력은 경계 parser가 검증하고, 내부 함수는 검증 후의 좁은 타입을 받는다. 생성된 API
+  타입이 실제 runtime 보증을 대신한다고 가정하거나 모든 leaf에서 같은 guard를 반복하지 않는다.
 - `as` assertion과 non-null assertion은 이미 성립한 불변식을 compiler가 표현하지 못하는 경우의
   마지막 수단이다. 가능한 경우 경계 검증이나 제어 흐름 narrowing으로 대체한다.
 - `any`가 필요한 상호운용 경계는 좁게 격리하고 신뢰된 타입으로 즉시 변환한다.

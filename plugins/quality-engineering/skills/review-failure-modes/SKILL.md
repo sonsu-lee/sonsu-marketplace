@@ -41,6 +41,11 @@ description: 사용자가 현재 diff나 지정한 코드의 도달 가능한 �
 시나리오는 finding이 아니다. 명백한 security 위험은 숨기지 않지만 exploit 개발이나 광범위한
 취약점 탐색으로 확장하지 않고 전문 security 검토가 필요한 범위를 밝힌다.
 
+JavaScript·TypeScript 변경에서는
+[`../../references/javascript-typescript-review.md`](../../references/javascript-typescript-review.md)를
+읽고 nullish fallback이 계약 위반을 숨기는지, `forEach(async ...)`와 floating promise가 완료를
+앞당기는지, `Promise.all` 이후 부분 write·retry가 실제로 도달하는지 확인한다.
+
 ## 결과
 
 finding마다 priority, `path:line`, 도달 경로, trigger, 관찰 가능한 영향, 기존 방어가 부족한 이유와

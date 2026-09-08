@@ -36,6 +36,27 @@ codex plugin add quality-engineering@sonsu-marketplace
 review와 audit 스킬은 읽기 전용입니다. `review-quality`는 모든 lens를 기계적으로 실행하지 않고
 현재 변경에 실제로 관련된 관점만 선택합니다.
 
+## JavaScript·TypeScript 체크리스트
+
+[`JavaScript·TypeScript 개인 리뷰 체크리스트`](references/javascript-typescript-review.md)는
+`null`·`undefined`와 truthiness, `satisfies`의 추론 경계, API trust boundary, type guard, async
+실패와 반복되는 코드 냄새를 한곳에 정리합니다. 새 스킬을 추가하지 않고 구현에는
+`domain-shaped-code`·`simplify-code`, 리뷰에는 요청 범위에 맞는 `review-quality`,
+`review-maintainability`, `review-failure-modes`가 이 기준에서 자기 lens에 해당하는 부분만
+불러옵니다.
+
+개인이 PR을 보기 전 빠른 self-review 목록으로 직접 읽어도 되고, Codex에는 다음처럼 요청할 수
+있습니다.
+
+```text
+이 TypeScript diff를 broad quality review로 봐줘. nullish 의미, satisfies 추론,
+API 경계 이후 중복 type guard와 async 실패를 특히 확인해줘. 수정은 하지 마.
+```
+
+compiler 반례와 finding/no-finding 쌍은
+[`evals/javascript-typescript-review`](../../evals/javascript-typescript-review/README.md)에 고정합니다.
+정적 fixture 검증과 실제 모델 판단·native skill loading은 서로 다른 결과로 기록합니다.
+
 ## 공통 판단 순서
 
 모든 스킬은 다음 순서를 공유합니다.

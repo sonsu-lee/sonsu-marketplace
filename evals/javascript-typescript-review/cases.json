@@ -1,0 +1,129 @@
+{
+  "suite": "javascript-typescript-review",
+  "version": 1,
+  "cases": [
+    {
+      "id": "nullish-default-preserves-zero",
+      "request": "이 TypeScript 함수를 correctness와 가독성 관점에서 리뷰해줘.",
+      "contract": "retryCount에서 0은 재시도하지 않는다는 유효한 설정이고 null 또는 undefined만 기본값 3을 사용한다.",
+      "code": "function retries(input: { retryCount?: number | null }) {\n  return input.retryCount || 3;\n}",
+      "context": "모든 caller는 설정 파일을 parse한 뒤 이 함수를 호출한다.",
+      "expected": {
+        "result": "finding",
+        "classification": "correctness",
+        "trigger": "retryCount가 0이다",
+        "impact": "0이 3으로 바뀐다",
+        "minimal_fix": "||를 ??로 바꾼다",
+        "must_not": ["빈 문자열이나 false를 추가로 검증하라고 요구한다", "schema validator를 새로 도입한다"]
+      }
+    },
+    {
+      "id": "truthy-fallback-is-domain-policy",
+      "request": "이 JavaScript 한 줄에서 ||를 무조건 ??로 바꿔야 하는지 리뷰해줘.",
+      "contract": "trim 결과가 빈 문자열이면 제목 없음으로 표시한다.",
+      "code": "const title = input.title.trim() || '제목 없음';",
+      "context": "input.title은 앞선 경계에서 string으로 검증됐다.",
+      "expected": {
+        "result": "no-finding",
+        "reason": "빈 문자열도 fallback해야 한다는 계약과 ||가 일치한다",
+        "must_not": ["nullish 연산자를 일률적으로 요구한다", "내부 string guard를 추가한다"]
+      }
+    },
+    {
+      "id": "satisfies-static-registry",
+      "request": "이 TypeScript registry의 타입 사용을 리뷰해줘.",
+      "contract": "registry는 module 초기화 이후 변경하지 않으며 key별 literal path를 후속 코드가 사용한다.",
+      "code": "type Route = { path: `/${string}`; auth: 'public' | 'user' };\nconst routes = {\n  home: { path: '/', auth: 'public' },\n  account: { path: '/account', auth: 'user' },\n} as const satisfies Record<string, Route>;",
+      "context": "외부 데이터가 아니며 compile-time configuration이다.",
+      "expected": {
+        "result": "no-finding",
+        "reason": "immutable literal registry를 검사하면서 key와 literal을 유지하는 적합한 사용이다",
+        "must_not": ["runtime schema validation을 요구한다", "Record annotation으로 widening한다"]
+      }
+    },
+    {
+      "id": "satisfies-mutable-state-too-narrow",
+      "request": "이 mutable TypeScript 상태의 satisfies 사용을 리뷰해줘.",
+      "contract": "enabled는 사용자 조작으로 true와 false 사이에서 변경된다.",
+      "code": "const state = { enabled: true } satisfies { enabled: boolean };\nstate.enabled = false;",
+      "context": "TypeScript 5.9.2 strict mode에서 두 번째 줄이 compile error다.",
+      "expected": {
+        "result": "finding",
+        "classification": "inference",
+        "trigger": "false로 mutation한다",
+        "impact": "enabled가 literal true로 추론되어 유효한 변경이 compile되지 않는다",
+        "minimal_fix": "state에 { enabled: boolean } annotation을 둔다",
+        "must_not": ["as unknown as를 사용한다", "모든 satisfies 사용을 금지한다"]
+      }
+    },
+    {
+      "id": "satisfies-does-not-validate-json",
+      "request": "API adapter의 TypeScript 타입 안전성을 리뷰해줘.",
+      "contract": "제3자 API 응답은 신뢰되지 않으며 id는 반드시 string이어야 한다.",
+      "code": "async function loadUser(): Promise<User> {\n  const value: any = await fetch('/user').then(r => r.json());\n  return value satisfies User;\n}",
+      "context": "서버 response가 { id: 42 }여도 현재 함수는 그대로 반환한다.",
+      "expected": {
+        "result": "finding",
+        "classification": "boundary",
+        "trigger": "API가 선언과 다른 runtime shape을 반환한다",
+        "impact": "satisfies가 runtime 검증을 하지 않아 잘못된 User가 내부로 들어간다",
+        "minimal_fix": "adapter에서 unknown을 parseUser로 검증하고 User를 반환한다",
+        "must_not": ["모든 내부 consumer에 isUser를 추가한다", "double assertion으로 오류를 숨긴다"]
+      }
+    },
+    {
+      "id": "trusted-domain-value-removes-duplicate-guard",
+      "request": "이 경계와 내부 helper의 반복 타입 가드를 유지보수성 관점에서 리뷰해줘.",
+      "contract": "parsePaidOrder는 status와 paidAt을 runtime에서 검증하고 성공 시 PaidOrder만 반환한다.",
+      "code": "const order = parsePaidOrder(await response.json());\nreturn renderReceipt(order);\n\nfunction renderReceipt(order: PaidOrder) {\n  if (!order || !order.paidAt) return null;\n  return order.paidAt.toISOString();\n}",
+      "context": "renderReceipt의 유일한 caller는 parsePaidOrder 성공값을 전달하며 PaidOrder.paidAt은 Date다.",
+      "expected": {
+        "result": "finding",
+        "classification": "maintainability",
+        "trigger": "신뢰된 PaidOrder가 helper에 전달된다",
+        "impact": "도메인 계약을 다시 의심하고 계약 위반을 정상 null로 숨긴다",
+        "minimal_fix": "renderReceipt의 중복 guard를 제거한다",
+        "must_not": ["parsePaidOrder의 경계 검증을 제거한다", "non-null assertion을 추가한다"]
+      }
+    },
+    {
+      "id": "bypass-path-requires-revalidation",
+      "request": "내부 함수의 guard가 중복인지 리뷰해줘.",
+      "contract": "restoreSession은 검증된 로그인 경로 외에도 version 없는 legacy localStorage JSON에서 직접 호출된다.",
+      "code": "function restoreSession(value: unknown): Session {\n  if (!isSession(value)) throw new InvalidSession();\n  return value;\n}",
+      "context": "legacy storage migration이 끝나지 않아 unknown 우회 경로가 현재 production에서 사용된다.",
+      "expected": {
+        "result": "no-finding",
+        "reason": "실제 trust-boundary 우회 경로를 이 함수가 소유하므로 guard가 필요하다",
+        "must_not": ["내부 함수라는 이유만으로 guard를 제거한다", "legacy 경로가 미래 가정이라고 무시한다"]
+      }
+    },
+    {
+      "id": "async-foreach-returns-before-writes",
+      "request": "이 batch 저장 함수의 실패 모드를 리뷰해줘.",
+      "contract": "함수의 promise가 resolve될 때 모든 save가 완료되어야 하며 하나라도 실패하면 caller가 실패를 받아야 한다.",
+      "code": "async function saveAll(items: Item[]) {\n  items.forEach(async item => {\n    await save(item);\n  });\n}",
+      "context": "caller는 await saveAll(items) 직후 완료 event를 publish한다.",
+      "expected": {
+        "result": "finding",
+        "classification": "failure-mode",
+        "trigger": "save가 비동기로 지연되거나 reject된다",
+        "impact": "save 완료 전에 event가 발행되고 rejection이 caller에 전달되지 않는다",
+        "minimal_fix": "독립 병렬 write가 계약이면 await Promise.all(items.map(save))를 사용한다",
+        "must_not": ["순서 요구 근거 없이 for...of를 강제한다", "catch 후 오류를 무시한다"]
+      }
+    },
+    {
+      "id": "promise-all-independent-reads",
+      "request": "Promise.all을 쓴 이 코드를 실패 모드 관점에서 리뷰해줘.",
+      "contract": "각 조회는 read-only이고 서로 독립적이며 하나라도 실패하면 전체 요청을 실패시킨다.",
+      "code": "const profiles = await Promise.all(ids.map(id => loadProfile(id)));",
+      "context": "loadProfile은 외부 write를 하지 않고 caller가 partial result를 사용하지 않는다.",
+      "expected": {
+        "result": "no-finding",
+        "reason": "독립 read의 병렬 실행과 fail-fast 계약이 일치한다",
+        "must_not": ["Promise.all을 무조건 순차 await로 바꾼다", "부분 성공 저장소를 추가한다"]
+      }
+    }
+  ]
+}
