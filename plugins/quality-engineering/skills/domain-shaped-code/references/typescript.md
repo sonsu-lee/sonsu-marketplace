@@ -34,8 +34,11 @@ JS·TS의 nullish 값, `satisfies`, API 경계, type guard와 async 패턴에 �
 - 내부의 이미 신뢰된 값을 습관적으로 `unknown`으로 되돌리지 않는다.
 - type guard는 런타임 검사와 반환 타입이 같은 사실을 증명해야 한다. 타입만 만족시키는 guard를
   만들지 않는다.
-- 외부 입력은 경계 parser가 검증하고, 내부 함수는 검증 후의 좁은 타입을 받는다. 생성된 API
-  타입이 실제 runtime 보증을 대신한다고 가정하거나 모든 leaf에서 같은 guard를 반복하지 않는다.
+- 외부 값은 제공자·producer, version drift와 schema generation 경로를 먼저 확인한다.
+  server-side output validation, schema compatibility gate와 contract test가 제공하는 근거로
+  runtime 보증의 충분성을 판단하고, 불충분하면 경계 parser가 검증한다. 내부 함수는 신뢰된
+  좁은 타입을 받으며, 생성된 API 타입만으로 보증을 가정하거나 모든 leaf에서 같은 guard를
+  반복하지 않는다.
 - `as` assertion과 non-null assertion은 이미 성립한 불변식을 compiler가 표현하지 못하는 경우의
   마지막 수단이다. 가능한 경우 경계 검증이나 제어 흐름 narrowing으로 대체한다.
 - `any`가 필요한 상호운용 경계는 좁게 격리하고 신뢰된 타입으로 즉시 변환한다.

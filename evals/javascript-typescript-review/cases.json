@@ -72,6 +72,18 @@
       }
     },
     {
+      "id": "schema-backed-api-does-not-require-client-revalidation",
+      "request": "이 사내 API adapter에 별도 runtime parser가 필요한지 리뷰해줘.",
+      "contract": "server는 shared schema로 모든 response output을 runtime validation하고, client return type은 같은 schema에서 생성된다. schema compatibility 검사가 불일치 배포를 차단한다.",
+      "code": "async function loadUser(): Promise<User> {\n  const dto = await generatedClient.getUser();\n  return { id: dto.id, name: dto.name };\n}",
+      "context": "우회 producer는 없고 HTTPS client가 JSON decode를 소유한다. User는 현재 endpoint contract와 같은 id·name 필드만 가진다.",
+      "expected": {
+        "result": "no-finding",
+        "reason": "확인된 server-side output validation과 shared schema compatibility가 runtime shape을 보증하므로 client parser를 반복할 근거가 없다",
+        "must_not": ["외부 입력이라는 이유만으로 별도 schema parser를 요구한다", "generated type 자체만으로 runtime 보증이 성립한다고 일반화한다", "내부 consumer에 반복 guard를 추가한다"]
+      }
+    },
+    {
       "id": "trusted-domain-value-removes-duplicate-guard",
       "request": "이 경계와 내부 helper의 반복 타입 가드를 유지보수성 관점에서 리뷰해줘.",
       "contract": "parsePaidOrder는 status와 paidAt을 runtime에서 검증하고 성공 시 PaidOrder만 반환한다.",

@@ -7,14 +7,20 @@ JS·TS 코드를 구현하거나 리뷰할 때 모든 규칙을 기계적으로 
 ## 먼저 정할 원칙
 
 ```text
-외부의 unknown
-  -> 소유 경계에서 parse / validate / normalize
+외부 값
+  -> 제공자·producer, version drift와 schema generation 경로 확인
+  -> server-side output validation·compatibility gate·contract test 근거로 보증 평가
+     -> 보증 불충분: 소유 경계에서 parse / validate / normalize
+     -> 보증 충분: 확인한 보증을 경계 근거로 사용
   -> transport DTO를 필요한 domain type으로 변환
   -> 내부에는 신뢰된 타입과 불변식을 전달
   -> leaf 함수는 자기 계약만 구현
 ```
 
-- 외부 입력은 TypeScript 타입만으로 신뢰하지 않는다. 런타임 경계에서 한 번 확인한다.
+- 외부 입력은 TypeScript 타입 선언만으로 신뢰하지 않는다. 제공자·producer, version drift와
+  schema generation 경로를 확인하고, server-side output validation·compatibility gate·contract
+  test가 제공하는 근거로 runtime 보증의 충분성을 평가한다. 보증이 불충분하면 소유 경계에서
+  한 번 runtime 검증·정규화한다.
 - public API와 변경 가능한 값에는 의도한 계약을 annotation으로 고정하고, 지역 값은 추론을
   우선한다.
 - object literal의 shape을 검사하면서 구체적인 key·literal 정보를 유지하려면 `satisfies`를
@@ -205,7 +211,8 @@ const { key: _removed, ...withoutKey } = source;
 1. 이 값이 좁고 immutable해야 하는지, 넓고 mutable해야 하는지 먼저 결정한다.
 2. 정적 literal registry라면 `satisfies`, 필요하면 `as const satisfies`를 사용한다.
 3. mutable 값이나 public 계약이면 `: Type` annotation을 사용한다.
-4. 외부 값이면 parser·schema validator·decoder로 runtime 검증한다.
+4. 외부 값이면 실제 runtime 보증을 먼저 확인한다. 보증이 불충분하면
+   parser·schema validator·decoder로 runtime 검증한다.
 5. TypeScript가 표현하지 못하는 확인된 불변식만 가장 좁은 위치에서 assertion으로 연결하고
    compiler regression test를 둔다.
 
@@ -218,11 +225,13 @@ double assertion, 넓은 `any`, 모든 소비자의 반복 guard로 추론 문�
 외부 API response가 문서상 특정 shape이라는 사실과 현재 runtime 값이 실제 그 shape이라는 사실은
 다르다.
 
-- 제3자 API, version drift 가능성이 있는 API, `JSON.parse`, storage 복원: 경계에서 runtime
-  validation을 수행한다.
+- 제3자 API, version drift 가능성이 있는 API와 storage 복원은 보증 공백이 흔하다. 제공자·producer와
+  실제 보증을 확인하고, 불충분하면 경계에서 runtime validation을 수행한다. `JSON.parse`는
+  decode 방식일 뿐 결과의 runtime shape을 보증하지 않는다.
 - 같은 조직이 소유하며 schema에서 client type을 생성하는 API: adapter에서 transport type을
   받고 domain type으로 변환한다. 생성 타입만으로 runtime 정합성이 증명되는 것은 아니므로
-  contract test, schema compatibility 또는 server validation 중 실제 보증을 확인한다.
+  server-side output validation, schema compatibility gate와 contract test가 제공하는 근거로
+  실제 runtime 보증의 충분성을 확인한다.
 - 생성된 공통 DTO가 특정 endpoint의 실제 계약보다 넓다면 endpoint adapter에서 한 번 좁힌 뒤
   더 좁은 domain type을 반환한다.
 
@@ -315,7 +324,7 @@ await Promise.all(items.map((item) => save(item)));
 
 | 신호 | 먼저 물을 질문 | 기본 개선 방향 |
 | --- | --- | --- |
-| 같은 null/shape guard가 여러 함수에 반복됨 | trust boundary가 빠졌거나 타입이 너무 넓은가 | 경계에서 한 번 검증하고 좁은 타입 전달 |
+| 같은 null/shape guard가 여러 함수에 반복됨 | trust boundary가 빠졌거나 타입이 너무 넓은가 | 필요한 검증을 경계에서 한 번 수행하고 좁은 타입 전달 |
 | optional property 여러 개가 상태를 표현함 | 불가능한 조합이 생기는가 | 확인된 variant만 discriminated union으로 표현 |
 | boolean parameter가 계속 늘어남 | 서로 다른 동작 모드나 정책을 숨기는가 | 의미 있는 variant·함수로 분리; 한 번 쓰는 wrapper는 피함 |
 | 긴 optional chaining 뒤 기본값 | 어느 지점의 부재가 정상인지 알 수 있는가 | 정상적인 부재만 표현하고 계약 위반은 경계에서 처리 |
@@ -401,7 +410,7 @@ type-aware ESLint에서는 현재 코드에 맞춰 다음 규칙을 검토한다
 - [ ] index·`Map#get`의 부재를 타입이나 존재 확인으로 다루는가?
 - [ ] `satisfies`를 runtime validation이나 cast처럼 쓰지 않았는가?
 - [ ] mutable/public 값에는 필요한 widening·계약 annotation이 있는가?
-- [ ] 외부 값은 소유 경계에서 한 번 검증·정규화되는가?
+- [ ] 외부 값의 runtime 보증을 확인하고, 필요한 검증·정규화를 소유 경계에서 한 번 수행하는가?
 - [ ] 내부 함수가 신뢰된 좁은 타입을 받고 중복 guard를 만들지 않는가?
 - [ ] type predicate가 반환 타입의 전체 runtime 사실을 증명하는가?
 - [ ] 불가능한 상태를 정상 fallback으로 숨기지 않는가?
