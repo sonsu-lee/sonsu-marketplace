@@ -2,12 +2,14 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-開発、リサーチ、プロダクト企画、文章作成に使えるCodexプラグイン集です。
-必要なプラグインを選んでインストールし、いつもどおりCodexに作業を依頼してください。
+開発、リサーチ、プロダクト企画、文章作成に使えるCodex・Claude Codeプラグイン集です。
+必要なプラグインを選んでインストールし、利用中のコーディングエージェントに作業を依頼してください。
 
 [インストール](#インストール) · [プラグイン](#プラグイン) · [使用例](#使用例) · [ドキュメント](docs/README.md)
 
 ## インストール
+
+### Codex
 
 `codex plugin` コマンドに対応したCodex CLIで、マーケットプレイスを登録します。
 
@@ -33,6 +35,26 @@ codex plugin add workflow@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+### Claude Code
+
+Claude Codeでは、同じリポジトリをマーケットプレイスとして登録し、必要なプラグインをインストールします。
+
+```sh
+claude plugin marketplace add sonsu-lee/sonsu-marketplace
+claude plugin install engineering@sonsu-marketplace
+```
+
+別のプラグインをインストールする場合は、下の表にあるインストール名に置き換えてください。
+インストール済みの項目とマーケットプレイスで利用できる項目は、次のコマンドで確認できます。
+
+```sh
+claude plugin list --available --json
+```
+
+Claude Code向けパッケージは、同じ`skills/`、`hooks/`、`scripts/`を使用します。Codex専用の
+`apps`とUI metadataはClaude manifestへコピーしないため、Figmaなどの外部ツールはClaude Code
+host側で別途設定し、実際にtoolが利用できることを確認してください。
+
 ## プラグイン
 
 | プラグイン | 用途 | インストール名 |
@@ -52,7 +74,7 @@ codex plugin list --marketplace sonsu-marketplace
 
 ## 使用例
 
-対応するプラグインをインストールしたら、Codexに次のように依頼できます。
+対応するプラグインをインストールしたら、CodexまたはClaude Codeに次のように依頼できます。
 
 | プラグイン | 依頼の例 |
 | --- | --- |
@@ -67,8 +89,9 @@ codex plugin list --marketplace sonsu-marketplace
 | Memory Manager | 「$memory-manager このプロジェクトのCodexメモリを点検して。」 |
 | Operations UI | 「この受注運用画面をScreen Contractから実装し、ブラウザーの証跡で検証して。」 |
 
-Codexは依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
-Memory Managerは、`$memory-manager`で明示的に呼び出したときだけ動作します。
+CodexとClaude Codeは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
+Memory Managerは、Codexでは`$memory-manager`、Claude Codeでは
+`/memory-manager:memory-manager`で明示的に呼び出したときだけ動作します。
 複数のプラグインを併用する際の役割分担は、[スキルルーティングのドキュメント](docs/architecture/skill-routing.md)にまとめています。
 
 ResearchのExa・Perplexity連携は任意です。利用可能なWebツール、ブラウザー、コネクター、ローカル資料でも調査できます。
@@ -83,7 +106,14 @@ Figma Workflowでキャンバスを操作するには、公式Figma MCP接続と
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-プラグインのインストールやアップデート後は、新しいCodexタスクを開始して最新のスキル一覧を読み込んでください。
+Claude Codeでは、登録済みのマーケットプレイスを次のコマンドで更新します。
+
+```sh
+claude plugin marketplace update sonsu-marketplace
+```
+
+プラグインのインストールやアップデート後は、Codexで新しいタスクを開始するか、Claude Codeで
+`/reload-plugins`を実行して最新のスキル一覧を読み込んでください。
 
 <details>
 <summary>同じスキルをすでにインストールしている場合</summary>
@@ -102,6 +132,9 @@ git clone https://github.com/sonsu-lee/sonsu-marketplace.git
 cd sonsu-marketplace
 codex plugin marketplace add .
 codex plugin list --marketplace sonsu-marketplace
+
+claude plugin marketplace add . --scope local
+claude plugin list --available --json
 ```
 
 GitHubソースとローカルパスは同じ `sonsu-marketplace` 識別子を使うため、1つの環境ではどちらか一方の方法で登録してください。
@@ -120,9 +153,11 @@ GitHubソースとローカルパスは同じ `sonsu-marketplace` 識別子を�
 ```text
 sonsu-marketplace/
 ├── .agents/plugins/marketplace.json  # プラグイン一覧
+├── .claude-plugin/marketplace.json   # Claude Codeプラグイン一覧
 ├── plugins/
 │   └── <plugin>/
 │       ├── .codex-plugin/plugin.json # プラグイン情報
+│       ├── .claude-plugin/plugin.json # 生成されたClaude Codeプラグイン情報
 │       └── skills/                  # スキルと参考資料
 ├── docs/                            # 保守用ドキュメント
 └── evals/                           # 評価用fixtureと検証ツール
@@ -133,19 +168,22 @@ sonsu-marketplace/
 リポジトリのルートで、次の静的検査を実行します。
 
 ```sh
-find .agents plugins evals -name '*.json' -print0 \
+find .agents .claude-plugin plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
+python3 scripts/render-claude-compat.py --check
 python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
+claude plugin validate . --strict
 git diff --check
 ```
 
 これらのコマンドは、JSON構文、生成されたスキルと正本の一致、評価用fixtureとrunnerの構造を確認します。
 実際のモデルによるスキル選択や出力品質は、別途検証が必要です。プラグインの構造を変更した場合は、
-分離したCodex環境でマーケットプレイスの登録、プラグインのインストール、スキルが利用可能になることも確認してください。
+分離したCodex・Claude Code環境でマーケットプレイスの登録、プラグインのインストール、スキルが利用可能になることも確認してください。
 
-マーケットプレイスの形式は、[OpenAI公式のプラグインパッケージングドキュメント](https://developers.openai.com/plugins/build/plugins)に従います。
+各プラットフォームの形式は、[OpenAI公式のプラグインパッケージングドキュメント](https://developers.openai.com/plugins/build/plugins)と
+[Anthropic公式のマーケットプレイスドキュメント](https://code.claude.com/docs/en/plugin-marketplaces)に従います。
 
 </details>
 

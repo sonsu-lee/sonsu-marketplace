@@ -1,0 +1,80 @@
+{
+  "name": "sonsu-marketplace",
+  "owner": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "description": "Codex와 Claude Code에서 사용하는 재사용 가능한 에이전트 플러그인 모음입니다.",
+  "plugins": [
+    {
+      "name": "engineering",
+      "source": "./plugins/engineering",
+      "description": "단순 작업의 Fast Path와 계획 작업의 의사코드, 검증, 일반 리뷰 및 fresh-context red-team 게이트를 적용하는 엔지니어링 방법입니다.",
+      "version": "1.3.1",
+      "category": "Developer Tools"
+    },
+    {
+      "name": "workflow",
+      "source": "./plugins/workflow",
+      "description": "명시적인 Git, 티켓 작성·수정·lifecycle과 GitHub Pull Request 작업을 위한 Codex·Claude Code 플러그인입니다.",
+      "version": "0.9.1",
+      "category": "Developer Tools"
+    },
+    {
+      "name": "fluent-languages",
+      "source": "./plugins/fluent-languages",
+      "description": "Codex and Claude Code guidance for natural Korean, Japanese, and English output.",
+      "version": "0.1.0-beta.6",
+      "category": "Productivity"
+    },
+    {
+      "name": "research",
+      "source": "./plugins/research",
+      "description": "Codex와 Claude Code를 위한 근거 중심의 다중 출처 조사, 사실 검증, 문헌 검토와 코드 조사를 제공합니다.",
+      "version": "0.7.0-sonsu.5",
+      "category": "Productivity"
+    },
+    {
+      "name": "quality-engineering",
+      "source": "./plugins/quality-engineering",
+      "description": "도메인 구조를 반영한 구현과 단순성, 유지보수성, 실패 모드 및 운용 가능성에 대한 근거 중심 리뷰를 제공합니다.",
+      "version": "0.2.1",
+      "category": "Developer Tools"
+    },
+    {
+      "name": "prompting",
+      "source": "./plugins/prompting",
+      "description": "Codex, ChatGPT와 OpenAI API 모델에서 바로 사용할 수 있는 간결한 모델 맞춤형 프롬프트를 작성합니다.",
+      "version": "0.2.1",
+      "category": "Productivity"
+    },
+    {
+      "name": "product",
+      "source": "./plugins/product",
+      "description": "제품 기회를 탐색하고, 근거를 종합하고, 제품 도메인을 모델링하고, 검증을 설계·판정하며, 승인된 결정을 PRD로 변환합니다.",
+      "version": "0.2.1",
+      "category": "Productivity"
+    },
+    {
+      "name": "figma-workflow",
+      "source": "./plugins/figma-workflow",
+      "description": "Figma에서 제품 화면을 만들고 검토할 때 native layout, reusable system, exact assets, interaction과 handoff 품질을 안내합니다.",
+      "version": "0.2.1",
+      "category": "Productivity"
+    },
+    {
+      "name": "memory-manager",
+      "source": "./plugins/memory-manager",
+      "description": "명시적으로 호출해 Codex와 Claude Code의 저장된 메모리를 점검하고 정리합니다.",
+      "version": "0.1.1",
+      "category": "Productivity"
+    },
+    {
+      "name": "operations-ui",
+      "source": "./plugins/operations-ui",
+      "description": "운영형 B2B 화면을 하나의 디자인 언어로 설계, 재설계하고 증거 기반 품질 게이트로 검토합니다.",
+      "version": "0.1.1",
+      "category": "Developer Tools"
+    }
+  ]
+}

@@ -1,6 +1,19 @@
 # Figma Workflow
 
-Figma Design에서 제품 화면, responsive Auto Layout, component·variant·variable, exact icon과 clickable prototype을 생성·수정·감사할 때 native 구조와 evidence 기준을 제공하는 Codex plugin입니다. 판단이 필요한 canvas read/write의 agent writer는 이 plugin이 등록한 official Figma MCP connection 하나입니다.
+Figma Design에서 제품 화면, responsive Auto Layout, component·variant·variable, exact icon과 clickable prototype을 생성·수정·감사할 때 native 구조와 evidence 기준을 제공하는 Codex·Claude Code plugin입니다. 판단이 필요한 canvas read/write의 agent writer는 현재 host에 실제로 등록된 official Figma MCP connection 하나입니다.
+
+```sh
+# Codex
+codex plugin add figma-workflow@sonsu-marketplace
+
+# Claude Code
+claude plugin install figma-workflow@sonsu-marketplace
+```
+
+Codex manifest의 `apps`는 official Figma connector discovery용 metadata입니다. Claude Code manifest에는
+이 Codex 전용 필드를 복사하지 않으므로, Claude Code에서는 사용할 Figma MCP를 host에 별도로
+구성하고 실제 tool과 prerequisite skill 노출을 확인해야 합니다. 설치만으로 canvas access가
+생겼다고 간주하지 않습니다.
 
 ## 스킬
 
@@ -23,7 +36,7 @@ Figma Design에서 제품 화면, responsive Auto Layout, component·variant·va
 
 ## Deterministic Desktop companion
 
-[Figma Workflow Companion](figma-plugin/README.md)은 Codex writer가 아니라 사용자가 Figma Desktop에서 직접 실행하는 수동 companion입니다. 반복적이고 결과가 명확한 version `1` allowlisted JSON 작업만 지원하며 arbitrary JavaScript를 실행하지 않습니다.
+[Figma Workflow Companion](figma-plugin/README.md)은 agent writer가 아니라 사용자가 Figma Desktop에서 직접 실행하는 수동 companion입니다. 반복적이고 결과가 명확한 version `1` allowlisted JSON 작업만 지원하며 arbitrary JavaScript를 실행하지 않습니다.
 
 - read-only: `inspect-selection`, `audit-auto-layout`, `audit-prototype-links`
 - mutation: `rename-exact`, `replace-icon-instance-exact`

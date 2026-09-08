@@ -1,7 +1,7 @@
 # Claude Code 메모리 접근
 
-Claude Code의 기존 auto memory를 대상으로 할 때만 읽는다. 이 플러그인은 Codex용 패키지이며
-Claude Code에 플러그인을 설치하거나 그 설정을 변경하는 동작은 포함하지 않는다.
+Claude Code의 기존 auto memory를 대상으로 할 때만 읽는다. 이 스킬의 메모리 점검·정리는
+Claude Code에서 실행할 수 있지만, plugin 설치나 Claude Code 설정 변경은 그 작업에 포함하지 않는다.
 
 ## 대상 디렉터리
 

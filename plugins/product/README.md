@@ -1,7 +1,7 @@
 # Product
 
 제품 아이디어를 넓히고, 문제와 사용자를 구체화하고, 제품 근거와 도메인 규칙을 정리하고,
-검증을 설계·판정한 뒤 승인된 내용만 PRD로 변환하는 개인용 Codex 플러그인입니다.
+검증을 설계·판정한 뒤 승인된 내용만 PRD로 변환하는 개인용 Codex·Claude Code 플러그인입니다.
 
 ## 포함된 스킬
 
@@ -31,7 +31,11 @@ dependency를 선언하지 않습니다. 기술 설계, 코드 구현, Git deliv
 마켓플레이스를 등록한 뒤 다음 명령으로 설치합니다.
 
 ```sh
+# Codex
 codex plugin add product@sonsu-marketplace
+
+# Claude Code
+claude plugin install product@sonsu-marketplace
 ```
 
 기존 standalone `product-discovery` 또는 `to-prd`를 동시에 노출하면 같은 요청에 스킬이 경쟁할

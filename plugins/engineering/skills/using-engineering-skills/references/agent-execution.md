@@ -101,7 +101,8 @@ session lineage와 agent identity는 controller의 복구 기록이다. fresh re
 
 ## Platform 적용
 
-Codex의 구체적인 역할 표와 schema 대응은 [codex-tools.md](codex-tools.md)를 따른다.
+Codex의 구체적인 역할 표와 schema 대응은 [codex-tools.md](codex-tools.md), Claude Code의 도구와
+별도 context 대응은 [claude-code-tools.md](claude-code-tools.md)를 따른다.
 `fresh`는 이전 이력을 상속하지 않는 실행, `resume`은 같은 세션 재개, `fork`는 기존 이력을
 분기하는 실행이다. 각 platform의 이름보다 실제 이력 전달 동작을 확인한다.
 

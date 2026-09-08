@@ -69,6 +69,23 @@ class RuntimeTests(unittest.TestCase):
         event.update(changes)
         return self.run_cli("hook", plugin=plugin, data=event)
 
+    def test_generated_hook_resolves_codex_and_claude_plugin_roots(self):
+        hook_file = ROOT / "plugins/engineering/hooks/hooks.json"
+        command = json.loads(hook_file.read_text())["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+        event = {"hook_event_name": "SessionStart", "source": "compact",
+                 "session_id": "session-a", "cwd": str(self.work), "permission_mode": "default"}
+        plugin_root = ROOT / "plugins/engineering"
+
+        for root_variable in ("PLUGIN_ROOT", "CLAUDE_PLUGIN_ROOT"):
+            with self.subTest(root_variable=root_variable):
+                env = self.env.copy()
+                env.pop("PLUGIN_ROOT", None)
+                env.pop("CLAUDE_PLUGIN_ROOT", None)
+                env[root_variable] = str(plugin_root)
+                result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
+                                        capture_output=True, cwd=self.work, env=env, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
+
     def git(self, *args, cwd=None):
         return subprocess.run(["git", *args], cwd=cwd or self.work, env=self.env,
                               capture_output=True, text=True, check=True).stdout.strip()

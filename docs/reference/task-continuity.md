@@ -26,6 +26,8 @@ Git 밖에서는 현재 작업 디렉터리의 실제 경로를 root로 사용�
 사용합니다. session은 `CODEX_THREAD_ID` 또는 호스트가 알려 준 정확한 `--session-id`로 지정하고,
 알 수 없으면 다른 session이나 최신 디렉터리를 검색하지 않습니다. `--cwd`가 다르면 기존 기록을
 자동 이동하거나 다른 worktree에서 찾아오지 않습니다. subagent와 fresh reviewer는 기록 소유자가 아닙니다.
+Claude Code hook은 event에 포함된 session ID로 기존 기록을 조회할 수 있지만, 수동 write에서 host가
+정확한 ID를 제공하지 않으면 `--session-id`를 추측하지 않습니다.
 
 최초 쓰기 전에 Git의 `info/exclude`에 `/.sonsu/continuity/` 한 줄을 추가합니다. 기존 바이트와
 다른 규칙은 보존하며 tracked `.gitignore`는 수정하지 않습니다. linked worktree가 공유하는
@@ -95,6 +97,8 @@ helper는 stale revision, 다른 identity, 손상·지원하지 않는 기록, s
 
 각 manifest는 `hooks: "./hooks/hooks.json"`을 선언하며 `SessionStart`의 matcher는
 `^(compact|resume)$`입니다. hook에는 root의 native event JSON이 stdin으로 들어옵니다.
+실행 명령은 Claude Code의 `CLAUDE_PLUGIN_ROOT`를 우선하고 Codex의 `PLUGIN_ROOT`를 fallback으로
+사용해 같은 package-local helper를 찾습니다.
 활성 기록이 있을 때만 다음 내용을 `hookSpecificOutput.additionalContext`로 반환합니다.
 
 - 고정된 복구 안내와 JSON-인코딩된 절대 skill/checkpoint 경로

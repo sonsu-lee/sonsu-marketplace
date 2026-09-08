@@ -1,17 +1,22 @@
 # Memory Manager
 
 필요할 때 명시적으로 호출해 Codex와 Claude Code의 저장된 메모리를 점검하고 정리하는
-Codex 플러그인입니다. 하나의 `memory-manager` 스킬을 제공합니다.
+플러그인입니다. 하나의 `memory-manager` 스킬을 제공합니다.
 
 ## 사용
 
 이 플러그인이 포함된 marketplace snapshot을 등록한 뒤 설치합니다.
 
 ```sh
+# Codex
 codex plugin add memory-manager@sonsu-marketplace
+
+# Claude Code
+claude plugin install memory-manager@sonsu-marketplace
 ```
 
-새 Codex 작업에서 `$memory-manager`를 명시적으로 호출합니다.
+Codex에서는 `$memory-manager`, Claude Code에서는 `/memory-manager:memory-manager`로 명시적으로
+호출합니다.
 
 ```text
 $memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘. 파일은 바꾸지 마.
@@ -24,6 +29,7 @@ $memory-manager 이 경로의 Claude Code 메모리를 정리해 줘: /absolute/
 수정을 다시 승인받는 고정 단계는 없습니다.
 
 `agents/openai.yaml`의 `policy.allow_implicit_invocation: false`로 Codex의 암묵적 호출을
+비활성화하고, `SKILL.md`의 `disable-model-invocation: true`로 Claude Code의 자동 호출도
 비활성화합니다. 자동 수집, 세션 종료 hook, 예약 실행과 외부 메모리 서비스는 포함하지 않습니다.
 다른 플러그인이나 MCP 연결 없이 동작하며 별도 helper runtime도 필요하지 않습니다.
 

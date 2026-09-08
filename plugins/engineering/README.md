@@ -1,6 +1,6 @@
 # Engineering
 
-Engineering은 소프트웨어 변경을 계획하고, 구현하고, 디버깅하고, 검증하고, 리뷰할 때 문서 상태를 함께 고려하는 방법입니다. 제한적이고 표적화된 되돌아가기와 단계별 소유 품질 게이트를 사용합니다. 조합 가능한 Codex 스킬을 제공하되 Git 전달, 외부 조사와 출력 언어 지침은 별도 플러그인으로 분리합니다.
+Engineering은 소프트웨어 변경을 계획하고, 구현하고, 디버깅하고, 검증하고, 리뷰할 때 문서 상태를 함께 고려하는 방법입니다. 제한적이고 표적화된 되돌아가기와 단계별 소유 품질 게이트를 사용합니다. Codex와 Claude Code에서 조합 가능한 스킬을 제공하되 Git 전달, 외부 조사와 출력 언어 지침은 별도 플러그인으로 분리합니다.
 
 Engineering은 현재 독립 플러그인으로 관리하며 독립 semantic version을 사용합니다. 다른 플러그인의 기준선이나 호환 경로를 배포 계약으로 유지하지 않습니다.
 
@@ -27,11 +27,17 @@ Engineering은 다음 개발 방법을 담당합니다.
 이 저장소를 `sonsu-marketplace` marketplace로 등록한 뒤 Engineering을 설치합니다.
 
 ```sh
+# Codex
 codex plugin marketplace add .
 codex plugin add engineering@sonsu-marketplace
+
+# Claude Code
+claude plugin marketplace add .
+claude plugin install engineering@sonsu-marketplace
 ```
 
-저장소 변경과 플러그인 설치는 서로 다른 작업입니다. 플러그인을 설치하거나 갱신한 뒤 새 Codex 작업을 시작해야 현재 스킬 catalog를 받을 수 있습니다.
+저장소 변경과 플러그인 설치는 서로 다른 작업입니다. 설치·갱신 뒤 Codex에서는 새 작업을 시작하고,
+Claude Code에서는 `/reload-plugins`를 실행하거나 session을 다시 시작해 최신 스킬 catalog를 불러옵니다.
 
 ## 개발 흐름
 
@@ -76,7 +82,8 @@ Codex의 잠정 기본값은 좁고 명확한 구현에 Luna medium, 보조 조�
 아우르는 가장 어려운 작업은 Astra medium/high를 직접 선택합니다. 모델을 순서대로 거칠 필요는 없습니다.
 결정론적 처리는 controller 도구로 실행하고 실제 allowlist와 사용자 선택을 우선합니다.
 이 배치는 공식 역할 안내를 반영한 운영값이며 Sol을 포함한 전체 workflow의 최적 조합을 비교 검증한
-결과는 아닙니다. 구체적인 대응은 [Codex reference](skills/using-engineering-skills/references/codex-tools.md)를 따릅니다.
+결과는 아닙니다. 구체적인 대응은 [Codex reference](skills/using-engineering-skills/references/codex-tools.md)와
+[Claude Code reference](skills/using-engineering-skills/references/claude-code-tools.md)를 따릅니다.
 
 모델·추론도·team 크기는 각각 선택합니다. Codex reference에는 단계별 인계, 선택적 low·xhigh·
 max·ultra 조건과 GPT-5.6/Astra의 prompt 조정을 함께 둡니다. private 이름처럼 기존 관례로
