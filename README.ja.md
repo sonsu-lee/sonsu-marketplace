@@ -106,11 +106,15 @@ Figma Workflowでキャンバスを操作するには、公式Figma MCP接続と
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-Claude Codeでは、登録済みのマーケットプレイスを次のコマンドで更新します。
+Claude Codeでは、マーケットプレイスの一覧を更新してから、インストール済みの各プラグインを更新します。
 
 ```sh
 claude plugin marketplace update sonsu-marketplace
+claude plugin update engineering@sonsu-marketplace
 ```
+
+`engineering`をインストール済みの各プラグイン名に置き換え、2つ目のコマンドを繰り返します。
+`project`または`local`スコープにインストールした場合は、同じスコープを`--scope project`または`--scope local`で指定します。
 
 プラグインのインストールやアップデート後は、Codexで新しいタスクを開始するか、Claude Codeで
 `/reload-plugins`を実行して最新のスキル一覧を読み込んでください。

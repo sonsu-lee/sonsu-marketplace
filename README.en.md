@@ -105,11 +105,15 @@ Fetch the latest snapshot of the registered Git marketplace:
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-In Claude Code, update the registered marketplace with:
+In Claude Code, refresh the marketplace listing, then update each installed plugin:
 
 ```sh
 claude plugin marketplace update sonsu-marketplace
+claude plugin update engineering@sonsu-marketplace
 ```
+
+Repeat the second command for each installed plugin, replacing `engineering` with its name. For plugins
+installed at `project` or `local` scope, specify the matching `--scope project` or `--scope local` option.
 
 After installing or updating plugins, start a new Codex task or run `/reload-plugins` in Claude Code to
 load the latest skill list.

@@ -106,11 +106,15 @@ Figma Workflow의 캔버스 작업에는 공식 Figma MCP 연결과 해당 도�
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-Claude Code에서는 등록된 marketplace를 다음과 같이 갱신합니다.
+Claude Code에서는 marketplace 목록을 갱신한 뒤 설치된 플러그인도 각각 업데이트합니다.
 
 ```sh
 claude plugin marketplace update sonsu-marketplace
+claude plugin update engineering@sonsu-marketplace
 ```
+
+`engineering`을 설치한 각 플러그인 이름으로 바꿔 두 번째 명령을 반복합니다. `project` 또는
+`local` scope에 설치했다면 같은 scope를 `--scope project` 또는 `--scope local`로 지정합니다.
 
 플러그인을 설치하거나 업데이트한 뒤에는 Codex에서 새 작업을 시작하거나 Claude Code에서
 `/reload-plugins`를 실행해 최신 스킬 목록을 불러오세요.
