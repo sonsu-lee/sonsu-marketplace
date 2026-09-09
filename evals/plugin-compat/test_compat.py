@@ -114,6 +114,93 @@ class ClaudeCompatibilityTests(unittest.TestCase):
         )
         self.assertNotIn("hooks", manifest)
 
+    def test_projects_runtime_specific_skill_frontmatter_for_claude(self):
+        plugin_root = self.root / "plugins/example"
+        skill_root = plugin_root / "skills/manual-review"
+        catalog_root = plugin_root / "catalog"
+        reference_root = plugin_root / "references"
+        skill_root.mkdir(parents=True)
+        catalog_root.mkdir()
+        reference_root.mkdir()
+        canonical_skill = """---
+name: manual-review
+description: Run only when the user explicitly requests this review.
+---
+
+Read [the catalog](../../catalog/example.json) and [the contract](../../references/contract.md).
+"""
+        (skill_root / "SKILL.md").write_text(canonical_skill)
+        (catalog_root / "example.json").write_text('{"schema_version": 1}\n')
+        (reference_root / "contract.md").write_text("# Contract\n")
+        obsolete_source = reference_root / "obsolete.md"
+        obsolete_source.write_text("# Obsolete\n")
+        (plugin_root / "UPSTREAM.md").write_text("# Upstream\n")
+        (plugin_root / ".claude-plugin").mkdir()
+        (plugin_root / ".claude-plugin/compat.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "include": ["catalog", "references", "UPSTREAM.md"],
+                    "skill_frontmatter": {
+                        "manual-review": {"disable-model-invocation": True}
+                    },
+                }
+            )
+            + "\n"
+        )
+
+        result = self.run_renderer()
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        marketplace = json.loads(
+            (self.root / ".claude-plugin/marketplace.json").read_text()
+        )
+        self.assertEqual(
+            marketplace["plugins"][0]["source"],
+            "./.claude-plugins/example",
+        )
+        projected_root = self.root / ".claude-plugins/example"
+        projected_skill = (projected_root / "skills/manual-review/SKILL.md").read_text()
+        self.assertEqual((skill_root / "SKILL.md").read_text(), canonical_skill)
+        self.assertIn("disable-model-invocation: true", projected_skill)
+        self.assertEqual(
+            (projected_root / "catalog/example.json").read_text(),
+            '{"schema_version": 1}\n',
+        )
+        self.assertEqual(
+            (projected_root / "references/contract.md").read_text(),
+            "# Contract\n",
+        )
+        self.assertEqual(
+            (projected_root / "UPSTREAM.md").read_text(),
+            "# Upstream\n",
+        )
+        self.assertTrue(
+            (projected_root / ".claude-plugin/plugin.json").is_file()
+        )
+        self.assertFalse(
+            (plugin_root / ".claude-plugin/plugin.json").exists()
+        )
+
+        obsolete_source.unlink()
+        stale = self.run_renderer("--check")
+        self.assertEqual(stale.returncode, 1, stale.stdout + stale.stderr)
+        self.assertIn(
+            "stale: .claude-plugins/example/references/obsolete.md",
+            stale.stdout,
+        )
+
+        refreshed = self.run_renderer()
+        self.assertEqual(refreshed.returncode, 0, refreshed.stderr)
+        self.assertIn(
+            "removed: .claude-plugins/example/references/obsolete.md",
+            refreshed.stdout,
+        )
+        self.assertFalse(
+            (projected_root / "references/obsolete.md").exists()
+        )
+        self.assertEqual(self.run_renderer("--check").returncode, 0)
+
     def test_check_detects_and_then_accepts_generated_outputs(self):
         stale = self.run_renderer("--check")
         self.assertEqual(stale.returncode, 1)

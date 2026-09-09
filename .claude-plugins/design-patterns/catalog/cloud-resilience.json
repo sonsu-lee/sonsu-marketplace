@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "family": {
+    "id": "cloud-resilience",
+    "name": "Cloud and resilience",
+    "scope": "Azure Architecture Center cloud design patterns."
+  },
+  "defaults": {
+    "aliases": [],
+    "family": "cloud-resilience",
+    "level": "distributed-system",
+    "maturity": "indexed",
+    "sources": [
+      {
+        "title": "Cloud Design Patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/",
+        "type": "official"
+      }
+    ]
+  },
+  "patterns": [
+    {
+      "id": "cloud-resilience-ambassador",
+      "name": "Ambassador",
+      "source_path": "ambassador"
+    },
+    {
+      "id": "cloud-resilience-anti-corruption-layer",
+      "name": "Anti-Corruption Layer",
+      "source_path": "anti-corruption-layer",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "domain-driven-design-anticorruption-layer"
+        },
+        {
+          "type": "same-name-different-scope",
+          "target": "microservices-anti-corruption-layer"
+        }
+      ]
+    },
+    {
+      "id": "cloud-resilience-asynchronous-request-reply",
+      "name": "Asynchronous Request-Reply",
+      "source_path": "asynchronous-request-reply"
+    },
+    {
+      "id": "cloud-resilience-backends-for-frontends",
+      "name": "Backends for Frontends",
+      "source_path": "backends-for-frontends"
+    },
+    {
+      "id": "cloud-resilience-bulkhead",
+      "name": "Bulkhead",
+      "source_path": "bulkhead"
+    },
+    {
+      "id": "cloud-resilience-cache-aside",
+      "name": "Cache-Aside",
+      "source_path": "cache-aside"
+    },
+    {
+      "id": "cloud-resilience-choreography",
+      "name": "Choreography",
+      "source_path": "choreography"
+    },
+    {
+      "id": "cloud-resilience-circuit-breaker",
+      "name": "Circuit Breaker",
+      "source_path": "circuit-breaker"
+    },
+    {
+      "id": "cloud-resilience-claim-check",
+      "name": "Claim Check",
+      "source_path": "claim-check",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "messaging-integration-claim-check"
+        }
+      ]
+    },
+    {
+      "id": "cloud-resilience-compensating-transaction",
+      "name": "Compensating Transaction",
+      "source_path": "compensating-transaction"
+    },
+    {
+      "id": "cloud-resilience-competing-consumers",
+      "name": "Competing Consumers",
+      "source_path": "competing-consumers",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "messaging-integration-competing-consumers"
+        }
+      ]
+    },
+    {
+      "id": "cloud-resilience-compute-resource-consolidation",
+      "name": "Compute Resource Consolidation",
+      "source_path": "compute-resource-consolidation"
+    },
+    {
+      "id": "cloud-resilience-cqrs",
+      "name": "CQRS",
+      "source_path": "cqrs",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "microservices-cqrs"
+        }
+      ]
+    },
+    {
+      "id": "cloud-resilience-deployment-stamps",
+      "name": "Deployment Stamps",
+      "source_path": "deployment-stamp"
+    },
+    {
+      "id": "cloud-resilience-event-sourcing",
+      "name": "Event Sourcing",
+      "source_path": "event-sourcing",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "microservices-event-sourcing"
+        }
+      ]
+    },
+    {
+      "id": "cloud-resilience-external-configuration-store",
+      "name": "External Configuration Store",
+      "source_path": "external-configuration-store"
+    },
+    {
+      "id": "cloud-resilience-federated-identity",
+      "name": "Federated Identity",
+      "source_path": "federated-identity"
+    },
+    {
+      "id": "cloud-resilience-gatekeeper",
+      "name": "Gatekeeper",
+      "source_path": "gatekeeper"
+    },
+    {
+      "id": "cloud-resilience-gateway-aggregation",
+      "name": "Gateway Aggregation",
+      "source_path": "gateway-aggregation"
+    },
+    {
+      "id": "cloud-resilience-gateway-offloading",
+      "name": "Gateway Offloading",
+      "source_path": "gateway-offloading"
+    },
+    {
+      "id": "cloud-resilience-gateway-routing",
+      "name": "Gateway Routing",
+      "source_path": "gateway-routing"
+    },
+    {
+      "id": "cloud-resilience-geode",
+      "name": "Geode",
+      "source_path": "geodes"
+    },
+    {
+      "id": "cloud-resilience-health-endpoint-monitoring",
+      "name": "Health Endpoint Monitoring",
+      "source_path": "health-endpoint-monitoring"
+    },
+    {
+      "id": "cloud-resilience-idempotent-consumer",
+      "name": "Idempotent Consumer",
+      "source_path": "idempotent-consumer",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "microservices-idempotent-consumer"
+        }
+      ]
+    },
+    {
+      "id": "cloud-resilience-index-table",
+      "name": "Index Table",
+      "source_path": "index-table"
+    },
+    {
+      "id": "cloud-resilience-leader-election",
+      "name": "Leader Election",
+      "source_path": "leader-election"
+    },
+    {
+      "id": "cloud-resilience-materialized-view",
+      "name": "Materialized View",
+      "source_path": "materialized-view"
+    },
+    {
+      "id": "cloud-resilience-messaging-bridge",
+      "name": "Messaging Bridge",
+      "source_path": "messaging-bridge",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "messaging-integration-messaging-bridge"
+        }
+      ]
+    },
+    {
+      "id": "cloud-resilience-pipes-and-filters",
+      "name": "Pipes and Filters",
+      "source_path": "pipes-and-filters",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "messaging-integration-pipes-and-filters"
+        }
+      ]
+    },
+    {
+      "id": "cloud-resilience-priority-queue",
+      "name": "Priority Queue",
+      "source_path": "priority-queue"
+    },
+    {
+      "id": "cloud-resilience-publisher-subscriber",
+      "name": "Publisher-Subscriber",
+      "source_path": "publisher-subscriber"
+    },
+    {
+      "id": "cloud-resilience-quarantine",
+      "name": "Quarantine",
+      "source_path": "quarantine"
+    },
+    {
+      "id": "cloud-resilience-queue-based-load-leveling",
+      "name": "Queue-Based Load Leveling",
+      "source_path": "queue-based-load-leveling"
+    },
+    {
+      "id": "cloud-resilience-rate-limiting",
+      "name": "Rate Limiting",
+      "source_path": "rate-limiting-pattern"
+    },
+    {
+      "id": "cloud-resilience-retry",
+      "name": "Retry",
+      "source_path": "retry"
+    },
+    {
+      "id": "cloud-resilience-saga",
+      "name": "Saga",
+      "source_path": "saga",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "microservices-saga"
+        }
+      ]
+    },
+    {
+      "id": "cloud-resilience-scheduler-agent-supervisor",
+      "name": "Scheduler Agent Supervisor",
+      "source_path": "scheduler-agent-supervisor"
+    },
+    {
+      "id": "cloud-resilience-sequential-convoy",
+      "name": "Sequential Convoy",
+      "source_path": "sequential-convoy"
+    },
+    {
+      "id": "cloud-resilience-sharding",
+      "name": "Sharding",
+      "source_path": "sharding"
+    },
+    {
+      "id": "cloud-resilience-sidecar",
+      "name": "Sidecar",
+      "source_path": "sidecar"
+    },
+    {
+      "id": "cloud-resilience-static-content-hosting",
+      "name": "Static Content Hosting",
+      "source_path": "static-content-hosting"
+    },
+    {
+      "id": "cloud-resilience-strangler-fig",
+      "name": "Strangler Fig",
+      "source_path": "strangler-fig"
+    },
+    {
+      "id": "cloud-resilience-throttling",
+      "name": "Throttling",
+      "source_path": "throttling"
+    },
+    {
+      "id": "cloud-resilience-valet-key",
+      "name": "Valet Key",
+      "source_path": "valet-key"
+    }
+  ]
+}

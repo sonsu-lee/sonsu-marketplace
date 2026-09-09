@@ -174,7 +174,7 @@ sonsu-marketplace/
 저장소 루트에서 다음 정적 검사를 실행합니다.
 
 ```sh
-find .agents .claude-plugin plugins evals -name '*.json' -print0 \
+find .agents .claude-plugin .claude-plugins plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
 python3 scripts/render-claude-compat.py --check
 python3 plugins/fluent-languages/scripts/render-skills.py --check

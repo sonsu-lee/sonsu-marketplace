@@ -11,6 +11,7 @@
 
 ```sh
 codex plugin add design-patterns@sonsu-marketplace
+claude plugin install design-patterns@sonsu-marketplace
 ```
 
 ## 스킬
@@ -23,6 +24,9 @@ codex plugin add design-patterns@sonsu-marketplace
 `select-design-patterns`는 일반 구현이나 사소한 분기마다 자동 개입하지 않습니다. 표준 라이브러리,
 프레임워크 기능이나 직접 구현으로 요구 보장이 충분하면 `no-pattern`을 반환합니다. 증거가 부족하면
 패턴 이름을 추측하지 않고 `insufficient-evidence`로 남깁니다.
+
+`review-pattern-usage`는 Codex에서 `policy.allow_implicit_invocation: false`, Claude Code projection에서
+`disable-model-invocation: true`를 적용해 두 런타임 모두 사용자가 명시적으로 호출한 경우에만 실행합니다.
 
 ## 선택 게이트
 

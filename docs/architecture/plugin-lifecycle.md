@@ -44,8 +44,10 @@ Engineering은 [독립 플러그인 결정](../decisions/0009-maintain-engineeri
 [`scripts/render-claude-compat.py`](../../scripts/render-claude-compat.py)는 이 정본에서 root
 `.claude-plugin/marketplace.json`과 plugin별 `.claude-plugin/plugin.json`을 생성합니다. 생성물을
 직접 편집하지 않으며, platform-specific 필드 차이는 renderer와 fixture test에서 명시적으로
-관리합니다. 공유 `skills/`, `hooks/`, `scripts/` 본문은 복제하지 않고 두 manifest가 같은 plugin
-root를 가리킵니다.
+관리합니다. 기본적으로 공유 `skills/`, `hooks/`, `scripts/` 본문은 복제하지 않고 두 manifest가 같은
+plugin root를 가리킵니다. 한 플랫폼의 필수 frontmatter가 다른 플랫폼 validator와 충돌할 때만
+plugin별 `compat.json`을 정본 입력으로 두고 `.claude-plugins/<plugin-name>/`에 필요한 skill과 resource를
+결정론적으로 projection합니다.
 
 ## 검증
 

@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -975,6 +976,75 @@ raise SystemExit(validator.main(["--root", sys.argv[2]]))
                 for failure_mode in pattern["failure_modes"]
             )
         )
+
+    def test_retry_allows_non_idempotent_operations_with_deduplication(self):
+        overlay = json.loads(
+            (
+                REPOSITORY_ROOT
+                / "plugins/design-patterns/catalog/decision-ready.json"
+            ).read_text(encoding="utf-8")
+        )
+        pattern = next(
+            pattern
+            for pattern in overlay["patterns"]
+            if pattern["id"] == "cloud-resilience-retry"
+        )
+        contraindications = " ".join(pattern["contraindications"]).casefold()
+
+        self.assertIn("without deduplication", contraindications)
+        self.assertIn("permanent", contraindications)
+
+    def test_layers_guarantee_does_not_claim_dependency_inversion(self):
+        overlay = json.loads(
+            (
+                REPOSITORY_ROOT
+                / "plugins/design-patterns/catalog/decision-ready.json"
+            ).read_text(encoding="utf-8")
+        )
+        pattern = next(
+            pattern
+            for pattern in overlay["patterns"]
+            if pattern["id"] == "architecture-layers"
+        )
+        guarantees = " ".join(pattern["guarantees"]).casefold()
+
+        self.assertIn("declared direction", guarantees)
+        self.assertNotIn("implementation details", guarantees)
+
+    def test_review_skill_uses_runtime_specific_invocation_policies(self):
+        canonical_skill = (
+            REPOSITORY_ROOT
+            / "plugins/design-patterns/skills/review-pattern-usage/SKILL.md"
+        ).read_text(encoding="utf-8")
+        claude_skill = (
+            REPOSITORY_ROOT
+            / ".claude-plugins/design-patterns/skills/review-pattern-usage/SKILL.md"
+        ).read_text(encoding="utf-8")
+        openai_agent = (
+            REPOSITORY_ROOT
+            / "plugins/design-patterns/skills/review-pattern-usage/agents/openai.yaml"
+        ).read_text(encoding="utf-8")
+
+        self.assertNotIn("disable-model-invocation", canonical_skill)
+        self.assertIn("disable-model-invocation: true", claude_skill)
+        self.assertIn("allow_implicit_invocation: false", openai_agent)
+
+    def test_claude_projection_has_no_broken_relative_markdown_links(self):
+        projection_root = REPOSITORY_ROOT / ".claude-plugins/design-patterns"
+        broken = []
+        for document in projection_root.rglob("*.md"):
+            text = document.read_text(encoding="utf-8")
+            for target in re.findall(r"\[[^]]+\]\(([^)]+)\)", text):
+                if "://" in target or target.startswith("#"):
+                    continue
+                resolved = (document.parent / target.split("#", 1)[0]).resolve()
+                if (
+                    not resolved.is_relative_to(projection_root.resolve())
+                    or not resolved.exists()
+                ):
+                    broken.append(f"{document.relative_to(projection_root)} -> {target}")
+
+        self.assertEqual(broken, [])
 
     def test_rejects_decision_ready_overlay_for_unknown_pattern(self):
         with tempfile.TemporaryDirectory() as directory:

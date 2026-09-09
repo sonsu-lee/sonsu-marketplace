@@ -11,10 +11,13 @@
 plugins/<plugin-name>/.codex-plugin/plugin.json  # 정본 plugin manifest
 .claude-plugin/marketplace.json                  # 생성된 Claude Code catalog
 plugins/<plugin-name>/.claude-plugin/plugin.json # 생성된 Claude Code manifest
+.claude-plugins/<plugin-name>/                   # 선택적 Claude Code runtime projection
 ```
 
 Codex 형식을 저장소의 정본으로 유지하고 `scripts/render-claude-compat.py`가 Claude Code의 native
-파일을 결정론적으로 생성합니다. `.claude-plugin/**`는 직접 수정하지 않습니다. 두 형식에서 공통인
+파일을 결정론적으로 생성합니다. 생성된 `plugin.json`과 root marketplace는 직접 수정하지 않습니다.
+`plugins/<plugin-name>/.claude-plugin/compat.json`은 플랫폼 전용 projection이 필요할 때만 사용하는
+정본 입력입니다. 두 형식에서 공통인
 metadata는 복사하고, `interface.displayName`은 Claude Code의 top-level `displayName`으로 변환합니다.
 Codex 전용 `interface`와 `apps`는 Claude Code manifest에 넣지 않습니다. Claude Code가 표준
 `hooks/hooks.json`을 자동 탐색하므로 Codex의 동일 `hooks` 선언도 복사하지 않습니다.
@@ -59,7 +62,10 @@ upstream 기준선이나 이전 호환 경로를 매니페스트 계약으로 �
 설치만으로 hook이 신뢰되지는 않으며 현재 정의를 사용자가 검토해야 합니다. 정확한 동작과
 수동 복구는 [작업 연속성 계약](task-continuity.md)을 따릅니다.
 
-Claude Code catalog의 각 `source`는 `./plugins/<plugin-name>` 문자열을 사용합니다. 생성기는
+Claude Code catalog의 각 `source`는 기본적으로 `./plugins/<plugin-name>` 문자열을 사용합니다.
+공용 `SKILL.md`와 호환되지 않는 Claude 전용 frontmatter를 `compat.json`에 선언한 플러그인은
+`./.claude-plugins/<plugin-name>`을 사용하고, renderer가 `skills/` 및 명시한 resource를
+그 경로에 복제해 정본과의 drift를 검사합니다. 생성기는
 정본 catalog의 이름, 설명, 버전, category와 설치 정책을 유지하면서 Claude Code가 읽는
 `source` 형식으로 변환합니다. 다음 명령으로 생성물의 드리프트를 검사합니다.
 
@@ -68,7 +74,8 @@ python3 scripts/render-claude-compat.py --check
 claude plugin validate . --strict
 ```
 
-plugin별 strict validation도 `claude plugin validate plugins/<plugin-name> --strict`로 실행합니다.
+plugin별 strict validation은 일반 플러그인에서 `claude plugin validate plugins/<plugin-name> --strict`,
+projection 플러그인에서 `claude plugin validate .claude-plugins/<plugin-name> --strict`로 실행합니다.
 Codex의 실제 `plugin/read`, `skills/list`, `hooks/list` 검증과 Claude Code의 validation·격리 설치
 검증은 별개의 관찰 결과로 기록합니다.
 
