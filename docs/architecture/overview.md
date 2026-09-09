@@ -40,6 +40,8 @@ Figma Workflow는 Figma 제품 화면·prototype의 구조, interaction과 hando
 Operations UI는 상태와 데이터가 많은 운영형 B2B 화면의 Screen Contract, 구현·재설계,
 브라우저 증거와 품질 게이트를 담당합니다. Figma Workflow는 Figma artifact를 소유하고,
 Operations UI의 선택형 Figma 흐름은 그 결과를 코드 구현과 실제 브라우저 검증에 연결합니다.
+Design Patterns는 실제 설계 forces와 필요한 guarantee에 근거한 named pattern 선택과 기존 적용의
+읽기 전용 검토를 담당합니다. 전체 개발 lifecycle이나 broad code quality review는 소유하지 않습니다.
 Figma canvas의 agent mutation은 registered official Figma MCP가 단독으로 소유하고, companion은
 사용자가 Desktop에서 직접 실행합니다. 한 요청에서 여러 책임이 필요하면 runtime이 설치된 스킬을
 조합하며 manifest dependency나 공통 router를 전제하지 않습니다.

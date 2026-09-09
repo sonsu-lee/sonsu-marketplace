@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "family": {
+    "id": "security",
+    "name": "Security",
+    "scope": "The KU Leuven DistriNet security pattern catalogue."
+  },
+  "defaults": {
+    "aliases": [],
+    "family": "security",
+    "level": "security",
+    "maturity": "indexed",
+    "sources": [
+      {
+        "title": "Security Pattern Catalogue",
+        "url": "https://securitypatterns.distrinet-research.be/",
+        "type": "primary"
+      }
+    ]
+  },
+  "patterns": [
+    {
+      "id": "security-authentication",
+      "name": "Authentication",
+      "source_path": "patterns/01_01_001__authentication/"
+    },
+    {
+      "id": "security-password-based-authentication",
+      "name": "Password-based authentication",
+      "source_path": "patterns/01_01_002__authentication_pwd/"
+    },
+    {
+      "id": "security-verifiable-token-based-authentication",
+      "name": "Verifiable token-based authentication",
+      "source_path": "patterns/01_01_003__verifiable_token_based_authentication/"
+    },
+    {
+      "id": "security-opaque-token-based-authentication",
+      "name": "Opaque token-based authentication",
+      "source_path": "patterns/01_01_004__opaque_token_based_authentication/"
+    },
+    {
+      "id": "security-obscure-token-based-access-control",
+      "name": "Obscure token-based access control",
+      "source_path": "patterns/01_01_005__obscure_token_based_access_control/"
+    },
+    {
+      "id": "security-session-based-access-control",
+      "name": "Session-based access control",
+      "source_path": "patterns/01_01_006__session_based_access_control/"
+    },
+    {
+      "id": "security-authorisation",
+      "name": "Authorisation",
+      "source_path": "patterns/02_01_001__authorisation/"
+    },
+    {
+      "id": "security-log-entity-actions",
+      "name": "Log entity actions",
+      "source_path": "patterns/02_02_001__log_entity_actions/"
+    },
+    {
+      "id": "security-limit-request-rate",
+      "name": "Limit request rate",
+      "source_path": "patterns/02_03_001__limit_request_rate/"
+    },
+    {
+      "id": "security-data-validation",
+      "name": "Data validation",
+      "source_path": "patterns/04_01_001__data_validation/"
+    },
+    {
+      "id": "security-output-filter",
+      "name": "Output filter",
+      "source_path": "patterns/05_01_001__output_filter/"
+    },
+    {
+      "id": "security-selective-encrypted-transmission",
+      "name": "Selective encrypted transmission",
+      "source_path": "patterns/06_01_001__selective_encrypted_transmission/"
+    },
+    {
+      "id": "security-encrypted-tunnel",
+      "name": "Encrypted tunnel",
+      "source_path": "patterns/06_01_002__encrypted_tunnel/"
+    },
+    {
+      "id": "security-verifiable-transmission",
+      "name": "Verifiable transmission",
+      "source_path": "patterns/06_02_001__verifiable_transmission/"
+    },
+    {
+      "id": "security-selective-encrypted-storage",
+      "name": "Selective encrypted storage",
+      "source_path": "patterns/07_01_001__selective_encrypted_storage/"
+    },
+    {
+      "id": "security-transparent-encrypted-storage",
+      "name": "Transparent encrypted storage",
+      "source_path": "patterns/07_01_002__transparent_encrypted_storage/"
+    },
+    {
+      "id": "security-cryptographic-action",
+      "name": "Cryptographic action",
+      "source_path": "patterns/99_01_001__cryptographic_action/"
+    },
+    {
+      "id": "security-encryption",
+      "name": "Encryption",
+      "source_path": "patterns/99_01_002__encryption/"
+    },
+    {
+      "id": "security-digital-signature",
+      "name": "Digital signature",
+      "source_path": "patterns/99_01_003__digital_signature/"
+    },
+    {
+      "id": "security-message-authentication-code-mac",
+      "name": "Message authentication code (MAC)",
+      "source_path": "patterns/99_01_004__mac/"
+    },
+    {
+      "id": "security-cryptographic-key-management",
+      "name": "Cryptographic key management",
+      "source_path": "patterns/99_02_001__crypto_key_management/"
+    },
+    {
+      "id": "security-cryptography-as-a-service",
+      "name": "Cryptography as a service",
+      "source_path": "patterns/99_02_002__crypto_as_a_service/"
+    },
+    {
+      "id": "security-self-managed-cryptography",
+      "name": "Self-managed cryptography",
+      "source_path": "patterns/99_02_003__crypto_self_managed/"
+    }
+  ]
+}

@@ -47,6 +47,7 @@ codex plugin list --marketplace sonsu-marketplace
 | [Figma Workflow](plugins/figma-workflow/README.md) | Create Figma product screens and clickable prototypes, and review design quality | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | Review and curate coding-agent memories on explicit invocation | `memory-manager` |
 | [Operations UI](plugins/operations-ui/README.md) | Design, redesign, and audit state- and data-intensive B2B operational interfaces | `operations-ui` |
+| [Design Patterns](plugins/design-patterns/README.md) | Select patterns from observed design forces and review existing usage | `design-patterns` |
 
 Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
 
@@ -66,6 +67,7 @@ After installing the relevant plugin, try requests like these in Codex:
 | Figma Workflow | “Review the Auto Layout and prototype connections in this Figma screen.” |
 | Memory Manager | “$memory-manager Review the Codex memories for this project.” |
 | Operations UI | “Implement this order-operations screen from a Screen Contract and verify it with browser evidence.” |
+| Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
 
 Codex selects skills based on your request and the descriptions of installed skills.
 Memory Manager runs only when explicitly invoked with `$memory-manager`.
@@ -160,6 +162,7 @@ No root-level license is currently declared for the repository as a whole. Licen
 - Product currently has no separately declared license.
 - Memory Manager was independently authored and currently has no separately declared license. Design references are recorded in [UPSTREAM.md](plugins/memory-manager/UPSTREAM.md).
 - Operations UI was independently authored without copying external UI code or assets and currently has no separately declared license. Design references are recorded in [UPSTREAM.md](plugins/operations-ui/UPSTREAM.md).
+- Design Patterns indexes only pattern names and source locations; its selection and review contracts are independently authored and currently have no separately declared license. Inclusion and source terms are recorded in [UPSTREAM.md](plugins/design-patterns/UPSTREAM.md).
 - Figma Workflow was independently authored without copying external files and currently has no separately declared license. Consulted sources and the policy against copying external files are documented in [UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md).
 - Fluent Languages records its licensing and attribution for each source in [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md), and [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md).
 - Research's upstream baseline had no license file that could be verified, and permission to use it is not assumed. The baseline commit and included scope are recorded in [UPSTREAM.md](plugins/research/UPSTREAM.md).

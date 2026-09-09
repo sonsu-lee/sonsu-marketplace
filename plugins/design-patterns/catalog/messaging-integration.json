@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "family": {
+    "id": "messaging-integration",
+    "name": "Messaging and integration",
+    "scope": "Enterprise Integration Patterns book catalog."
+  },
+  "defaults": {
+    "aliases": [],
+    "family": "messaging-integration",
+    "level": "integration",
+    "maturity": "indexed",
+    "sources": [
+      {
+        "title": "Enterprise Integration Patterns",
+        "url": "https://www.enterpriseintegrationpatterns.com/patterns/messaging/",
+        "type": "primary"
+      }
+    ]
+  },
+  "patterns": [
+    {
+      "id": "messaging-integration-file-transfer",
+      "name": "File Transfer",
+      "source_path": "IntegrationStylesIntro.html"
+    },
+    {
+      "id": "messaging-integration-shared-database",
+      "name": "Shared Database",
+      "source_path": "IntegrationStylesIntro.html",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "microservices-shared-database"
+        }
+      ]
+    },
+    {
+      "id": "messaging-integration-remote-procedure-invocation",
+      "name": "Remote Procedure Invocation",
+      "source_path": "IntegrationStylesIntro.html",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "microservices-remote-procedure-invocation"
+        }
+      ]
+    },
+    {
+      "id": "messaging-integration-messaging",
+      "name": "Messaging",
+      "source_path": "Messaging.html",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "microservices-messaging"
+        }
+      ]
+    },
+    {
+      "id": "messaging-integration-message",
+      "name": "Message",
+      "source_path": "Message.html"
+    },
+    {
+      "id": "messaging-integration-command-message",
+      "name": "Command Message",
+      "source_path": "CommandMessage.html"
+    },
+    {
+      "id": "messaging-integration-document-message",
+      "name": "Document Message",
+      "source_path": "DocumentMessage.html"
+    },
+    {
+      "id": "messaging-integration-event-message",
+      "name": "Event Message",
+      "source_path": "EventMessage.html"
+    },
+    {
+      "id": "messaging-integration-request-reply",
+      "name": "Request-Reply",
+      "source_path": "RequestReply.html"
+    },
+    {
+      "id": "messaging-integration-return-address",
+      "name": "Return Address",
+      "source_path": "ReturnAddress.html"
+    },
+    {
+      "id": "messaging-integration-correlation-identifier",
+      "name": "Correlation Identifier",
+      "source_path": "CorrelationIdentifier.html"
+    },
+    {
+      "id": "messaging-integration-message-sequence",
+      "name": "Message Sequence",
+      "source_path": "MessageSequence.html"
+    },
+    {
+      "id": "messaging-integration-message-expiration",
+      "name": "Message Expiration",
+      "source_path": "MessageExpiration.html"
+    },
+    {
+      "id": "messaging-integration-format-indicator",
+      "name": "Format Indicator",
+      "source_path": "FormatIndicator.html"
+    },
+    {
+      "id": "messaging-integration-pipes-and-filters",
+      "name": "Pipes-and-Filters",
+      "source_path": "PipesAndFilters.html"
+    },
+    {
+      "id": "messaging-integration-message-router",
+      "name": "Message Router",
+      "source_path": "MessageRouter.html"
+    },
+    {
+      "id": "messaging-integration-content-based-router",
+      "name": "Content-based Router",
+      "source_path": "ContentBasedRouter.html"
+    },
+    {
+      "id": "messaging-integration-message-filter",
+      "name": "Message Filter",
+      "source_path": "Filter.html"
+    },
+    {
+      "id": "messaging-integration-dynamic-router",
+      "name": "Dynamic Router",
+      "source_path": "DynamicRouter.html"
+    },
+    {
+      "id": "messaging-integration-recipient-list",
+      "name": "Recipient List",
+      "source_path": "RecipientList.html"
+    },
+    {
+      "id": "messaging-integration-splitter",
+      "name": "Splitter",
+      "source_path": "Sequencer.html"
+    },
+    {
+      "id": "messaging-integration-aggregator",
+      "name": "Aggregator",
+      "source_path": "Aggregator.html"
+    },
+    {
+      "id": "messaging-integration-resequencer",
+      "name": "Resequencer",
+      "source_path": "Resequencer.html"
+    },
+    {
+      "id": "messaging-integration-composed-msg-processor",
+      "name": "Composed Msg. Processor",
+      "source_path": "DistributionAggregate.html"
+    },
+    {
+      "id": "messaging-integration-scatter-gather",
+      "name": "Scatter-Gather",
+      "source_path": "BroadcastAggregate.html"
+    },
+    {
+      "id": "messaging-integration-routing-slip",
+      "name": "Routing Slip",
+      "source_path": "RoutingTable.html"
+    },
+    {
+      "id": "messaging-integration-process-manager",
+      "name": "Process Manager",
+      "source_path": "ProcessManager.html"
+    },
+    {
+      "id": "messaging-integration-message-broker",
+      "name": "Message Broker",
+      "source_path": "MessageBroker.html"
+    },
+    {
+      "id": "messaging-integration-message-translator",
+      "name": "Message Translator",
+      "source_path": "MessageTranslator.html"
+    },
+    {
+      "id": "messaging-integration-envelope-wrapper",
+      "name": "Envelope Wrapper",
+      "source_path": "EnvelopeWrapper.html"
+    },
+    {
+      "id": "messaging-integration-content-enricher",
+      "name": "Content Enricher",
+      "source_path": "DataEnricher.html"
+    },
+    {
+      "id": "messaging-integration-content-filter",
+      "name": "Content Filter",
+      "source_path": "ContentFilter.html"
+    },
+    {
+      "id": "messaging-integration-claim-check",
+      "name": "Claim Check",
+      "source_path": "StoreInLibrary.html"
+    },
+    {
+      "id": "messaging-integration-normalizer",
+      "name": "Normalizer",
+      "source_path": "Normalizer.html"
+    },
+    {
+      "id": "messaging-integration-canonical-data-model",
+      "name": "Canonical Data Model",
+      "source_path": "CanonicalDataModel.html"
+    },
+    {
+      "id": "messaging-integration-message-endpoint",
+      "name": "Message Endpoint",
+      "source_path": "MessageEndpoint.html"
+    },
+    {
+      "id": "messaging-integration-messaging-gateway",
+      "name": "Messaging Gateway",
+      "source_path": "MessagingGateway.html"
+    },
+    {
+      "id": "messaging-integration-messaging-mapper",
+      "name": "Messaging Mapper",
+      "source_path": "MessagingMapper.html"
+    },
+    {
+      "id": "messaging-integration-transactional-client",
+      "name": "Transactional Client",
+      "source_path": "TransactionalClient.html"
+    },
+    {
+      "id": "messaging-integration-polling-consumer",
+      "name": "Polling Consumer",
+      "source_path": "PollingConsumer.html"
+    },
+    {
+      "id": "messaging-integration-event-driven-consumer",
+      "name": "Event-driven Consumer",
+      "source_path": "EventDrivenConsumer.html"
+    },
+    {
+      "id": "messaging-integration-competing-consumers",
+      "name": "Competing Consumers",
+      "source_path": "CompetingConsumers.html"
+    },
+    {
+      "id": "messaging-integration-message-dispatcher",
+      "name": "Message Dispatcher",
+      "source_path": "MessageDispatcher.html"
+    },
+    {
+      "id": "messaging-integration-selective-consumer",
+      "name": "Selective Consumer",
+      "source_path": "MessageSelector.html"
+    },
+    {
+      "id": "messaging-integration-durable-subscriber",
+      "name": "Durable Subscriber",
+      "source_path": "DurableSubscription.html"
+    },
+    {
+      "id": "messaging-integration-idempotent-receiver",
+      "name": "Idempotent Receiver",
+      "source_path": "IdempotentReceiver.html"
+    },
+    {
+      "id": "messaging-integration-service-activator",
+      "name": "Service Activator",
+      "source_path": "MessagingAdapter.html"
+    },
+    {
+      "id": "messaging-integration-message-channel",
+      "name": "Message Channel",
+      "source_path": "MessageChannel.html"
+    },
+    {
+      "id": "messaging-integration-point-to-point-channel",
+      "name": "Point-to-Point Channel",
+      "source_path": "PointToPointChannel.html"
+    },
+    {
+      "id": "messaging-integration-publish-subscr-channel",
+      "name": "Publish-Subscr. Channel",
+      "source_path": "PublishSubscribeChannel.html"
+    },
+    {
+      "id": "messaging-integration-datatype-channel",
+      "name": "Datatype Channel",
+      "source_path": "DatatypeChannel.html"
+    },
+    {
+      "id": "messaging-integration-invalid-message-channel",
+      "name": "Invalid Message Channel",
+      "source_path": "InvalidMessageChannel.html"
+    },
+    {
+      "id": "messaging-integration-dead-letter-channel",
+      "name": "Dead Letter Channel",
+      "source_path": "DeadLetterChannel.html"
+    },
+    {
+      "id": "messaging-integration-guaranteed-delivery",
+      "name": "Guaranteed Delivery",
+      "source_path": "GuaranteedMessaging.html"
+    },
+    {
+      "id": "messaging-integration-channel-adapter",
+      "name": "Channel Adapter",
+      "source_path": "ChannelAdapter.html"
+    },
+    {
+      "id": "messaging-integration-messaging-bridge",
+      "name": "Messaging Bridge",
+      "source_path": "MessagingBridge.html"
+    },
+    {
+      "id": "messaging-integration-message-bus",
+      "name": "Message Bus",
+      "source_path": "MessageBus.html"
+    },
+    {
+      "id": "messaging-integration-control-bus",
+      "name": "Control Bus",
+      "source_path": "ControlBus.html"
+    },
+    {
+      "id": "messaging-integration-detour",
+      "name": "Detour",
+      "source_path": "Detour.html"
+    },
+    {
+      "id": "messaging-integration-wire-tap",
+      "name": "Wire Tap",
+      "source_path": "WireTap.html"
+    },
+    {
+      "id": "messaging-integration-message-history",
+      "name": "Message History",
+      "source_path": "MessageHistory.html"
+    },
+    {
+      "id": "messaging-integration-message-store",
+      "name": "Message Store",
+      "source_path": "MessageStore.html"
+    },
+    {
+      "id": "messaging-integration-smart-proxy",
+      "name": "Smart Proxy",
+      "source_path": "SmartProxy.html"
+    },
+    {
+      "id": "messaging-integration-test-message",
+      "name": "Test Message",
+      "source_path": "TestMessage.html"
+    },
+    {
+      "id": "messaging-integration-channel-purger",
+      "name": "Channel Purger",
+      "source_path": "ChannelPurger.html"
+    }
+  ]
+}

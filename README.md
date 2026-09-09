@@ -47,6 +47,7 @@ codex plugin list --marketplace sonsu-marketplace
 | [Figma Workflow](plugins/figma-workflow/README.md) | Figma 제품 화면, 클릭 가능한 프로토타입과 디자인 품질 검토 | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | 명시적으로 호출하는 코딩 에이전트 메모리 점검과 정리 | `memory-manager` |
 | [Operations UI](plugins/operations-ui/README.md) | 상태·데이터 중심 운영형 B2B 화면의 설계, 재설계와 품질 감사 | `operations-ui` |
+| [Design Patterns](plugins/design-patterns/README.md) | 실제 설계 forces에 맞는 패턴 선택과 기존 적용 검토 | `design-patterns` |
 
 각 플러그인은 독립적으로 사용할 수 있습니다. 포함된 스킬과 상세 사용법은 위 링크에서 확인하세요.
 
@@ -66,6 +67,7 @@ codex plugin list --marketplace sonsu-marketplace
 | Figma Workflow | “이 Figma 화면의 Auto Layout과 프로토타입 연결을 검토해 줘.” |
 | Memory Manager | “$memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘.” |
 | Operations UI | “이 주문 운영 화면을 Screen Contract부터 구현하고 브라우저 증거로 검증해 줘.” |
+| Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
 
 Codex는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
 Memory Manager는 `$memory-manager`로 명시적으로 호출할 때만 작동합니다.
@@ -161,6 +163,7 @@ git diff --check
 - Product에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Memory Manager는 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 설계 참고 출처는 [UPSTREAM.md](plugins/memory-manager/UPSTREAM.md)에 기록합니다.
 - Operations UI는 외부 UI 코드나 asset을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 설계 참고 출처는 [UPSTREAM.md](plugins/operations-ui/UPSTREAM.md)에 기록합니다.
+- Design Patterns는 원천 카탈로그의 이름과 출처만 인덱싱하고 선택·검토 계약과 설명은 독자 작성했으며 현재 별도의 라이선스를 선언하지 않았습니다. 포함 범위와 원천별 조건은 [UPSTREAM.md](plugins/design-patterns/UPSTREAM.md)에 기록합니다.
 - Figma Workflow는 외부 파일을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 검토한 출처와 비복사 원칙은 [UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md)에 기록합니다.
 - Fluent Languages의 라이선스와 원본별 출처는 [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md)와 [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md)에 기록합니다.
 - Research는 기준 원본에서 라이선스 파일을 확인하지 못했으며 사용 허가를 추정하지 않습니다. 기준 commit과 포함 범위는 [UPSTREAM.md](plugins/research/UPSTREAM.md)에 기록합니다.

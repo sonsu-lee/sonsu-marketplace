@@ -18,7 +18,7 @@
 
 ## 플러그인 경계
 
-Engineering, Quality Engineering, Workflow, Research, Prompting, Product, Figma Workflow, Operations UI, Memory Manager와 Fluent Languages는
+Engineering, Quality Engineering, Workflow, Research, Prompting, Product, Figma Workflow, Operations UI, Design Patterns, Memory Manager와 Fluent Languages는
 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
 Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
@@ -39,6 +39,8 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | ticket·issue·backlog 접수·초안·게시 또는 기존 제목·본문 보강 | `workflow:to-ticket` |
 | 기존 ticket의 작업 시작·review·완료 상태, 담당자와 native relation 변경 | `workflow:ticket-lifecycle` |
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
+| 반복 문제와 설계 forces에 맞는 named pattern 선택 | `design-patterns:select-design-patterns` |
+| 명시적으로 요청한 기존 pattern 적용·오용의 읽기 전용 검토 | `design-patterns:review-pattern-usage` |
 | 명시적 호출에 따른 Codex·Claude Code 메모리 점검과 정리 | `memory-manager:memory-manager` |
 | 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
 | Codex·ChatGPT·OpenAI API용 프롬프트 생성·재작성·최적화 | `prompting:prompt-builder` |
@@ -239,6 +241,25 @@ Quality Engineering은 다음 책임으로 확장하지 않습니다.
 우선하지만, 깊은 전문 검토가 필요하면 관련 범위를 밝히고 해당 전문 skill로 라우팅합니다.
 error handling과 logging은 별도 규칙으로 강제하지 않고 오류를 소유하는 경계와 실제 운영 질문을
 기준으로 함께 판단합니다.
+
+## Design Patterns 조합
+
+Design Patterns는 pattern catalog 자체보다 현재 문제의 반복성, forces, baseline 한계와 필요한
+guarantee를 먼저 판단합니다. 일반 기능 구현이나 사소한 리팩터링을 가로채지 않으며, framework나
+직접 해법이 충분하면 `no-pattern`을 정상 결과로 반환합니다.
+
+```text
+구현 중 pattern 판단이 실제로 필요한 경우
+  → Design Patterns가 pattern 필요 여부와 최소 implementation shape를 결정
+  → Engineering이 승인된 선택을 전체 구현·TDD·검증 lifecycle에 반영
+  → 명시적인 pattern review 요청이면 review-pattern-usage가 수정 없이 guarantee를 검토
+```
+
+이 조합은 runtime 책임 분담이며 manifest dependency가 아닙니다. Design Patterns만 설치된 환경에서도
+선택과 읽기 전용 검토를 완성하고 Engineering의 skill ID나 계획 절차를 호출하지 않습니다.
+Engineering도 Design Patterns가 없으면 일반 설계·구현을 독립적으로 수행합니다. Quality Engineering은
+broad code shape와 실패·운용 문제를 검토하고, Design Patterns review는 named pattern이 약속한
+guarantee, cost와 scope에만 집중합니다.
 
 ## Product 조합
 
