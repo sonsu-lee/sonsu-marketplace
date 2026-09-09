@@ -38,6 +38,11 @@ description: 사용자가 현재 diff나 지정한 코드의 reader load, 변경
 함께 바뀌고 흐름이 직접적이면 유지할 수 있다. 작은 파일도 지식이 흩어져 있으면 문제가 될 수
 있다.
 
+JavaScript·TypeScript 변경에서는
+[`../../references/javascript-typescript-review.md`](../../references/javascript-typescript-review.md)를
+읽고 반복 guard, optional·boolean soup, DTO 누수, assertion 연쇄와 의미 없는 wrapper가 실제
+reader load나 변경 비용을 만드는지 확인한다.
+
 ## 결과
 
 finding마다 priority, `path:line`, 독자가 따라야 하는 실제 흐름, 변경 비용이나 결함 가능성,

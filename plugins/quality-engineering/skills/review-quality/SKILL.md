@@ -42,6 +42,11 @@ description: 사용자가 현재 diff, commit, branch 또는 지정한 코드에
 shape보다 먼저 보고한다. 다만 깊은 보안 감사, 제품 결정, 디버깅과 Git 전달 작업으로 범위를
 확장하지 않는다.
 
+JavaScript·TypeScript 변경에서는
+[`../../references/javascript-typescript-review.md`](../../references/javascript-typescript-review.md)를
+읽고 현재 diff에 관련된 항목만 적용한다. 특히 nullish 의미, `satisfies`의 compile-time 한계,
+trust boundary와 중복 guard, async 실패 경로를 서로 다른 취향 규칙으로 쪼개지 않는다.
+
 ## 결과
 
 finding을 priority 순으로 제시한다. 각 finding에는 다음을 포함한다.

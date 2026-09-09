@@ -44,8 +44,10 @@ prompt를 사용했고 command runtime은 포함하지 않았습니다.
 `e591c02a0b2ea7717d99e15bd51ea05d879bbf5a4452d66d15b51a7107d3821a`와
 `6728b3dff175efe673c1d6a402f5d9f548127a20960a6efdf9047dae1e36ecfb`입니다.
 
-`skills/domain-shaped-code/references/comments.md`와 `skills/review-quality/SKILL.md`는 로컬에서
-새로 작성했으며 특정 upstream 파일을 복사하지 않았습니다.
+`skills/domain-shaped-code/references/comments.md`,
+`references/javascript-typescript-review.md`와
+`skills/review-quality/SKILL.md`는 로컬에서 새로 작성했으며 특정 upstream 파일을 복사하지
+않았습니다.
 
 ## 적용한 변환
 
@@ -81,6 +83,17 @@ OpenAI NOTICE는 [`NOTICE`](NOTICE)에 유지합니다.
 - `openai/codex-plugin-cc@db52e28f4d9ded852ab3942cea316258ae4ef346`
   - `plugins/codex/commands/adversarial-review.md`
 - [TypeScript Handbook: Type Inference](https://www.typescriptlang.org/docs/handbook/type-inference.html)
+- [TypeScript TSConfig: `strictNullChecks`](https://www.typescriptlang.org/tsconfig/strictNullChecks.html)
+- [TypeScript TSConfig: `exactOptionalPropertyTypes`](https://www.typescriptlang.org/tsconfig/exactOptionalPropertyTypes.html)
+- [TypeScript TSConfig: `noUncheckedIndexedAccess`](https://www.typescriptlang.org/tsconfig/noUncheckedIndexedAccess.html)
+- [TypeScript 4.9: `satisfies`](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html)
+- [TypeScript Handbook: Narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)
+- TypeScript issues [`#55189`](https://github.com/microsoft/TypeScript/issues/55189),
+  [`#52805`](https://github.com/microsoft/TypeScript/issues/52805)와
+  [`#57086`](https://github.com/microsoft/TypeScript/issues/57086)
+- MDN의 nullish coalescing, optional chaining, `Map#get`, `JSON.stringify`, default parameters와
+  `Promise.all` reference
+- [typescript-eslint rules](https://typescript-eslint.io/rules/)
 - [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
 - [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
 - OpenTelemetry Logs Data Model, Exceptions in Logs와 General Events semantic conventions

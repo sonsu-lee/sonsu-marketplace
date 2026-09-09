@@ -65,7 +65,9 @@ description: 사용자가 확인된 제품·도메인 계약이나 trust boundar
 - 한 번만 쓰이는 구조에 이름을 붙이면 독자가 얻는 도메인 의미가 있는지 확인한다.
 - 기존 자료구조와 제어 흐름이 계약을 명확히 표현하면 별도 계층이나 pattern을 추가하지 않는다.
 
-TypeScript를 변경할 때는 [`references/typescript.md`](references/typescript.md)를 읽는다.
+JavaScript·TypeScript를 변경할 때는
+[`../../references/javascript-typescript-review.md`](../../references/javascript-typescript-review.md)를 읽고,
+TypeScript 구현에는 [`references/typescript.md`](references/typescript.md)도 적용한다.
 오류 제어 흐름을 변경할 때는 [`references/error-handling.md`](references/error-handling.md)를,
 주석을 추가·수정할 때는 [`references/comments.md`](references/comments.md)를 읽는다. logging이나
 telemetry가 범위에 포함되면 [`references/logging.md`](references/logging.md)도 적용한다.
