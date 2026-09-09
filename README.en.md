@@ -85,7 +85,7 @@ After installing the relevant plugin, try requests like these in Codex or Claude
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
 | Figma Workflow | “Review the Auto Layout and prototype connections in this Figma screen.” |
-| Memory Manager | “$memory-manager Review the Codex memories for this project.” |
+| Memory Manager | Codex: “$memory-manager Review the Codex memories for this project.”<br>Claude Code: “/memory-manager:memory-manager Review the Claude Code memories for this project.” |
 | Operations UI | “Implement this order-operations screen from a Screen Contract and verify it with browser evidence.” |
 
 Codex and Claude Code select skills based on your request and the descriptions of installed skills.

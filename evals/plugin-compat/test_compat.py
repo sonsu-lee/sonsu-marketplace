@@ -15,7 +15,7 @@ class ClaudeCompatibilityTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name) / "repo"
         marketplace_dir = self.root / ".agents/plugins"
         plugin_dir = self.root / "plugins/example/.codex-plugin"
         marketplace_dir.mkdir(parents=True)
@@ -137,6 +137,60 @@ class ClaudeCompatibilityTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn("invalid local plugin path", result.stderr)
         self.assertFalse((self.root / ".claude-plugin/marketplace.json").exists())
+
+    def test_traversal_name_cannot_overwrite_an_external_manifest(self):
+        outside = Path(self.tmp.name) / "outside"
+        (outside / ".codex-plugin").mkdir(parents=True)
+        (outside / ".codex-plugin/plugin.json").write_text(
+            json.dumps({"name": "../../outside", "version": "1.0.0"})
+        )
+        (outside / ".claude-plugin").mkdir()
+        target = outside / ".claude-plugin/plugin.json"
+        target.write_text("preserve external manifest\n")
+        catalog_path = self.root / ".agents/plugins/marketplace.json"
+        catalog = json.loads(catalog_path.read_text())
+        catalog["plugins"].append({
+            "name": "../../outside",
+            "source": {"source": "local", "path": "./plugins/../../outside"},
+        })
+        catalog_path.write_text(json.dumps(catalog))
+
+        for args in (("--check",), ()):
+            with self.subTest(args=args):
+                result = self.run_renderer(*args)
+                self.assertEqual(target.read_text(), "preserve external manifest\n")
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertFalse((self.root / "plugins/example/.claude-plugin/plugin.json").exists())
+                self.assertFalse((self.root / ".claude-plugin/marketplace.json").exists())
+
+    def test_plugin_symlink_cannot_write_outside_the_plugins_directory(self):
+        outside = Path(self.tmp.name) / "outside"
+        (outside / ".codex-plugin").mkdir(parents=True)
+        (outside / ".codex-plugin/plugin.json").write_text(json.dumps({"name": "linked"}))
+        (self.root / "plugins/linked").symlink_to(outside, target_is_directory=True)
+        catalog_path = self.root / ".agents/plugins/marketplace.json"
+        catalog = json.loads(catalog_path.read_text())
+        catalog["plugins"].append({
+            "name": "linked", "source": {"source": "local", "path": "./plugins/linked"},
+        })
+        catalog_path.write_text(json.dumps(catalog))
+
+        result = self.run_renderer()
+
+        self.assertFalse((outside / ".claude-plugin/plugin.json").exists())
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_output_symlink_cannot_overwrite_an_external_manifest(self):
+        outside = Path(self.tmp.name) / "outside"
+        outside.mkdir()
+        target = outside / "plugin.json"
+        target.write_text("preserve external manifest\n")
+        (self.root / "plugins/example/.claude-plugin").symlink_to(outside, target_is_directory=True)
+
+        result = self.run_renderer()
+
+        self.assertEqual(target.read_text(), "preserve external manifest\n")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

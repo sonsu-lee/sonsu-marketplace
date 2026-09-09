@@ -18,10 +18,19 @@ claude plugin install memory-manager@sonsu-marketplace
 Codex에서는 `$memory-manager`, Claude Code에서는 `/memory-manager:memory-manager`로 명시적으로
 호출합니다.
 
+Codex 실행 예시:
+
 ```text
 $memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘. 파일은 바꾸지 마.
 $memory-manager 현재 프로젝트의 Codex 메모리에서 확인된 중복과 오래된 명령을 정리해 줘.
 $memory-manager 이 경로의 Claude Code 메모리를 정리해 줘: /absolute/path/to/memory
+```
+
+Claude Code 실행 예시:
+
+```text
+/memory-manager:memory-manager 현재 프로젝트의 Claude Code 메모리를 점검해 줘. 파일은 바꾸지 마.
+/memory-manager:memory-manager 이 경로의 Claude Code 메모리를 정리해 줘: /absolute/path/to/memory
 ```
 
 인자 없이 호출하면 현재 프로젝트의 메모리를 점검합니다. 대상이 여러 개면 대상만 확인합니다.

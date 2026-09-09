@@ -86,7 +86,7 @@ host側で別途設定し、実際にtoolが利用できることを確認して
 | Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
 | Figma Workflow | 「このFigma画面のAuto Layoutとプロトタイプの接続をレビューして。」 |
-| Memory Manager | 「$memory-manager このプロジェクトのCodexメモリを点検して。」 |
+| Memory Manager | Codex: 「$memory-manager このプロジェクトのCodexメモリを点検して。」<br>Claude Code: 「/memory-manager:memory-manager このプロジェクトのClaude Codeメモリを点検して。」 |
 | Operations UI | 「この受注運用画面をScreen Contractから実装し、ブラウザーの証跡で検証して。」 |
 
 CodexとClaude Codeは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。

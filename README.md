@@ -86,7 +86,7 @@ UI metadata는 Claude manifest에 복사하지 않으므로, Figma 같은 외부
 | Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
 | Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
 | Figma Workflow | “이 Figma 화면의 Auto Layout과 프로토타입 연결을 검토해 줘.” |
-| Memory Manager | “$memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘.” |
+| Memory Manager | Codex: “$memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘.”<br>Claude Code: “/memory-manager:memory-manager 현재 프로젝트의 Claude Code 메모리를 점검해 줘.” |
 | Operations UI | “이 주문 운영 화면을 Screen Contract부터 구현하고 브라우저 증거로 검증해 줘.” |
 
 Codex와 Claude Code는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.

@@ -31,6 +31,7 @@ class RuntimeTests(unittest.TestCase):
         self.work = self.base / "work space"
         self.work.mkdir()
         self.env = dict(os.environ, CODEX_THREAD_ID="session-a", PYTHONDONTWRITEBYTECODE="1")
+        self.env.pop("CLAUDE_CODE_SESSION_ID", None)
         for key in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"):
             self.env.pop(key, None)
         self.packages = {}
@@ -102,6 +103,33 @@ class RuntimeTests(unittest.TestCase):
         read = self.run_cli("read")
         self.assertEqual(json.loads(read.stdout), saved)
         self.assertEqual(self.path().read_bytes(), raw)
+
+    def test_claude_session_default_supports_the_checkpoint_lifecycle(self):
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env["CLAUDE_CODE_SESSION_ID"] = "claude-session"
+        result = self.write(env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        record = json.loads(self.run_cli("read", env=env).stdout)
+        self.assertEqual(record["session_id"], "claude-session")
+        recovered = self.hook(session_id="claude-session")
+        self.assertIn(str(self.path(session="claude-session")),
+                      json.loads(recovered.stdout)["hookSpecificOutput"]["additionalContext"])
+        closed = self.run_cli("close", "--mode", "write", "--task-id", "task-a",
+                              "--expected-revision", "1", env=env)
+        self.assertEqual(closed.returncode, 0, closed.stderr)
+        self.assertEqual(json.loads(self.run_cli("read", env=env).stdout)["status"], "complete")
+        self.assertEqual(self.hook(session_id="claude-session").stdout, "")
+
+    def test_explicit_session_overrides_both_host_defaults(self):
+        env = dict(self.env, CLAUDE_CODE_SESSION_ID="claude-session")
+        result = self.run_cli("write", "--mode", "write", "--task-id", "task-a",
+                              "--skill", "example-work", "--expected-revision", "0",
+                              "--session-id", "explicit-session", data=SUMMARY, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.path(session="explicit-session").is_file())
+        self.assertFalse(self.path().exists())
+        self.assertFalse(self.path(session="claude-session").exists())
 
     def test_readonly_and_missing_session_do_not_create_scratch_or_exclude(self):
         self.git("init", "-q")

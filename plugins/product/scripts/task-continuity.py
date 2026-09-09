@@ -275,7 +275,9 @@ def parser():
     for command in ("read", "write", "close"):
         q = sub.add_parser(command)
         q.add_argument("--cwd", default=os.getcwd())
-        q.add_argument("--session-id", default=os.environ.get("CODEX_THREAD_ID"), help="exact current session; never inferred from saved files")
+        q.add_argument("--session-id", default=(os.environ.get("CODEX_THREAD_ID")
+                                               or os.environ.get("CLAUDE_CODE_SESSION_ID")),
+                       help="exact current session; defaults to CODEX_THREAD_ID, then CLAUDE_CODE_SESSION_ID")
         if command != "read":
             q.add_argument("--mode", choices=("read-only", "plan", "write"), default="read-only")
             q.add_argument("--task-id", required=True)

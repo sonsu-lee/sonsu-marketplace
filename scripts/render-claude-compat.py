@@ -53,10 +53,14 @@ def outputs(root):
         if not isinstance(source, dict) or source.get("source") != "local":
             raise ValueError(f"{entry_name or '<unknown>'}: expected a local plugin source")
         source_path = source.get("path")
-        if not isinstance(entry_name, str) or source_path != f"./plugins/{entry_name}":
+        if (not isinstance(entry_name, str) or entry_name in ("", ".", "..")
+                or "/" in entry_name or "\\" in entry_name
+                or source_path != f"./plugins/{entry_name}"):
             raise ValueError(f"{entry_name or '<unknown>'}: invalid local plugin path")
 
-        plugin_root = root / source_path.removeprefix("./")
+        plugin_root = (root / source_path.removeprefix("./")).resolve()
+        if not plugin_root.is_relative_to(root / "plugins"):
+            raise ValueError(f"{entry_name}: plugin path resolves outside plugins directory")
         codex_manifest = load_json(plugin_root / ".codex-plugin/plugin.json")
         if codex_manifest.get("name") != entry_name:
             raise ValueError(f"{entry_name}: marketplace and manifest names differ")
@@ -104,6 +108,9 @@ def main():
     stale = []
     try:
         rendered = list(outputs(root))
+        for target, _ in rendered:
+            if not target.resolve().is_relative_to(root):
+                raise ValueError(f"output path resolves outside repository: {target}")
     except (FileNotFoundError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         parser.error(str(error))
 
