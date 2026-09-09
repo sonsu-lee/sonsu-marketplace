@@ -1,0 +1,142 @@
+{
+  "description": "Behavioral routing and decision scenarios for the design-patterns plugin.",
+  "cases": [
+    {
+      "id": "strategy-justified",
+      "mode": "select",
+      "request": "현재 결제 수수료 계산은 카드 한 종류뿐인데 다음 릴리스에서 계약별로 서로 다른 세 계산 정책을 런타임에 선택해야 해. 호출 흐름은 유지하고 계산 정책만 교체 가능해야 한다. TypeScript 설계와 검증 방법을 정해 줘.",
+      "evidence": [
+        "Three concrete policies are approved",
+        "Runtime selection is required",
+        "Caller orchestration must remain stable"
+      ],
+      "expected": [
+        "Decision is use",
+        "object-oriented-strategy is the primary pattern",
+        "Implementation uses a TypeScript function type or small interface",
+        "Verification demonstrates policy replacement without caller changes"
+      ],
+      "forbidden": [
+        "More than three candidates",
+        "Factory classes without a separate creation problem"
+      ]
+    },
+    {
+      "id": "direct-branch-no-pattern",
+      "mode": "select",
+      "request": "Python 함수에서 status가 active면 1, 아니면 0을 반환해. 나중 요구사항은 아직 없어. 어떤 디자인 패턴을 써야 해?",
+      "evidence": [
+        "One closed branch",
+        "No recurring variation or lifecycle behavior"
+      ],
+      "expected": [
+        "Decision is no-pattern",
+        "A direct conditional or mapping is the baseline",
+        "No speculative State or Strategy structure"
+      ],
+      "forbidden": [
+        "Recommending a decision-ready pattern as primary"
+      ]
+    },
+    {
+      "id": "missing-distributed-semantics",
+      "mode": "select",
+      "request": "서비스 두 개가 이벤트로 통신하게 만들 거야. 적절한 패턴을 골라 줘.",
+      "evidence": [
+        "No delivery, ordering, consistency, idempotency, or recovery contract is supplied"
+      ],
+      "expected": [
+        "Decision is insufficient-evidence",
+        "Requests only the missing facts that affect the decision"
+      ],
+      "forbidden": [
+        "Assuming exactly-once delivery",
+        "Selecting Saga or Transactional Outbox as settled"
+      ]
+    },
+    {
+      "id": "transactional-outbox",
+      "mode": "select",
+      "request": "주문 DB commit과 Kafka publish가 분리돼 commit 뒤 crash하면 이벤트가 빠진다. 분산 transaction은 지원하지 않고 consumer는 중복을 받을 수 있다. 누락을 막고 재시작 복구를 검증할 설계를 골라 줘.",
+      "evidence": [
+        "Local database transaction is available",
+        "Broker transaction is separate",
+        "At-least-once relay is acceptable"
+      ],
+      "expected": [
+        "Decision is use",
+        "microservices-transactional-outbox is primary",
+        "An idempotent receiver is considered only as necessary support",
+        "Crash points, duplicate delivery, acknowledgement, and recovery are verified"
+      ],
+      "forbidden": [
+        "Claiming exactly-once delivery",
+        "Treating broker publish and DB commit as atomic"
+      ]
+    },
+    {
+      "id": "framework-owned-unit-of-work",
+      "mode": "select",
+      "request": "ORM session이 request transaction 동안 변경 추적과 commit/rollback을 이미 제공해. 별도 UnitOfWork 클래스를 추가해야 할까?",
+      "evidence": [
+        "Framework owns change tracking and the transaction lifecycle"
+      ],
+      "expected": [
+        "Decision is no-pattern",
+        "The framework facility is the baseline",
+        "No duplicate UnitOfWork abstraction unless a missing guarantee is shown"
+      ],
+      "forbidden": [
+        "Recommending a wrapper only to expose the pattern name"
+      ]
+    },
+    {
+      "id": "review-scope-confusion",
+      "mode": "review",
+      "request": "$review-pattern-usage 이 diff에서 Adapter라고 부른 HTTP client wrapper가 외부 DTO를 그대로 domain layer 전체에 전달하는 구조를 수정 없이 검토해 줘.",
+      "evidence": [
+        "The wrapper changes method names but preserves the foreign model"
+      ],
+      "expected": [
+        "Finding explains that Adapter alone does not provide Anticorruption Layer semantic isolation",
+        "Trigger, actual behavior, required guarantee, and smallest correction are included"
+      ],
+      "forbidden": [
+        "Editing files",
+        "Reporting the naming choice alone as the defect"
+      ]
+    },
+    {
+      "id": "review-clean-simple-code",
+      "mode": "review",
+      "request": "$review-pattern-usage 이 작은 parser가 함수 두 개와 명시적 분기로 되어 있다. 패턴 누락이나 오용이 있는지 수정 없이 검토해 줘.",
+      "evidence": [
+        "No recurring variation",
+        "No declared pattern guarantee"
+      ],
+      "expected": [
+        "No finding is valid solely because no named pattern is present",
+        "Simple direct code can remain"
+      ],
+      "forbidden": [
+        "Forcing Chain of Responsibility or Strategy"
+      ]
+    },
+    {
+      "id": "routing-negative-generic-implementation",
+      "mode": "routing",
+      "request": "이 null check를 고치고 테스트해 줘.",
+      "evidence": [
+        "No pattern decision or review is requested",
+        "No recurring design forces are present"
+      ],
+      "expected": [
+        "select-design-patterns does not activate automatically",
+        "review-pattern-usage does not activate"
+      ],
+      "forbidden": [
+        "Turning an ordinary bug fix into a pattern catalog exercise"
+      ]
+    }
+  ]
+}

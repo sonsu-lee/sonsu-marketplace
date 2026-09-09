@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-08",
+  "inclusion_policy": "Named entries exposed by each cited catalog or reference. Workflow exception-handling combinations are excluded because the source presents configurable combinations rather than a finite named catalog.",
+  "maturity": [
+    "indexed",
+    "normalized",
+    "decision-ready",
+    "contextual",
+    "superseded"
+  ],
+  "expected_total_count": 553,
+  "expected_decision_ready_count": 36,
+  "families": [
+    {
+      "id": "object-oriented",
+      "file": "object-oriented.json",
+      "expected_count": 23,
+      "decision_ready_count": 3,
+      "catalog": "Gang of Four"
+    },
+    {
+      "id": "architecture",
+      "file": "architecture.json",
+      "expected_count": 8,
+      "decision_ready_count": 3,
+      "catalog": "POSA Volume 1"
+    },
+    {
+      "id": "domain-driven-design",
+      "file": "domain-driven-design.json",
+      "expected_count": 45,
+      "decision_ready_count": 3,
+      "catalog": "DDD Reference"
+    },
+    {
+      "id": "enterprise-application",
+      "file": "enterprise-application.json",
+      "expected_count": 51,
+      "decision_ready_count": 3,
+      "catalog": "PoEAA"
+    },
+    {
+      "id": "messaging-integration",
+      "file": "messaging-integration.json",
+      "expected_count": 65,
+      "decision_ready_count": 3,
+      "catalog": "Enterprise Integration Patterns"
+    },
+    {
+      "id": "microservices",
+      "file": "microservices.json",
+      "expected_count": 53,
+      "decision_ready_count": 3,
+      "catalog": "microservices.io"
+    },
+    {
+      "id": "cloud-resilience",
+      "file": "cloud-resilience.json",
+      "expected_count": 44,
+      "decision_ready_count": 3,
+      "catalog": "Azure Architecture Center"
+    },
+    {
+      "id": "distributed-systems",
+      "file": "distributed-systems.json",
+      "expected_count": 30,
+      "decision_ready_count": 3,
+      "catalog": "Patterns of Distributed Systems"
+    },
+    {
+      "id": "concurrency",
+      "file": "concurrency.json",
+      "expected_count": 17,
+      "decision_ready_count": 3,
+      "catalog": "POSA Volume 2"
+    },
+    {
+      "id": "workflow",
+      "file": "workflow.json",
+      "expected_count": 126,
+      "decision_ready_count": 3,
+      "catalog": "Workflow Patterns"
+    },
+    {
+      "id": "testing",
+      "file": "testing.json",
+      "expected_count": 68,
+      "decision_ready_count": 3,
+      "catalog": "xUnit Test Patterns"
+    },
+    {
+      "id": "security",
+      "file": "security.json",
+      "expected_count": 23,
+      "decision_ready_count": 3,
+      "catalog": "DistriNet Security Pattern Catalogue"
+    }
+  ]
+}

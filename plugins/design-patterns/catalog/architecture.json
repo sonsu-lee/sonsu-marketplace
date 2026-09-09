@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "family": {
+    "id": "architecture",
+    "name": "Software architecture",
+    "scope": "System-structuring patterns from Pattern-Oriented Software Architecture, Volume 1."
+  },
+  "defaults": {
+    "aliases": [],
+    "family": "architecture",
+    "level": "architecture",
+    "maturity": "indexed",
+    "sources": [
+      {
+        "title": "Pattern-Oriented Software Architecture, Volume 1",
+        "url": "https://www.wiley.com/en-us/Pattern+Oriented+Software+Architecture%2C+Volume+1%3A+A+System+of+Patterns-p-9780471958697",
+        "type": "primary"
+      }
+    ]
+  },
+  "patterns": [
+    {
+      "id": "architecture-layers",
+      "name": "Layers"
+    },
+    {
+      "id": "architecture-pipes-and-filters",
+      "name": "Pipes and Filters"
+    },
+    {
+      "id": "architecture-blackboard",
+      "name": "Blackboard"
+    },
+    {
+      "id": "architecture-broker",
+      "name": "Broker"
+    },
+    {
+      "id": "architecture-model-view-controller",
+      "name": "Model-View-Controller",
+      "relations": [
+        {
+          "type": "same-name-different-scope",
+          "target": "enterprise-application-model-view-controller"
+        }
+      ]
+    },
+    {
+      "id": "architecture-presentation-abstraction-control",
+      "name": "Presentation-Abstraction-Control"
+    },
+    {
+      "id": "architecture-microkernel",
+      "name": "Microkernel"
+    },
+    {
+      "id": "architecture-reflection",
+      "name": "Reflection"
+    }
+  ]
+}

@@ -1,0 +1,4048 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-08",
+  "scope": "Immutable source-to-catalog mapping for every included named entry. It records the finite source boundary, locator, normalized identity and known normalization; it does not copy source descriptions or claim to enumerate every software pattern ever published.",
+  "families": [
+    {
+      "id": "object-oriented",
+      "source": {
+        "title": "Design Patterns: Elements of Reusable Object-Oriented Software",
+        "url": "https://www.informit.com/store/design-patterns-elements-of-reusable-object-oriented-software-9780201633610",
+        "type": "primary"
+      },
+      "source_locator": "Design Patterns publisher record and the book's 23-pattern catalog index",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 23,
+      "limitations": "Publisher page identifies the book; the immutable entry list records the audited book catalog because the publisher page does not expose every pattern heading.",
+      "entries": [
+        {
+          "id": "object-oriented-abstract-factory",
+          "source_name": "Abstract Factory",
+          "name": "Abstract Factory",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-builder",
+          "source_name": "Builder",
+          "name": "Builder",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-factory-method",
+          "source_name": "Factory Method",
+          "name": "Factory Method",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-prototype",
+          "source_name": "Prototype",
+          "name": "Prototype",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-singleton",
+          "source_name": "Singleton",
+          "name": "Singleton",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-adapter",
+          "source_name": "Adapter",
+          "name": "Adapter",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-bridge",
+          "source_name": "Bridge",
+          "name": "Bridge",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-composite",
+          "source_name": "Composite",
+          "name": "Composite",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-decorator",
+          "source_name": "Decorator",
+          "name": "Decorator",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-facade",
+          "source_name": "Facade",
+          "name": "Facade",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-flyweight",
+          "source_name": "Flyweight",
+          "name": "Flyweight",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-proxy",
+          "source_name": "Proxy",
+          "name": "Proxy",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-chain-of-responsibility",
+          "source_name": "Chain of Responsibility",
+          "name": "Chain of Responsibility",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-command",
+          "source_name": "Command",
+          "name": "Command",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-interpreter",
+          "source_name": "Interpreter",
+          "name": "Interpreter",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-iterator",
+          "source_name": "Iterator",
+          "name": "Iterator",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-mediator",
+          "source_name": "Mediator",
+          "name": "Mediator",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-memento",
+          "source_name": "Memento",
+          "name": "Memento",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-observer",
+          "source_name": "Observer",
+          "name": "Observer",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-state",
+          "source_name": "State",
+          "name": "State",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-strategy",
+          "source_name": "Strategy",
+          "name": "Strategy",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-template-method",
+          "source_name": "Template Method",
+          "name": "Template Method",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "object-oriented-visitor",
+          "source_name": "Visitor",
+          "name": "Visitor",
+          "source_path": null,
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "source": {
+        "title": "Pattern-Oriented Software Architecture, Volume 1",
+        "url": "https://www.wiley.com/en-us/Pattern+Oriented+Software+Architecture%2C+Volume+1%3A+A+System+of+Patterns-p-9780471958697",
+        "type": "primary"
+      },
+      "source_locator": "POSA Volume 1 publisher record and its architectural pattern system",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 8,
+      "limitations": "Publisher page identifies the volume; the immutable entry list records the audited book catalog because the publisher page does not expose every pattern heading.",
+      "entries": [
+        {
+          "id": "architecture-layers",
+          "source_name": "Layers",
+          "name": "Layers",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "architecture-pipes-and-filters",
+          "source_name": "Pipes and Filters",
+          "name": "Pipes and Filters",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "architecture-blackboard",
+          "source_name": "Blackboard",
+          "name": "Blackboard",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "architecture-broker",
+          "source_name": "Broker",
+          "name": "Broker",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "architecture-model-view-controller",
+          "source_name": "Model-View-Controller",
+          "name": "Model-View-Controller",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "architecture-presentation-abstraction-control",
+          "source_name": "Presentation-Abstraction-Control",
+          "name": "Presentation-Abstraction-Control",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "architecture-microkernel",
+          "source_name": "Microkernel",
+          "name": "Microkernel",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "architecture-reflection",
+          "source_name": "Reflection",
+          "name": "Reflection",
+          "source_path": null,
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "domain-driven-design",
+      "source": {
+        "title": "Domain-Driven Design Reference",
+        "url": "https://www.domainlanguage.com/wp-content/uploads/2016/05/DDD_Reference_2015-03.pdf",
+        "type": "primary"
+      },
+      "source_locator": "DDD Reference 2015, PDF contents pages iii-iv and Pattern Language Overview",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 45,
+      "limitations": "Names are normalized from the PDF contents and pattern-language overview; prose and summaries are excluded.",
+      "entries": [
+        {
+          "id": "domain-driven-design-bounded-context",
+          "source_name": "Bounded Context",
+          "name": "Bounded Context",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-ubiquitous-language",
+          "source_name": "Ubiquitous Language",
+          "name": "Ubiquitous Language",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-continuous-integration",
+          "source_name": "Continuous Integration",
+          "name": "Continuous Integration",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-model-driven-design",
+          "source_name": "Model-Driven Design",
+          "name": "Model-Driven Design",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-hands-on-modelers",
+          "source_name": "Hands-on Modelers",
+          "name": "Hands-on Modelers",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-refactoring-toward-deeper-insight",
+          "source_name": "Refactoring Toward Deeper Insight",
+          "name": "Refactoring Toward Deeper Insight",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-layered-architecture",
+          "source_name": "Layered Architecture",
+          "name": "Layered Architecture",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-entities",
+          "source_name": "Entities",
+          "name": "Entities",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-value-objects",
+          "source_name": "Value Objects",
+          "name": "Value Objects",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-domain-events",
+          "source_name": "Domain Events",
+          "name": "Domain Events",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-services",
+          "source_name": "Services",
+          "name": "Services",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-modules",
+          "source_name": "Modules",
+          "name": "Modules",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-aggregates",
+          "source_name": "Aggregates",
+          "name": "Aggregates",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-repositories",
+          "source_name": "Repositories",
+          "name": "Repositories",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-factories",
+          "source_name": "Factories",
+          "name": "Factories",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-intention-revealing-interfaces",
+          "source_name": "Intention-Revealing Interfaces",
+          "name": "Intention-Revealing Interfaces",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-side-effect-free-functions",
+          "source_name": "Side-Effect-Free Functions",
+          "name": "Side-Effect-Free Functions",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-assertions",
+          "source_name": "Assertions",
+          "name": "Assertions",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-standalone-classes",
+          "source_name": "Standalone Classes",
+          "name": "Standalone Classes",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-closure-of-operations",
+          "source_name": "Closure of Operations",
+          "name": "Closure of Operations",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-declarative-design",
+          "source_name": "Declarative Design",
+          "name": "Declarative Design",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-drawing-on-established-formalisms",
+          "source_name": "Drawing on Established Formalisms",
+          "name": "Drawing on Established Formalisms",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-conceptual-contours",
+          "source_name": "Conceptual Contours",
+          "name": "Conceptual Contours",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-context-map",
+          "source_name": "Context Map",
+          "name": "Context Map",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-partnership",
+          "source_name": "Partnership",
+          "name": "Partnership",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-shared-kernel",
+          "source_name": "Shared Kernel",
+          "name": "Shared Kernel",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-customer-supplier-development",
+          "source_name": "Customer/Supplier Development",
+          "name": "Customer/Supplier Development",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-conformist",
+          "source_name": "Conformist",
+          "name": "Conformist",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-anticorruption-layer",
+          "source_name": "Anticorruption Layer",
+          "name": "Anticorruption Layer",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-open-host-service",
+          "source_name": "Open-host Service",
+          "name": "Open-host Service",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-published-language",
+          "source_name": "Published Language",
+          "name": "Published Language",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-separate-ways",
+          "source_name": "Separate Ways",
+          "name": "Separate Ways",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-big-ball-of-mud",
+          "source_name": "Big Ball of Mud",
+          "name": "Big Ball of Mud",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-core-domain",
+          "source_name": "Core Domain",
+          "name": "Core Domain",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-generic-subdomains",
+          "source_name": "Generic Subdomains",
+          "name": "Generic Subdomains",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-domain-vision-statement",
+          "source_name": "Domain Vision Statement",
+          "name": "Domain Vision Statement",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-highlighted-core",
+          "source_name": "Highlighted Core",
+          "name": "Highlighted Core",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-cohesive-mechanisms",
+          "source_name": "Cohesive Mechanisms",
+          "name": "Cohesive Mechanisms",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-segregated-core",
+          "source_name": "Segregated Core",
+          "name": "Segregated Core",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-abstract-core",
+          "source_name": "Abstract Core",
+          "name": "Abstract Core",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-evolving-order",
+          "source_name": "Evolving Order",
+          "name": "Evolving Order",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-system-metaphor",
+          "source_name": "System Metaphor",
+          "name": "System Metaphor",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-responsibility-layers",
+          "source_name": "Responsibility Layers",
+          "name": "Responsibility Layers",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-knowledge-level",
+          "source_name": "Knowledge Level",
+          "name": "Knowledge Level",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "domain-driven-design-pluggable-component-framework",
+          "source_name": "Pluggable Component Framework",
+          "name": "Pluggable Component Framework",
+          "source_path": null,
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "enterprise-application",
+      "source": {
+        "title": "Patterns of Enterprise Application Architecture Catalog",
+        "url": "https://martinfowler.com/eaaCatalog/",
+        "type": "primary"
+      },
+      "source_locator": "PoEAA Catalog page, pattern headings grouped by catalog section",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 51,
+      "limitations": "Only catalog heading names and entry paths are recorded; summaries are excluded.",
+      "entries": [
+        {
+          "id": "enterprise-application-transaction-script",
+          "source_name": "Transaction Script",
+          "name": "Transaction Script",
+          "source_path": "transactionScript.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-domain-model",
+          "source_name": "Domain Model",
+          "name": "Domain Model",
+          "source_path": "domainModel.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-table-module",
+          "source_name": "Table Module",
+          "name": "Table Module",
+          "source_path": "tableModule.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-service-layer",
+          "source_name": "Service Layer",
+          "name": "Service Layer",
+          "source_path": "serviceLayer.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-table-data-gateway",
+          "source_name": "Table Data Gateway",
+          "name": "Table Data Gateway",
+          "source_path": "tableDataGateway.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-row-data-gateway",
+          "source_name": "Row Data Gateway",
+          "name": "Row Data Gateway",
+          "source_path": "rowDataGateway.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-active-record",
+          "source_name": "Active Record",
+          "name": "Active Record",
+          "source_path": "activeRecord.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-data-mapper",
+          "source_name": "Data Mapper",
+          "name": "Data Mapper",
+          "source_path": "dataMapper.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-unit-of-work",
+          "source_name": "Unit of Work",
+          "name": "Unit of Work",
+          "source_path": "unitOfWork.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-identity-map",
+          "source_name": "Identity Map",
+          "name": "Identity Map",
+          "source_path": "identityMap.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-lazy-load",
+          "source_name": "Lazy Load",
+          "name": "Lazy Load",
+          "source_path": "lazyLoad.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-identity-field",
+          "source_name": "Identity Field",
+          "name": "Identity Field",
+          "source_path": "identityField.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-inheritance-mappers",
+          "source_name": "Inheritance Mappers",
+          "name": "Inheritance Mappers",
+          "source_path": "inheritanceMappers.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-foreign-key-mapping",
+          "source_name": "Foreign Key Mapping",
+          "name": "Foreign Key Mapping",
+          "source_path": "foreignKeyMapping.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-association-table-mapping",
+          "source_name": "Association Table Mapping",
+          "name": "Association Table Mapping",
+          "source_path": "associationTableMapping.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-dependent-mapping",
+          "source_name": "Dependent Mapping",
+          "name": "Dependent Mapping",
+          "source_path": "dependentMapping.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-embedded-value",
+          "source_name": "Embedded Value",
+          "name": "Embedded Value",
+          "source_path": "embeddedValue.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-serialized-lob",
+          "source_name": "Serialized LOB",
+          "name": "Serialized LOB",
+          "source_path": "serializedLOB.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-single-table-inheritance",
+          "source_name": "Single Table Inheritance",
+          "name": "Single Table Inheritance",
+          "source_path": "singleTableInheritance.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-class-table-inheritance",
+          "source_name": "Class Table Inheritance",
+          "name": "Class Table Inheritance",
+          "source_path": "classTableInheritance.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-concrete-table-inheritance",
+          "source_name": "Concrete Table Inheritance",
+          "name": "Concrete Table Inheritance",
+          "source_path": "concreteTableInheritance.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-metadata-mapping",
+          "source_name": "Metadata Mapping",
+          "name": "Metadata Mapping",
+          "source_path": "metadataMapping.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-query-object",
+          "source_name": "Query Object",
+          "name": "Query Object",
+          "source_path": "queryObject.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-repository",
+          "source_name": "Repository",
+          "name": "Repository",
+          "source_path": "repository.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-model-view-controller",
+          "source_name": "Model View Controller",
+          "name": "Model View Controller",
+          "source_path": "modelViewController.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-page-controller",
+          "source_name": "Page Controller",
+          "name": "Page Controller",
+          "source_path": "pageController.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-front-controller",
+          "source_name": "Front Controller",
+          "name": "Front Controller",
+          "source_path": "frontController.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-template-view",
+          "source_name": "Template View",
+          "name": "Template View",
+          "source_path": "templateView.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-transform-view",
+          "source_name": "Transform View",
+          "name": "Transform View",
+          "source_path": "transformView.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-two-step-view",
+          "source_name": "Two Step View",
+          "name": "Two Step View",
+          "source_path": "twoStepView.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-application-controller",
+          "source_name": "Application Controller",
+          "name": "Application Controller",
+          "source_path": "applicationController.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-remote-facade",
+          "source_name": "Remote Facade",
+          "name": "Remote Facade",
+          "source_path": "remoteFacade.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-data-transfer-object",
+          "source_name": "Data Transfer Object",
+          "name": "Data Transfer Object",
+          "source_path": "dataTransferObject.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-optimistic-offline-lock",
+          "source_name": "Optimistic Offline Lock",
+          "name": "Optimistic Offline Lock",
+          "source_path": "optimisticOfflineLock.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-pessimistic-offline-lock",
+          "source_name": "Pessimistic Offline Lock",
+          "name": "Pessimistic Offline Lock",
+          "source_path": "pessimisticOfflineLock.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-coarse-grained-lock",
+          "source_name": "Coarse-Grained Lock",
+          "name": "Coarse-Grained Lock",
+          "source_path": "coarseGrainedLock.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-implicit-lock",
+          "source_name": "Implicit Lock",
+          "name": "Implicit Lock",
+          "source_path": "implicitLock.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-client-session-state",
+          "source_name": "Client Session State",
+          "name": "Client Session State",
+          "source_path": "clientSessionState.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-server-session-state",
+          "source_name": "Server Session State",
+          "name": "Server Session State",
+          "source_path": "serverSessionState.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-database-session-state",
+          "source_name": "Database Session State",
+          "name": "Database Session State",
+          "source_path": "databaseSessionState.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-gateway",
+          "source_name": "Gateway",
+          "name": "Gateway",
+          "source_path": "gateway.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-service-stub",
+          "source_name": "Service Stub",
+          "name": "Service Stub",
+          "source_path": "serviceStub.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-record-set",
+          "source_name": "Record Set",
+          "name": "Record Set",
+          "source_path": "recordSet.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-mapper",
+          "source_name": "Mapper",
+          "name": "Mapper",
+          "source_path": "mapper.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-layer-supertype",
+          "source_name": "Layer Supertype",
+          "name": "Layer Supertype",
+          "source_path": "layerSupertype.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-separated-interface",
+          "source_name": "Separated Interface",
+          "name": "Separated Interface",
+          "source_path": "separatedInterface.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-registry",
+          "source_name": "Registry",
+          "name": "Registry",
+          "source_path": "registry.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-value-object",
+          "source_name": "Value Object",
+          "name": "Value Object",
+          "source_path": "valueObject.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-money",
+          "source_name": "Money",
+          "name": "Money",
+          "source_path": "money.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-special-case",
+          "source_name": "Special Case",
+          "name": "Special Case",
+          "source_path": "specialCase.html",
+          "normalization_note": null
+        },
+        {
+          "id": "enterprise-application-plugin",
+          "source_name": "Plugin",
+          "name": "Plugin",
+          "source_path": "plugin.html",
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "messaging-integration",
+      "source": {
+        "title": "Enterprise Integration Patterns",
+        "url": "https://www.enterpriseintegrationpatterns.com/patterns/messaging/",
+        "type": "primary"
+      },
+      "source_locator": "Messaging Patterns Overview, linked table of contents and explicit 65-pattern statement",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 65,
+      "limitations": "The source states 65 messaging patterns; this catalog also preserves the four integration-style entries included by the stated inclusion policy.",
+      "entries": [
+        {
+          "id": "messaging-integration-file-transfer",
+          "source_name": "File Transfer",
+          "name": "File Transfer",
+          "source_path": "IntegrationStylesIntro.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-shared-database",
+          "source_name": "Shared Database",
+          "name": "Shared Database",
+          "source_path": "IntegrationStylesIntro.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-remote-procedure-invocation",
+          "source_name": "Remote Procedure Invocation",
+          "name": "Remote Procedure Invocation",
+          "source_path": "IntegrationStylesIntro.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-messaging",
+          "source_name": "Messaging",
+          "name": "Messaging",
+          "source_path": "Messaging.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message",
+          "source_name": "Message",
+          "name": "Message",
+          "source_path": "Message.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-command-message",
+          "source_name": "Command Message",
+          "name": "Command Message",
+          "source_path": "CommandMessage.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-document-message",
+          "source_name": "Document Message",
+          "name": "Document Message",
+          "source_path": "DocumentMessage.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-event-message",
+          "source_name": "Event Message",
+          "name": "Event Message",
+          "source_path": "EventMessage.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-request-reply",
+          "source_name": "Request-Reply",
+          "name": "Request-Reply",
+          "source_path": "RequestReply.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-return-address",
+          "source_name": "Return Address",
+          "name": "Return Address",
+          "source_path": "ReturnAddress.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-correlation-identifier",
+          "source_name": "Correlation Identifier",
+          "name": "Correlation Identifier",
+          "source_path": "CorrelationIdentifier.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-sequence",
+          "source_name": "Message Sequence",
+          "name": "Message Sequence",
+          "source_path": "MessageSequence.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-expiration",
+          "source_name": "Message Expiration",
+          "name": "Message Expiration",
+          "source_path": "MessageExpiration.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-format-indicator",
+          "source_name": "Format Indicator",
+          "name": "Format Indicator",
+          "source_path": "FormatIndicator.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-pipes-and-filters",
+          "source_name": "Pipes-and-Filters",
+          "name": "Pipes-and-Filters",
+          "source_path": "PipesAndFilters.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-router",
+          "source_name": "Message Router",
+          "name": "Message Router",
+          "source_path": "MessageRouter.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-content-based-router",
+          "source_name": "Content-based Router",
+          "name": "Content-based Router",
+          "source_path": "ContentBasedRouter.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-filter",
+          "source_name": "Message Filter",
+          "name": "Message Filter",
+          "source_path": "Filter.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-dynamic-router",
+          "source_name": "Dynamic Router",
+          "name": "Dynamic Router",
+          "source_path": "DynamicRouter.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-recipient-list",
+          "source_name": "Recipient List",
+          "name": "Recipient List",
+          "source_path": "RecipientList.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-splitter",
+          "source_name": "Splitter",
+          "name": "Splitter",
+          "source_path": "Sequencer.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-aggregator",
+          "source_name": "Aggregator",
+          "name": "Aggregator",
+          "source_path": "Aggregator.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-resequencer",
+          "source_name": "Resequencer",
+          "name": "Resequencer",
+          "source_path": "Resequencer.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-composed-msg-processor",
+          "source_name": "Composed Msg. Processor",
+          "name": "Composed Msg. Processor",
+          "source_path": "DistributionAggregate.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-scatter-gather",
+          "source_name": "Scatter-Gather",
+          "name": "Scatter-Gather",
+          "source_path": "BroadcastAggregate.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-routing-slip",
+          "source_name": "Routing Slip",
+          "name": "Routing Slip",
+          "source_path": "RoutingTable.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-process-manager",
+          "source_name": "Process Manager",
+          "name": "Process Manager",
+          "source_path": "ProcessManager.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-broker",
+          "source_name": "Message Broker",
+          "name": "Message Broker",
+          "source_path": "MessageBroker.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-translator",
+          "source_name": "Message Translator",
+          "name": "Message Translator",
+          "source_path": "MessageTranslator.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-envelope-wrapper",
+          "source_name": "Envelope Wrapper",
+          "name": "Envelope Wrapper",
+          "source_path": "EnvelopeWrapper.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-content-enricher",
+          "source_name": "Content Enricher",
+          "name": "Content Enricher",
+          "source_path": "DataEnricher.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-content-filter",
+          "source_name": "Content Filter",
+          "name": "Content Filter",
+          "source_path": "ContentFilter.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-claim-check",
+          "source_name": "Claim Check",
+          "name": "Claim Check",
+          "source_path": "StoreInLibrary.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-normalizer",
+          "source_name": "Normalizer",
+          "name": "Normalizer",
+          "source_path": "Normalizer.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-canonical-data-model",
+          "source_name": "Canonical Data Model",
+          "name": "Canonical Data Model",
+          "source_path": "CanonicalDataModel.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-endpoint",
+          "source_name": "Message Endpoint",
+          "name": "Message Endpoint",
+          "source_path": "MessageEndpoint.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-messaging-gateway",
+          "source_name": "Messaging Gateway",
+          "name": "Messaging Gateway",
+          "source_path": "MessagingGateway.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-messaging-mapper",
+          "source_name": "Messaging Mapper",
+          "name": "Messaging Mapper",
+          "source_path": "MessagingMapper.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-transactional-client",
+          "source_name": "Transactional Client",
+          "name": "Transactional Client",
+          "source_path": "TransactionalClient.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-polling-consumer",
+          "source_name": "Polling Consumer",
+          "name": "Polling Consumer",
+          "source_path": "PollingConsumer.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-event-driven-consumer",
+          "source_name": "Event-driven Consumer",
+          "name": "Event-driven Consumer",
+          "source_path": "EventDrivenConsumer.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-competing-consumers",
+          "source_name": "Competing Consumers",
+          "name": "Competing Consumers",
+          "source_path": "CompetingConsumers.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-dispatcher",
+          "source_name": "Message Dispatcher",
+          "name": "Message Dispatcher",
+          "source_path": "MessageDispatcher.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-selective-consumer",
+          "source_name": "Selective Consumer",
+          "name": "Selective Consumer",
+          "source_path": "MessageSelector.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-durable-subscriber",
+          "source_name": "Durable Subscriber",
+          "name": "Durable Subscriber",
+          "source_path": "DurableSubscription.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-idempotent-receiver",
+          "source_name": "Idempotent Receiver",
+          "name": "Idempotent Receiver",
+          "source_path": "IdempotentReceiver.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-service-activator",
+          "source_name": "Service Activator",
+          "name": "Service Activator",
+          "source_path": "MessagingAdapter.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-channel",
+          "source_name": "Message Channel",
+          "name": "Message Channel",
+          "source_path": "MessageChannel.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-point-to-point-channel",
+          "source_name": "Point-to-Point Channel",
+          "name": "Point-to-Point Channel",
+          "source_path": "PointToPointChannel.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-publish-subscr-channel",
+          "source_name": "Publish-Subscr. Channel",
+          "name": "Publish-Subscr. Channel",
+          "source_path": "PublishSubscribeChannel.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-datatype-channel",
+          "source_name": "Datatype Channel",
+          "name": "Datatype Channel",
+          "source_path": "DatatypeChannel.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-invalid-message-channel",
+          "source_name": "Invalid Message Channel",
+          "name": "Invalid Message Channel",
+          "source_path": "InvalidMessageChannel.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-dead-letter-channel",
+          "source_name": "Dead Letter Channel",
+          "name": "Dead Letter Channel",
+          "source_path": "DeadLetterChannel.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-guaranteed-delivery",
+          "source_name": "Guaranteed Delivery",
+          "name": "Guaranteed Delivery",
+          "source_path": "GuaranteedMessaging.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-channel-adapter",
+          "source_name": "Channel Adapter",
+          "name": "Channel Adapter",
+          "source_path": "ChannelAdapter.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-messaging-bridge",
+          "source_name": "Messaging Bridge",
+          "name": "Messaging Bridge",
+          "source_path": "MessagingBridge.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-bus",
+          "source_name": "Message Bus",
+          "name": "Message Bus",
+          "source_path": "MessageBus.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-control-bus",
+          "source_name": "Control Bus",
+          "name": "Control Bus",
+          "source_path": "ControlBus.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-detour",
+          "source_name": "Detour",
+          "name": "Detour",
+          "source_path": "Detour.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-wire-tap",
+          "source_name": "Wire Tap",
+          "name": "Wire Tap",
+          "source_path": "WireTap.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-history",
+          "source_name": "Message History",
+          "name": "Message History",
+          "source_path": "MessageHistory.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-message-store",
+          "source_name": "Message Store",
+          "name": "Message Store",
+          "source_path": "MessageStore.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-smart-proxy",
+          "source_name": "Smart Proxy",
+          "name": "Smart Proxy",
+          "source_path": "SmartProxy.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-test-message",
+          "source_name": "Test Message",
+          "name": "Test Message",
+          "source_path": "TestMessage.html",
+          "normalization_note": null
+        },
+        {
+          "id": "messaging-integration-channel-purger",
+          "source_name": "Channel Purger",
+          "name": "Channel Purger",
+          "source_path": "ChannelPurger.html",
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "microservices",
+      "source": {
+        "title": "A pattern language for microservices",
+        "url": "https://microservices.io/patterns/",
+        "type": "primary"
+      },
+      "source_locator": "A pattern language for microservices, linked entries grouped by index section",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 53,
+      "limitations": "The mutable site index includes patterns and named alternatives; one visible source typo, Service component sest, is normalized to Service component test.",
+      "entries": [
+        {
+          "id": "microservices-monolithic-architecture",
+          "source_name": "Monolithic architecture",
+          "name": "Monolithic architecture",
+          "source_path": "monolithic.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-microservice-architecture",
+          "source_name": "Microservice architecture",
+          "name": "Microservice architecture",
+          "source_path": "microservices.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-decompose-by-business-capability",
+          "source_name": "Decompose by business capability",
+          "name": "Decompose by business capability",
+          "source_path": "decomposition/decompose-by-business-capability.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-decompose-by-subdomain",
+          "source_name": "Decompose by subdomain",
+          "name": "Decompose by subdomain",
+          "source_path": "decomposition/decompose-by-subdomain.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-self-contained-service",
+          "source_name": "Self-contained Service",
+          "name": "Self-contained Service",
+          "source_path": "decomposition/self-contained-service.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-service-per-team",
+          "source_name": "Service per team",
+          "name": "Service per team",
+          "source_path": "/patterns/decomposition/service-per-team.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-strangler-application",
+          "source_name": "Strangler Application",
+          "name": "Strangler Application",
+          "source_path": "/patterns/refactoring/strangler-application.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-anti-corruption-layer",
+          "source_name": "Anti-corruption layer",
+          "name": "Anti-corruption layer",
+          "source_path": "/patterns/refactoring/anti-corruption-layer.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-database-per-service",
+          "source_name": "Database per Service",
+          "name": "Database per Service",
+          "source_path": "data/database-per-service.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-shared-database",
+          "source_name": "Shared database",
+          "name": "Shared database",
+          "source_path": "data/shared-database.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-saga",
+          "source_name": "Saga",
+          "name": "Saga",
+          "source_path": "data/saga.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-command-side-replica",
+          "source_name": "Command-side replica",
+          "name": "Command-side replica",
+          "source_path": "data/command-side-replica.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-api-composition",
+          "source_name": "API Composition",
+          "name": "API Composition",
+          "source_path": "data/api-composition.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-cqrs",
+          "source_name": "CQRS",
+          "name": "CQRS",
+          "source_path": "data/cqrs.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-domain-event",
+          "source_name": "Domain event",
+          "name": "Domain event",
+          "source_path": "/patterns/data/domain-event.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-event-sourcing",
+          "source_name": "Event sourcing",
+          "name": "Event sourcing",
+          "source_path": "data/event-sourcing.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-transactional-outbox",
+          "source_name": "Transactional outbox",
+          "name": "Transactional outbox",
+          "source_path": "data/transactional-outbox.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-transaction-log-tailing",
+          "source_name": "Transaction log tailing",
+          "name": "Transaction log tailing",
+          "source_path": "data/transaction-log-tailing.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-polling-publisher",
+          "source_name": "Polling publisher",
+          "name": "Polling publisher",
+          "source_path": "data/polling-publisher.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-consumer-driven-contract-test",
+          "source_name": "Consumer-driven contract test",
+          "name": "Consumer-driven contract test",
+          "source_path": "testing/service-integration-contract-test.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-consumer-side-contract-test",
+          "source_name": "Consumer-side contract test",
+          "name": "Consumer-side contract test",
+          "source_path": "testing/service-integration-contract-test.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-service-component-test",
+          "source_name": "Service component sest",
+          "name": "Service component test",
+          "source_path": "testing/service-component-test.html",
+          "normalization_note": "Corrected the source index typo \"sest\" to \"test\" while preserving its source_path."
+        },
+        {
+          "id": "microservices-multiple-service-instances-per-host",
+          "source_name": "Multiple service instances per host",
+          "name": "Multiple service instances per host",
+          "source_path": "deployment/multiple-services-per-host.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-service-instance-per-host",
+          "source_name": "Service instance per host",
+          "name": "Service instance per host",
+          "source_path": "deployment/single-service-per-host.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-service-instance-per-vm",
+          "source_name": "Service instance per VM",
+          "name": "Service instance per VM",
+          "source_path": "deployment/service-per-vm.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-service-instance-per-container",
+          "source_name": "Service instance per Container",
+          "name": "Service instance per Container",
+          "source_path": "deployment/service-per-container.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-serverless-deployment",
+          "source_name": "Serverless deployment",
+          "name": "Serverless deployment",
+          "source_path": "/patterns/deployment/serverless-deployment.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-service-deployment-platform",
+          "source_name": "Service deployment platform",
+          "name": "Service deployment platform",
+          "source_path": "/patterns/deployment/service-deployment-platform.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-microservice-chassis",
+          "source_name": "Microservice chassis",
+          "name": "Microservice chassis",
+          "source_path": "/patterns/microservice-chassis.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-externalized-configuration",
+          "source_name": "Externalized configuration",
+          "name": "Externalized configuration",
+          "source_path": "/patterns/externalized-configuration.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-service-template",
+          "source_name": "Service Template",
+          "name": "Service Template",
+          "source_path": "/patterns/service-template.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-remote-procedure-invocation",
+          "source_name": "Remote Procedure Invocation",
+          "name": "Remote Procedure Invocation",
+          "source_path": "communication-style/rpi.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-messaging",
+          "source_name": "Messaging",
+          "name": "Messaging",
+          "source_path": "communication-style/messaging.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-domain-specific-protocol",
+          "source_name": "Domain-specific protocol",
+          "name": "Domain-specific protocol",
+          "source_path": "communication-style/domain-specific.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-idempotent-consumer",
+          "source_name": "Idempotent Consumer",
+          "name": "Idempotent Consumer",
+          "source_path": "/patterns/communication-style/idempotent-consumer.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-api-gateway",
+          "source_name": "API gateway",
+          "name": "API gateway",
+          "source_path": "apigateway.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-backend-for-front-end",
+          "source_name": "Backend for front-end",
+          "name": "Backend for front-end",
+          "source_path": "apigateway.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-client-side-discovery",
+          "source_name": "Client-side discovery",
+          "name": "Client-side discovery",
+          "source_path": "client-side-discovery.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-server-side-discovery",
+          "source_name": "Server-side discovery",
+          "name": "Server-side discovery",
+          "source_path": "server-side-discovery.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-service-registry",
+          "source_name": "Service registry",
+          "name": "Service registry",
+          "source_path": "service-registry.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-self-registration",
+          "source_name": "Self registration",
+          "name": "Self registration",
+          "source_path": "self-registration.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-3rd-party-registration",
+          "source_name": "3rd party registration",
+          "name": "3rd party registration",
+          "source_path": "3rd-party-registration.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-circuit-breaker",
+          "source_name": "Circuit Breaker",
+          "name": "Circuit Breaker",
+          "source_path": "reliability/circuit-breaker.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-access-token",
+          "source_name": "Access Token",
+          "name": "Access Token",
+          "source_path": "security/access-token.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-log-aggregation",
+          "source_name": "Log aggregation",
+          "name": "Log aggregation",
+          "source_path": "observability/application-logging.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-application-metrics",
+          "source_name": "Application metrics",
+          "name": "Application metrics",
+          "source_path": "observability/application-metrics.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-audit-logging",
+          "source_name": "Audit logging",
+          "name": "Audit logging",
+          "source_path": "observability/audit-logging.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-distributed-tracing",
+          "source_name": "Distributed tracing",
+          "name": "Distributed tracing",
+          "source_path": "observability/distributed-tracing.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-exception-tracking",
+          "source_name": "Exception tracking",
+          "name": "Exception tracking",
+          "source_path": "observability/exception-tracking.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-health-check-api",
+          "source_name": "Health check API",
+          "name": "Health check API",
+          "source_path": "observability/health-check-api.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-log-deployments-and-changes",
+          "source_name": "Log deployments and changes",
+          "name": "Log deployments and changes",
+          "source_path": "/patterns/observability/log-deployments-and-changes.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-server-side-page-fragment-composition",
+          "source_name": "Server-side page fragment composition",
+          "name": "Server-side page fragment composition",
+          "source_path": "ui/server-side-page-fragment-composition.html",
+          "normalization_note": null
+        },
+        {
+          "id": "microservices-client-side-ui-composition",
+          "source_name": "Client-side UI composition",
+          "name": "Client-side UI composition",
+          "source_path": "ui/client-side-ui-composition.html",
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "cloud-resilience",
+      "source": {
+        "title": "Cloud Design Patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/",
+        "type": "official"
+      },
+      "source_locator": "Azure Architecture Center, Pattern catalog table",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 44,
+      "limitations": "Only rows in the source pattern catalog table are included; product-specific summaries are excluded.",
+      "entries": [
+        {
+          "id": "cloud-resilience-ambassador",
+          "source_name": "Ambassador",
+          "name": "Ambassador",
+          "source_path": "ambassador",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-anti-corruption-layer",
+          "source_name": "Anti-Corruption Layer",
+          "name": "Anti-Corruption Layer",
+          "source_path": "anti-corruption-layer",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-asynchronous-request-reply",
+          "source_name": "Asynchronous Request-Reply",
+          "name": "Asynchronous Request-Reply",
+          "source_path": "asynchronous-request-reply",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-backends-for-frontends",
+          "source_name": "Backends for Frontends",
+          "name": "Backends for Frontends",
+          "source_path": "backends-for-frontends",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-bulkhead",
+          "source_name": "Bulkhead",
+          "name": "Bulkhead",
+          "source_path": "bulkhead",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-cache-aside",
+          "source_name": "Cache-Aside",
+          "name": "Cache-Aside",
+          "source_path": "cache-aside",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-choreography",
+          "source_name": "Choreography",
+          "name": "Choreography",
+          "source_path": "choreography",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-circuit-breaker",
+          "source_name": "Circuit Breaker",
+          "name": "Circuit Breaker",
+          "source_path": "circuit-breaker",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-claim-check",
+          "source_name": "Claim Check",
+          "name": "Claim Check",
+          "source_path": "claim-check",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-compensating-transaction",
+          "source_name": "Compensating Transaction",
+          "name": "Compensating Transaction",
+          "source_path": "compensating-transaction",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-competing-consumers",
+          "source_name": "Competing Consumers",
+          "name": "Competing Consumers",
+          "source_path": "competing-consumers",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-compute-resource-consolidation",
+          "source_name": "Compute Resource Consolidation",
+          "name": "Compute Resource Consolidation",
+          "source_path": "compute-resource-consolidation",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-cqrs",
+          "source_name": "CQRS",
+          "name": "CQRS",
+          "source_path": "cqrs",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-deployment-stamps",
+          "source_name": "Deployment Stamps",
+          "name": "Deployment Stamps",
+          "source_path": "deployment-stamp",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-event-sourcing",
+          "source_name": "Event Sourcing",
+          "name": "Event Sourcing",
+          "source_path": "event-sourcing",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-external-configuration-store",
+          "source_name": "External Configuration Store",
+          "name": "External Configuration Store",
+          "source_path": "external-configuration-store",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-federated-identity",
+          "source_name": "Federated Identity",
+          "name": "Federated Identity",
+          "source_path": "federated-identity",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-gatekeeper",
+          "source_name": "Gatekeeper",
+          "name": "Gatekeeper",
+          "source_path": "gatekeeper",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-gateway-aggregation",
+          "source_name": "Gateway Aggregation",
+          "name": "Gateway Aggregation",
+          "source_path": "gateway-aggregation",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-gateway-offloading",
+          "source_name": "Gateway Offloading",
+          "name": "Gateway Offloading",
+          "source_path": "gateway-offloading",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-gateway-routing",
+          "source_name": "Gateway Routing",
+          "name": "Gateway Routing",
+          "source_path": "gateway-routing",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-geode",
+          "source_name": "Geode",
+          "name": "Geode",
+          "source_path": "geodes",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-health-endpoint-monitoring",
+          "source_name": "Health Endpoint Monitoring",
+          "name": "Health Endpoint Monitoring",
+          "source_path": "health-endpoint-monitoring",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-idempotent-consumer",
+          "source_name": "Idempotent Consumer",
+          "name": "Idempotent Consumer",
+          "source_path": "idempotent-consumer",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-index-table",
+          "source_name": "Index Table",
+          "name": "Index Table",
+          "source_path": "index-table",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-leader-election",
+          "source_name": "Leader Election",
+          "name": "Leader Election",
+          "source_path": "leader-election",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-materialized-view",
+          "source_name": "Materialized View",
+          "name": "Materialized View",
+          "source_path": "materialized-view",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-messaging-bridge",
+          "source_name": "Messaging Bridge",
+          "name": "Messaging Bridge",
+          "source_path": "messaging-bridge",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-pipes-and-filters",
+          "source_name": "Pipes and Filters",
+          "name": "Pipes and Filters",
+          "source_path": "pipes-and-filters",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-priority-queue",
+          "source_name": "Priority Queue",
+          "name": "Priority Queue",
+          "source_path": "priority-queue",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-publisher-subscriber",
+          "source_name": "Publisher-Subscriber",
+          "name": "Publisher-Subscriber",
+          "source_path": "publisher-subscriber",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-quarantine",
+          "source_name": "Quarantine",
+          "name": "Quarantine",
+          "source_path": "quarantine",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-queue-based-load-leveling",
+          "source_name": "Queue-Based Load Leveling",
+          "name": "Queue-Based Load Leveling",
+          "source_path": "queue-based-load-leveling",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-rate-limiting",
+          "source_name": "Rate Limiting",
+          "name": "Rate Limiting",
+          "source_path": "rate-limiting-pattern",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-retry",
+          "source_name": "Retry",
+          "name": "Retry",
+          "source_path": "retry",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-saga",
+          "source_name": "Saga",
+          "name": "Saga",
+          "source_path": "saga",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-scheduler-agent-supervisor",
+          "source_name": "Scheduler Agent Supervisor",
+          "name": "Scheduler Agent Supervisor",
+          "source_path": "scheduler-agent-supervisor",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-sequential-convoy",
+          "source_name": "Sequential Convoy",
+          "name": "Sequential Convoy",
+          "source_path": "sequential-convoy",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-sharding",
+          "source_name": "Sharding",
+          "name": "Sharding",
+          "source_path": "sharding",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-sidecar",
+          "source_name": "Sidecar",
+          "name": "Sidecar",
+          "source_path": "sidecar",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-static-content-hosting",
+          "source_name": "Static Content Hosting",
+          "name": "Static Content Hosting",
+          "source_path": "static-content-hosting",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-strangler-fig",
+          "source_name": "Strangler Fig",
+          "name": "Strangler Fig",
+          "source_path": "strangler-fig",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-throttling",
+          "source_name": "Throttling",
+          "name": "Throttling",
+          "source_path": "throttling",
+          "normalization_note": null
+        },
+        {
+          "id": "cloud-resilience-valet-key",
+          "source_name": "Valet Key",
+          "name": "Valet Key",
+          "source_path": "valet-key",
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "distributed-systems",
+      "source": {
+        "title": "Patterns of Distributed Systems",
+        "url": "https://martinfowler.com/articles/patterns-of-distributed-systems/",
+        "type": "primary"
+      },
+      "source_locator": "Catalog of Patterns of Distributed Systems, pattern headings",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 30,
+      "limitations": "Only named pattern headings on the catalog page are included.",
+      "entries": [
+        {
+          "id": "distributed-systems-clock-bound-wait",
+          "source_name": "Clock-Bound Wait",
+          "name": "Clock-Bound Wait",
+          "source_path": "clock-bound-wait.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-consistent-core",
+          "source_name": "Consistent Core",
+          "name": "Consistent Core",
+          "source_path": "consistent-core.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-emergent-leader",
+          "source_name": "Emergent Leader",
+          "name": "Emergent Leader",
+          "source_path": "emergent-leader.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-fixed-partitions",
+          "source_name": "Fixed Partitions",
+          "name": "Fixed Partitions",
+          "source_path": "fixed-partitions.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-follower-reads",
+          "source_name": "Follower Reads",
+          "name": "Follower Reads",
+          "source_path": "follower-reads.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-generation-clock",
+          "source_name": "Generation Clock",
+          "name": "Generation Clock",
+          "source_path": "generation-clock.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-gossip-dissemination",
+          "source_name": "Gossip Dissemination",
+          "name": "Gossip Dissemination",
+          "source_path": "gossip-dissemination.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-heartbeat",
+          "source_name": "HeartBeat",
+          "name": "HeartBeat",
+          "source_path": "heartbeat.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-high-water-mark",
+          "source_name": "High-Water Mark",
+          "name": "High-Water Mark",
+          "source_path": "high-watermark.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-hybrid-clock",
+          "source_name": "Hybrid Clock",
+          "name": "Hybrid Clock",
+          "source_path": "hybrid-clock.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-idempotent-receiver",
+          "source_name": "Idempotent Receiver",
+          "name": "Idempotent Receiver",
+          "source_path": "idempotent-receiver.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-key-range-partitions",
+          "source_name": "Key-Range Partitions",
+          "name": "Key-Range Partitions",
+          "source_path": "key-range-partitions.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-lamport-clock",
+          "source_name": "Lamport Clock",
+          "name": "Lamport Clock",
+          "source_path": "lamport-clock.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-leader-and-followers",
+          "source_name": "Leader and Followers",
+          "name": "Leader and Followers",
+          "source_path": "leader-follower.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-lease",
+          "source_name": "Lease",
+          "name": "Lease",
+          "source_path": "lease.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-low-water-mark",
+          "source_name": "Low-Water Mark",
+          "name": "Low-Water Mark",
+          "source_path": "low-watermark.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-majority-quorum",
+          "source_name": "Majority Quorum",
+          "name": "Majority Quorum",
+          "source_path": "majority-quorum.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-paxos",
+          "source_name": "Paxos",
+          "name": "Paxos",
+          "source_path": "paxos.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-replicated-log",
+          "source_name": "Replicated Log",
+          "name": "Replicated Log",
+          "source_path": "replicated-log.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-request-batch",
+          "source_name": "Request Batch",
+          "name": "Request Batch",
+          "source_path": "request-batch.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-request-pipeline",
+          "source_name": "Request Pipeline",
+          "name": "Request Pipeline",
+          "source_path": "request-pipeline.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-request-waiting-list",
+          "source_name": "Request Waiting List",
+          "name": "Request Waiting List",
+          "source_path": "request-waiting-list.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-segmented-log",
+          "source_name": "Segmented Log",
+          "name": "Segmented Log",
+          "source_path": "segmented-log.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-single-socket-channel",
+          "source_name": "Single-Socket Channel",
+          "name": "Single-Socket Channel",
+          "source_path": "single-socket-channel.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-singular-update-queue",
+          "source_name": "Singular Update Queue",
+          "name": "Singular Update Queue",
+          "source_path": "singular-update-queue.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-state-watch",
+          "source_name": "State Watch",
+          "name": "State Watch",
+          "source_path": "state-watch.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-two-phase-commit",
+          "source_name": "Two-Phase Commit",
+          "name": "Two-Phase Commit",
+          "source_path": "two-phase-commit.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-version-vector",
+          "source_name": "Version Vector",
+          "name": "Version Vector",
+          "source_path": "version-vector.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-versioned-value",
+          "source_name": "Versioned Value",
+          "name": "Versioned Value",
+          "source_path": "versioned-value.html",
+          "normalization_note": null
+        },
+        {
+          "id": "distributed-systems-write-ahead-log",
+          "source_name": "Write-Ahead Log",
+          "name": "Write-Ahead Log",
+          "source_path": "write-ahead-log.html",
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "concurrency",
+      "source": {
+        "title": "Pattern-Oriented Software Architecture, Volume 2",
+        "url": "https://www.dre.vanderbilt.edu/~schmidt/POSA/POSA2/",
+        "type": "primary"
+      },
+      "source_locator": "POSA Volume 2 Table of Contents, chapters 2-5 and explicit 17 patterns/idioms statement",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 17,
+      "limitations": "The source states 17 patterns/idioms; names are recorded from the chapter table of contents.",
+      "entries": [
+        {
+          "id": "concurrency-wrapper-facade",
+          "source_name": "Wrapper Facade",
+          "name": "Wrapper Facade",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-component-configurator",
+          "source_name": "Component Configurator",
+          "name": "Component Configurator",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-interceptor",
+          "source_name": "Interceptor",
+          "name": "Interceptor",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-extension-interface",
+          "source_name": "Extension Interface",
+          "name": "Extension Interface",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-reactor",
+          "source_name": "Reactor",
+          "name": "Reactor",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-proactor",
+          "source_name": "Proactor",
+          "name": "Proactor",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-asynchronous-completion-token",
+          "source_name": "Asynchronous Completion Token",
+          "name": "Asynchronous Completion Token",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-acceptor-connector",
+          "source_name": "Acceptor-Connector",
+          "name": "Acceptor-Connector",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-half-sync-half-async",
+          "source_name": "Half-Sync/Half-Async",
+          "name": "Half-Sync/Half-Async",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-leader-followers",
+          "source_name": "Leader/Followers",
+          "name": "Leader/Followers",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-active-object",
+          "source_name": "Active Object",
+          "name": "Active Object",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-monitor-object",
+          "source_name": "Monitor Object",
+          "name": "Monitor Object",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-thread-specific-storage",
+          "source_name": "Thread-Specific Storage",
+          "name": "Thread-Specific Storage",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-strategized-locking",
+          "source_name": "Strategized Locking",
+          "name": "Strategized Locking",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-scoped-locking",
+          "source_name": "Scoped Locking",
+          "name": "Scoped Locking",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-thread-safe-interface",
+          "source_name": "Thread-Safe Interface",
+          "name": "Thread-Safe Interface",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "concurrency-double-checked-locking-optimization",
+          "source_name": "Double-Checked Locking Optimization",
+          "name": "Double-Checked Locking Optimization",
+          "source_path": null,
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "workflow",
+      "source": {
+        "title": "Workflow Patterns",
+        "url": "http://www.workflowpatterns.com/patterns/",
+        "type": "primary",
+        "transport": "legacy-http"
+      },
+      "source_locator": "Workflow Patterns index, control-flow, data and resource collections",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 126,
+      "limitations": "The source is legacy HTTP; finite control-flow, data and resource indexes are included, while configurable exception-handling combinations are excluded.",
+      "entries": [
+        {
+          "id": "workflow-sequence-control",
+          "source_name": "Sequence (control)",
+          "name": "Sequence (control)",
+          "source_path": "basic/wcp1.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-parallel-split-control",
+          "source_name": "Parallel Split (control)",
+          "name": "Parallel Split (control)",
+          "source_path": "basic/wcp2.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-synchronization-control",
+          "source_name": "Synchronization (control)",
+          "name": "Synchronization (control)",
+          "source_path": "basic/wcp3.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-exclusive-choice-control",
+          "source_name": "Exclusive Choice (control)",
+          "name": "Exclusive Choice (control)",
+          "source_path": "basic/wcp4.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-simple-merge-control",
+          "source_name": "Simple Merge (control)",
+          "name": "Simple Merge (control)",
+          "source_path": "basic/wcp5.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-multi-choice-control",
+          "source_name": "Multi-Choice (control)",
+          "name": "Multi-Choice (control)",
+          "source_path": "advanced_branching/wcp6.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-structured-synchronizing-merge-control",
+          "source_name": "Structured Synchronizing Merge (control)",
+          "name": "Structured Synchronizing Merge (control)",
+          "source_path": "advanced_branching/wcp7.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-multi-merge-control",
+          "source_name": "Multi-Merge (control)",
+          "name": "Multi-Merge (control)",
+          "source_path": "advanced_branching/wcp8.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-structured-discriminator-control",
+          "source_name": "Structured Discriminator (control)",
+          "name": "Structured Discriminator (control)",
+          "source_path": "advanced_branching/wcp9.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-blocking-discriminator-control",
+          "source_name": "Blocking Discriminator (control)",
+          "name": "Blocking Discriminator (control)",
+          "source_path": "new/wcp28.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-cancelling-discriminator-control",
+          "source_name": "Cancelling Discriminator (control)",
+          "name": "Cancelling Discriminator (control)",
+          "source_path": "new/wcp29.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-structured-partial-join-control",
+          "source_name": "Structured Partial Join (control)",
+          "name": "Structured Partial Join (control)",
+          "source_path": "new/wcp30.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-blocking-partial-join-control",
+          "source_name": "Blocking Partial Join (control)",
+          "name": "Blocking Partial Join (control)",
+          "source_path": "new/wcp31.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-cancelling-partial-join-control",
+          "source_name": "Cancelling Partial Join (control)",
+          "name": "Cancelling Partial Join (control)",
+          "source_path": "new/wcp32.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-generalised-and-join-control",
+          "source_name": "Generalised AND-Join (control)",
+          "name": "Generalised AND-Join (control)",
+          "source_path": "new/wcp33.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-local-synchronizing-merge-control",
+          "source_name": "Local Synchronizing Merge (control)",
+          "name": "Local Synchronizing Merge (control)",
+          "source_path": "new/wcp37.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-general-synchronizing-merge-control",
+          "source_name": "General Synchronizing Merge (control)",
+          "name": "General Synchronizing Merge (control)",
+          "source_path": "new/wcp38.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-thread-merge-control",
+          "source_name": "Thread Merge (control)",
+          "name": "Thread Merge (control)",
+          "source_path": "new/wcp41.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-thread-split-control",
+          "source_name": "Thread Split (control)",
+          "name": "Thread Split (control)",
+          "source_path": "new/wcp42.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-multiple-instances-without-synchronization-control",
+          "source_name": "Multiple Instances without Synchronization (control)",
+          "name": "Multiple Instances without Synchronization (control)",
+          "source_path": "multiple_instance/wcp12.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-multiple-instances-with-a-priori-design-time-knowledge-control",
+          "source_name": "Multiple Instances with a Priori Design-Time Knowledge (control)",
+          "name": "Multiple Instances with a Priori Design-Time Knowledge (control)",
+          "source_path": "multiple_instance/wcp13.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-multiple-instances-with-a-priori-run-time-knowledge-control",
+          "source_name": "Multiple Instances with a Priori Run-Time Knowledge (control)",
+          "name": "Multiple Instances with a Priori Run-Time Knowledge (control)",
+          "source_path": "multiple_instance/wcp14.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-multiple-instances-without-a-priori-run-time-knowledge-control",
+          "source_name": "Multiple Instances without a Priori Run-Time Knowledge (control)",
+          "name": "Multiple Instances without a Priori Run-Time Knowledge (control)",
+          "source_path": "multiple_instance/wcp15.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-static-partial-join-for-multiple-instances-control",
+          "source_name": "Static Partial Join for Multiple Instances (control)",
+          "name": "Static Partial Join for Multiple Instances (control)",
+          "source_path": "new/wcp34.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-cancelling-partial-join-for-multiple-instances-control",
+          "source_name": "Cancelling Partial Join for Multiple Instances (control)",
+          "name": "Cancelling Partial Join for Multiple Instances (control)",
+          "source_path": "new/wcp35.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-dynamic-partial-join-for-multiple-instances-control",
+          "source_name": "Dynamic Partial Join for Multiple Instances (control)",
+          "name": "Dynamic Partial Join for Multiple Instances (control)",
+          "source_path": "new/wcp36.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-deferred-choice-control",
+          "source_name": "Deferred Choice (control)",
+          "name": "Deferred Choice (control)",
+          "source_path": "state/wcp16.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-interleaved-parallel-routing-control",
+          "source_name": "Interleaved Parallel Routing (control)",
+          "name": "Interleaved Parallel Routing (control)",
+          "source_path": "state/wcp17.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-milestone-control",
+          "source_name": "Milestone (control)",
+          "name": "Milestone (control)",
+          "source_path": "state/wcp18.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-critical-section-control",
+          "source_name": "Critical Section (control)",
+          "name": "Critical Section (control)",
+          "source_path": "new/wcp39.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-interleaved-routing-control",
+          "source_name": "Interleaved Routing (control)",
+          "name": "Interleaved Routing (control)",
+          "source_path": "new/wcp40.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-cancel-task-control",
+          "source_name": "Cancel Task (control)",
+          "name": "Cancel Task (control)",
+          "source_path": "cancellation/wcp19.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-cancel-case-control",
+          "source_name": "Cancel Case (control)",
+          "name": "Cancel Case (control)",
+          "source_path": "cancellation/wcp20.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-cancel-region-control",
+          "source_name": "Cancel Region (control)",
+          "name": "Cancel Region (control)",
+          "source_path": "new/wcp25.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-cancel-multiple-instance-activity-control",
+          "source_name": "Cancel Multiple Instance Activity (control)",
+          "name": "Cancel Multiple Instance Activity (control)",
+          "source_path": "new/wcp26.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-complete-multiple-instance-activity-control",
+          "source_name": "Complete Multiple Instance Activity (control)",
+          "name": "Complete Multiple Instance Activity (control)",
+          "source_path": "new/wcp27.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-arbitrary-cycles-control",
+          "source_name": "Arbitrary Cycles (control)",
+          "name": "Arbitrary Cycles (control)",
+          "source_path": "structural/wcp10.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-structured-loop-control",
+          "source_name": "Structured Loop (control)",
+          "name": "Structured Loop (control)",
+          "source_path": "new/wcp21.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-recursion-control",
+          "source_name": "Recursion (control)",
+          "name": "Recursion (control)",
+          "source_path": "new/wcp22.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-implicit-termination-control",
+          "source_name": "Implicit Termination (control)",
+          "name": "Implicit Termination (control)",
+          "source_path": "structural/wcp11.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-explicit-termination-control",
+          "source_name": "Explicit Termination (control)",
+          "name": "Explicit Termination (control)",
+          "source_path": "new/wcp43.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-transient-trigger-control",
+          "source_name": "Transient Trigger (control)",
+          "name": "Transient Trigger (control)",
+          "source_path": "new/wcp23.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-persistent-trigger-control",
+          "source_name": "Persistent Trigger (control)",
+          "name": "Persistent Trigger (control)",
+          "source_path": "new/wcp24.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-task-data-data",
+          "source_name": "Task Data (data)",
+          "name": "Task Data (data)",
+          "source_path": "visibility/wdp1.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-block-data-data",
+          "source_name": "Block Data (data)",
+          "name": "Block Data (data)",
+          "source_path": "visibility/wdp2.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-scope-data-data",
+          "source_name": "Scope Data (data)",
+          "name": "Scope Data (data)",
+          "source_path": "visibility/wdp3.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-multiple-instance-data-data",
+          "source_name": "Multiple Instance Data (data)",
+          "name": "Multiple Instance Data (data)",
+          "source_path": "visibility/wdp4.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-case-data-data",
+          "source_name": "Case Data (data)",
+          "name": "Case Data (data)",
+          "source_path": "visibility/wdp5.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-folder-data-data",
+          "source_name": "Folder Data (data)",
+          "name": "Folder Data (data)",
+          "source_path": "visibility/wdp6.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-workflow-data-data",
+          "source_name": "Workflow Data (data)",
+          "name": "Workflow Data (data)",
+          "source_path": "visibility/wdp7.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-environment-data-data",
+          "source_name": "Environment Data (data)",
+          "name": "Environment Data (data)",
+          "source_path": "visibility/wdp8.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-task-to-task-data",
+          "source_name": "Data Interaction - Task to Task (data)",
+          "name": "Data Interaction - Task to Task (data)",
+          "source_path": "internal/wdp9.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-block-task-to-sub-workflow-decomposition-data",
+          "source_name": "Data Interaction - Block Task to Sub-Workflow Decomposition (data)",
+          "name": "Data Interaction - Block Task to Sub-Workflow Decomposition (data)",
+          "source_path": "internal/wdp10.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-sub-workflow-decomposition-to-block-task-data",
+          "source_name": "Data Interaction - Sub-Workflow Decomposition to Block Task (data)",
+          "name": "Data Interaction - Sub-Workflow Decomposition to Block Task (data)",
+          "source_path": "internal/wdp11.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-to-multiple-instance-task-data",
+          "source_name": "Data Interaction - to Multiple Instance Task (data)",
+          "name": "Data Interaction - to Multiple Instance Task (data)",
+          "source_path": "internal/wdp12.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-from-multiple-instance-task-data",
+          "source_name": "Data Interaction - from Multiple Instance Task (data)",
+          "name": "Data Interaction - from Multiple Instance Task (data)",
+          "source_path": "internal/wdp13.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-case-to-case-data",
+          "source_name": "Data Interaction - Case to Case (data)",
+          "name": "Data Interaction - Case to Case (data)",
+          "source_path": "internal/wdp14.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-task-to-environment-push-oriented-data",
+          "source_name": "Data Interaction - Task to Environment - Push-Oriented (data)",
+          "name": "Data Interaction - Task to Environment - Push-Oriented (data)",
+          "source_path": "external/wdp15.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-environment-to-task-pull-oriented-data",
+          "source_name": "Data Interaction - Environment to Task - Pull-Oriented (data)",
+          "name": "Data Interaction - Environment to Task - Pull-Oriented (data)",
+          "source_path": "external/wdp16.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-environment-to-task-push-oriented-data",
+          "source_name": "Data Interaction - Environment to Task - Push-Oriented (data)",
+          "name": "Data Interaction - Environment to Task - Push-Oriented (data)",
+          "source_path": "external/wdp17.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-task-to-environment-pull-oriented-data",
+          "source_name": "Data Interaction - Task to Environment - Pull-Oriented (data)",
+          "name": "Data Interaction - Task to Environment - Pull-Oriented (data)",
+          "source_path": "external/wdp18.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-case-to-environment-push-oriented-data",
+          "source_name": "Data Interaction - Case to Environment - Push-Oriented (data)",
+          "name": "Data Interaction - Case to Environment - Push-Oriented (data)",
+          "source_path": "external/wdp19.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-environment-to-case-pull-oriented-data",
+          "source_name": "Data Interaction - Environment to Case - Pull-Oriented (data)",
+          "name": "Data Interaction - Environment to Case - Pull-Oriented (data)",
+          "source_path": "external/wdp20.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-environment-to-case-push-oriented-data",
+          "source_name": "Data Interaction - Environment to Case - Push-Oriented (data)",
+          "name": "Data Interaction - Environment to Case - Push-Oriented (data)",
+          "source_path": "external/wdp21.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-case-to-environment-pull-oriented-data",
+          "source_name": "Data Interaction - Case to Environment - Pull-Oriented (data)",
+          "name": "Data Interaction - Case to Environment - Pull-Oriented (data)",
+          "source_path": "external/wdp22.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-workflow-to-environment-push-oriented-data",
+          "source_name": "Data Interaction - Workflow to Environment - Push-Oriented (data)",
+          "name": "Data Interaction - Workflow to Environment - Push-Oriented (data)",
+          "source_path": "external/wdp23.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-environment-to-workflow-pull-oriented-data",
+          "source_name": "Data Interaction - Environment to Workflow - Pull-Oriented (data)",
+          "name": "Data Interaction - Environment to Workflow - Pull-Oriented (data)",
+          "source_path": "external/wdp24.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-environment-to-workflow-push-oriented-data",
+          "source_name": "Data Interaction - Environment to Workflow - Push-Oriented (data)",
+          "name": "Data Interaction - Environment to Workflow - Push-Oriented (data)",
+          "source_path": "external/wdp25.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-interaction-workflow-to-environment-pull-oriented-data",
+          "source_name": "Data Interaction - Workflow to Environment - Pull-Oriented (data)",
+          "name": "Data Interaction - Workflow to Environment - Pull-Oriented (data)",
+          "source_path": "external/wdp26.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-transfer-by-value-incoming-data",
+          "source_name": "Data Transfer by Value - Incoming (data)",
+          "name": "Data Transfer by Value - Incoming (data)",
+          "source_path": "mechanisms/wdp27.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-transfer-by-value-outgoing-data",
+          "source_name": "Data Transfer by Value - Outgoing (data)",
+          "name": "Data Transfer by Value - Outgoing (data)",
+          "source_path": "mechanisms/wdp28.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-transfer-copy-in-copy-out-data",
+          "source_name": "Data Transfer - Copy In/Copy Out (data)",
+          "name": "Data Transfer - Copy In/Copy Out (data)",
+          "source_path": "mechanisms/wdp29.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-transfer-by-reference-unlocked-data",
+          "source_name": "Data Transfer by Reference - Unlocked (data)",
+          "name": "Data Transfer by Reference - Unlocked (data)",
+          "source_path": "mechanisms/wdp30.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-transfer-by-reference-with-lock-data",
+          "source_name": "Data Transfer by Reference - With Lock (data)",
+          "name": "Data Transfer by Reference - With Lock (data)",
+          "source_path": "mechanisms/wdp31.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-transformation-input-data",
+          "source_name": "Data Transformation - Input (data)",
+          "name": "Data Transformation - Input (data)",
+          "source_path": "mechanisms/wdp32.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-transformation-output-data",
+          "source_name": "Data Transformation - Output (data)",
+          "name": "Data Transformation - Output (data)",
+          "source_path": "mechanisms/wdp33.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-task-precondition-data-existence-data",
+          "source_name": "Task Precondition - Data Existence (data)",
+          "name": "Task Precondition - Data Existence (data)",
+          "source_path": "routing/wdp34.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-task-precondition-data-value-data",
+          "source_name": "Task Precondition - Data Value (data)",
+          "name": "Task Precondition - Data Value (data)",
+          "source_path": "routing/wdp35.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-task-postcondition-data-existence-data",
+          "source_name": "Task Postcondition - Data Existence (data)",
+          "name": "Task Postcondition - Data Existence (data)",
+          "source_path": "routing/wdp36.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-task-postcondition-data-value-data",
+          "source_name": "Task Postcondition - Data Value (data)",
+          "name": "Task Postcondition - Data Value (data)",
+          "source_path": "routing/wdp37.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-event-based-task-trigger-data",
+          "source_name": "Event-based Task Trigger (data)",
+          "name": "Event-based Task Trigger (data)",
+          "source_path": "routing/wdp38.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-based-task-trigger-data",
+          "source_name": "Data-based Task Trigger (data)",
+          "name": "Data-based Task Trigger (data)",
+          "source_path": "routing/wdp39.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-data-based-routing-data",
+          "source_name": "Data-based Routing (data)",
+          "name": "Data-based Routing (data)",
+          "source_path": "routing/wdp40.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-direct-distribution-resource",
+          "source_name": "Direct Distribution (resource)",
+          "name": "Direct Distribution (resource)",
+          "source_path": "creation/wrp1.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-role-based-distribution-resource",
+          "source_name": "Role-Based Distribution (resource)",
+          "name": "Role-Based Distribution (resource)",
+          "source_path": "creation/wrp2.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-deferred-distribution-resource",
+          "source_name": "Deferred Distribution (resource)",
+          "name": "Deferred Distribution (resource)",
+          "source_path": "creation/wrp3.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-authorization-resource",
+          "source_name": "Authorization (resource)",
+          "name": "Authorization (resource)",
+          "source_path": "creation/wrp4.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-separation-of-duties-resource",
+          "source_name": "Separation of Duties (resource)",
+          "name": "Separation of Duties (resource)",
+          "source_path": "creation/wrp5.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-case-handling-resource",
+          "source_name": "Case Handling (resource)",
+          "name": "Case Handling (resource)",
+          "source_path": "creation/wrp6.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-retain-familiar-resource",
+          "source_name": "Retain Familiar (resource)",
+          "name": "Retain Familiar (resource)",
+          "source_path": "creation/wrp7.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-capability-based-distribution-resource",
+          "source_name": "Capability-Based Distribution (resource)",
+          "name": "Capability-Based Distribution (resource)",
+          "source_path": "creation/wrp8.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-history-based-distribution-resource",
+          "source_name": "History-Based Distribution (resource)",
+          "name": "History-Based Distribution (resource)",
+          "source_path": "creation/wrp9.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-organisational-distribution-resource",
+          "source_name": "Organisational Distribution (resource)",
+          "name": "Organisational Distribution (resource)",
+          "source_path": "creation/wrp10.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-automatic-execution-resource",
+          "source_name": "Automatic Execution (resource)",
+          "name": "Automatic Execution (resource)",
+          "source_path": "creation/wrp11.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-distribution-by-offer-single-resource-resource",
+          "source_name": "Distribution by Offer - Single Resource (resource)",
+          "name": "Distribution by Offer - Single Resource (resource)",
+          "source_path": "push/wrp12.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-distribution-by-offer-multiple-resources-resource",
+          "source_name": "Distribution by Offer - Multiple Resources (resource)",
+          "name": "Distribution by Offer - Multiple Resources (resource)",
+          "source_path": "push/wrp13.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-distribution-by-allocation-single-resource-resource",
+          "source_name": "Distribution by Allocation - Single Resource (resource)",
+          "name": "Distribution by Allocation - Single Resource (resource)",
+          "source_path": "push/wrp14.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-random-allocation-resource",
+          "source_name": "Random Allocation (resource)",
+          "name": "Random Allocation (resource)",
+          "source_path": "push/wrp15.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-round-robin-allocation-resource",
+          "source_name": "Round Robin Allocation (resource)",
+          "name": "Round Robin Allocation (resource)",
+          "source_path": "push/wrp16.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-shortest-queue-resource",
+          "source_name": "Shortest Queue (resource)",
+          "name": "Shortest Queue (resource)",
+          "source_path": "push/wrp17.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-early-distribution-resource",
+          "source_name": "Early Distribution (resource)",
+          "name": "Early Distribution (resource)",
+          "source_path": "push/wrp18.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-distribution-on-enablement-resource",
+          "source_name": "Distribution on Enablement (resource)",
+          "name": "Distribution on Enablement (resource)",
+          "source_path": "push/wrp19.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-late-distribution-resource",
+          "source_name": "Late Distribution (resource)",
+          "name": "Late Distribution (resource)",
+          "source_path": "push/wrp20.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-resource-initiated-allocation-resource",
+          "source_name": "Resource-Initiated Allocation (resource)",
+          "name": "Resource-Initiated Allocation (resource)",
+          "source_path": "pull/wrp21.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-resource-initiated-execution-allocated-work-item-resource",
+          "source_name": "Resource-Initiated Execution - Allocated Work Item (resource)",
+          "name": "Resource-Initiated Execution - Allocated Work Item (resource)",
+          "source_path": "pull/wrp22.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-resource-initiated-execution-offered-work-item-resource",
+          "source_name": "Resource-Initiated Execution - Offered Work Item (resource)",
+          "name": "Resource-Initiated Execution - Offered Work Item (resource)",
+          "source_path": "pull/wrp23.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-system-determined-work-queue-content-resource",
+          "source_name": "System-Determined Work Queue Content (resource)",
+          "name": "System-Determined Work Queue Content (resource)",
+          "source_path": "pull/wrp24.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-resource-determined-work-queue-content-resource",
+          "source_name": "Resource-Determined Work Queue Content (resource)",
+          "name": "Resource-Determined Work Queue Content (resource)",
+          "source_path": "pull/wrp25.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-selection-autonomy-resource",
+          "source_name": "Selection Autonomy (resource)",
+          "name": "Selection Autonomy (resource)",
+          "source_path": "pull/wrp26.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-delegation-resource",
+          "source_name": "Delegation (resource)",
+          "name": "Delegation (resource)",
+          "source_path": "detour/wrp27.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-escalation-resource",
+          "source_name": "Escalation (resource)",
+          "name": "Escalation (resource)",
+          "source_path": "detour/wrp28.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-deallocation-resource",
+          "source_name": "Deallocation (resource)",
+          "name": "Deallocation (resource)",
+          "source_path": "detour/wrp29.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-stateful-reallocation-resource",
+          "source_name": "Stateful Reallocation (resource)",
+          "name": "Stateful Reallocation (resource)",
+          "source_path": "detour/wrp30.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-stateless-reallocation-resource",
+          "source_name": "Stateless Reallocation (resource)",
+          "name": "Stateless Reallocation (resource)",
+          "source_path": "detour/wrp31.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-suspension-resumption-resource",
+          "source_name": "Suspension-Resumption (resource)",
+          "name": "Suspension-Resumption (resource)",
+          "source_path": "detour/wrp32.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-skip-resource",
+          "source_name": "Skip (resource)",
+          "name": "Skip (resource)",
+          "source_path": "detour/wrp33.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-redo-resource",
+          "source_name": "Redo (resource)",
+          "name": "Redo (resource)",
+          "source_path": "detour/wrp34.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-pre-do-resource",
+          "source_name": "Pre-Do (resource)",
+          "name": "Pre-Do (resource)",
+          "source_path": "detour/wrp35.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-commencement-on-creation-resource",
+          "source_name": "Commencement on Creation (resource)",
+          "name": "Commencement on Creation (resource)",
+          "source_path": "autostart/wrp36.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-commencement-on-allocation-resource",
+          "source_name": "Commencement on Allocation (resource)",
+          "name": "Commencement on Allocation (resource)",
+          "source_path": "autostart/wrp37.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-piled-execution-resource",
+          "source_name": "Piled Execution (resource)",
+          "name": "Piled Execution (resource)",
+          "source_path": "autostart/wrp38.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-chained-execution-resource",
+          "source_name": "Chained Execution (resource)",
+          "name": "Chained Execution (resource)",
+          "source_path": "autostart/wrp39.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-configurable-unallocated-work-item-visibility-resource",
+          "source_name": "Configurable Unallocated Work Item Visibility (resource)",
+          "name": "Configurable Unallocated Work Item Visibility (resource)",
+          "source_path": "visibility/wrp40.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-configurable-allocated-work-item-visibility-resource",
+          "source_name": "Configurable Allocated Work Item Visibility (resource)",
+          "name": "Configurable Allocated Work Item Visibility (resource)",
+          "source_path": "visibility/wrp41.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-simultaneous-execution-resource",
+          "source_name": "Simultaneous Execution (resource)",
+          "name": "Simultaneous Execution (resource)",
+          "source_path": "multiple_resources/wrp42.php",
+          "normalization_note": null
+        },
+        {
+          "id": "workflow-additional-resources-resource",
+          "source_name": "Additional Resources (resource)",
+          "name": "Additional Resources (resource)",
+          "source_path": "multiple_resources/wrp43.php",
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "testing",
+      "source": {
+        "title": "xUnit Test Patterns",
+        "url": "http://xunitpatterns.com/List%20of%20Patterns.html",
+        "type": "primary",
+        "transport": "legacy-http"
+      },
+      "source_locator": "xUnit Test Patterns, List of Patterns index",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 68,
+      "limitations": "The source is legacy HTTP; only the finite List of Patterns names are included.",
+      "entries": [
+        {
+          "id": "testing-assertion-message",
+          "source_name": "Assertion Message",
+          "name": "Assertion Message",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-assertion-method",
+          "source_name": "Assertion Method",
+          "name": "Assertion Method",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-automated-teardown",
+          "source_name": "Automated Teardown",
+          "name": "Automated Teardown",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-back-door-manipulation",
+          "source_name": "Back Door Manipulation",
+          "name": "Back Door Manipulation",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-behavior-verification",
+          "source_name": "Behavior Verification",
+          "name": "Behavior Verification",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-chained-tests",
+          "source_name": "Chained Tests",
+          "name": "Chained Tests",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-configurable-test-double",
+          "source_name": "Configurable Test Double",
+          "name": "Configurable Test Double",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-creation-method",
+          "source_name": "Creation Method",
+          "name": "Creation Method",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-custom-assertion",
+          "source_name": "Custom Assertion",
+          "name": "Custom Assertion",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-data-driven-test",
+          "source_name": "Data-Driven Test",
+          "name": "Data-Driven Test",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-database-sandbox",
+          "source_name": "Database Sandbox",
+          "name": "Database Sandbox",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-delegated-setup",
+          "source_name": "Delegated Setup",
+          "name": "Delegated Setup",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-delta-assertion",
+          "source_name": "Delta Assertion",
+          "name": "Delta Assertion",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-dependency-injection",
+          "source_name": "Dependency Injection",
+          "name": "Dependency Injection",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-dependency-lookup",
+          "source_name": "Dependency Lookup",
+          "name": "Dependency Lookup",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-derived-value",
+          "source_name": "Derived Value",
+          "name": "Derived Value",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-dummy-object",
+          "source_name": "Dummy Object",
+          "name": "Dummy Object",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-fake-object",
+          "source_name": "Fake Object",
+          "name": "Fake Object",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-four-phase-test",
+          "source_name": "Four-Phase Test",
+          "name": "Four-Phase Test",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-fresh-fixture",
+          "source_name": "Fresh Fixture",
+          "name": "Fresh Fixture",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-garbage-collected-teardown",
+          "source_name": "Garbage-Collected Teardown",
+          "name": "Garbage-Collected Teardown",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-generated-value",
+          "source_name": "Generated Value",
+          "name": "Generated Value",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-guard-assertion",
+          "source_name": "Guard Assertion",
+          "name": "Guard Assertion",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-hard-coded-test-double",
+          "source_name": "Hard-Coded Test Double",
+          "name": "Hard-Coded Test Double",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-humble-object",
+          "source_name": "Humble Object",
+          "name": "Humble Object",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-implicit-setup",
+          "source_name": "Implicit Setup",
+          "name": "Implicit Setup",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-implicit-teardown",
+          "source_name": "Implicit Teardown",
+          "name": "Implicit Teardown",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-inline-setup",
+          "source_name": "Inline Setup",
+          "name": "Inline Setup",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-inline-teardown",
+          "source_name": "Inline Teardown",
+          "name": "Inline Teardown",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-layer-test",
+          "source_name": "Layer Test",
+          "name": "Layer Test",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-lazy-setup",
+          "source_name": "Lazy Setup",
+          "name": "Lazy Setup",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-literal-value",
+          "source_name": "Literal Value",
+          "name": "Literal Value",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-minimal-fixture",
+          "source_name": "Minimal Fixture",
+          "name": "Minimal Fixture",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-mock-object",
+          "source_name": "Mock Object",
+          "name": "Mock Object",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-named-test-suite",
+          "source_name": "Named Test Suite",
+          "name": "Named Test Suite",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-parameterized-test",
+          "source_name": "Parameterized Test",
+          "name": "Parameterized Test",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-prebuilt-fixture",
+          "source_name": "Prebuilt Fixture",
+          "name": "Prebuilt Fixture",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-recorded-test",
+          "source_name": "Recorded Test",
+          "name": "Recorded Test",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-scripted-test",
+          "source_name": "Scripted Test",
+          "name": "Scripted Test",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-setup-decorator",
+          "source_name": "Setup Decorator",
+          "name": "Setup Decorator",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-shared-fixture",
+          "source_name": "Shared Fixture",
+          "name": "Shared Fixture",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-standard-fixture",
+          "source_name": "Standard Fixture",
+          "name": "Standard Fixture",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-state-verification",
+          "source_name": "State Verification",
+          "name": "State Verification",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-stored-procedure-test",
+          "source_name": "Stored Procedure Test",
+          "name": "Stored Procedure Test",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-suitefixture-setup",
+          "source_name": "SuiteFixture Setup",
+          "name": "SuiteFixture Setup",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-table-truncation-teardown",
+          "source_name": "Table Truncation Teardown",
+          "name": "Table Truncation Teardown",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-automation-framework",
+          "source_name": "Test Automation Framework",
+          "name": "Test Automation Framework",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-discovery",
+          "source_name": "Test Discovery",
+          "name": "Test Discovery",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-double",
+          "source_name": "Test Double",
+          "name": "Test Double",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-enumeration",
+          "source_name": "Test Enumeration",
+          "name": "Test Enumeration",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-helper",
+          "source_name": "Test Helper",
+          "name": "Test Helper",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-hook",
+          "source_name": "Test Hook",
+          "name": "Test Hook",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-method",
+          "source_name": "Test Method",
+          "name": "Test Method",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-runner",
+          "source_name": "Test Runner",
+          "name": "Test Runner",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-selection",
+          "source_name": "Test Selection",
+          "name": "Test Selection",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-spy",
+          "source_name": "Test Spy",
+          "name": "Test Spy",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-stub",
+          "source_name": "Test Stub",
+          "name": "Test Stub",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-suite-object",
+          "source_name": "Test Suite Object",
+          "name": "Test Suite Object",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-utility-method",
+          "source_name": "Test Utility Method",
+          "name": "Test Utility Method",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-test-specific-subclass",
+          "source_name": "Test-Specific Subclass",
+          "name": "Test-Specific Subclass",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-testcase-class",
+          "source_name": "Testcase Class",
+          "name": "Testcase Class",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-testcase-class-per-class",
+          "source_name": "Testcase Class per Class",
+          "name": "Testcase Class per Class",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-testcase-class-per-feature",
+          "source_name": "Testcase Class per Feature",
+          "name": "Testcase Class per Feature",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-testcase-class-per-fixture",
+          "source_name": "Testcase Class per Fixture",
+          "name": "Testcase Class per Fixture",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-testcase-object",
+          "source_name": "Testcase Object",
+          "name": "Testcase Object",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-testcase-superclass",
+          "source_name": "Testcase Superclass",
+          "name": "Testcase Superclass",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-transaction-rollback-teardown",
+          "source_name": "Transaction Rollback Teardown",
+          "name": "Transaction Rollback Teardown",
+          "source_path": null,
+          "normalization_note": null
+        },
+        {
+          "id": "testing-unfinished-test-assertion",
+          "source_name": "Unfinished Test Assertion",
+          "name": "Unfinished Test Assertion",
+          "source_path": null,
+          "normalization_note": null
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "source": {
+        "title": "Security Pattern Catalogue",
+        "url": "https://securitypatterns.distrinet-research.be/",
+        "type": "primary"
+      },
+      "source_locator": "DistriNet Security Pattern Catalogue, catalogue index",
+      "verification_method": "manual-primary-source-index-audit",
+      "observed_count": 23,
+      "limitations": "Only names and entry paths exposed by the catalogue index are included; licensed source prose is excluded.",
+      "entries": [
+        {
+          "id": "security-authentication",
+          "source_name": "Authentication",
+          "name": "Authentication",
+          "source_path": "patterns/01_01_001__authentication/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-password-based-authentication",
+          "source_name": "Password-based authentication",
+          "name": "Password-based authentication",
+          "source_path": "patterns/01_01_002__authentication_pwd/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-verifiable-token-based-authentication",
+          "source_name": "Verifiable token-based authentication",
+          "name": "Verifiable token-based authentication",
+          "source_path": "patterns/01_01_003__verifiable_token_based_authentication/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-opaque-token-based-authentication",
+          "source_name": "Opaque token-based authentication",
+          "name": "Opaque token-based authentication",
+          "source_path": "patterns/01_01_004__opaque_token_based_authentication/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-obscure-token-based-access-control",
+          "source_name": "Obscure token-based access control",
+          "name": "Obscure token-based access control",
+          "source_path": "patterns/01_01_005__obscure_token_based_access_control/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-session-based-access-control",
+          "source_name": "Session-based access control",
+          "name": "Session-based access control",
+          "source_path": "patterns/01_01_006__session_based_access_control/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-authorisation",
+          "source_name": "Authorisation",
+          "name": "Authorisation",
+          "source_path": "patterns/02_01_001__authorisation/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-log-entity-actions",
+          "source_name": "Log entity actions",
+          "name": "Log entity actions",
+          "source_path": "patterns/02_02_001__log_entity_actions/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-limit-request-rate",
+          "source_name": "Limit request rate",
+          "name": "Limit request rate",
+          "source_path": "patterns/02_03_001__limit_request_rate/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-data-validation",
+          "source_name": "Data validation",
+          "name": "Data validation",
+          "source_path": "patterns/04_01_001__data_validation/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-output-filter",
+          "source_name": "Output filter",
+          "name": "Output filter",
+          "source_path": "patterns/05_01_001__output_filter/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-selective-encrypted-transmission",
+          "source_name": "Selective encrypted transmission",
+          "name": "Selective encrypted transmission",
+          "source_path": "patterns/06_01_001__selective_encrypted_transmission/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-encrypted-tunnel",
+          "source_name": "Encrypted tunnel",
+          "name": "Encrypted tunnel",
+          "source_path": "patterns/06_01_002__encrypted_tunnel/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-verifiable-transmission",
+          "source_name": "Verifiable transmission",
+          "name": "Verifiable transmission",
+          "source_path": "patterns/06_02_001__verifiable_transmission/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-selective-encrypted-storage",
+          "source_name": "Selective encrypted storage",
+          "name": "Selective encrypted storage",
+          "source_path": "patterns/07_01_001__selective_encrypted_storage/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-transparent-encrypted-storage",
+          "source_name": "Transparent encrypted storage",
+          "name": "Transparent encrypted storage",
+          "source_path": "patterns/07_01_002__transparent_encrypted_storage/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-cryptographic-action",
+          "source_name": "Cryptographic action",
+          "name": "Cryptographic action",
+          "source_path": "patterns/99_01_001__cryptographic_action/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-encryption",
+          "source_name": "Encryption",
+          "name": "Encryption",
+          "source_path": "patterns/99_01_002__encryption/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-digital-signature",
+          "source_name": "Digital signature",
+          "name": "Digital signature",
+          "source_path": "patterns/99_01_003__digital_signature/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-message-authentication-code-mac",
+          "source_name": "Message authentication code (MAC)",
+          "name": "Message authentication code (MAC)",
+          "source_path": "patterns/99_01_004__mac/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-cryptographic-key-management",
+          "source_name": "Cryptographic key management",
+          "name": "Cryptographic key management",
+          "source_path": "patterns/99_02_001__crypto_key_management/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-cryptography-as-a-service",
+          "source_name": "Cryptography as a service",
+          "name": "Cryptography as a service",
+          "source_path": "patterns/99_02_002__crypto_as_a_service/",
+          "normalization_note": null
+        },
+        {
+          "id": "security-self-managed-cryptography",
+          "source_name": "Self-managed cryptography",
+          "name": "Self-managed cryptography",
+          "source_path": "patterns/99_02_003__crypto_self_managed/",
+          "normalization_note": null
+        }
+      ]
+    }
+  ]
+}

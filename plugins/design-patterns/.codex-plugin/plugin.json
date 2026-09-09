@@ -1,0 +1,32 @@
+{
+  "name": "design-patterns",
+  "version": "0.1.0",
+  "description": "실제 설계 힘과 보장에 근거해 디자인 패턴을 선택하거나 기존 패턴 사용을 검토합니다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "keywords": [
+    "design-patterns",
+    "software-architecture",
+    "pattern-selection",
+    "code-review"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Design Patterns",
+    "shortDescription": "설계 힘에 맞는 패턴을 선택하고 오용을 검토합니다.",
+    "longDescription": "12개 주요 패턴 계열을 점진적으로 탐색하고, 반복 문제·요구 보장·기본 해법의 한계를 확인한 경우에만 정규화된 패턴을 추천합니다. 패턴이 필요 없는 경우도 명시적인 설계 결정으로 다룹니다.",
+    "developerName": "sonsu",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "이 설계 문제에 $select-design-patterns로 필요한 패턴만 골라 줘.",
+      "현재 구조에서 패턴이 필요한지 비용과 반례까지 판단해 줘.",
+      "이 diff의 패턴 사용을 $review-pattern-usage로 수정 없이 검토해 줘."
+    ]
+  }
+}

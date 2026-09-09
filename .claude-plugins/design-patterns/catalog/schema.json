@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sonsu-lee/sonsu-marketplace/plugins/design-patterns/catalog/schema.json",
+  "title": "Design patterns catalog family",
+  "description": "Schema for a family pack. Fields supplied by defaults are inherited before validation; decision-ready.json overlays decision fields by id.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "family",
+    "patterns"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "family": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "scope"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "defaults": {
+      "$ref": "#/$defs/patternFields"
+    },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/patternFields"
+          },
+          {
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "nonEmptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "title",
+        "url",
+        "type"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "type": {
+          "enum": [
+            "official",
+            "primary",
+            "secondary"
+          ]
+        },
+        "transport": {
+          "const": "legacy-http"
+        }
+      },
+      "additionalProperties": false
+    },
+    "relation": {
+      "type": "object",
+      "required": [
+        "type",
+        "target"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "alias-of",
+            "same-name-different-scope",
+            "specializes",
+            "generalizes",
+            "implements",
+            "commonly-composed-with",
+            "alternative-to",
+            "conflicts-with",
+            "supersedes"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "additionalProperties": false
+    },
+    "patternFields": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "family": {
+          "$ref": "#/$defs/id"
+        },
+        "level": {
+          "enum": [
+            "code",
+            "component",
+            "application",
+            "architecture",
+            "domain",
+            "integration",
+            "distributed-system",
+            "process",
+            "test",
+            "security"
+          ]
+        },
+        "maturity": {
+          "enum": [
+            "indexed",
+            "normalized",
+            "decision-ready",
+            "contextual",
+            "superseded"
+          ]
+        },
+        "problem": {
+          "type": "string",
+          "minLength": 1
+        },
+        "forces": {
+          "$ref": "#/$defs/nonEmptyStrings"
+        },
+        "preconditions": {
+          "$ref": "#/$defs/nonEmptyStrings"
+        },
+        "contraindications": {
+          "$ref": "#/$defs/nonEmptyStrings"
+        },
+        "solution": {
+          "type": "string",
+          "minLength": 1
+        },
+        "guarantees": {
+          "$ref": "#/$defs/nonEmptyStrings"
+        },
+        "costs": {
+          "$ref": "#/$defs/nonEmptyStrings"
+        },
+        "failure_modes": {
+          "$ref": "#/$defs/nonEmptyStrings"
+        },
+        "language_realizations": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relation"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "source_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Review Pattern Usage"
+  short_description: "기존 디자인 패턴의 보장과 오용을 읽기 전용 검토"
+  default_prompt: "$review-pattern-usage 현재 diff의 패턴 적용을 수정 없이 검토해 줘."
+policy:
+  allow_implicit_invocation: false

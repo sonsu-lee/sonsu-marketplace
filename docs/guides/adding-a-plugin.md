@@ -35,7 +35,9 @@
 `source.path`는 저장소 루트 기준 상대 경로입니다.
 `.claude-plugin/marketplace.json`과 plugin별 `.claude-plugin/plugin.json`은 생성물이므로 직접
 수정하지 않습니다. Claude Code에만 필요한 새 변환 규칙이 생기면 renderer와 fixture 기대값을
-먼저 갱신합니다.
+먼저 갱신합니다. 공용 `SKILL.md`에 넣을 수 없는 Claude 전용 frontmatter가 필요하면
+`plugins/<plugin-name>/.claude-plugin/compat.json`에 projection을 선언합니다. renderer는 Codex 정본을
+그대로 두고 `.claude-plugins/<plugin-name>/`에 Claude Code용 패키지를 생성합니다.
 
 ## 검증
 
@@ -46,6 +48,8 @@ python3 scripts/render-claude-compat.py --check
 python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v
 claude plugin validate . --strict
 claude plugin validate plugins/<plugin-name> --strict
+# compat.json을 선언한 플러그인
+claude plugin validate .claude-plugins/<plugin-name> --strict
 ```
 
 JSON 문법과 참조 경로를 확인한 뒤 가능한 경우 Codex의 실제 플러그인 읽기 경로와 격리된
