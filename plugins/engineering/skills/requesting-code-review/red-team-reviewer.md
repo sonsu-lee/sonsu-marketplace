@@ -2,7 +2,8 @@
 
 controller는 [공통 리뷰 기준](review-criteria.md)의 내용을 아래 prompt 앞에 붙여 전달한다.
 일반 reviewer와 다른 fresh context를 사용한다. Codex에서는 현재 tool schema를 확인해
-`fork_turns: "none"`을 사용하고 모델·추론도는 platform 역할 기준에 따라 선택한다.
+`fork_turns: "none"`을 사용한다. Claude Code에서는 현재 `Agent` tool의 별도 context를 사용하며
+subagent 안에서 다시 subagent를 만들지 않는다. 모델·추론도는 현재 platform 역할 기준에 따라 선택한다.
 
 ```text
 계획에 따라 수행한 작업의 원래 목표, 해법과 실제 검증이 연결되는지 독립적으로 검토한다.

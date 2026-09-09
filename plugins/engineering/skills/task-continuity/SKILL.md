@@ -25,8 +25,10 @@ Git exclude 수정도 실행하지 않는다. 쓰기가 허용된 경우에만 `
 스킬을 읽은 실제 설치 경로에서 helper의 절대 경로를 구한다. 상대 경로를 작업 cwd에서 실행하거나
 설치 cache 버전을 추측하지 않는다. `--help`와 각 subcommand의 `--help`로 옵션을 확인한다.
 
-- session은 현재 `CODEX_THREAD_ID` 또는 호스트가 알려 준 정확한 `--session-id`를 사용한다.
-  알 수 없으면 최신 디렉터리를 추측하지 말고 수동 복구만 수행한다.
+- session은 명시한 `--session-id`를 우선하고, 생략하면 `CODEX_THREAD_ID`,
+  `CLAUDE_CODE_SESSION_ID` 순서로 읽는다. 두 호스트의 변수가 함께 남은 중첩 실행에서는
+  현재 호스트의 정확한 ID를 `--session-id`로 지정한다. 알 수 없으면 최신 디렉터리를
+  추측하지 말고 수동 복구만 수행한다.
 - 작업 root는 현재 Git worktree root, Git 밖에서는 `--cwd`의 실제 경로다.
 - 경로는 `<root>/.sonsu/continuity/<session-id>/engineering.json`이다. `read`가 전체 기록과 revision을 반환한다.
 - 최초 `write`의 `--expected-revision`은 0이다. 갱신·종료·새 task 전환에는 방금 읽은 revision을 쓴다.

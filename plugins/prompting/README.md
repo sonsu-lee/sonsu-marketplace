@@ -23,7 +23,11 @@ Codex, ChatGPT와 OpenAI API에서 바로 사용할 수 있는 간결한 프롬�
 마켓플레이스를 등록한 뒤 다음 명령으로 설치합니다.
 
 ```sh
+# Codex
 codex plugin add prompting@sonsu-marketplace
+
+# Claude Code
+claude plugin install prompting@sonsu-marketplace
 ```
 
 기존 standalone `prompt-builder` 스킬을 함께 노출하면 두 스킬이 같은 요청에 경쟁할 수 있습니다.

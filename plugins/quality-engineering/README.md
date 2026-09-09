@@ -1,16 +1,21 @@
 # Quality Engineering
 
 Quality Engineering은 확인된 제품·도메인 계약에 맞는 코드를 작성하고, 불필요한 복잡성,
-reader load, 도달 가능한 실패 경로와 운용 가능성을 서로 구분된 관점으로 검토하는 독립 Codex
-플러그인입니다.
+reader load, 도달 가능한 실패 경로와 운용 가능성을 서로 구분된 관점으로 검토하는 독립
+Codex·Claude Code 플러그인입니다.
 
 ## 설치
 
 Sonsu Marketplace를 등록한 뒤 이 플러그인만 선택해 설치할 수 있습니다.
 
 ```sh
+# Codex
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
 codex plugin add quality-engineering@sonsu-marketplace
+
+# Claude Code
+claude plugin marketplace add sonsu-lee/sonsu-marketplace
+claude plugin install quality-engineering@sonsu-marketplace
 ```
 
 로컬 변경을 검증할 때는 repository root를 marketplace로 등록합니다.
@@ -18,6 +23,10 @@ codex plugin add quality-engineering@sonsu-marketplace
 ```sh
 codex plugin marketplace add .
 codex plugin add quality-engineering@sonsu-marketplace
+
+# Claude Code
+claude plugin marketplace add . --scope local
+claude plugin install quality-engineering@sonsu-marketplace --scope local
 ```
 
 ## 스킬

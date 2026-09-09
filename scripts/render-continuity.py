@@ -22,7 +22,10 @@ def outputs():
         yield root / "skills/task-continuity/SKILL.md", skill.encode()
         yield root / "scripts/task-continuity.py", helper
         hooks = {"hooks": {"SessionStart": [{"matcher": "^(compact|resume)$", "hooks": [{
-            "type": "command", "command": 'python3 "${PLUGIN_ROOT}/scripts/task-continuity.py" hook',
+            "type": "command",
+            "command": ('plugin_root="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}" && '
+                        'test -n "$plugin_root" && '
+                        'python3 "$plugin_root/scripts/task-continuity.py" hook'),
             "timeout": 5, "additionalContextLimit": 600}]}]}}
         yield root / "hooks/hooks.json", (json.dumps(hooks, indent=2) + "\n").encode()
 

@@ -2,12 +2,14 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-A collection of Codex plugins for development, research, product planning, and writing.
-Install the plugins you need, then ask Codex to work as you normally would.
+A collection of Codex and Claude Code plugins for development, research, product planning, and writing.
+Install the plugins you need, then work with your coding agent as usual.
 
 [Installation](#installation) · [Plugins](#plugins) · [Usage examples](#usage-examples) · [Documentation](docs/README.md)
 
 ## Installation
+
+### Codex
 
 Register the marketplace using a Codex CLI version that supports `codex plugin`.
 
@@ -33,6 +35,25 @@ Start a new Codex task after installation. To list the plugins in the marketplac
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+### Claude Code
+
+In Claude Code, register the same repository as a marketplace and install the plugin you need.
+
+```sh
+claude plugin marketplace add sonsu-lee/sonsu-marketplace
+claude plugin install engineering@sonsu-marketplace
+```
+
+Replace the plugin name with an installation name from the table below. To list installed and available plugins, run:
+
+```sh
+claude plugin list --available --json
+```
+
+Claude Code packages use the same `skills/`, `hooks/`, and `scripts/`. Codex-only `apps` and UI metadata
+are not copied into Claude manifests, so configure external tools such as Figma separately in the Claude
+Code host and verify that their tools are available.
+
 ## Plugins
 
 | Plugin | Purpose | Installation name |
@@ -52,7 +73,7 @@ Each plugin can be used independently. Follow the links above for included skill
 
 ## Usage examples
 
-After installing the relevant plugin, try requests like these in Codex:
+After installing the relevant plugin, try requests like these in Codex or Claude Code:
 
 | Plugin | Example request |
 | --- | --- |
@@ -64,11 +85,12 @@ After installing the relevant plugin, try requests like these in Codex:
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
 | Figma Workflow | “Review the Auto Layout and prototype connections in this Figma screen.” |
-| Memory Manager | “$memory-manager Review the Codex memories for this project.” |
+| Memory Manager | Codex: “$memory-manager Review the Codex memories for this project.”<br>Claude Code: “/memory-manager:memory-manager Review the Claude Code memories for this project.” |
 | Operations UI | “Implement this order-operations screen from a Screen Contract and verify it with browser evidence.” |
 
-Codex selects skills based on your request and the descriptions of installed skills.
-Memory Manager runs only when explicitly invoked with `$memory-manager`.
+Codex and Claude Code select skills based on your request and the descriptions of installed skills.
+Memory Manager runs only when explicitly invoked with `$memory-manager` in Codex or
+`/memory-manager:memory-manager` in Claude Code.
 See the [skill routing documentation](docs/architecture/skill-routing.md) for how plugins share responsibilities when used together.
 
 Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
@@ -83,7 +105,18 @@ Fetch the latest snapshot of the registered Git marketplace:
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-After installing or updating plugins, start a new Codex task to load the latest skill list.
+In Claude Code, refresh the marketplace listing, then update each installed plugin:
+
+```sh
+claude plugin marketplace update sonsu-marketplace
+claude plugin update engineering@sonsu-marketplace
+```
+
+Repeat the second command for each installed plugin, replacing `engineering` with its name. For plugins
+installed at `project` or `local` scope, specify the matching `--scope project` or `--scope local` option.
+
+After installing or updating plugins, start a new Codex task or run `/reload-plugins` in Claude Code to
+load the latest skill list.
 
 <details>
 <summary>If you have already installed the same skills</summary>
@@ -102,6 +135,9 @@ git clone https://github.com/sonsu-lee/sonsu-marketplace.git
 cd sonsu-marketplace
 codex plugin marketplace add .
 codex plugin list --marketplace sonsu-marketplace
+
+claude plugin marketplace add . --scope local
+claude plugin list --available --json
 ```
 
 The GitHub source and local path share the `sonsu-marketplace` identifier, so use one registration method per environment.
@@ -120,9 +156,11 @@ The GitHub source and local path share the `sonsu-marketplace` identifier, so us
 ```text
 sonsu-marketplace/
 ├── .agents/plugins/marketplace.json  # Plugin catalog
+├── .claude-plugin/marketplace.json   # Claude Code plugin catalog
 ├── plugins/
 │   └── <plugin>/
 │       ├── .codex-plugin/plugin.json # Plugin metadata
+│       ├── .claude-plugin/plugin.json # Generated Claude Code metadata
 │       └── skills/                  # Skills and reference materials
 ├── docs/                            # Maintenance documentation
 └── evals/                           # Evaluation fixtures and validation tools
@@ -133,19 +171,22 @@ sonsu-marketplace/
 Run these static checks from the repository root:
 
 ```sh
-find .agents plugins evals -name '*.json' -print0 \
+find .agents .claude-plugin plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
+python3 scripts/render-claude-compat.py --check
 python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
+claude plugin validate . --strict
 git diff --check
 ```
 
 These commands check JSON syntax, whether generated skills match their canonical source, and the structure of evaluation fixtures and the runner.
 Actual model skill selection and output quality require separate validation. If you change a plugin's structure,
-also verify marketplace registration, plugin installation, and skill availability in an isolated Codex environment.
+also verify marketplace registration, plugin installation, and skill availability in isolated Codex and Claude Code environments.
 
-The marketplace format follows the [official OpenAI plugin packaging documentation](https://developers.openai.com/plugins/build/plugins).
+The platform-specific formats follow the [official OpenAI plugin packaging documentation](https://developers.openai.com/plugins/build/plugins)
+and the [official Anthropic marketplace documentation](https://code.claude.com/docs/en/plugin-marketplaces).
 
 </details>
 
