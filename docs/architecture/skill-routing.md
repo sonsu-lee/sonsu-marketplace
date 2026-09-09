@@ -21,7 +21,7 @@
 Engineering, Quality Engineering, Workflow, Research, Prompting, Product, Figma Workflow, Operations UI, Design Patterns, Memory Manager와 Fluent Languages는
 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
-Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
+Codex 또는 Claude Code가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
 선택합니다.
 
 | 직접 목적 | 담당 |
@@ -59,8 +59,10 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 기존 운영 화면과 증거의 읽기 전용 품질 감사 | `operations-ui:audit-operations-ui` |
 | 명시적으로 요청된 Figma 운영 화면을 Screen Contract와 구현 handoff에 연결 | `operations-ui:figma-operations-flow` |
 
-Memory Manager는 `policy.allow_implicit_invocation: false`를 사용합니다. `$memory-manager`로
-명시적으로 호출할 때만 실행하며, 일반 작업이나 “기억해 줘”라는 요청에서 자동 선택하지 않습니다.
+Memory Manager는 Codex의 `policy.allow_implicit_invocation: false`와 Claude Code skill의
+`disable-model-invocation: true`를 함께 사용합니다. Codex에서는 `$memory-manager`, Claude Code에서는
+`/memory-manager:memory-manager`로 명시적으로 호출할 때만 실행하며, 일반 작업이나 “기억해 줘”라는
+요청에서 자동 선택하지 않습니다.
 점검 요청은 읽기 전용이고 정리 요청은 대상 호스트가 허용하는 직접 편집 또는 수정 노트
 방식으로 수행합니다. 수정 노트 생성과 원본 메모리 반영은 별도 결과로 보고합니다.
 
@@ -110,6 +112,9 @@ pipeline이 아닙니다. 현재 요청에 필요한 단계만 선택하고 각 
 해당 플러그인의 실행 reference입니다. 다른 플러그인의 설치 의존성이나 필수 선행 호출로
 사용하지 않습니다. 각 역할의 brief는 목표, 현재 근거, 소유 범위와 완료 조건을 중심으로
 간결하게 만들고 단순한 task에는 기존 controller를 그대로 사용합니다.
+
+Claude Code에서는 [Claude Code 실행 도구와 subagent 경계](../../plugins/engineering/skills/using-engineering-skills/references/claude-code-tools.md)를
+적용합니다. Codex의 model 이름이나 agent tool schema를 Claude Code에 그대로 요구하지 않습니다.
 
 이 권고는 [공식 모델 안내](https://learn.chatgpt.com/docs/models),
 [Codex subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents),

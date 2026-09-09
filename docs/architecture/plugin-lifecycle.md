@@ -1,7 +1,7 @@
 # 플러그인 생명주기
 
 - Status: Current
-- Last reviewed: 2026-09-04
+- Last reviewed: 2026-09-08
 
 ## 흐름
 
@@ -11,7 +11,9 @@
   → 원본 기준 commit 가져오기
   → 원본 동일성 검증
   → 별도 기준 commit
-  → 마켓플레이스 등록과 실제 로딩 검증
+  → Codex 정본 manifest와 marketplace 등록
+  → Claude Code native manifest 결정론적 생성
+  → 플랫폼별 validation과 실제 로딩 검증
   → 로컬 정책 변경
   → 로컬 변경 commit
   → 이후 업스트림 업데이트
@@ -36,8 +38,19 @@ Engineering은 [독립 플러그인 결정](../decisions/0009-maintain-engineeri
 따라 독립 semantic version을 사용하며 upstream 동기화나 이전 호환 경로를 배포 계약으로 두지
 않습니다.
 
+## 플랫폼 호환성 계층
+
+`.agents/plugins/marketplace.json`과 plugin별 `.codex-plugin/plugin.json`이 metadata의 정본입니다.
+[`scripts/render-claude-compat.py`](../../scripts/render-claude-compat.py)는 이 정본에서 root
+`.claude-plugin/marketplace.json`과 plugin별 `.claude-plugin/plugin.json`을 생성합니다. 생성물을
+직접 편집하지 않으며, platform-specific 필드 차이는 renderer와 fixture test에서 명시적으로
+관리합니다. 공유 `skills/`, `hooks/`, `scripts/` 본문은 복제하지 않고 두 manifest가 같은 plugin
+root를 가리킵니다.
+
 ## 검증
 
-매니페스트와 JSON 문법만 확인하는 것으로 완료하지 않습니다. 가능한 경우 Codex의 실제
-플러그인 읽기 경로로 이름, 버전, source와 스킬 목록을 확인합니다. 업스트림 업데이트는
-[업스트림 플러그인 업데이트 런북](../runbooks/updating-upstream-plugin.md)을 따릅니다.
+매니페스트와 JSON 문법만 확인하는 것으로 완료하지 않습니다. renderer의 `--check`, Claude Code의
+strict validator와 격리 설치, Codex의 실제 플러그인 읽기 경로를 각각 확인합니다. 이름, 버전,
+source, 스킬과 hook 목록을 플랫폼별 증거로 구분하며 실행하지 못한 경로는 `not_run`으로 남깁니다.
+업스트림 업데이트는 [업스트림 플러그인 업데이트 런북](../runbooks/updating-upstream-plugin.md)을
+따릅니다.

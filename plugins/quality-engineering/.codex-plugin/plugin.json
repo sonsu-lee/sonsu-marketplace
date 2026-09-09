@@ -1,6 +1,6 @@
 {
   "name": "quality-engineering",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "도메인 구조를 반영한 구현과 단순성, 유지보수성, 실패 모드 및 운용 가능성에 대한 근거 중심 리뷰를 제공합니다.",
   "author": {
     "name": "sonsu-lee",

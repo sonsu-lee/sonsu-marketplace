@@ -257,14 +257,16 @@ model을 사용한다. scoped 재리뷰는 범위가 작더라도 finding의 의
 
 **Fix-loop model 선택:** 1~3회차에는 원래 implementer를 재개한다. 4~5회차 또는 원래 implementer를
 사용할 수 없거나 새 반례에도 같은 잘못된 가정을 반복해 진전이 없는 더 이른 회차에는
-`spawn_agent {fork_turns: "none"}` fresh implementer를 사용한다.
+현재 플랫폼에서 이전 이력을 상속하지 않는 fresh implementer를 사용한다. Codex에서는
+`spawn_agent {fork_turns: "none"}`, Claude Code에서는 현재 `Agent` tool의 별도 context를 사용한다.
 앞선 실패가 판단력 부족을 보여 주면 필요한 판단 수준에 맞춰 모델과 추론도를 직접 선택한다.
 회차 번호나 정해진 tier 순서가 아니라 현재 finding을 해결할 수 있는 역할 적합성을 우선한다.
 
 **subagent를 위임할 때 실제 schema가 두 override를 모두 지원하면 모델과 추론도를 함께
 명시한다.** 한쪽만 override하지 않는다. 지원하지 않으면 확인 가능한 role·preset·machine
 default를 사용하고 fallback을 기록한다. 구체적인 Codex 조합과 fallback은
-[Codex 도구 참고](../using-engineering-skills/references/codex-tools.md)를 따른다.
+현재 플랫폼의 [Codex 도구 참고](../using-engineering-skills/references/codex-tools.md) 또는
+[Claude Code 도구 참고](../using-engineering-skills/references/claude-code-tools.md)를 따른다.
 fix-loop에서도 확인 가능한 role·preset·machine default를 사용할 수 있다. 다만 실제로 필요한
 capability를 제공할 수 없으면 `blocked`와 `decision_required`로 중단한다.
 
@@ -318,7 +320,7 @@ child 목록을 확인해 보고 없이 완료한 child를 찾는다. 제한된 
   dispatch에 해당 ledger 항목의 pointer를 포함한다.
 - dispatch 결과에서 implementer의 agent identity를 기록한다. fix-loop 1~3회차에는 이 에이전트를
   재개한다. 4~5회차 또는 이 에이전트를 사용할 수 없거나 새 반례에도 진전이 없는 더 이른 회차에는
-  `spawn_agent {fork_turns: "none"}` fresh implementer에게 concise factual handoff를 전달한다.
+  현재 플랫폼에서 이전 이력을 상속하지 않는 fresh implementer에게 concise factual handoff를 전달한다.
 - 충돌을 막기 위해 여러 구현 subagent를 병렬로 위임하지 않는다.
   이 SDD task/commit ledger의 기본 실행은 직렬이다. 독립된 소유 범위나 별도 worktree로 병렬
   구현할 경우 `dispatching-parallel-agents`에서 controller가 자원·예산·통합 소유권을 먼저 정한다.
@@ -411,13 +413,14 @@ task 리뷰를 생략하거나 두 판정 중 하나가 빠진 report를 받아�
 각 수정 회차는 한 번의 수정 위임과 집중 재리뷰로 구성하며, task마다 최대 5회까지 진행한다.
 
 **1~3회차 — 원래 implementer를 재개한다.** 열린 finding과 새 관찰 evidence를 전달하고 같은
-implementer를 `followup_task`로 재개한다. context가 남아 있으므로 task, 코드와 앞선 선택을 다시
+implementer를 현재 플랫폼의 resume interface로 재개한다(Codex에서는 `followup_task`). context가
+남아 있으므로 task, 코드와 앞선 선택을 다시
 설명하지 않되 현재 revision, 반례와 검증 환경은 명시한다. harness에서 원래 implementer를 더 이상
 사용할 수 없거나 새 반례에도 같은 잘못된 가정이 반복되어 진전이 없다면 이 회차에도
-`spawn_agent {fork_turns: "none"}` fresh implementer를 사용할 수 있으며 아래 handoff 계약을 따른다.
+이전 이력을 상속하지 않는 fresh implementer를 사용할 수 있으며 아래 handoff 계약을 따른다.
 
 **4~5회차 — fresh implementer를 사용한다.** 이전 conversation을 상속하지 않는
-`spawn_agent {fork_turns: "none"}`를 사용한다. 현재 finding을 해결할 수 있는 역할 적합한 모델을
+플랫폼의 fresh agent 생성 기능을 사용한다. 현재 finding을 해결할 수 있는 역할 적합한 모델을
 선택하고, 앞선 실패가 판단력 부족을 보여 주면 필요한 판단 수준에 맞춰 모델과 추론도를 직접 선택한다.
 회차 번호나 정해진 tier 순서를 강제하지 않는다. 실제로 필요한 capability가
 없으면 `blocked`와 `decision_required`를 기록한다.

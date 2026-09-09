@@ -1,6 +1,6 @@
 {
   "name": "figma-workflow",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Figma에서 제품 화면을 만들고 검토할 때 native layout, reusable system, exact assets, interaction과 handoff 품질을 안내합니다.",
   "author": {
     "name": "sonsu",

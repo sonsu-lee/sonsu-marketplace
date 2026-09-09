@@ -74,6 +74,7 @@ agent를 위임하거나 재개할 때에는 [공통 실행·context 계약](ref
 사용 중인 harness가 아래에 있으면 해당 참고 파일에서 특별 지침을 읽는다.
 
 - Codex: `references/codex-tools.md`
+- Claude Code: `references/claude-code-tools.md`
 - Pi: `references/pi-tools.md`
 - Antigravity: `references/antigravity-tools.md`
 - Hermes Agent: `references/hermes-tools.md`

@@ -50,5 +50,10 @@ description: 사용자가 코드 변경이나 구현을 가장 단순한 형태�
 - 실제 복구를 하지 않는 `try/catch`, 중복 guard와 log-and-rethrow
 - 코드가 그대로 보여 주는 내용을 반복하는 comment
 
+JavaScript·TypeScript를 단순화할 때는
+[`../../references/javascript-typescript-review.md`](../../references/javascript-typescript-review.md)를
+읽는다. 외부 검증을 제거하거나 assertion으로 덮지 말고, 이미 검증된 내부 값의 반복 guard,
+optional·boolean soup와 의미 없는 type wrapper를 우선 줄인다.
+
 이 스킬은 활성화된 turn에만 적용한다. 다른 요청에 지속되는 persona나 고정 응답 형식을 만들지
 않고, commit·push·PR 같은 Git 작업으로 범위를 넓히지 않는다.

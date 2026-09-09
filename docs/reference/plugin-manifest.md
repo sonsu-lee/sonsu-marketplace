@@ -1,14 +1,23 @@
 # 플러그인 매니페스트 참조
 
-이 문서는 Sonsu Marketplace에서 사용하는 로컬 규칙을 설명합니다. 전체 Codex 형식의
-대체 문서가 아니며, 새 필드를 추가할 때에는 현재 공식 문서와 실제 Codex 읽기 결과를
-확인합니다.
+이 문서는 Sonsu Marketplace에서 사용하는 로컬 규칙을 설명합니다. 전체 Codex 또는 Claude Code
+형식의 대체 문서가 아니며, 새 필드를 추가할 때에는 각 플랫폼의 현재 공식 문서와 실제 로더
+결과를 확인합니다.
 
 ## 파일 위치
 
 ```text
-plugins/<plugin-name>/.codex-plugin/plugin.json
+.agents/plugins/marketplace.json                 # 정본 marketplace catalog
+plugins/<plugin-name>/.codex-plugin/plugin.json  # 정본 plugin manifest
+.claude-plugin/marketplace.json                  # 생성된 Claude Code catalog
+plugins/<plugin-name>/.claude-plugin/plugin.json # 생성된 Claude Code manifest
 ```
+
+Codex 형식을 저장소의 정본으로 유지하고 `scripts/render-claude-compat.py`가 Claude Code의 native
+파일을 결정론적으로 생성합니다. `.claude-plugin/**`는 직접 수정하지 않습니다. 두 형식에서 공통인
+metadata는 복사하고, `interface.displayName`은 Claude Code의 top-level `displayName`으로 변환합니다.
+Codex 전용 `interface`와 `apps`는 Claude Code manifest에 넣지 않습니다. Claude Code가 표준
+`hooks/hooks.json`을 자동 탐색하므로 Codex의 동일 `hooks` 선언도 복사하지 않습니다.
 
 ## 현재 사용하는 필드
 
@@ -49,6 +58,19 @@ upstream 기준선이나 이전 호환 경로를 매니페스트 계약으로 �
 `hooks/list`로 패키지·스킬·event·matcher를 확인하고, 실제 실행은 별도로 관찰합니다.
 설치만으로 hook이 신뢰되지는 않으며 현재 정의를 사용자가 검토해야 합니다. 정확한 동작과
 수동 복구는 [작업 연속성 계약](task-continuity.md)을 따릅니다.
+
+Claude Code catalog의 각 `source`는 `./plugins/<plugin-name>` 문자열을 사용합니다. 생성기는
+정본 catalog의 이름, 설명, 버전, category와 설치 정책을 유지하면서 Claude Code가 읽는
+`source` 형식으로 변환합니다. 다음 명령으로 생성물의 드리프트를 검사합니다.
+
+```sh
+python3 scripts/render-claude-compat.py --check
+claude plugin validate . --strict
+```
+
+plugin별 strict validation도 `claude plugin validate plugins/<plugin-name> --strict`로 실행합니다.
+Codex의 실제 `plugin/read`, `skills/list`, `hooks/list` 검증과 Claude Code의 validation·격리 설치
+검증은 별개의 관찰 결과로 기록합니다.
 
 ## Figma Workflow connector와 companion 경계
 

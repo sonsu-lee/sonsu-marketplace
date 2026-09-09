@@ -2,12 +2,14 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex 플러그인 모음입니다.
-필요한 플러그인만 골라 설치하고, Codex에 평소처럼 작업을 요청하세요.
+개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex·Claude Code 플러그인 모음입니다.
+필요한 플러그인만 골라 설치하고, 사용하는 코딩 에이전트에 평소처럼 작업을 요청하세요.
 
 [설치](#설치) · [플러그인](#플러그인) · [사용 예시](#사용-예시) · [문서](docs/README.md)
 
 ## 설치
+
+### Codex
 
 `codex plugin` 명령을 지원하는 Codex CLI에서 마켓플레이스를 등록합니다.
 
@@ -33,6 +35,26 @@ codex plugin add workflow@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+### Claude Code
+
+Claude Code에서는 같은 저장소를 marketplace로 등록하고 필요한 플러그인을 설치합니다.
+
+```sh
+claude plugin marketplace add sonsu-lee/sonsu-marketplace
+claude plugin install engineering@sonsu-marketplace
+```
+
+다른 플러그인은 아래 표의 설치 이름으로 바꿉니다. 설치된 목록과 marketplace에서 사용할 수 있는
+항목은 다음 명령으로 확인할 수 있습니다.
+
+```sh
+claude plugin list --available --json
+```
+
+Claude Code용 package는 같은 `skills/`, `hooks/`, `scripts/`를 사용합니다. Codex 전용 `apps`와
+UI metadata는 Claude manifest에 복사하지 않으므로, Figma 같은 외부 도구는 Claude Code host에
+별도로 구성하고 실제 tool 노출을 확인해야 합니다.
+
 ## 플러그인
 
 | 플러그인 | 용도 | 설치 이름 |
@@ -53,7 +75,7 @@ codex plugin list --marketplace sonsu-marketplace
 
 ## 사용 예시
 
-관련 플러그인을 설치한 뒤 Codex에 다음과 같이 요청할 수 있습니다.
+관련 플러그인을 설치한 뒤 Codex 또는 Claude Code에 다음과 같이 요청할 수 있습니다.
 
 | 플러그인 | 요청 예시 |
 | --- | --- |
@@ -65,12 +87,13 @@ codex plugin list --marketplace sonsu-marketplace
 | Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
 | Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
 | Figma Workflow | “이 Figma 화면의 Auto Layout과 프로토타입 연결을 검토해 줘.” |
-| Memory Manager | “$memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘.” |
+| Memory Manager | Codex: “$memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘.”<br>Claude Code: “/memory-manager:memory-manager 현재 프로젝트의 Claude Code 메모리를 점검해 줘.” |
 | Operations UI | “이 주문 운영 화면을 Screen Contract부터 구현하고 브라우저 증거로 검증해 줘.” |
 | Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
 
-Codex는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
-Memory Manager는 `$memory-manager`로 명시적으로 호출할 때만 작동합니다.
+Codex와 Claude Code는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
+Memory Manager는 Codex의 `$memory-manager` 또는 Claude Code의
+`/memory-manager:memory-manager`로 명시적으로 호출할 때만 작동합니다.
 여러 플러그인을 함께 사용할 때의 역할은 [스킬 라우팅 문서](docs/architecture/skill-routing.md)에 정리되어 있습니다.
 
 Research의 Exa·Perplexity 연동은 선택 사항이며, 사용 가능한 web·browser·connector와 로컬 자료로도 조사할 수 있습니다.
@@ -85,7 +108,18 @@ Figma Workflow의 캔버스 작업에는 공식 Figma MCP 연결과 해당 도�
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-플러그인을 설치하거나 업데이트한 뒤에는 새 Codex 작업을 시작해 최신 스킬 목록을 불러오세요.
+Claude Code에서는 marketplace 목록을 갱신한 뒤 설치된 플러그인도 각각 업데이트합니다.
+
+```sh
+claude plugin marketplace update sonsu-marketplace
+claude plugin update engineering@sonsu-marketplace
+```
+
+`engineering`을 설치한 각 플러그인 이름으로 바꿔 두 번째 명령을 반복합니다. `project` 또는
+`local` scope에 설치했다면 같은 scope를 `--scope project` 또는 `--scope local`로 지정합니다.
+
+플러그인을 설치하거나 업데이트한 뒤에는 Codex에서 새 작업을 시작하거나 Claude Code에서
+`/reload-plugins`를 실행해 최신 스킬 목록을 불러오세요.
 
 <details>
 <summary>이전에 같은 스킬을 설치했다면</summary>
@@ -104,6 +138,9 @@ git clone https://github.com/sonsu-lee/sonsu-marketplace.git
 cd sonsu-marketplace
 codex plugin marketplace add .
 codex plugin list --marketplace sonsu-marketplace
+
+claude plugin marketplace add . --scope local
+claude plugin list --available --json
 ```
 
 GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용하므로 한 환경에서는 한 가지 방식으로 등록합니다.
@@ -122,9 +159,11 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
 ```text
 sonsu-marketplace/
 ├── .agents/plugins/marketplace.json  # 플러그인 목록
+├── .claude-plugin/marketplace.json   # Claude Code 플러그인 목록
 ├── plugins/
 │   └── <plugin>/
 │       ├── .codex-plugin/plugin.json # 플러그인 정보
+│       ├── .claude-plugin/plugin.json # 생성된 Claude Code 플러그인 정보
 │       └── skills/                  # 스킬과 참고 자료
 ├── docs/                            # 유지보수 문서
 └── evals/                           # 평가 fixture와 검증 도구
@@ -135,19 +174,22 @@ sonsu-marketplace/
 저장소 루트에서 다음 정적 검사를 실행합니다.
 
 ```sh
-find .agents plugins evals -name '*.json' -print0 \
+find .agents .claude-plugin plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
+python3 scripts/render-claude-compat.py --check
 python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
+claude plugin validate . --strict
 git diff --check
 ```
 
 이 명령은 JSON 구문, 생성된 스킬의 정본 일치 여부와 평가 fixture·runner의 구조를 확인합니다.
 실제 모델의 스킬 선택이나 출력 품질은 별도 검증이 필요합니다. 플러그인 구조를 변경했다면
-격리된 Codex 환경에서 마켓플레이스 등록, 플러그인 설치와 스킬 노출도 확인하세요.
+격리된 Codex와 Claude Code 환경에서 마켓플레이스 등록, 플러그인 설치와 스킬 노출도 확인하세요.
 
-마켓플레이스 형식은 [OpenAI 공식 플러그인 패키징 문서](https://developers.openai.com/plugins/build/plugins)를 따릅니다.
+플랫폼별 형식은 [OpenAI 공식 플러그인 패키징 문서](https://developers.openai.com/plugins/build/plugins)와
+[Anthropic 공식 marketplace 문서](https://code.claude.com/docs/en/plugin-marketplaces)를 따릅니다.
 
 </details>
 
