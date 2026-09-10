@@ -320,25 +320,29 @@ Workflow는 ticket 접수·작성·내용 수정, 기존 ticket의 lifecycle 변
 
 | 이벤트 | 담당 | 책임 |
 | --- | --- | --- |
-| ticket 접수·초안·생성 | `workflow:to-ticket` | 종류·구조·준비 상태에 맞는 title·body와 생성 metadata를 준비하고 허가된 게시 결과를 검증 |
+| ticket 접수·초안·생성 | `workflow:to-ticket` | 적용 양식으로 제목·본문과 생성 필드를 준비하고 허가된 게시·첨부 결과를 검증 |
 | 기존 title·body 보강 | `workflow:to-ticket` | canonical 원문을 읽고 요청한 내용만 수정·재조회; 기존 결정·기록과 요청 밖 field 보존 |
 | 작업 시작·상태 변경 | `workflow:ticket-lifecycle` | canonical ticket의 현재 상태를 읽고 허용된 transition, 담당자와 native relation을 변경 |
 | branch 생성 | `workflow:git-workflow` | Git branch만 관리하고 ticket mutation은 runtime에서 `ticket-lifecycle`과 조합 |
 | PR 초안·게시 | `workflow:to-pr` | canonical ticket의 연결 의도와 provider 문법을 PR에 표현하고 status effect를 검증 |
 | PR·merge·release event | tracker의 native integration | 구성된 workflow automation을 적용하고, Workflow skill은 직접 중복 전이하지 않음 |
 
-### 종류·구조·준비 상태를 나누어 작성한다
+### 공통 양식에 필요한 내용만 담는다
 
-`to-ticket`은 사용자 지정 양식, 적용 가능한 repository·팀 양식, 플러그인 기본형 순서로 선택합니다.
-양식 확인 불가를 없음으로 간주하지 않습니다. 기본형은 bug, feature-request, feature, investigation,
-maintenance, validation, incident, problem, postmortem, rollout, migration, service-request, security를
-제공하며 선택한 파일 하나만 읽습니다. `single | parent | child` 구조는 종류와 별개이며 같은 의미의
-heading을 중복해서 붙이지 않습니다. native type·label·hierarchy는 실제 tracker 설정을 따릅니다.
+`to-ticket`은 사용자 지정 양식, 적용 가능한 저장소·팀 양식, 플러그인 공통형 순서로 선택합니다.
+양식을 확인할 수 없는 상태와 양식이 없는 상태를 구분합니다. 공통형은 `문제`를 필수로 작성하고,
+필요할 때 `재현 정보`와 `고려 사항`, 선택 항목인 `관련 자료`를 덧붙입니다. 종류별 템플릿이나
+준비 상태 분류를 요구하지 않으며, 실제 type·label·상하위 관계는 대상 공간의 설정을 따릅니다.
 
-`intake | execution-ready | needs-information`은 작성 준비 상태입니다. 원인 미상의 버그 보고나 채택
-전 기능 요청도 사실과 질문으로 접수할 수 있으며, 실행 범위·수용 기준이나 tracker status를 새로
-결정하지 않습니다. 같은 결과의 구체화는 기존 티켓에 보강하고 독립적인 결과·책임·완료 판정이 필요한
-경우에만 분리합니다. 부모의 완료 조건은 전체 결과이며 자식 완료나 merge만으로 대신하지 않습니다.
+문제나 요청을 이해할 수 있으면 원인·해결 방법·채택 여부가 미정이어도 작성합니다. 알려진 제약,
+합의, 선호와 질문을 구분하고, 상세 구현 계획이나 완료조건을 새로 만들지 않습니다. 이미 합의된
+조건은 본문에 보존합니다. 부모·자식도 같은 양식을 사용하며, 독립적으로 추적할 결과만 나눕니다.
+사용자가 지정한 범위와 전체 제공·검증 조건을 자식 완료나 merge로 대신하지 않습니다.
+
+재현 정보에는 순서와 동영상·이미지를 함께 담습니다. 자료 미확보는 그대로 기록하고, 화면으로
+설명하기 어려운 문제는 로그·요청·응답 등으로 대신합니다. 게시할 때는 현재 프로바이더의 도구
+지원을 확인하고 업로드, 티켓 연결, 본문 위치와 열람·재생을 각각 검증합니다. 초안만 작성할 때는
+업로드하지 않습니다. 전송 결과가 불명확하면 재조회하며 같은 파일을 자동으로 다시 올리지 않습니다.
 
 기존 제목·본문 수정은 `revise`로 처리합니다. 최신 canonical 원문에서 요청한 부분을 수정하고 쓰기
 직전에 재조회합니다. 충돌하는 동시 수정은 덮어쓰지 않으며, 쓰기 응답이 불명확하면 재전송하지 않고

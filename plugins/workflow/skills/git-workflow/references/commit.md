@@ -15,15 +15,15 @@ commit 메시지를 준비하거나 staged 변경에서 새 commit을 만들 때
 
 ## Conventional Commit을 작성한다
 
-repository 규칙이 없으면 다음 형식을 사용한다.
+저장소 규칙이 없으면 다음 형식을 사용한다.
 
 ```text
 <type>(<optional-scope>): <imperative summary>
 ```
 
-`type`과 `scope`는 실제 diff와 repository 관례에서 고른다. summary는 변경의 결과를 간결하게 설명한다. 구현하지 않은 효과, 실행하지 않은 테스트와 확인하지 않은 티켓 상태를 메시지에 넣지 않는다. breaking change 표시는 실제 호환성 변화가 있고 repository 형식에 맞는 경우에만 사용한다.
+`type`과 `scope`는 실제 diff와 저장소 관례에서 고른다. summary는 변경의 결과를 간결하게 설명한다. 구현하지 않은 효과, 실행하지 않은 테스트와 확인하지 않은 티켓 상태를 메시지에 넣지 않는다. breaking change 표시는 실제 호환성 변화가 있고 저장소 형식에 맞는 경우에만 사용한다.
 
-티켓 ID나 URL은 사용자 요청 또는 repository 관례가 있을 때만 subject나 footer에 포함한다. commit message를 tracker 연결의 기본 채널로 사용하거나 티켓 ID를 만들지 않는다.
+티켓 ID나 URL은 사용자 요청 또는 저장소 관례가 있을 때만 subject나 footer에 포함한다. commit message를 tracker 연결의 기본 채널로 사용하거나 티켓 ID를 만들지 않는다.
 
 ## 생성하고 확인한다
 

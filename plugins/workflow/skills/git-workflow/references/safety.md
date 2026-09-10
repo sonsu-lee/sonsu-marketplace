@@ -13,7 +13,7 @@ commit 또는 push처럼 Git 상태를 변경할 때 읽는다.
 ## Push 대상을 고정한다
 
 - 정확한 remote URL, 인증 주체, current branch와 local head SHA를 확인한다.
-- 사용자가 지정한 remote와 ref를 우선하고, 없으면 검증된 upstream과 repository 관례를 사용한다.
+- 사용자가 지정한 remote와 ref를 우선하고, 없으면 검증된 upstream과 저장소 관례를 사용한다.
 - 새 upstream이 필요하면 정확한 source와 destination ref를 보여 주고 일반 push만 수행한다.
 - remote ref가 예상과 다르거나 non-fast-forward라면 자동으로 pull, rebase, merge 또는 force push하지 않는다.
 - push 결과가 불명확하면 local SHA와 remote ref를 다시 조회한 뒤 재시도 여부를 판단한다.

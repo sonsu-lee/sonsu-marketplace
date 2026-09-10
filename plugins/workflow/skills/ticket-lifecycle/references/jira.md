@@ -15,7 +15,7 @@
 
 연결된 source control의 branch created, pull request created·declined·merged, deployment와 release automation이 확인되면 해당 event의 status effect를 직접 중복 실행하지 않는다. key가 branch·commit·PR title에 있다는 사실만으로 automation 성공이나 completion을 주장하지 않는다.
 
-## mutation 후 다시 읽는다
+## 변경 요청 후 다시 읽는다
 
 Atlassian MCP가 도구를 지연 공개하면 필요한 transition, assign, issue-link와 get 기능을 현재 discovery interface에서 찾는다. 각 operation을 한 번 적용하고 work item을 다시 읽어 status, assignee와 issue link를 확인한다. transition 성공과 issue-link 성공을 따로 기록하고, 불명확한 응답은 반복하지 않는다. 연결되지 않은 site, 권한 부족과 unsupported transition/link는 구분해 보고한다.
 

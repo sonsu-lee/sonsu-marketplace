@@ -15,8 +15,8 @@
 
 Linear GitHub integration의 drafted, opened, review requested, ready for merge와 merged automation이 해당 repository에 구성되어 있으면 같은 status를 직접 전이하지 않는다. automation 부재 또는 해당 event 비적용과 direct fallback 조건이 전부 확인되지 않으면 `unknown`으로 남긴다.
 
-## mutation 후 다시 읽는다
+## 변경 요청 후 다시 읽는다
 
-현재 MCP 또는 API schema를 확인하고 지원되는 update·relation operation만 한 번 실행한다. 매 operation 뒤 relation 포함 issue를 다시 읽어 status, assignee와 relation을 검증한다. 인증 만료, workspace 전환 필요와 권한 부족이 있으면 로그인·전환·권한 확대 없이 해당 operation을 중단한다.
+현재 MCP 또는 API schema를 확인하고 지원되는 update·relation operation만 한 번 실행한다. 매 작업 뒤 relation 포함 issue를 다시 읽어 status, assignee와 relation을 검증한다. 인증 만료, workspace 전환 필요와 권한 부족이 있으면 로그인·전환·권한 확대 없이 해당 operation을 중단한다.
 
 공식 참고: [Linear issue status](https://linear.app/docs/configuring-workflows), [Linear issue relation](https://linear.app/docs/issue-relations), [Linear GitHub integration](https://linear.app/docs/github)

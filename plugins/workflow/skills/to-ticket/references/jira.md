@@ -13,7 +13,7 @@ Jira Cloud의 현재 UI 문서에서는 `work item`, `work type`, `space`, `Titl
 
 Jira의 생성 가능 field는 project와 issue type마다 다르다. project의 issue type 목록과 create-field metadata를 먼저 읽고 실제로 지원되는 필드와 필수값만 보낸다. 사용자에게 보이는 이름을 임의의 account ID, option ID, custom field ID 또는 transition ID로 바꾸지 않는다.
 
-중립 `kind`는 실제 work type과 space 관례에 맞춰 매핑한다. `defect`는 보통 `Bug`, 사용자 결과를 제공하는 `delivery`는 `Story` 또는 `Task`, `maintenance`는 `Task`와 대응할 수 있다. `investigation`은 확인된 custom work type이 없으면 `Task`와 label 등 기존 관례를 사용할 수 있지만 근거 없이 type이나 field를 만들지 않는다.
+작업 분류는 해당 공간의 실제 work type과 label을 따른다. 기본 양식 때문에 새 type을 만들지 않으며, 기존 값과 생성 필수값을 조회해 사용한다.
 
 Jira의 실제 work type은 hierarchy level에 배치된다. 예를 들어 `Epic`은 상위 level에, `Story`, `Task`, `Bug` 등은 standard level에, `Subtask`는 하위 level에 있을 수 있지만 site 설정이 우선한다. `standard work item` 같은 level 명칭을 실제 work type으로 만들거나 중립 `kind`와 자동으로 동일시하지 않는다. Jira Service Management의 customer-facing request type도 내부 work type과 별개이므로 대상이 service space일 때 실제 request type과 연결 관계를 따로 확인한다.
 
@@ -31,19 +31,24 @@ connector가 `description`에 Markdown을 받더라도 직접 REST API를 사용
 
 ## 생성하고 검증한다
 
-1. 연결된 site와 `cloudId`, project와 issue type을 확인한다.
-2. create-field metadata와 같은 목적의 기존 issue를 조회한다.
-3. 최종 summary, description과 지원되는 field payload를 확정한다.
-4. parent와 무관한 단일 티켓은 한 번 생성하고 반환된 원격 key를 기록한다. 여러 티켓 또는 hierarchy·relation 매핑이 있으면 parent와 무관한 대상을 한 번씩 생성하여 `client_key`와 원격 key를 매핑한다.
-5. subtask처럼 생성 시 parent가 필요한 티켓은 확인된 parent key를 생성 payload에 넣는다. 모든 대상 티켓이 존재한 뒤 나머지 승인된 issue link를 연결한다.
-6. 생성 payload에 포함되지 않은 metadata와 issue link를 하나씩 적용하고 매번 key로 티켓을 다시 읽어 URL, summary, status, 실제 field와 관계를 확인한다.
+[공통 생성 절차](../SKILL.md#새-티켓을-게시한다)를 따른다. site·`cloudId`·project·issue type과 생성 필수 필드를 확인하고 한 번 생성해 key를 보존한다. subtask는 확인된 parent ID로 생성한다. 나머지 issue link는 모든 대상이 존재한 뒤 허가된 범위에서 연결한다.
 
-필수 field를 확인할 수 없거나 연결되지 않았으면 게시하지 않는다. 생성 결과가 불명확하면 같은 payload를 반복하지 말고 JQL이나 정확한 key 조회로 실제 상태를 먼저 확인하며, 확인되지 않으면 `unknown`으로 남긴다. 후속 operation은 재조회에서 미적용이 확인된 경우에만 재시도한다.
+각 후속 작업 뒤 key로 다시 읽어 URL·summary·status·필드·관계를 확인한다. 필수 필드나 연결을 확인할 수 없으면 초안과 미게시 이유를 반환한다.
 
 ## 기존 제목·본문 수정
 
-`revise`에서는 정확한 site·project·canonical key와 현재 summary·전체 description을 먼저 읽는다. 생성 metadata 대신 현재 issue의 edit 가능 field·update schema를 확인한다. 본문은 Markdown 문자열인지 ADF 같은 rich-text document인지 구분하고, 읽은 표현을 다시 쓸 때 기존 node·링크·첨부 참조를 보존할 수 있는지 확인한다. 손실 없는 수정이 불가능하면 변경 제안만 반환한다.
+`revise`에서는 정확한 site·project·canonical key와 현재 summary·전체 description을 먼저 읽는다. 생성 메타데이터 대신 현재 issue의 edit 가능 field·update schema를 확인한다. 본문은 Markdown 문자열인지 ADF 같은 rich-text document인지 구분하고, 읽은 표현을 다시 쓸 때 기존 node·링크·첨부 참조를 보존할 수 있는지 확인한다. 손실 없는 수정이 불가능하면 변경 제안만 반환한다.
 
 payload에는 canonical 식별자와 요청한 summary·description만 넣고 work type·status·assignee·parent·link는 포함하지 않는다. status transition을 내용 edit에 섞지 않는다. 쓰기 직전에 원문·지원되는 revision marker를 다시 읽고 공통 Revise 규칙을 적용한다. 수정 뒤 전체 summary·description을 재조회하여 요청 밖의 내용과 형식의 보존까지 비교한다.
 
 공식 interface와 개념 참고: [Atlassian Rovo MCP supported tools](https://support.atlassian.com/atlassian-ai-gateway/docs/supported-tools/), [Jira Cloud issue API](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/), [Jira work types](https://support.atlassian.com/jira-cloud-administration/docs/what-are-issue-types/), [Jira work item 생성](https://support.atlassian.com/jira-software-cloud/docs/create-a-work-item-and-a-subtask/), [Jira Service Management request type과 work type](https://support.atlassian.com/jira-service-management-cloud/docs/whats-the-difference-between-request-types-and-issue-types/)
+
+## 이미지와 동영상을 첨부한다
+
+[공통 첨부 규칙](media-attachments.md)을 적용한다. Rovo MCP v2 공식 도구에는 `uploadAttachmentToJiraIssue`가 있다. 현재 연결에 노출되지 않았다면 제공되는 `discover`로 찾고 반환된 schema와 실행 경로를 따른다. 연결에 검색·실행 경로도 없으면 MCP 전체가 업로드를 지원하지 않는다고 단정하지 말고 현재 연결의 제한을 보고한다.
+
+MCP 경로를 쓸 수 없으면 이미 허가된 인증으로 공식 REST API 또는 브라우저 첨부를 사용한다. REST에서는 `GET /rest/api/3/attachment/meta`로 첨부 활성화·크기 제한을 확인하고, 정확한 이슈에 `POST /rest/api/3/issue/{issueIdOrKey}/attachments`를 호출한다. 요청은 `multipart/form-data`, 파일 필드명은 `file`이며 `X-Atlassian-Token: no-check` 헤더가 필요하다. 해당 공간의 첨부 생성 권한도 확인한다.
+
+응답의 실제 첨부 ID·URL을 보존하고 이슈에서 연결을 확인한다. 본문에 삽입할 때는 현재 interface의 rich-text 형식을 따른다. ADF의 `media`는 Media Services ID와 collection을 사용하므로 REST 첨부 ID를 임의로 대입하지 않는다. 올바른 미디어 참조를 만들 수 없으면 공식 편집기의 삽입 기능을 사용한다. 링크만 남긴 상태와 본문 안의 이미지·영상 표시를 구분하고, 확인하지 않은 미리보기를 완료로 보고하지 않는다.
+
+공식 참고: [Rovo MCP 지원 도구](https://support.atlassian.com/atlassian-ai-gateway/docs/supported-tools/), [첨부 API](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-attachments/), [ADF media](https://developer.atlassian.com/cloud/jira/platform/apis/document/nodes/media/)

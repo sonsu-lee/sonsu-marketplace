@@ -63,11 +63,17 @@ native 자동 skill selection은 별개의 검증입니다. 모의 trace나 JSON
 보장된다고 보고하지 않습니다. Research 단독 조건과 호스트 지침·Exa 스킬 동시 설치 조건은
 별도로 실행하고 baseline·변경 후의 입력과 모델 설정을 맞춥니다.
 
-## 티켓 종류·내용 수정 사례
+## 티켓 양식·내용 수정 사례
 
 `expected_action`은 create/revise, `expected_mode`는 draft/publish를 구분합니다.
-`expected_template`, `expected_structure`, `expected_readiness`는 본문 선택 판단이며 native
-label·type·status 값이 아닙니다. `expected_template_source`는 team과 temporary-fallback 등의
+`expected_template`은 적용할 양식을, `expected_structure`는 상하위 구성을 나타내며 native
+label·type·status 값이 아닙니다. 기본 양식은 작업 성격과 관계없이 `default`입니다.
+`must_include_reproduction_section`은 증상 설명에 재현 정보를 포함하는지,
+`must_not_classify_readiness`는 준비 상태 분류를 강제하지 않는지 확인합니다.
+`must_ask_for_problem_context`는 문제 자체를 특정할 수 없을 때 핵심 질문을 반환하는지 검사합니다.
+`must_preserve_preference_vs_agreement`와 `must_not_invent_implementation`은 선호·합의의 강도를
+보존하고 요청에 없는 구현을 만들지 않는지, `must_not_add_completion_checklist`와
+`must_not_add_empty_optional_sections`는 불필요한 항목을 붙이지 않는지 확인합니다. `expected_template_source`는 team과 temporary-fallback 등의
 출처 확인을 검사합니다. `must_preserve_*`는 실제 초안·수정 payload에서 해당 내용이 유지되는지,
 `expected_child_count`와 `must_map_parent_and_child_keys`는 사용자가 지정한 분해 경계와 게시 전
 부모·자식 참조를 실제 초안에서 확인합니다. `must_limit_update_to_content`는 식별자 이외의 변경 field가 요청한 제목·본문에 한정되는지 검사합니다.

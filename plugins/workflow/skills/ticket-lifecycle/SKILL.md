@@ -7,10 +7,9 @@ description: 기존 Linear, GitHub Issues 또는 Jira 티켓의 상태·담당�
 
 ## 작업 연속성
 
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+여러 단계의 작업이나 외부 쓰기를 맡은 메인 controller는 [task-continuity](../task-continuity/SKILL.md)로 진행과 근거를 기록한다. 컴팩션·재개 후에는 실제 상태와 대조한다. 짧은 단발 작업과 위임된 작업자는 별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 수정하지 않는다.
+
+설명과 보고는 출력 언어의 Fluent Languages 스킬이 있으면 함께 적용한다. 한국어는 `fluent-languages:fluent-korean`을 사용하며, 코드·식별자·링크와 의미는 보존한다. 해당 스킬이 없어도 작업은 계속하고 자동 설치하지 않는다.
 
 ## 책임과 권한을 구분한다
 
@@ -42,7 +41,12 @@ relation_operations: Array<{
 }>
 ```
 
-status intent는 최대 하나다. “나”도 현재 tracker identity 없이 account ID로 추정하지 않는다. 특정 담당자 해제는 현재 assignee에서 검증한 사용자를 target으로 보존하고, `all`은 사용자가 모든 담당자 해제를 명시한 경우에만 사용한다. 다중 assignee에서 특정 사용자와 `all` 중 어느 의도인지 확정할 수 없으면 쓰지 않는다. `A is blocked by B`와 `A blocks B`의 방향을 보존한다. `unblock`은 target과 방향이 일치하는 기존 relation을 확인한 뒤 제거한다. `duplicate`는 어떤 티켓이 어느 canonical target의 중복인지 보존한다. target이나 방향을 확정할 수 없으면 쓰지 않는다.
+status intent는 최대 하나다. 대상과 변경 방향은 다음 기준으로 확인한다.
+
+- “나”는 현재 tracker의 사용자 정보로 확인한다. account ID를 추정하지 않는다.
+- 특정 담당자 해제는 현재 담당자에서 확인한 사용자를 대상으로 한다. `all`은 모든 담당자 해제를 명시한 경우에만 사용한다. 어느 의도인지 불명확하면 변경하지 않는다.
+- `A is blocked by B`와 `A blocks B`의 방향을 보존한다. `unblock`은 대상과 방향이 일치하는 기존 관계를 확인한 뒤 제거한다.
+- `duplicate`는 중복 티켓과 기준 티켓의 방향을 보존한다. 대상이나 방향을 확정하지 못하면 변경하지 않는다.
 
 ## 현재 상태를 읽고 한 번씩 적용한다
 
@@ -65,10 +69,12 @@ status, transition, assignee, relation, automation과 권한을 읽는다. 이�
 
 ## relation과 status를 섞지 않는다
 
-`block`과 `unblock`은 native blocked-by·blocking relation을 먼저 처리한다. Waiting 또는 Blocked status는 대상 공간에 독립적인 정책과 유효한 transition이 있을 때만 별도 operation으로 적용한다. `related`와 `duplicate`도 native relation을 우선하고 관련 없는 status를 바꾸지 않는다. native operation에 provider 고유의 필수 상태 효과가 있으면 실행 전에 확인한다. 요청이 그 효과를 금지하면 원격 호출 없이 operation을 `unapplied`, reason을 `conflict`로 보고한다. 구조화된 relation이 없으면 `unsupported`로 보고하며, body 수정까지 명시적으로 요청받은 경우에만 내용 수정 책임을 `to-ticket`과 조합해 의미를 본문에 보존한다.
+`block`과 `unblock`은 플랫폼의 blocked-by·blocking 관계를 먼저 처리한다. Waiting·Blocked 상태는 대상 공간의 별도 정책과 유효한 transition이 있을 때만 추가로 변경한다. `related`와 `duplicate`도 관계 기능을 우선하고 관련 없는 상태를 바꾸지 않는다.
+
+관계 변경에 플랫폼 고유의 필수 상태 효과가 있으면 실행 전에 확인한다. 사용자가 그 효과를 금지했다면 호출하지 않고 `unapplied`, reason `conflict`로 보고한다. 관계 기능이 없으면 `unsupported`로 알린다. 본문 수정까지 요청받았을 때만 `to-ticket`과 조합해 본문에 의미를 보존한다.
 
 PR event automation이 구성되었으면 그 event의 status effect를 직접 중복 적용하지 않는다. automation 부재·비적용, 현재 상태, 목표 transition, 권한과 전이 의도가 모두 확인된 경우에만 직접 fallback한다. 비동기 결과가 불명확하면 `unknown`으로 보고하고 전이하지 않는다.
 
 ## 결과를 보고한다
 
-provider, canonical key·URL, 변경 전후 상태와 operation별 target·결과·근거를 보고한다. 적용하지 않은 요청, 권한·interface 제한, 불명확한 automation과 남은 후속 작업을 성공한 변경과 분리한다.
+프로바이더, canonical key·URL, 변경 전후 상태와 operation별 target·결과·근거를 보고한다. 적용하지 않은 요청, 권한·인터페이스 제한, 불명확한 automation과 남은 후속 작업을 성공한 변경과 분리한다.
