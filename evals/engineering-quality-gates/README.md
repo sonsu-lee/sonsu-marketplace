@@ -34,6 +34,10 @@ classification과 정상 escalation은 `quality_status`, `classification_outcome
 - tool·permission·external state 부재는 `blocked`이며 동일 명령을 반복하지 않습니다.
 - retry cap의 valid required finding은 human `accepted_risk` 없이 `passed`나 `complete`가 아닙니다.
 - quality gate와 Git·PR·publish authorization은 독립적으로 판정합니다.
+- 원래 구현 요청·이전 승인이 있으면 별도 설계 승인 메시지를 요구하지 않습니다. Fast Path 탈락,
+  탐색 예산 소진, 재개와 plan 필요성은 기존 작업 권한을 무효화하지 않습니다.
+- 설계 전용 요청·명시적인 구현 전 확인·미결정 제품 규칙·승인 계약 변경은 의존 작업을 보류합니다.
+  내부 선택은 기존 근거로 해결하고, 결정·Git 권한 공백과 독립적인 승인 수정·검증은 계속합니다.
 - subagent capability가 있어도 task commit 승인이 없으면 plan 실행은 `executing-plans`에 남고
   `subagent-driven-development`로 순환하지 않습니다.
 - Fast Path controller는 target discovery 전에 stable task ID를 고정하고 실제 현재 파일을 최대 2회
@@ -44,6 +48,8 @@ classification과 정상 escalation은 `quality_status`, `classification_outcome
 - Fast Path 최초 구현과 한 번의 집중 수정은 중단 없는 같은 실행에서만 허용합니다. false·unknown
   predicate와 실행 중 숨은 복잡성은 `disqualified`를 기록한 뒤 가장 가까운 일반 workflow로 routing합니다.
 - Fast Path의 숨은 복잡성 upgrade와 red-team의 변경 입력 기반 재시도는 flow diagram에서도 실제로 도달 가능해야 합니다.
+- 일반 workflow에서는 필요한 추가 탐색을 할 수 있지만 Fast Path의 소비 예산·탈락 기록을
+  초기화하거나 세 번째 Fast Path 탐색으로 돌아가지 않습니다.
 - Fast Path eligibility와 실행 전 classification은 quality `passed`가 아니며 정상 escalation도 quality failure가 아닙니다.
 - Code Mode는 결정론적 실행 수단이며 Fast Path 적합성이나 품질 통과의 증거가 아닙니다.
 - plan-backed 완료에는 일반 최종 리뷰와 별개의 fresh-context red-team 판정이 필요합니다.
@@ -73,6 +79,36 @@ native loading과 model 실행 결과를 구분합니다. 특히 fixture 통과�
 품질·비용 효과를 주장하지 않습니다.
 
 ## Codex 모델·prompt 변경 비교
+
+### 2026-09-11 승인 경계 decision probe
+
+`approval-boundary-*` 8개 scenario에 대해 변경 전 `91b4a0e`와 수정 중 snapshot의
+`brainstorming`, `writing-plans`, `executing-plans`, `agent-execution`을 fresh agent에게 읽게 했습니다.
+양쪽 모두 Sol medium을 요청했고 scenario와 판단 질문을 고정했습니다. 각 snapshot당 1응답으로
+8개 case를 판단했으며, native 실제 model/effort는 관측하지 못했습니다.
+
+| 상황 | 변경 전 관찰 | 수정 후 관찰 |
+| --- | --- | --- |
+| 승인된 bounded 수정이 plan을 요구함 | 별도 설계 승인까지 구현 보류 | plan 작성 후 승인된 수정·검증 계속 |
+| Fast Path 탐색 2회 소진 | 일반 추가 읽기는 가능, 구현은 설계 승인까지 보류 | 탈락 상태를 보존하고 일반 탐색·수정·검증 계속 |
+| 승인된 작업 재개·private 선택 | 일반 경로·기존 관례로 계속 | 같은 판단 유지 |
+| 제품 규칙 누락 | 결정 의존 작업 보류, 독립 링크 수정 계속 | 같은 경계 유지 |
+| 설계 전용 요청·공개 계약 변경 | 구현 또는 계약 변경 보류 | 같은 경계 유지 |
+| commit 권한 없음 | 승인 작업 계속을 선택했으나 실행 스킬의 전체 중단 문구와 충돌 지적 | commit만 보류하고 수정·검증 계속, 직접 결론 충돌 없음 |
+
+이는 문서를 읽은 조건부 다음 행동의 비교입니다. 실제 코드 수정, tool 선택, 장기 workflow,
+리뷰 완료나 품질·비용 개선을 검증한 결과가 아닙니다. 반복 표본이 없고 8개 답이 하나의 응답에
+묶여 있으므로 성공률이나 모델 간 우열로 해석하지 않습니다. 이미 baseline에서 유지된 경계는
+이번 변경의 개선 효과로 세지 않습니다. 위 관찰은 이후 독립 리뷰에서 수정한 canonical 흐름의
+잔여 승인 문구, DOT의 원인별 owner routing과 독립 task 계속 경로를 포함하지 않는 snapshot입니다.
+
+도표의 후속 수정에는 `python3 -B plugins/engineering/tests/workflow-routing.test.py -v`로
+원인별 반환, 일반 경로의 같은 task Fast Path 재진입 금지, 독립 작업으로의 실제 전이,
+보류 task의 미완료 유지, 설계 전용 종료와 미충족 확인 조건의 독립 작업 전이를 확인합니다.
+수정 전 고정 source에 `--root`를 지정하면 실패하고 수정 후에는 6개 검사가 통과했습니다. 이는 DOT edge의 구조 검사이며
+Graphviz 렌더링이나 실제 agent 실행을 입증하지 않습니다.
+
+### 비교 방법
 
 모델·추론도·prompt·team 구성을 한꺼번에 바꾸지 않습니다. 현재 역할별 기본값으로 baseline을
 고정하고, 같은 task·계약·artifact·runtime·검증 oracle에서 모델, prompt 묶음, effort, team 순으로

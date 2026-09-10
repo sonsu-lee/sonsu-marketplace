@@ -41,12 +41,15 @@ Claude Code에서는 `/reload-plugins`를 실행하거나 session을 다시 시�
 
 ## 개발 흐름
 
-1. **brainstorming**은 bounded 진입에서 Local/Mechanical Fast Path 적합성을 먼저 판정합니다. controller는
+1. **brainstorming**은 원 요청·이전 승인의 범위와 필요한 사용자 결정을 확인한 뒤 bounded 진입에서
+   Local/Mechanical Fast Path 적합성을 판정합니다. controller는
    target discovery 전에 stable task ID를 고정하고 소비한 예산과 `disqualified` 기록을 확인합니다.
    현재 파일·consumer를 총 2회 이내로 직접 탐색하며 별도 classifier를 기본으로 만들지 않습니다.
    긍정 판정은 현재 연속 실행에서만 사용합니다. 재개·context 손실·설명되지 않는 변경이나
    false·unknown 조건에서는 일반 workflow로 올립니다. 과거 `eligible`이나 `HEAD` 일치로 자격을
-   복원하지 않으며, task ID·예산·탈락 기록은 session이 바뀌어도 유지합니다.
+   복원하지 않으며, task ID·예산·탈락 기록은 session이 바뀌어도 유지합니다. 일반 경로 전환만으로
+   재승인을 요구하지 않습니다. 명시적인 구현 전 확인 조건이나 미결정 계약에 의존하는 작업만
+   보류하고 독립적인 승인 작업은 계속합니다.
 2. **using-git-worktrees**는 기존 linked `worktree`를 재사용하거나 격리가 필요할 때 새로 만듭니다.
 3. **writing-plans**는 기본적으로 대화 안에 계획을 작성합니다. 의사코드로 전체 흐름을 정의하고 파일·task·dependency에 연결한 뒤, 이유가 있는 검증 방법을 선택하여 계획 준비 상태를 판정합니다.
 4. **executing-plans**는 계획을 직접 실행하고, **subagent-driven-development**는 파일 기반 계획과 task 커밋이 승인된 경우 task별 구현·리뷰를 위임합니다. 수정은 최대 5회이며 기본적으로 1~3회차는 원래 구현자를 재사용하고 4~5회차는 새 context와 현재 finding에 적합한 모델·추론도를 사용합니다. 새 구현자에게 승인된 brief, 현재 artifact, 미해결 finding과 실제 실패·검증 기록을 전달하되 전체 대화와 자기 정당화는 제외합니다. 재리뷰는 기존 finding과 수정 회귀를 확인합니다. 최초 전체 일반 리뷰와 독립 red-team은 유지하고, 국소 수정은 유효한 이전 근거와 scoped 검증을 현재 리비전에 연결합니다. 목표·계약·설계·dependency 경계가 바뀌거나 영향이 불명확하면 전체 검토를 다시 엽니다.
@@ -119,7 +122,8 @@ fresh 전환이 가능하지만 남은 예산은 유지하며, 무관한 세 작
 - 구현 계획은 기본적으로 대화 안에 유지합니다. 실행에 파일이 필요할 때에만 Git에서 무시하는 scratch 파일을 사용합니다.
 - 구현 계획이 필요하면 `writing-plans`의 의사코드가 구현 세부사항보다 먼저 오며 각 흐름을 파일, task, dependency와 검증에 연결합니다. Fast Path에는 긴 의사코드나 red-team을 강제하지 않지만 stable task ID, 소비 예산·탈락 기록, 현재 범위와 결정론적 검증을 남깁니다.
 - 구현이 계획에서 material하게 달라지면 `writing-plans`를 canonical source로 삼습니다. 승인된 설계나 관찰 가능한 계약을 바꾸는 차이는 사용자 재승인이 필요하고, 새 흐름의 영향을 받는 완료 task는 다시 열어 검증합니다.
-- 설계 승인, 문서 작성, 구현, commit, push, PR, merge와 배포를 서로 다른 권한 경계로 취급합니다.
+- 원 요청·이전 승인에 포함된 조사·계획·구현·필요한 문서 작업은 계속합니다. 설계 전용 요청,
+  명시적인 확인 조건과 승인 범위를 바꾸는 결정은 지키며, Git·배포·외부 쓰기 권한은 별도로 판단합니다.
 - 동작과 회귀 위험, 자동화 테스트의 실익을 기준으로 TDD 적합성을 판단하고 선택 이유를 기록합니다. TDD를 선택하면 RED–GREEN–REFACTOR를 유지하며, 문서, metadata와 단순 설정에는 변경에 비례한 구조 검사 또는 실제 소비 명령을 사용합니다.
 - 추론 기반 리뷰보다 결정론적인 검사를 먼저 실행하고 모든 게이트를 현재 artifact 리비전에 연결합니다. 변경 영향에 맞게 근거를 갱신하며, 수정마다 전체 리뷰를 반복하지 않습니다. session 교체·owner 반환은 재시도 예산을 초기화하지 않습니다.
 - 결정론적 작업에는 노출된 Code Mode를 우선 활용하되 실행 수단을 Fast Path나 품질 통과의 근거로 취급하지 않습니다.

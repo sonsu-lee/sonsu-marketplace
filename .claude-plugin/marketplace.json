@@ -10,7 +10,7 @@
       "name": "engineering",
       "source": "./plugins/engineering",
       "description": "단순 작업의 Fast Path와 계획 작업의 의사코드, 검증, 일반 리뷰 및 fresh-context red-team 게이트를 적용하는 엔지니어링 방법입니다.",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "category": "Developer Tools"
     },
     {

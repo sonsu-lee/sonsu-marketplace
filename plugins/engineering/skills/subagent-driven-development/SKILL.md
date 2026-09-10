@@ -20,18 +20,21 @@ task마다 새로운 implementer subagent를 위임하고, 각 task 뒤에 task 
 
 **진행 설명:** 도구 호출 사이에는 짧은 한 줄만 작성한다. 기록은 ledger와 도구 결과에 남는다.
 
-**연속 실행:** task 사이에 사용자 확인을 받으려고 중단하지 않는다. plan의 모든 task를 멈추지 않고 실행한다. 아래의 다섯 가지 상황 또는 모든 task 완료만 중단 사유다. "Should I continue?" 같은 질문과 진행 요약은 사용자의 시간을 낭비한다. 사용자가 plan 실행을 요청했으므로 실행한다.
+**연속 실행:** task 사이에 사용자 확인을 받으려고 중단하지 않는다. 승인된 plan의 task를 실행하며,
+아래 사유로 의존 작업을 보류해도 독립적인 승인 task는 계속한다. 실제 상태를 간결하게 알리고
+이미 승인된 진행 여부를 반복해서 묻지 않는다.
 
 **멈추지 말고 판정한다.** 실행 중인 plan은 승인된 spec과 plan 안에서 안전하게 해결할 수 있는
 일상적이고 되돌릴 수 있는 모호함 때문에 사람을 기다리지 않는다. spec은 구속력 있는 기준이고
 plan은 그 근거이며, 그 범위 안의 세부사항은 자신의 판단으로 결정한다. 모든 결정을 ledger에
 `Ruling: <결정> — <이유> — <틀렸을 때의 비용>`으로 기록하고 계속 진행한다. 시도 횟수 상한에
-도달한 미해결 필수 게이트를 포함한 아래의 다섯 가지 중단 조건만 예외이며 사용자가 필요하다.
+도달한 미해결 필수 게이트와 아래의 실제 결정·권한 공백은 해당 의존 작업을 보류한다.
 
-다음 다섯 가지 상황에서만 중단한다. 되돌릴 수 없거나 파괴적인 작업, security-sensitive 작업,
-관례상 먼저 확인해야 하는 worktree 밖의 side effect(merge, 공유 브랜치에 push, publish), 어떤
-경로를 선택해도 추측이 될 만큼 깨진 plan, 그리고 사람만 위험을 수용할 수 있는 유효한 미해결
-finding을 남긴 채 retry 상한에 도달한 필수 품질 게이트다. 이 경우 중단하고 질문한다.
+사용자 결정이 필요한 제품·설계·계약 공백, 명시적인 구현 전 확인 조건, 승인되지 않은
+파괴적 작업·외부 쓰기, 유효한 필수 finding을 남긴 채 소진한 retry 예산에는 해당 결정이 필요하다.
+security-sensitive 작업의 필수 검증·리뷰와 Git 권한은 유지한다. 위험 분류나 외부 작업이라는
+이유만으로 이미 확인한 승인을 다시 받지 않는다. 실제 환경·capability 부재는 `blocked`로
+구분하고 이를 품질 통과나 승인 요청으로 바꾸지 않는다.
 
 ## 작업 연속성
 
@@ -81,8 +84,8 @@ digraph process {
         "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)" [shape=box];
         "Spec ✅ and quality approved?" [shape=diamond];
         "Classify findings by owner before retry" [shape=diamond];
-        "Return plan or requirement defect to its owner; stop" [shape=box];
-        "Record capability or external-state blocker; stop" [shape=box];
+        "Return defect to owner; hold dependent task; continue independent authorized work" [shape=box];
+        "Record blocker; hold dependent task; continue independent authorized work" [shape=box];
         "Close invalid findings with evidence" [shape=box];
         "Fix round R of 5: R=1..3 original implementer; R=4..5 fresh factual handoff" [shape=box];
         "Dispatch scoped re-review (./re-review-prompt.md)" [shape=box];
@@ -100,6 +103,9 @@ digraph process {
 
     "Setup: worktree, ledger check, read plan, pre-flight review" [shape=box];
     "More tasks remain?" [shape=diamond];
+    "Runnable authorized task available?" [shape=diamond];
+    "Select unaffected task; keep blocked tasks pending" [shape=box];
+    "Wait for changed input; pending tasks prevent completion" [shape=doublecircle];
     "Run final whole-change deterministic verification" [shape=box];
     "Final deterministic verification passed?" [shape=diamond];
     "Return to affected implementation or integration stage" [shape=box];
@@ -124,7 +130,10 @@ digraph process {
     "Return to owner or stop" [shape=box];
     "Use engineering:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
-    "Setup: worktree, ledger check, read plan, pre-flight review" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Setup: worktree, ledger check, read plan, pre-flight review" -> "Runnable authorized task available?";
+    "Runnable authorized task available?" -> "Select unaffected task; keep blocked tasks pending" [label="yes"];
+    "Select unaffected task; keep blocked tasks pending" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Runnable authorized task available?" -> "Wait for changed input; pending tasks prevent completion" [label="no"];
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer asks questions?";
     "Implementer asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Implementer implements, verifies, commits, self-reviews";
@@ -133,8 +142,10 @@ digraph process {
     "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
     "Spec ✅ and quality approved?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "Spec ✅ and quality approved?" -> "Classify findings by owner before retry" [label="no"];
-    "Classify findings by owner before retry" -> "Return plan or requirement defect to its owner; stop" [label="plan / requirement"];
-    "Classify findings by owner before retry" -> "Record capability or external-state blocker; stop" [label="blocked"];
+    "Classify findings by owner before retry" -> "Return defect to owner; hold dependent task; continue independent authorized work" [label="plan / requirement"];
+    "Classify findings by owner before retry" -> "Record blocker; hold dependent task; continue independent authorized work" [label="blocked"];
+    "Return defect to owner; hold dependent task; continue independent authorized work" -> "Runnable authorized task available?";
+    "Record blocker; hold dependent task; continue independent authorized work" -> "Runnable authorized task available?";
     "Classify findings by owner before retry" -> "Close invalid findings with evidence" [label="invalid / out of scope"];
     "Close invalid findings with evidence" -> "All findings addressed?";
     "Classify findings by owner before retry" -> "R = 5?" [label="valid implementation"];
@@ -153,7 +164,7 @@ digraph process {
     "Record accepted_risk" -> "Append completion to ledger, mark todo complete";
     "Human accepts risk for exact revision?" -> "Return to owning stage with changed input" [label="no"];
     "Append completion to ledger, mark todo complete" -> "More tasks remain?";
-    "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
+    "More tasks remain?" -> "Runnable authorized task available?" [label="yes, including pending tasks"];
     "More tasks remain?" -> "Run final whole-change deterministic verification" [label="no"];
     "Run final whole-change deterministic verification" -> "Final deterministic verification passed?";
     "Final deterministic verification passed?" -> "Return to affected implementation or integration stage" [label="no"];
@@ -212,6 +223,10 @@ ledger를 만들거나 Task 1을 위임하기 전에 task commit을 승인한 �
 - ledger는 복구 map이다. 자신의 context가 생성 사실을 기억하지 못해도 ledger에 적힌 commit은
   git에 존재한다. compaction 뒤에는 기억보다 ledger와 `git log`를 신뢰한다.
 - `git clean -fdx`는 git-ignored scratch인 workspace를 삭제한다. 그런 일이 발생하면 `git log`에서 복구한다.
+
+plan을 원래 구현 요청·이전 승인·승인된 문서와 대조한다. 별도의 설계 승인 메시지가 없다는
+이유만으로 승인된 실행을 중단하지 않는다. 설계 전용 요청·명시적인 구현 전 확인 조건과
+task commit 권한은 별도로 지킨다.
 
 plan을 한 번 읽고 context와 Global Constraints를 기록한 뒤 task마다 todo를 만든다. plan에서
 Spec을 지정하면 함께 읽는다. spec은 plan이 근거로 삼는 기준이며 plan 내부 충돌은 spec을
@@ -340,13 +355,14 @@ commit이며, 여러 commit으로 구성된 task에서 마지막 commit 이외�
 사항을 읽는다. 정확성 또는 범위에 관한 내용이라면 리뷰 전에 처리한다. 관찰(예: "this file is
 getting large")이라면 기록하고 리뷰로 진행한다.
 
-**NEEDS_CONTEXT:** implementer에게 제공되지 않은 정보가 필요하다. 빠진 context를 제공하고 다시 위임한다.
+**NEEDS_CONTEXT:** 기존 자료로 답할 수 있으면 필요한 context를 제공하고 다시 위임한다.
+사용자만 정할 수 있는 제품 규칙·계약이면 의존 task를 보류하고 확인한다. 독립적인 승인 task는 계속한다.
 
 **BLOCKED:** implementer가 task를 완료할 수 없다. blocker를 평가한다.
 1. context 문제라면 context를 추가하고 같은 모델로 다시 위임한다.
 2. task에 더 많은 reasoning이 필요하면 현재 모델의 추론도를 조정하거나 더 적합한 모델을 선택해 다시 위임한다.
 3. task가 너무 크다면 더 작은 단위로 나눈다.
-4. plan 자체가 틀렸거나 구현에 material deviation이 필요하다면 차이와 이유를 기록하고 중단한다.
+4. plan 자체가 틀렸거나 구현에 material deviation이 필요하다면 차이와 이유를 기록하고 의존 task를 보류한다.
    승인된 요구사항·설계·관찰 가능한 계약을 바꾸는 차이는 `engineering:brainstorming`으로 돌아가
    변경안을 제시하고 사용자의 명시적인 재승인을 기다린다. 승인된 설계 안의 차이이거나 재승인을
    받은 뒤 `engineering:writing-plans`에서 의사코드를 먼저 갱신하고 영향을 받는 mapping, task와
@@ -354,6 +370,9 @@ getting large")이라면 기록하고 리뷰로 진행한다.
    `Task <N>: reopened (plan <old> -> <new>; <reason>)`를 ledger에 추가하여 이전 게이트를
    무효화한다. 변경된 plan-readiness gate가 통과하면 가장 이른 reopened 또는 미완료 task를 새
    brief로 다시 위임한다.
+
+blocker나 plan 갱신에 의존하지 않는 승인 task는 계속할 수 있다. Fast Path 탈락·일반 실행 경로
+진입만으로 새 승인을 요구하지 않으며, 실제 승인 내용 변경과 task commit 권한 부재를 구분한다.
 
 상위 보고를 **절대** 무시하거나 같은 모델에 변경 없이 재시도하도록 강제하지 않는다. implementer가 막혔다고 했다면 무엇인가 달라져야 한다.
 

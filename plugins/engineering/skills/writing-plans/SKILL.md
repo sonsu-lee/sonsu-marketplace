@@ -19,6 +19,10 @@ codebase를 거의 모르는 엔지니어도 실행할 수 있는 구현 계획�
 검증을 도출한다. 계획은 독립적으로 이해할 수 있고 초점이 분명하며 추측성 작업을 포함하지
 않아야 한다.
 
+요구사항 출처는 원래 구현 요청, 이전 대화의 승인, 승인된 문서·issue일 수 있다. 별도의 설계
+승인 메시지를 필수로 요구하지 않는다. `engineering:brainstorming`의 권한 경계에 따라 승인된
+범위 안의 계획·구현은 계속하고, 설계 전용 요청·명시적 확인 조건·미결정 계약은 존중한다.
+
 **시작할 때 알린다:** "I'm using the writing-plans skill to create the implementation plan."
 
 실행에 격리된 worktree를 사용할 예정이면 실행 시점에 `engineering:using-git-worktrees`로 만들거나 확인한다.
@@ -44,7 +48,9 @@ task를 정의하기 전에 승인된 설계 또는 요구사항과 관련 기�
 - 승인된 영속 문서 생성
 - 기존 결정 대체
 
-구현 plan 자체를 영속 설계 문서로 만들지 않는다. 계획 과정에서 빠진 결정이나 기존 문서와의 충돌이 드러나면 구현 전에 finding을 사용자에게 알린다.
+구현 plan 자체를 영속 설계 문서로 만들지 않는다. 계획 과정에서 사용자 결정이 필요한 공백이나
+기존 문서와의 계약 충돌이 드러나면 finding을 알리고 의존 작업을 보류한다. 기존 자료로 해결할
+내부 선택은 plan에 반영하며, 결정과 독립적인 승인 작업은 계속한다.
 
 ## Plan이 필요한지 판단
 
@@ -56,6 +62,8 @@ task를 정의하기 전에 승인된 설계 또는 요구사항과 관련 기�
 자체를 승인된 짧은 설계로 취급하고 plan 없이 제한된 실행으로 보낸다. Code Mode 사용 가능성은
 Mechanical Fast Path의 신호일 수 있지만 단순성의 증거가 아니다. predicate가 false 또는 unknown이거나
 표적 탐색 budget 안에 consumer 범위를 닫지 못하면 plan 필요 여부를 일반 기준으로 다시 판정한다.
+일반 경로 전환이나 plan 작성 필요성만으로 원 요청·기존 승인을 다시 받지 않는다. 현재 파일과
+요구사항을 확인해 필요한 탐색·계획을 계속하며, 새 권한이나 미결정 계약은 별도로 처리한다.
 
 구현 plan을 작성하기로 했다면 아래 의사코드 단계를 생략하지 않는다. plan의 세부 정도는 작업
 복잡성에 맞추되 순서는 다음과 같다.
@@ -169,7 +177,7 @@ chat 안의 plan을 포함한 모든 plan은 아래 필드로 시작한다. 그�
 
 **Goal:** [one sentence]
 
-**Requirements source:** [approved document, issue, ticket, or user-approved conversation design]
+**Requirements source:** [original implementation request, prior user approval, or approved document/issue/ticket; include explicit review-before-implementation constraints]
 
 **Documentation impact:** [none, update path, create approved path, or supersede decision]
 
@@ -280,11 +288,13 @@ plan을 제시하기 전에 문제를 그 자리에서 수정한다.
 
 local helper 이름, 동등한 표현 또는 흐름을 바꾸지 않는 작은 배치는 material deviation이 아니다.
 material deviation이 필요하면 해당 task를 계속 구현하지 않고 차이와 이유를 설명한다.
+그 차이에 의존하지 않는 승인된 task는 계속할 수 있다.
 
 먼저 변경이 승인된 요구사항·설계·관찰 가능한 계약을 바꾸는지 판정한다. 입력, 기대 결과, 외부에
 보이는 상태·오류, interface 또는 책임 경계를 승인 내용과 다르게 만드는 변경이면
 `engineering:brainstorming`으로 돌아가 변경안을 제시하고 사용자의 명시적인 재승인을 기다린다.
 plan-readiness gate는 설계 승인이나 재승인을 대신하지 않는다.
+기존 계약 안의 계획 수정은 변경된 흐름과 검증을 갱신해 처리하며 새 승인 대화를 요구하지 않는다.
 
 승인된 설계 안의 변경이거나 필요한 재승인을 받은 뒤에는 `Behavioral Flow Pseudocode`를 먼저
 갱신하고, 그 다음 flow mapping, task와 검증을 새 흐름에 맞춘다. 새 plan 리비전의 영향을 받는

@@ -148,8 +148,8 @@ approval은 필수가 아닙니다. 이전 형식의 positive eligibility record
     → Local Fast Path 또는 Mechanical Fast Path: 최초 구현 1회 + 집중 수정 1회
   predicate false·unknown, resumption, context loss, handoff 또는 unexplained drift
     → persistent disqualified → nearest normal workflow
-  그 외
-    → brainstorming → 승인된 짧은 설계
+  일반 경로에서는 원 요청·기존 승인과 현재 source를 확인
+    → 필요한 탐색·짧은 설계; 사용자 결정이 필요한 의존 작업만 보류
       → plan 필요: writing-plans → plan-backed execution
       → plan 불필요: bounded direct execution
 ```
@@ -168,6 +168,11 @@ task ID와 소비한 budget을 handoff에 넣어 one-way owner escalation을 실
 `systematic-debugging`, multi-flow/interface는 `writing-plans`, requirement/design 변경은
 `brainstorming`으로 보내며 이 경로는 Fast Path로 재진입하지 않습니다. session이나 owner가 바뀌어도
 budget과 탈락 상태는 초기화하지 않습니다.
+
+Fast Path 탈락과 plan 필요성은 작업 권한을 취소하거나 부여하지 않습니다. 원 요청·이전 승인
+안의 내부 선택은 설명하고 진행하며, 결과를 바꾸는 미결정 계약과 명시적인 구현 전 확인 조건만
+사용자에게 돌립니다. 설계 전용 요청은 구현으로 확대하지 않고, 독립적인 승인 작업은 계속합니다.
+질문·접근 방식 비교도 실제 결정이 남은 경우에 적용합니다.
 
 plan artifact가 있는 모든 실행 경로는 결정론적 검증과 일반 최종 리뷰 뒤에 fresh-context
 red-team completion review를 최초 한 번 수행합니다. 이 reviewer는 이전 session history와 verdict를
@@ -540,6 +545,7 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
 
 ```text
 요청
+  → 원 요청·이전 실행 권한 확인; 설계 전용 요청과 아직 충족되지 않은 확인 조건은 의존 구현 보류
   → spike / bounded / architectural 분류와 stable task ID 고정
   → Fast Path에서 persistent search/execution consumption과 disqualified 확인
       → controller가 실제 현재 파일을 최대 2회 targeted search
@@ -548,9 +554,9 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
   → Fast Path resumption/context loss/handoff/unexplained drift/hidden complexity
       → disqualified latch → systematic-debugging / writing-plans / brainstorming (Fast Path 재진입 없음)
   → plan 없는 Fast Path: 결정론적 검증 → 목적 정렬 기록
-  → plan 없는 일반 bounded: 짧은 설계 승인 → plan 필요 여부 판정
+  → plan 없는 일반 bounded: 짧은 설계 제시와 기존 권한 확인 → plan 필요 여부 판정
   → architectural 또는 plan 필요 bounded:
-      설계 승인과 필요한 design-document gate
+      기존 권한 안의 설계 구체화와 필요한 design-document gate
       → 의사코드로 전체 흐름 정의
       → 파일·task·dependency별 구현 계획과 검증 이유 → plan-readiness gate
       → worktree 확인 또는 생성 → 구현 → task gate와 targeted fix (R=1..3 original, R=4..5 fresh capable context)
@@ -561,7 +567,8 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
           → fresh red-team이 previous challenge + fix regression을 scoped recheck
       → material boundary change 또는 unknown impact: 해당 full review/challenge reopen
   → plan 없는 일반 bounded:
-      승인된 짧은 설계 → 구현 → 변경에 비례한 결정론적 final gate
+      원 요청·기존 승인 안의 짧은 설계 → 구현 → 변경에 비례한 결정론적 final gate
+  → 미결정 계약·승인 내용 변경·미충족 확인 조건: 의존 작업 보류 → 독립적인 승인 task 계속
   → diff와 gate 상태 보고 → 명시적인 커밋 승인 → commit
 ```
 
@@ -607,7 +614,8 @@ stage별 유한한 상한을 가집니다. 상한에 남은 실제 필수 findin
 `brainstorming`은 날짜 기반 spec 파일을 자동 생성하지 않습니다. 먼저
 [`docs/README.md`](../README.md)의 기준으로 기존 문서를 조사하고, 변경 없음·기존 문서
 갱신·새 문서 생성·결정 대체 중 하나를 제안합니다. 새 문서나 큰 재구성은 경로와 목적을
-사용자가 검토한 뒤 작성합니다.
+설명하고 원 요청·이전 승인 안에서 작성합니다. 범위 밖 산출물, 미결정 계약이나 명시적인
+문서 검토 후 진행 조건이 있으면 해당 의존 작업을 보류합니다.
 
 `writing-plans`는 구현 계획을 기본적으로 대화에 작성합니다. 실행을 위해 파일이 필요하면
 Git에서 제외된 `.engineering/plans/<topic>.md`를 사용합니다. 저장소의 기존 이슈·티켓이나

@@ -2,11 +2,11 @@
 
 - Status: Accepted
 - Date: 2026-09-04
-- Last amended: 2026-09-05
+- Last amended: 2026-09-11
 - Supersedes: None
 - Superseded by: None
 - Related: [0012](0012-use-role-routing-and-execution-evidence.md) refines role routing, early fresh handoff and execution evidence; other gates remain unchanged.
-- Approval: 사용자가 2026-09-04 현재 대화에서 Fast Path, Code Mode, plan 기반 fresh-context red-team, Codex model·reasoning effort와 goal lifecycle 방향을 승인했고, 2026-09-05에 최대 5회 상한과 research 기반 단순화를 승인했습니다.
+- Approval: 사용자가 2026-09-04 현재 대화에서 Fast Path, Code Mode, plan 기반 fresh-context red-team, Codex model·reasoning effort와 goal lifecycle 방향을 승인했고, 2026-09-05에 최대 5회 상한과 research 기반 단순화를 승인했습니다. 2026-09-11에는 기존 실행 권한과 process 선택을 분리하는 아래 보완을 승인했습니다.
 
 ## Context
 
@@ -85,6 +85,22 @@ Engineering은 기존 [0007 stage-owned quality gate](0007-use-stage-owned-quali
   검토 비용을 제어하면서 계획된 작업의 전제를 항상 독립적으로 반증할 수 있어 선택했습니다.
 
 ## Consequences
+
+### 실행 권한과 process 선택의 분리 (2026-09-11)
+
+원래 구현 요청과 이전 승인은 별도의 설계 승인 메시지 없이도 실행 범위의 근거가 됩니다.
+Fast Path 탈락·탐색 예산 소진·재개는 일반 workflow로 전환하는 조건이며, 기존 권한을
+무효화하지 않습니다. 현재 파일과 승인 근거를 확인하고 필요한 탐색·계획·수정·검증을 계속합니다.
+Fast Path state와 재진입 금지는 그대로 유지합니다.
+
+사용자가 설계·검토만 요청하거나 구현 전 확인을 명시한 경우, 미결정 제품 규칙이나 승인된
+목표·설계·관찰 가능한 계약을 바꿀 결정이 있는 경우에는 해당 의존 작업을 보류합니다.
+독립적인 승인 작업은 계속하며 질문·대안 비교·문서 리뷰도 실제 결정과 명시된 확인 조건에 맞춥니다.
+품질 게이트와 Git·배포·외부 쓰기 권한은 계속 분리합니다.
+
+의사코드 우선 순서, 일반 최종 리뷰 뒤 별도 red-team, 3+2/max5 및 Fast Path 예산은 유지합니다.
+추가 red-team의 조건화와 수치 최적화는 별도 비교 대상입니다. 이번 보완은 재승인 충돌을
+해소하는 정책 변경이며 전체 workflow의 품질·비용 개선이 입증됐다는 주장이 아닙니다.
 
 명확하고 결정론적인 변경은 controller의 제한된 현재 상태 확인 뒤 끝낼 수 있습니다. 예상보다
 범위가 커지거나 실행 연속성이 끊기면 `disqualified`를 기록하고 일반 workflow로 올라갑니다.
