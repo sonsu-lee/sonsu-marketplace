@@ -25,39 +25,15 @@ description: 현재 Git branch를 새 GitHub Pull Request 초안이나 게시 pa
 단순한 작성 요청은 `draft`로 처리한다. 여기서 `draft`는 원격 PR을 만들지 않는 준비 모드이며
 GitHub Draft 상태와 다르다.
 
-`publish`의 목표 GitHub 상태는 다음 순서로 정한다.
+`publish`의 `target_pr_state`는 기본 `draft`다. 사용자가 Ready, non-draft 또는 즉시 review 가능한 상태를 명시한 경우에만 `ready`로 정하고 근거를 payload에 남긴다. “PR을 올려 줘”는 상태 지정이 아니다. 검증 통과나 미디어 부재도 Ready 전환 근거가 아니다. 대상이 Draft PR을 지원하지 않으면 Draft 요청을 Ready로 바꾸지 않는다.
 
-1. 사용자가 Ready, non-draft 또는 즉시 review 가능한 상태를 명시하면 `ready`로 정한다.
-2. 사용자가 GitHub Draft를 명시하면 `draft`로 정한다.
-3. 상태를 명시하지 않으면 `draft`로 정한다.
-
-“PR을 만들어 줘”, “올려 줘”, “게시해 줘”와 `open a PR`은 publish 요청일 뿐 ready 요청이
-아니다. 변경이 완성됐거나 validation이 통과했고 미디어가 없다는 이유로 기본 Draft를 Ready로
-올리지 않는다. `target_pr_state`가 `draft`인데 target host가 Draft PR을 지원하지 않으면 Ready로
-대체하지 않고 중단하여 제약을 보고한다. 게시 전 payload에 결정한 `target_pr_state`와 그 근거를
-표시한다.
-
-명시적인 publish 요청은 정확한 기존 remote로 current branch를 일반 push하는 데 필요한 권한을
-포함하지만, fork·remote 생성, force push, publish 시작 전에 이미 존재하던 PR의 변경 또는
-merge로 확대하지 않는다. 같은 publish 흐름에서 안전 게이트로 방금 만든 GitHub Draft PR에는
-검토한 manifest의 미디어만 첨부하고, 모든 필수 첨부를 검증한 뒤 사용자가 명시적으로 요청한
-ready 상태로만 전환할 수 있다. 같은 권한을 반복해서 묻지 않는다.
+명시적인 publish 요청은 정확한 기존 remote로 current branch를 일반 push하는 데 필요한 권한을 포함한다. 같은 권한을 반복해서 묻지 않되 위 책임 경계를 확대하지 않는다.
 
 ## repository와 변경을 고정한다
 
-다음 내용을 읽기 전용으로 확인한다.
+[GitHub PR 규칙](references/github.md)으로 저장소·base·head·기존 PR을 읽기 전용으로 확인한다. 저장소 root, linked worktree 여부, 진행 중인 Git 작업과 staged·unstaged·untracked 변경도 확인한다. 미커밋 변경은 원격 PR diff와 구분한다.
 
-- 저장소 root, 현재 브랜치, detached HEAD와 linked worktree 여부
-- 진행 중인 Git 작업, staged·unstaged·untracked 변경
-- remote, upstream, 저장소 default branch와 요청된 base
-- merge base, base부터 head까지의 commit과 전체 diff
-- current branch의 기존 PR
-- target repository와 owner의 public `.github` 저장소 default branch에 있는 PR 양식, contribution 지침, semantic 제목·Conventional Commit 관례와 PR 언어
-- 관련 검증 명령과 현재 결과
-
-`gh pr create --fill`이나 commit 제목만으로 변경 내용을 추론하지 않는다. working tree의 미커밋 변경은 PR commit range에 포함되지 않으므로 별도로 보고한다. 기존 PR이 있으면 새 PR을 만들거나 기존 PR을 수정하지 않고 현재 상태와 필요한 다음 행동을 알린다.
-
-PR을 작성할 때에는 [PR 템플릿 규칙](references/pr-template.md)으로 저장소 template과 출력 언어를 먼저 결정하고, [PR 품질 기준](references/pr-quality-bar.md)을 읽는다. target 저장소 template을 먼저 사용하고, 없으면 owner의 account-level default template을 사용한다. 둘 다 없다고 확인된 경우에만 스킬의 기본 템플릿을 사용한다.
+[PR 템플릿 규칙](references/pr-template.md)으로 적용 양식과 언어를 결정하고, [PR 품질 기준](references/pr-quality-bar.md)에 따라 전체 diff와 현재 검증 근거로 제목·본문을 작성한다. commit 제목이나 `--fill` 결과만으로 변경 내용을 추론하지 않는다.
 
 ## 티켓을 연결한다
 
@@ -75,30 +51,16 @@ GitHub Issues, Linear와 Jira 중 provider를 문자열 모양만으로 추측�
 
 사용자가 screenshot을 요청했거나 diff가 사용자에게 보이는 UI를 바꾸거나 저장소 규칙이 요구할 때만 [시각 증거 규칙](references/visual-evidence.md)을 읽는다. UI와 무관한 변경에는 빈 스크린샷 섹션을 만들지 않는다.
 
-capture와 비교에는 repository에 이미 있는 도구를 우선한다. 새 dependency를 설치하지 않는다. 안전하고 동일한 baseline을 얻지 못하면 after만 제시하고 before/after 비교나 visual regression 성공을 주장하지 않는다.
-
-로컬 이미지나 비디오를 PR에 넣어야 하면 [media 첨부 규칙](references/media-attachments.md)을 읽는다. PR에 증거로 올리는 이미지에는 애니메이션 GIF를 포함하여 변경 위치를 마킹한 사본만 사용한다. 별도 설정이 없는 기본 provider는 GitHub native attachment이며, 현재 `gh pr edit --help`에 `--attach`가 있고 target host와 base 저장소 권한도 지원되면 CLI를 우선한다. 외부 object storage와 저장소 asset은 사용자가 명시적으로 선택한 경우에만 사용한다.
+로컬 이미지나 비디오를 넣을 때는 [미디어 첨부 규칙](references/media-attachments.md)을 읽고 게시 가능한 사본과 manifest를 준비한다. 이미지 마킹·비교는 시각 증거 규칙, 검사·업로드·본문 배치와 실패 처리는 미디어 첨부 규칙을 따른다.
 
 ## 새 PR을 게시한다
 
-GitHub용 payload를 작성하거나 publish할 때 [GitHub PR 규칙](references/github.md)을 읽는다. publish 직전에는 다음 내용을 다시 확인한다.
+`publish` 직전에 저장소·인증 주체·base·head SHA·remote ref·기존 PR과 최종 payload를 다시 확인한다. 양식 출처, 언어, 티켓 연결, 검증 상태와 `target_pr_state`가 현재 변경·요청에 맞는지 대조한다. 미디어가 있으면 필수 자료의 준비·검사 결과도 확정한다.
 
-- 정확한 저장소, 인증 주체, base, head와 remote ref
-- 현재 head SHA와 전체 commit range
-- final 제목, 본문, 선택한 양식 source, PR 언어, ticket link와 검증 상태
-- `target_pr_state`, 기본 Draft 또는 명시적인 Ready를 선택한 근거
-- screenshot이 필수이면 마킹된 최종 이미지와 게시 경로
-- 각 미디어의 ready 필수 여부, annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded 메타데이터 검사 결과
-- 같은 head의 기존 PR 부재
-
-미디어가 있으면 [첨부 절차](references/media-attachments.md)에 따라 먼저 첨부 없는 Draft PR을 확인하고 파일을 하나씩 올린다. 매번 저장된 본문을 읽고, 모든 필수 첨부를 검증한 뒤 사용자가 명시한 경우에만 ready로 전환한다.
-
-CLI 첨부를 쓸 수 없으면 공식 브라우저 첨부로 전환한다. 플랫폼이 Draft 자체를 지원하지 않으면 Draft 요청을 Ready로 바꾸지 않는다. 명시적인 ready 요청에서만 브라우저 작성 화면의 필수 첨부를 확인한 뒤 게시할 수 있다. 자동 첨부가 불가능하면 작성 화면과 파일을 준비해 남은 수동 단계를 알린다. 비공식 업로드 endpoint는 사용하지 않는다.
-
-CLI로 게시할 때 본문은 임시 파일에 정확히 기록하고 `gh pr create --body-file`을 사용한다. 현재 `gh` 도움말과 저장소 상태를 확인하며, push할 수 있는 `--dry-run`을 안전한 read-only 검증으로 취급하지 않는다.
+[GitHub 게시 절차](references/github.md#생성하고-검증한다)를 따른다. 미디어가 있는 경우의 Draft 생성·파일별 첨부·상태 전환과 CLI를 사용할 수 없을 때의 대안은 그 절차가 연결하는 미디어 문서에서 처리한다.
 
 ## 결과를 확인한다
 
-게시 후에는 PR을 다시 읽어 URL, number, 제목, 본문, base, head, draft 여부, head SHA, ticket reference와 visual evidence를 확인한다. 가능하면 canonical ticket도 다시 읽어 link가 적용됐는지와 status effect가 실제로 발생했는지를 별도로 확인한다. 미디어가 있으면 로컬 경로가 남지 않았는지, 저장된 URL, 표시 순서와 접근 범위도 확인한다.
+게시 후에는 PR·미디어 재조회 결과를 최종 payload와 대조한다. 가능하면 canonical ticket도 다시 읽어 link 적용과 status effect를 별도로 확인한다.
 
-push, Draft PR 생성, 미디어별 업로드·본문 반영, ready 전환, 티켓 link와 status effect의 성공 여부를 각각 구분한다. `gh pr edit --attach`도 upload 뒤 본문 update가 실패하여 orphan attachment를 남길 수 있으므로, 실패 코드만 보고 다시 실행하지 않는다. 응답이 불명확하면 head의 기존 PR과 저장된 body를 먼저 조회한다. 실행하지 않은 validation과 확인하지 못한 프로바이더 상태를 성공으로 표현하지 않는다.
+push, PR 생성, 미디어별 업로드·본문 반영, ready 전환, 티켓 link와 status effect의 결과를 각각 보고한다. 실행하지 않은 검증과 확인하지 못한 상태를 성공으로 표현하지 않는다.

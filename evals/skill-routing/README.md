@@ -67,7 +67,8 @@ native 자동 skill selection은 별개의 검증입니다. 모의 trace나 JSON
 
 `expected_action`은 create/revise, `expected_mode`는 draft/publish를 구분합니다.
 `expected_template`은 적용할 양식을, `expected_structure`는 상하위 구성을 나타내며 native
-label·type·status 값이 아닙니다. 기본 양식은 작업 성격과 관계없이 `default`입니다.
+label·type·status 값이 아닙니다. 기본 양식은 변경·추가·정리 요청의 `default`, 잘못된 동작 수정의
+`bug`, 답변·판단 근거 마련의 `investigation`입니다. 버그 수정 과정에 원인 조사가 포함돼도 `bug`를 사용합니다.
 `must_include_reproduction_section`은 증상 설명에 재현 정보를 포함하는지,
 `must_not_classify_readiness`는 준비 상태 분류를 강제하지 않는지 확인합니다.
 `must_ask_for_problem_context`는 문제 자체를 특정할 수 없을 때 핵심 질문을 반환하는지 검사합니다.
@@ -77,6 +78,22 @@ label·type·status 값이 아닙니다. 기본 양식은 작업 성격과 관�
 출처 확인을 검사합니다. `must_preserve_*`는 실제 초안·수정 payload에서 해당 내용이 유지되는지,
 `expected_child_count`와 `must_map_parent_and_child_keys`는 사용자가 지정한 분해 경계와 게시 전
 부모·자식 참조를 실제 초안에서 확인합니다. `must_limit_update_to_content`는 식별자 이외의 변경 field가 요청한 제목·본문에 한정되는지 검사합니다.
+
+`expected_required_headings`와 `expected_omitted_headings`는 완성된 기본형에서 필요한 항목과 생략할
+항목을 검사하며, 고정된 팀 양식에는 적용하지 않습니다. `must_preserve_actual_and_expected`,
+`must_preserve_request_response`, `must_include_reproduction_media`는 버그의 동작·요청·응답·제공 자료
+보존을 확인합니다. `must_not_repeat_expected_behavior`는 같은 기대 동작을 현상과 고려 사항에 반복하지 않는지,
+`must_report_unavailable_reproduction_media`는 자료가 없는 버그의 미확보 표시를 확인합니다.
+`must_not_require_visual_media`, `must_not_split_investigation`,
+`must_not_invent_deliverable_format`은 자료 유형·티켓 분리·조사 산출물을 임의로 강제하지 않는지,
+`must_summarize_external_decisions`는 링크와 함께 필요한 외부 합의를 본문에 담는지 확인합니다.
+
+PR의 `must_preserve_manual_verification`과 `must_not_claim_ci_success`는 수동 확인과 CI 근거를
+구분합니다. `must_not_repeat_ci_checks`는 CI가 다루는 자동 검사를 본문에 반복하지 않는지,
+`must_keep_publication_procedure_outside_body`는 게시·첨부 준비 절차를 본문 밖에서 보고하는지 확인합니다.
+`must_only_state_missing_media_in_body`는 자료가 없을 때 본문에는 짧은 미확보 사실만 남기는지 확인합니다.
+`must_report_missing_required_media`, `must_not_claim_media_uploaded`, `must_keep_draft`는
+필수 미디어 미준비·업로드 불명 상태를 성공으로 바꾸거나 Ready로 전환하지 않는지 확인합니다.
 
 `fixture`는 정확히 그 시점에 확인 가능한 모의 응답만 제공합니다. `before_write_body`는 쓰기 직전
 재조회 결과이며 첫 읽기에 제공하지 않습니다. `update_response`·`readback_response`도 해당 모의

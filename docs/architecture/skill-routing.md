@@ -327,37 +327,26 @@ Workflow는 ticket 접수·작성·내용 수정, 기존 ticket의 lifecycle 변
 | PR 초안·게시 | `workflow:to-pr` | canonical ticket의 연결 의도와 provider 문법을 PR에 표현하고 status effect를 검증 |
 | PR·merge·release event | tracker의 native integration | 구성된 workflow automation을 적용하고, Workflow skill은 직접 중복 전이하지 않음 |
 
-### 공통 양식에 필요한 내용만 담는다
+### 작업 전달과 내용 수정을 담당한다
 
-`to-ticket`은 사용자 지정 양식, 적용 가능한 저장소·팀 양식, 플러그인 공통형 순서로 선택합니다.
-양식을 확인할 수 없는 상태와 양식이 없는 상태를 구분합니다. 공통형은 `문제`를 필수로 작성하고,
-필요할 때 `재현 정보`와 `고려 사항`, 선택 항목인 `관련 자료`를 덧붙입니다. 종류별 템플릿이나
-준비 상태 분류를 요구하지 않으며, 실제 type·label·상하위 관계는 대상 공간의 설정을 따릅니다.
+`to-ticket`은 외부 논의의 핵심 결론과 작업에 필요한 맥락을 본문에 담습니다.
+[양식 선택 기준](../../plugins/workflow/skills/to-ticket/references/ticket-selection.md)에 따라
+사용자·대상 공간의 양식을 우선하고, 없으면 일반 작업·버그·조사 작업 양식을 사용합니다.
+이 구분은 본문 작성 방식이며 tracker의 type·label·status가 아닙니다. 항목·순서·필수 여부는
+각 템플릿, 내용과 언어는 [작성 기준](../../plugins/workflow/skills/to-ticket/references/ticket-quality-bar.md)이 담당합니다.
 
-문제나 요청을 이해할 수 있으면 원인·해결 방법·채택 여부가 미정이어도 작성합니다. 알려진 제약,
-합의, 선호와 질문을 구분하고, 상세 구현 계획이나 완료조건을 새로 만들지 않습니다. 이미 합의된
-조건은 본문에 보존합니다. 부모·자식도 같은 양식을 사용하며, 독립적으로 추적할 결과만 나눕니다.
-사용자가 지정한 범위와 전체 제공·검증 조건을 자식 완료나 merge로 대신하지 않습니다.
+첨부는 [미디어 규칙](../../plugins/workflow/skills/to-ticket/references/media-attachments.md)과
+프로바이더 문서로 처리합니다. 기존 본문의 부분 수정·동시 변경 보존·결과 재조회는
+[`to-ticket`](../../plugins/workflow/skills/to-ticket/SKILL.md)의 책임이며, 본문 수정 권한을
+상태·담당자·관계 변경으로 확대하지 않습니다.
 
-재현 정보에는 순서와 동영상·이미지를 함께 담습니다. 자료 미확보는 그대로 기록하고, 화면으로
-설명하기 어려운 문제는 로그·요청·응답 등으로 대신합니다. 게시할 때는 현재 프로바이더의 도구
-지원을 확인하고 업로드, 티켓 연결, 본문 위치와 열람·재생을 각각 검증합니다. 초안만 작성할 때는
-업로드하지 않습니다. 전송 결과가 불명확하면 재조회하며 같은 파일을 자동으로 다시 올리지 않습니다.
+내용 반영 후 시작처럼 후속 lifecycle이 수정 성공에 의존하면 필요한 content field 전체의
+`applied` 또는 검증된 `no-op`을 확인한 뒤 `ticket-lifecycle`에 인계합니다. 부분 성공·`unknown`이면
+의존하는 후속 변경을 보류합니다. 본문 성공과 무관하게 수행하라는 명시적 요청은 현재 상태와
+권한을 새로 확인해 처리합니다.
 
-기존 제목·본문 수정은 `revise`로 처리합니다. 최신 canonical 원문에서 요청한 부분을 수정하고 쓰기
-직전에 재조회합니다. 충돌하는 동시 수정은 덮어쓰지 않으며, 쓰기 응답이 불명확하면 재전송하지 않고
-조회로 판정합니다. 형식을 보존할 수 없는 rich-text 본문은 제안만 반환합니다. 상태·담당자·native
-relation 변경도 함께 요청받았을 때에만 `ticket-lifecycle`과 조합합니다.
-
-내용 반영 후 시작처럼 수정 성공에 의존하는 후속 lifecycle은 필요한 content field 전체가 재조회로
-`applied` 또는 검증된 `no-op`임을 확인한 뒤에만 인계합니다. `unapplied`·`unknown`·부분 성공이나
-근거 누락이면 해당 후속 변경을 보류합니다. timeout 자체보다 실제 readback 결과로 판정하며,
-본문 성공과 무관하게 수행하라고 명시된 요청만 현재 상태·권한을 새로 확인해 독립적으로 처리합니다.
-
-새 문장·기존 본문 수정·결과 보고에는 출력 언어에 맞는 Fluent Languages 스킬 사용을 권장합니다.
-현재 inventory에 있는 스킬만 조합하며 미설치를 작업 차단이나 자동 설치 사유로 삼지 않습니다.
-고정 양식·식별자·링크·의무 수준·사실의 의미를 보존하고 `to-ticket`이 내용과 게시 책임을 유지합니다.
-제품·기술 의사결정은 Product·Engineering의 책임이며 두 플러그인은 필수 의존성이 아닙니다.
+제품·기술 의사결정은 Product·Engineering의 책임이며 필수 의존성이 아닙니다. 출력 언어의
+Fluent Languages 스킬이 있으면 함께 적용하되 설치를 가정하거나 자동 설치하지 않습니다.
 
 ### 생성 metadata를 같은 publish 흐름에서 완성한다
 

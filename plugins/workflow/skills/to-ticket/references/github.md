@@ -43,7 +43,7 @@ label·assignee·milestone·Project field·sub-issue·dependency는 내용 수�
 
 [공통 첨부 규칙](media-attachments.md)을 적용하고 `gh --version`, `gh issue create --help`, `gh issue edit --help`에서 `--attach` 지원을 확인한다. 지원되는 CLI는 이미지·영상을 GitHub 첨부 저장소에 올리고 본문에 URL을 넣는다. 저장소 push 권한과 host·token·파일 제한을 확인한다. 권한이 없거나 CLI가 지원하지 않으면 공식 브라우저 첨부로 전환한다.
 
-새 이슈는 로컬 경로가 없는 본문으로 생성해 번호를 확인한다. 파일마다 `gh issue edit ISSUE_URL --attach FILE`로 첨부하고 저장된 본문에서 실제 URL을 읽는다. 설명·순서와 URL을 `재현 정보`에 배치한 본문을 `--body-file`로 반영하고 끝에 붙은 중복 첨부를 제거한다. 수정 전에는 최신 본문을 읽어 다른 변경을 보존한다.
+새 이슈는 로컬 경로가 없는 본문으로 생성해 번호를 확인한다. 파일마다 `gh issue edit ISSUE_URL --attach FILE`로 첨부하고 저장된 본문에서 실제 URL을 읽는다. 설명·순서와 URL을 [미디어 첨부 규칙](media-attachments.md)에 따라 선택한 위치에 배치하고, 본문을 `--body-file`로 반영해 끝에 붙은 중복 첨부를 제거한다. 수정 전에는 최신 본문을 읽어 다른 변경을 보존한다.
 
 이미지는 Markdown image와 alt text를, 영상은 단독 문단의 업로드 URL과 별도 설명을 사용한다. `--attach`의 이미지 설명은 `FILE#ALT_TEXT` 형식이며 영상에는 지원되지 않는다. 로컬 경로를 본문에 넣어 자동 치환하는 방식은 부분 실패 시 경로가 남을 수 있으므로 기본 흐름에서 사용하지 않는다.
 

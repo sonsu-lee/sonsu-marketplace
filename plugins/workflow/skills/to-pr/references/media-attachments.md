@@ -71,9 +71,9 @@ GitHub Draft PR의 가용성은 저장소 visibility와 plan에 따라 다르다
 
 GitHub CLI는 body가 같은 로컬 파일을 참조하면 그 위치의 destination을 upload URL로 바꿀 수 있다. 하지만 여러 upload 중 일부만 성공해도 PR을 생성하므로 실패한 파일의 local path가 body에 남을 수 있다. `to-pr`의 기본 흐름에서는 local reference를 body에 쓰지 않는다.
 
-대신 선택한 template의 시각 자료 section에 각 marker와 video에서 확인할 내용을 text로 설명한다. 기본형의 항목 이름은 `Screenshots and videos`이며 `Notes` 앞에 둔다. body가 참조하지 않은 attachment는 flag 순서대로 끝에 추가되므로 manifest의 `display_order`와 `--attach` 순서를 일치시킨다. 여러 파일이면 설명에도 `Attachment 1`, `Video 3`처럼 같은 번호를 붙여 각 파일과 caption이 일대일로 대응하게 한다. before와 after를 표로 비교해야 하면 가능할 때 마킹된 두 화면을 하나의 안전한 comparison image로 합친다.
+대신 [선택한 템플릿](pr-template.md)의 시각 자료 항목에 각 marker와 video에서 확인할 내용을 설명한다. body가 참조하지 않은 attachment는 flag 순서대로 끝에 추가되므로 manifest의 `display_order`와 `--attach` 순서를 일치시킨다. 여러 파일이면 설명에도 `Attachment 1`, `Video 3`처럼 같은 번호를 붙여 각 파일과 caption이 일대일로 대응하게 한다. before와 after를 표로 비교해야 하면 가능할 때 마킹된 두 화면을 하나의 안전한 comparison image로 합친다.
 
-첨부 뒤에도 선택한 template의 항목 순서를 유지하며 append된 상태를 그대로 최종 body로 사용하지 않는다. Draft PR에 파일을 하나씩 첨부하고 저장된 body에서 각 remote URL을 확인한 뒤, URL을 template의 지정된 시각 자료 section에 넣은 완성 body를 `gh pr edit --body-file`로 다시 기록한다. 재조회하여 본문 끝의 중복 attachment와 local placeholder가 제거되었고 URL이 지정 section에만 남았는지 확인한다.
+첨부 후에는 아래 게시 절차에 따라 확인된 URL을 지정 항목에 배치하고, 본문 끝의 중복 attachment와 local placeholder가 제거됐는지 재조회한다.
 
 이미지 인자는 shell 해석을 피하도록 전체를 quote하고 `--attach '/absolute/path/annotated-after.png#Marker 1 shows the changed navigation state'`처럼 alt text를 붙인다. 비디오는 alt text를 지원하지 않으므로 `#` 뒤의 설명을 주지 않는다. 비디오는 append되면 bare URL로 기록되어 player로 표시된다.
 
