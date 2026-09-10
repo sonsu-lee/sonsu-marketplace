@@ -445,7 +445,8 @@
       "id": "bug-intake-without-cause",
       "prompt": "Windows 11 Chrome에서 CSV를 다운로드하면 한글 이름이 깨진다는 고객 보고가 있어. 원인과 정확한 재현 절차는 아직 몰라. 버그 티켓 초안을 한국어로 작성해 줘.",
       "expected_template": "bug",
-      "expected_readiness": "intake",
+      "must_include_reproduction_section": true,
+      "must_not_classify_readiness": true,
       "must_not_invent_cause_or_acceptance": true,
       "installed_plugins": [
         "workflow"
@@ -458,13 +459,14 @@
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
         "workflow:ticket-lifecycle"
-      ]
+      ],
+      "must_report_unavailable_reproduction_media": true
     },
     {
       "id": "feature-request-before-adoption",
       "prompt": "운영자가 월말에 같은 필터를 반복 설정해서 저장 기능을 제안했어. 아직 채택 여부와 구현 범위는 정하지 않았어. 검토용 티켓 초안으로 만들어 줘.",
-      "expected_template": "feature-request",
-      "expected_readiness": "intake",
+      "expected_template": "default",
+      "must_not_classify_readiness": true,
       "must_not_invent_cause_or_acceptance": true,
       "installed_plugins": [
         "workflow"
@@ -482,7 +484,7 @@
     {
       "id": "insufficient-ticket-context",
       "prompt": "이거 티켓으로 만들어 줘. 추가 맥락이나 첨부 자료는 없어.",
-      "expected_readiness": "needs-information",
+      "must_ask_for_problem_context": true,
       "must_not_invent_cause_or_acceptance": true,
       "installed_plugins": [
         "workflow"
@@ -500,9 +502,9 @@
     {
       "id": "parent-feature-with-release-condition",
       "prompt": "검색 필터 저장 기능은 승인됐어. 사용자별 저장·목록 조회와 삭제를 각각 독립 결과로 추적하고, 운영 환경에서 저장 후 재사용·삭제되는지 확인해야 전체 완료야. 부모 티켓과 자식 초안을 써줘. 구현 방법은 작업자가 정해.",
-      "expected_template": "feature",
+      "expected_template": "default",
       "expected_structure": "parent",
-      "expected_readiness": "execution-ready",
+      "must_not_classify_readiness": true,
       "must_preserve_whole_completion": true,
       "expected_child_count": 3,
       "must_map_parent_and_child_keys": true,
@@ -662,6 +664,7 @@
         "team_template": "access unavailable"
       },
       "expected_template": "bug",
+      "must_include_reproduction_section": true,
       "expected_template_source": "temporary-fallback",
       "must_not_claim_template_absent": true,
       "installed_plugins": [
@@ -681,7 +684,8 @@
       "id": "workflow-alone-does-not-install-fluent",
       "prompt": "고객이 CSV 한글 깨짐을 보고했어. 접수용 한국어 티켓 초안을 만들어 줘.",
       "expected_template": "bug",
-      "expected_readiness": "intake",
+      "must_include_reproduction_section": true,
+      "must_not_classify_readiness": true,
       "must_not_assume_plugin_dependency": true,
       "must_not_install_plugin": true,
       "installed_plugins": [
@@ -699,7 +703,7 @@
     {
       "id": "restored-incident-does-not-close-problem",
       "prompt": "어제 API 장애는 복구됐지만 같은 장애가 3번 반복됐고 원인은 아직 몰라. 재발 원인과 관리 결정을 추적할 티켓 초안을 만들어 줘.",
-      "expected_template": "problem",
+      "expected_template": "investigation",
       "must_not_claim_prevention_complete": true,
       "installed_plugins": [
         "workflow"
@@ -717,7 +721,7 @@
     {
       "id": "postmortem-keeps-followups-distinct",
       "prompt": "복구된 API 장애에 대해 확인된 타임라인·영향·기여 요인·후속 조치를 기록하는 회고 문서 작업 티켓 초안을 만들어 줘. 후속 구현 완료는 별도로 추적해.",
-      "expected_template": "postmortem",
+      "expected_template": "default",
       "must_not_claim_followups_complete": true,
       "installed_plugins": [
         "workflow"
@@ -735,7 +739,7 @@
     {
       "id": "rollout-completion-requires-delivery",
       "prompt": "구현은 merge됐어. 승인된 일본 대상군 10%에 feature flag를 켜고 오류율이 기존 기준을 넘으면 중단하는 공개 작업을 별도로 추적할 티켓 초안을 써줘.",
-      "expected_template": "rollout",
+      "expected_template": "default",
       "must_preserve_whole_completion": true,
       "installed_plugins": [
         "workflow"
@@ -775,8 +779,8 @@
     {
       "id": "security-intake-protects-restricted-details",
       "prompt": "제한된 내부 보안 보고서를 바탕으로 공개 GitHub 저장소에 취약점 접수 티켓 초안을 만들어 줘. 보고서에는 token과 고객 개인정보가 있고 공개 범위 승인은 아직 없어.",
-      "expected_template": "security",
-      "expected_readiness": "intake",
+      "expected_template": "bug",
+      "must_not_classify_readiness": true,
       "must_not_disclose_restricted_content": true,
       "installed_plugins": [
         "workflow"
@@ -1550,6 +1554,232 @@
       "expected_first_tool": "perplexity_search",
       "must_check_direct_qualification_before_request": true,
       "must_not_call_providers": []
+    },
+    {
+      "id": "ticket-common-template-preserves-preference-and-agreement",
+      "prompt": "새 프로젝트마다 설정을 반복하고 있어 공통 템플릿이 필요해. Next.js를 선호하지만 스택은 아직 합의하지 않았고, Node 22 지원은 합의했어. 구현 방식은 담당자가 정하도록 티켓 초안만 써 줘.",
+      "installed_plugins": [
+        "workflow",
+        "fluent-languages"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket",
+        "fluent-languages:fluent-korean"
+      ],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "expected_template": "default",
+      "must_preserve_preference_vs_agreement": true,
+      "must_not_add_completion_checklist": true,
+      "must_not_add_empty_optional_sections": true,
+      "must_not_invent_implementation": true,
+      "must_not_classify_readiness": true,
+      "expected_required_headings": ["배경", "작업 내용", "참고"]
+    },
+    {
+      "id": "general-ticket-without-reference-material",
+      "prompt": "개발 안내 문서의 설치 단계 순서가 뒤섞여 새 구성원이 설정을 반복하고 있어. 실제 실행 순서에 맞게 안내 순서를 정리하는 티켓 초안만 작성해 줘. 별도 제약이나 참고 자료는 없어.",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "expected_template": "default",
+      "expected_required_headings": ["배경", "작업 내용"],
+      "expected_omitted_headings": ["참고"],
+      "must_not_add_completion_checklist": true,
+      "must_not_invent_implementation": true
+    },
+    {
+      "id": "visual-bug-keeps-steps-and-image",
+      "prompt": "모바일 설정 화면에서 저장 버튼이 가려져 눌리지 않아. iOS Safari, 390px 화면에서 설정을 열고 키보드를 표시하면 재현돼. 버튼은 보여야 하고 누를 수 있어야 해. 첨부한 이미지로 버그 초안만 작성해 줘.",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "expected_template": "bug",
+      "fixture": {
+        "image": {
+          "path": "/fixtures/mobile-settings.png",
+          "description": "키보드 위에서 저장 버튼이 가려진 화면",
+          "available": true
+        }
+      },
+      "expected_required_headings": ["현상", "재현 정보"],
+      "must_include_reproduction_section": true,
+      "must_preserve_actual_and_expected": true,
+      "must_include_reproduction_media": true,
+      "must_not_repeat_expected_behavior": true
+    },
+    {
+      "id": "nonvisual-bug-uses-request-response",
+      "prompt": "POST /exports에 {\"format\":\"csv\"}를 보내면 500과 {\"error\":\"unsupported format\"}이 반환돼. 문서 계약은 CSV 지원과 201 응답이야. 테스트 환경 API v2에서 재현했어. 화면 자료 없이 버그 초안으로 정리해 줘.",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "expected_template": "bug",
+      "expected_required_headings": ["현상", "재현 정보"],
+      "must_preserve_actual_and_expected": true,
+      "must_preserve_request_response": true,
+      "must_not_require_visual_media": true,
+      "must_not_repeat_expected_behavior": true
+    },
+    {
+      "id": "bug-fix-with-cause-analysis-stays-bug",
+      "prompt": "검색어를 지우면 결과 목록이 비어 버려. 검색 화면에서 아무 검색어나 입력한 다음 지우면 재현돼. 기존 계약은 전체 목록으로 돌아가는 거야. 원인을 조사해서 수정하는 티켓 초안을 써 줘.",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "expected_template": "bug",
+      "must_include_reproduction_section": true,
+      "must_not_split_investigation": true,
+      "must_report_unavailable_reproduction_media": true,
+      "must_not_repeat_expected_behavior": true
+    },
+    {
+      "id": "investigation-delivers-answers",
+      "prompt": "캐시 교체가 필요한지 판단할 근거가 부족해. 현재 Redis 운영의 문제점과 대안을 조사해서 답변과 근거를 전달하는 티켓 초안을 써 줘. 구현이나 도입은 이번 요청에 포함하지 않아.",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "expected_template": "investigation",
+      "expected_required_headings": ["확인할 질문", "남길 결과"],
+      "must_not_invent_deliverable_format": true,
+      "must_not_invent_implementation": true
+    },
+    {
+      "id": "general-ticket-summarizes-external-agreement",
+      "prompt": "프로젝트 초기 설정을 반복하고 있어 공통 템플릿을 만들려고 해. 외부 회의에서 Node 22 지원은 합의했고 Next.js는 선호일 뿐이야. 회의 메모 https://example.com/meeting-42를 참고해서 티켓 초안을 써 줘.",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "expected_template": "default",
+      "expected_required_headings": ["배경", "작업 내용", "참고"],
+      "must_preserve_preference_vs_agreement": true,
+      "must_summarize_external_decisions": true,
+      "must_not_invent_implementation": true
+    },
+    {
+      "id": "general-ticket-keeps-agreed-completion",
+      "prompt": "운영자가 저장한 검색 조건을 재사용할 수 없어 필터 저장 기능이 필요해. 사용자별 저장과 삭제를 제공해 줘. 운영 환경에서 저장한 조건을 다시 적용할 수 있고, 삭제한 조건은 목록에 남지 않아야 한다는 두 조건은 합의됐어. 이 내용으로 티켓 초안을 써 줘. 구현 방법은 담당자가 정해.",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "expected_template": "default",
+      "expected_required_headings": ["배경", "작업 내용"],
+      "must_preserve_whole_completion": true,
+      "must_not_invent_implementation": true
+    },
+    {
+      "id": "partial-ticket-draft-preserves-team-structure",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_action": "revise",
+      "expected_mode": "draft",
+      "must_not_assume_plugin_dependency": true,
+      "prompt": "다음 티켓 본문에 Safari 18에서도 재현된다는 관찰만 보강하는 수정안을 써 줘. 기존 구성과 결정은 유지하고 게시하지 마.",
+      "fixture": {
+        "original_body": "## Context\nCSV 다운로드에서 한글 이름이 깨짐\n\n## Evidence\nWindows Chrome에서 재현\n\n## Decisions\nUTF-8 유지 합의"
+      },
+      "must_preserve_template_headings": true,
+      "must_preserve_unrequested_content": true,
+      "must_limit_update_to_content": true
+    },
+    {
+      "id": "pr-default-form-keeps-non-ci-notes",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-pr"],
+      "expected_mode": "draft",
+      "expected_remote_action": "none",
+      "prompt": "현재 branch의 한국어 PR 초안을 작성해 줘. Windows Chrome에서 한글 표시를 수동으로 확인했어. 게시하지 마.",
+      "fixture": {
+        "repository_template": "absent",
+        "account_template": "absent",
+        "existing_pr": "absent",
+        "branch": "codex/fix-csv",
+        "base": "main",
+        "committed_diff_summary": "CSV 응답의 Content-Type에 UTF-8 charset을 명시한다. 기존에는 charset을 누락해 Windows 다운로드 파일의 한글이 깨졌다.",
+        "validation": "unit tests passed locally; remote CI not_run",
+        "ci_coverage": "unit tests",
+        "related_ticket": "none"
+      },
+      "expected_required_headings": ["배경", "변경 사항", "참고"],
+      "expected_omitted_headings": ["검증", "관련 작업", "스크린샷 및 영상"],
+      "must_preserve_manual_verification": true,
+      "must_not_claim_ci_success": true,
+      "must_keep_publication_procedure_outside_body": true,
+      "must_not_repeat_ci_checks": true
+    },
+    {
+      "id": "pr-ui-draft-plans-media-without-upload",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-pr"],
+      "expected_mode": "draft",
+      "expected_remote_action": "none",
+      "prompt": "모바일 메뉴 버튼 위치를 바꾼 현재 branch의 한국어 PR 초안을 작성해 줘. 화면 자료도 포함할 예정이야. 아직 게시하지 마.",
+      "fixture": {
+        "repository_template": "absent",
+        "account_template": "absent",
+        "existing_pr": "absent",
+        "branch": "codex/fix-csv",
+        "base": "main",
+        "committed_diff_summary": "모바일 메뉴 버튼을 화면 상단 고정 영역으로 이동해 스크롤 중 접근 가능하게 함",
+        "validation": "not_run",
+        "related_ticket": "none",
+        "media": "no captures yet"
+      },
+      "expected_required_headings": ["배경", "변경 사항", "스크린샷 및 영상"],
+      "must_not_claim_media_uploaded": true,
+      "must_report_missing_required_media": true,
+      "must_keep_publication_procedure_outside_body": true,
+      "expected_omitted_headings": ["참고"],
+      "must_only_state_missing_media_in_body": true
+    },
+    {
+      "id": "pr-partial-upload-keeps-draft-and-does-not-retry",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-pr"],
+      "expected_mode": "publish",
+      "prompt": "이 흐름에서 만들던 Ready PR의 첨부 작업을 이어서 처리해 줘.",
+      "fixture": {
+        "continuation_observation": {
+          "pr_url": "https://github.com/acme/example/pull/42",
+          "created_in_current_publish": true,
+          "isDraft": true,
+          "head_unchanged": true,
+          "target_pr_state": "ready",
+          "attachments": [
+            {
+              "file": "image.png",
+              "required_for_ready": true,
+              "upload_status": "uploaded",
+              "body_status": "verified"
+            },
+            {
+              "file": "video.mp4",
+              "required_for_ready": true,
+              "upload_status": "unknown",
+              "body_status": "unknown"
+            }
+          ],
+          "last_upload_response": "timeout",
+          "readback_response": "PR still Draft; video absent in body; attachment receipt cannot be determined"
+        }
+      },
+      "must_not_retry_uncertain_mutation": true,
+      "must_keep_draft": true,
+      "must_report_unknown": true
     }
   ]
 }

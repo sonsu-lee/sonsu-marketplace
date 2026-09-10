@@ -6,12 +6,12 @@
 
 다음 중 하나이면 시각 증거를 준비한다.
 
-- 사용자가 screenshot 포함을 요청했다.
+- 사용자가 스크린샷 포함을 요청했다.
 - diff가 layout, style, theme, responsive behavior, interaction 또는 사용자에게 보이는 상태를 바꾼다.
 - PR template이나 contribution 지침이 요구한다.
 - accessibility나 visual regression 결과를 화면으로 설명해야 한다.
 
-backend-only, 내부 refactor, 문서, metadata와 사용자에게 보이는 출력이 없는 configuration 변경에는 기본적으로 만들지 않는다. 필요 없으면 `not_applicable`로 처리하고 빈 `Visual evidence` 섹션을 만들지 않는다.
+backend-only, 내부 refactor, 문서, metadata와 사용자에게 보이는 출력이 없는 configuration 변경에는 기본적으로 만들지 않는다. 필요 없으면 `not_applicable`로 처리하고 빈 `Screenshots and videos` 섹션을 만들지 않는다.
 
 ## capture 환경을 고정한다
 
@@ -19,12 +19,12 @@ application command, route, 상태, test data, viewport, device scale factor, th
 
 도구는 다음 순서로 선택한다.
 
-1. repository의 기존 screenshot·visual regression 명령
+1. repository의 기존 스크린샷·visual regression 명령
 2. 이미 설치·설정된 Playwright
-3. 현재 환경의 browser screenshot 기능
+3. 현재 환경의 브라우저 스크린샷 기능
 4. 사용할 수 있는 동등한 기존 도구
 
-Playwright, browser binary, image library나 application dependency를 자동 설치하지 않는다. `npx --yes`로 package를 내려받지 않는다. 실행 환경이 없으면 필요한 command, route, 상태와 누락 조건을 포함한 capture plan을 반환한다.
+Playwright, 브라우저 binary, image library나 application dependency를 자동 설치하지 않는다. `npx --yes`로 package를 내려받지 않는다. 실행 환경이 없으면 필요한 command, route, 상태와 누락 조건을 포함한 capture plan을 반환한다.
 
 공식 참고: [Playwright screenshots](https://playwright.dev/docs/screenshots)
 
@@ -66,14 +66,14 @@ diff mask나 이미 번호가 붙은 annotation 자체가 변경 위치를 분�
 - 신뢰할 수 있는 경우의 `annotated-before.png`
 - 변경 pixel을 표시한 `diff.png`
 
-OS, browser, font, viewport, scale, animation과 동적 데이터가 안정화되지 않으면 비교를 `inconclusive`로 표시한다. 모든 pixel 차이를 의미 있는 제품 변경으로 해석하지 않는다.
+OS, 브라우저, font, viewport, scale, animation과 동적 데이터가 안정화되지 않으면 비교를 `inconclusive`로 표시한다. 모든 pixel 차이를 의미 있는 제품 변경으로 해석하지 않는다.
 
 ## PR 본문에 배치한다
 
-신뢰할 수 있는 before와 after가 모두 있고 browser attachment, 이미 게시된 URL 또는 공개에 안전한 in-place rewrite를 사용하는 경우에는 repository template을 해치지 않는 범위에서 비교 표와 diff를 사용할 수 있다.
+신뢰할 수 있는 before와 after가 모두 있고 브라우저 attachment, 이미 게시된 URL 또는 공개에 안전한 in-place rewrite를 사용하는 경우에는 저장소 template을 해치지 않는 범위에서 비교 표와 diff를 사용할 수 있다.
 
 ```markdown
-## Visual evidence
+## Screenshots and videos
 
 | Before | After |
 | --- | --- |
@@ -82,7 +82,7 @@ OS, browser, font, viewport, scale, animation과 동적 데이터가 안정화�
 ![Highlighted visual differences](<diff-url>)
 ```
 
-GitHub CLI의 안전한 기본 append 흐름에서는 마킹된 before와 after를 하나의 comparison image로 합친다. repository template이 허용하면 `Visual evidence`를 마지막 section으로 둔다. template 순서가 고정되어 visual section이 중간에 있으면 attachment로 얻은 remote URL을 해당 section에 넣어 body를 다시 기록하고, body 끝의 중복 URL을 제거한다. 어느 경우든 각 이미지의 순서와 marker를 text로 설명하고 local path placeholder로 비교 표를 만들지 않는다.
+GitHub CLI의 기본 append 흐름에서는 가능할 때 마킹된 before와 after를 하나의 comparison image로 합친다. 항목 이름과 순서는 [선택한 템플릿](pr-template.md)을 따르고, 업로드·URL 배치·중복 제거는 [미디어 첨부 규칙](media-attachments.md)으로 처리한다. 각 이미지의 순서와 marker를 설명하고 local path placeholder로 비교 표를 만들지 않는다.
 
 baseline이 없으면 after만 표시하고 before/after 비교를 하지 못한 이유를 적는다. 로컬 검토용 draft에는 실제 URL처럼 보이는 값을 만들지 않고 `<!-- attachment: annotated-after.png | alt: Marker 1 shows the changed navigation -->` 같은 비경로 placeholder를 사용할 수 있다. `gh pr create --draft`에 전달할 final body에서는 이를 실제 caption·순서 설명으로 바꾸거나 제거하며 원격 Draft PR에는 placeholder를 남기지 않는다.
 

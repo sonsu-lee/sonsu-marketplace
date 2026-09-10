@@ -19,19 +19,19 @@ link_channel: body | title | provider-link | existing-branch
 status_effect: close | workflow-dependent | none | unknown
 ```
 
-provider와 canonical ticket은 사용자의 명시, 승인된 티켓 문서, 실제 tracker 조회, URL과 repository integration 설정 순서로 확인한다. `ENG-123`처럼 Linear와 Jira가 모두 사용할 수 있는 문자열 모양만으로 provider를 정하지 않는다.
+provider와 canonical ticket은 사용자의 명시, 승인된 티켓 문서, 실제 tracker 조회, URL과 저장소 integration 설정 순서로 확인한다. `ENG-123`처럼 Linear와 Jira가 모두 사용할 수 있는 문자열 모양만으로 provider를 정하지 않는다.
 
-같은 작업이 GitHub Issues와 Linear 사이에 동기화되어 있으면 canonical ticket 하나에만 completion 의도를 적용한다. 실제 sync 관계를 확인하지 못한 티켓은 자동으로 같은 작업이라고 묶지 않는다.
+같은 작업이 GitHub Issues와 Linear 사이에 동기화되어 있으면 기준 티켓 하나에만 completion 의도를 적용한다. 실제 sync 관계를 확인하지 못한 티켓은 자동으로 같은 작업이라고 묶지 않는다.
 
-`intent`는 PR이 티켓과 맺는 의미이고 `status_effect`는 provider와 현재 automation이 실제로 만들 결과다. 둘을 같다고 가정하지 않는다. PR 게시 전에 repository·team·Jira site의 현재 integration, event mapping과 티켓 상태를 읽는다.
+`intent`는 PR이 티켓과 맺는 의미이고 `status_effect`는 provider와 현재 automation이 실제로 만들 결과다. 둘을 같다고 가정하지 않는다. PR 게시 전에 저장소·team·Jira site의 현재 integration, event mapping과 티켓 상태를 읽는다.
 
 ## PR metadata를 우선한다
 
 연결 채널은 Git history와 branch naming에 미치는 결합도가 낮은 순서로 고른다.
 
-1. provider가 지원하는 PR body 문법
-2. body로 부족할 때 PR title
-3. 사용자가 요청하고 provider가 지원하는 별도 link operation
+1. provider가 지원하는 PR 본문 문법
+2. body로 부족할 때 PR 제목
+3. 사용자가 요청하고 provider가 지원하는 별도 link 작업
 4. 이미 존재하는 branch ID
 5. branch 생성·rename은 수행하지 않고 별도 Git workflow로 넘김
 
@@ -39,7 +39,7 @@ branch 문자열은 가장 낮은 신뢰도의 hint다. ID가 없다는 이유�
 
 ## GitHub Issues
 
-PR body를 기본 채널로 사용한다. closing keyword는 PR이 repository default branch를 대상으로 할 때만 연결과 merge 후 종료 효과를 가진다.
+PR body를 기본 채널로 사용한다. closing keyword는 PR이 저장소 default branch를 대상으로 할 때만 연결과 merge 후 종료 효과를 가진다.
 
 | 의도 | 표현 | 효과 |
 | --- | --- | --- |
@@ -55,7 +55,7 @@ Draft PR 생성은 GitHub Issue나 Project item의 review 시작을 뜻하지 �
 
 ## Linear
 
-PR body의 magic word를 기본 채널로 사용한다. Linear 연결을 위해 새 branch 이름에 티켓 ID를 추가하거나 ID 추가를 Git workflow에 요청하지 않는다. title의 ID는 repository 관례나 사용자의 명시가 있을 때만 사용한다.
+PR body의 magic word를 기본 채널로 사용한다. Linear 연결을 위해 새 branch 이름에 티켓 ID를 추가하거나 ID 추가를 Git workflow에 요청하지 않는다. title의 ID는 저장소 관례나 사용자의 명시가 있을 때만 사용한다.
 
 | 의도 | 표현 | 효과 |
 | --- | --- | --- |
@@ -66,15 +66,15 @@ PR body의 magic word를 기본 채널로 사용한다. Linear 연결을 위해 
 
 `part of`는 두 단어다. 기존 branch에 Linear ID가 있으면 사용자가 원하는 티켓과 관계 의도에 맞는지 확인한다. 원하지 않는 ID가 branch에 있으면 rename하지 않고 `Ignore ENG-123`가 필요한지 판단한다. 여러 ID에 모두 `Fixes`를 붙이지 않는다.
 
-Linear의 drafted, opened, review requested, ready for merge와 merged event mapping은 team·repository 설정에 따라 다르다. Draft PR 자체를 review 시작으로 해석하거나, configured mapping과 같은 status를 직접 중복 적용하지 않는다. merge 뒤 release·deployment가 완료 조건이면 `Fixes` 대신 completion을 만들지 않는 intent를 사용한다.
+Linear의 drafted, opened, review requested, ready for merge와 merged event mapping은 team·저장소 설정에 따라 다르다. Draft PR 자체를 review 시작으로 해석하거나, configured mapping과 같은 status를 직접 중복 적용하지 않는다. merge 뒤 release·deployment가 완료 조건이면 `Fixes` 대신 completion을 만들지 않는 intent를 사용한다.
 
 공식 참고: [Linear GitHub integration](https://linear.app/docs/github)
 
 ## Jira
 
-Jira development information에는 PR title의 work item key를 기본 채널로 사용한다. repository 관례에 맞춰 `PROJ-123: title` 또는 `[PROJ-123] Title`처럼 key를 포함하고, body에는 확인된 Jira URL과 관계를 기록할 수 있다.
+Jira development information에는 PR title의 work item key를 기본 채널로 사용한다. 저장소 관례에 맞춰 `PROJ-123: title` 또는 `[PROJ-123] Title`처럼 key를 포함하고, body에는 확인된 Jira URL과 관계를 기록할 수 있다.
 
-branch나 commit의 기존 key는 보조 evidence다. key가 없어도 branch를 rename하거나 commit을 rewrite하지 않는다. title에도 key를 넣을 수 없으면 body URL은 사람이 읽는 reference일 뿐 integration을 보장하지 못할 수 있음을 보고하고, branch 정책은 별도 Git workflow 결정으로 남긴다.
+branch나 commit의 기존 key는 보조 evidence다. key가 없어도 branch를 rename하거나 commit을 rewrite하지 않는다. title에도 key를 넣을 수 없으면 본문 URL은 사람이 읽는 reference일 뿐 integration을 보장하지 못할 수 있음을 보고하고, branch 정책은 별도 Git workflow 결정으로 남긴다.
 
 Jira 상태 전이는 site의 workflow trigger와 automation 설정에 따라 달라진다. title에 key를 넣거나 `Fixes PROJ-123`라고 썼다는 이유만으로 종료를 주장하지 않는다.
 
@@ -87,6 +87,6 @@ PR 생성·review 요청·ready·merge·decline·deployment 같은 event마다 �
 1. 해당 event의 native integration 또는 automation과 정확한 status mapping이 확인되면 그 자동화를 단일 소유자로 둔다.
 2. PR과 canonical ticket을 다시 읽어 link와 status를 별도로 확인한다.
 3. 비동기 실행 여부가 불명확하면 `status_effect: unknown`으로 보고하고 직접 transition하지 않는다.
-4. automation 부재 또는 이 event의 비적용, 현재 상태, 정확한 목표 transition과 권한이 확인되고, 전이 근거가 직접 사용자 의도 또는 확인된 repository·team lifecycle 정책일 때만 직접 lifecycle fallback을 넘긴다.
+4. automation 부재 또는 이 event의 비적용, 현재 상태, 정확한 목표 transition과 권한이 확인되고, 전이 근거가 직접 사용자 의도 또는 확인된 저장소·team lifecycle 정책일 때만 직접 lifecycle fallback을 넘긴다.
 
-provider reference가 저장됐다는 사실은 `link: applied`일 수 있지만 상태가 바뀌었다는 증거는 아니다. 반대로 상태 automation이 실행됐더라도 기대한 reference가 저장됐는지는 따로 검증한다. Draft PR은 명시적인 review 요청 event가 아니며, release·deployment가 완료 조건이면 merge만으로 `complete`를 주장하지 않는다.
+프로바이더 reference가 저장됐다는 사실은 `link: applied`일 수 있지만 상태가 바뀌었다는 증거는 아니다. 반대로 상태 automation이 실행됐더라도 기대한 reference가 저장됐는지는 따로 검증한다. Draft PR은 명시적인 review 요청 event가 아니며, release·deployment가 완료 조건이면 merge만으로 `complete`를 주장하지 않는다.

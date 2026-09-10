@@ -31,7 +31,7 @@ provider를 ID 문자열 모양만으로 추측하지 않는다. branch에 이�
 
 ## 생성 전에 확인한다
 
-- current branch, `HEAD`와 시작할 base revision
+- 현재 브랜치, `HEAD`와 시작할 base revision
 - 같은 이름의 local·remote branch 존재 여부
 - detached HEAD와 진행 중인 Git 작업
 - current checkout과 linked worktree에서 해당 branch가 이미 사용 중인지 여부
