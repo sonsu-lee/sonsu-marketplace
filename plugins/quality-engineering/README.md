@@ -40,7 +40,18 @@ claude plugin install quality-engineering@sonsu-marketplace --scope local
 | `review-maintainability` | reader load, 변경 이유, 중복 지식과 public surface 검토 | maintainability 또는 reader-load review 요청 |
 | `review-failure-modes` | 도달 가능한 실패, retry, 부분 성공, concurrency와 cleanup 검토 | failure-mode 또는 adversarial review 요청 |
 | `review-operability` | error ownership, logging, telemetry와 민감정보 검토 | operability·observability review 요청 |
-| `review-quality` | 관련 lens만 골라 중복 없이 통합하는 broad quality review | 여러 품질 관점을 아우르는 quality review 요청 |
+| `review-quality` | 동작·구조·패턴에서 관련 관점만 골라 중복 없이 통합 | 일반 코드·diff 리뷰 또는 여러 품질 관점의 리뷰 요청 |
+
+일반적인 “이 코드/diff 리뷰해줘”는 `review-quality`, 한 관점만 지정한 요청은 해당 집중 리뷰가
+담당합니다. 개발 절차가 선언한 리뷰와 명시적 독립 리뷰어 요청은 해당 개발 절차의 범위입니다.
+이 플러그인은 독립적으로 직접 리뷰를 완료하며 다른 플러그인·패키지·독립 리뷰어·관찰 도구 등록을
+필수 조건으로 요구하지 않습니다. Codex 기본 `/review`·GitHub 자동 PR 리뷰 연결은 포함하지 않습니다.
+
+[공통 리뷰 기준](references/review-criteria.md)은 근거가 현재 변경에 적용되는 이유, 발생 조건·영향과
+최소 수정 방향을 설명합니다. 코드·호출자·설정으로 해결되지 않는 중요한 의문만 허용된 읽기 전용
+PR·공식 자료·운영 조회로 확인합니다. AI slop는 근거 없는 주장·중복·빈 수사·불필요한 코드와 증적
+요구를 제거하되 조건·예외·불확실성과 필요한 보호는 보존하는 기준으로 다룹니다. 선택적 개선을
+필수 작업으로 바꾸지 않으며 최종 판단은 사용자에게 남깁니다. `suggestion`은 기본적으로 생략합니다.
 
 review와 audit 스킬은 읽기 전용입니다. `review-quality`는 모든 lens를 기계적으로 실행하지 않고
 현재 변경에 실제로 관련된 관점만 선택합니다.

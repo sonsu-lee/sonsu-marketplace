@@ -38,7 +38,8 @@ Codex 또는 Claude Code가 현재 설치된 스킬의 description과 요청의 
 | reader load와 유지보수성 검토 | `quality-engineering:review-maintainability` |
 | 도달 가능한 실패 경로 검토 | `quality-engineering:review-failure-modes` |
 | error ownership, logging과 운용 가능성 검토 | `quality-engineering:review-operability` |
-| 여러 quality lens를 아우르는 broad review | `quality-engineering:review-quality` |
+| 코드·diff의 일반 직접 리뷰 또는 여러 품질 관점의 리뷰 | `quality-engineering:review-quality` 우선, Engineering만 있으면 `requesting-code-review` 직접 리뷰 분기 |
+| Engineering 절차의 검토·명시적 독립 리뷰 | `engineering:requesting-code-review` 워크플로우 분기 |
 | branch, staging, commit, 일반 push와 Git 변경 검토 | `workflow:git-workflow` |
 | ticket·issue·backlog 접수·초안·게시 또는 기존 제목·본문 보강 | `workflow:to-ticket` |
 | 기존 ticket의 작업 시작·review·완료 상태, 담당자와 native relation 변경 | `workflow:ticket-lifecycle` |
@@ -197,10 +198,20 @@ Quality Engineering은 code shape, simplicity, maintainability, reachable failur
 자기 범위를 독립적으로 완료하며 Engineering의 계획, TDD 또는 branch 완료 skill ID를 호출하지
 않습니다. Engineering만 설치된 환경도 Quality Engineering이 있다고 가정하지 않습니다.
 
-review skill은 사용자가 지정한 관점과 범위에만 직접 trigger됩니다. `review-quality`는 broad
-quality review 요청에서 관련 lens만 선택하고, over-engineering처럼 한 관점만 지정한 요청을
-가로채거나 모든 lens를 기계적으로 실행하지 않습니다. review와 audit skill은 파일을 수정하지
-않습니다.
+일반적인 “이 코드/diff 리뷰해줘”와 여러 품질 관점을 요청한 경우 `review-quality`가 관련 관점을
+선택합니다. 한 관점만 지정하면 해당 집중 리뷰를 선택합니다. Engineering만 설치했으면
+`requesting-code-review`의 직접 리뷰 분기로 완료합니다. 두 플러그인이 함께 있으면 일반 직접
+리뷰는 Quality Engineering, 개발 절차가 선언한 리뷰·명시적 독립 리뷰는 Engineering이 담당합니다.
+명시한 스킬은 우선하며, 다른 플러그인의 설치나 공통 router를 필수로 요구하지 않습니다.
+
+각 패키지의 공통 리뷰 기준은 발생 조건·실제 영향·근거의 적용 이유와 최소 수정을 설명하도록
+합니다. 일반 직접 리뷰에 패키지·새 독립 리뷰어·완료 게이트·관찰 도구 등록을 요구하지 않습니다.
+기존 워크플로우의 필수 리뷰를 직접 리뷰로 대체하지도 않습니다. 리뷰·감사는 소스·Git·외부 상태를
+수정하지 않으며 임시 쓰기는 기존 허용 범위에 따릅니다. 모든 쓰기를 금지한 요청은 임시 자료도
+만들지 않습니다. 각 관점마다 지적 수를 채우거나 선택적 개선을 필수 작업으로 바꾸지 않습니다.
+
+이 선택 규칙은 설치된 스킬과 개발 워크플로우에 적용합니다. Codex 기본 `/review`나 GitHub 자동
+PR 리뷰에 연결하는 hook·설정은 제공하지 않으며 플러그인 설치만으로 해당 연결이 된다고 가정하지 않습니다.
 
 Quality Engineering은 다음 책임으로 확장하지 않습니다.
 

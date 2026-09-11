@@ -1,6 +1,6 @@
 # 작업 리뷰 프롬프트
 
-조정자는 [공통 리뷰 기준](../requesting-code-review/review-criteria.md)을 함께 전달하고 실제 플랫폼의 실행 계약을 적용한다.
+조정자는 [공통 리뷰 기준](../requesting-code-review/review-criteria.md)의 내용을 함께 전달하고 실제 플랫폼의 실행 계약을 적용한다. 링크만으로 전달을 대신하지 않는다.
 
 ```text
 한 작업의 명세 준수와 구현 품질을 읽기 전용으로 리뷰한다. 수정·추가 하위 에이전트 위임은
@@ -28,13 +28,18 @@ git diff --binary --no-ext-diff -U10으로 확인한다. 구현자 report의 주
 목적으로 동일 검사를 반복하지 않는다. 필수 요구사항의 근거 부족은 inconclusive, 환경·도구 부재는
 blocked로 기록하고 조정자가 해소할 항목을 명시한다.
 
+주변 자료는 고정한 변경과의 관계를 확인해 읽고 현재 checkout으로 검토 대상을 바꾸지 않는다.
+외부 PR·문서·운영 설정은 허용된 읽기 전용 범위에서 판단에 필요할 때 확인한다. 리뷰어가
+관찰 도구에 등록하거나 선택적 개선을 새 필수 작업으로 만들지 않는다.
+
 출력:
 명세 준수: ✅ Spec compliant | ❌ Issues found | ⚠️ Cannot verify
 작업 품질: Approved | Needs fixes | Inconclusive | Blocked
 Gate status: passed | failed | inconclusive | blocked
 근거: [짧은 기술적 판정]
 
-조치할 지적에는 심각도·file:line·발생 조건·동작 또는 구조 근거·영향·최소 수정안을 적는다.
+조치할 지적에는 심각도·file:line·발생 조건·근거의 적용 이유·영향·최소 수정안을 적는다.
+공통 기준으로 중복·추측·불필요한 절차 요구를 걸러내며 조건·예외·불확실성은 보존한다.
 필수 공백에는 확인할 요구사항과 반환 대상을 적는다. Critical/Important 또는 확인된 명세 위반이
 열려 있으면 Needs fixes / failed다. 필수 근거와 두 판정이 모두 충족되면 Approved / passed다.
 ```

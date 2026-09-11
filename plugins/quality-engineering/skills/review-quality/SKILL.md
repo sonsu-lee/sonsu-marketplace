@@ -1,12 +1,16 @@
 ---
 name: review-quality
-description: 사용자가 현재 diff, commit, branch 또는 지정한 코드에 대해 단순성, 유지보수성, 실패 모드와 운용 가능성을 아우르는 broad quality review를 명시적으로 요청할 때 사용한다. 한 관점만 지정한 요청이나 코드 수정에는 사용하지 않는다.
+description: 현재 코드·diff·commit·branch를 리뷰해 달라는 일반 요청이나 여러 품질 관점을 아우르는 리뷰에 사용한다. 실제 동작, 구조와 코드 패턴을 읽기 전용으로 검토한다. 한 관점만 지정한 요청, 개발 절차가 선언한 리뷰, 명시적 독립 리뷰어 요청이나 코드 수정에는 사용하지 않는다.
 ---
 
 # review-quality: 품질 리뷰
 
-요청한 변경을 읽기 전용으로 검토하되, 관련 있는 quality lens만 선택하고 같은 원인의 finding은
-하나로 합친다.
+요청한 변경을 읽기 전용으로 검토하고 관련 있는 관점만 선택해 같은 원인의 지적은 하나로 합친다.
+대상이 생략됐으면 현재 코드·변경 맥락에서 정하고, 서로 다른 대상이 가능할 때만 확인한다.
+일반 직접 리뷰는 이 스킬로 완료하며 개발 절차의 리뷰나 명시적인 독립 리뷰어 요청을 대신하지 않는다.
+
+리뷰를 시작할 때 [공통 리뷰 기준](../../references/review-criteria.md)을 읽고 해당 관점에 적용한다.
+근거의 적용 이유, 실제 영향과 최소 수정으로 설명하며 선택적 개선을 새 필수 절차로 만들지 않는다.
 
 ## 작업 연속성
 
@@ -27,7 +31,9 @@ description: 사용자가 현재 diff, commit, branch 또는 지정한 코드에
 
 ## Lens 선택
 
-먼저 diff와 관련 caller·test를 읽고 어떤 질문이 실제로 존재하는지 판단한다.
+먼저 diff와 관련 호출자·테스트·설정을 읽고 동작, 책임·의존 관계와 코드 패턴에서 어떤 문제가
+실제로 존재하는지 판단한다. 아키텍처·패턴은 현재 비용과 필요한 보장으로 검토하고 다음 관점 중
+해당하는 것을 선택한다.
 
 - **Over-engineering:** 현재 요구사항이 쓰지 않는 abstraction, state, guard와 extension surface
 - **Maintainability:** reader journey, 여러 변경 이유, 중복 domain knowledge와 과도한 public surface
@@ -51,7 +57,7 @@ trust boundary와 중복 guard, async 실패 경로를 서로 다른 취향 규�
 
 finding을 priority 순으로 제시한다. 각 finding에는 다음을 포함한다.
 
-- 짧고 구체적인 제목과 적용한 lens
+- 짧고 구체적인 제목. 적용 관점은 이해에 도움이 될 때 덧붙인다.
 - 정확한 `path:line`
 - 현재 entry point와 흐름에 근거한 영향
 - 문제가 되는 계약, 구조 또는 실패 경로

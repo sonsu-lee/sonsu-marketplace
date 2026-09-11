@@ -10,7 +10,7 @@
       "name": "engineering",
       "source": "./plugins/engineering",
       "description": "요청에 맞는 설계·구현·디버깅·검증·리뷰 절차를 선택하고 승인 범위 안에서 개발 작업을 수행한다.",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "category": "Developer Tools"
     },
     {
@@ -45,7 +45,7 @@
       "name": "quality-engineering",
       "source": "./plugins/quality-engineering",
       "description": "도메인 구조를 반영한 구현과 단순성, 유지보수성, 실패 모드 및 운용 가능성에 대한 근거 중심 리뷰를 제공합니다.",
-      "version": "0.3.2",
+      "version": "0.4.0",
       "category": "Developer Tools"
     },
     {

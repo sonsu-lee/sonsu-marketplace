@@ -5,6 +5,10 @@
 검사한다. Fast Path와 계획 없는 작업은 기존 절차를 따른다. 판단·권한·리뷰의 정본은
 [품질 게이트 계약](quality-gates.md)이며, 이 도구는 그 일부를 관찰한다.
 
+일반 코드·diff 리뷰 요청은 등록 대상이라는 뜻이 아니다. 직접 리뷰·미등록 작업에 등록이나
+별도 증적 작성을 요구하지 않으며, fresh reviewer는 조정자를 대신해 등록하지 않는다.
+리뷰 내용의 판단은 [공통 리뷰 기준](../../requesting-code-review/review-criteria.md)을 따른다.
+
 Python 3.9+, Git, POSIX(macOS/Linux)에서 동작한다. 모델·네트워크·별도 서버·다른 플러그인은
 필요하지 않다. 검사 명령은 등록한 `argv`로 직접 실행하며 shell 문자열을 해석하지 않는다.
 
@@ -199,3 +203,5 @@ pilot을 중단하려면 task를 `superseded`로 닫는다. 설치본을 되돌�
 같은 task/config로 `init`해야 한다. 리뷰 정책 digest에는 `quality-gates.md` 외에
 `review-criteria.md`, `code-reviewer.md`, `red-team-reviewer.md`도 포함한다.
 정책 파일 변경은 기존 근거를 오래된 상태로 판정하며, 파일 누락은 검사 오류로 보고한다.
+이 관찰을 이유로 task ID를 바꾸거나 자동으로 전체 재실행하지 않는다. 유효 근거의 부분 재사용과
+사람이 결정한 `accepted_risk`는 기존 품질 계약으로 판단하고, pilot의 미충족 관찰과 구분한다.
