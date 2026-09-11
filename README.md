@@ -62,7 +62,7 @@ UI metadata는 Claude manifest에 복사하지 않으므로, Figma 같은 외부
 | [Engineering](plugins/engineering/README.md) | 소프트웨어 변경 설계, 구현, 디버깅과 검증 | `engineering` |
 | [Quality Engineering](plugins/quality-engineering/README.md) | 코드 단순화와 유지보수성, 실패 경로, 운영 문제 검토 | `quality-engineering` |
 | [Workflow](plugins/workflow/) | Git branch·commit·push, 티켓 작성·수정·상태 관리와 GitHub PR 작업 | `workflow` |
-| [Fluent Languages](plugins/fluent-languages/) | 기술 내용을 보존하는 자연스러운 한국어·일본어·영어 작성 | `fluent-languages` |
+| [Writing](plugins/writing/) | 한국어·일본어·영어 글의 구성, 문장과 표현을 목적에 맞게 작성·편집 | `writing` |
 | [Research](plugins/research/README.md) | 여러 출처 조사, 사실 검증과 근거를 갖춘 답변 작성 | `research` |
 | [Prompting](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API용 프롬프트 작성과 개선 | `prompting` |
 | [Product](plugins/product/README.md) | 제품 아이디어 탐색, 사용자 근거 정리, 가설 검증과 PRD 작성 | `product` |
@@ -82,7 +82,7 @@ UI metadata는 Claude manifest에 복사하지 않으므로, Figma 같은 외부
 | Engineering | “이 버그의 원인을 찾아 수정하고, 재현 조건으로 검증해 줘.” |
 | Quality Engineering | “현재 diff에서 불필요한 추상화와 도달 가능한 실패 경로를 검토해 줘.” |
 | Workflow | “현재 변경을 커밋하고 Draft PR을 만들어 줘.” |
-| Fluent Languages | “이 일본어 기술 설명을 의미와 코드 식별자를 유지하면서 자연스럽게 다듬어 줘.” |
+| Writing | “이 일본어 PR 설명을 검토자가 변경 이유와 동작을 이해하기 쉽게 재구성하고, 의미와 코드 식별자를 유지해 줘.” |
 | Research | “이 두 서비스의 요금과 제한 사항을 공식 자료로 비교해 줘.” |
 | Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
 | Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
@@ -122,10 +122,27 @@ claude plugin update engineering@sonsu-marketplace
 `/reload-plugins`를 실행해 최신 스킬 목록을 불러오세요.
 
 <details>
-<summary>이전에 같은 스킬을 설치했다면</summary>
+<summary>Fluent Languages에서 이전하거나 같은 스킬을 이미 설치했다면</summary>
 
-다른 마켓플레이스의 `fluent-languages`나 standalone `prompt-builder`, `product-discovery`, `to-prd`를
-설치했다면 같은 이름의 스킬이 중복되지 않도록 기존 복사본을 먼저 제거하세요.
+Writing `0.2.0-beta.1`은 Fluent Languages를 대체하며, `writing:writing` 스킬 안에서 글의 구성과
+언어별 표현을 함께 다룹니다. 사용하는 호스트에 맞춰 새 플러그인을 설치하세요.
+
+```sh
+codex plugin add writing@sonsu-marketplace
+```
+
+```sh
+claude plugin install writing@sonsu-marketplace
+```
+
+스킬이 중복으로 발견되지 않도록 설치된 기존 `fluent-languages`도 제거하세요. 마켓플레이스 갱신은
+설치된 플러그인의 이름이나 continuity 기록을 자동으로 바꾸지 않습니다. 기존 Fluent 작업이 남아 있다면
+제거 전에 원래 플러그인과 정확한 기록 위치에서 원문·초안을 복구하고, 확인한 범위와 근거를 Writing의
+새 작업에 명시적으로 인계하세요. 다른 플러그인의 기록을 자동으로 읽거나 이름만 바꿔 재사용하지 않습니다.
+자세한 기록 경계는 [작업 연속성 계약](docs/reference/task-continuity.md)을 참고하세요.
+
+standalone `prompt-builder`, `product-discovery`, `to-prd`를 설치했다면 같은 이름의 스킬이
+중복되지 않도록 기존 복사본을 먼저 제거하세요.
 
 </details>
 
@@ -177,14 +194,17 @@ sonsu-marketplace/
 find .agents .claude-plugin .claude-plugins plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
 python3 scripts/render-claude-compat.py --check
-python3 plugins/fluent-languages/scripts/render-skills.py --check
+python3 scripts/render-writing.py --check
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" \
+  plugins/writing/skills/writing
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
 claude plugin validate . --strict
 git diff --check
 ```
 
-이 명령은 JSON 구문, 생성된 스킬의 정본 일치 여부와 평가 fixture·runner의 구조를 확인합니다.
+이 명령은 JSON 구문, Writing 정본에서 생성한 Workflow 자료의 일치 여부, 스킬 metadata와
+평가 fixture·runner의 구조를 확인합니다.
 실제 모델의 스킬 선택이나 출력 품질은 별도 검증이 필요합니다. 플러그인 구조를 변경했다면
 격리된 Codex와 Claude Code 환경에서 마켓플레이스 등록, 플러그인 설치와 스킬 노출도 확인하세요.
 
@@ -200,12 +220,12 @@ git diff --check
 
 - Engineering에는 [MIT 라이선스](plugins/engineering/LICENSE)가 적용됩니다.
 - Quality Engineering은 여러 고정 upstream을 기반으로 하며 [Apache-2.0 라이선스](plugins/quality-engineering/LICENSE), [NOTICE](plugins/quality-engineering/NOTICE), [출처 mapping](plugins/quality-engineering/UPSTREAM.md)과 [MIT 원문 고지](plugins/quality-engineering/THIRD_PARTY_NOTICES.md)를 유지합니다.
-- Workflow에는 현재 별도의 라이선스를 선언하지 않았습니다.
+- Workflow에는 현재 별도의 라이선스를 선언하지 않았습니다. Writing에서 포함한 작성 지침·양식의 [MIT 고지](plugins/workflow/WRITING_LICENSE.md)는 별도로 유지합니다.
 - Prompting에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Product에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Memory Manager는 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 설계 참고 출처는 [UPSTREAM.md](plugins/memory-manager/UPSTREAM.md)에 기록합니다.
 - Operations UI는 외부 UI 코드나 asset을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 설계 참고 출처는 [UPSTREAM.md](plugins/operations-ui/UPSTREAM.md)에 기록합니다.
 - Design Patterns는 원천 카탈로그의 이름과 출처만 인덱싱하고 선택·검토 계약과 설명은 독자 작성했으며 현재 별도의 라이선스를 선언하지 않았습니다. 포함 범위와 원천별 조건은 [UPSTREAM.md](plugins/design-patterns/UPSTREAM.md)에 기록합니다.
 - Figma Workflow는 외부 파일을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 검토한 출처와 비복사 원칙은 [UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md)에 기록합니다.
-- Fluent Languages의 라이선스와 원본별 출처는 [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md)와 [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md)에 기록합니다.
+- Writing이 Fluent Languages에서 이어받은 라이선스와 원본별 출처는 [LICENSE](plugins/writing/LICENSE), [UPSTREAM.md](plugins/writing/UPSTREAM.md)와 [THIRD_PARTY_NOTICES.md](plugins/writing/THIRD_PARTY_NOTICES.md)에 기록합니다.
 - Research는 기준 원본에서 라이선스 파일을 확인하지 못했으며 사용 허가를 추정하지 않습니다. 기준 commit과 포함 범위는 [UPSTREAM.md](plugins/research/UPSTREAM.md)에 기록합니다.

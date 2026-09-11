@@ -1,8 +1,20 @@
-# Fluent English 행동 평가
+# Fluent English 행동 평가 보관 자료
 
 [`cases.json`](cases.json)은 `fluent-english`의 라우팅, 의미 보존과 영어 표현을 이후 실제
 모델로 확인하기 위한 고정 입력이다. 이 fixture는 특정 정답 문장을 요구하지 않고, 바뀌면
 안 되는 literal과 구조, 의미 계약, 과잉 교정 반례와 사람이 볼 항목을 분리한다.
+
+이 디렉터리는 Fluent Languages 시기의 fixture와 식별자를 보존한다. 현재 진입점은
+[`writing:writing`](../../plugins/writing/skills/writing/SKILL.md)이며, 영어 지침의 정본은
+[`references/languages/english.md`](../../plugins/writing/skills/writing/references/languages/english.md)다.
+과거 `fluent-english` 라우팅 기대값이나 결과를 Writing의 선택·참조 로딩·출력 품질 검증으로
+간주하지 않는다. 아래 정적 검사는 현재 패키지와 보관 fixture를 각각 확인한다.
+
+Writing을 새로 평가할 때에는 별도 protocol·snapshot·결과 디렉터리를 고정한다. 지침 주입 실험에는
+주 스킬, `references/composition.md`, `references/integrity.md`, 영어 참조와 해당 문서 종류에
+필요한 참조를 포함하고 각 경로·revision·hash를 기록한다. 기존 fixture를 쓰려면 새 런타임의
+라우팅·편집 범위와 기대값을 별도 버전에서 검토해야 한다. 실제 스킬 선택과 참조 파일 읽기는
+native trace로 따로 확인하며, 보관된 Fluent 결과를 새 런타임의 증거로 재표기하지 않는다.
 
 모델에는 각 case의 `prompt`와 `evidence`만 전달한다. `expectations`와 `review_points`는
 실행 모델에 노출하지 않고 평가자가 사용한다.
@@ -34,11 +46,11 @@ Generation prompt는 가능한 한 일반적인 산출물 요청으로 두고, �
 
 ```sh
 python3 -m json.tool evals/fluent-english/cases.json >/dev/null
-python3 plugins/fluent-languages/scripts/render-skills.py --check
+python3 scripts/render-writing.py --check
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" \
-  plugins/fluent-languages/skills/fluent-english
+  plugins/writing/skills/writing
 ```
 
-실제 모델 smoke test를 수행한다면 먼저 `generation` case를 실행하고, `routing` case는 실제
+기존 Fluent snapshot으로 모델 smoke test를 재현한다면 먼저 `generation` case를 실행하고, `routing` case는 실제
 Codex trace에서 선택된 skill을 별도로 확인한다. 자동 검사를 통과해도 귀속·조건·modality
 위반이 있으면 실패다. 실제 실행을 하지 않았다면 정적 검증 결과와 섞어 `pass`로 쓰지 않는다.

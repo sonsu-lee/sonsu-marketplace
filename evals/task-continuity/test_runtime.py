@@ -14,7 +14,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "shared/task-continuity/task_continuity.py"
 PLUGINS = ["engineering", "quality-engineering", "workflow", "research", "product",
-           "figma-workflow", "fluent-languages", "prompting"]
+           "figma-workflow", "writing", "prompting"]
 SUMMARY = {"goal": "Finish current work", "scope": "User requested local changes only",
            "progress": "Task 1 complete; Task 2 reopened; attempt 3/5",
            "next_action": "Read current ledger before continuing",
@@ -226,6 +226,33 @@ class RuntimeTests(unittest.TestCase):
         self.assertNotEqual(self.write().returncode, 0)
         self.assertEqual(self.hook().stdout, "")
         self.assertEqual(list(outside.iterdir()), [])
+
+    def test_writing_does_not_restore_or_rename_legacy_fluent_records(self):
+        self.assertEqual(self.write(plugin="writing").returncode, 0)
+        current = self.path("writing")
+        legacy = self.path("fluent-languages")
+        record = json.loads(current.read_text())
+        record.update(plugin="fluent-languages", active_skill="fluent-korean")
+        legacy.write_text(json.dumps(record))
+        current.unlink()
+        original = legacy.read_bytes()
+
+        read = self.run_cli("read", plugin="writing")
+        self.assertEqual(read.returncode, 0, read.stderr)
+        self.assertEqual(read.stdout, "")
+        hook = self.hook(plugin="writing")
+        self.assertEqual(hook.returncode, 0, hook.stderr)
+        self.assertEqual(hook.stdout, "")
+        self.assertFalse(current.exists())
+        self.assertEqual(legacy.read_bytes(), original)
+        self.assertEqual(self.write(plugin="writing").returncode, 0)
+        self.assertEqual(legacy.read_bytes(), original)
+
+        current.write_bytes(original)
+        self.assertNotEqual(self.run_cli("read", plugin="writing").returncode, 0)
+        self.assertEqual(self.hook(plugin="writing").stdout, "")
+        self.assertNotEqual(self.write(plugin="writing", revision=1).returncode, 0)
+        self.assertEqual(current.read_bytes(), original)
 
     def test_subdirectory_uses_worktree_root_and_exclude_preserves_existing_bytes(self):
         self.git("init", "-q")

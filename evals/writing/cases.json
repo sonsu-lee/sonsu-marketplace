@@ -1,0 +1,42 @@
+[
+  {
+    "id": "ko-short",
+    "prompt": "아래 문장 하나만 자연스럽게 고쳐 줘. 결과만 줘.\n확인 후 결과를 공유해 주시기 바랍니다."
+  },
+  {
+    "id": "ko-rewrite",
+    "prompt": "다음 자유 초안을 연결된 짧은 문단으로 전체 재작성해 줘. 제목이나 목록은 없어도 돼. 사실을 추가하지 말고 결과만 줘.\n## 요청\n- 원인 확인 부탁\n## 메모\n- CSV 다운로드 파일의 한글이 오늘 두 번 깨짐\n- 원인 아직 모름\n- 다른 파일 형식은 확인 안 함"
+  },
+  {
+    "id": "ko-partial",
+    "prompt": "기존 티켓에서 현상 문장만 다듬어 줘. 전체 문서를 반환하되 제목과 나머지는 그대로 둬.\n## 참고\n담당: 미정\n## 현상\n저장이 안 되고 있는데 버튼을 클릭한 후에 일어나고 있습니다.\n## 다음 논의\n원인은 아직 확인하지 못함."
+  },
+  {
+    "id": "ko-bug",
+    "prompt": "다음 내용을 게시하지 말고 버그 티켓 초안으로 써 줘. 팀 양식은 전달받지 못했으니 임시 기본 양식이면 돼.\nCSV를 내려받았더니 한글이 깨졌다. 환경과 재현 순서는 아직 모르고 원인도 확인하지 못했다. 깨지지 않게 고쳐 달라. 인코딩 문제인지부터 단정하지 말 것."
+  },
+  {
+    "id": "ja-fixed-pr",
+    "prompt": "次のPR説明の自由記述だけを自然な日本語に直してください。指定テンプレートの見出し・順序・HTML marker・関連行は変更せず、セクションを追加しないでください。結果のみ返してください。\n## 変更の理由\n保存成功の前に完了通知が出るので誤認される可能性があります。\n## 変更した動作\n保存成功を確認した後で完了通知を出すようにします。保存が失敗したときは完了通知を出しません。\n<!-- tracker: keep -->\nPart of ENG-123\n## 未確認\n実機ではまだ確認していません。"
+  },
+  {
+    "id": "ja-meaning",
+    "prompt": "次の社内メモを読みやすく整えてください。確定していない意味を補わず、結果だけ返してください。\n担当者の記録はありません。実際に処理した人は分かりません。Aさんが担当として割り当てられていますが、実行したかどうかは未確認です。"
+  },
+  {
+    "id": "en-readme",
+    "prompt": "Draft a concise English README from these facts only: tool name logpeek; reads local .log files and prints lines containing the supplied literal; requires Python 3.9+; command `python3 logpeek.py app.log ERROR`; exits 0 when a line matches and 1 when none match; never edits the input file. No install package or test results are provided. Make it easy to understand and try."
+  },
+  {
+    "id": "en-comments",
+    "prompt": "Rewrite this API doc comment in English for callers. Do not change the signature or code. Facts: returns the first item whose key equals key; returns None when absent; comparison is case-sensitive. Keep all these facts. Return only the comment and signature.\n# This checks things with a loop and returns a thing.\ndef find_item(items, key):"
+  },
+  {
+    "id": "ja-message",
+    "prompt": "同僚へのメッセージを書き直してください。依頼と理由が分かる短い文章にし、締め切りや決定を補わないでください。結果だけ返してください。\n長いCSVを読み込むと画面が止まることがあり、原因は未確認で、昨日一度見ました。再現条件を調べてもらいたいです。"
+  },
+  {
+    "id": "ko-summary",
+    "prompt": "다음 절차를 실행용 매뉴얼이 아닌 두 문장의 개요로 요약해 줘. 원본 링크는 유지해 줘.\n원본 절차: https://example.test/runbook\n1. 쓰기를 중지한다.\n2. 백업이 완료됐는지 확인한다. 완료되지 않았으면 작업을 중단한다.\n3. 마이그레이션을 실행한다.\n4. 검증에 실패하면 원래 버전으로 복구한다.\n5. 검증에 성공한 경우에만 쓰기를 재개한다."
+  }
+]

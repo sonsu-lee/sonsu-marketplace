@@ -29,10 +29,10 @@
       "category": "Developer Tools"
     },
     {
-      "name": "fluent-languages",
+      "name": "writing",
       "source": {
         "source": "local",
-        "path": "./plugins/fluent-languages"
+        "path": "./plugins/writing"
       },
       "policy": {
         "installation": "AVAILABLE",

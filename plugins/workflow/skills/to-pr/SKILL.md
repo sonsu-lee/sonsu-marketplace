@@ -35,6 +35,8 @@ GitHub Draft 상태와 다르다.
 
 [PR 템플릿 규칙](references/pr-template.md)으로 적용 양식과 언어를 결정하고, [PR 품질 기준](references/pr-quality-bar.md)에 따라 전체 diff와 현재 검증 근거로 제목·본문을 작성한다. commit 제목이나 `--fill` 결과만으로 변경 내용을 추론하지 않는다.
 
+본문 구성과 표현은 번들 [PR 작성 지침](references/pr-writing.md)을 따른다. `writing:writing`이 있으면 함께 적용하고, 없어도 번들 지침으로 작성하며 자동 설치하지 않는다. 적용 양식과 확인 상태, 출력 언어, 실제 변경·검증 근거와 보호할 연결 문법을 작성에 전달한다. 임시로 작성한 문구는 양식 확정이나 게시 조건 충족을 뜻하지 않는다.
+
 ## 티켓을 연결한다
 
 티켓 ID나 URL이 있거나 사용자가 연동을 요청하면 [티켓 연결 규칙](references/ticket-linking.md)을 읽는다.
@@ -56,6 +58,8 @@ GitHub Issues, Linear와 Jira 중 provider를 문자열 모양만으로 추측�
 ## 새 PR을 게시한다
 
 `publish` 직전에 저장소·인증 주체·base·head SHA·remote ref·기존 PR과 최종 payload를 다시 확인한다. 양식 출처, 언어, 티켓 연결, 검증 상태와 `target_pr_state`가 현재 변경·요청에 맞는지 대조한다. 미디어가 있으면 필수 자료의 준비·검사 결과도 확정한다.
+
+문장과 항목 배치를 다듬은 최종 제목·본문에서 `Fixes`·`Part of`·`Ignore`, Jira key와 HTML marker가 원래의 연결 의도·상태 효과·양식 계약을 유지하는지 다시 확인한다. 첨부 URL과 위치도 검증한 미디어 계획과 대조한다. 작성 결과만으로 새로운 연결·상태 변경 권한을 만들지 않는다.
 
 [GitHub 게시 절차](references/github.md#생성하고-검증한다)를 따른다. 미디어가 있는 경우의 Draft 생성·파일별 첨부·상태 전환과 CLI를 사용할 수 없을 때의 대안은 그 절차가 연결하는 미디어 문서에서 처리한다.
 

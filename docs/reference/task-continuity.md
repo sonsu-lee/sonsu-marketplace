@@ -1,9 +1,9 @@
 # 작업 연속성 계약
 
-Engineering, Quality Engineering, Workflow, Research, Product, Figma Workflow, Fluent Languages와
+Engineering, Quality Engineering, Workflow, Research, Product, Figma Workflow, Writing과
 Prompting은 각각 `task-continuity` 스킬과 `SessionStart` hook을 포함합니다. 여러 단계의 작업을
 기록하고 컴팩션·같은 session 재개 후 현재 근거와 대조합니다. 짧은 단발 작업과 다른 작업의
-출력 문체만 담당하는 Fluent Languages에는 별도 기록을 만들지 않습니다.
+출력 문체만 담당하는 Writing에는 별도 기록을 만들지 않습니다.
 
 각 플러그인은 단독으로 설치할 수 있습니다. 공통 runtime과 스킬 본문은
 [`shared/task-continuity/`](../../shared/task-continuity/)를 정본으로 삼고
@@ -66,6 +66,21 @@ Research의 `persistence: off`, cache/catalog와 원문 저장 제한도 계속 
 다른 task ID로 전환하려면 현재 작업이 닫혀 있어야 합니다. 이전 닫힌 기록은 history에 보존한 뒤
 새 task를 revision 1로 기록합니다. history는 자동 복구 대상으로 검색하지 않습니다. 자동 삭제나
 보존 기간 정책은 없습니다. 사용자가 정리하면 기존 산출물에서 수동으로 복구합니다.
+
+## Fluent Languages에서 Writing으로 이전
+
+Writing은 `writing` plugin identity와 `writing:writing` 작업 스킬을 사용합니다. 새 기록은
+`<current-worktree-root>/.sonsu/continuity/<session-id>/writing.json`에 저장합니다.
+마켓플레이스나 플러그인 업데이트는 기존 설치를 자동으로 Writing으로 바꾸거나
+`fluent-languages.json`을 이전하지 않습니다. Writing helper는 다른 plugin의 파일을 검색하거나
+자동으로 읽지 않으며, 파일명만 `writing.json`으로 바꾼 Fluent 기록도 identity가 달라 거부합니다.
+
+기존 Fluent 작업이 남아 있고 정확한 기록 위치를 아는 경우, 이전 설치를 제거하기 전에 원래
+플러그인과 원래 session·worktree에서 해당 기록 및 원문·초안을 복구합니다. 현재 사용자 지시,
+실제 산출물과 대조한 범위·진행·근거를 새 Writing 작업으로 명시적으로 인계한 뒤에만 새 기록을
+만듭니다. 원문을 확보하지 못한 부분은 미확인으로 남깁니다. 기존 기록을 이름 변경·복제하여
+새 권한이나 최신 상태로 취급하지 않습니다. 플러그인의 중복 발견을 피하려면 Writing을 설치한
+뒤 기존 Fluent 설치를 제거하고 스킬 목록을 다시 불러옵니다.
 
 ## CLI
 
@@ -144,7 +159,7 @@ checkpoint 사이의 모든 대화 상태를 무손실 보존하는 기능은 �
 
 ```sh
 python3 scripts/render-continuity.py --check
-python3 plugins/fluent-languages/scripts/render-skills.py --check
+python3 scripts/render-writing.py --check
 python3 -B -m unittest discover -s evals/task-continuity -p 'test_*.py' -v
 python3 -B evals/task-continuity/native_probe.py --output /absolute/new-evidence-directory
 ```

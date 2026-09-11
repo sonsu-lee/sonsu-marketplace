@@ -527,11 +527,11 @@
       "prompt": "Linear Acme workspace ENG-42 본문에 Safari 18에서도 재현된다는 새 관찰만 반영해 줘. 기존 결정·검증 기록은 유지해. 한국어로 작성해 줘.",
       "installed_plugins": [
         "workflow",
-        "fluent-languages"
+        "writing"
       ],
       "expected_sequence": [
         "workflow:to-ticket",
-        "fluent-languages:fluent-korean"
+        "writing:writing"
       ],
       "expected_action": "revise",
       "expected_mode": "publish",
@@ -847,24 +847,24 @@
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "korean-ticket-composes-with-fluent-language",
-      "installed_plugins": ["workflow", "fluent-languages"],
+      "id": "korean-ticket-composes-with-writing",
+      "installed_plugins": ["workflow", "writing"],
       "prompt": "이 버그 보고를 Linear 티켓 초안으로 만들고 본문은 한국어로 작성해줘.",
-      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-korean"],
+      "expected_sequence": ["workflow:to-ticket", "writing:writing"],
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "english-ticket-composes-with-fluent-language",
-      "installed_plugins": ["workflow", "fluent-languages"],
+      "id": "english-ticket-composes-with-writing",
+      "installed_plugins": ["workflow", "writing"],
       "prompt": "Turn this approved maintenance task into a concise GitHub issue in English.",
-      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-english"],
+      "expected_sequence": ["workflow:to-ticket", "writing:writing"],
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "japanese-ticket-composes-with-fluent-language",
-      "installed_plugins": ["workflow", "fluent-languages"],
+      "id": "japanese-ticket-composes-with-writing",
+      "installed_plugins": ["workflow", "writing"],
       "prompt": "合意済みの調査項目をJiraチケットの下書きにして、本文は日本語で書いてください。",
-      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-japanese"],
+      "expected_sequence": ["workflow:to-ticket", "writing:writing"],
       "must_not_assume_plugin_dependency": true
     },
     {
@@ -1077,10 +1077,10 @@
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "research-and-fluent-compose-orthogonally",
-      "installed_plugins": ["research", "fluent-languages"],
+      "id": "research-and-writing-compose-orthogonally",
+      "installed_plugins": ["research", "writing"],
       "prompt": "주요 브라우저의 WebAuthn 지원 차이를 공식 문서 여러 개로 조사하고 기술 검토 결과를 한국어로 작성해줘.",
-      "expected_sequence": ["research:research", "fluent-languages:fluent-korean"],
+      "expected_sequence": ["research:research", "writing:writing"],
       "must_not_assume_plugin_dependency": true
     },
     {
@@ -1317,10 +1317,10 @@
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "quality-and-fluent-compose-orthogonally",
-      "installed_plugins": ["quality-engineering", "fluent-languages"],
+      "id": "quality-and-writing-compose-orthogonally",
+      "installed_plugins": ["quality-engineering", "writing"],
       "prompt": "현재 diff를 broad quality review로 검토하고 결과를 자연스러운 한국어로 보고해줘.",
-      "expected_sequence": ["quality-engineering:review-quality", "fluent-languages:fluent-korean"],
+      "expected_sequence": ["quality-engineering:review-quality", "writing:writing"],
       "must_not_assume_plugin_dependency": true
     },
     {
@@ -1560,11 +1560,11 @@
       "prompt": "새 프로젝트마다 설정을 반복하고 있어 공통 템플릿이 필요해. Next.js를 선호하지만 스택은 아직 합의하지 않았고, Node 22 지원은 합의했어. 구현 방식은 담당자가 정하도록 티켓 초안만 써 줘.",
       "installed_plugins": [
         "workflow",
-        "fluent-languages"
+        "writing"
       ],
       "expected_sequence": [
         "workflow:to-ticket",
-        "fluent-languages:fluent-korean"
+        "writing:writing"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
