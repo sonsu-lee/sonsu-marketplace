@@ -1,49 +1,38 @@
 # Claude Code 도구 참고
 
-Claude Code에서 Engineering workflow를 실행할 때에는 현재 session에 실제로 노출된 built-in tool과
-입력 schema를 먼저 확인한다. Codex 전용 `functions.exec`, `spawn_agent`, `followup_task`, goal tool이나
-model 이름을 Claude Code에 그대로 적용하지 않는다.
+현재 세션에 노출된 도구와 입력 스키마를 확인하고 [공통 실행 계약](agent-execution.md)을
+적용한다. Codex 전용 도구·모델 이름을 Claude Code 입력으로 대체하지 않는다.
 
-## 파일과 명령 실행
+## 파일·명령·스킬
 
-- 파일 탐색에는 현재 제공되는 `Glob`, `Grep`, `Read`를 우선하고, 반복 가능한 parser·test·build는
-  `Bash`에서 실행한다. 편집에는 현재 제공되는 `Edit` 또는 `Write`를 사용한다.
-- 플러그인 내부 script와 hook은 `${CLAUDE_PLUGIN_ROOT}`를 기준으로 찾는다. repository checkout의
-  상대 경로나 plugin cache 밖의 sibling directory가 설치 뒤에도 존재한다고 가정하지 않는다.
-- 명령 이름과 권한 요구는 현재 `Tools reference`와 실제 session schema를 따른다. tool 부재를
-  비슷한 이름의 호출로 추측하지 않는다.
+- 탐색은 제공되는 `Glob`·`Grep`·`Read`, 반복 가능한 파서·테스트·빌드는 `Bash`, 편집은
+  `Edit`·`Write`에 대응한다.
+- 설치된 스크립트·훅은 `${CLAUDE_PLUGIN_ROOT}`를 기준으로 찾는다. 저장소 밖 형제 경로가
+  설치 환경에도 존재하는지는 별도로 확인한다.
+- 플러그인 스킬은 `/plugin-name:skill-name`으로 명시적으로 호출할 수 있다. 자연어 요청의
+  선택은 설치된 설명과 현재 `Skill` 기능을 따른다.
+- 필요한 사용자 결정에는 제공되는 `AskUserQuestion`, 작업 공간 격리에는 지원되는 기본
+  worktree 기능을 사용한다. 해당 기능이 없으면 `using-git-worktrees`의 Git 방식을 검토한다.
 
-## 질문과 작업 격리
+## 에이전트·리뷰
 
-- 사용자 결정이 반드시 필요한 경우 현재 제공되는 `AskUserQuestion`을 사용할 수 있다. 일상적인
-  구현 세부사항은 승인된 범위 안에서 합리적으로 결정한다.
-- 격리된 workspace가 필요하면 현재 session에 native worktree 기능이 있는지 먼저 확인한다.
-  지원되면 이를 사용하고, 없을 때만 `using-git-worktrees`의 Git fallback을 따른다.
-- Claude Code의 plugin skill은 `/plugin-name:skill-name`으로 명시적으로 호출할 수 있다. 자연어
-  요청에서는 설치된 skill의 description에 따라 `Skill` tool이 선택한다.
+위임이 승인되거나 적용되는 지침에서 요청된 경우 현재 `Agent` 기능을 사용한다. 별도 문맥의
+실제 이력 전달 방식과 재위임 제한을 확인한다. 생성 입력은 공통 실행 계약의 사실 중심
+인계를 사용한다.
 
-## Subagent와 review
+현재 스키마가 재개를 지원하면 같은 세션을 이어 가고, 지원하지 않으면 새 문맥에서 현재
+작업·게이트와 누적 예산을 유지한다. 모델 설정이 필요하면 지원되는 Claude Code 값만 사용하며,
+지정이나 역할상 필요가 없으면 `inherit` 또는 호스트 기본값을 유지한다.
 
-사용자 또는 적용되는 프로젝트·스킬 지침이 위임을 허용할 때에만 현재 제공되는 `Agent` tool을
-사용한다. Claude Code subagent는 별도 context에서 시작하며 subagent가 다시 subagent를 만들 수
-있다고 가정하지 않는다.
+독립 리뷰가 필수인데 기능이나 권한이 없으면 `blocked` 또는 `not_run`으로 기록한다. 자체
+검토와 독립 검토를 구분한다. Codex goal과 같은 기능이 있다고 가정하지 않으며 현재 도구의
+호출 조건을 따른다.
 
-- fresh implementer나 reviewer에는 승인된 목표, 고정한 artifact, 검증 결과와 열린 finding만
-  전달한다. 이전 reviewer의 결론, 칭찬과 전체 대화는 전달하지 않는다.
-- 현재 `Agent` schema가 resume을 제공하지 않으면 기존 agent 재개를 흉내 내지 않는다. 새 context가
-  필요한 회차로 처리하고 같은 task·gate의 누적 attempt를 유지한다.
-- agent definition이나 tool schema가 `model`을 허용하면 현재 Claude Code가 지원하는 값만 사용한다.
-  사용자가 모델을 지정하지 않았고 역할상 override가 필요하지 않으면 `inherit` 또는 host default를
-  유지한다. Codex용 역할 표의 모델명을 변환해 사용하지 않는다.
-- 독립 review capability가 없거나 위임이 허용되지 않으면 self-review를 독립 review로 바꾸어 말하지
-  않는다. 필수 gate는 `blocked` 또는 `not_run`으로 기록한다.
+## 설치·검증
 
-## 상태와 완료
-
-Claude Code에 Codex goal lifecycle과 같은 도구가 있다고 가정하지 않는다. 현재 task 기능이 실제로
-노출되고 사용자가 요청한 경우에만 사용한다. 완료 주장은 어느 host에서든 fresh test, build,
-validator, loader와 현재 diff 근거가 먼저이며, hook·plugin 설치처럼 host가 소비하는 계약은 가능한
-경우 `claude plugin validate --strict`와 격리된 설치로 확인한다.
+현재 리비전의 실제 테스트·빌드·검증기·로더 결과로 보고한다. 플러그인·훅 설치처럼 호스트가
+소비하는 계약은 사용 가능한 `claude plugin validate --strict`와 격리 설치로 확인한다.
+정적 검사와 실제 설치·로딩·동작 근거를 구분한다.
 
 공식 참고: [Tools reference](https://code.claude.com/docs/en/tools-reference),
 [Subagents](https://code.claude.com/docs/en/sub-agents),

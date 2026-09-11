@@ -17,8 +17,8 @@ claude plugin validate plugins/fluent-languages --strict
 claude plugin validate plugins/workflow --strict
 ```
 
-JSON·frontmatter와 세 패키지의 스킬/참조 상대 경로를 확인한다. Fluent의 세 언어별 규칙 본문과
-법적 고지는 기존 main의 바이트와 비교한다. Workflow의 티켓 3종 본문도 기존 main과 같아야 한다.
+JSON·frontmatter와 세 패키지의 스킬/참조 상대 경로를 확인한다. Fluent의 한국어 지침은 기존 언어별 규칙과 의미·조건·적용 범위를 대조한다.
+원어 용례·보호 문자열과 법적 고지는 기존 main의 바이트를 기준으로 보존 여부를 확인한다. Workflow의 티켓 3종 본문도 기존 main과 같아야 한다.
 PR 기본 양식과 `unverified` 시 기본형을 확정하지 않는 정책, marker·연결 문법은 별도로 검토한다.
 continuity 검사는 각각의 Fluent·Writing 기록을 실제 helper로 만들고 서로 대신 복구하지 않는지 확인한다.
 

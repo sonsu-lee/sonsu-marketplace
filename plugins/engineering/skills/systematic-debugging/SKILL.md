@@ -1,291 +1,69 @@
 ---
 name: systematic-debugging
-description: 버그, 테스트 실패 또는 예상하지 못한 동작을 만났을 때 수정안을 제안하기 전에 사용합니다
+description: 버그, 테스트 실패 또는 예상하지 못한 동작을 만났을 때 수정안을 제안하기 전에 사용한다
 ---
 
-# systematic-debugging: 체계적인 디버깅
+# 체계적인 디버깅
+
+관찰한 근거로 원인 가설을 세우고, 작은 실험으로 확인한 뒤 수정과 검증으로 이어 간다.
+조사의 깊이는 불확실성과 실패 영향에 맞춘다. 단순한 문제에서는 아래 단계를 짧게 수행한다.
 
 ## 작업 연속성
 
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+여러 단계의 작업이나 외부 쓰기를 맡은 조정자는 [task-continuity](../task-continuity/SKILL.md)에
+따라 진행을 기록하고, 재개할 때 현재 근거와 대조한다. 단발 작업, 위임된 에이전트와 독립
+리뷰어는 별도 기록을 만들지 않는다. 읽기 전용 작업에서는 기록 파일과 Git exclude를 기존 상태로 둔다.
 
-## 개요
+## 1. 근거를 수집한다
 
-**핵심 원칙:** 수정하기 전에 항상 근본 원인을 찾습니다. 증상만 고치는 것은 실패입니다.
+- 오류 메시지, 관련 스택과 실행 조건을 읽고 경로·오류 코드·입력을 기록한다.
+- 가장 작은 재현 절차와 발생 빈도를 확인한다. 재현되지 않으면 확인한 사실과 부족한 근거를 구분한다.
+- 관련 변경, 의존성·설정·환경 차이를 확인한다.
+- 여러 구성요소를 거치는 문제는 실패 위치를 가를 수 있는 경계의 입력·출력·상태를 확인한다.
+  기존 로그로 충분하지 않을 때 필요한 계측만 추가하며, 민감한 값은 출력하지 않는다.
+- 잘못된 값이 깊은 호출에서 발견되면 [root-cause-tracing.md](root-cause-tracing.md)로
+  호출자와 최초 입력을 역추적한다.
 
-**이 절차의 문구를 어기는 것은 디버깅의 취지를 어기는 것입니다.**
+긴급 복구가 필요하면 현재 근거와 승인 범위에서 되돌릴 수 있는 완화 조치를 선택할 수 있다.
+완화의 효과와 원인 규명은 별도로 기록하고, 배포 등 외부 작업의 권한을 확인한다.
 
-## 절대 원칙
+## 2. 정상 동작과 비교한다
 
-```
-NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
-```
+같은 저장소의 정상 사례나 사용 중인 버전의 참고 구현에서 관련 동작과 책임 경계를 읽는다.
+문제 사례와 다른 입력·설정·환경·의존 관계를 찾아 원인 후보를 좁힌다. 비교 범위는 가설을
+판단하는 데 필요한 부분으로 정하고, 아직 읽지 않은 구현의 동작을 확인한 사실로 표현하지 않는다.
 
-1단계를 완료하지 않았다면 수정안을 제안할 수 없습니다.
+## 3. 가설을 시험한다
 
-## 사용 시점
+1. 관찰한 근거와 예상 결과를 연결해 원인 가설 하나를 명시한다.
+2. 가설을 구분할 수 있는 최소 실험을 실행한다. 결과의 원인을 구별할 수 있도록 변수와 변경을 제한한다.
+3. 예상 결과와 실제 결과를 대조한다. 가설이 틀리면 실험 변경을 정리하고 새 근거로 가설을 갱신한다.
+4. 환경 오류나 재현 준비 실패는 제품 결함과 구분한다. 필요한 정보만 더 수집하고, 승인된 계약을
+   바꾸는 결정이 필요할 때 해당 결정과 의존 작업을 조정자에게 반환한다.
 
-모든 기술 문제에 사용합니다.
-- 테스트 실패
-- 프로덕션 버그
-- 예상하지 못한 동작
-- 성능 문제
-- build 실패
-- integration 문제
+## 4. 수정하고 검증한다
 
-**특히 다음 상황에서 사용합니다.**
-- 시간 압박을 받을 때(긴급 상황에서는 추측하고 싶어집니다)
-- "Just one quick fix"가 분명해 보일 때
-- 이미 여러 수정안을 시도했을 때
-- 이전 수정안이 작동하지 않았을 때
-- 문제를 완전히 이해하지 못했을 때
+수정 전에 재현 방법과 성공 조건을 정한다. 명확하고 반복 가능한 동작 결함에는
+[test-driven-development](../test-driven-development/SKILL.md)를 기본으로 검토한다.
+자동화 테스트가 유용한 회귀 신호를 주지 못하면 이유와 더 적절한 재현·검증 방법을 기록한다.
 
-**다음 상황에서도 건너뛰지 않습니다.**
-- 문제가 단순해 보일 때(단순한 버그에도 근본 원인이 있습니다)
-- 서두르고 있을 때(서두르면 반드시 재작업이 생깁니다)
-- manager가 즉시 수정하기를 원할 때(체계적인 접근이 무작정 시도하는 것보다 빠릅니다)
+확인한 원인을 해결하는 최소 변경을 적용하고 원래 재현과 영향받은 회귀 검사를 실행한다.
+필요한 보호는 [defense-in-depth.md](defense-in-depth.md)의 경계 기준으로 선택한다.
+시간 추정에 의존하는 비동기 테스트는 [condition-based-waiting.md](condition-based-waiting.md)를 참고한다.
 
-## 네 단계
+[verification-before-completion](../verification-before-completion/SKILL.md)에 따라 현재 리비전의
+관찰 결과로 수정 여부를 보고한다. 검사 통과가 확인한 원인 가설 전체를 증명하는지는 별도로 판단한다.
 
-다음 단계로 넘어가기 전에 각 단계를 반드시 완료해야 합니다.
+## 실패한 시도에서 돌아갈 곳
 
-### 1단계: 근본 원인 조사
+실패한 가설·실험·결과를 남기고 새 정보가 있는 다음 시도만 수행한다. 수정마다 다른 공유 상태나
+결합 문제가 드러나면 해당 설계 경계를 다시 검토한다. 실패 횟수만으로 아키텍처 결함을 단정하지 않는다.
+승인된 설계를 바꿔야 할 때에는 그 결정의 승인을 확인하고 독립적인 승인 작업은 계속한다.
 
-**어떤 수정이든 시도하기 전에 다음을 수행합니다.**
+기존 작업·게이트의 누적 예산과 더 낮은 단계별 상한을 유지한다. 자동 검토·수정은
+[품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)의 최대 5회 안에서
+수행하며, 세션·가설·담당자 변경으로 예산을 초기화하지 않는다.
 
-1. **오류 메시지를 주의 깊게 읽기**
-   - error나 warning을 건너뛰지 않습니다
-   - 정확한 해결책이 들어 있는 경우가 많습니다
-   - stack trace를 끝까지 읽습니다
-   - line number, file path, error code를 기록합니다
-
-2. **일관되게 재현하기**
-   - 안정적으로 발생시킬 수 있습니까?
-   - 정확한 절차는 무엇입니까?
-   - 매번 발생합니까?
-   - 재현할 수 없다면 → 추측하지 말고 data를 더 수집합니다
-
-3. **최근 변경 확인하기**
-   - 원인이 될 만한 무엇이 바뀌었습니까?
-   - Git diff와 최근 commit
-   - 새로운 dependency와 config 변경
-   - 환경 차이
-
-4. **여러 component로 구성된 system에서 근거 수집하기**
-
-   **system에 여러 component가 있을 때(CI → build → signing, API → service → database):**
-
-   **수정안을 제안하기 전에 진단 instrumentation을 추가합니다.**
-   ```
-   For EACH component boundary:
-     - Log what data enters component
-     - Log what data exits component
-     - Verify environment/config propagation
-     - Check state at each layer
-
-   Run once to gather evidence showing WHERE it breaks
-   THEN analyze evidence to identify failing component
-   THEN investigate that specific component
-   ```
-
-   **예시(multi-layer system):**
-   ```bash
-   # Layer 1: Workflow
-   echo "=== Secrets available in workflow: ==="
-   echo "IDENTITY: ${IDENTITY:+SET}${IDENTITY:-UNSET}"
-
-   # Layer 2: Build script
-   echo "=== Env vars in build script: ==="
-   env | grep IDENTITY || echo "IDENTITY not in environment"
-
-   # Layer 3: Signing script
-   echo "=== Keychain state: ==="
-   security list-keychains
-   security find-identity -v
-
-   # Layer 4: Actual signing
-   codesign --sign "$IDENTITY" --verbose=4 "$APP"
-   ```
-
-   **이로써 알 수 있는 것:** 어느 layer가 실패하는지(secrets → workflow ✓, workflow → build ✗)
-
-5. **data flow 추적하기**
-
-   **error가 call stack 깊은 곳에서 발생할 때:**
-
-   완전한 역방향 추적 기법은 이 directory의 `root-cause-tracing.md`를 참고합니다.
-
-   **빠른 방법:**
-   - 잘못된 값은 어디서 시작됩니까?
-   - 무엇이 이 코드를 잘못된 값으로 호출했습니까?
-   - source를 찾을 때까지 위로 계속 추적합니다
-   - 증상이 아니라 source에서 수정합니다
-
-### 2단계: pattern 분석
-
-**수정하기 전에 pattern을 찾습니다.**
-
-1. **작동하는 예시 찾기**
-   - 같은 codebase에서 비슷하게 작동하는 코드를 찾습니다
-   - 망가진 부분과 비슷하면서 작동하는 것은 무엇입니까?
-
-2. **참고 구현과 비교하기**
-   - pattern을 구현한다면 reference implementation을 끝까지 읽습니다
-   - 훑어보지 말고 모든 줄을 읽습니다
-   - 적용하기 전에 pattern을 완전히 이해합니다
-
-3. **차이 식별하기**
-   - 작동하는 부분과 망가진 부분은 무엇이 다릅니까?
-   - 아무리 작아도 모든 차이를 나열합니다
-   - "that can't matter"라고 가정하지 않습니다
-
-4. **dependency 이해하기**
-   - 어떤 다른 component가 필요합니까?
-   - 어떤 setting, config, environment가 필요합니까?
-   - 어떤 가정을 합니까?
-
-### 3단계: 가설과 테스트
-
-**과학적 방법:**
-
-1. **하나의 가설 세우기**
-   - "I think X is the root cause because Y"처럼 명확하게 서술합니다
-   - 기록합니다
-   - 모호하지 않게 구체적으로 작성합니다
-
-2. **최소한으로 테스트하기**
-   - 가설을 테스트할 수 있는 가장 작은 변경을 만듭니다
-   - 한 번에 변수 하나만 바꿉니다
-   - 여러 문제를 한꺼번에 수정하지 않습니다
-
-3. **계속하기 전에 검증하기**
-   - 작동했습니까? 예 → 4단계
-   - 작동하지 않았습니까? 새로운 가설을 세웁니다
-   - 기존 수정 위에 다른 수정을 덧붙이지 않습니다
-
-4. **모를 때**
-   - "I don't understand X"라고 말합니다
-   - 아는 척하지 않습니다
-   - 도움을 요청합니다
-   - 더 조사합니다
-
-### 4단계: 구현
-
-**증상이 아니라 근본 원인을 수정합니다.**
-
-1. **수정 전 실패 재현 만들기**
-   - 가능한 가장 단순한 재현
-   - 가능하면 자동화 테스트
-   - framework가 없다면 일회성 test script
-   - 수정 전에 반드시 준비함
-   - 재현 가능한 동작 결함에 TDD가 실질적인 회귀 신호를 주면 `engineering:test-driven-development`를 사용합니다
-   - TDD가 적합하지 않다면 이유를 기록하고 가능한 가장 강한 재현·검증 절차를 사용합니다
-
-2. **하나의 수정 구현하기**
-   - 식별한 근본 원인을 해결합니다
-   - 한 번에 하나만 변경합니다
-   - "while I'm here" 식의 개선을 하지 않습니다
-   - 리팩터링을 묶어서 수행하지 않습니다
-
-3. **수정 검증하기**
-   - 수정 전 실패 재현이 이제 통과합니까?
-   - 관련 회귀 검사나 다른 테스트가 망가지지 않았습니까?
-   - 문제가 실제로 해결되었습니까?
-   - 성공을 주장하기 전에 `engineering:verification-before-completion` 스킬을 사용합니다
-
-4. **수정안이 작동하지 않을 때**
-   - 중단합니다
-   - 시도한 수정안의 수를 셉니다
-   - 3개 미만이면 1단계로 돌아가 새로운 정보로 다시 분석합니다
-   - **3개 이상이면 중단하고 architecture를 재검토합니다(아래 5번)**
-   - architecture를 논의하지 않고 네 번째 수정안을 시도하지 않습니다
-
-5. **수정안이 3개 이상 실패했을 때: architecture 재검토**
-
-   **architecture 문제를 나타내는 pattern:**
-   - 수정할 때마다 다른 곳에서 새로운 shared state, coupling 또는 문제가 드러남
-   - 수정안을 구현하려면 "massive refactoring"이 필요함
-   - 수정할 때마다 다른 곳에 새로운 증상이 생김
-
-   **중단하고 근본을 재검토합니다.**
-   - 이 pattern은 근본적으로 타당합니까?
-   - "sticking with it through sheer inertia" 상태입니까?
-   - 증상을 계속 수정하는 대신 architecture를 리팩터링해야 합니까?
-
-   **수정을 더 시도하기 전에 사람 협업자와 논의합니다**
-
-   이는 가설의 실패가 아니라 잘못된 architecture입니다.
-
-## 위험 신호 - 중단하고 절차 따르기
-
-다음과 같이 생각하고 있다면 주의합니다.
-- "Quick fix for now, investigate later"
-- "Just try changing X and see if it works"
-- "Add multiple changes, run tests"
-- "Skip the test, I'll manually verify"
-- "It's probably X, let me fix that"
-- "I don't fully understand but this might work"
-- "Pattern says X but I'll adapt it differently"
-- "Here are the main problems: [lists fixes without investigation]"
-- data flow를 추적하기 전에 해결책을 제안함
-- **"One more fix attempt" (이미 2회 이상 시도했을 때)**
-- **수정할 때마다 다른 곳에서 새로운 문제가 드러남**
-
-**이 중 하나라도 해당하면 중단하고 1단계로 돌아갑니다.**
-
-**수정안이 3개 이상 실패했다면:** architecture를 재검토합니다(4단계의 5번 참고)
-
-## 사람 협업자가 보내는 잘못된 접근의 신호
-
-**다음과 같은 방향 수정에 주의합니다.**
-- "Is that not happening?" - 검증하지 않고 가정했습니다
-- "Will it show us...?" - 근거 수집을 추가했어야 합니다
-- "Stop guessing" - 이해하지 못한 채 수정안을 제안하고 있습니다
-- "Ultra-think this" - 증상뿐 아니라 근본을 재검토해야 합니다
-- "We're stuck?"(불만) - 현재 접근 방식이 작동하지 않습니다
-
-**이런 신호가 보이면:** 중단하고 1단계로 돌아갑니다.
-
-## 흔한 합리화
-
-| 핑계 | 실제 |
-|--------|---------|
-| "Issue is simple, don't need process" | 단순한 문제에도 근본 원인이 있습니다. 단순한 버그에서는 이 절차도 빠릅니다. |
-| "Emergency, no time for process" | 체계적인 디버깅이 guess-and-check를 반복하는 것보다 빠릅니다. |
-| "Just try this first, then investigate" | 첫 수정이 pattern을 만듭니다. 처음부터 올바르게 수행합니다. |
-| "I'll write test after confirming fix works" | TDD를 선택했다면 실패 테스트가 먼저다. TDD를 선택하지 않았더라도 수정 전에 재현과 검증 방법을 준비한다. |
-| "Multiple fixes at once saves time" | 무엇이 작동했는지 분리할 수 없고 새로운 버그가 생깁니다. |
-| "Reference too long, I'll adapt the pattern" | 불완전한 이해는 버그를 보장합니다. 끝까지 읽습니다. |
-| "I see the problem, let me fix it" | 증상을 보는 것과 근본 원인을 이해하는 것은 다릅니다. |
-| "One more fix attempt"(2개 이상 실패한 뒤) | 3개 이상 실패하면 architecture 문제입니다. 다시 수정하지 말고 pattern을 재검토합니다. |
-
-## 빠른 참고
-
-| 단계 | 핵심 활동 | 성공 기준 |
-|-------|---------------|------------------|
-| **1. 근본 원인** | error 읽기, 재현, 변경 확인, 근거 수집 | 무엇이 왜 일어났는지 이해함 |
-| **2. pattern** | 작동하는 예시 찾기와 비교 | 차이를 식별함 |
-| **3. 가설** | 가설 수립과 최소 테스트 | 가설이 확인되거나 새 가설이 생김 |
-| **4. 구현** | 선택한 재현·검증 준비, 수정, 검증 | 버그가 해결되고 수정 전 재현이 통과함 |
-
-## 절차 결과가 "No Root Cause"일 때
-
-체계적인 조사 결과 문제가 실제로 환경, timing 또는 외부 요인에 의존한다면 다음을 수행합니다.
-
-1. 절차를 완료합니다
-2. 조사한 내용을 문서화합니다
-3. 적절한 처리(retry, timeout, error message)를 구현합니다
-4. 이후 조사를 위한 monitoring/logging을 추가합니다
-
-**그러나:** "no root cause" 사례의 95%는 불완전한 조사입니다.
-
-## 보조 기법
-
-다음 기법은 systematic debugging의 일부이며 이 directory에서 확인할 수 있습니다.
-
-- **`root-cause-tracing.md`** - call stack을 역방향으로 추적해 버그의 최초 trigger를 찾습니다
-- **`defense-in-depth.md`** - 근본 원인을 찾은 뒤 여러 layer에 validation을 추가합니다
-- **`condition-based-waiting.md`** - 임의의 timeout을 condition polling으로 바꿉니다
+원인을 확정하지 못했다면 조사 범위, 확인한 사실, 남은 가설과 다음 판정 방법을 보고한다.
+환경·시간·외부 서비스 의존성이 확인되면 그 근거에 맞는 처리나 관측을 추가한다. 원인이
+불명확하다는 이유만으로 retry, timeout 또는 광범위한 리팩터링을 기본 해법으로 삼지 않는다.

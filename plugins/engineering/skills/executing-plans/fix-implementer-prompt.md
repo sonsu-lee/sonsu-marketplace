@@ -1,48 +1,42 @@
-# Fresh fix implementer prompt
+# 새 문맥의 수정 담당자 프롬프트
 
-원래 implementer를 사용할 수 없거나 새 반례에도 진전이 없는 1~3회차, 또는 fresh implementer를 사용하는 4~5회차에 이 prompt를
-사용한다. controller는 현재 수정에 필요한 factual evidence를 간결하게 제공한다.
+4~5회차, 또는 원래 구현자를 사용할 수 없거나 새 반례에도 진전이 없는 1~3회차에 사용한다. 조정자는 현재 수정에 필요한 사실만 제공한다.
 
 ```text
-You are a fresh fix implementer for round [ROUND] of at most five rounds. The count persists across session and
-owner-stage reentry.
+최대 5회 중 [현재 회차]회차의 새 문맥에서 수정 구현자로 작업한다.
+Task/Gate: [작업·게이트 ID]
+소비·남은 부모 예산과 기한: [예산]
+쓰기 소유 범위: [작업 공간·쓰기 범위]
+검증 실행 환경·임시 공간: [실행 환경·임시 공간]
 
-Task/Gate: [TASK_GATE_ID]. Consumed/remaining parent budget and deadline: [BUDGET].
-Work only in [WORKSPACE_SCOPE]; use [RUNTIME_AND_SCRATCH] for the specified verification commands.
-Do not reset the task budget when the session, model, artifact package, or owner changes.
+세션·모델·패키지·담당자 변경 뒤에도 같은 작업/게이트 예산을 이어 쓴다.
+승인된 작업 요약 [작업 요약 파일], 현재 바이너리 변경도 보존하는 산출물 패키지 [산출물 패키지],
+정확한 리비전 [현재 리비전]을 확인한다. [열린 지적 파일]의 열린 지적만 수정한다.
+[근거 파일]에서 관찰한 명령·결과와 이미 실패한 접근을 읽는다. Fact:는 관찰이고
+Hypothesis:는 원인·해법 가설이므로 가설을 실제 근거로 확인한다.
 
-Read the approved task brief at [BRIEF_FILE] and the current binary-safe artifact package at [ARTIFACT_PACKAGE].
-The package is fixed to [CURRENT_REVISION]. Address only the open findings in [OPEN_FINDINGS_FILE]. Read the
-observed commands and results plus previously tried failures at [EVIDENCE_FILE]. That evidence labels observations
-as facts and suspected causes or remedies as hypotheses; verify hypotheses yourself.
+승인된 범위에서 최소한의 국소 수정을 수행하고 변경 동작에 집중한 검증을 실행한다.
+필수 근거를 읽을 수 없거나 패키지가 정확한 현재 산출물을 식별하지 못하면 BLOCKED와
+근거를 반환한다. 목표·계약·설계·의존 경계 변경이 필요하면 의존 수정을 보류하고
+NEEDS_CONTEXT로 해당 소유 단계에 반환한다. 기존 승인 계약 안의 계획 변경은 조정자가
+갱신·재검증하고, 승인 계약을 바꾸는 경우에만 사용자 재승인이 필요하다. 독립적인 승인 작업은
+계속한다. 위험 수용은 사람이 결정한다.
 
-Implement the smallest bounded fix and run focused verification for the changed behavior. If the evidence paths
-are missing, unreadable, or do not identify one exact current artifact, return BLOCKED with concise evidence.
-If the approved goal, contract, design, or dependency boundary must change, do not implement that change: return
-NEEDS_CONTEXT for owner-stage routing and user reapproval. Do not accept risk on the user's behalf.
+전체 대화·구현 서사·자기변호·자체 리뷰·검토자 칭찬이나 통과 판정·에이전트 식별자·이전
+세션 이력은 입력으로 사용하지 않는다. 작업은 직접 수행하고 추가 하위 에이전트를 만들지 않는다.
 
-Do not request a full conversation, prior implementation narrative, self-justification, self-review, reviewer
-praise or pass verdict, agent identity, or session history. Return the concise fix status, changed files, and raw
-verification commands/results and any environment failure, unrun check, or unresolved concern. Completion of
-your response does not mean all required checks passed. Do not spawn subagents.
+결과로 수정 상태, 변경 파일, 실제 검증 명령·출력, 환경 실패·not_run·미해결 우려와 남은 예산을
+간결하게 반환한다. 응답을 마친 상태와 필수 검사 통과를 구분한다.
 ```
 
-**Controller placeholders:**
+| 자리표시자 | 조정자가 제공할 내용 |
+| --- | --- |
+| `[현재 회차]` | 1~5의 현재 회차. 새 문맥으로 조기 전환해도 같은 부모 예산을 소비한다. |
+| `[작업·게이트 ID]`, `[예산]` | 고정된 ID, 소비·남은 예산·기한 |
+| `[작업 공간·쓰기 범위]`, `[실행 환경·임시 공간]` | 허용 cwd·쓰기 범위·실행 환경·의존성·임시 자료·네트워크 조건 |
+| `[작업 요약 파일]` | 승인된 작업 요약 |
+| `[산출물 패키지]`, `[현재 리비전]` | 작업 최초 구현 전 기준점부터 현재까지의 바이너리 변경도 보존하는 누적 패키지와 정확한 리비전. 마지막 수정 변경분만으로 대체하지 않는다. |
+| `[열린 지적 파일]` | 현재 열린 지적만 담은 파일 |
+| `[근거 파일]` | 관찰 명령·결과·실패한 접근을 `Fact:`와 `Hypothesis:`로 구분한 파일 |
 
-- `[ROUND]` — `1`~`5`. 1~3회차 fresh agent는 원래 implementer를 사용할 수 없거나 새 반례에도
-  잘못된 가정을 반복해 진전이 없을 때 사용한다.
-  4~5회차에는 `fork_turns: "none"` fresh agent를 사용하고, 앞선 실패가 판단력 부족을 보여 주었으며
-  지원되면 capability를 높인다.
-- `[BRIEF_FILE]` — 승인된 task brief의 경로.
-- `[TASK_GATE_ID]`, `[BUDGET]` — 같은 task/gate ID, 소비·남은 부모 예산과 deadline. 새 session에서도 유지한다.
-- `[WORKSPACE_SCOPE]`, `[RUNTIME_AND_SCRATCH]` — 허용된 cwd/쓰기 소유 범위, runtime·dependency·scratch·network 조건.
-- `[ARTIFACT_PACKAGE]`, `[CURRENT_REVISION]` — 현재 exact revision의 binary-safe review package와
-  그 package가 명시하는 revision. task 최초 구현 전 기준점부터 현재까지의 전체 변경을 포함하며,
-  마지막 수정 회차의 delta만으로 대체하지 않는다.
-- `[OPEN_FINDINGS_FILE]` — 현재 열린 finding만 담은 간결한 파일.
-- `[EVIDENCE_FILE]` — 관찰한 명령·결과와 이미 시도한 실패를 담되 각 항목을 `Fact:` 또는
-  `Hypothesis:`로 구분한 파일.
-
-Full reports remain controller/reviewer records rather than fresh-fix 입력이다. strict JSON schema나 별도의
-fix-only tar bundle은 필요하지 않다. fresh implementer의 concise result는 controller가 report와 ledger에
-기록한다.
+[공통 실행 계약](../using-engineering-skills/references/agent-execution.md)에 따라 필요한 기능을 선택한다. 별도 엄격한 JSON 스키마나 수정 전용 tar는 요구하지 않는다. 원 보고서는 조정자 기록으로 보존하고 새 담당자의 결과를 보고서와 진행 기록에 추가한다.

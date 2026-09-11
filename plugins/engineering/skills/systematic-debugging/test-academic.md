@@ -1,14 +1,16 @@
-# Academic Test: Systematic Debugging Skill
+# 이해도 평가 자료: 체계적인 디버깅
 
-You have access to the systematic debugging skill at skills/debugging/systematic-debugging
+과거 평가 프롬프트의 한국어 정리본이다. 현재 실행 지침이 아니며, 이 파일의 존재가 평가
+실행이나 통과를 뜻하지 않는다. 당시 참조 경로는 `skills/debugging/systematic-debugging`이었다.
 
-Read the skill and answer these questions based SOLELY on what the skill says:
+스킬을 읽고 그 내용만을 근거로 다음에 답하는 사례다.
 
-1. What are the four phases of systematic debugging?
-2. What must you do BEFORE attempting any fix?
-3. In Phase 3, what should you do if your first hypothesis doesn't work?
-4. What does the skill say about fixing multiple things at once?
-5. What should you do if you don't fully understand the issue?
-6. Is it ever acceptable to skip the process for simple bugs?
+1. 체계적인 디버깅의 네 단계는 무엇인가.
+2. 수정을 시도하기 전에 무엇을 해야 하는가.
+3. 첫 가설이 틀렸다면 3단계에서 무엇을 해야 하는가.
+4. 여러 대상을 동시에 수정하는 일에 어떤 기준을 제시하는가.
+5. 문제를 완전히 이해하지 못했다면 어떻게 해야 하는가.
+6. 단순한 버그라는 이유로 절차를 생략해도 되는가.
 
-Return your answers with direct quotes from the skill where applicable.
+적절한 경우 스킬의 직접 인용으로 답을 뒷받침한다. 현재 스킬로 평가한다면 적용한
+[SKILL.md](SKILL.md) 리비전·질문 변경과 실제 답변을 함께 기록한다.

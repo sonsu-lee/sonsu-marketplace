@@ -1,111 +1,51 @@
 ---
 name: test-driven-development
-description: 프로덕션 코드의 동작을 변경하거나 결함을 수정하거나 동작에 민감한 리팩터링을 할 때 구현 코드를 작성하기 전에 사용합니다
+description: 프로덕션 동작 변경, 결함 수정 또는 동작에 민감한 리팩터링에서 구현 전에 테스트 적용 방법을 정할 때 사용한다
 ---
 
-# test-driven-development: 테스트 주도 개발(TDD)
+# 테스트 주도 개발(TDD)
+
+기대 동작을 테스트로 표현하고 의도한 이유로 실패하는지 확인한 뒤, 통과하는 최소 구현을 만든다.
+RED–GREEN–REFACTOR는 테스트가 결함을 포착하는지 확인하면서 동작을 구현하는 절차다.
 
 ## 작업 연속성
 
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+여러 단계의 작업이나 외부 쓰기를 맡은 조정자는 [task-continuity](../task-continuity/SKILL.md)에
+따라 진행을 기록하고, 재개할 때 현재 근거와 대조한다. 단발 작업, 위임된 에이전트와 독립
+리뷰어는 별도 기록을 만들지 않는다. 읽기 전용 작업에서는 기록 파일과 Git exclude를 기존 상태로 둔다.
 
-## 개요
+## 적용 여부를 정한다
 
-테스트를 먼저 작성하고 실패하는 모습을 확인한 뒤, 통과하는 데 필요한 최소한의 코드를 작성합니다.
+계획이 있으면 의사코드의 관찰 가능한 흐름을 기준으로 판단한다. 직접 변경도 파일 확장자보다
+동작·회귀 위험·자동화의 실익을 본다. 새 기능, 로직·상태·검증·오류 처리 변경과 동작에 민감한
+리팩터링에서 다음을 확인한다.
 
-**핵심 원칙:** 테스트가 실패하는 모습을 확인하지 않았다면, 그 테스트가 올바른 대상을 검증하는지 알 수 없습니다.
+- 기대 동작이나 결함을 구현 전에 실패하는 자동화 테스트로 표현할 수 있는가.
+- 의도한 실패가 구현 오류와 테스트 준비 오류를 구별하는가.
+- 해당 동작의 회귀를 계속 검사할 가치가 있는가.
 
-**규칙의 문구를 어기는 것은 규칙의 취지를 어기는 것입니다.**
+재현 가능한 버그와 명확한 동작 계약에는 TDD를 기본으로 선택한다. 자동화할 수 없거나 테스트가
+구현을 그대로 반복한다면 이유와 가장 강한 대체 검증을 계획 또는 보고에 기록한다.
 
-## 사용 시점
-
-구현 plan이 있으면 `engineering:writing-plans`에서 의사코드로 동작 흐름을 먼저 정의한 뒤
-TDD 적합성을 판단합니다. plan이 필요 없는 직접 변경에서도 파일 확장자가 아니라 관찰 가능한
-동작, 회귀 위험과 자동화 테스트의 실익을 기준으로 판단합니다.
-
-**TDD 적합성을 반드시 판단할 변경:**
-- 새로운 프로덕션 기능이나 관찰 가능한 동작
-- 코드 버그 수정
-- 로직, 알고리즘, 상태 전이, 검증 또는 오류 처리 변경
-- 관찰 가능한 동작을 바꿀 수 있는 리팩터링
-
-다음 조건일수록 TDD가 적합합니다.
-
-- 기대 동작이나 결함을 구현 전에 실패하는 자동화 테스트로 표현할 수 있습니다.
-- 테스트가 올바른 이유로 실패하는지 확인하면 구현 오류를 실제로 구분할 수 있습니다.
-- 같은 동작의 회귀 가능성이 있고 테스트를 계속 유지할 가치가 있습니다.
-
-재현 가능한 버그와 명확한 동작 계약에는 TDD를 기본 선택으로 삼습니다. 다만 자동화할 수
-없거나 테스트가 구현을 그대로 반복해 실질적인 신호를 주지 못한다면, 그 이유를 기록하고
-가장 강한 다른 검증을 선택합니다.
-
-**기본적으로 사용하지 않음:**
-- 문서, 산문, 주석 및 문구만 바꾸는 변경
-- 정적 metadata와 manifest 수정
-- 생성된 코드
-- 동작이 바뀌지 않는 formatting, 파일 이동 및 기계적인 이름 변경
-- parser나 실제 소비 명령이 더 강하고 저렴한 근거를 제공하는 단순 설정
-- 정적 텍스트, metadata 또는 구현을 그대로 비추기만 하는 테스트
-
-이런 변경에는 구문 및 경로 검사, 링크와 예제 검토, native loader 또는 변경된 설정을 실제로 소비하는 최소 명령처럼 위험에 비례한 검증을 사용합니다. 설정이나 metadata 변경이 의미 있는 runtime behavior를 제어한다면 그 동작을 테스트합니다. 파일 형식만 보고 위험이 낮다고 가정하지 않습니다.
-
-단순히 production code 파일을 수정한다는 이유만으로 TDD를 선택하지 않습니다. 반대로 문서나
-configuration 파일이라도 runtime behavior와 회귀 위험을 실질적으로 바꾸면 해당 동작에 TDD가
-적합한지 판단합니다. 선택한 검증 방법과 이유는 plan이나 작업 보고에 남깁니다.
-
-TDD를 선택한 프로덕션 동작 변경에서 "skip TDD just this once"라고 생각하는 것은 합리화입니다.
-
-## 절대 원칙
-
-```
-ONCE TDD IS SELECTED, NO PRODUCTION IMPLEMENTATION WITHOUT A FAILING TEST FIRST
-```
-
-이 원칙은 위 기준에 따라 변경을 TDD 작업으로 분류한 뒤 적용됩니다. 일단 TDD를 선택했다면
-아래 RED–GREEN–REFACTOR 규칙을 완전하게 따릅니다.
-
-테스트보다 코드를 먼저 작성했다면 삭제하고 처음부터 다시 시작합니다.
-
-**예외 없음:**
-- "reference" 용도로 남겨 두지 않습니다
-- 테스트를 작성하면서 기존 코드를 "adapt"하지 않습니다
-- 기존 코드를 보지 않습니다
-- 삭제는 실제 삭제를 뜻합니다
-
-테스트에서 출발해 새로 구현합니다. 예외는 없습니다.
+| 변경 | 기본 검증 |
+| --- | --- |
+| 문서·주석·표현, 정적 메타데이터 | 정확성·구문·경로·링크 검사 |
+| 동작을 유지하는 포맷·이동·기계적 이름 변경 | 참조·구문 및 관련 소비 명령 |
+| 생성 코드 | 원본과 생성 결과의 일치, 실제 소비 결과 |
+| 단순 설정 | 파서·로더 또는 설정을 소비하는 최소 명령 |
+| 의미 있는 실행 동작을 바꾸는 설정·문서 | 실제 소비 동작과 회귀 위험에 맞는 테스트 |
 
 ## RED–GREEN–REFACTOR
 
-```dot
-digraph tdd_cycle {
-    rankdir=LR;
-    red [label="RED\nWrite failing test", shape=box, style=filled, fillcolor="#ffcccc"];
-    verify_red [label="Verify fails\ncorrectly", shape=diamond];
-    green [label="GREEN\nMinimal code", shape=box, style=filled, fillcolor="#ccffcc"];
-    verify_green [label="Verify passes\nAll green", shape=diamond];
-    refactor [label="REFACTOR\nClean up", shape=box, style=filled, fillcolor="#ccccff"];
-    next [label="Next", shape=ellipse];
+TDD를 선택한 동작은 실패 테스트를 확인한 뒤 구현한다. 이미 작성한 구현에 테스트를 추가하는
+경우에는 사후 검증으로 기록한다. 필요하면 격리된 사본이나 안전하게 되돌릴 수 있는 자신의
+수정 범위에서 결함 상태를 재현해 테스트의 검출력을 확인한다. 기존 작업을 일괄 삭제하지 않는다.
 
-    red -> verify_red;
-    verify_red -> green [label="yes"];
-    verify_red -> red [label="wrong\nfailure"];
-    green -> verify_green;
-    verify_green -> refactor [label="yes"];
-    verify_green -> green [label="no"];
-    refactor -> verify_green [label="stay\ngreen"];
-    verify_green -> next;
-    next -> red;
-}
-```
+### RED: 실패할 동작을 표현한다
 
-### RED - 실패하는 테스트 작성
+테스트 하나가 포착할 결함과 기대 결과를 명시한다. 기대값은 구현과 독립적으로 도출하며,
+실제 코드의 관찰 가능한 결과를 검사한다. 외부 경계를 대체해야 하면 해당 경계 계약을 유지한다.
 
-기대하는 동작을 보여 주는 최소한의 테스트 하나를 작성합니다.
-
-<Good>
 ```typescript
 test('retries failed operations 3 times', async () => {
   let attempts = 0;
@@ -121,168 +61,33 @@ test('retries failed operations 3 times', async () => {
   expect(attempts).toBe(3);
 });
 ```
-이름이 명확하고 실제 동작 하나를 검증함
-</Good>
 
-<Bad>
-```typescript
-test('retry works', async () => {
-  const mock = jest.fn()
-    .mockRejectedValueOnce(new Error())
-    .mockRejectedValueOnce(new Error())
-    .mockResolvedValueOnce('success');
-  await retryOperation(mock);
-  expect(mock).toHaveBeenCalledTimes(3);
-});
-```
-이름이 모호하고 코드가 아니라 mock을 검증함
-</Bad>
-
-**요구사항:**
-- 하나의 동작
-- 명확한 이름
-- 실제 코드(피할 수 없는 경우가 아니라면 mock 금지)
-
-### RED 검증 - 실패하는 모습 확인
-
-**필수입니다. 절대 건너뛰지 않습니다.**
+관련 테스트 명령을 실행하고 실패 원인을 읽는다.
 
 ```bash
 npm test path/to/test.test.ts
 ```
 
-다음을 확인합니다.
-- 테스트가 실패함(error가 아님)
-- 실패 메시지가 예상과 일치함
-- 오타가 아니라 기능이 없어서 실패함
+기능 부재나 결함 때문에 예상한 단언이 실패해야 한다. 구문·의존성·테스트 준비 오류라면
+그 준비부터 고친다. 바로 통과하면 기존 동작이 이미 요구를 충족하는지 또는 테스트가 결함을
+놓치는지 확인한 뒤 테스트나 작업 범위를 조정한다.
 
-**테스트가 통과합니까?** 기존 동작을 검증하고 있는 것입니다. 테스트를 수정합니다.
+### GREEN: 최소 구현으로 통과시킨다
 
-**테스트에서 error가 발생합니까?** error를 수정하고 올바르게 실패할 때까지 다시 실행합니다.
+실패한 동작을 만족하는 가장 단순한 변경을 적용한다. 같은 테스트를 실행해 통과를 확인하고,
+영향받는 회귀 검사와 선언된 필수 검사를 수행한다. 출력의 오류·경고는 현재 변경과 관련성을
+판단한다. 테스트가 실패하면 구현과 기대 계약을 대조하며, 통과시키기 위해 기대값만 바꾸지 않는다.
 
-### GREEN - 최소 코드
+### REFACTOR: 동작을 유지하며 정리한다
 
-테스트를 통과하는 가장 단순한 코드를 작성합니다.
+통과 상태에서 필요한 중복 제거·이름 개선·구조 정리를 수행하고 영향받은 테스트를 다시 실행한다.
+새 동작이 필요하면 다음 RED 주기로 다룬다. 현재 리비전의 필수 검사가 충족되고 새 변경·실패가
+없으면 검증을 마친다. 같은 내용의 검사나 무관한 전체 검사를 반복하지 않는다.
 
-<Good>
-```typescript
-async function retryOperation<T>(fn: () => Promise<T>): Promise<T> {
-  for (let i = 0; i < 3; i++) {
-    try {
-      return await fn();
-    } catch (e) {
-      if (i === 2) throw e;
-    }
-  }
-  throw new Error('unreachable');
-}
-```
-통과하는 데 필요한 만큼만 작성함
-</Good>
+## 예시: 빈 email 거부
 
-<Bad>
-```typescript
-async function retryOperation<T>(
-  fn: () => Promise<T>,
-  options?: {
-    maxRetries?: number;
-    backoff?: 'linear' | 'exponential';
-    onRetry?: (attempt: number) => void;
-  }
-): Promise<T> {
-  // YAGNI
-}
-```
-과도하게 설계됨
-</Bad>
+아래 출력은 절차 설명용 예시이며 현재 작업의 실행 증거가 아니다.
 
-기능을 추가하거나 다른 코드를 리팩터링하거나 테스트 범위를 넘어 "improve"하지 않습니다.
-
-### GREEN 검증 - 통과하는 모습 확인
-
-**필수입니다.**
-
-```bash
-npm test path/to/test.test.ts
-```
-
-다음을 확인합니다.
-- 테스트가 통과함
-- 다른 테스트도 계속 통과함
-- 출력이 깨끗함(error와 warning 없음)
-
-**테스트가 실패합니까?** 테스트가 아니라 코드를 수정합니다.
-
-**다른 테스트가 실패합니까?** 즉시 수정합니다.
-
-### REFACTOR - 정리
-
-GREEN 상태가 된 뒤에만 다음을 수행합니다.
-- 중복 제거
-- 이름 개선
-- helper 추출
-
-테스트가 계속 통과하게 유지합니다. 동작을 추가하지 않습니다.
-
-### 반복
-
-다음 기능을 위한 다음 실패 테스트를 작성합니다.
-
-## 좋은 테스트
-
-| 품질 | 좋은 예 | 나쁜 예 |
-|---------|------|-----|
-| **최소성** | 한 가지만 검증합니다. 이름에 "and"가 있습니까? 테스트를 나눕니다. | `test('validates email and domain and whitespace')` |
-| **명확성** | 이름이 동작을 설명합니다 | `test('test1')` |
-| **의도 표현** | 원하는 API를 보여 줍니다 | 코드가 무엇을 해야 하는지 감춥니다 |
-
-테스트를 작성하거나 변경할 때는 테스트를 정직하게 유지하는 규칙을 다룬 [writing-good-tests.md](writing-good-tests.md)를 읽습니다.
-- 테스트를 작성하기 전에 그 테스트를 실패하게 만들 프로덕션 변경을 명시합니다
-- mock의 동작이 아니라 실제 동작을 assertion합니다
-- 테스트 전용 코드는 프로덕션 class가 아닌 테스트 utility에 둡니다
-- dependency를 mock하기 전에 그 side effect를 이해합니다
-
-## 흔한 합리화
-
-| 핑계 | 실제 |
-|--------|---------|
-| "Too simple to test" | 단순한 코드도 망가집니다. 테스트에는 30초면 충분합니다. |
-| "I'll test after" | 나중에 작성한 테스트는 즉시 통과하므로 아무것도 증명하지 못합니다. 잘못된 대상을 검증하거나 동작 대신 구현을 검증하거나 잊어버린 edge case를 놓칠 수 있습니다. 실패하는 모습을 보지 않았으므로 버그를 잡을 수 있다는 사실을 증명하지 못했습니다. 테스트 우선 접근은 그 실패를 강제합니다. |
-| "Tests after achieve same goals (spirit not ritual)" | 사후 테스트는 "what does this do?"에 답하고, 테스트 우선은 "what should this do?"에 답합니다. 나중에 작성한 테스트는 이미 작성한 코드에 편향되어 발견했을 사례가 아니라 기억한 사례만 검증합니다. 테스트가 실제로 작동한다는 증거 없는 coverage일 뿐입니다. |
-| "Already manually tested" | 수동 테스트는 임시방편입니다. 무엇을 검증했는지 기록이 없고, 코드 변경 후 다시 실행할 방법이 없으며, 압박 속에서 사례를 잊기 쉽습니다. "Worked when I tried it"이 포괄적인 검증을 뜻하지는 않습니다. 자동화 테스트는 매번 같은 방식으로 실행됩니다. |
-| "Deleting X hours is wasteful" | 매몰 비용의 오류입니다. 그 시간은 어느 쪽이든 이미 지출했습니다. 실제 선택은 TDD로 다시 작성해 높은 신뢰도를 얻거나, 기존 코드를 유지한 채 사후 테스트를 덧붙여 낮은 신뢰도와 버그 가능성을 감수하는 것입니다. 신뢰할 수 없는 코드를 유지하는 일이 낭비입니다. |
-| "Keep as reference, write tests first" | 결국 기존 코드를 적용하게 됩니다. 그것은 사후 테스트입니다. 삭제는 실제 삭제를 뜻합니다. |
-| "Need to explore first" | 괜찮습니다. 탐색 결과를 버리고 TDD로 다시 시작합니다. |
-| "Test hard = design unclear" | 테스트가 보내는 신호를 따릅니다. 테스트하기 어렵다면 사용하기도 어렵습니다. |
-| "TDD will slow me down" | TDD는 실용적인 경로입니다. 커밋 전에 버그를 잡고, 회귀를 방지하며, 두려움 없이 리팩터링하게 해 줍니다. "Pragmatic" shortcut은 프로덕션에서 디버깅한다는 뜻이며 오히려 더 느립니다. |
-| "Manual test faster" | 수동 테스트는 edge case를 증명하지 못합니다. 변경할 때마다 다시 테스트해야 합니다. |
-| "Existing code has no tests" | 지금 코드를 개선하고 있습니다. 기존 코드에 대한 테스트를 추가합니다. |
-
-## 위험 신호 - 중단하고 다시 시작
-
-TDD가 적용되는 프로덕션 동작 변경에서 다음 상황을 확인합니다.
-
-- 테스트보다 코드를 먼저 작성함
-- 구현 뒤에 테스트를 작성함
-- 테스트가 즉시 통과함
-- 테스트가 실패한 이유를 설명할 수 없음
-- 테스트를 "later"에 추가함
-- "just this once"라고 합리화함
-- "I already manually tested it"
-- "Tests after achieve the same purpose"
-- "It's about spirit not ritual"
-- "Keep as reference" 또는 "adapt existing code"
-- "Already spent X hours, deleting is wasteful"
-- "TDD is dogmatic, I'm being pragmatic"
-- "This is different because..."
-
-**이 중 하나라도 해당하면 코드를 삭제하고 TDD로 다시 시작합니다.**
-
-## 예시: 버그 수정
-
-**버그:** 빈 email이 허용됨
-
-**RED**
 ```typescript
 test('rejects empty email', async () => {
   const result = await submitForm({ email: '' });
@@ -290,13 +95,12 @@ test('rejects empty email', async () => {
 });
 ```
 
-**RED 검증**
-```bash
-$ npm test
+```text
 FAIL: expected 'Email required', got undefined
 ```
 
-**GREEN**
+실패를 확인한 뒤 빈 입력을 처리하고 같은 테스트가 통과하는지 확인한다.
+
 ```typescript
 function submitForm(data: FormData) {
   if (!data.email?.trim()) {
@@ -306,55 +110,13 @@ function submitForm(data: FormData) {
 }
 ```
 
-**GREEN 검증**
-```bash
-$ npm test
-PASS
-```
+## 결과를 확인한다
 
-**REFACTOR**
-필요하다면 여러 field의 검증을 추출합니다.
+[writing-good-tests.md](writing-good-tests.md)의 기준으로 테스트가 포착할 고장, 독립된 기대값,
+실제 동작과 외부 경계 대체의 타당성을 확인한다. 선택한 동작의 RED 실패 이유, GREEN 결과,
+관련 회귀 검사와 현재 리비전을 남긴다. 실행하지 못한 검사는 `not_run`, 준비 환경 부재는
+`blocked`처럼 실제 상태로 보고한다.
 
-## 검증 체크리스트
-
-TDD 범위의 작업을 완료로 표시하기 전에 확인합니다.
-
-- [ ] 새로 추가하거나 변경한 모든 동작에 테스트가 있음
-- [ ] 구현하기 전에 각 테스트가 실패하는 모습을 확인함
-- [ ] 각 테스트가 예상한 이유로 실패함(오타가 아니라 기능 부재)
-- [ ] 각 테스트를 통과하는 최소 코드를 작성함
-- [ ] 모든 테스트가 통과함
-- [ ] 출력이 깨끗함(error와 warning 없음)
-- [ ] 테스트가 실제 코드를 사용함(피할 수 없는 경우에만 mock 사용)
-- [ ] edge case와 error를 다룸
-
-모든 항목을 확인할 수 없다면 TDD를 건너뛴 것입니다. 다시 시작합니다.
-
-## 막혔을 때
-
-| 문제 | 해결책 |
-|---------|----------|
-| 테스트 방법을 모름 | 원하는 API를 작성합니다. assertion을 먼저 작성합니다. 사람 협업자에게 묻습니다. |
-| 테스트가 너무 복잡함 | 설계가 너무 복잡합니다. interface를 단순화합니다. |
-| 모든 것을 mock해야 함 | 코드가 지나치게 결합되어 있습니다. dependency injection을 사용합니다. |
-| 테스트 setup이 너무 큼 | helper를 추출합니다. 여전히 복잡하다면 설계를 단순화합니다. |
-
-## 디버깅과 통합
-
-코드 버그를 발견했다면 먼저 실패를 재현합니다. 위 기준에 따라 TDD를 선택했다면 재현하는
-실패 테스트로 TDD cycle을 따릅니다. 이 테스트는 수정 사항을 증명하고 회귀를 방지합니다.
-
-재현 가능한 코드 결함에 TDD를 선택했다면 실패하는 regression test 없이 수정하지 않습니다.
-자동화가 불가능하거나 테스트가 구현을 그대로 반복해 실질적인 회귀 신호를 주지 못해 TDD를
-선택하지 않았다면 그 이유를 기록하고, 수정 전 가능한 가장 강한 재현 절차와 변경에 비례한
-검증을 실행합니다.
-
-## 최종 규칙
-
-```
-Behavior and regression risk → choose TDD or proportionate verification, with a reason
-TDD selected → test exists and failed first
-TDD not selected → run the strongest proportionate verification named in the plan or report
-```
-
-분류가 불명확하다면 변경된 artifact를 무엇이 소비하는지 확인하고, 올바른 이유로 실패할 수 있는 가장 작은 검증을 선택합니다.
+테스트 준비가 과도하면 더 작은 소비 경계나 기존 테스트 도구를 찾는다. 테스트를 위해 공개
+인터페이스나 승인된 설계를 바꿔야 한다면 해당 결정을 확인한다. 사소한 코드나 산문에는
+절차를 충족하기 위한 테스트를 추가하지 않는다.

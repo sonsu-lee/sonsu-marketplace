@@ -1,56 +1,40 @@
-# Hermes Agent 도구 매핑
+# Hermes Agent 도구 대응
 
-스킬은 "dispatch a subagent", "create a todo", "read a file" 같은 action으로 지시합니다. Hermes Agent에서는 이를 다음 도구에 대응합니다.
+현재 도구와 입력 스키마에서 지원하는 항목을 확인하고 [공통 실행 계약](agent-execution.md)을
+적용한다.
 
-## 도구
+| 작업 | 대응 도구 |
+| --- | --- |
+| 파일 읽기·작성·국소 수정 | `read_file`·`write_file`·`patch` |
+| 명령 실행 | `terminal` |
+| 파일 내용 검색 | `search_files` |
+| 파일 이름 검색 | `terminal`의 설치된 검색 명령 |
+| 웹페이지 읽기·검색 | `web_extract(urls=[...])`·`web_search(query=...)` |
+| 에이전트 위임 | `delegate_task(goal=..., context=..., toolsets=[...], role="leaf")` |
+| 진행 추적 | `todo` |
+| 스킬 호출 | `skill_view("skill-name")` |
 
-| 스킬이 요청하는 action | Hermes 도구 |
-|---|---|
-| 파일 읽기 | `read_file` |
-| 새 파일 만들기 | `write_file` |
-| 파일 수정하기(targeted patch) | `patch` |
-| shell 명령 실행하기 | `terminal` |
-| 파일 내용 검색하기 | `search_files` |
-| 이름으로 파일 찾기 | `find`를 사용하는 `terminal` |
-| URL 가져오기 / webpage 읽기 | `web_extract(urls=[...])` |
-| web 검색하기 | `web_search(query=...)` |
-| subagent dispatch하기 | `delegate_task(goal=..., context=..., toolsets=[...], role="leaf")` |
-| task 추적하기 | `todo` 도구 |
-| skill 호출하기 | `skill_view("skill-name")` |
+## 지침과 스킬
 
-## 지침 파일
+프로젝트 지침은 `AGENTS.md`, 전역 지침은 `~/.hermes/SOUL.md`를 확인한다. 스킬 목록과 읽기는
+지원되는 `skills_list`·`skill_view`에 대응한다.
 
-스킬에서 "your instructions file"을 언급하면 Hermes Agent에서는 project directory의 **`AGENTS.md`** 또는 global file인 `~/.hermes/SOUL.md`의 **`SOUL.md`**를 뜻합니다.
-
-## 스킬 호출하기
-
-Hermes Agent에는 `skill_view`와 `skills_list` 도구로 구성된 `skills` toolset이 있습니다.
-Engineering 스킬은 다음과 같이 호출합니다.
-
-```
+```text
 skill_view("brainstorming")
 skill_view("test-driven-development")
 ```
 
-`skill_view`가 Engineering 스킬을 찾지 못하면(plugin이 완전히 등록되기 전에는 catalog에
-표시되지 않을 수 있습니다) SKILL.md를 직접 읽는 방법을 사용합니다.
+스킬 등록 전이라 목록에서 찾을 수 없으면 실제 설치 경로를 확인해 `SKILL.md`를 직접 읽는다.
+다음은 설치 경로의 예시다.
 
-```
+```text
 read_file(path="~/.hermes/plugins/engineering/skills/<skill-name>/SKILL.md")
 ```
 
-이 fallback은 native skill loading이 없는 다른 harness에서 사용하는 방식과 같습니다.
+## 위임과 추적
 
-## Subagent dispatch 방식
+위임이 허용되고 `delegate_task`가 제공되면 역할·문맥·도구 범위를 지정한다. 선택 위임 기능이
+없으면 직접 수행할 수 있지만, 필수 독립 리뷰의 부재는 `blocked` 또는 `not_run`으로 구분한다.
 
-병렬 또는 순차 workstream을 위한 격리된 subagent를 만들 때는 `delegate_task`를 사용합니다.
-
-```
-delegate_task(goal="...", context="...", toolsets=[...], role="leaf")
-```
-
-`delegate_task`를 사용할 수 없다면 존재하지 않는 tool call을 만들어 내지 말고 작업을 직접 수행합니다.
-
-## Task 추적
-
-session 안의 task 추적에는 `todo` 도구를 사용합니다. multi-agent task board에는 사용할 수 있는 경우 `hermes kanban` CLI를 사용합니다. 이전 `TodoWrite` 참조는 task-tracking action으로 해석합니다.
+세션 안의 추적은 `todo`, 여러 에이전트의 작업 보드는 사용 가능한 `hermes kanban`에 대응한다.
+원 문서의 `TodoWrite` 표현은 현재 지원되는 진행 추적 작업으로 해석한다.

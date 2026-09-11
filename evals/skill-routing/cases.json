@@ -1873,6 +1873,47 @@
         "fluent-languages:fluent-japanese"
       ],
       "must_not_install_plugins": true
+    },
+    {
+      "id": "engineering-short-sentence-edit",
+      "installed_plugins": [
+        "engineering",
+        "fluent-languages"
+      ],
+      "prompt": "이 문장만 자연스럽게 고쳐줘: 처리가 완료되어졌습니다.",
+      "expected_sequence": [
+        "fluent-languages:fluent-korean"
+      ],
+      "must_not_select": [
+        "engineering:brainstorming",
+        "engineering:writing-plans",
+        "engineering:task-continuity"
+      ]
+    },
+    {
+      "id": "engineering-short-explanation",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "git status --short가 무엇을 보여주는지 두 문장으로 설명해줘.",
+      "expected_plugins": [],
+      "must_not_select": [
+        "engineering:brainstorming",
+        "engineering:writing-plans",
+        "engineering:using-git-worktrees",
+        "engineering:task-continuity"
+      ]
+    },
+    {
+      "id": "engineering-debugging-requires-evidence",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "빈 입력에서 API가 예상한 400 대신 500을 반환한다. 기존 계약을 유지하면서 원인을 찾아 수정하고 검증해줘.",
+      "expected_sequence": [
+        "engineering:systematic-debugging"
+      ],
+      "must_not_assume_plugin_dependency": true
     }
   ]
 }
