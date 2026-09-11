@@ -175,3 +175,15 @@ fixture의 실제 CLI·모의 event 실행, native loader 발견, 실제 host ho
 각각 보고한다. 누락 검출, 오탐, snapshot 시간과 알림 빈도를 관찰한 뒤 차단 도입을 별도로 판단한다.
 pilot을 중단하려면 task를 `superseded`로 닫는다. 설치본을 되돌릴 때에는 이전 Engineering
 버전을 사용하며 기존 기록을 삭제하거나 다른 플러그인의 훅을 변경하지 않는다.
+
+### PR 리뷰 후 보완한 실행 경계
+
+- 기존 리뷰어 ID를 controller session으로 추가하는 `init`은 상태를 변경하지 않고 거부한다.
+- 기본 리뷰 패키지 생성기는 `TMPDIR`의 물리 경로를 반환한다. 상태 디렉터리와 리뷰 입력의
+  symlink 거부 정책은 유지한다.
+- 검사 로그는 8 MiB까지 저장한다. 초과 시 process group을 종료하고 로그에 이유를 남기며
+  `inconclusive` / `execution: incomplete`로 기록한다. 근거 파일 해시는 나누어 읽어 계산한다.
+- `Stop` 관찰에는 6초 실행 예산을 적용한다(호스트 제한 10초). snapshot 도중 예산을 초과하면
+  `ready: false`, `observation: inconclusive`, `reason: time_budget_exceeded`를 저장하고 알린다.
+  task 확인 이전에 예산을 초과하면 상태를 쓰지 않고 확인 불가 알림만 반환한다.
+  운영체제의 중단 불가능한 I/O나 호스트 자체 종료까지 보장하는 제한은 아니다.

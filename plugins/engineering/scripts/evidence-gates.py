@@ -14,6 +14,8 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import signal
+import selectors
+import time
 import stat
 import subprocess
 import sys
@@ -25,6 +27,8 @@ REVIEWS = ("final-review", "red-team")
 LIMIT = 5
 MAX_JSON = 256 * 1024
 MAX_REPORT = 1024 * 1024
+MAX_LOG = 8 * 1024 * 1024
+HOOK_SECONDS = 6
 ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}\Z")
 DIGEST = re.compile(r"sha256:[a-f0-9]{64}\Z")
 
@@ -80,6 +84,16 @@ def read_file(path, limit=None):
     if limit is not None:
         require(path.stat().st_size <= limit, "file is too large")
     return path.read_bytes()
+
+
+def file_digest(path):
+    safe_path(path)
+    require(path.is_file(), "required file is unavailable")
+    value = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(64 * 1024), b""):
+            value.update(chunk)
+    return "sha256:" + value.hexdigest()
 
 
 def read_json(path):
@@ -272,7 +286,7 @@ def receipt_status(root, state, rows, artifact, dependencies, dependency_ready=T
         return "inconclusive"
     directory = task_path(root, state["task_id"]).parent
     try:
-        if any(digest(read_file(directory / name)) != expected for name, expected in receipt["files"].items()):
+        if any(file_digest(directory / name) != expected for name, expected in receipt["files"].items()):
             return "inconclusive"
     except (GateError, OSError):
         return "inconclusive"
@@ -311,6 +325,8 @@ def initialize(root, args):
             state = load(root, args.task_id)
             require(state["config"] == config, "task configuration changed; reconcile the existing task instead of resetting its budget")
             if session not in state["sessions"]:
+                require(not any(row.get("reviewer_id") == session for rows in state["reviews"].values() for row in rows),
+                        "session conflicts with an existing reviewer")
                 require(len(state["sessions"]) < 128, "session history is full")
                 state["sessions"].append(session)
             state["closed"] = False
@@ -373,27 +389,57 @@ def run_check(root, args):
     with path.open("xb") as output:
         process = None
         try:
-            process = subprocess.Popen(argv, cwd=root, env=workspace_env(), stdout=output,
+            process = subprocess.Popen(argv, cwd=root, env=workspace_env(), stdout=subprocess.PIPE,
                                        stderr=subprocess.STDOUT, start_new_session=True)
-            exit_code = process.wait(timeout=args.timeout)
+            deadline = time.monotonic() + args.timeout
+            written = 0
+            with selectors.DefaultSelector() as selector:
+                selector.register(process.stdout, selectors.EVENT_READ)
+                while selector.get_map():
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        raise subprocess.TimeoutExpired(argv, args.timeout)
+                    for key, _ in selector.select(remaining):
+                        chunk = os.read(key.fd, 64 * 1024)
+                        if not chunk:
+                            selector.unregister(key.fileobj)
+                            continue
+                        available = MAX_LOG - written
+                        output.write(chunk[:available])
+                        written += min(len(chunk), available)
+                        if len(chunk) > available:
+                            raise GateError("check output exceeded log limit")
+            exit_code = process.wait(timeout=max(0, deadline - time.monotonic()))
             outcome = "passed" if exit_code == 0 else "failed"
+        except GateError:
+            outcome = "inconclusive"
+            marker = b"\ncheck output exceeded log limit; execution interrupted\n"
+            output.seek(MAX_LOG - len(marker))
+            output.write(marker)
         except subprocess.TimeoutExpired:
             outcome = "inconclusive"
-            output.write(b"\ncheck timed out before completion\n")
+            marker = b"\ncheck timed out before completion\n"
+            output.seek(min(output.tell(), MAX_LOG - len(marker)))
+            output.write(marker)
         except OSError as error:
             outcome = "blocked"
             output.write(("process could not start (errno " + str(error.errno) + ")\n").encode())
         finally:
-            if process is not None and process.poll() is None:
-                os.killpg(process.pid, signal.SIGKILL)
+            if process is not None:
+                # Descendants may retain the pipe after the direct child exits.
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
                 process.wait()
+                process.stdout.close()
     with lock(root, wait=True):
         state = load(root, args.task_id)
         current = pending(state["checks"][args.check], receipt["attempt"])
         current.update(outcome="inconclusive", execution="complete" if exit_code is not None else "incomplete",
                        exit_code=exit_code)
         try:
-            current["files"] = {name: digest(read_file(path))}
+            current["files"] = {name: file_digest(path)}
             if snapshot(root, state["config"]) == current["artifact_digest"]:
                 current["outcome"] = outcome
         finally:
@@ -438,7 +484,7 @@ def record_review(root, args):
                 receipt["dependencies"] == dependency_digest(state, args.gate) and
                 status["gates"][dependency] == "passed", "review reservation is stale")
         directory = task_path(root, args.task_id).parent
-        require(all(digest(read_file(directory / name)) == expected for name, expected in receipt["files"].items()), "review package is stale")
+        require(all(file_digest(directory / name) == expected for name, expected in receipt["files"].items()), "review package is stale")
         name = args.gate + "-" + str(args.attempt) + "-report.md"
         path = directory / name
         if path.exists():
@@ -467,7 +513,27 @@ def finish(root, args):
         return inspect(root, state)
 
 
+class ObservationTimeout(Exception):
+    pass
+
+
+def observation_timeout(signum, frame):
+    raise ObservationTimeout("observation time budget exceeded")
+
+
 def hook():
+    previous = signal.signal(signal.SIGALRM, observation_timeout)
+    signal.setitimer(signal.ITIMER_REAL, HOOK_SECONDS)
+    try:
+        return observe_hook()
+    except ObservationTimeout:
+        return {"systemMessage": "Engineering 관찰: 실행 시간을 초과해 완료 근거를 확인하지 못했습니다. evidence-gates의 status로 확인하세요."}
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
+
+
+def observe_hook():
     event = parse_json(sys.stdin.buffer.read(MAX_JSON + 1))
     require(isinstance(event, dict), "invalid hook event")
     if event.get("hook_event_name") != "Stop" or event.get("agent_id") is not None or event.get("parent_session_id") is not None or event.get("permission_mode") == "plan":
@@ -489,12 +555,18 @@ def hook():
         require(event["session_id"] in state["sessions"], "session is not registered for this task")
         if state["closed"]:
             return None
-        status = inspect(root, state)
+        try:
+            status = inspect(root, state)
+        except ObservationTimeout:
+            status = {"mode": "observe", "task_id": state["task_id"], "ready": False,
+                      "observation": "inconclusive", "reason": "time_budget_exceeded"}
         path = task_path(root, state["task_id"]).parent / "observation.json"
         previous = read_json(path) if path.exists() else None
         if previous == status:
             return None
         atomic_write(path, encode(status))
+        if status.get("reason") == "time_budget_exceeded":
+            return {"systemMessage": "Engineering 관찰: 실행 시간을 초과해 완료 근거를 확인하지 못했습니다. evidence-gates의 status로 확인하세요."}
         if not status["ready"]:
             return {"systemMessage": "Engineering 관찰: 현재 변경의 완료 근거가 누락되었거나 오래되었습니다. evidence-gates의 status로 확인하세요. 이 알림은 작업을 차단하거나 실행 권한을 부여하지 않습니다."}
     return None

@@ -95,6 +95,93 @@ class EvidenceGateTests(unittest.TestCase):
     def state_path(self):
         return self.work / ".engineering/gates/tasks/task-a/state.json"
 
+    def test_resume_rejects_previous_reviewers_without_mutating_state(self):
+        self.ok(self.init())
+        self.ok(self.run_check())
+        self.review()
+        self.review("red-team")
+        before = self.state_path.read_bytes()
+        for reviewer in ("final-review-reviewer", "red-team-reviewer"):
+            result = self.init(env=dict(self.env, CODEX_THREAD_ID=reviewer))
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("session conflicts with an existing reviewer", result.stderr)
+            self.assertEqual(self.state_path.read_bytes(), before)
+        self.assertTrue(self.status()["ready"])
+        self.ok(self.init(env=dict(self.env, CODEX_THREAD_ID="new-controller")))
+
+    def test_default_review_package_normalizes_temp_parent(self):
+        self.git("-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+                 "-c", "commit.gpgsign=false", "commit", "-qm", "fixture")
+        (self.work / "source.py").write_text("value = 2\n")
+        self.ok(self.init())
+        self.ok(self.run_check())
+        alias = self.base / "temp-alias"
+        alias.symlink_to(self.base, target_is_directory=True)
+        helper = ROOT / "plugins/engineering/skills/requesting-code-review/scripts/review-package"
+        result = subprocess.run(["bash", str(helper), "working-tree"], cwd=self.work,
+                                env=dict(self.env, TMPDIR=str(alias)), text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        package = next(line.removeprefix("Package: ") for line in result.stdout.splitlines() if line.startswith("Package: "))
+        self.assertEqual(Path(package), Path(package).resolve())
+        self.ok(self.call("prepare-review", "--task-id", "task-a", "--gate", "final-review", "--package", package))
+
+    def test_output_overflow_is_bounded_and_never_passes(self):
+        self.config["checks"][0]["argv"] = [sys.executable, "-c", "import os; os.write(1, b'x' * (9 * 1024 * 1024))"]
+        self.ok(self.init())
+        result = self.run_check()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        receipt = json.loads(self.state_path.read_text())["checks"]["unit"][-1]
+        self.assertEqual(receipt["outcome"], "inconclusive")
+        self.assertEqual(receipt["execution"], "incomplete")
+        log = self.state_path.parent / next(iter(receipt["files"]))
+        self.assertLessEqual(log.stat().st_size, 8 * 1024 * 1024)
+        self.assertIn(b"check output exceeded log limit", log.read_bytes())
+        self.assertFalse(self.status()["ready"])
+
+    def test_timeout_diagnostic_stays_within_log_limit(self):
+        self.config["checks"][0]["argv"] = [sys.executable, "-c",
+            "import os,time; os.write(1, b'x' * (8 * 1024 * 1024)); time.sleep(5)"]
+        self.ok(self.init())
+        result = self.call("run", "--task-id", "task-a", "--check", "unit", "--timeout", "0.5")
+        self.assertEqual(result.returncode, 1, result.stderr)
+        log = self.state_path.parent / "check-unit-1.log"
+        self.assertLessEqual(log.stat().st_size, 8 * 1024 * 1024)
+        self.assertIn(b"check timed out before completion", log.read_bytes())
+
+    def test_slow_hook_records_inconclusive_before_host_timeout(self):
+        self.ok(self.init())
+        self.script.write_text(self.script.read_text().replace("HOOK_SECONDS = 6", "HOOK_SECONDS = 0.2")
+                               .replace("def inspect(root, state):", "def inspect(root, state):\n    __import__('time').sleep(1)"))
+        before = self.state_path.read_bytes()
+        started = time.monotonic()
+        result = self.hook()
+        self.assertLess(time.monotonic() - started, 3)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("systemMessage", json.loads(result.stdout))
+        observation = json.loads((self.state_path.parent / "observation.json").read_text())
+        self.assertEqual(observation["reason"], "time_budget_exceeded")
+        self.assertFalse(observation["ready"])
+        self.assertEqual(self.state_path.read_bytes(), before)
+
+    def test_hook_budget_interrupts_receipt_hashing(self):
+        self.ok(self.init())
+        self.ok(self.run_check())
+        self.script.write_text(self.script.read_text().replace("HOOK_SECONDS = 6", "HOOK_SECONDS = 0.2")
+                               .replace("def file_digest(path):", "def file_digest(path):\n    __import__('time').sleep(1)"))
+        # Keep the receipt current after instrumentation changes the runtime digest.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("instrumented_gates", self.script)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        state = json.loads(self.state_path.read_text())
+        state["checks"]["unit"][-1]["artifact_digest"] = module.snapshot(self.work, self.config)
+        self.state_path.write_text(json.dumps(state))
+        result = self.hook()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        observation = json.loads((self.state_path.parent / "observation.json").read_text())
+        self.assertEqual(observation.get("reason"), "time_budget_exceeded")
+        self.assertIn("systemMessage", json.loads(result.stdout))
+
     def test_missing_evidence_is_not_a_pass_and_check_fails(self):
         self.ok(self.init())
         status = self.status()
