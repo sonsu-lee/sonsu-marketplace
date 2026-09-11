@@ -1,81 +1,105 @@
 ---
 name: fluent-english
-description: Use when writing or editing natural English answers, reports, explanations, or documents, including code-work results and technical documentation. Preserve code, commands, logs, identifiers, required structure and formatting, and factual meaning. Select by the requested output language.
+description: 영어 답변, 보고서, 설명문과 문서를 자연스럽게 작성하거나 다듬을 때 사용한다. 코드 작업 결과와 기술 문서의 설명문도 포함하며, 요청한 출력 언어를 기준으로 선택한다.
 ---
 
-# Natural English output
+# 자연스러운 영어 출력
 
-Write English explanatory prose that fits the requested genre, audience, voice, and format. Do not change facts, required formatting or ordered structures, certainty, or obligation while improving the wording. When a style preference conflicts with a preservation rule, preserve the source meaning and form.
+영어 설명문을 요청된 장르, 독자, 어조와 형식에 맞게 작성한다. 표현을 다듬을 때는 사실, 지정된 구조,
+절차의 순서와 의미의 강도를 보존한다. 문체 선호와 보존 기준이 충돌하면 보존 기준을 우선한다.
 
-## Scope
+## 적용 범위
 
-- Apply this guidance to the English portions of requested answers and documents, including implementation results, technical explanations, and technical documentation.
-- Select it by the requested output language, not the language of the prompt.
-- Do not translate or normalize foreign-language text, quotations, names, or established terms unless the user asks for that change.
-- For code, code comments, commit messages, interface text, and other project-controlled strings, follow the user's request and the project's conventions before this guidance.
-- This skill guides generated prose. It does not require a separate workspace, authorship detection, scoring, file output, or a multi-pass rewrite workflow.
+- 요청된 답변과 문서의 영어 설명문에 적용한다. 구현 결과, 기술 설명과 기술 문서도 포함한다.
+- 프롬프트에 쓰인 언어가 아니라 요청한 출력 언어를 기준으로 선택한다.
+- 외국어 문장, 인용문, 이름과 정착된 용어는 사용자가 변경을 요청한 범위에서만 번역·수정한다.
+- 코드, 코드 주석, commit message, 인터페이스 문구 등 프로젝트에서 관리하는 문자열은
+  사용자 지시와 프로젝트 관례를 따른다.
 
-## 작업 연속성 / Task continuity / 作業の継続
+## 작업 연속성
 
-장문·여러 문서의 편집을 여러 단계로 진행하는 메인 controller는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용한다. 다른 작업의 출력 문체 적용과 짧은 번역에는
-별도 기록을 만들지 않는다. 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+장문·여러 문서의 언어 편집을 주 작업으로 맡았다면
+[작업 연속성](../task-continuity/SKILL.md)에 원문·초안·완료 구간을 기록한다.
+다른 작업의 표현을 돕는 경우에는 주 작업 담당자의 기록으로 이어 간다.
 
-## 공통 의사소통 원칙
+## 표현 지침의 범위
 
-- 사용자가 요청한 내용, 독자, 목적, 장르, 어조와 출력 형식을 따릅니다.
-- 과업에 필요한 원인, 조건, 근거, 대조, 순서와 귀속 관계를 독자가 복원할 수 있게 구성합니다.
-- 과업상 중요한 행위자와 대상이 문맥에서 안정적으로 복원되게 합니다.
-- 관련 정보를 묶고, 독자가 필요한 정보를 찾고 사용할 수 있도록 장르와 과업에 맞는 순서를 선택합니다.
-- 불필요한 추론 부담은 줄이되, 해당 언어와 장르에서 자연스러운 생략과 관습을 강제로 제거하지 않습니다.
-- 문단 구분, 접속어, 반복, 주어 표현과 결론 위치는 위 목표를 실현하는 수단입니다. 항상 결론부터 쓰거나 특정 문장·문단 길이를 맞추는 고정 형식으로 강제하지 않습니다.
+요청된 언어의 어순·어휘·어조와 자연스러운 생략을 다룬다. 문서 전체의 정보 순서와 장르별
+양식은 사용자 또는 현재 작성을 맡은 스킬이 정한 구성을 따른다.
+
+단독으로 사용할 때는 요청 범위에서 작성·편집한다. Writing이나 Workflow와 함께 사용할 때는
+같은 초안에 필요한 표현 지침을 반영한다. 다른 플러그인의 설치나 재호출은 적용 조건이 아니다.
 
 ## 내용과 형식 보존
 
-입력에 있거나 그대로 포함하라고 지정된 다음 항목은 철자, 대소문자, 문장부호와 값을 바꾸지 않습니다.
+입력에 있거나 그대로 포함하라고 지정된 다음 항목은 철자, 대소문자, 문장부호와 값을 그대로 유지한다.
 
-- fenced code block과 fence, inline code
-- 명령어, option, 환경 변수, 경로와 식별자
-- API endpoint, HTTP method, 함수와 API signature, JSON/YAML key
-- 로그와 오류 메시지, 버전, commit SHA와 ticket ID
-- 수치, 날짜, 단위, URL과 Markdown link destination
-- 직접 인용문, 보호 문자열과 literal
+- 코드 블록과 구분자, 인라인 코드
+- 명령어, 옵션, 환경 변수, 경로와 식별자
+- API 엔드포인트, HTTP 메서드, 함수와 API 시그니처, JSON/YAML 키
+- 로그와 오류 메시지, 버전, commit SHA와 티켓 ID
+- 수치, 날짜, 단위, URL과 Markdown 링크 대상
+- 직접 인용문, 보호 문자열과 리터럴
 
-요청되거나 입력에 주어진 제목 계층, 표의 형태와 의미, 불릿과 번호 목록의 종류와 순서를 유지합니다. 번호 절차의 단계 수와 실행 순서를 바꾸거나 합치지 않습니다. 형식 변경 요청이 없다면 표, 목록과 절차를 산문으로 바꾸지 않습니다.
+편집 범위에 따라 구조를 보존한다.
 
-사실, 주장, 귀속, 인과 관계와 영향 범위를 추가하거나 삭제하지 않습니다. 부정과 긍정, 조건, 전제, 예외와 제한 범위를 유지합니다. 추측, 가능성, 확신과 불확실성의 정도를 바꾸지 않습니다. `must`, `should`, `may`에 해당하는 의무와 허용 수준도 유지합니다. 입력으로 뒷받침되지 않는 결론, 수치, 사례, 출처나 행위자를 만들지 않습니다.
+- 부분 수정이나 표현 다듬기에서는 지정 범위 밖의 제목·표·목록 순서를 유지한다.
+- 자유 초안의 전체 재작성이나 형식 변경을 요청받았다면 그 범위에서 정한 새 구성을 따른다.
+  Writing 등 작성 담당이 정한 구성도 같은 기준으로 유지한다.
+- 고정 양식·필수 필드·HTML 마커와 번호 절차의 실행 순서·조건은 문체 편집의 보존 대상이다.
+  보호할 구조인지 불명확할 때도 기존 구조를 유지한다.
+- 실제 동작에 영향을 줄 수 있는 `Fixes`, `Closes`, `Part of`, `Ignore`, 티켓 ID·Jira 키·연결 URL은
+  명시된 관계·문법·위치를 그대로 유지한다.
 
-## Actors and reference
+표현을 다듬을 때 사실, 주장, 귀속, 인과 관계와 영향 범위를 보존한다. 부정과 긍정, 조건·전제·예외·제한,
+추측·가능성·확신·불확실성의 정도, `must`, `should`, `may`에 해당하는 의무와 허용 수준도 유지한다.
+결론, 수치, 사례, 출처와 행위자는 입력으로 뒷받침되는 내용만 사용한다.
 
-- Keep an important actor, action, and target close enough that responsibility, permission, safety, and data flow are clear on one reading.
-- Distinguish the reader from software and other users. When roles change or a pronoun could refer to more than one actor, use the verified role or component name. Keep a natural pronoun when its antecedent is clear.
-- Use an imperative when the reader performs an instruction. Do not add `you` to headings, labels, status text, or every procedural sentence merely to state the implied subject.
-- If the available information does not identify an actor or resolve a reference, do not invent one or present one possible interpretation as established fact.
+요약을 명시적으로 요청받았다면 정해진 요약 범위에서 목적에 불필요한 정보를 생략할 수 있다.
+남긴 주장의 진위를 좌우하는 조건·예외·확실성은 함께 보존한다.
 
-## Voice, verbs, and modifiers
+## 행위자와 지시 대상
 
-- Use active voice and a direct verb when they expose a verified actor or make responsibility clearer. Keep passive voice when the result or state is the topic, or when the actor is unknown, irrelevant, or intentionally de-emphasized.
-- Replace a nominalized or weak verb phrase only when the direct form preserves the same technical meaning and makes the action easier to identify. Keep established concepts such as `authentication`, `configuration`, and `error handling` when they name the actual subject.
-- Unpack a noun or modifier string only when its internal relationships have more than one plausible reading. Keep established compounds, official names, interface labels, and technical terms intact.
-- When the intended scope is established, place limiting modifiers such as `only`, `just`, and `even` next to the phrase they govern if another position would change or obscure the claim. If the source does not establish the scope, do not choose one interpretation and present it as fact.
+- 책임, 권한, 안전성과 데이터 흐름을 한 번에 이해할 수 있도록 중요한 행위자·행동·대상을 가까이 둔다.
+- 독자, 소프트웨어와 다른 사용자의 역할을 구분한다. 역할이 바뀌거나 대명사의 지시 대상이 여러 개면
+  확인된 역할명이나 구성 요소 이름을 쓴다. 지시 대상이 명확하면 자연스러운 대명사를 유지한다.
+- 독자가 수행할 지시는 명령형으로 쓴다. 제목, 레이블, 상태 문구와 절차에서 독자가 주어임이
+  이미 분명하면 `you`의 자연스러운 생략을 유지한다.
+- 행위자나 지시 대상을 확인할 정보가 부족하면 그 불확실성을 유지한다.
 
-## Variety, register, and terminology
+## 태, 동사와 수식 범위
 
-- Follow the requested or existing variety of English, including spelling, punctuation, formality, contractions, person, headings, and list conventions. Do not normalize American, British, or another regional convention without a reason grounded in the document.
-- Prefer a direct, familiar word when it is equally precise. Keep an expert term, qualifier, or longer construction when it carries a necessary distinction, condition, rationale, risk, or uncertainty.
-- Use connected sentences for explanatory body prose. Allow natural fragments in headings, interface labels, tables, lists, and short status text where the format supplies the missing relationship.
-- Use one established project term for one concept. Do not rotate among near-synonyms for variety when readers could infer different components or states. Preserve exact product names and interface labels.
-- For an international audience or content intended for localization, avoid adding culture-specific idioms, slang, unexplained abbreviations, or ambiguous date expressions. Do not apply this as a blanket ban on natural English, contractions, or established phrasal verbs such as `log in`, `sign in`, and `set up`.
+- 확인된 행위자나 책임이 더 잘 드러날 때는 능동태와 직접적인 동사를 쓴다. 결과·상태가 주제이거나
+  행위자가 불명확·부차적일 때, 의도적으로 행위자를 강조하지 않을 때는 수동태를 유지한다.
+- 명사화나 약한 동사구는 기술적 의미를 보존하면서 행동을 더 쉽게 파악할 수 있을 때 직접적인 동사로 바꾼다.
+  `authentication`, `configuration`, `error handling`이 실제 개념을 가리키면 해당 용어를 유지한다.
+- 명사나 수식어가 길게 이어져 관계를 여러 가지로 해석할 수 있으면 그 관계가 드러나도록 풀어 쓴다.
+  정착된 복합어, 공식 명칭, 인터페이스 레이블과 기술 용어는 유지한다.
+- `only`, `just`, `even`은 다른 위치에서 의미가 달라지거나 모호해질 때, 확인된 수식 대상 가까이에 둔다.
+  원문에서 범위를 특정할 수 없다면 어순을 다듬는 과정에서도 그 불확실성을 유지한다.
 
-## Final check
+## 영어 변종, 격식과 용어
 
-After drafting, adjust a passage only when one or more of these patterns are conspicuous and make the result less clear or less faithful to the requested voice:
+- 요청되었거나 기존 문서에 쓰인 미국식·영국식 등 영어 변종을 따른다. 철자, 문장부호, 격식,
+  축약형, 인칭, 제목과 목록 관례도 문서 맥락에 맞춘다.
+- 정확성이 같으면 직접적이고 익숙한 단어를 쓴다. 필요한 구분, 조건, 이유, 위험이나 불확실성을
+  담는 전문 용어·한정 표현·긴 구문은 유지한다.
+- 설명 본문은 문장 간 관계가 이어지게 쓴다. 제목, 인터페이스 레이블, 표, 목록과 짧은 상태 문구에서는
+  형식으로 관계를 알 수 있으므로 자연스러운 불완전 문장을 사용할 수 있다.
+- 같은 개념에는 정착된 프로젝트 용어를 일관되게 쓴다. 제품명과 인터페이스 레이블은 정확히 유지한다.
+- 국제 독자나 번역될 문서에는 문화권에 대한 배경지식 없이 이해할 수 있는 표현, 풀이한 약어와
+  명확한 날짜 표기를 쓴다. 자연스러운 축약형과 `log in`, `sign in`, `set up` 같은 정착된 구동사는 유지한다.
 
-- an empty preamble delays the requested point;
-- an unsupported importance claim, sales phrase, or vague attribution substitutes for evidence;
-- synonym cycling makes one project concept appear to be several;
-- a formulaic contrast, unraised objection, or unused alternative adds no real distinction;
-- a closing paragraph repeats the result without adding a constraint, consequence, or next action;
-- repeated sentence openings, shapes, or clipped fragments draw more attention than the content.
+## 최종 점검
 
-Do not treat a single word, transition, dash, colon, fragment, or passive construction as evidence of a problem. Keep real alternatives and objections, deliberate repetition, useful setup, safety language, and distinctive voice. Do not add a fact, source, example, number, opinion, or personal experience to make the prose seem more human. If an adjustment would weaken precision, attribution, polarity, certainty, obligation, terminology, or required formatting, leave the original expression in place.
+초안에서 다음 목표를 확인하고, 명료성이나 요청된 어조를 해치는 부분만 다듬는다.
+
+- 도입은 요청된 요점을 이해하는 데 필요한 맥락을 제공한다.
+- 중요성, 성과와 출처에 대한 표현은 확인된 근거의 범위와 일치한다.
+- 같은 개념의 용어를 유지하고, 실제 구분이 있는 대조·반론·대안만 설명한다.
+- 맺음말이 있다면 필요한 조건, 결과나 다음 행동을 전달한다.
+- 문장 시작, 구조와 짧은 구절의 반복은 내용의 이해와 의도한 리듬을 돕는다.
+
+개별 단어, 접속어, 대시, 콜론, 불완전 문장이나 수동태 자체는 수정 이유가 아니다. 필요한 도입과
+실제 대안·반론, 의도적인 반복, 안전 안내와 고유한 어조를 유지한다. 다듬은 표현이 의미, 귀속,
+긍정·부정, 확실성, 의무 수준, 용어나 지정 형식을 바꾸면 원래 표현을 유지한다.

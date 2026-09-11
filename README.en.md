@@ -62,6 +62,7 @@ Code host and verify that their tools are available.
 | [Quality Engineering](plugins/quality-engineering/README.md) | Simplify code and review maintainability, failure paths, and operational issues | `quality-engineering` |
 | [Workflow](plugins/workflow/) | Work with Git branches, commits, pushes, tickets, and GitHub PRs | `workflow` |
 | [Fluent Languages](plugins/fluent-languages/) | Write natural Korean, Japanese, and English while preserving technical content | `fluent-languages` |
+| [Writing](plugins/writing/) | Organize sentence relationships, paragraphs, and information for the reader and purpose | `writing` |
 | [Research](plugins/research/README.md) | Research multiple sources, verify facts, and write answers supported by evidence | `research` |
 | [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, and the OpenAI API | `prompting` |
 | [Product](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | `product` |
@@ -71,6 +72,8 @@ Code host and verify that their tools are available.
 | [Design Patterns](plugins/design-patterns/README.md) | Select patterns from observed design forces and review existing usage | `design-patterns` |
 
 Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
+
+Writing owns composition, Fluent Languages owns language-specific expression, and Workflow owns ticket/PR templates and publication. Each works alone; when installed together, their available guidance can inform one draft. Keep the existing Fluent installation and records. See [Writing](plugins/writing/README.md) for responsibilities and composition rules.
 
 ## Usage examples
 
@@ -82,6 +85,7 @@ After installing the relevant plugin, try requests like these in Codex or Claude
 | Quality Engineering | “Review the current diff for unnecessary abstractions and reachable failure paths.” |
 | Workflow | “Commit the current changes and create a Draft PR.” |
 | Fluent Languages | “Make this Japanese technical explanation read naturally while preserving its meaning and code identifiers.” |
+| Writing | “Improve the paragraph structure and information order while preserving the facts.” |
 | Research | “Compare the pricing and limits of these two services using official sources.” |
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
@@ -198,7 +202,7 @@ No root-level license is currently declared for the repository as a whole. Licen
 
 - Engineering is covered by the [MIT License](plugins/engineering/LICENSE).
 - Quality Engineering is based on several pinned upstream sources and retains the [Apache-2.0 License](plugins/quality-engineering/LICENSE), [NOTICE](plugins/quality-engineering/NOTICE), [source mapping](plugins/quality-engineering/UPSTREAM.md), and [original MIT notices](plugins/quality-engineering/THIRD_PARTY_NOTICES.md).
-- Workflow currently has no separately declared license.
+- Workflow currently has no separately declared license. Existing writing guidance and templates retain their [MIT notice](plugins/workflow/WRITING_LICENSE.md).
 - Prompting currently has no separately declared license.
 - Product currently has no separately declared license.
 - Memory Manager was independently authored and currently has no separately declared license. Design references are recorded in [UPSTREAM.md](plugins/memory-manager/UPSTREAM.md).
@@ -206,4 +210,5 @@ No root-level license is currently declared for the repository as a whole. Licen
 - Design Patterns indexes only pattern names and source locations; its selection and review contracts are independently authored and currently have no separately declared license. Inclusion and source terms are recorded in [UPSTREAM.md](plugins/design-patterns/UPSTREAM.md).
 - Figma Workflow was independently authored without copying external files and currently has no separately declared license. Consulted sources and the policy against copying external files are documented in [UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md).
 - Fluent Languages records its licensing and attribution for each source in [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md), and [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md).
+- Writing records its composition and integrity sources in [LICENSE](plugins/writing/LICENSE), [UPSTREAM.md](plugins/writing/UPSTREAM.md), and [THIRD_PARTY_NOTICES.md](plugins/writing/THIRD_PARTY_NOTICES.md).
 - Research's upstream baseline had no license file that could be verified, and permission to use it is not assumed. The baseline commit and included scope are recorded in [UPSTREAM.md](plugins/research/UPSTREAM.md).

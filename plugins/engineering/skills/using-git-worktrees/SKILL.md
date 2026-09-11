@@ -1,174 +1,70 @@
 ---
 name: using-git-worktrees
-description: Use when starting feature work that needs isolation from current workspace or before executing implementation plans - ensures an isolated workspace exists via native tools or git worktree fallback
+description: 현재 체크아웃과 작업을 격리해야 하거나 구현 계획 실행 전에 작업 공간 상태를 확인해야 할 때 사용한다
 ---
 
-# Using Git Worktrees
+# using-git-worktrees: 작업 공간 격리
 
-## 작업 연속성
+현재 격리 상태를 먼저 확인하고 필요한 경우 플랫폼 기본 도구 또는 `git worktree`를 사용한다. 사용자가 지정한 위치·브랜치·기존 체크아웃 사용 선호를 따른다. 격리는 구현 권한이나 Git 전달 권한을 추가하지 않는다.
 
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+주 조정자의 여러 단계 작업은 [task-continuity](../task-continuity/SKILL.md)에 기록한다. 위임된 작업자와 새 문맥의 검토자는 별도 연속성 기록을 만들지 않는다.
 
-## Overview
-
-Ensure work happens in an isolated workspace. Prefer your platform's native worktree tools. Fall back to manual git worktrees only when no native tool is available.
-
-**Core principle:** Detect existing isolation first. Then use native tools. Then fall back to git. Never fight the harness.
-
-**Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
-
-## Step 0: Detect Existing Isolation
-
-**Before creating anything, check if you are already in an isolated workspace.**
+## 1. 현재 상태 확인
 
 ```bash
-GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd -P)
-GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" 2>/dev/null && pwd -P)
-BRANCH=$(git branch --show-current)
+GIT_DIR=$(cd "$(git rev-parse --git-dir)" && pwd -P)
+GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" && pwd -P)
+git branch --show-current
+git rev-parse --show-superproject-working-tree
+git status --short
 ```
 
-**Submodule guard:** `GIT_DIR != GIT_COMMON` is also true inside git submodules. Before concluding "already in a worktree," verify you are not in a submodule:
+| 상태 | 다음 단계 |
+| --- | --- |
+| `GIT_DIR != GIT_COMMON`, 상위 저장소 경로 없음 | 이미 연결된 워크트리다. 현재 경로·브랜치 또는 분리된 HEAD를 기록하고 생성 단계를 건너뛴다. |
+| 상위 저장소 경로 있음 | 서브모듈이다. Git 디렉터리 차이만으로 연결된 워크트리라고 판단하지 않고 상위 저장소·작업 범위를 확인한다. |
+| 일반 체크아웃 | 사용자 선호와 충돌·격리 필요성을 확인하고 기존 체크아웃 사용 또는 워크트리 생성을 정한다. |
+
+관련 없는 미커밋 변경은 보존한다. 이미 격리된 작업 공간에 워크트리를 중첩 생성하지 않는다. 외부 관리 분리된 HEAD는 그대로 사용하며 이름 있는 브랜치가 실제로 필요해지는 전달 시점에 처리한다.
+
+## 2. 필요할 때 워크트리 생성
+
+이미 확인한 사용자 선호를 다시 묻지 않는다. 승인된 구현에 필요한 가역적 격리는 진행하고 위치·브랜치를 알린다. 사용자가 현재 체크아웃을 지정했다면 그 범위에서 작업한다. 브랜치 이름은 저장소 지침과 사용자 지정 규칙을 따른다.
+
+현재 작업을 격리하는 플랫폼 기본 기능이 있으면 사용한다. 기존 플랫폼 기본 작업 공간의 관리 정보를 우회하지 않는다. 해당 기능이 없으면 아래 Git 절차를 사용한다.
+
+위치는 다음 순서로 고른다.
+
+1. 사용자가 명시한 경로
+2. 저장소 지침의 경로
+3. 기존 `.worktrees/`, 없으면 `worktrees/`
+4. 다른 관례가 없으면 저장소 루트의 `.worktrees/`
+
+저장소 안의 경로는 선택한 정확한 디렉터리가 Git에서 제외되는지 확인한다.
 
 ```bash
-# If this returns a path, you're in a submodule, not a worktree — treat as normal repo
-git rev-parse --show-superproject-working-tree 2>/dev/null
+git check-ignore -q "$TASK_WORKTREE_LOCATION/"
 ```
 
-**If `GIT_DIR != GIT_COMMON` (and not a submodule):** You are already in a linked worktree. Skip to Step 2 (Project Setup). Do NOT create another worktree.
-
-Report with branch state:
-- On a branch: "Already in isolated workspace at `<path>` on branch `<name>`."
-- Detached HEAD: "Already in isolated workspace at `<path>` (detached HEAD, externally managed). Branch creation needed at finish time."
-
-**If `GIT_DIR == GIT_COMMON` (or in a submodule):** You are in a normal repo checkout.
-
-Has the user already indicated their worktree preference in your instructions? If not, ask for consent before creating a worktree:
-
-> "Would you like me to set up an isolated worktree? It protects your current branch from changes."
-
-Honor any existing declared preference without asking. If the user declines consent, work in place and skip to Step 2.
-
-## Step 1: Create Isolated Workspace
-
-**You have two mechanisms. Try them in this order.**
-
-### 1a. Native Worktree Tools (preferred)
-
-The user has asked for an isolated workspace (Step 0 consent). Do you already have a way to create a worktree? It might be a tool with a name like `EnterWorktree`, `WorktreeCreate`, a `/worktree` command, or a `--worktree` flag. If you do, use it and skip to Step 2.
-
-Native tools handle directory placement, branch creation, and cleanup automatically. Using `git worktree add` when you have a native tool creates phantom state your harness can't see or manage.
-
-Only proceed to Step 1b if you have no native worktree tool available.
-
-### 1b. Git Worktree Fallback
-
-**Only use this if Step 1a does not apply** — you have no native worktree tool available. Create a worktree manually using git.
-
-#### Directory Selection
-
-Follow this priority order. Explicit user preference always beats observed filesystem state.
-
-1. **Check your instructions for a declared worktree directory preference.** If the user has already specified one, use it without asking.
-
-2. **Check for an existing project-local worktree directory:**
-   ```bash
-   ls -d .worktrees 2>/dev/null     # Preferred (hidden)
-   ls -d worktrees 2>/dev/null      # Alternative
-   ```
-   If found, use it. If both exist, `.worktrees` wins.
-
-3. **If there is no other guidance available**, default to `.worktrees/` at the project root.
-
-#### Safety Verification (project-local directories only)
-
-**MUST verify directory is ignored before creating worktree:**
+제외되지 않았다면 승인된 저장소 규칙을 따른다. 로컬 격리만 필요하면 `git rev-parse --git-path info/exclude`가 가리키는 제외 규칙에 해당 경로를 추가하고 재확인할 수 있다. 공유 `.gitignore` 변경이 필요하면 일반 소스 변경으로 다룬다. 워크트리 생성 조건으로 미승인 커밋을 요구하지 않는다.
 
 ```bash
-git check-ignore -q .worktrees 2>/dev/null || git check-ignore -q worktrees 2>/dev/null
+TASK_WORKTREE_PATH="$TASK_WORKTREE_LOCATION/$BRANCH_NAME"
+git worktree add "$TASK_WORKTREE_PATH" -b "$BRANCH_NAME"
 ```
 
-**If NOT ignored:** Add to .gitignore, commit the change, then proceed.
+실행할 체크아웃으로 이동해 `git worktree list`, 현재 경로·브랜치·상태를 확인한다. 생성한 경로와 소유 주체를 기록해 정리 시 다른 작업 공간을 구분한다.
 
-**Why critical:** Prevents accidentally committing worktree contents to repository.
+생성 실패는 원인을 확인한다. 사용자가 격리를 필수로 지정했다면 해당 작업을 `blocked`로 기록한다. 격리가 필수가 아니고 현재 체크아웃에서 관련 없는 변경을 보존할 수 있으면 그 근거를 알리고 승인 범위 안에서 계속한다. 권한 거부를 다른 경로의 반복 생성으로 우회하지 않는다.
 
-#### Create the Worktree
+## 3. 환경과 기준 상태 확인
 
-```bash
-# Determine path based on chosen location
-path="$LOCATION/$BRANCH_NAME"
+저장소 지침·매니페스트·잠금 파일·기존 실행 환경을 읽고 필요한 환경 준비만 실행한다. 이미 준비된 환경에는 설치를 반복하지 않는다. 패키지 관리자를 추측하거나 환경 준비만을 위해 잠금 파일을 갱신하지 않는다.
 
-git worktree add "$path" -b "$BRANCH_NAME"
-cd "$path"
-```
+변경에 적합한 기준 검사를 실행한다. 동작 변경은 관련 테스트·빌드, 문서·메타데이터는 링크·구문·경로·실제 소비 명령 등으로 현재 상태를 확인한다. 작업과 무관한 전체 검사 모음을 자동으로 요구하지 않는다.
 
-**Sandbox fallback:** If `git worktree add` fails with a permission error (sandbox denial), tell the user the sandbox blocked worktree creation and you're working in the current directory instead. Then run setup and baseline tests in place.
+검사가 실패하면 기존 실패와 환경 오류를 구분해 기록한다. 현재 작업의 결과를 판정할 수 있는지 확인하고 원인 불명은 `engineering:systematic-debugging`으로 보낸다. 실패에 의존하지 않는 승인 작업은 계속하며, 사용자 결정이나 실제 환경 변경이 필요할 때 그 조건을 알린다.
 
-## Step 2: Project Setup
+## 완료 근거
 
-Auto-detect and run appropriate setup:
-
-```bash
-# Node.js
-if [ -f package.json ]; then npm install; fi
-
-# Rust
-if [ -f Cargo.toml ]; then cargo build; fi
-
-# Python
-if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-if [ -f pyproject.toml ]; then poetry install; fi
-
-# Go
-if [ -f go.mod ]; then go mod download; fi
-```
-
-## Step 3: Verify Clean Baseline
-
-Run tests to ensure workspace starts clean:
-
-```bash
-# Use project-appropriate command
-npm test / cargo test / pytest / go test ./...
-```
-
-**If tests fail:** Report failures, ask whether to proceed or investigate.
-
-**If tests pass:** Report ready.
-
-### Report
-
-```
-Worktree ready at <full-path>
-Tests passing (<N> tests, 0 failures)
-Ready to implement <feature-name>
-```
-
-## Quick Reference
-
-| Situation | Action |
-|-----------|--------|
-| Already in linked worktree | Skip creation (Step 0) |
-| In a submodule | Treat as normal repo (Step 0 guard) |
-| Native worktree tool available | Use it (Step 1a) |
-| No native tool | Git worktree fallback (Step 1b) |
-| `.worktrees/` exists | Use it (verify ignored) |
-| `worktrees/` exists | Use it (verify ignored) |
-| Both exist | Use `.worktrees/` |
-| Neither exists | Check instruction file, then default `.worktrees/` |
-| Directory not ignored | Add to .gitignore + commit |
-| Permission error on create | Sandbox fallback, work in place |
-| Tests fail during baseline | Report failures + ask |
-| No package.json/Cargo.toml | Skip dependency install |
-
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "I'm obviously not in a worktree — no need to check" | Run Step 0. Harness-created isolation and submodules both fool eyeballing; the detection commands settle it. |
-| "`git worktree add` is quicker than hunting for a native tool" | A native tool (e.g. `EnterWorktree`) owns placement, branching, and cleanup. Bypassing it is the #1 mistake — it creates phantom state your harness can't see or manage. |
-| "The worktree directory is surely ignored already" | Run `git check-ignore`. An unignored worktree directory commits the whole tree into the repo. |
-| "Any directory name works" | Explicit instructions beat an existing project-local directory, which beats the `.worktrees/` default. |
-| "The workspace is fresh — baseline tests can wait" | A dirty baseline makes every later failure ambiguous. Run the tests now; proceeding past failures is your human partner's call. |
+작업 공간 절대 경로, 브랜치·detached 상태, 기존 변경 보존 여부, 실제 실행한 환경 준비·기준 검사와 결과를 보고한다. 미실행 검사는 `not_run`으로 구분한다. 생성했다는 사실만으로 테스트 통과를 주장하지 않는다. 정리할 때는 기록한 소유 범위와 `engineering:finishing-a-development-branch`의 조건을 따른다.

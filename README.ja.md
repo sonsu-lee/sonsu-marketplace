@@ -63,6 +63,7 @@ host側で別途設定し、実際にtoolが利用できることを確認して
 | [Quality Engineering](plugins/quality-engineering/README.md) | コードの簡素化と、保守性・障害経路・運用上の問題のレビュー | `quality-engineering` |
 | [Workflow](plugins/workflow/) | Gitのブランチ・コミット・プッシュ、チケット、GitHub PRの作成・管理 | `workflow` |
 | [Fluent Languages](plugins/fluent-languages/) | 技術的な内容を保った自然な韓国語・日本語・英語の文章作成 | `fluent-languages` |
+| [Writing](plugins/writing/) | 読み手と目的に合わせた文の関係・段落構成・情報の順序 | `writing` |
 | [Research](plugins/research/README.md) | 複数の情報源の調査、事実確認、根拠に基づく回答の作成 | `research` |
 | [Prompting](plugins/prompting/README.md) | Codex・ChatGPT・OpenAI API向けプロンプトの作成・改善 | `prompting` |
 | [Product](plugins/product/README.md) | プロダクトのアイデア探索、ユーザーに関する根拠の整理、仮説検証、PRD作成 | `product` |
@@ -72,6 +73,8 @@ host側で別途設定し、実際にtoolが利用できることを確認して
 | [Design Patterns](plugins/design-patterns/README.md) | 実際の設計上のforcesに基づくパターン選択と既存適用のレビュー | `design-patterns` |
 
 各プラグインは独立して利用できます。含まれるスキルや詳しい使い方は、上のリンクから確認してください。
+
+Writingは文章の構成、Fluent Languagesは各言語の表現、Workflowはチケット・PRのテンプレートと公開手順を担当します。それぞれ単独でも使用でき、併用時は利用可能な指針を一つの草稿に反映します。既存のFluentを削除したり、記録を移行したりする必要はありません。責任範囲と併用方法は[Writingの説明](plugins/writing/README.md)を参照してください。
 
 ## 使用例
 
@@ -83,6 +86,7 @@ host側で別途設定し、実際にtoolが利用できることを確認して
 | Quality Engineering | 「現在のdiffに不要な抽象化や到達可能な障害経路がないかレビューして。」 |
 | Workflow | 「現在の変更をコミットして、Draft PRを作成して。」 |
 | Fluent Languages | 「この日本語の技術説明を、意味とコードの識別子を保ちながら自然な文章に整えて。」 |
+| Writing | 「事実を保ちながら、段落構成と情報の順序を整えて。」 |
 | Research | 「この2つのサービスの料金と制限を、公式資料に基づいて比較して。」 |
 | Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
@@ -199,7 +203,7 @@ git diff --check
 
 - Engineeringには[MITライセンス](plugins/engineering/LICENSE)が適用されます。
 - Quality Engineeringは複数のバージョンを固定したアップストリームソースに基づき、[Apache-2.0ライセンス](plugins/quality-engineering/LICENSE)、[NOTICE](plugins/quality-engineering/NOTICE)、[出典の対応表](plugins/quality-engineering/UPSTREAM.md)、[MITライセンスの原文通知](plugins/quality-engineering/THIRD_PARTY_NOTICES.md)を保持しています。
-- Workflowには、現在個別のライセンスを宣言していません。
+- Workflowには、現在個別のライセンスを宣言していません。既存の文章作成指針とテンプレートの[MIT表記](plugins/workflow/WRITING_LICENSE.md)を別途保持しています。
 - Promptingには、現在個別のライセンスを宣言していません。
 - Productには、現在個別のライセンスを宣言していません。
 - Memory Managerは独自に作成したプラグインで、現在個別のライセンスを宣言していません。設計で参照した出典は[UPSTREAM.md](plugins/memory-manager/UPSTREAM.md)に記録しています。
@@ -207,4 +211,5 @@ git diff --check
 - Design Patternsはパターン名と出典位置のみを索引化し、選択・レビュー契約は独自に作成しています。現在個別のライセンスは宣言しておらず、収録範囲と出典条件は[UPSTREAM.md](plugins/design-patterns/UPSTREAM.md)に記録しています。
 - Figma Workflowは外部ファイルをコピーせずに独自に作成したプラグインで、現在個別のライセンスを宣言していません。参照した出典と外部ファイルをコピーしない方針は、[UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md)に記録しています。
 - Fluent Languagesのライセンスと各ソースの出典は、[LICENSE](plugins/fluent-languages/LICENSE)、[UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md)、[THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md)に記録しています。
+- Writingの構成・意味保持の指針と出典は、[LICENSE](plugins/writing/LICENSE)、[UPSTREAM.md](plugins/writing/UPSTREAM.md)、[THIRD_PARTY_NOTICES.md](plugins/writing/THIRD_PARTY_NOTICES.md)に記録しています。
 - Researchは基準とした元のソースでライセンスファイルを確認できておらず、利用が許可されているとは推定していません。基準コミットと収録範囲は、[UPSTREAM.md](plugins/research/UPSTREAM.md)に記録しています。

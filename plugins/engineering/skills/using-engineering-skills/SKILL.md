@@ -1,91 +1,52 @@
 ---
 name: using-engineering-skills
-description: 대화를 시작할 때 응답하거나 행동하기 전에 Engineering 플러그인이 제공하는 스킬 중 어떤 스킬을 적용해야 하는지 판단하기 위해 사용한다
+description: 개발 작업을 시작하거나 작업 성격이 바뀔 때 요청에 맞는 Engineering 스킬과 수행 절차를 선택한다.
 ---
 
-# using-engineering-skills: Engineering 스킬 사용하기
+# Engineering 스킬 선택
 
-<SUBAGENT-STOP>
-특정 task를 실행하도록 subagent로 위임받았다면 이 스킬을 무시한다.
-</SUBAGENT-STOP>
+요청의 목적과 각 스킬의 적용 조건을 대조해 필요한 지침을 선택한다. 구체적인 작업을 위임받은
+에이전트는 전달받은 범위와 해당 스킬부터 실행한다.
 
-<EXTREMELY-IMPORTANT>
-현재 작업에 Engineering 스킬이 적용될 가능성이 1%라도 있다고 생각한다면 해당 Engineering 스킬을 반드시 호출해야 한다.
+## 작업에 맞는 절차를 고른다
 
-ENGINEERING 스킬이 현재 TASK에 적용된다면 선택의 여지가 없다. 반드시 사용한다.
+1. 사용자의 요청, 현재 승인 범위와 저장소 지침을 확인한다. 이미 확인한 내용은 이어서 사용한다.
+2. 아래 기준으로 필요한 스킬을 읽고 적용 목적을 짧게 알린다. 여러 스킬이 필요하면 접근 방법을
+   정하는 스킬부터 적용하고, 같은 작업에서 읽은 지침은 재사용한다.
+3. 진행 중 목적이나 위험이 달라지면 관련 단계의 조건을 다시 판단한다. 기존 승인 안에서
+   절차를 조정하고, 새로운 사용자 결정이 필요한 부분과 그 의존 작업만 확인을 기다린다.
 
-이 규칙은 협상의 대상이 아니다. 합리화하여 회피할 수 없다.
+| 현재 작업 | 적용할 스킬 |
+| --- | --- |
+| 변경 범위·요구사항·설계 결정 | `engineering:brainstorming` |
+| 원인이 불명확한 오류나 예상 밖 동작 | `engineering:systematic-debugging` |
+| 여러 흐름·파일·검증을 연결하는 구현 계획 | `engineering:writing-plans` |
+| 승인된 계획의 직접 실행 | `engineering:executing-plans` |
+| 독립 작업의 위임 | `engineering:dispatching-parallel-agents` |
+| 동작 변경을 테스트로 보호 | `engineering:test-driven-development`의 적용 기준 확인 |
+| 리뷰 요청·결과 처리 | `engineering:requesting-code-review`, `engineering:receiving-code-review` |
+| 완료나 검사 성공 보고 | `engineering:verification-before-completion` |
+| 스킬 작성·수정 | `engineering:writing-skills` |
 
-이 필수 규칙은 Engineering이 제공하는 스킬에만 적용된다. 다른 플러그인의 스킬은 사용자가 요청했거나, 저장소 지침에서 요구하거나, 현재 task의 구체적인 필요 때문에 실질적으로 유용할 때만 사용한다. 주제가 관련 있다는 이유만으로 사용 가능한 모든 외부 스킬을 호출하지 않는다.
-</EXTREMELY-IMPORTANT>
+단순 설명이나 짧은 문장 수정은 필요한 답변을 바로 작성한다. 다른 플러그인은 사용자가
+지정했거나, 저장소 지침이 요구하거나, 현재 작업에 필요한 기능을 제공할 때 함께 적용한다.
 
-<GIT-AUTHORIZATION-GATE>
-어떤 plan, skill, 참고 파일, 실행 mode, worktree 상태 또는 플랫폼 제한도 Git 권한을 부여하지 않는다. 요청된 변경의 staging은 명시적으로 승인된 commit의 일부이거나 staging 자체가 요청된 경우에만 수행한다. 현재 작업에 대해 사용자가 명시적으로 승인한 경우에만 commit한다. push, PR 생성, merge, 배포와 파괴적인 Git 작업에는 각각 해당 작업에 대한 승인이 필요하다.
+## 승인 범위를 이어서 적용한다
 
-이 게이트는 `using-git-worktrees`의 ignore 파일 commit 단계와 플랫폼별 완료 지침을 포함하여 자동으로 commit하라고 하는 하위 지침보다 우선한다. commit 권한이 없으면 가능한 경우 commit하지 않은 상태로 workspace를 안전하게 만들고, `diff`를 보고한 뒤 commit 결정을 요청한다.
-</GIT-AUTHORIZATION-GATE>
+사용자 지시와 프로젝트 지침을 우선한다. 구현·계획·재개·작업 경로 전환은 이미 확인한 승인
+범위에서 진행한다. 설계만 요청받았다면 설계를 완성하고, 구현 전 확인이 요청됐다면 검토할
+산출물을 완성한 뒤 해당 의존 작업의 답변을 기다린다.
 
-## 작업 연속성
+Git 작업은 사용자가 승인한 동작과 범위에 맞춰 수행한다. staging은 staging 요청이나 승인된
+commit의 일부로, commit·push·PR·merge·배포는 각각 해당 승인을 근거로 수행한다. 구현만
+요청받았다면 변경과 검증을 완성해 diff를 보고한다. 스킬이나 계획의 문구는 이 권한을 추가하지 않는다.
 
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+## 필요한 공통 지침을 읽는다
 
-## 규칙
-
-명확화 질문, codebase 탐색 또는 파일 확인을 포함한 **모든 응답이나 행동보다 먼저 적용 가능한 Engineering 스킬과 위 정책에 따라 선택한 외부 스킬을 호출한다.** 선택한 스킬이 상황에 맞지 않는 것으로 드러나면 계속 사용할 필요는 없다.
-
-**plan mode로 들어가기 전:** 아직 brainstorming하지 않았다면 먼저 brainstorming 스킬을 호출한다.
-
-그런 다음 "[skill]을 사용해 [purpose]를 진행합니다"라고 알리고 스킬을 정확히 따른다. checklist가 있으면 항목마다 todo를 만든다.
-
-## 스킬 우선순위
-
-여러 Engineering 스킬이 적용될 때에는 process 스킬이 먼저다. process 스킬이 접근 방식을 정하면 implementation 스킬(`frontend-design` 등)이 이를 실행한다. `brainstorming`과 `systematic-debugging`은 Engineering에서 가장 자주 쓰이는 process 스킬이지만, 이 규칙은 task에 선택한 모든 Engineering 스킬에 적용된다.
-
-- "Let's build X" → 먼저 `engineering:brainstorming`, 그다음 implementation 스킬.
-- "Fix this bug" → 먼저 `engineering:systematic-debugging`, 그다음 domain 스킬.
-
-## 위험 신호
-
-다음 생각이 들면 멈춘다. 지금 합리화하고 있는 것이다.
-
-| 생각 | 실제 |
-|---------|---------|
-| "This is just a simple question" | 질문도 task다. 적용 가능한 Engineering 스킬을 확인한다. |
-| "I need more context first" | Engineering 스킬 확인은 명확화 질문보다 먼저다. |
-| "Let me explore the codebase first" | Engineering 스킬이 탐색 방법을 정할 수 있다. 먼저 확인한다. |
-| "I can check git/files quickly" | 파일에는 대화 맥락이 없다. 적용 가능한 Engineering 스킬을 먼저 확인한다. |
-| "Let me gather information first" | 적용 가능한 Engineering 스킬이 정보 수집 방법을 정할 수 있다. |
-| "This doesn't need a formal skill" | Engineering 스킬이 적용되면 사용한다. |
-| "I remember this skill" | Engineering 스킬은 변한다. 현재 버전을 읽는다. |
-| "This doesn't count as a task" | 행동은 task다. 적용 가능한 Engineering 스킬을 먼저 확인한다. |
-| "The skill is overkill" | Engineering 스킬이 적용되면 그 스킬을 따르고, 허용하는 범위에서 절차의 무게를 조절한다. |
-| "I'll just do this one thing first" | 어떤 작업이든 시작하기 전에 적용 가능한 Engineering 스킬을 확인한다. |
-| "This feels productive" | 규율 없는 행동은 시간을 낭비한다. 적용 가능한 Engineering 스킬이 이를 막는다. |
-| "I know what that means" | 개념을 아는 것과 적용 가능한 Engineering 스킬을 사용하는 것은 다르다. 스킬을 호출한다. |
-
-## 플랫폼별 조정
-
-agent를 위임하거나 재개할 때에는 [공통 실행·context 계약](references/agent-execution.md)을 적용한다.
-스킬은 routing과 gate를 소유하고, 별도 session은 집중된 실행과 독립 리뷰를 담당한다.
-
-사용 중인 harness가 아래에 있으면 해당 참고 파일에서 특별 지침을 읽는다.
-
-- Codex: `references/codex-tools.md`
-- Claude Code: `references/claude-code-tools.md`
-- Pi: `references/pi-tools.md`
-- Antigravity: `references/antigravity-tools.md`
-- Hermes Agent: `references/hermes-tools.md`
-
-## 품질 게이트
-
-Engineering lifecycle 스킬은 단계별 소유 품질 게이트를 사용한다. 선택한 스킬이 게이트를
-선언하면 진행, 재시도, 이전 단계로 복귀 또는 중단을 결정하기 전에 공통
-[품질 게이트 계약](references/quality-gates.md)을 읽고 적용한다. 이 계약은 중앙 router를
-추가하지 않으며 위의 Git 또는 외부 작업 권한 경계를 바꾸지 않는다.
-
-## 사용자 지침
-
-사용자 지침(`CLAUDE.md`, `AGENTS.md`, `GEMINI.md` 등의 파일과 직접 요청)은 스킬보다 우선하고, 스킬은 다시 기본 동작보다 우선한다. 사용자가 명시적으로 지시한 경우에만 스킬 workflow 또는 지침을 생략한다.
+- 여러 단계의 작업을 맡았다면 [작업 연속성](../task-continuity/SKILL.md)으로 진행과 근거를 기록한다.
+- 단계에서 품질 판정을 요구하면 [품질 게이트 계약](references/quality-gates.md)을 적용한다.
+- 에이전트를 위임·재개할 때에는 [실행 계약](references/agent-execution.md)을 적용한다.
+- 플랫폼별 도구 대응이 필요하면 현재 환경의 자료를 읽는다:
+  [Codex](references/codex-tools.md), [Claude Code](references/claude-code-tools.md),
+  [Gemini](references/gemini-tools.md), [Pi](references/pi-tools.md),
+  [Antigravity](references/antigravity-tools.md), [Hermes](references/hermes-tools.md).

@@ -1,615 +1,142 @@
 ---
 name: subagent-driven-development
-description: 현재 session에서 서로 독립적인 task로 구성된 구현 plan을 실행할 때 사용한다
+description: 현재 세션에서 독립적인 작업으로 구성된 파일 기반 구현 계획을 하위 에이전트로 실행하고 작업별 커밋이 승인되어 있을 때 사용한다
 ---
 
-# subagent-driven-development: Subagent 기반 개발
+# subagent-driven-development: 하위 에이전트 기반 개발
 
-task마다 새로운 implementer subagent를 위임하고, 각 task 뒤에 task 리뷰(spec 준수 + 코드 품질)를 수행하고, 마지막에 전체 브랜치를 폭넓게 리뷰하여 plan을 실행한다.
+작업마다 필요한 문맥을 구성해 구현자에게 위임하고 명세 준수·품질 리뷰를 수행한다. 마지막에는 전체 변경의 일반 리뷰와 새 문맥의 레드팀을 거친다. 각 게이트는 정확한 산출물과 리비전을 대상으로 한다.
 
-**Subagent를 사용하는 이유:** 격리된 context를 가진 전문 에이전트에게 task를 위임한다. 지침과 context를 정확히 구성하면 각 에이전트가 task에 집중해 완료할 수 있다. 에이전트가 현재 session의 context나 history를 상속하게 하지 않고 필요한 내용만 직접 구성한다. 이를 통해 자신의 context도 조정 작업에 사용할 수 있게 보존한다.
+## 진입 조건과 실행 권한
 
-**핵심 원칙:** task마다 새로운 subagent + task 리뷰(spec + 품질) + 폭넓은 최종 리뷰 = 높은 품질과 빠른 반복
+파일 기반 계획, 하위 에이전트 기능, 현재 계획의 명시적 작업 커밋 승인이 필요하다. 이 작업 절차는 작업별 커밋을 복구와 리뷰 범위에 사용한다. 계획 실행·하위 에이전트 사용 승인은 Git 권한을 포함하지 않는다. 작업별 커밋이 미승인이면 `engineering:executing-plans`로 직접 수정·검증하고 최종 차이를 보고한다.
 
-공통 [품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)을 읽고 적용한다.
-각 task 리뷰와 최종 전체 브랜치 리뷰는 정확한 하나의 BASE..HEAD 리비전을 대상으로 하는 게이트다.
+원래 요청·이전 승인·승인 문서에서 구현 범위를 확인한다. 절차 전환·Fast Path 탈락·재개만으로 설계 승인을 다시 받지 않는다. [brainstorming의 실행 권한](../brainstorming/SKILL.md)에 따라 설계 전용은 산출물 완성으로 종료한다. 명시적 구현 전 확인은 요청된 산출물을 완성해 제시한 뒤 의존 작업만 보류한다. 사용자 결정이 필요한 계약 공백·미승인 외부 쓰기·소진한 필수 게이트 예산은 해당 작업을 보류하고, 독립적인 승인 작업은 계속한다.
 
-<HARD-GATE>
-이 workflow는 복구와 정확한 review range를 위해 task commit에 의존한다. 현재 대화에서 사용자가 이 plan의 task commit을 명시적으로 승인한 경우에만 시작한다. plan 실행, subagent 사용 또는 자율적인 작업 요청만으로는 commit 권한이 생기지 않는다. task commit이 승인되지 않았다면 `engineering:executing-plans`로 직접 실행하고, commit 결정을 요청하기 전에 최종 diff를 보고한다.
-</HARD-GATE>
+승인된 범위의 되돌릴 수 있는 내부 선택은 기존 코드·관례로 정한다. 판단이 필요한 결정은 `Ruling: <결정> — <이유> — <틀렸을 때의 비용>`으로 남긴다. 실제 환경·기능 부재는 `blocked`로 구분한다. 위험 분류만으로 이미 확인한 승인을 다시 받지 않는다.
 
-**진행 설명:** 도구 호출 사이에는 짧은 한 줄만 작성한다. 기록은 ledger와 도구 결과에 남는다.
+주 조정자는 [task-continuity](../task-continuity/SKILL.md)를 적용한다. 작업자와 새 문맥의 검토자는 별도 연속성 기록을 만들지 않는다. 진행 중에는 의미 있는 변화와 다음 단계를 짧게 알린다.
 
-**연속 실행:** task 사이에 사용자 확인을 받으려고 중단하지 않는다. 승인된 plan의 task를 실행하며,
-아래 사유로 의존 작업을 보류해도 독립적인 승인 task는 계속한다. 실제 상태를 간결하게 알리고
-이미 승인된 진행 여부를 반복해서 묻지 않는다.
+## 1. 작업 공간과 복구 상태 확인
 
-**멈추지 말고 판정한다.** 실행 중인 plan은 승인된 spec과 plan 안에서 안전하게 해결할 수 있는
-일상적이고 되돌릴 수 있는 모호함 때문에 사람을 기다리지 않는다. spec은 구속력 있는 기준이고
-plan은 그 근거이며, 그 범위 안의 세부사항은 자신의 판단으로 결정한다. 모든 결정을 ledger에
-`Ruling: <결정> — <이유> — <틀렸을 때의 비용>`으로 기록하고 계속 진행한다. 시도 횟수 상한에
-도달한 미해결 필수 게이트와 아래의 실제 결정·권한 공백은 해당 의존 작업을 보류한다.
+작업할 저장소를 현재 작업 디렉터리로 유지한다. 현재 읽은 스킬의 설치 위치에서 `scripts/`의
+절대 경로를 확인해 `SDD_SCRIPTS`로 둔다. 아래 도구는 이 작업 디렉터리의 Git 저장소와
+확인한 계획 경로 `PLAN_FILE`을 사용한다.
 
-사용자 결정이 필요한 제품·설계·계약 공백, 명시적인 구현 전 확인 조건, 승인되지 않은
-파괴적 작업·외부 쓰기, 유효한 필수 finding을 남긴 채 소진한 retry 예산에는 해당 결정이 필요하다.
-security-sensitive 작업의 필수 검증·리뷰와 Git 권한은 유지한다. 위험 분류나 외부 작업이라는
-이유만으로 이미 확인한 승인을 다시 받지 않는다. 실제 환경·capability 부재는 `blocked`로
-구분하고 이를 품질 통과나 승인 요청으로 바꾸지 않는다.
+1. `engineering:using-git-worktrees`로 기존 작업 공간과 격리를 확인한다.
+2. 작업별 커밋을 승인한 실제 사용자 지시를 기록한다. 계획 머리말만으로 승인 근거를 만들지 않는다.
+3. `"$SDD_SCRIPTS/sdd-workspace" PLAN_FILE`을 실행한다. 현재 계획의 Git 제외 작업 공간인 `<repo-root>/.engineering/sdd/<plan-basename>/`에 진행 기록·작업 요약·보고서·리뷰 패키지를 둔다.
+4. `<workspace>/progress.md`를 확인한다. 첫 줄은 `# SDD ledger — plan: <plan file path>`로 식별한다. 다른 계획의 진행 기록과 다른 작업 공간은 그대로 보존한다.
+5. 작업별 가장 나중의 `Task <N>: complete` 또는 `Task <N>: reopened`로 현재 상태를 판단한다. 최신 상태가 `reopened`이면 이전 완료 근거로 DONE 처리하지 않는다. 수정 회차 기록도 이어 받아 다음 회차부터 재개한다.
+6. 진행 기록의 커밋과 현재 `git log`를 대조한다. 세션·문맥 압축·담당자·구현자 변경으로 작업 또는 최종 게이트의 회차를 초기화하지 않는다. 임시 자료를 잃었으면 Git의 실제 커밋부터 복구한다.
 
-## 작업 연속성
+## 2. 계획 사전 검토
 
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+계획과 지정된 명세를 읽고 문맥·전역 제약·작업 할 일을 기록한다. 명세는 요구사항의 기준이다. 접근할 수 없으면 사실과 판정 한계를 남기고 필수 근거 공백을 해소한다.
 
-## 사용 시점
+`engineering:writing-plans`의 의사코드 → 흐름 대응 관계 → 검증 방법·이유가 연결되어 있는지 확인한다. 다음을 진행 기록의 표로 대조한다.
 
-```dot
-digraph when_to_use {
-    "Have implementation plan?" [shape=diamond];
-    "Tasks mostly independent?" [shape=diamond];
-    "Stay in this session?" [shape=diamond];
-    "subagent-driven-development" [shape=box];
-    "executing-plans" [shape=box];
-    "Manual execution or brainstorm first" [shape=box];
+- 각 task: 본문·생성/수정 파일·지정 검증·의사코드의 내부 일관성
+- 파일 또는 인터페이스를 공유하는 작업 쌍: 생산자·소비자·정확한 값·의존성·전역 제약의 일치
+- 계획이 요구하는 내용과 리뷰 기준의 충돌 여부
 
-    "Have implementation plan?" -> "Tasks mostly independent?" [label="yes"];
-    "Have implementation plan?" -> "Manual execution or brainstorm first" [label="no"];
-    "Tasks mostly independent?" -> "Stay in this session?" [label="yes"];
-    "Tasks mostly independent?" -> "Manual execution or brainstorm first" [label="no - tightly coupled"];
-    "Stay in this session?" -> "subagent-driven-development" [label="yes"];
-    "Stay in this session?" -> "executing-plans" [label="no - parallel session"];
-}
+각 충돌은 원래 요구사항과 대조해 근거로 판정한다. 승인 계약 안의 내부 선택은 기록하고 진행한다. 작업·인터페이스 결함은 계획으로, 사용자 결정이 필요한 요구사항 모순은 설계 단계로 돌린다. 현재 계획 준비 상태 게이트가 진행을 뒷받침하면 실행 가능한 승인 작업을 선택한다.
+
+## 3. 실행 문맥과 위임 단위
+
+[공통 실행·문맥 계약](../using-engineering-skills/references/agent-execution.md)을 적용한다. 작업/게이트 ID, 소스 리비전, 쓰기 소유 범위, 실행 환경·의존성·임시 자료·네트워크, 소비·남은 예산·기한, 세션 계보, 요청·관측한 모델/추론 수준, 실제 검증 환경과 완료 상태를 기록한다. 플랫폼 기본 관측이 없으면 설정을 확인했다고 쓰지 않는다.
+
+모델은 의미 판단 난이도·불확실성·구성 요소 경계·실패 영향·회귀 위험을 기준으로 선택한다. 파일 수는 문맥 크기의 보조 신호다. 기본 설정과 설정 재정의는 플랫폼의 실제 스키마와 [Codex 참고](../using-engineering-skills/references/codex-tools.md), [Claude Code 참고](../using-engineering-skills/references/claude-code-tools.md)를 따른다. 필요한 기능을 제공할 수 없으면 `blocked`와 `decision_required`로 기록한다.
+
+동일 규칙의 작고 독립적인 수정은 한 작업 요약·한 구현자·한 리뷰 단위로 묶는다. 별도 판단·검증·리뷰가 필요한 작업은 작업별로 나눈다. 기본 작업/커밋 진행 기록 실행은 직렬이다. 병렬 구현이 필요하고 허용되면 `engineering:dispatching-parallel-agents`에서 소유 범위 또는 별도 워크트리, 자원·예산·통합 담당을 먼저 정한다.
+
+## 4. 구현자 위임
+
+1. 위임 직전 `git rev-parse HEAD`로 작업 최초 `BASE`를 기록한다. 여러 커밋의 작업을 포함하도록 완료 시까지 유지한다.
+2. `"$SDD_SCRIPTS/task-brief" PLAN_FILE N`을 실행한다. 보조 도구는 첫 작업 앞의 머리말·전역 제약·의사코드·대응 관계와 선택한 `Task N` 전체 본문을 파일로 추출한다. 다른 작업 본문은 제외한다.
+3. [implementer-prompt.md](implementer-prompt.md)에 작업 요약 경로, 프로젝트 안의 작업 위치, 작업 요약에 없는 선행 인터페이스·결정, 모호함 판정, 실행 계약과 보고서 경로를 채운다. 정확한 숫자·문자열·함수 선언·테스트 사례는 작업 요약을 단일 출처로 삼는다.
+4. 작업 요약 이름을 기준으로 `task-N-report.md`를 지정한다. 원 보고서는 파일에 쓰고 짧은 상태·커밋·검증 요약·우려만 반환하도록 한다.
+5. 이전 작업의 수용된 위험이나 근거로 닫은 지적이 같은 영역에 적용되면 해당 진행 기록 항목을 가리킨다. 전체 계획·누적 이력·이전 대화 기록을 위임에 붙이지 않는다.
+6. 구현자 식별자를 조정자 기록에 남긴다. 작업자가 추가 에이전트·검토자를 위임하지 않도록 역할을 한정하고 독립 리뷰는 조정자가 담당한다.
+
+하위 에이전트가 실행 중이면 진행 기록 정리·다음 입력 준비 등 독립적인 일을 계속한다. 할 일이 없으면 플랫폼의 제한된 대기를 사용하고 필요한 간격으로 상태를 확인한다. 보고 없이 종료한 하위 에이전트는 실제 상태를 확인해 복구한다.
+
+## 5. 보고서 처리
+
+| 상태 | 조정자 처리 |
+| --- | --- |
+| `DONE` | 작업 최초 `BASE`부터 현재 `HEAD`까지 리뷰 패키지를 만들고 작업 리뷰로 진행한다. |
+| `DONE_WITH_CONCERNS` | 정확성·범위 우려는 리뷰 전에 확인한다. 비차단 관찰은 기록하고 리뷰한다. |
+| `NEEDS_CONTEXT` | 기존 자료로 답할 수 있으면 필요한 문맥을 제공한다. 사용자만 정할 제품 규칙·계약이면 의존 작업을 보류하고 독립적인 승인 작업을 계속한다. |
+| `BLOCKED` | 실제 환경·권한·기능·근거 공백을 분류한다. 문맥 보완·적합한 모델·작업 분해 등 실패 입력을 바꿀 수 있을 때 재개한다. |
+
+중대한 계획 변경은 `engineering:writing-plans`를 따른다. 승인 계약 변경에만 `engineering:brainstorming`의 재승인을 적용한다. 기존 설계 안의 변경은 의사코드 → 대응 관계 → 작업·검증 순서로 갱신한다. 영향받은 완료 작업은 `Task <N>: reopened (plan <old> -> <new>; <reason>)`로 기록한다. 준비 상태 게이트를 갱신하고 가장 이른 실행 가능한 reopened·미완료 작업을 새 작업 요약으로 위임한다.
+
+## 6. 작업 리뷰
+
+[품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)에 산출물·`BASE..HEAD`·필수 판정·통과 조건·반환 대상·회차 상한·의사결정 담당자를 기록한다. 작업 리뷰는 새 문맥의 검토자가 명세 준수와 작업 품질을 함께 판정하며 구현자의 자체 리뷰와 별개다.
+
+같은 작업 저장소에서 설치 도구의 절대 경로로 실행한다.
+
+```text
+"$SDD_SCRIPTS/review-package" PLAN_FILE BASE HEAD
 ```
 
-**Executing Plans(parallel session)와의 차이:**
-- 같은 session을 사용한다(context 전환 없음).
-- task마다 새로운 subagent를 사용한다(context 오염 없음).
-- 각 task 뒤에 spec 준수와 코드 품질을 리뷰하고 마지막에 폭넓게 리뷰한다.
-- task 사이에 사람의 개입이 없어 더 빠르게 반복한다.
+출력한 고유 패키지 경로와 같은 작업 요약, 사실 중심 검증 사본, 적용할 전역 제약을 [task-reviewer-prompt.md](task-reviewer-prompt.md)에 전달한다. 최초 `BASE`를 유지하고 `HEAD~1`로 작업 일부를 누락하지 않는다. 보조 도구를 사용할 수 없으면 정확한 범위의 `git log --oneline`, `git diff --stat`, `git diff --binary --no-ext-diff -U10`을 고유한 한 파일로 고정한다.
 
-## 절차
+검증 사본은 원 보고서의 현재 명령·출력·변경 범위·제약만 추출한다. 구현 서사·자기 정당화·자체 통과 판정·칭찬은 제외하고 원 보고서는 보존한다. 프로젝트의 정확한 값과 구성 요소 관계는 계획/명세에서 그대로 전달한다.
 
-```dot
-digraph process {
-    rankdir=TB;
+[공통 리뷰 기준](../requesting-code-review/review-criteria.md)을 적용한다. 검토자는 구체적인 의문에 필요한 소스·집중 검사만 확인한다. 이미 실행한 검증을 보고서 확인 목적으로 반복시키거나 작업과 무관한 전체 탐색을 추가하지 않는다. 기본 동작·호출자·설정으로 충족된 요구를 차이에 없다는 이유로 구현 공백으로 취급하지 않는다.
 
-    subgraph cluster_per_task {
-        label="Per Task";
-        "Dispatch implementer subagent (./implementer-prompt.md)" [shape=box];
-        "Implementer asks questions?" [shape=diamond];
-        "Answer questions, provide context" [shape=box];
-        "Implementer implements, verifies, commits, self-reviews" [shape=box];
-        "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)" [shape=box];
-        "Spec ✅ and quality approved?" [shape=diamond];
-        "Classify findings by owner before retry" [shape=diamond];
-        "Return defect to owner; hold dependent task; continue independent authorized work" [shape=box];
-        "Record blocker; hold dependent task; continue independent authorized work" [shape=box];
-        "Close invalid findings with evidence" [shape=box];
-        "Fix round R of 5: R=1..3 original implementer; R=4..5 fresh factual handoff" [shape=box];
-        "Dispatch scoped re-review (./re-review-prompt.md)" [shape=box];
-        "All findings addressed?" [shape=diamond];
-        "R = 5?" [shape=diamond];
-        "Adjudicate residual implementation findings with evidence" [shape=box];
-        "All residual findings disproved?" [shape=diamond];
-        "Close residual invalid findings with evidence" [shape=box];
-        "Record failed + decision_required; stop for human decision" [shape=box];
-        "Human accepts risk for exact revision?" [shape=diamond];
-        "Record accepted_risk" [shape=box];
-        "Return to owning stage with changed input" [shape=box];
-        "Append completion to ledger, mark todo complete" [shape=box];
-    }
+명세 준수 또는 품질 판정이 빠지면 `inconclusive`다. 필수 근거 공백은 조정자가 해소하고 실제 구현 공백만 수정 대상으로 삼는다.
 
-    "Setup: worktree, ledger check, read plan, pre-flight review" [shape=box];
-    "More tasks remain?" [shape=diamond];
-    "Runnable authorized task available?" [shape=diamond];
-    "Select unaffected task; keep blocked tasks pending" [shape=box];
-    "Wait for changed input; pending tasks prevent completion" [shape=doublecircle];
-    "Run final whole-change deterministic verification" [shape=box];
-    "Final deterministic verification passed?" [shape=diamond];
-    "Return to affected implementation or integration stage" [shape=box];
-    "Generate final package, dispatch code reviewer" [shape=box];
-    "Final findings? bounded fix attempt, scoped verification/re-review, adjudicate residuals" [shape=box];
-    "Boundary changed or bounded impact unknown?" [shape=diamond];
-    "Map prior evidence + scoped gate to current artifact" [shape=box];
-    "Regenerate full package and refresh whole-change review" [shape=box];
-    "Ordinary final gate outcome?" [shape=diamond];
-    "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" [shape=box];
-    "Red-team verdict?" [shape=diamond];
-    "Red-team attempt cap reached?" [shape=diamond];
-    "Return red-team finding to owner; wait for changed input" [shape=box];
-    "Owner resolves finding; scoped verification/re-review for artifact changes" [shape=box];
-    "Red-team fix changed boundary or lacks bounded impact?" [shape=diamond];
-    "Fresh scoped red-team checks prior challenge + regressions with current full bundle" [shape=box];
-    "Record red-team decision_required; stop" [shape=doublecircle];
-    "Preserve workspace through branch decision" [shape=box];
-    "Merged result verified?" [shape=diamond];
-    "Delete workspace after verified merge" [shape=box];
-    "Keep workspace for PR or branch" [shape=doublecircle];
-    "Return to owner or stop" [shape=box];
-    "Use engineering:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
+## 7. 수정과 재리뷰
 
-    "Setup: worktree, ledger check, read plan, pre-flight review" -> "Runnable authorized task available?";
-    "Runnable authorized task available?" -> "Select unaffected task; keep blocked tasks pending" [label="yes"];
-    "Select unaffected task; keep blocked tasks pending" -> "Dispatch implementer subagent (./implementer-prompt.md)";
-    "Runnable authorized task available?" -> "Wait for changed input; pending tasks prevent completion" [label="no"];
-    "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer asks questions?";
-    "Implementer asks questions?" -> "Answer questions, provide context" [label="yes"];
-    "Answer questions, provide context" -> "Implementer implements, verifies, commits, self-reviews";
-    "Implementer asks questions?" -> "Implementer implements, verifies, commits, self-reviews" [label="no"];
-    "Implementer implements, verifies, commits, self-reviews" -> "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)";
-    "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
-    "Spec ✅ and quality approved?" -> "Append completion to ledger, mark todo complete" [label="yes"];
-    "Spec ✅ and quality approved?" -> "Classify findings by owner before retry" [label="no"];
-    "Classify findings by owner before retry" -> "Return defect to owner; hold dependent task; continue independent authorized work" [label="plan / requirement"];
-    "Classify findings by owner before retry" -> "Record blocker; hold dependent task; continue independent authorized work" [label="blocked"];
-    "Return defect to owner; hold dependent task; continue independent authorized work" -> "Runnable authorized task available?";
-    "Record blocker; hold dependent task; continue independent authorized work" -> "Runnable authorized task available?";
-    "Classify findings by owner before retry" -> "Close invalid findings with evidence" [label="invalid / out of scope"];
-    "Close invalid findings with evidence" -> "All findings addressed?";
-    "Classify findings by owner before retry" -> "R = 5?" [label="valid implementation"];
-    "Fix round R of 5: R=1..3 original implementer; R=4..5 fresh factual handoff" -> "Dispatch scoped re-review (./re-review-prompt.md)";
-    "Dispatch scoped re-review (./re-review-prompt.md)" -> "All findings addressed?";
-    "All findings addressed?" -> "Append completion to ledger, mark todo complete" [label="yes"];
-    "All findings addressed?" -> "Classify findings by owner before retry" [label="no"];
-    "R = 5?" -> "Fix round R of 5: R=1..3 original implementer; R=4..5 fresh factual handoff" [label="no - next round"];
-    "R = 5?" -> "Adjudicate residual implementation findings with evidence" [label="yes - breaker trips"];
-    "Adjudicate residual implementation findings with evidence" -> "All residual findings disproved?";
-    "All residual findings disproved?" -> "Close residual invalid findings with evidence" [label="yes"];
-    "Close residual invalid findings with evidence" -> "Append completion to ledger, mark todo complete";
-    "All residual findings disproved?" -> "Record failed + decision_required; stop for human decision" [label="no"];
-    "Record failed + decision_required; stop for human decision" -> "Human accepts risk for exact revision?";
-    "Human accepts risk for exact revision?" -> "Record accepted_risk" [label="yes"];
-    "Record accepted_risk" -> "Append completion to ledger, mark todo complete";
-    "Human accepts risk for exact revision?" -> "Return to owning stage with changed input" [label="no"];
-    "Append completion to ledger, mark todo complete" -> "More tasks remain?";
-    "More tasks remain?" -> "Runnable authorized task available?" [label="yes, including pending tasks"];
-    "More tasks remain?" -> "Run final whole-change deterministic verification" [label="no"];
-    "Run final whole-change deterministic verification" -> "Final deterministic verification passed?";
-    "Final deterministic verification passed?" -> "Return to affected implementation or integration stage" [label="no"];
-    "Final deterministic verification passed?" -> "Generate final package, dispatch code reviewer" [label="yes"];
-    "Generate final package, dispatch code reviewer" -> "Final findings? bounded fix attempt, scoped verification/re-review, adjudicate residuals";
-    "Final findings? bounded fix attempt, scoped verification/re-review, adjudicate residuals" -> "Boundary changed or bounded impact unknown?";
-    "Boundary changed or bounded impact unknown?" -> "Regenerate full package and refresh whole-change review" [label="yes"];
-    "Boundary changed or bounded impact unknown?" -> "Map prior evidence + scoped gate to current artifact" [label="no"];
-    "Map prior evidence + scoped gate to current artifact" -> "Ordinary final gate outcome?";
-    "Regenerate full package and refresh whole-change review" -> "Ordinary final gate outcome?";
-    "Ordinary final gate outcome?" -> "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" [label="passed / accepted_risk"];
-    "Ordinary final gate outcome?" -> "Return to owner or stop" [label="non-advancing status"];
-    "Freeze all red-team inputs into one bundle; dispatch fresh-context reviewer" -> "Red-team verdict?";
-    "Red-team verdict?" -> "Preserve workspace through branch decision" [label="survives_challenge"];
-    "Red-team verdict?" -> "Preserve workspace through branch decision" [label="human accepts exact risk"];
-    "Red-team verdict?" -> "Red-team attempt cap reached?" [label="invalidated / inconclusive / blocked"];
-    "Red-team attempt cap reached?" -> "Record red-team decision_required; stop" [label="yes: 5 attempts"];
-    "Red-team attempt cap reached?" -> "Return red-team finding to owner; wait for changed input" [label="no"];
-    "Return red-team finding to owner; wait for changed input" -> "Owner resolves finding; scoped verification/re-review for artifact changes" [label="changed input"];
-    "Owner resolves finding; scoped verification/re-review for artifact changes" -> "Red-team fix changed boundary or lacks bounded impact?";
-    "Red-team fix changed boundary or lacks bounded impact?" -> "Run final whole-change deterministic verification" [label="yes"];
-    "Red-team fix changed boundary or lacks bounded impact?" -> "Fresh scoped red-team checks prior challenge + regressions with current full bundle" [label="no"];
-    "Fresh scoped red-team checks prior challenge + regressions with current full bundle" -> "Red-team verdict?";
-    "Preserve workspace through branch decision" -> "Use engineering:finishing-a-development-branch";
-    "Use engineering:finishing-a-development-branch" -> "Merged result verified?";
-    "Merged result verified?" -> "Delete workspace after verified merge" [label="yes"];
-    "Merged result verified?" -> "Keep workspace for PR or branch" [label="PR / keep / failed"];
-}
+모든 리뷰 뒤 지적을 먼저 소유 단계로 분류한다. 반박 근거가 있거나 범위 밖이면 이유와 함께 닫는다. 계획·요구사항 결함은 해당 소유 단계로, 실제 기능·외부 상태 부재는 `blocked`로 보낸다. 유효한 명세 위반·Critical·Important·확인된 구현 공백만 수정 반복에 넣는다. 비차단 개선은 보고에 남기고 별도 요청 없이 후속 작업 목록이나 추가 구현을 만들지 않는다.
+
+[executing-plans의 수정 회차와 인계](../executing-plans/SKILL.md)를 따른다. 작업당 최대 5회이며 더 낮은 작업·게이트 상한과 남은 부모 예산이 우선한다. 1~3회는 원래 구현자, 4~5회는 이전 대화를 상속하지 않는 새 문맥의 구현자를 사용한다. 원래 담당자를 사용할 수 없거나 새 반례에도 진전이 없으면 더 일찍 전환할 수 있다. 조기 전환도 같은 예산을 소비한다.
+
+- 원래 구현자는 현재 리비전·지적·반례·검증 환경을 받아 기존 보고서에 수정 결과를 추가한다.
+- 새 문맥의 구현자는 [fix-implementer-prompt.md](../executing-plans/fix-implementer-prompt.md)의 사실 중심 입력을 받는다. 작업 최초 `BASE`부터 현재 `HEAD`까지의 누적 패키지를 제공한다. 마지막 수정분만 전달하지 않는다.
+- 조정자는 수정 구현을 담당자에게 맡기고 입력·리뷰·통합을 조정한다. 수정 담당이 바뀌어도 필요한 검증과 독립 리뷰를 적용한다.
+
+수정 후 현재 리비전의 새 검증 사본을 고정한다. 이전 리뷰 종료점을 `FIX_BASE`로 기록하고 `"$SDD_SCRIPTS/review-package" PLAN_FILE FIX_BASE HEAD`를 실행한다. 새 문맥의 검토자에게 지적·작업 요약·검증 사본·수정 차이를 [re-review-prompt.md](re-review-prompt.md)로 전달한다. `ADDRESSED` 또는 `NOT ADDRESSED`를 판정하고 수정이 만든 Critical/Important 회귀만 추가한다. `INVALID` 제안은 조정자가 근거를 확인해 닫는다.
+
+국소 수정이면 이전 전체 게이트 리비전·`FIX_BASE..HEAD` 변경분·다룬 지적·집중 검사·제한된 영향 근거·현재 집중 게이트를 진행 기록에 연결한다. 목표·계약·설계·의존 경계 변경 또는 영향 불명확이면 전체 리뷰를 다시 연다. 승인된 계약이 바뀌는 경우에만 사용자 재승인이 필요하다.
+
+각 회차에 다음을 기록한다.
+
+```text
+Task <N>: fix round <R>/5 (<X> addressed, <Y> open — <finding 요약>; commits <a7>..<b7>)
+Task <N>: finding closed — <finding> — Ruling: <반박 또는 범위 제외 근거>
 ```
 
-## 설정
+재시도에는 구현·근거·문맥·평가자·기능·사용자 결정 중 변경된 입력이 필요하다. 5회 뒤에도 유효한 필수 지적이 남으면 `failed`, `decision_required`와 반환 대상을 기록하고 자동 반복을 끝낸다. 사람이 정확한 리비전의 위험을 수용한 경우에만 `accepted_risk`로 진행한다. 상한 도달이나 조정자 판단이 통과를 만들지는 않는다.
 
-작업이 격리된 workspace에서 수행되도록 `engineering:using-git-worktrees`로 만들거나 기존
-workspace를 확인한다. 사용자의 명시적인 동의 없이 main/master 브랜치에서 구현을 시작하지 않는다.
+## 8. 작업 완료와 전체 게이트
 
-ledger를 만들거나 Task 1을 위임하기 전에 task commit을 승인한 정확한 사용자 메시지를 기록한다. plan header에서 commit이 승인됐다고 하더라도 대화에 승인 내용이 없으면 plan은 오래된 것이며 권한을 부여하지 않는다. 위임 전에 중단한다.
+필수 검증·리뷰가 `passed`이거나 사람이 정확한 리비전의 위험을 명시적으로 수용하면 진행 기록과 할 일을 갱신한다.
 
-대화 memory는 compaction 뒤에도 유지되지 않는다. 실제 session에서 현재 위치를 잃은 controller가
-이미 완료한 전체 task sequence를 다시 위임한 사례가 있으며, 관찰된 실패 중 비용이 가장 컸다.
-진행 상태를 todo뿐 아니라 ledger 파일에도 추적한다.
+```text
+Task <N>: complete (commits <base7>..<head7>, review passed)
+Task <N>: complete (commits <base7>..<head7>, accepted_risk: <decision evidence>)
+Task <N>: reopened (plan <old> -> <new>; <reason>)
+```
 
-- 각 plan은 자체 workspace를 소유한다. 스킬 시작 시 이 스킬의 `scripts/sdd-workspace PLAN_FILE`을
-  실행한다. 이 명령은 plan의 git-ignored 디렉터리(`<repo-root>/.engineering/sdd/<plan-basename>/`)를
-  출력하며, 현재 plan의 모든 artifact인 ledger, brief, report와 review package를 이곳에 둔다.
-  다른 plan의 디렉터리는 읽거나 쓰지 않는다.
-- `<workspace>/progress.md`에서 현재 plan의 ledger를 확인한다. 첫 줄에 현재 plan 파일이 적혀
-  있으면 task별 `Task <N>: complete`와 `Task <N>: reopened` 항목 가운데 가장 나중 상태를
-  기준으로 판단한다. 최신 상태가 `complete`인 task만 DONE이다. 이후의 `reopened`는 이전
-  완료·검증·리뷰를 무효화하므로 가장 이른 reopened 또는 미완료 task부터 재개한다. 마지막 줄이
-  수정 회차인 task는 loop 진행 중이므로 다음 회차부터 재개한다. task와 각 final gate의 자동
-  review attempt 수는 session 재진입, compaction, 원래 implementer 재개 또는 소유 단계 복귀에도
-  초기화하지 않는다.
-  첫 줄에 다른 plan 파일이 적힌 ledger는 다른 plan의 진행 상태다. 그대로 두고 현재 plan용
-  ledger를 새로 만든다.
-- 첫 줄에 `# SDD ledger — plan: <plan file path>` 식별자를 넣어 ledger를 만든다.
-- ledger는 복구 map이다. 자신의 context가 생성 사실을 기억하지 못해도 ledger에 적힌 commit은
-  git에 존재한다. compaction 뒤에는 기억보다 ledger와 `git log`를 신뢰한다.
-- `git clean -fdx`는 git-ignored scratch인 workspace를 삭제한다. 그런 일이 발생하면 `git log`에서 복구한다.
+최신 상태가 `complete`인 작업만 완료다. 의존 작업이 보류됐으면 실행 가능한 독립 승인 작업을 선택한다. 실행 가능한 작업이 없고 보류 작업이 남으면 재개 조건을 보고하며 전체 완료로 처리하지 않는다.
 
-plan을 원래 구현 요청·이전 승인·승인된 문서와 대조한다. 별도의 설계 승인 메시지가 없다는
-이유만으로 승인된 실행을 중단하지 않는다. 설계 전용 요청·명시적인 구현 전 확인 조건과
-task commit 권한은 별도로 지킨다.
+모든 작업이 완료되면 [executing-plans의 전체 변경 완료 게이트](../executing-plans/SKILL.md)를 적용한다. 순서는 **전체 결정론적 검증 → 일반 전체 변경 리뷰 → 새 문맥의 레드팀**이다. 작업별 리뷰는 전체 게이트를 대신하지 않는다.
 
-plan을 한 번 읽고 context와 Global Constraints를 기록한 뒤 task마다 todo를 만든다. plan에서
-Spec을 지정하면 함께 읽는다. spec은 plan이 근거로 삼는 기준이며 plan 내부 충돌은 spec을
-기준으로 해결한다. 접근 가능한 spec이 없으면 ledger에 그 사실을 기록하고, spec 없이 내린
-판정은 잠정적인 것으로 취급한다.
+일반 최종 리뷰와 최초 레드팀에는 `"$SDD_SCRIPTS/review-package" PLAN_FILE MERGE_BASE HEAD`를 사용한다. `MERGE_BASE`는 확인한 브랜치 시작점이며 예를 들어 `git merge-base main HEAD`로 확인한다. 이 보조 도구는 정본 `requesting-code-review/scripts/review-package range`에 위임한다. 패키지 경로와 SHA-256을 기록한다.
 
-별도 구현 plan이 필요한 작업에는 `engineering:writing-plans`가 정의한 의사코드와 flow mapping이
-있어야 한다. 각 task가 참조하는 flow ID, 파일·책임, dependency와 검증 방법·이유를 pre-flight에서
-확인하고, 이 연결이 없으면 implementer에게 빈틈을 넘기지 말고 plan 소유 단계로 돌려보낸다.
+일반 최종 리뷰는 [code-reviewer.md](../requesting-code-review/code-reviewer.md), 레드팀은 [red-team-reviewer.md](../requesting-code-review/red-team-reviewer.md)를 사용한다. 레드팀 직전에 현재 전체 범위를 다시 고정하고 목표·요구사항/설계·계획 흐름·검증·관찰/제약·지적에서 수정까지의 근거 이력의 여섯 파일과 함께 `"$SDD_SCRIPTS/../../requesting-code-review/scripts/red-team-package"`로 변경 불가능한 묶음을 만든다. 검토자에는 묶음과 해시만 전달한다.
 
-Task 1을 위임하기 전에 plan의 충돌을 한 번 검사하고 확인한 내용을 그때그때 기록한다.
+국소 수정은 기존 전체 근거와 새 집중 검증·재리뷰를 연결한다. 집중 레드팀도 현재 전체 묶음을 제공받아 이전 반례 검토와 수정 회귀만 판정한다. 목표·계약·설계·의존 경계 변경 또는 영향 불명확이면 전체 결정론적 검증·일반 리뷰·레드팀을 다시 연다. 일반 게이트와 레드팀 게이트는 각각 최대 5회이며 작업·담당자·세션 변경으로 회차를 초기화하지 않는다.
 
-- 서로 충돌하거나 plan의 Global Constraints와 충돌하는 task
-- 의사코드 flow와 파일, task, dependency 또는 검증 mapping이 불일치하는 task
-- plan에서 명시적으로 요구하지만 review rubric에서는 결함으로 보는 내용(아무것도 assert하지 않는 테스트, logic block의 verbatim duplication)
+일반 게이트는 `passed`, 레드팀은 `survives_challenge`가 일반 통과다. `invalidated`, `inconclusive`, `blocked`, 필수 `not_run`은 각 원인의 소유 단계로 돌린다. 정확한 리비전에 대한 사람의 명시적 `accepted_risk`는 통과와 구분해 기록한다.
 
-검사 결과는 판정이 아니라 표다. 파일 또는 interface를 공유하는 모든 task 쌍마다 한 행을 만들고,
-두 task, 한쪽이 생산하는 내용과 다른 쪽이 소비하는 내용, 발견한 내용을 적는다. 모든 task마다
-한 행을 만들어 task 본문이 내부적으로 일치하는지 확인한다. 지정된 테스트와 코드, 생성할 파일과
-나중에 수정할 파일을 대조한다. 이런 행 없이 "The scan is clean"이라고만 쓰면 실행한 검사가 아니다.
+## 9. 결과와 작업 공간 보존
 
-표를 ledger에 작성한다. 실행을 시작하기 전에 발견한 모든 항목을 해당 내용을 요구한 plan
-본문과 대조해 판정하고 각 판정을 ledger에 기록한다. 검사 결과가 clean이면 별도 언급 없이
-진행한다. 발견된 각 충돌을 판정하고(spec은 구속력 있는 기준, plan은 그 근거다) 행 옆에 판정을
-기록한 뒤 Task 1을 위임한다. 구현 과정에서만 드러나는 충돌은 review loop가 계속 잡아낸다.
+최종 보고에는 변경·검증·게이트 상태·남은 위험과 모든 `Ruling:`·`accepted_risk` 결정을 발생 순서대로 모은다. 결정 이유와 틀렸을 때의 비용을 보존한다.
 
-## 모델 선택
-
-[공통 실행·context 계약](../using-engineering-skills/references/agent-execution.md)을 적용한다.
-controller는 requested/observed model·effort, session lineage, 현재 source revision, 실제 검증 환경과
-실행 완료 여부를 같은 task/gate 기록에 연결한다. native 관측이 없으면 확인됐다고 쓰지 않는다.
-
-정확도, 재작업 가능성, 예상 turn 수와 비용을 함께 고려해 **예상 총완료시간**이 가장 짧은
-역할 적합 모델을 선택한다. 가장 싼 모델이나 가장 강한 모델을 일률적으로 선택하지 않는다.
-
-우선 신호는 의미 판단의 어려움, 요구사항의 불확실성, cross-component 추론, 실패 시 영향과 회귀
-위험이다. 변경 파일 수와 diff 크기는 context surface를 가늠하는 보조 신호일 뿐이며 capability를
-단독으로 결정하지 않는다. 작은 보안·동시성 변경은 강한 판단이 필요할 수 있고, 여러 파일의
-기계적 치환은 가벼운 모델로 충분할 수 있다.
-
-Architecture·설계, 최종 전체 브랜치 리뷰와 red-team 리뷰에는 그 위험을 감당할 수 있는 capable
-model을 사용한다. scoped 재리뷰는 범위가 작더라도 finding의 의미 난이도와 회귀 위험에 맞춘다.
-
-**Fix-loop model 선택:** 1~3회차에는 원래 implementer를 재개한다. 4~5회차 또는 원래 implementer를
-사용할 수 없거나 새 반례에도 같은 잘못된 가정을 반복해 진전이 없는 더 이른 회차에는
-현재 플랫폼에서 이전 이력을 상속하지 않는 fresh implementer를 사용한다. Codex에서는
-`spawn_agent {fork_turns: "none"}`, Claude Code에서는 현재 `Agent` tool의 별도 context를 사용한다.
-앞선 실패가 판단력 부족을 보여 주면 필요한 판단 수준에 맞춰 모델과 추론도를 직접 선택한다.
-회차 번호나 정해진 tier 순서가 아니라 현재 finding을 해결할 수 있는 역할 적합성을 우선한다.
-
-**subagent를 위임할 때 실제 schema가 두 override를 모두 지원하면 모델과 추론도를 함께
-명시한다.** 한쪽만 override하지 않는다. 지원하지 않으면 확인 가능한 role·preset·machine
-default를 사용하고 fallback을 기록한다. 구체적인 Codex 조합과 fallback은
-현재 플랫폼의 [Codex 도구 참고](../using-engineering-skills/references/codex-tools.md) 또는
-[Claude Code 도구 참고](../using-engineering-skills/references/claude-code-tools.md)를 따른다.
-fix-loop에서도 확인 가능한 role·preset·machine default를 사용할 수 있다. 다만 실제로 필요한
-capability를 제공할 수 없으면 `blocked`와 `decision_required`로 중단한다.
-
-모델 선택 근거는 ledger에 짧게 남긴다. 예: `low semantic ambiguity, bounded regression surface` 또는
-`cross-boundary behavior and costly rollback require stronger judgment`. 근거 없는 속도·비용 배수를
-일반화하지 않는다.
-
-## Task loop(작업 반복)
-
-**형태가 같은 작은 작업은 batch로 묶는다.** plan에 여러 task가 있고 각 task가 여러 파일에
-반복되는 같은 한 줄 수정, constant 변경 또는 field 추가처럼 작고 독립적인 같은 종류의
-수정이라면 task마다 subagent를 하나씩 위임하지 않는다. 모든 파일과 변경을 나열한 하나의
-dispatch brief를 만들어 전체 batch를 한 subagent에게 보내고 diff를 하나의 단위로 리뷰한다.
-별도의 판단, 테스트 또는 리뷰 surface가 필요한 작업에만 task별 위임을 사용한다.
-
-dispatch prompt에 붙여 넣은 모든 내용과 subagent가 출력한 모든 내용은 session이 끝날 때까지
-context에 남아 이후 turn마다 다시 읽힌다. artifact는 파일로 전달한다.
-
-**위임한 subagent 기다리기:** 짧은 timeout으로 wait interface를 polling하지 않고, 조용히 끝없이
-한 번만 기다리지도 않는다. ledger 갱신, 다음 review package 생성, report 읽기처럼 로컬 작업이
-남아 있으면 계속 작업한다. child 결과는 자동으로 도착한다. 실제로 할 일이 없을 때에는 플랫폼이
-허용하는 범위에서 5-10분의 제한된 구간 동안 기다린다. 구간 사이에 상태를 한 줄로 알리고 live
-child 목록을 확인해 보고 없이 완료한 child를 찾는다. 제한된 대기는 긴 대기의 효율을 거의
-유지하면서도 막히거나 사라진 child를 session 끝이 아니라 몇 분 안에 발견하게 한다.
-
-### 1. Implementer 위임
-
-위임하기 전에 BASE(`git rev-parse HEAD`)를 기록한다. review package와 수정 회차 diff에 필요하다.
-
-- **Task brief:** implementer를 위임하기 전에 이 스킬의 `scripts/task-brief PLAN_FILE N`을
-  실행한다. 첫 Task 앞의 plan header·전역 제약·`Behavioral Flow Pseudocode`·flow mapping과
-  선택한 task 전체 본문을 고유한 이름의 파일로 추출하고 경로를 출력한다. 다른 task 본문은
-  제외한다. brief가 요구사항과 해당 task에 적용되는 흐름의 단일 출처가 되도록 dispatch를
-  구성한다. dispatch에는 다음을 포함한다. (1) project에서 이 task가 위치하는 곳을 설명하는 한 줄,
-  (2) "먼저 읽을 요구사항이며 정확한 값을 그대로 사용한다"고 소개한 brief 경로, (3) brief에서
-  알 수 없는 이전 task의 interface·결정, (4) brief에서 발견한 모호함에 대한 판정, (5) report 파일
-  경로와 report 계약. 정확한 값(숫자, magic string, signature, test case)은 brief에만 둔다.
-  subagent에게 전체 plan 파일을 읽게 하지 않는다.
-- **Report 파일:** brief 이름을 기준으로 implementer의 report 파일을 정하고(brief
-  `…/task-N-brief.md` → report `…/task-N-report.md`) dispatch prompt에 넣는다. implementer는
-  전체 report를 이 파일에 작성하고 상태, commit, 한 줄 검증 요약과 우려 사항만 반환한다.
-- dispatch prompt는 session history가 아니라 하나의 task를 설명한다. 누적된 이전 task 요약
-  ("state after Tasks 1-3")을 이후 dispatch에 붙여 넣지 않는다. 실제 session의 dispatch가
-  42k자에 도달했고 그중 99%가 붙여 넣은 history였던 사례가 있다. 새 subagent에는 task, 건드리는
-  interface와 전역 제약만 필요하다.
-- dispatch에는 subagent 금지 계약이 들어 있다(implementer template에 포함됨). implementer는
-  helper와 reviewer를 포함해 subagent를 위임하지 않는다. 리뷰는 report 이후 controller가
-  위임한다. 실제 session에서 worker가 생성한 모든 reviewer는 controller가 위임한 task 리뷰와
-  중복되어 task마다 전체 리뷰 자리 하나를 추가로 사용했다.
-- 이전 task에 현재 task가 건드리는 영역의 accepted-risk 또는 근거로 닫은 finding이 있으면
-  dispatch에 해당 ledger 항목의 pointer를 포함한다.
-- dispatch 결과에서 implementer의 agent identity를 기록한다. fix-loop 1~3회차에는 이 에이전트를
-  재개한다. 4~5회차 또는 이 에이전트를 사용할 수 없거나 새 반례에도 진전이 없는 더 이른 회차에는
-  현재 플랫폼에서 이전 이력을 상속하지 않는 fresh implementer에게 concise factual handoff를 전달한다.
-- 충돌을 막기 위해 여러 구현 subagent를 병렬로 위임하지 않는다.
-  이 SDD task/commit ledger의 기본 실행은 직렬이다. 독립된 소유 범위나 별도 worktree로 병렬
-  구현할 경우 `dispatching-parallel-agents`에서 controller가 자원·예산·통합 소유권을 먼저 정한다.
-
-템플릿: [implementer-prompt.md](implementer-prompt.md)
-
-### 2. Report 처리
-
-Implementer subagent는 네 가지 상태 중 하나를 보고한다. 각 상태를 다음과 같이 처리한다.
-
-**DONE:** 이 스킬 디렉터리에서 `scripts/review-package PLAN_FILE BASE HEAD`로 review package를
-생성한다. 명령은 작성한 고유 파일 경로를 출력한다. BASE는 implementer를 위임하기 전에 기록한
-commit이며, 여러 commit으로 구성된 task에서 마지막 commit 이외를 조용히 누락하는 `HEAD~1`을
-사용하지 않는다. 출력된 경로와 함께 task reviewer를 위임한다.
-
-**DONE_WITH_CONCERNS:** implementer가 작업을 완료했지만 의문을 표시했다. 진행하기 전에 우려
-사항을 읽는다. 정확성 또는 범위에 관한 내용이라면 리뷰 전에 처리한다. 관찰(예: "this file is
-getting large")이라면 기록하고 리뷰로 진행한다.
-
-**NEEDS_CONTEXT:** 기존 자료로 답할 수 있으면 필요한 context를 제공하고 다시 위임한다.
-사용자만 정할 수 있는 제품 규칙·계약이면 의존 task를 보류하고 확인한다. 독립적인 승인 task는 계속한다.
-
-**BLOCKED:** implementer가 task를 완료할 수 없다. blocker를 평가한다.
-1. context 문제라면 context를 추가하고 같은 모델로 다시 위임한다.
-2. task에 더 많은 reasoning이 필요하면 현재 모델의 추론도를 조정하거나 더 적합한 모델을 선택해 다시 위임한다.
-3. task가 너무 크다면 더 작은 단위로 나눈다.
-4. plan 자체가 틀렸거나 구현에 material deviation이 필요하다면 차이와 이유를 기록하고 의존 task를 보류한다.
-   승인된 요구사항·설계·관찰 가능한 계약을 바꾸는 차이는 `engineering:brainstorming`으로 돌아가
-   변경안을 제시하고 사용자의 명시적인 재승인을 기다린다. 승인된 설계 안의 차이이거나 재승인을
-   받은 뒤 `engineering:writing-plans`에서 의사코드를 먼저 갱신하고 영향을 받는 mapping, task와
-   검증을 조정한다. 영향받은 완료 task마다
-   `Task <N>: reopened (plan <old> -> <new>; <reason>)`를 ledger에 추가하여 이전 게이트를
-   무효화한다. 변경된 plan-readiness gate가 통과하면 가장 이른 reopened 또는 미완료 task를 새
-   brief로 다시 위임한다.
-
-blocker나 plan 갱신에 의존하지 않는 승인 task는 계속할 수 있다. Fast Path 탈락·일반 실행 경로
-진입만으로 새 승인을 요구하지 않으며, 실제 승인 내용 변경과 task commit 권한 부재를 구분한다.
-
-상위 보고를 **절대** 무시하거나 같은 모델에 변경 없이 재시도하도록 강제하지 않는다. implementer가 막혔다고 했다면 무엇인가 달라져야 한다.
-
-implementer가 시작 전 또는 task 도중 질문하면 명확하고 완전하게 답하고, 필요하면 context를
-추가하며, 성급하게 구현으로 밀어 넣지 않는다.
-
-### 3. Task 리뷰
-
-task별 리뷰는 task 범위의 게이트다. 폭넓은 리뷰는 최종 전체 브랜치 리뷰에서 한 번 수행한다.
-task 리뷰를 생략하거나 두 판정 중 하나가 빠진 report를 받아들이지 않는다. spec 준수와 task
-품질이 모두 필요하다. implementer의 자체 리뷰가 task 리뷰를 대신하지 않으며 둘 다 필요하다.
-
-위임 전에 게이트의 task artifact, BASE..HEAD 리비전, 필수 판정, 통과 조건, task 구현 반환 대상,
-시도 횟수 상한과 decision owner를 기록한다. 필수 판정이 빠졌다면 clean이 아니라 `inconclusive`다.
-
-- reviewer에게 diff를 파일로 전달한다. 이 스킬의 `scripts/review-package PLAN_FILE BASE HEAD`를
-  실행하고 출력된 파일 경로를 전달한다. bash가 없다면 해당 range의 `git log --oneline`,
-  `git diff --stat`, `git diff --binary --no-ext-diff -U10`을 고유한 이름의 한 파일로 redirect한다. 출력은 자신의
-  context에 들어가지 않고 reviewer는 한 번의 Read 호출로 commit 목록, stat 요약과 binary-safe context가
-  포함된 전체 diff를 본다. implementer를 위임하기 전에 기록한 BASE를 사용하며 여러 commit의
-  task를 조용히 잘라내는 `HEAD~1`을 사용하지 않는다. diff 파일 없이 task reviewer를 위임하지 않는다.
-- **Reviewer 입력:** task reviewer는 같은 brief 파일, 사실 중심 검증 사본, review package의 세 경로와
-  task에 적용되는 전역 제약을 받는다. controller는 원 report의 명령·출력, 변경 범위와 제약을 고정
-  사본으로 만들고 구현 서사·자기 정당화·자체 pass 판정·칭찬은 제외한다. 원 report는 보존한다. fresh fix
-  implementer에게는 full report 대신 승인된 brief, 현재 exact binary-safe package, 열린 finding,
-  관찰한 명령·결과와 이미 시도한 실패만 사실과 가설을 구분해 전달한다.
-- reviewer에게 전달하는 global-constraints block은 주의할 내용을 정하는 lens다. plan의 Global
-  Constraints 섹션 또는 spec에서 구속력 있는 요구사항을 그대로 복사한다. 정확한 값, 형식과
-  component 사이의 명시된 관계("same layout as X", "matches Y")를 포함한다. reviewer
-  template에는 process 규칙(YAGNI, test hygiene, review 방법)이 이미 있으므로 constraints
-  block에는 현재 project의 spec이 요구하는 내용을 넣는다.
-- 구체적이고 task에 한정된 이유 없이 "check all uses" 또는 "run race tests if useful" 같은 열린 지침을 추가하지 않는다.
-- implementer가 같은 작업에서 이미 실행한 검증을 reviewer에게 반복하라고 하지 않는다. implementer report가 근거를 전달한다.
-- reviewer에게 [공통 리뷰 기준](../requesting-code-review/review-criteria.md)을 전달한다. 특정 지적의
-  결론을 미리 정하지 않으며 기본 동작·현재 설정·실제 영향으로 판단하게 한다.
-판정에 필수인 근거 공백은 controller가 관련 자료를 확인해 해소한다. diff 밖에서 이미 충족된
-요구사항을 위해 추가로 구현하지 않는다. 실제 구현 공백이 확인된 경우에만 fix loop에 넣는다.
-
-템플릿: [task-reviewer-prompt.md](task-reviewer-prompt.md)
-
-### 4. Fix loop(수정 반복)
-
-각 리뷰 또는 재리뷰 직후 모든 finding을 소유 단계에 따라 분류한다.
-
-- 명백히 유효하지 않거나 범위 밖인 finding은 근거와 함께 닫는다. 이로써 모든 필수 finding이 해결되면 task를 완료할 수 있다.
-- task 세부사항 또는 interface 결함은 `engineering:writing-plans`로 돌려보낸다.
-- 승인된 요구사항 또는 설계의 모순은 `engineering:brainstorming`으로 돌려보낸다.
-- 빠진 capability, 권한, service, dependency 또는 외부 상태는 재개에 필요한 조건과 함께 `blocked`로 기록한다.
-- 유효한 차단 구현 finding만 범위가 제한된 fix loop에 넣는다.
-
-이 소유 단계 분류는 routing이며 상한 도달 시의 판정이 아니다. 실패한 입력을 바꿀 수 없는 코드
-재시도를 막는다. loop는 유효한 구현 finding, 즉 spec ❌, Critical 또는 Important 문제,
-구현 공백으로 확인한 ⚠️ 항목에만 시작한다.
-
-근거 없는 권고는 닫고 비차단 구조 지적은 보고한다. 비차단 항목만으로 fix loop나 backlog를
-만들거나 최종 리뷰로 넘기지 않는다. 추가 구현은 사용자가 요청한 범위에서 다룬다.
-각 수정 회차는 한 번의 수정 위임과 집중 재리뷰로 구성하며, task마다 최대 5회까지 진행한다.
-
-**1~3회차 — 원래 implementer를 재개한다.** 열린 finding과 새 관찰 evidence를 전달하고 같은
-implementer를 현재 플랫폼의 resume interface로 재개한다(Codex에서는 `followup_task`). context가
-남아 있으므로 task, 코드와 앞선 선택을 다시
-설명하지 않되 현재 revision, 반례와 검증 환경은 명시한다. harness에서 원래 implementer를 더 이상
-사용할 수 없거나 새 반례에도 같은 잘못된 가정이 반복되어 진전이 없다면 이 회차에도
-이전 이력을 상속하지 않는 fresh implementer를 사용할 수 있으며 아래 handoff 계약을 따른다.
-
-**4~5회차 — fresh implementer를 사용한다.** 이전 conversation을 상속하지 않는
-플랫폼의 fresh agent 생성 기능을 사용한다. 현재 finding을 해결할 수 있는 역할 적합한 모델을
-선택하고, 앞선 실패가 판단력 부족을 보여 주면 필요한 판단 수준에 맞춰 모델과 추론도를 직접 선택한다.
-회차 번호나 정해진 tier 순서를 강제하지 않는다. 실제로 필요한 capability가
-없으면 `blocked`와 `decision_required`를 기록한다.
-
-**Fresh handoff:** [공유 fix prompt](../executing-plans/fix-implementer-prompt.md)에 다음 경로와 정확한
-current revision을 채운다.
-
-- 승인된 task brief
-- task 최초 구현 전의 `BASE`를 유지한 `scripts/review-package PLAN_FILE BASE HEAD`가 만든 현재
-  task 전체 binary-safe artifact package. 마지막 수정분만 담은 `FIX_BASE..HEAD`로 대체하지 않는다.
-- 아직 열린 finding만 담은 간결한 파일
-- 관찰한 검증 명령·결과와 이미 시도한 실패를 `Fact:`와 `Hypothesis:`로 구분한 evidence 파일
-- stable task/gate ID, 소비·남은 부모 예산과 deadline, 허용된 작업 범위와 runtime·scratch
-
-3+2/max5는 운영값이며 세 번째 이후 context 열화를 입증한 경계가 아니다. 조기 fresh 진단도
-같은 부모 예산을 소비한다. 무관한 작업 세 개를 완료했다고 session을 자동 폐기하지 않는다.
-
-전체 conversation, 장문의 구현 서사·자기변호, self-review, reviewer 칭찬·통과 판정, agent identity는
-handoff에 넣지 않는다. exact-key JSON 정규화나 fix 전용 tar bundle은 요구하지 않는다. current package와
-revision의 결합을 확인할 수 없거나 필수 evidence를 읽을 수 없으면 추측하지 않고 `blocked`로 반환한다.
-
-**보고와 재리뷰:** 원래 implementer는 기존 report 파일에 수정 보고를 append한다. fresh implementer는
-concise raw result를 반환하고 controller가 report와 ledger에 기록한다. 어느 경우든 재리뷰 전에 변경 내용,
-실행한 명령과 관찰 출력이 모두 있는지 확인한다. 코드 동작에는 관련 집중 검사를, 문서·metadata·단순
-configuration에는 변경에 비례한 검사를 사용한다.
-controller는 각 수정 뒤 현재 revision의 명령·출력, 변경 범위와 제약을 원 report에서 새 고정
-검증 사본으로 추출한다. 구현 서사·자기 정당화·자체 pass 판정·칭찬은 제외하고 원 report는
-보존한다. 이전 회차의 사본이나 append 중인 원 report를 재리뷰 입력으로 재사용하지 않는다.
-
-**재리뷰의 범위는 제한된다.** 각 회차에는 fresh-context reviewer를 사용한다. 이전 리뷰에서 확인한
-head를 FIX_BASE로 삼아 `scripts/review-package PLAN_FILE FIX_BASE HEAD`를 실행하고, finding 목록, brief,
-새 고정 검증 사본과 출력된 diff 경로를 [re-review-prompt.md](re-review-prompt.md)에 넣는다. 재리뷰어는 원래 열린
-finding을 ADDRESSED 또는 NOT ADDRESSED로 판정하고, INVALID 제안은 controller가 근거를 확인해 닫는다.
-수정으로 생긴 Critical/Important 회귀만 새 finding으로 추가한다. 수정이 승인된
-목표·계약·설계나 dependency boundary를 바꾼다면 해당 소유 단계와 사용자 재승인으로 routing한다.
-controller나 reviewer가 위험을 자동 수용하지 않는다.
-
-bounded fix 뒤에는 이전 게이트 리비전, `FIX_BASE..HEAD` delta, 다룬 finding과 scoped 검사, 영향받지
-않은 기존 evidence를 재사용할 수 있는 이유, 현재 리비전의 새 scoped gate를 ledger에 기록한다.
-승인된 목표·계약·설계·dependency boundary가 바뀌었거나 bounded impact를 근거로 확정할 수 없을 때에만
-whole review를 다시 연다. 모든 artifact edit 때문에 전체 review를 자동 반복하지 않는다.
-
-**각 회차 뒤** ledger에 다음을 추가한다.
-`Task <N>: fix round <R>/5 (<X> addressed, <Y> open — <finding one-liners>; commits <a7>..<b7>)`
-
-재시도할 때마다 구현, 근거, 관련 context, evaluator, 사용 가능한 capability 또는 human decision이 달라져야
-한다. 변경 없는 결정론적 검사를 반복하거나 같은 reviewer에게 같은 package로 다시 시도하라고
-하지 않는다.
-
-controller session에서 finding을 직접 수정하지 않는다. context를 조정 작업에 사용할 수 있게
-유지하고 controller의 수정으로 리뷰를 건너뛰지 않는다.
-
-**차단기.** 5회차 재리뷰 뒤에도 구현 finding이 열려 있으면 위임을 중단한다. 가지고 있는 plan,
-코드와 검증 근거로 남은 각 finding을 판정한다.
-
-- **명백히 유효하지 않거나 이 게이트의 선언된 범위 밖:** ledger에 근거와 함께 닫는다.
-  `Task <N>: finding closed — <finding> — Ruling: <반증하거나 제외하는 근거>`. 단순히 논쟁의
-  여지가 있다는 것으로는 부족하다.
-- **유효한 task 구현 finding:** 게이트를 `failed`, `decision_required`로 기록하고 task 구현을
-  반환 대상으로 지정한 뒤, 변경된 전략 또는 `accepted_risk`에 대한 사람의 결정을 기다리며 중단한다.
-
-지명된 사람인 의사결정자만 유효한 미해결 finding을 수용할 수 있다. 정확한 리비전에 대해
-명시적으로 수용하면 `accepted_risk`, finding, 결과, 범위와 결정 근거를 기록한다. 상한 도달,
-결함이 핵심이 아니라는 판단 또는 controller 판정 기록으로 실제 finding이 `passed`가 되지는 않는다.
-
-남은 구현 finding의 판정만 상한까지 기다린다. 소유 단계 routing은 모든 리뷰 뒤, 재시도 전에
-수행한다. 모든 routing 결정과 상한 판정은 ledger 항목이며 조용한 폐기는 금지한다.
-
-### 5. Task 완료
-
-필수 검증과 리뷰 gate가 passed이거나 사람이 정확한 리비전의 남은 위험을 명시적으로 수용하면,
-다른 bookkeeping을 처리하는 메시지에서 ledger에 완료 줄도 추가한다. 비차단 지적은 보고에 남긴다.
-
-- `Task <N>: complete (commits <base7>..<head7>, review passed)`
-- `Task <N>: complete (commits <base7>..<head7>, accepted_risk: <decision evidence>)`
-- `Task <N>: reopened (plan <old> -> <new>; <reason>)`
-
-task별 가장 나중 상태만 현재 상태다. `reopened` 뒤 새 리비전의 구현·검증·리뷰가 끝나 다시
-`complete`를 기록하기 전에는 DONE으로 취급하지 않는다. 완료 시 todo를 완료로 표시하고 다음으로
-넘어간다. 해당 리비전에 대해 사람의 명시적인 `accepted_risk` 없이 리뷰에 유효한
-Critical/Important 문제가 열려 있다면 다음 task로 이동하지 않는다.
-
-## 최종 리뷰
-
-최종 전체 브랜치 리뷰는 또 다른 단계별 소유 게이트다. 먼저 전체 브랜치에서 plan이 요구하는
-최종 결정론적 검증을 실행하고 명령, 출력과 정확한 HEAD를 기록한다. 실패하면 `failed`를
-기록하고 영향을 받은 구현 또는 통합 단계로 돌아간다. 아직 추론 기반 reviewer를 위임하지 않는다.
-
-결정론적 검사가 통과하면 게이트의 artifact, MERGE_BASE..HEAD 리비전, 필수 판정, 근거, finding,
-반환 대상, 시도 횟수와 decision owner를 기록한다. `scripts/review-package PLAN_FILE MERGE_BASE HEAD`
-(MERGE_BASE는 브랜치가 시작된 commit, 예: `git merge-base main HEAD`)를 실행하고 최종 리뷰
-dispatch에 출력된 경로와 SHA-256 리비전을 포함한다. 그러면 최종 reviewer가 git 명령으로
-브랜치 diff를 다시 만들지 않고 한 파일만 읽는다. Model Selection의 platform 역할 matrix에서
-현재 작업에 적합한 최종 리뷰 모델·추론도로 위임하며, `engineering:requesting-code-review`의
-[code-reviewer.md](../requesting-code-review/code-reviewer.md)를 사용한다. 근거로 닫은 finding과
-accepted-risk는 현재 판정에 필요한 경우 해당 기록의 위치를 안내한다.
-
-최종 전체 브랜치 리뷰에서 유효한 차단 finding이 나오면 finding마다 fixer를 하나씩 두지 말고
-해당 목록을 한 수정 owner에게 함께 전달한다. 수정 뒤 새 HEAD에서 영향을 받은 검사를 실행하고
-`scripts/review-package PLAN_FILE FIX_BASE HEAD`와 [re-review-prompt.md](re-review-prompt.md)로
-범위가 제한된 재리뷰를 수행한다. 재리뷰는 원래 finding과 수정이 만든 회귀만 판정한다.
-
-수정이 bounded하면 이전 whole-review 리비전, `FIX_BASE..HEAD` delta, 다룬 finding·검사, 영향받지
-않은 기존 evidence를 재사용하는 근거와 현재 HEAD의 새 scoped gate를 ledger에 기록한다. 이 mapping으로
-일반 final gate를 현재 artifact에 연결한다. 승인된 목표·계약·설계·dependency boundary가 바뀌었거나
-bounded impact를 근거로 확정할 수 없을 때에만 현재 `MERGE_BASE..HEAD` 전체 package를 다시 만들고
-fresh whole-change reviewer로 일반 gate를 다시 연다. artifact가 수정됐다는 사실만으로 전체 리뷰를
-반복하지 않는다.
-
-일반 리뷰의 자동 시도는 scoped와 reopened whole review를 합쳐 게이트마다 최대 5회이며 ledger에
-누적한다. task, owner 또는 session 복귀로 이 수를 초기화하지 않는다. 명백히 유효하지 않은 finding은
-근거와 함께 닫을 수 있다. 유효한 미해결 필수 finding은 상한에서 `failed`와 `decision_required`를
-기록하고 사람의 결정을 기다린다. agent가 위험을 자동 수용하거나 이전 통과 판정으로 보류할 수 없다.
-현재 HEAD의 일반 gate가 `passed` 또는 사람이 정확한 리비전에 `accepted_risk`를 기록하기 전에는
-red-team을 시작하지 않는다.
-
-일반 최종 리뷰가 `passed`이거나 정확한 리비전에 대해 사람이 `accepted_risk`를 기록했더라도,
-plan-backed 작업은 별도의 red-team completion gate를 반드시 거친다. 이 게이트는 일반 리뷰를
-강화하는 재리뷰가 아니라 지금까지 선택한 문제 정의, 요구사항, 설계, plan, 구현과 검증이 실제
-목표를 해결하는지를 반증하려는 단계다.
-
-1. red-team을 위임하기 직전에 `scripts/review-package PLAN_FILE MERGE_BASE HEAD`를 다시 실행하여
-   현재 전체 변경의 binary-safe package를 고정한다. 이 SDD helper는 canonical
-   `requesting-code-review/scripts/review-package range`에 위임하며 같은 range도 고유한 새 경로를
-   사용해 기존 package를 덮어쓰지 않는다. 일반 최종 리뷰에서 수정이 없었더라도 이 단계의 정확한
-   HEAD를 기록하며, `FIX_BASE..HEAD` 수정 package나 이전 HEAD의 전체 package를 대신 사용하지 않는다.
-2. 원래 목표, 승인된 요구사항·설계, plan의 의사코드·mapping, 결정론적 검증 report, 관찰된 결과와
-   알려진 제약을 현재 plan workspace의 개별 파일로 고정한다. 일반 review finding이 artifact 변경을
-   유도했다면 verdict·칭찬 없이 finding 원문·근거에서 적용 revision·path로 이어지는 provenance를
-   파일로 고정하고, 그렇지 않으면 그 파일에 `none`을 기록한다. 전체 변경 package와 이 여섯 파일을
-   `../requesting-code-review/scripts/red-team-package`에 전달해 attempt별 새 경로의 단일 bundle과
-   bundle 전체 SHA-256을 만든다. reviewer에는 이 bundle과 digest만 전달하며 원본 경로를 별도로
-   전달하지 않는다.
-3. 이전 implementer, reviewer의 session history, 결론 또는 칭찬을 전달하지 않고 fresh-context
-   reviewer를 위임한다. [red-team-reviewer.md](../requesting-code-review/red-team-reviewer.md)를
-   사용하고 Codex에서는 역할별 matrix에서 현재 작업에 적합한 red-team 모델·추론도를 명시한다.
-4. reviewer는 finding 수를 채우지 않으며 가장 강한 반례를 근거로 검증한다. 판정은 정확히
-   `survives_challenge`, `invalidated`, `inconclusive`, `blocked` 중 하나다.
-5. `survives_challenge`만 red-team의 일반 통과다. `invalidated`는 finding 소유 단계로 돌아가며
-   원래 문제 정의·사용자 목표가 틀렸으면 사용자 재승인, 요구사항·설계가 바뀌면 brainstorming
-   재승인, plan이 바뀌면 writing-plans 갱신과 영향 task `reopened`, 구현이면 해당 task 재개,
-   검증이면 verification 단계 재실행으로 routing한다.
-   `inconclusive` 또는 `blocked`는 통과가 아니며 부족한 근거나 capability의 소유 단계로 돌린다.
-6. 최초 red-team은 위의 fresh immutable whole-goal bundle로 수행한다. 소유 단계가 bounded fix를
-   적용했다면 해당 task 또는 결정의 scoped 검증·재리뷰를 먼저 완료한다. 이전 ordinary gate 리비전,
-   fix delta, 다룬 finding·검사, bounded impact 근거를 기록해 영향받지 않은 evidence를 현재 리비전의
-   ordinary gate에 연결한다. 이어서 모든 현재 full input을 새 immutable bundle로 고정하고, 이를 제공받은
-   fresh scoped red-team reviewer가 이전 challenge와 수정이 만든 회귀만 판정한다. 이전 red-team 리비전,
-   fix delta, 다룬 challenge·검사, bounded impact 근거와 현재 리비전의 새 scoped red-team gate도 기록한다.
-   unrelated issue를 반복해서 찾게 하지 않는다. 목표·계약·설계·dependency boundary가
-   바뀌었거나 bounded impact를 확정할 수 없을 때에만 전체 결정론적 검증과 일반 whole-change review를
-   갱신한 뒤 새 whole-goal bundle로 red-team을 처음부터 다시 연다. evidence 또는 capability만
-   바뀌고 artifact revision이 같다면 현재 일반 gate는 유지할 수 있지만 영향 component와 bundle은
-   다시 고정한다. 같은 artifact와 같은 evaluator의 무변경 재시도는 금지한다. red-team 자동 시도도
-   게이트마다 최대 5회이며 ledger에 누적하고 owner 또는 session 복귀로 초기화하지 않는다. 상한 뒤
-   유효한 위험이 남으면 `decision_required`로 중단하고, 사람이 정확한 리비전과 위험을 명시적으로
-   수용한 경우에만 `accepted_risk`로 다음 단계에 갈 수 있다.
-
-## 마무리
-
-무엇이든 삭제하기 전에 `Ruling:`이 포함된 모든 ledger 줄(preflight 판정과 근거 기반 finding
-분류)과 모든 `accepted_risk` 줄을 내린 순서대로 final message의 "Rulings I made" 아래에 모은다.
-각 항목에는 틀렸을 때의 비용을 적는다. 이 목록은 빠짐없어야 한다. ledger에 판정 또는 수용한
-위험이 있다면 목록에도 있어야 한다. 결정과 남은 위험을 사용자에게 전달하는 유일한 장소다.
-workspace와 함께 사라지는 기록은 몰래 내린 결정이다.
-
-일반 최종 브랜치 게이트가 `passed` 또는 정확한 리비전의 `accepted_risk`이고 red-team도
-`survives_challenge` 또는 사람의 정확한 위험 수용으로 진행할 수 있으면 workspace를 보존한 채
-`engineering:finishing-a-development-branch`를 사용한다. PR 생성 또는 브랜치 보존을 선택하면
-후속 피드백을 위해 workspace를 유지한다. local merge를 선택해 merge 결과 검증까지 통과한 뒤에만
-현재 plan의 workspace를 삭제한다. worktree 정리가 workspace를 함께 제거하면 별도로
-`rm -rf`하지 않는다. sibling 디렉터리는 다른 plan 소유이므로 그대로 둔다. 어느 최종 게이트든
-`accepted_risk`였다면 삭제 전 final message에 보존한 근거와 결정 기록이 있는지 확인한다.
+전체 게이트가 진행을 뒷받침하고 기존 커밋의 통합·보존 방법을 정해야 하면 작업 공간을 유지한 채 `engineering:finishing-a-development-branch`를 적용한다. PR 생성·브랜치 보존·검증 실패에는 작업 공간을 유지한다. 승인된 로컬 병합 결과까지 검증한 뒤 현재 계획의 작업 공간만 정리할 수 있다. 워크트리 정리가 함께 제거하면 별도 삭제를 반복하지 않는다. 삭제 전에 판정·위험 수용 근거를 최종 보고에 보존하고 다른 계획은 그대로 둔다.

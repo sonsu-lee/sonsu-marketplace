@@ -39,14 +39,12 @@ target repository에서 유효한 PR template을 찾지 못했으면 base 저장
 
 ## 저장소 구조를 보존한다
 
-저장소 템플릿은 이 스킬의 기본 템플릿보다 우선한다.
+실제 템플릿에서 제목·항목 순서·checklist·HTML comment·required field와 안내를 읽고, 고정할 부분과
+허용된 편집 범위를 작성 입력으로 전달한다. 내용 배치, 기본형과의 중복 방지, placeholder와 marker의
+구분은 번들 [PR 작성 지침](pr-writing.md#양식을-보존한다)을 따른다. 작성 뒤 실제 템플릿과 대조한다.
 
-- 제목, 항목 순서, checklist, HTML comment, required field와 안내 문구를 읽고 그 지시를 따른다.
-- 기존 section에 대응하는 정보가 있으면 그 자리에 작성한다. fallback heading을 중복으로 추가하지 않는다.
-- template이 요구하는 빈 section이나 checklist를 일반적인 빈 항목 삭제 규칙으로 제거하지 않는다. `N/A` 사용 여부도 저장소 지침과 기존 PR 관례를 따른다.
-- ticket, 검증, risk나 visual evidence에 해당하는 위치가 전혀 없지만 검토에 꼭 필요하면 가장 가까운 기존 free-text field에 넣는다. template이 추가 section을 금지하지 않을 때만 최소 항목 하나를 추가하며, 금지되어 있고 기존 field에도 넣을 수 없으면 Draft를 유지하고 제약을 보고한다.
-- 첨부도 template이 지정한 위치에 배치한다. 업로드와 본문 재배치는 [미디어 첨부 규칙](media-attachments.md)을 따른다.
-- HTML comment는 자동화 marker나 숨은 안내일 수 있으므로 기본적으로 보존하고, template이 명시적으로 제거하거나 치환하라고 지시한 부분만 변경한다. visible placeholder와 작성 안내는 지시에 따라 실제 내용으로 바꾸거나 제거하며 실제 결과처럼 남기지 않는다.
+필수 정보를 담을 항목이 없고 양식이 추가도 허용하지 않으면 Draft를 유지하고 제약을 보고한다.
+첨부의 실제 업로드·본문 반영은 [미디어 첨부 규칙](media-attachments.md)을 따른다.
 
 `gh pr create --template`은 base repository가 노출한 양식 filename을 선택하여 body의 시작점만 제공하며, 임의의 local draft file을 읽는 옵션이 아니다. 또한 `--body` 또는 `--body-file`과 함께 사용할 수 없다. 이 스킬은 선택한 저장소 template을 읽어 완성된 body를 만든 뒤 `--body-file` 하나만 사용한다. 실행 시점의 CLI help로 이 동작을 다시 확인한다. [GitHub CLI `gh pr create`](https://cli.github.com/manual/gh_pr_create)
 
@@ -61,60 +59,10 @@ target repository에서 유효한 PR template을 찾지 못했으면 base 저장
 
 저장소 template에 이미 있는 제목, checklist와 고정 안내 문구는 번역하지 않는다. 채워 넣는 내용만 결정된 PR 언어로 작성한다. template이 특정 언어로 전체 작성을 요구하면 그 지시를 따른다. 코드, 명령어, 로그, identifier, ticket ID와 URL은 번역하지 않는다. 다른 언어 플러그인이나 스킬이 설치되었다고 가정하지 않는다.
 
-## repository와 account template이 없으면 기본 템플릿을 사용한다
+## 기본 템플릿 적용 조건을 확인한다
 
-target repository와 owner의 account-level default에 유효한 PR template이 모두 없다고 확인된 경우에만 아래 구조를 사용한다. heading은 결정된 PR 언어의 자연스러운 표현으로 바꾸되 section의 의미와 순서를 유지한다.
+target repository와 owner의 account-level default에 유효한 PR template이 모두 없다고 확인된 경우에만 번들 [PR 작성 지침](pr-writing.md)의 기본 템플릿을 사용한다. 기본 항목의 의미·순서·필수 여부, 언어별 제목과 작성 안내 정리는 그 지침과 연결된 양식을 따른다. Writing을 설치하지 않아도 번들 지침과 양식으로 작성한다.
 
-| 의미 | English | 한국어 | 日本語 |
-| --- | --- | --- | --- |
-| Background | Background | 배경 | 背景 |
-| Changes | Changes | 변경 사항 | 変更内容 |
-| Related work | Related work | 관련 작업 | 関連作業 |
-| Screenshots and videos | Screenshots and videos | 스크린샷 및 영상 | スクリーンショット・動画 |
-| Notes | Notes | 참고 | 補足 |
+저장소나 account-level template을 확인하지 못한 `unverified` 상태에서는 임시 문구가 준비됐더라도 기본형으로 최종 본문을 확정하지 않는다. 확인된 변경 요약과 미확인 사항은 전달할 수 있지만, 양식 부재나 게시 준비 완료로 표현하지 않는다. 적용 양식과 필수 필드 확인은 위 선택 규칙과 게시 절차에서 별도로 완료한다.
 
-| 항목 | 구분 | 작성 기준 |
-| --- | --- | --- |
-| Background | 필수 | 기존 상황·문제와 변경이 필요한 이유. 작은 변경이면 한 문장으로 충분하다. |
-| Changes | 필수 | 실제 diff로 달라지는 동작·결과와 리뷰에 필요한 주요 변경·설계 이유. |
-| Related work | 선택 | 연결할 티켓·PR·문서가 확인됐을 때 관계와 canonical URL을 쓴다. |
-| Screenshots and videos | 조건부 필수 | UI 변경, 사용자 요청 또는 저장소 규칙이 요구할 때 첨부한다. 상세 조건은 [시각 증거 규칙](visual-evidence.md)을 따른다. |
-| Notes | 선택 | 리뷰어에게 필요한 제약·주의사항·후속 작업, 수동 확인 결과나 CI가 다루지 않는 중요한 미검증 범위를 쓴다. |
-
-```markdown
-## <Background heading>
-<!-- Required: describe the existing situation or problem and why this change is needed. -->
-
-<Relevant context and reason for the change>
-
-## <Changes heading>
-<!-- Required: describe the resulting behavior and important changes in the reviewed diff. -->
-
-- <Changed behavior or result, with a design reason when needed for review>
-
-## <Related work heading>
-<!-- Optional: include only when there is verified related work. -->
-
-- <Ticket, PR or document relationship and canonical URL>
-
-## <Screenshots and videos heading>
-<!-- Conditionally required: include for UI changes or when requested by the user or repository rules. -->
-
-<Marked images or videos with descriptions; if unavailable, only a brief missing-media status>
-<!-- Put capture, inspection and upload procedures in the response outside the PR body. -->
-
-## <Notes heading>
-<!-- Optional: include reviewer-relevant constraints, caveats, follow-up work, manual observations,
-or important unchecked behavior outside CI coverage. Omit the section when none applies.
-Report CI-covered checks and CI status outside the body. -->
-
-- <Reviewer-relevant constraint, manual observation or important unchecked behavior outside CI coverage>
-```
-
-`Background`에는 티켓의 긴 설명을 복사하지 않고 PR을 이해하는 데 필요한 맥락만 쓴다. `Changes`에는 파일별 수정 내역을 나열하기보다 달라지는 동작·결과와 중요한 선택을 설명한다.
-
-기본형에는 별도 `Validation` section을 만들지 않는다. CI가 다루는 자동 검사 결과와 대기 상태는 본문에 반복하지 않고, 리뷰에 필요한 수동 확인 결과나 CI가 다루지 않는 중요한 미검증 범위만 `Notes`에 기록한다. 검증 근거 확인과 결과 보고의 정확성은 [PR 품질 기준](pr-quality-bar.md)을 따른다.
-
-양식 확인·게시·첨부 준비의 내부 절차는 본문 밖의 결과 보고에 담는다. 필수 자료가 미확보된 초안에는 그 사실을 짧게 표시하고, 도구·검사·업로드 계획은 별도로 전달한다.
-
-완성된 PR 초안을 보여 주거나 publish하기 전에 위 기본형의 angle-bracket placeholder를 실제 내용으로 채우고 HTML comment를 포함한 작성 안내와 필수·선택 표시를 제거한다. 내용이 없는 선택 section과 필요 조건에 해당하지 않는 `Screenshots and videos` section은 생략하며, `없음`이나 `N/A`로 채우지 않는다. 필요한 첨부를 준비하지 못한 상태를 선택 항목 생략으로 처리하지 않고 시각 증거·미디어 규칙에 따라 미준비 상태를 보고한다. 저장소 template의 필수 항목과 HTML comment 보존 규칙에는 이 기본형의 정리 규칙을 적용하지 않는다.
+검증 근거 확인과 실제 실행·미실행 결과의 구분은 [PR 품질 기준](pr-quality-bar.md)을 따른다. 양식 확인·게시·첨부 준비의 내부 절차는 본문 밖의 결과 보고에 담는다. 필요한 첨부를 준비하지 못한 상태는 시각 증거·미디어 규칙으로 보고하며, 선택 항목 생략으로 처리하지 않는다.

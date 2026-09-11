@@ -1,201 +1,49 @@
 ---
 name: dispatching-parallel-agents
-description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
+description: 서로 다른 파일이나 자료를 맡아 독립적으로 완료할 수 있는 작업이 여럿 있을 때 에이전트에 나누어 맡기고 결과를 통합한다.
 ---
 
-# Dispatching Parallel Agents
+# 독립 작업의 병렬 실행
 
-## 작업 연속성
+조정자가 전체 목표와 통합을 맡고, 에이전트는 분리된 작업을 수행한다. 위임한 결과가 다른
+작업과 별개로 쓸모 있고 조정 비용보다 이점이 클 때 병렬 실행을 선택한다.
 
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+## 작업과 쓰기 범위를 나눈다
 
-## Overview
+1. 요청을 독립적으로 완료·검증할 수 있는 단위로 나눈다. 같은 원인이나 선행 결정에 의존하는
+   부분은 함께 처리하거나 앞선 결과가 나온 뒤 실행한다.
+2. 현재 실행 도구의 수용량 안에서 동시 실행 수와 전체 시도 예산을 정한다.
+3. 각 에이전트의 파일 소유 범위와 임시 경로를 지정한다. 잠금 파일, 생성 결과, 테스트 DB와
+   Git index·HEAD도 공유 자원에 포함한다. 겹치는 변경은 직렬화하거나 별도 worktree로 분리한다.
+4. [실행 계약](../using-engineering-skills/references/agent-execution.md)에 따라 필요한 정보만
+   전달한 새 문맥에서 시작한다. 조정자가 위임·리뷰·통합을 직접 관리한다.
 
-You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
+## 실행 요청을 작성한다
 
-Multiple unrelated failures can be investigated in parallel when each investigation has enough context and
-does not depend on another's result. Coordination overhead can outweigh the benefit for small tasks.
+작업 요청에 다음 정보를 연결한다. 이미 계획이나 작업 요약에 있다면 정확한 위치를 참조한다.
 
-**Core principle:** Dispatch only independently useful work within controller-owned scope and budgets.
+| 정보 | 내용 |
+| --- | --- |
+| 목표와 근거 | 완료할 결과, 승인된 요구사항과 현재 원본 리비전 |
+| 소유 범위 | 읽을 자료, 수정할 파일, 작업 디렉터리와 독립 임시 경로 |
+| 실행 조건 | 필요한 기능·환경, 실제 사용 가능한 모델·설정, 남은 부모 예산과 기한 |
+| 완료 기준 | 필요한 검사와 관찰 결과, 반환할 산출물·열린 문제 |
 
-Apply the [shared execution/context contract](../using-engineering-skills/references/agent-execution.md).
-The controller owns routing, findings and integration. Workers do not recursively create helpers or reviewers.
-Use the platform's actual model/effort schema; record requested and observed settings separately.
+정해진 범위 안의 구현 선택은 담당자가 판단한다. 계약·권한·쓰기 범위를 바꿔야 하면 필요한
+결정과 근거를 조정자에게 반환한다. 그 결정과 독립된 승인 작업은 계속할 수 있다.
 
-## Ownership and evidence before dispatch
+## 결과를 통합한다
 
-- Give each worker the current contract/source revision, task/gate ID, writable scope, runtime and isolated
-  scratch, expected evidence, remaining parent budget and deadline. Select a finite concurrency cap within
-  current capacity; two or three workers is not a proven optimum.
-- Separate sessions do not isolate files. Parallel implementations need disjoint write ownership or separate
-  worktrees, with one integration owner. Shared lockfiles, generated output, test databases and Git index/HEAD
-  updates also count as shared state. If those boundaries cannot be closed, execute sequentially.
-- In a shared checkout, serialize all index/commit operations through the integration owner. In separate
-  worktrees, serialize integration and validate the resulting combined revision. Worktree isolation does not
-  make conflicting interface changes independent.
-- Parallel reviewers receive the same immutable artifact and evidence in fresh contexts. Do not provide writer
-  transcripts, self-pass judgments, or another reviewer's findings before their independent first responses.
-  Re-review may receive the findings it must verify. Adjudicate with reproducible evidence, not majority vote.
-- Specialist reviews cover a named independent risk; they do not replace the whole-change reviewer or the
-  ordinary-review-then-red-team sequence. The SDD task/commit loop remains sequential by default.
-- Keep the same task/gate budget across retries, model/session changes and owner returns. Child calls use
-  the remaining parent budget rather than creating nested retry allowances. Preserve incomplete executions
-  and environment failures separately from code findings.
+- 실행 도구의 시작·종료 상태로 실제 진행을 확인한다. 동시 위임 요청만으로 실행 중첩을 판단하지 않는다.
+- 반환된 diff와 검사 결과를 읽고 공유 파일 충돌을 확인한다. 같은 저장소의 index·commit 작업과
+  별도 worktree의 통합은 조정자 한 명이 순서대로 수행한다.
+- 통합된 현재 리비전에서 필요한 검증을 실행한다. 완료 이벤트가 없거나 일부 출력만 있는 실행은
+  미완료로 기록하고, 환경 실패와 구현 결함을 구분한다.
+- 재시도에는 같은 작업 ID와 남은 부모 예산을 전달한다. 담당자·세션을 바꿔도 소비한 횟수를 유지한다.
 
-## When to Use
+독립 리뷰에는 같은 고정 산출물과 사실 중심 근거를 각각 전달한다. 각 첫 응답을 받은 뒤
+지적을 근거로 판단하고, 재리뷰에는 확인할 기존 지적과 수정 내용을 전달한다. 전문 영역
+리뷰는 맡긴 위험을 다루며 전체 변경 리뷰와 후속 red-team은 해당 완료 절차에 따라 수행한다.
 
-```dot
-digraph when_to_use {
-    "Multiple failures?" [shape=diamond];
-    "Are they independent?" [shape=diamond];
-    "Single agent investigates all" [shape=box];
-    "One agent per problem domain" [shape=box];
-    "Can they work in parallel?" [shape=diamond];
-    "Sequential agents" [shape=box];
-    "Parallel dispatch" [shape=box];
-
-    "Multiple failures?" -> "Are they independent?" [label="yes"];
-    "Are they independent?" -> "Single agent investigates all" [label="no - related"];
-    "Are they independent?" -> "Can they work in parallel?" [label="yes"];
-    "Can they work in parallel?" -> "Parallel dispatch" [label="yes"];
-    "Can they work in parallel?" -> "Sequential agents" [label="no - shared state"];
-}
-```
-
-**Use when:**
-- 3+ test files failing with different root causes
-- Multiple subsystems broken independently
-- Each problem can be understood without context from others
-- No shared state between investigations
-
-**Don't use when:**
-- Failures are related (fix one might fix others)
-- Need to understand full system state
-- Agents would interfere with each other
-
-## The Pattern
-
-### 1. Identify Independent Domains
-
-Group failures by what's broken:
-- File A tests: Tool approval flow
-- File B tests: Batch completion behavior
-- File C tests: Abort functionality
-
-Each domain is independent - fixing tool approval doesn't affect abort tests.
-
-### 2. Create Focused Agent Tasks
-
-Each agent gets:
-- **Specific scope:** One test file or subsystem
-- **Clear goal:** Make these tests pass
-- **Constraints:** Don't change other code
-- **Expected output:** Summary of what you found and fixed
-- **Execution contract:** Revision, task/gate ID, write ownership, runtime/scratch and shared budget
-
-### 3. Dispatch in Parallel
-
-If ownership and the concurrency budget permit three independent workers, issue their dispatches without
-waiting for one worker's completion before starting the next:
-
-```text
-Subagent (general-purpose): "Fix agent-tool-abort.test.ts failures"
-Subagent (general-purpose): "Fix batch-completion-behavior.test.ts failures"
-Subagent (general-purpose): "Fix tool-approval-race-conditions.test.ts failures"
-# All three run concurrently.
-```
-
-Dispatch alone does not prove overlap. Use the runtime's actual start/completion state and concurrency limit.
-
-### 4. Review and Integrate
-
-When agents return:
-- Read each summary
-- Verify fixes don't conflict
-- Run the checks required by the combined change and its integration risks
-- Integrate all changes
-
-## Agent Prompt Structure
-
-Good agent prompts are:
-1. **Focused** - One clear problem domain
-2. **Self-contained** - All context needed to understand the problem
-3. **Specific about output** - What should the agent return?
-
-```markdown
-Fix the 3 failing tests in src/agents/agent-tool-abort.test.ts:
-
-1. "should abort tool with partial output capture" - expects 'interrupted at' in message
-2. "should handle mixed completed and aborted tools" - fast tool aborted instead of completed
-3. "should properly track pendingToolCount" - expects 3 results but gets 0
-
-These are timing/race condition issues. Your task:
-
-1. Read the test file and understand what each test verifies
-2. Identify root cause - timing issues or actual bugs?
-3. Fix by:
-   - Replacing arbitrary timeouts with event-based waiting
-   - Fixing bugs in abort implementation if found
-   - Adjusting test expectations if testing changed behavior
-
-Do NOT just increase timeouts - find the real issue.
-
-Return: Summary of what you found and what you fixed.
-```
-
-## Common Mistakes
-
-**❌ Too broad:** "Fix all the tests" - agent gets lost
-**✅ Specific:** "Fix agent-tool-abort.test.ts" - focused scope
-
-**❌ No context:** "Fix the race condition" - agent doesn't know where
-**✅ Context:** Paste the error messages and test names
-
-**❌ No constraints:** Agent might refactor everything
-**✅ Constraints:** "Do NOT change production code" or "Fix tests only"
-
-**❌ Vague output:** "Fix it" - you don't know what changed
-**✅ Specific:** "Return summary of root cause and changes"
-
-## When NOT to Use
-
-**Related failures:** Fixing one might fix others - investigate together first
-**Need full context:** Understanding requires seeing entire system
-**Exploratory debugging:** You don't know what's broken yet
-**Shared state:** Agents would interfere (editing same files, using same resources)
-
-## Real Example from Session
-
-**Scenario:** 6 test failures across 3 files after major refactoring
-
-**Failures:**
-- agent-tool-abort.test.ts: 3 failures (timing issues)
-- batch-completion-behavior.test.ts: 2 failures (tools not executing)
-- tool-approval-race-conditions.test.ts: 1 failure (execution count = 0)
-
-**Decision:** Independent domains - abort logic separate from batch completion separate from race conditions
-
-**Dispatch:**
-```
-Agent 1 → Fix agent-tool-abort.test.ts
-Agent 2 → Fix batch-completion-behavior.test.ts
-Agent 3 → Fix tool-approval-race-conditions.test.ts
-```
-
-**Results:**
-- Agent 1: Replaced timeouts with event-based waiting
-- Agent 2: Fixed event structure bug (threadId in wrong place)
-- Agent 3: Added wait for async tool execution to complete
-
-**Integration:** All fixes independent, no conflicts, full suite green
-
-## Verification
-
-After agents return:
-1. **Review each summary** - Understand what changed
-2. **Check for conflicts** - Did agents edit same code?
-3. **Verify integration** - Run the required focused or full checks on the combined revision
-4. **Spot check** - Agents can make systematic errors
+여러 단계의 병렬 작업을 소유한 조정자는 [작업 연속성](../task-continuity/SKILL.md)에
+작업별 상태와 남은 통합 단계를 기록한다.

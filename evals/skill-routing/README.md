@@ -1,6 +1,6 @@
 # 스킬 라우팅 평가
 
-`cases.json`은 Engineering, Quality Engineering, Workflow, Research, Prompting, Product와 Fluent
+`cases.json`은 Engineering, Quality Engineering, Workflow, Research, Prompting, Product, Writing과 Fluent
 Languages를 함께 또는 각각 설치했을 때의 기대 라우팅을 정의합니다. 직접 산출물 요청,
 비슷하지만 다른 요청, runtime 조합과 단독 설치 사례를 포함합니다.
 
@@ -19,6 +19,10 @@ ticket을 각각 검증해야 합니다. `must_use_native_relation`은 provider�
 제안하지 않아야 합니다. `expected_assignee_change.target`이 특정 사용자라면 해당 사용자를 현재
 assignee에서 검증하고 다른 assignee를 유지해야 합니다. `all`은 사용자가 모든 담당자 해제를
 명시한 사례에서만 허용합니다.
+
+Writing은 공통 구성을, Fluent Languages는 출력 언어별 표현을 담당합니다. Workflow는 자체 양식과
+운영 절차에 두 지침을 선택적으로 적용합니다. 분리·조합 사례의 기대값은 실제 native 라우팅 결과와
+구분하며, [명시적 지침 적용 검사](../writing/README.md)만으로 자동 선택을 통과했다고 하지 않습니다.
 
 이 평가는 실제 skill selection 결과를 대상으로 합니다. JSON 파싱이나 description 문자열 비교는
 평가 실행을 대신하지 않습니다. 모델 기반 실행은 격리된 읽기 전용 fixture에서 수행하고 원격

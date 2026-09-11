@@ -1,16 +1,16 @@
 # PR 품질 기준
 
-PR 초안이나 게시 payload의 설명과 근거를 검토할 때 읽는다. 양식·언어·항목 구성은 [PR 템플릿 규칙](pr-template.md), 게시 조건과 원격 확인은 [GitHub PR 규칙](github.md)을 따른다.
+PR 초안이나 게시 payload의 설명과 근거를 검토할 때 읽는다. 적용 양식·언어는 [PR 템플릿 규칙](pr-template.md), 본문 구성과 표현은 [PR 작성 지침](pr-writing.md), 게시 조건과 원격 확인은 [GitHub PR 규칙](github.md)을 따른다.
 
 ## 실제 변경을 설명한다
 
 merge base부터 current head까지의 commit과 전체 diff를 읽고 staged·unstaged·untracked 변경과 구분한다. 관련 없는 commit이나 파일이 있으면 포함 범위를 임의로 정리하지 않고 보고한다.
 
-제목은 실제 결과를 한 문장으로 설명하고 저장소의 semantic 제목 또는 Conventional Commit 관례를 따른다. 기존 commit이 관례를 어겨도 이 스킬에서 rewrite하지 않는다.
+저장소의 semantic 제목 또는 Conventional Commit 관례를 확인하고 작성할 제목에 적용한다. 기존 commit이 관례를 어겨도 이 스킬에서 rewrite하지 않는다.
 
-본문은 PR을 처음 읽는 리뷰어가 변경 이유와 달라지는 동작을 이해할 수 있게 쓴다. 티켓의 긴 배경이나 파일별 수정 목록을 복사하지 않고, 설계 선택의 이유와 rollout·migration·호환성·rollback 주의사항은 검토에 필요한 만큼 설명한다. 최종 head와 설명이 같은 변경을 다루는지 확인한다.
+번들 작성 지침에 전달할 실제 변경, 설계 근거와 rollout·migration·호환성·rollback 제약을 확보한다. 제목·본문이 최종 head와 같은 변경을 설명하는지 확인한다.
 
-출력 언어의 Fluent Languages 스킬이 있으면 함께 적용한다. 한국어는 `fluent-languages:fluent-korean`을 사용한다. 관련 내용은 문단으로 묶고 고정 양식·코드·식별자·링크와 의무 수준을 보존한다. 해당 스킬이 없어도 작업은 계속한다.
+Writing·Fluent 적용은 [공통 결합 기준](../../../references/writing-composition.md)을 따른다. 표현을 고친 뒤에도 고정 양식·코드·식별자·링크·의무 수준과 보호할 연결 문법을 다시 대조한다.
 
 ## 근거의 범위를 정확히 표현한다
 

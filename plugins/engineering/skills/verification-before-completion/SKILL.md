@@ -1,148 +1,56 @@
 ---
 name: verification-before-completion
-description: 작업이 완료·수정됐거나 검사를 통과했다고 주장하기 직전과 commit 또는 PR 생성 전에 사용한다. 성공을 주장하기 전에 검증 명령을 실행하고 출력을 확인해야 하며, 항상 주장보다 근거가 먼저다
+description: 작업 완료, 결함 수정 또는 검사 통과를 보고하기 직전과 승인된 commit 또는 PR 생성 전에 사용한다
 ---
 
-# verification-before-completion: 완료 전 검증
+# 완료 전 검증
+
+완료 주장을 현재 변경의 실제 근거에 연결한다. 검증 범위는 주장과 변경 위험에 맞추며,
+[품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)을 적용한다.
+이 검증은 Git 작업이나 외부 작업의 권한을 부여하지 않는다.
 
 ## 작업 연속성
 
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+여러 단계의 작업이나 외부 쓰기를 맡은 조정자는 [task-continuity](../task-continuity/SKILL.md)에
+따라 진행을 기록하고, 재개할 때 현재 근거와 대조한다. 단발 작업, 위임된 에이전트와 독립
+리뷰어는 별도 기록을 만들지 않는다. 읽기 전용 작업에서는 기록 파일과 Git exclude를 기존 상태로 둔다.
 
-## 개요
+## 근거를 확인한다
 
-**핵심 원칙:** 항상 주장보다 근거가 먼저다.
+1. 주장이 다룰 산출물과 리비전을 고정한다.
+2. 그 주장을 판정하는 필수 명령·리뷰와 통과 조건을 확인한다.
+3. 아직 유효한 근거가 없는 검사와 변경으로 영향받은 검사를 실행한다.
+4. 완료 여부, 종료 코드와 결과를 읽고 실제로 검증한 범위를 확인한다.
+5. 현재 리비전의 필수 조건 전체에 근거를 연결하고 상태·미해결 지적·반환 대상을 기록한다.
+6. 근거가 뒷받침하는 결과와 남은 한계를 보고한다.
 
-**이 규칙의 문구를 어기는 것은 규칙의 취지를 어기는 것이다.**
+새 변경·실패·미해결 우려가 없고 필요한 근거가 현재 리비전을 다루면 같은 검사를 반복하지
+않는다. 수정 후 이전 근거를 재사용할 때에는 실제 차이, 영향받은 계약·소비자, 새 검사와
+재사용 이유를 연결한다. 영향 경계가 불명확하거나 목표·계약·설계·의존 경계가 바뀌면 해당
+전체 검증·리뷰를 다시 연다. 미실행 검사나 이전 리비전의 통과를 현재 실행 결과로 표현하지 않는다.
 
-공통 [품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)을 읽고 적용한다.
-이 스킬은 최종 근거 게이트를 제공할 뿐 Git 또는 외부 작업 권한을 부여하지 않는다.
+## 주장과 근거의 대응
 
-## 절대 규칙
+| 주장 | 필요한 근거와 한계 |
+| --- | --- |
+| 테스트 통과 | 해당 명령의 완료·결과와 실행 범위. 일부 실행은 그 범위만 입증한다 |
+| 린트·빌드 성공 | 각각의 실제 실행 결과. 린트 통과로 빌드 성공을 대신하지 않는다 |
+| 결함 수정 | 원래 증상의 재현과 수정 후 결과, 영향받은 회귀 검사 |
+| 회귀 테스트의 검출력 | 의도한 결함 상태에서 실패하고 수정 상태에서 통과한 근거 |
+| 위임 작업 완료 | 실제 변경과 검증 결과. 에이전트의 성공 보고만으로 확정하지 않는다 |
+| 요구사항 충족 | 각 요구사항과 관찰 결과의 대응. 테스트 개수만으로 확정하지 않는다 |
+| 계획에 따른 작업 완료 | 결정론적 검증, 일반 최종 리뷰, 현재 리비전의 독립 red-team `survives_challenge` |
 
-```
-NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
-```
+## 상태를 보고한다
 
-이번 메시지에서 검증 명령을 실행하지 않았다면 통과했다고 주장할 수 없다.
+- 모든 필수 조건이 현재 리비전의 근거로 충족되면 `passed`다.
+- 필수 조건 위반이 확인되면 `failed`로 두고 실패한 입력을 바꿀 수 있는 가장 가까운 단계로 반환한다.
+- 환경·권한·의존성 부재는 `blocked`, 판정 근거 부족은 `inconclusive`, 미실행은 `not_run`이다.
+  완료 이벤트 없는 부분 출력은 실행 미완료로 구분한다.
+- 필수 미해결 위험을 수용하려면 지명된 사람의 현재 리비전에 대한 명시적인 `accepted_risk`가
+  필요하다. 위험 수용은 검사 통과와 구분해 보고한다.
 
-## 게이트 절차
-
-```
-BEFORE claiming any status or expressing satisfaction:
-
-1. SCOPE: Identify the exact artifact and revision the claim covers
-2. IDENTIFY: What command or review proves this claim?
-3. RUN: Execute the FULL check (fresh, complete)
-4. READ: Full output, check exit code, count failures
-5. VERIFY: Does output confirm the claim for this revision?
-   - If NO: State actual status with evidence
-   - If YES: State claim WITH evidence
-6. RECORD: Preserve the gate status, evidence, findings, and return target
-7. ONLY THEN: Make the claim
-
-Skip any step = lying, not verifying
-```
-
-## 게이트 결과
-
-- `passed`가 되려면 현재 리비전에서 모든 필수 검사가 통과 조건을 충족해야 한다.
-- `failed`이면 실패한 입력을 바꿀 수 있는 가장 가까운 구현·계획·설계 소유 단계로 돌아간다.
-- `blocked`, `inconclusive`와 필수 `not_run`은 완료 주장을 뒷받침하지 못한다.
-- `accepted_risk`에는 정확한 리비전에 대한 사람의 명시적인 결정이 필요하다. 미해결 위험을 보고하며, 테스트나 게이트가 통과했다고 바꿔 말하지 않는다.
-- 검사에서 결과 리비전까지 다뤘음이 명백하지 않다면 artifact 변경으로 이전 근거는 오래된 것이 된다.
-- 공통 계약의 변경 영향 규칙으로 이전 유효 근거와 새 scoped 검증을 현재 리비전에 연결할 수 있다.
-  이전 pass를 복사하는 것과 구분하며, 실제 delta·영향 경계·필수 조건 전체의 coverage를 확인한다.
-- plan-backed 작업은 결정론적 검증과 일반 최종 리뷰만으로 완료할 수 없다. 같은 전체 변경
-  리비전에 대한 fresh-context red-team gate가 `survives_challenge`여야 한다. reviewer를 사용할
-  수 없거나 판정이 `invalidated`, `inconclusive`, `blocked`, 필수 `not_run`이면 완료 주장을
-  뒷받침하지 못한다. 사람이 정확한 리비전과 위험을 명시적으로 수용한 `accepted_risk`는 통과와
-  구분해 보고한다.
-
-## 자주 하는 잘못된 주장
-
-| 주장 | 필요한 근거 | 충분하지 않은 근거 |
-|-------|----------|----------------|
-| 테스트 통과 | 테스트 명령 출력: 실패 0개 | 이전 실행, "should pass" |
-| Linter 오류 없음 | Linter 출력: 오류 0개 | 일부 검사, 외삽 |
-| Build 성공 | Build 명령: exit 0 | Linter 통과, 문제가 없어 보이는 로그 |
-| 버그 수정 | 원래 증상을 재현하는 테스트 통과 | 코드 변경, 수정됐다는 가정 |
-| 회귀 테스트 동작 | Red-green cycle 검증 | 테스트 한 번 통과 |
-| 에이전트 완료 | VCS `diff`에서 변경 확인 | 에이전트의 "success" 보고 |
-| 요구사항 충족 | 줄 단위 checklist | 테스트 통과 |
-| plan-backed 완료 | 결정론적 검증 + 일반 최종 리뷰 + fresh red-team `survives_challenge` | 일반 리뷰 승인만 있음 |
-
-## 위험 신호 - 중단
-
-- "should", "probably", "seems to" 사용
-- 검증 전에 만족을 표현함("Great!", "Perfect!", "Done!" 등)
-- 검증 없이 commit/push/PR을 하려 함
-- 에이전트의 성공 보고를 그대로 신뢰함
-- 일부 검증에 의존함
-- "just this once"라고 생각함
-- 피곤해서 작업을 끝내고 싶어 함
-- **검증을 실행하지 않고 성공을 암시하는 모든 표현**
-
-## 합리화 방지
-
-| 변명 | 실제 |
-|--------|---------|
-| "Should work now" | 검증을 실행한다. |
-| "I'm confident" | 확신은 근거가 아니다. |
-| "Just this once" | 예외는 없다. |
-| "Linter passed" | Linter는 compiler가 아니다. |
-| "Agent said success" | 독립적으로 검증한다. |
-| "I'm tired" | 피로는 변명이 아니다. |
-| "Partial check is enough" | 일부 검사는 전체를 증명하지 못한다. |
-| "Different words so rule doesn't apply" | 문구보다 취지가 우선한다. |
-
-## 핵심 pattern
-
-**테스트:**
-```
-✅ [Run test command] [See: 34/34 pass] "All tests pass"
-❌ "Should pass now" / "Looks correct"
-```
-
-**회귀 테스트(TDD Red-Green):**
-```
-✅ Write → Run (pass) → Revert fix → Run (MUST FAIL) → Restore → Run (pass)
-❌ "I've written a regression test" (without red-green verification)
-```
-
-**빌드:**
-```
-✅ [Run build] [See: exit 0] "Build passes"
-❌ "Linter passed" (linter doesn't check compilation)
-```
-
-**요구사항:**
-```
-✅ Re-read plan → Create checklist → Verify each → Report gaps or completion
-❌ "Tests pass, phase complete"
-```
-
-**에이전트 위임:**
-```
-✅ Agent reports success → Check VCS diff → Verify changes → Report actual state
-❌ Trust agent report
-```
-
-## 적용 시점
-
-**항상 다음 작업 전에 적용한다.**
-- 성공 또는 완료를 뜻하는 모든 형태의 주장
-- 모든 만족 표현
-- 작업 상태에 대한 모든 긍정적인 진술
-- commit, PR 생성, task 완료
-- 다음 task로 이동
-- 에이전트에게 위임
-
-**다음 표현에도 규칙이 적용된다.**
-- 정확히 일치하는 문구
-- 바꿔 쓴 문구와 동의어
-- 성공을 암시하는 표현
-- 완료 또는 정확성을 나타내는 모든 의사소통
+구현 계획이 있는 작업은 일반 최종 리뷰 뒤 별도의 새 문맥에서 red-team을 수행한다.
+`invalidated`, `inconclusive`, `blocked` 또는 필수 `not_run`은 완료 근거가 아니다.
+국소 수정 후에는 기존 전체 근거와 집중 재검토를 현재 전체 리비전에 연결할 수 있다.
+계획 없는 Fast Path에는 이 red-team 조건을 적용하지 않는다.

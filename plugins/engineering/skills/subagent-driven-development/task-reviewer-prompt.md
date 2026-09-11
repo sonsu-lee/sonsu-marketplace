@@ -1,45 +1,42 @@
-# Task reviewer prompt template
+# 작업 리뷰 프롬프트
 
-controller는 [공통 리뷰 기준](../requesting-code-review/review-criteria.md)의 내용을 아래 prompt
-앞에 붙여 전달한다. 모델·추론도는 현재 platform schema와 역할 기준에 따라 선택한다.
+조정자는 [공통 리뷰 기준](../requesting-code-review/review-criteria.md)을 함께 전달하고 실제 플랫폼의 실행 계약을 적용한다.
 
 ```text
-한 task의 spec 준수와 구현 품질을 읽기 전용으로 리뷰한다. 직접 수정하거나 subagent를
-위임하지 않는다. 이 판정은 task 범위이며 전체 branch의 최종 리뷰를 대신하지 않는다.
+한 작업의 명세 준수와 구현 품질을 읽기 전용으로 리뷰한다. 수정·추가 하위 에이전트 위임은
+조정자가 담당한다. 이 판정은 작업 범위이며 전체 브랜치의 최종 리뷰와 별개다.
 
-Task brief: [BRIEF_FILE]
-적용되는 전역 제약: [GLOBAL_CONSTRAINTS]
-사실 중심 검증 사본: [REPORT_FILE]
-실행 범위·허용 runtime/scratch·예산: [EXECUTION_CONTEXT]
-Base: [BASE_SHA]
-Head: [HEAD_SHA]
-고정 diff: [DIFF_FILE]
+작업 brief: [작업 요약 파일]
+전역 제약: [전역 제약]
+사실 중심 검증 사본: [보고서 파일]
+실행 범위·실행 환경/임시 공간·예산: [실행 계약]
+Base: [시작 커밋 SHA]
+Head: [종료 커밋 SHA]
+고정 diff: [변경 패키지 파일]
 
-brief, diff와 검증 사본을 읽는다. brief에는 적용되는 요구사항, 실제 의사코드·flow mapping과
-선택된 검증 방법이 있어야 한다. 필수 내용이 빠졌으면 inconclusive로 controller에게 반환한다.
-diff가 없으면 지정된 Base..Head의 git diff --stat 및 git diff로 가져온다. 구현자 report는
-주장과 코드·검증 사실을 대조하는 자료이며 자체 판정이나 설계 정당화를 근거로 삼지 않는다.
+작업 요약·차이·검증 사본을 읽는다. 적용 요구사항·의사코드·흐름 대응 관계·검증 선택이 빠졌으면
+inconclusive로 반환한다. 차이가 없으면 정확한 Base..Head의 git diff --stat와
+git diff --binary --no-ext-diff -U10으로 확인한다. 구현자 report의 주장과 실제 코드·검증을
+대조하며 자체 통과 판정·설계 정당화는 근거로 사용하지 않는다.
 
-현재 동작에서 빠졌거나 잘못 구현됐거나 불필요하게 추가된 요구사항을 확인한다. 기본 동작과
-관련 호출자·설정으로 충족된 요구를 diff에 명시되지 않았다는 이유로 Missing 처리하지 않는다.
-승인된 계약과 material하게 다르면 재승인·plan 갱신 근거를 확인하고 해당 소유자에게 반환한다.
+누락·오구현·불필요한 추가 요구사항을 확인한다. 기본 동작·관련 호출자·설정으로 충족되는 요구는
+차이에 명시되지 않았다는 이유로 Missing 처리하지 않는다. 승인 계약과 material하게 다르면
+필요한 재승인·계획 갱신 근거를 확인해 해당 소유 단계로 반환한다. 기존 승인 범위의 내부 선택은
+새 사용자 승인 조건으로 만들지 않는다.
 
-기존 근거로 해소할 수 없는 구체적인 의문만 관련 소스나 집중 검사로 확인한다. 지정된 검증을
-보고서 확인 목적으로 반복하지 않는다. 확인할 수 없는 필수 요구사항은 controller가 해결할
-공백으로 남긴다. 환경·도구 부재는 blocked, 판정 근거 부족은 inconclusive다.
+기존 근거로 해소되지 않는 구체적인 의문만 관련 소스·집중 검사로 확인한다. 검증 사본의 확인
+목적으로 동일 검사를 반복하지 않는다. 필수 요구사항의 근거 부족은 inconclusive, 환경·도구 부재는
+blocked로 기록하고 조정자가 해소할 항목을 명시한다.
 
 출력:
-Spec 준수: ✅ Spec compliant | ❌ Issues found | ⚠️ Cannot verify
-Task 품질: Approved | Needs fixes | Inconclusive | Blocked
+명세 준수: ✅ Spec compliant | ❌ Issues found | ⚠️ Cannot verify
+작업 품질: Approved | Needs fixes | Inconclusive | Blocked
 Gate status: passed | failed | inconclusive | blocked
-근거: 짧은 기술적 판정
+근거: [짧은 기술적 판정]
 
-조치할 finding이 있으면 심각도, file:line, 동작 또는 구조의 근거·영향과 최소 수정안을 적는다.
-필수 공백이 있으면 확인할 요구사항과 반환 대상을 적는다. Critical/Important 또는 확인된
-spec 위반이 열려 있으면 Needs fixes / failed다. 필수 근거까지 충분할 때만 Approved / passed다.
+조치할 지적에는 심각도·file:line·발생 조건·동작 또는 구조 근거·영향·최소 수정안을 적는다.
+필수 공백에는 확인할 요구사항과 반환 대상을 적는다. Critical/Important 또는 확인된 명세 위반이
+열려 있으면 Needs fixes / failed다. 필수 근거와 두 판정이 모두 충족되면 Approved / passed다.
 ```
 
-`[BRIEF_FILE]`은 implementer에게 준 동일한 task brief다. `[REPORT_FILE]`은 controller가 원
-report에서 고정한 명령·출력·제약의 사본이다. `[DIFF_FILE]`은 task 전 base부터 현재 head까지의
-전체 package다. fresh fix implementer에게는 이 리뷰의 전체 보고서가 아니라 승인된 brief,
-현재 artifact, 열린 finding과 검증 사실만 [수정 prompt](../executing-plans/fix-implementer-prompt.md)에 따라 전달한다.
+`[작업 요약 파일]`은 구현자와 같은 작업 요약이다. `[보고서 파일]`은 원 보고서에서 현재 명령·출력·범위·제약을 고정한 사본이며 `[변경 패키지 파일]`은 작업 최초 기준점부터 현재 종료점까지의 전체 패키지다. 새 문맥의 수정 담당자의 입력은 [수정 프롬프트](../executing-plans/fix-implementer-prompt.md)를 따른다.

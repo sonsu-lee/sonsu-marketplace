@@ -1,125 +1,127 @@
-# Upstream provenance
+# 원본 출처와 변경 이력
 
-The Korean, Japanese and English skills in this local Codex plugin are generation-oriented local adaptations. They are not byte-identical vendor snapshots of the referenced MIT-licensed projects.
+Fluent Languages는 독립적으로 설치할 수 있다. 언어별 설명과 지침은 한국어로 관리하고, 출력 언어는 요청된 언어를 따른다. 문서 구성 원칙은 Writing에, 어순·표현·어조와 보존 기준은 Fluent에 둔다. 함께 사용할 때도 승인된 편집 범위와 구성을 유지한다. 원본의 출처·법적 고지와 플러그인 내부 생성 구조를 보존한다.
 
-The reusable local source is split at build time. `sources/core/` contains the shared communication and integrity contracts, while `sources/languages/` contains each entrypoint and its language guidance. `scripts/render-skills.py` combines every `sources/languages/<language>.md` file into a self-contained `skills/fluent-<language>/SKILL.md`; the core is not a separately triggered skill or runtime dependency.
+이 플러그인의 한국어·일본어·영어 스킬은 아래 MIT 라이선스 프로젝트를 참고해 작성 시점에 적용하도록 조정한 로컬 지침이다. 참조한 원본을 그대로 복사한 배포본은 아니다.
 
-This personal marketplace intentionally maintains the shared instruction source once in Korean. The language of those instructions does not select the response language; each generated skill's name, description, scope, and language-specific source do. A future externally distributed localization would require a separate equivalence review rather than independently edited core copies.
+재사용할 원본은 빌드 단계에서 결합한다. `sources/core/`는 표현 범위와 내용 보존 기준을, `sources/languages/`는 각 진입점과 언어별 지침을 담는다. `scripts/render-skills.py`는 각 `sources/languages/<language>.md`를 자체적으로 완결된 `skills/fluent-<language>/SKILL.md`로 생성한다. 공통 원본은 별도로 호출하는 스킬이나 런타임 의존성이 아니다.
 
-The cross-language discourse principles in `sources/core/communication.md` are local guidance derived from this marketplace's language-design review. They are not copied from or attributed to `im-not-ai`.
+공통·언어별 지침은 한국어 정본 하나로 관리한다. 지침의 작성 언어와 응답 언어는 별개이며, 각 스킬의 이름·설명·적용 범위가 대상 출력 언어를 정한다. 향후 다른 언어로 지침을 배포한다면 한국어 정본과 의미가 동등한지 별도로 검토한다.
+
+`sources/core/communication.md`에 있던 언어 공통 구성 원칙은 이 저장소의 언어 설계 검토에서 도출한 로컬 지침이며 현재 Writing이 관리한다. Fluent의 해당 원본에는 표현과 구성의 담당 범위를 남긴다. 이 구성 원칙은 `im-not-ai`에서 복사한 내용이 아니며 해당 프로젝트에 귀속하지 않는다.
 
 ## `im-not-ai`
 
-- Repository: <https://github.com/epoko77-ai/im-not-ai>
-- Source commit: [`31a66d165a9cc6c26c4c1246553f95d0468d27fb`](https://github.com/epoko77-ai/im-not-ai/commit/31a66d165a9cc6c26c4c1246553f95d0468d27fb)
-- Sources consulted:
+- 저장소: <https://github.com/epoko77-ai/im-not-ai>
+- 원본 commit: [`31a66d165a9cc6c26c4c1246553f95d0468d27fb`](https://github.com/epoko77-ai/im-not-ai/commit/31a66d165a9cc6c26c4c1246553f95d0468d27fb)
+- 참고한 파일:
   - [`docs/en/integration.md`](https://github.com/epoko77-ai/im-not-ai/blob/31a66d165a9cc6c26c4c1246553f95d0468d27fb/docs/en/integration.md)
   - [`skills/humanize-korean/references/quick-rules.md`](https://github.com/epoko77-ai/im-not-ai/blob/31a66d165a9cc6c26c4c1246553f95d0468d27fb/skills/humanize-korean/references/quick-rules.md)
   - [`skills/humanize-korean/references/ai-tell-taxonomy.md`](https://github.com/epoko77-ai/im-not-ai/blob/31a66d165a9cc6c26c4c1246553f95d0468d27fb/skills/humanize-korean/references/ai-tell-taxonomy.md)
-- Adapted subset: genre and register preservation, double-passive avoidance, promotional buzzword restraint, unsupported emphasis restraint, repeated conclusion restraint, unnecessary metaphor restraint, and a non-numeric final repetition check.
-- Excluded: workspace handling, risk scores, severity grades, change-rate calculation, file-output workflow, and the diagnostic, rewrite, and finalizer multi-call pipeline.
-- Local scope: Korean explanatory prose includes implementation reports, technical answers, and technical documents. Code, commands, logs, identifiers, protected literals, structure, facts, conditions, uncertainty, and obligation levels are preserved.
+- 반영한 범위: 장르·격식 보존, 이중 피동 교정, 구체적인 표현, 근거에 맞는 강조, 필요한 맺음말과 비유, 수치 기준을 두지 않는 반복 점검이다.
+- 제외한 범위: 작업 폴더 관리, 위험도 점수·심각도 등급, 수정 비율 계산, 파일 출력 절차, 진단·수정·마무리를 여러 번 호출하는 절차다.
+- 로컬 적용 범위: 구현 보고, 기술 답변과 기술 문서를 포함한 한국어 설명문이다. 코드, 명령어, 로그, 식별자, 보호 리터럴, 구조, 사실, 조건, 불확실성과 의무 수준을 보존한다.
 
 ## `fluent-japanese`
 
-- Repository: <https://github.com/sonsu-lee/fluent-languages>
-- Source commit: [`d53bf65057445b3556efb6d7d011d49ed8a5aac7`](https://github.com/sonsu-lee/fluent-languages/commit/d53bf65057445b3556efb6d7d011d49ed8a5aac7)
-- Sources consulted:
+- 저장소: <https://github.com/sonsu-lee/fluent-languages>
+- 원본 commit: [`d53bf65057445b3556efb6d7d011d49ed8a5aac7`](https://github.com/sonsu-lee/fluent-languages/commit/d53bf65057445b3556efb6d7d011d49ed8a5aac7)
+- 참고한 파일:
   - [`plugins/fluent-languages/skills/fluent-japanese/SKILL.md`](https://github.com/sonsu-lee/fluent-languages/blob/d53bf65057445b3556efb6d7d011d49ed8a5aac7/plugins/fluent-languages/skills/fluent-japanese/SKILL.md)
   - [`docs/research/japanese-language-characteristics.md`](https://github.com/sonsu-lee/fluent-languages/blob/d53bf65057445b3556efb6d7d011d49ed8a5aac7/docs/research/japanese-language-characteristics.md)
-- Adapted subset: context-sensitive subject omission, explicit role names at actor transitions, particle and predicate-argument clarity, modifier scope, structural punctuation, register selection, terminology, and conditional review of nominalization and passive voice.
-- Local changes: ambiguous before-and-after examples that invented an actor or selected an unsupported interpretation were removed. The rules now defer to the shared integrity contract and apply to both technical and non-technical Japanese explanatory prose.
-- Excluded: the coding-only split, subagent-specific workflow, fixed sentence length, unconditional subject restoration, and rules that treat active voice or verb forms as universal preferences.
-- Validation status: the source was a pre-native-review beta. This local adaptation remains beta until representative model outputs receive Japanese native-speaker review.
+- 반영한 범위: 문맥에 따른 주어 생략, 행위자 전환 시 역할명 명시, 조사·서술어·논항 관계, 수식 범위, 문장 구조에 맞는 문장부호, 격식·용어 선택과 조건에 따른 명사화·수동태 점검이다.
+- 로컬 변경: 행위자를 만들어 내거나 근거 없는 해석을 택하던 모호한 전후 비교 예시를 제거했다. 공통 보존 기준을 우선하며 기술·일반 일본어 설명문 모두에 적용한다.
+- 제외한 범위: 코딩 전용 분리, 하위 에이전트 전용 절차, 고정 문장 길이, 일률적인 주어 복원과 능동태·동사형 우선 규칙이다.
+- 검증 상태: 원본은 원어민 검토 전의 베타였다. 이 로컬 지침도 대표 모델 출력에 대한 일본어 원어민 검토를 마칠 때까지 베타 상태를 유지한다.
 
 ## `fluent-english`
 
-- Repository: <https://github.com/sonsu-lee/fluent-languages>
-- Source commit: [`d53bf65057445b3556efb6d7d011d49ed8a5aac7`](https://github.com/sonsu-lee/fluent-languages/commit/d53bf65057445b3556efb6d7d011d49ed8a5aac7)
-- Sources consulted:
+- 저장소: <https://github.com/sonsu-lee/fluent-languages>
+- 원본 commit: [`d53bf65057445b3556efb6d7d011d49ed8a5aac7`](https://github.com/sonsu-lee/fluent-languages/commit/d53bf65057445b3556efb6d7d011d49ed8a5aac7)
+- 참고한 파일:
   - [`plugins/fluent-languages/skills/fluent-english/SKILL.md`](https://github.com/sonsu-lee/fluent-languages/blob/d53bf65057445b3556efb6d7d011d49ed8a5aac7/plugins/fluent-languages/skills/fluent-english/SKILL.md)
   - [`docs/research/english-language-characteristics.md`](https://github.com/sonsu-lee/fluent-languages/blob/d53bf65057445b3556efb6d7d011d49ed8a5aac7/docs/research/english-language-characteristics.md)
-- Adapted subset: requested-output-language routing, conditional actor-action-target clarity, reader and software role distinction, unambiguous pronoun reference, conditional active voice and direct verbs, noun-string and limiting-modifier scope, English variety and register preservation, contextual fragments, international-audience guidance, and project terminology consistency.
-- Local changes: language-independent information order and preservation rules defer to the shared core. The coding-only split and subagent-specific wording were removed, so the local skill covers both technical and non-technical English explanatory prose.
-- Excluded: fixed SVO output, unconditional active voice or second person, given-before-new and result-first as English-specific rules, numeric sentence or modifier limits, mandatory American or British English, and vocabulary-based authorship or quality judgments.
-- Validation status: the source was a pre-native-review beta. This local adaptation remains beta until representative model outputs receive English native-speaker or equivalent editorial review.
+- 반영한 범위: 요청된 출력 언어에 따른 선택, 행위자·행동·대상 관계, 독자와 소프트웨어의 역할 구분, 대명사 지시 대상, 조건에 따른 능동태·직접적인 동사 사용, 명사 나열과 한정 수식어의 범위, 영어 변종·격식 보존, 문맥에 맞는 불완전 문장, 국제 독자 고려와 프로젝트 용어 일관성이다.
+- 로컬 변경: 언어 공통 정보 순서는 Writing이 담당하고 Fluent는 공통 보존 기준을 유지한다. 코딩 전용 분리와 하위 에이전트 전용 표현을 제거해 기술·일반 영어 설명문 모두에 적용한다.
+- 제외한 범위: 고정 SVO 출력, 일률적인 능동태·2인칭 사용, 기존 정보 우선·결과 우선을 영어 고유 규칙으로 취급하는 방식, 문장·수식어 수 제한, 특정 영어 변종 강제와 어휘만으로 작성 주체·품질을 판단하는 방식이다.
+- 검증 상태: 원본은 원어민 검토 전의 베타였다. 이 로컬 지침도 대표 모델 출력에 대한 영어 원어민 검토 또는 동등한 편집 검토를 마칠 때까지 베타 상태를 유지한다.
 
 ## `no-ai-slop`
 
-- Repository: <https://github.com/petergyang/no-ai-slop>
-- Source commit: [`000650b156983f5159695b441477f4e63b25dc85`](https://github.com/petergyang/no-ai-slop/commit/000650b156983f5159695b441477f4e63b25dc85)
-- Sources consulted:
+- 저장소: <https://github.com/petergyang/no-ai-slop>
+- 원본 commit: [`000650b156983f5159695b441477f4e63b25dc85`](https://github.com/petergyang/no-ai-slop/commit/000650b156983f5159695b441477f4e63b25dc85)
+- 참고한 파일:
   - [`skills/no-ai-slop/SKILL.md`](https://github.com/petergyang/no-ai-slop/blob/000650b156983f5159695b441477f4e63b25dc85/skills/no-ai-slop/SKILL.md)
   - [`skills/no-ai-slop/eval.md`](https://github.com/petergyang/no-ai-slop/blob/000650b156983f5159695b441477f4e63b25dc85/skills/no-ai-slop/eval.md)
-- Adapted subset: requested voice preservation and a conditional final review for empty preambles, unsupported importance or attribution, synonym cycling, formulaic contrasts, unraised objections, unused alternatives, redundant conclusions, and conspicuous repetition.
-- Local changes: these patterns are generation-time soft checks. A single word, punctuation mark or construction is not treated as a failure, and preservation of meaning, real alternatives, deliberate repetition, safety language and established terminology takes priority.
-- Excluded: edit and detection modes, required questions, banned-word lists, unconditional active voice, restrictions on inanimate subjects, `show, don't tell` as an absolute rule, the portability test, punctuation counts, mandatory `What changed` output, and its iterative rewrite workflow.
-- Evidence boundary: upstream `eval.md` is a self-review checklist, not a committed set of actual model outputs or a human preference study. Its presence does not establish behavior quality.
+- 반영한 범위: 요청된 어조 보존과 조건에 따른 최종 점검이다. 내용 없는 도입, 근거 없는 중요성·출처 표현, 같은 개념을 가리키는 동의어 교체, 상투적 대조, 제기되지 않은 반론, 쓰이지 않는 대안, 중복 결말과 두드러진 반복을 점검한다.
+- 로컬 변경: 이 패턴은 작성 시점의 문맥에 따라 판단한다. 개별 단어·문장부호·구문 자체를 실패로 취급하지 않으며 의미, 실제 대안, 의도적인 반복, 안전 안내와 정착된 용어의 보존을 우선한다.
+- 제외한 범위: 편집·탐지 모드, 필수 질문, 금지어 목록, 일률적인 능동태 사용, 무생물 주어 제한, `show, don't tell`의 절대 규칙화, 다른 문맥에 그대로 옮길 수 있는지 보는 검사, 문장부호 수 기준, 필수 `What changed` 출력과 반복 재작성 절차다.
+- 근거 범위: 원본 `eval.md`는 자체 검토 목록이다. 실제 모델 출력이나 사람의 선호 연구 결과를 저장한 자료가 아니므로 그 존재만으로 동작 품질을 입증하지 않는다.
 
 ## `no-ai-slop-ja`
 
-- Repository: <https://github.com/53able/no-ai-slop-ja>
-- Source commit: [`1773df932be3a13d576bfe15cc116720e6788323`](https://github.com/53able/no-ai-slop-ja/commit/1773df932be3a13d576bfe15cc116720e6788323)
-- Upstream named by that project: [`petergyang/no-ai-slop@d30eddb9e04562234f2070b5ee63ca4649d9a05e`](https://github.com/petergyang/no-ai-slop/tree/d30eddb9e04562234f2070b5ee63ca4649d9a05e)
-- Sources consulted:
+- 저장소: <https://github.com/53able/no-ai-slop-ja>
+- 원본 commit: [`1773df932be3a13d576bfe15cc116720e6788323`](https://github.com/53able/no-ai-slop-ja/commit/1773df932be3a13d576bfe15cc116720e6788323)
+- 해당 프로젝트가 명시한 원본: [`petergyang/no-ai-slop@d30eddb9e04562234f2070b5ee63ca4649d9a05e`](https://github.com/petergyang/no-ai-slop/tree/d30eddb9e04562234f2070b5ee63ca4649d9a05e)
+- 참고한 파일:
   - [`skills/no-ai-slop-ja/SKILL.md`](https://github.com/53able/no-ai-slop-ja/blob/1773df932be3a13d576bfe15cc116720e6788323/skills/no-ai-slop-ja/SKILL.md)
   - [`NOTICE`](https://github.com/53able/no-ai-slop-ja/blob/1773df932be3a13d576bfe15cc116720e6788323/NOTICE)
   - [`tests/evaluation/README.md`](https://github.com/53able/no-ai-slop-ja/blob/1773df932be3a13d576bfe15cc116720e6788323/tests/evaluation/README.md)
-- Adapted subset: false-positive safeguards for passive voice, `こと`, consecutive `の`, verbal nouns, abstract katakana terms, modifier scope, silent actor changes, over-polite phrasing, and repeated endings. The final soft audit also adapts its checks for formulaic throat-clearing, unsupported self-assessment of importance, and conclusions that add no information.
-- Excluded: editing and detection modes, AI-authorship judgments, mandatory change summaries, scoring, and multi-step rewrite workflow.
+- 반영한 범위: 수동태, `こと`, 연속하는 `の`, 동사성 명사, 추상적인 가타카나어, 수식 범위, 드러나지 않는 행위자 변경, 과도한 경어와 반복 종결어미를 문맥 없이 오류로 취급하지 않는 기준이다. 최종 점검에는 상투적인 도입, 근거 없는 중요성 자평과 새 정보가 없는 결말에 대한 검토도 반영했다.
+- 제외한 범위: 편집·탐지 모드, AI 작성 여부 판단, 필수 변경 요약, 점수 산정과 여러 단계의 재작성 절차다.
 
 ## `natural-japanese`
 
-- Repository: <https://github.com/coji/natural-japanese>
-- Source commit: [`0f1cc1c5a4e2aa7590598c88a15c213a60d9545a`](https://github.com/coji/natural-japanese/commit/0f1cc1c5a4e2aa7590598c88a15c213a60d9545a)
-- Sources consulted:
+- 저장소: <https://github.com/coji/natural-japanese>
+- 원본 commit: [`0f1cc1c5a4e2aa7590598c88a15c213a60d9545a`](https://github.com/coji/natural-japanese/commit/0f1cc1c5a4e2aa7590598c88a15c213a60d9545a)
+- 참고한 파일:
   - [`readability-principles.md`](https://github.com/coji/natural-japanese/blob/0f1cc1c5a4e2aa7590598c88a15c213a60d9545a/skills/natural-japanese/references/readability-principles.md)
   - [`writing-constitution.md`](https://github.com/coji/natural-japanese/blob/0f1cc1c5a4e2aa7590598c88a15c213a60d9545a/skills/natural-japanese/references/writing-constitution.md)
   - [`skill-eval-findings.md`](https://github.com/coji/natural-japanese/blob/0f1cc1c5a4e2aa7590598c88a15c213a60d9545a/corpus/reports/skill-eval-findings.md)
-- Adapted subset: conditional ordering of multiple modifiers, punctuation at real syntactic boundaries, and terminology choices based on the reader and established usage.
-- Excluded: conclusion-first composition, conclusion-bearing headings, fixed paragraph roles, numeric style thresholds, doctype modes, lint scores, convergence loops, and mandatory concluding prescriptions.
-- Evidence boundary: this import did not independently verify the Japanese writing books cited by `natural-japanese` or their exact pages. The adapted material is therefore attributed to this repository rather than presented as independently confirmed book-level evidence.
+- 반영한 범위: 조건에 따른 수식어 순서, 실제 문장 구조의 경계에 맞춘 문장부호와 독자·정착된 용법에 따른 용어 선택이다.
+- 제외한 범위: 결론 우선 구성, 결론을 담는 제목, 고정된 문단 역할, 수치형 문체 기준, 문서 유형 모드, lint 점수, 수렴할 때까지 반복하는 절차와 필수 결론 지시다.
+- 근거 범위: 도입 당시 `natural-japanese`가 인용한 일본어 작문 서적과 정확한 페이지를 독립적으로 확인하지 않았다. 반영한 지침은 해당 저장소에 귀속하며, 서적에서 직접 확인한 근거로 제시하지 않는다.
 
-## Consulted but not incorporated
+## 검토했으나 반영하지 않은 자료
 
-- [`j1nn0/skills@e762558662251e48b05de5c79f518e676ab97699`](https://github.com/j1nn0/skills/tree/e762558662251e48b05de5c79f518e676ab97699/skills/writing-ja) was reviewed for its fact, inference, judgment, and voice-preservation boundaries. Those concerns were already covered by the local shared core, so no separate runtime rule was imported.
-- [`devswha/patina@dd73aab0a1542db37b838cfe396b621e9ef1b928`](https://github.com/devswha/patina/tree/dd73aab0a1542db37b838cfe396b621e9ef1b928) was reviewed as a pattern and evaluation catalog. Its scoring, numeric thresholds, rewrite workflow, and bootstrap Japanese patterns were not incorporated.
-- [`gonta223/humanizer-ja@a1e343696e43aa50e7218891f3319ab22cde3464`](https://github.com/gonta223/humanizer-ja/tree/a1e343696e43aa50e7218891f3319ab22cde3464) was reviewed for common Japanese humanizer patterns. Rules that could invent facts, numbers, experiences or opinions, change uncertainty, force register variation, or rewrite formatting were not incorporated.
-- [`blader/humanizer@e2e92e7b4b8229253ed5c8e81dc65463fdeddda5`](https://github.com/blader/humanizer/tree/e2e92e7b4b8229253ed5c8e81dc65463fdeddda5) was reviewed for English pattern coverage and false-positive safeguards. Its large pattern catalog, punctuation rules, personality additions, editing workflow, examples and Wikipedia-derived wording were not incorporated.
-- [`forjd/better-writing@dd9d0a50581a7652fb38f03b7b751741ed917993`](https://github.com/forjd/better-writing/tree/dd9d0a50581a7652fb38f03b7b751741ed917993) was reviewed for its fixture, deterministic-check and blind-comparison design. No skill rule, test code, fixture or result was incorporated.
+- [`j1nn0/skills@e762558662251e48b05de5c79f518e676ab97699`](https://github.com/j1nn0/skills/tree/e762558662251e48b05de5c79f518e676ab97699/skills/writing-ja)의 사실·추론·판단·어조 보존 기준을 검토했다. 로컬 공통 원본이 이미 다루는 내용이므로 별도 실행 지침을 도입하지 않았다.
+- [`devswha/patina@dd73aab0a1542db37b838cfe396b621e9ef1b928`](https://github.com/devswha/patina/tree/dd73aab0a1542db37b838cfe396b621e9ef1b928)는 패턴·평가 목록으로 검토했다. 점수 산정, 수치 기준, 재작성 절차와 초기 일본어 패턴은 반영하지 않았다.
+- [`gonta223/humanizer-ja@a1e343696e43aa50e7218891f3319ab22cde3464`](https://github.com/gonta223/humanizer-ja/tree/a1e343696e43aa50e7218891f3319ab22cde3464)는 일반적인 일본어 표현 교정 패턴을 검토하는 데 참고했다. 사실·수치·경험·의견을 만들거나 불확실성을 바꾸고, 격식 변주나 형식 변경을 강제할 수 있는 규칙은 반영하지 않았다.
+- [`blader/humanizer@e2e92e7b4b8229253ed5c8e81dc65463fdeddda5`](https://github.com/blader/humanizer/tree/e2e92e7b4b8229253ed5c8e81dc65463fdeddda5)는 영어 패턴 범위와 오탐 방지 기준을 검토하는 데 참고했다. 방대한 패턴 목록, 문장부호 규칙, 개성 추가, 편집 절차, 예시와 Wikipedia에서 유래한 문구는 반영하지 않았다.
+- [`forjd/better-writing@dd9d0a50581a7652fb38f03b7b751741ed917993`](https://github.com/forjd/better-writing/tree/dd9d0a50581a7652fb38f03b7b751741ed917993)는 고정 입력, 결정적 검사와 블라인드 비교 설계를 검토하는 데 참고했다. 스킬 규칙, 테스트 코드, 고정 입력이나 결과는 반영하지 않았다.
 
-No source text, code, examples or test fixtures from these consulted-only repositories are incorporated in this version. A later adoption must add its exact source commit, paths, adaptation scope and license notices above.
+위 검토 전용 저장소의 원문, 코드, 예시와 테스트 입력은 이 버전에 포함되지 않는다. 이후 도입한다면 정확한 원본 commit, 경로, 조정 범위와 라이선스 고지를 추가한다.
 
-## Japanese evidence consulted
+## 참고한 일본어 근거
 
-- [Agency for Cultural Affairs, `公用文作成の考え方`](https://www.bunka.go.jp/seisaku/bunkashingikai/kokugo/hokoku/93657201.html)
-- [Japan Translation Federation, `JTF日本語標準スタイルガイド（翻訳用）第4.0版`](https://www.jtf.jp/pdf/jtf_style_guide.pdf)
-- [Walker, Iida and Cote, Japanese discourse and zero pronouns](https://aclanthology.org/J94-2003/)
-- [Mori, Nomura and Nitta, zero pronouns in Japanese instruction manuals](https://aclanthology.org/W97-1302/)
+- [일본 문화청, `公用文作成の考え方`](https://www.bunka.go.jp/seisaku/bunkashingikai/kokugo/hokoku/93657201.html)
+- [일본번역연맹, `JTF日本語標準スタイルガイド（翻訳用）第4.0版`](https://www.jtf.jp/pdf/jtf_style_guide.pdf)
+- [Walker, Iida와 Cote의 일본어 담화·영형 대명사 연구](https://aclanthology.org/J94-2003/)
+- [Mori, Nomura와 Nitta의 일본어 사용 설명서 영형 대명사 연구](https://aclanthology.org/W97-1302/)
 
-These references constrain when a Japanese rule applies. They do not establish that this skill's model outputs have passed native-speaker review.
+이 자료들은 일본어 규칙의 적용 범위를 정하는 근거다. 이 스킬의 모델 출력이 원어민 검토를 통과했다는 근거는 아니다.
 
-### Written Japanese and Korean-to-Japanese transfer (2026-09-06)
+### 일본어 문어 표기와 한국어 번역 전이 (2026-09-06)
 
-The local `書き言葉の表記と翻訳` section adds six conditional rules: document-specific conventions; kanji and reading scope; auxiliary/formal versus substantive usage; context-sensitive Sino-Japanese and native vocabulary; Korean-to-Japanese meaning, part-of-speech and argument structure; and correction of a confirmed usage error even when it occurs only once. It does not add a word blacklist, kanji ratio, corpus-frequency threshold or spoken-language workflow.
+로컬의 문어 표기·번역 절은 여섯 가지 조건을 다룬다. 문서별 관례, 한자와 읽기의 범위, 보조·형식 용법과 실질 용법의 구분, 문맥에 따른 한자어·고유어 선택, 한국어를 일본어로 옮길 때의 뜻·품사·논항 구조, 한 번만 나타난 명확한 용법 오류의 교정이다. 금지어 목록, 한자 비율, 말뭉치 빈도 기준이나 구어 절차는 추가하지 않았다.
 
-The [research catalog](../../docs/research/fluent-japanese-writing-catalog.md) records 85 contextual rule/example/counterexample entries, exact source locators, original versus adapted examples, and exceptions. Sources include the JTF guide, the Agency for Cultural Affairs, Mochizuki (2010), Ishihara (2013), Ko (2017), Uematsu (2017), Liu (2017), Yoon (2012), and current dictionary entries. The catalog distinguishes written examples from spoken data, scoped editorial preferences from grammatical errors, and attested usage from frequency claims. No individual BCCWJ frequency search was performed.
+[조사 목록](../../docs/research/fluent-japanese-writing-catalog.md)은 문맥별 규칙·예시·반례 85개, 정확한 출처 위치, 원본·조정 예시 구분과 예외를 기록한다. JTF 가이드, 일본 문화청, Mochizuki (2010), Ishihara (2013), Ko (2017), Uematsu (2017), Liu (2017), Yoon (2012)와 당시 확인한 사전 항목을 참고했다. 문어 예시와 구어 자료, 범위가 정해진 편집 선호와 문법 오류, 실제 용례와 빈도 주장을 구분한다. 개별 BCCWJ 빈도 검색은 수행하지 않았다.
 
-The JTF-derived guidance and catalog are local paraphrases/adaptations with attribution under CC BY 4.0; see the third-party notice. The [evaluation protocol](../../evals/fluent-japanese/README.md) separates injected-instruction A/B results, native plugin loading, and Japanese native-speaker review. Model-only evaluation does not remove the beta qualification.
+JTF에서 유래한 지침과 목록은 CC BY 4.0에 따라 출처를 표시한 로컬 재서술·조정본이며, 자세한 내용은 제삼자 고지를 참고한다. [평가 절차](../../evals/fluent-japanese/README.md)는 주입한 지침의 A/B 결과, 실제 플러그인 로딩과 일본어 원어민 검토를 구분한다. 모델 평가만으로 베타 상태를 해제하지 않는다.
 
-## English evidence consulted
+## 참고한 영어 근거
 
-- [WALS Online, English order of subject, object and verb](https://wals.info/valuesets/81A-eng)
-- [WALS Online, English expression of pronominal subjects](https://wals.info/valuesets/101A-eng)
-- [Google Developer Documentation Style Guide, active voice](https://developers.google.com/style/voice)
-- [Google Developer Documentation Style Guide, pronouns](https://developers.google.com/style/pronouns)
-- [Google Developer Documentation Style Guide, writing for a global audience](https://developers.google.com/style/translation)
-- [Microsoft Writing Style Guide, verbs](https://learn.microsoft.com/en-us/style-guide/grammar/verbs)
-- [Microsoft Writing Style Guide, global writing tips](https://learn.microsoft.com/en-us/style-guide/global-communications/writing-tips)
-- [Australian Government Style Manual, sentences](https://www.stylemanual.gov.au/writing-and-designing-content/clear-language-and-writing-style/sentences)
-- [Kobak et al., corpus-level excess vocabulary in LLM-assisted biomedical writing](https://doi.org/10.1126/sciadv.adt3813)
-- [Liang et al., bias of GPT detectors against non-native English writers](https://doi.org/10.1016/j.patter.2023.100779)
+- [WALS Online, 영어의 주어·목적어·동사 순서](https://wals.info/valuesets/81A-eng)
+- [WALS Online, 영어의 대명사 주어 표현](https://wals.info/valuesets/101A-eng)
+- [Google 개발자 문서 스타일 가이드, 능동태](https://developers.google.com/style/voice)
+- [Google 개발자 문서 스타일 가이드, 대명사](https://developers.google.com/style/pronouns)
+- [Google 개발자 문서 스타일 가이드, 국제 독자를 위한 작성](https://developers.google.com/style/translation)
+- [Microsoft 작문 스타일 가이드, 동사](https://learn.microsoft.com/en-us/style-guide/grammar/verbs)
+- [Microsoft 작문 스타일 가이드, 국제 독자를 위한 작성 요령](https://learn.microsoft.com/en-us/style-guide/global-communications/writing-tips)
+- [호주 정부 스타일 매뉴얼, 문장](https://www.stylemanual.gov.au/writing-and-designing-content/clear-language-and-writing-style/sentences)
+- [Kobak 외, LLM을 활용한 생의학 글쓰기의 말뭉치 수준 초과 어휘 연구](https://doi.org/10.1126/sciadv.adt3813)
+- [Liang 외, 영어 비원어민 글에 대한 GPT 탐지기의 편향 연구](https://doi.org/10.1016/j.patter.2023.100779)
 
-The organizational style guides are evidence for scoped technical-writing conventions, not universal English grammar. The corpus and detector studies constrain the final soft audit; they do not support banned-word lists, individual authorship judgments or claims that this skill's output is natural.
+기관의 스타일 가이드는 해당 기술 문서 관례에 관한 근거이며 보편적인 영어 문법을 정하지 않는다. 말뭉치·탐지기 연구는 문맥에 따른 최종 점검의 범위를 제한한다. 금지어 목록, 개별 작성 주체 판단이나 이 스킬의 출력이 자연스럽다는 주장을 뒷받침하지 않는다.
 
-The exact copyright and license text from each incorporated source is retained in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+반영한 각 출처의 저작권·라이선스 원문은 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)에 보존한다.

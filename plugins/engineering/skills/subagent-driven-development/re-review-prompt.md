@@ -1,36 +1,35 @@
-# Focused re-review prompt template
+# 집중 재리뷰 프롬프트
 
-controller는 [공통 리뷰 기준](../requesting-code-review/review-criteria.md)의 내용을 아래 prompt
-앞에 붙여 전달한다. 모델·추론도는 현재 platform schema와 역할 기준에 따라 선택한다.
+조정자는 [공통 리뷰 기준](../requesting-code-review/review-criteria.md)과 현재 실행 계약을 함께 전달한다. 매 회차 새 문맥의 검토자를 사용한다.
 
 ```text
-원래 finding과 수정이 만든 회귀를 읽기 전용으로 검토한다. 직접 수정하거나 subagent를
-위임하지 않는다.
+원래 지적과 수정이 만든 회귀를 읽기 전용으로 검토한다. 수정·추가 하위 에이전트 위임은
+조정자가 담당한다.
 
-Task brief: [BRIEF_FILE]
-원래 finding: [FINDINGS]
-사실 중심 검증 사본: [REPORT_FILE]
-실행 범위·허용 runtime/scratch·예산: [EXECUTION_CONTEXT]
-Fix base: [FIX_BASE_SHA]
-Head: [HEAD_SHA]
-고정 수정 diff: [DIFF_FILE]
+작업 brief: [작업 요약 파일]
+원래 finding: [기존 지적]
+사실 중심 검증 사본: [보고서 파일]
+실행 범위·실행 환경/임시 공간·예산: [실행 계약]
+수정 base: [수정 시작 커밋 SHA]
+Head: [종료 커밋 SHA]
+고정 수정 diff: [변경 패키지 파일]
 
-brief, finding, 수정 diff와 검증 사본을 읽는다. diff가 없으면 지정된 Fix base..Head의
-git diff --stat 및 git diff로 가져온다. 구체적인 의문이 남을 때만 관련 근거나 집중 검사를
-확인한다. 기존 검증을 보고서 확인 목적으로 반복하지 않는다.
+작업 요약·지적·수정 차이·검증 사본을 읽는다. 차이가 없으면 정확한 수정 base..Head의
+git diff --stat와 git diff --binary --no-ext-diff -U10으로 확인한다. 남은 구체적인 의문에
+필요한 근거나 집중 검사만 추가한다. 사본 확인을 위해 기존 검증을 반복하지 않는다.
 
-각 finding을 ADDRESSED | NOT ADDRESSED로 판정한다. 원래 지적 자체가 기본 동작이나
-확인된 계약과 어긋나면 INVALID로 판정하고 근거를 제시한다. 수정 시도만으로 해결 처리하지
-않는다. 범위는 원래 finding과 수정 회귀다. 새 아이디어를 찾는 전체 리뷰를 반복하지 않는다.
-계약·dependency 경계가 바뀌거나 영향이 불명확하면 전체 리뷰 재개방을 요청한다.
+각 지적을 ADDRESSED | NOT ADDRESSED로 판정한다. 원래 지적이 실제 기본 동작·확인된 계약과
+어긋나면 INVALID로 제안하고 근거를 제시한다. 수정 시도만으로 해결 처리하지 않는다.
+새 지적은 수정이 만든 Critical/Important 회귀만 포함한다. 계약·의존성 경계가 바뀌거나
+영향이 불명확하면 전체 리뷰 재개방을 요청한다.
 
 출력:
 Gate status: passed | failed | inconclusive | blocked
 수정 회차: All findings addressed, no new Critical/Important breakage |
            Findings remain open | Inconclusive | Blocked
-Finding 판정: 각 항목의 상태와 file:line 근거
+Finding 판정: [각 항목의 상태와 file:line 근거]
 
-수정이 만든 실제 회귀 또는 필수 근거 공백이 있으면 발생 조건·영향과 반환 대상을 적는다.
-INVALID는 controller가 근거를 확인해 닫은 뒤 해결 목록에 반영한다. 유효한 필수 finding이
-남으면 failed, 필수 근거 부족은 inconclusive, 검증 환경 부재는 blocked다.
+실제 회귀·필수 근거 공백에는 발생 조건·영향·반환 대상을 적는다. INVALID는 조정자가 근거를
+확인해 닫은 뒤 해결 목록에 반영한다. 유효한 필수 지적은 failed, 필수 근거 부족은 inconclusive,
+검증 환경 부재는 blocked다.
 ```

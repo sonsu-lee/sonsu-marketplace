@@ -498,19 +498,8 @@
         "regression_risk": "high",
         "file_count": 3,
         "total_time_and_cost_considered": true,
-        "supported_models": [
-          "gpt-5.6-luna",
-          "gpt-5.6-terra",
-          "gpt-5.6-sol"
-        ],
-        "supported_efforts": [
-          "low",
-          "medium",
-          "high",
-          "xhigh",
-          "max",
-          "ultra"
-        ]
+        "supported_models": ["gpt-5.6-luna", "gpt-5.6-terra", "gpt-5.6-sol"],
+        "supported_efforts": ["low", "medium", "high", "xhigh", "max", "ultra"]
       },
       "expected": {
         "model": "gpt-5.6-sol",
