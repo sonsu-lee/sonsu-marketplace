@@ -5,7 +5,8 @@
 
 ## 사용
 
-이 플러그인이 포함된 marketplace snapshot을 등록한 뒤 설치합니다.
+마켓플레이스 등록과 플러그인 설치는 별도 단계입니다. 마켓플레이스를 아직 등록하지 않았다면
+먼저 [저장소 설치 안내](../../README.md#설치)를 따르고, Memory Manager를 설치합니다.
 
 ```sh
 # Codex
@@ -14,6 +15,24 @@ codex plugin add memory-manager@sonsu-marketplace
 # Claude Code
 claude plugin install memory-manager@sonsu-marketplace
 ```
+
+Codex에서는 다음 명령으로 `memory-manager@sonsu-marketplace`의 `STATUS`가
+`installed, enabled`인지 확인한 뒤 새 Codex 작업을 시작하세요.
+
+```sh
+codex plugin list --marketplace sonsu-marketplace
+```
+
+호출할 스킬이 보이지 않으면 설치 상태부터 구분합니다.
+
+| 확인 결과 | 다음 단계 |
+| --- | --- |
+| 목록에 `memory-manager`가 없음 | `codex plugin marketplace upgrade sonsu-marketplace`로 snapshot을 갱신한 뒤 목록을 다시 확인합니다. |
+| `not installed` | `codex plugin add memory-manager@sonsu-marketplace`로 설치합니다. |
+| 설치되어 있으나 비활성 상태 | Codex 플러그인 설정에서 활성화한 뒤 상태를 다시 확인합니다. |
+| `installed, enabled`인데 기존 작업에서 스킬이 보이지 않음 | 새 Codex 작업을 열고 아래 명시적 호출을 사용합니다. 계속 보이지 않으면 플러그인 설정의 로딩 오류를 확인합니다. |
+
+설치 상태 확인은 스킬의 실제 실행이나 메모리 수정 완료를 뜻하지 않습니다.
 
 Codex에서는 `$memory-manager`, Claude Code에서는 `/memory-manager:memory-manager`로 명시적으로
 호출합니다.

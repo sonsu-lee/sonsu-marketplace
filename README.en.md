@@ -35,6 +35,17 @@ Start a new Codex task after installation. To list the plugins in the marketplac
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+Registering the marketplace does not install its plugins. If `STATUS` shows `not installed`,
+install the plugin with `codex plugin add` and check that its status is `installed, enabled`.
+If the plugin is missing from the list entirely, refresh the snapshot and check again:
+
+```sh
+codex plugin marketplace upgrade sonsu-marketplace
+codex plugin list --marketplace sonsu-marketplace
+```
+
+For Memory Manager installation checks and explicit invocation, see its [usage guide](plugins/memory-manager/README.md#사용).
+
 ### Claude Code
 
 In Claude Code, register the same repository as a marketplace and install the plugin you need.

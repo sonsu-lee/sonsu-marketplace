@@ -35,6 +35,17 @@ codex plugin add workflow@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+マーケットプレイスを登録しただけでは、プラグインはインストールされません。`STATUS` が
+`not installed` の場合は、対象を `codex plugin add` でインストールし、`installed, enabled`
+になったことを確認してください。対象が一覧にない場合は、snapshotを更新して再確認します。
+
+```sh
+codex plugin marketplace upgrade sonsu-marketplace
+codex plugin list --marketplace sonsu-marketplace
+```
+
+Memory Managerのインストール確認と明示的な呼び出し方は、[利用ガイド](plugins/memory-manager/README.md#사용)を参照してください。
+
 ### Claude Code
 
 Claude Codeでは、同じリポジトリをマーケットプレイスとして登録し、必要なプラグインをインストールします。

@@ -35,6 +35,17 @@ codex plugin add workflow@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+마켓플레이스 등록만으로 플러그인이 설치되지는 않습니다. 위 목록의 `STATUS`가
+`not installed`이면 해당 플러그인을 `codex plugin add`로 설치하고, `installed, enabled`인지
+확인하세요. 필요한 플러그인이 목록 자체에 없으면 snapshot을 갱신한 뒤 다시 확인합니다.
+
+```sh
+codex plugin marketplace upgrade sonsu-marketplace
+codex plugin list --marketplace sonsu-marketplace
+```
+
+Memory Manager의 명시적 호출과 설치 확인은 [사용 안내](plugins/memory-manager/README.md#사용)를 참고하세요.
+
 ### Claude Code
 
 Claude Code에서는 같은 저장소를 marketplace로 등록하고 필요한 플러그인을 설치합니다.
