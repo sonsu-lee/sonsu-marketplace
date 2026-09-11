@@ -105,9 +105,13 @@ def probe(case_root, names):
             raise RuntimeError("native skill count does not match installed plugins")
         for name in names:
             matched = [h for h in listed_hooks if h.get("pluginId") == name + "@continuity-fixture"]
-            if len(matched) != 1 or matched[0]["eventName"] != "sessionStart" or matched[0]["matcher"] != "^(compact|resume)$":
+            expected_events = ["sessionStart", "stop"] if name == "engineering" else ["sessionStart"]
+            if sorted(h["eventName"] for h in matched) != expected_events:
                 raise RuntimeError("missing or mismatched native hook for " + name)
-            if matched[0]["trustStatus"] != "untrusted":
+            start = next(h for h in matched if h["eventName"] == "sessionStart")
+            if start["matcher"] != "^(compact|resume)$":
+                raise RuntimeError("mismatched recovery matcher for " + name)
+            if any(h["trustStatus"] != "untrusted" for h in matched):
                 raise RuntimeError("unexpected trust state in fresh isolated home")
         if any(row.get("errors") for row in hooks["data"] + skills["data"]):
             raise RuntimeError("native discovery reported errors")

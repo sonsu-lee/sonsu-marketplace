@@ -127,6 +127,10 @@ helper는 stale revision, 다른 identity, 손상·지원하지 않는 기록, s
 남깁니다. hook은 모델·네트워크 호출, 기록 갱신과 외부 쓰기를 하지 않습니다. PreCompact와
 PostCompact handler는 없으며 compaction의 실행 시점이나 압축 방식을 제어하지 않습니다.
 
+Engineering에는 별도로 선택적 [완료 근거 관찰](../../plugins/engineering/skills/using-engineering-skills/references/evidence-gates.md)의
+`Stop` handler가 있습니다. 명시적으로 등록한 task만 관찰하며 continuity checkpoint를 갱신하지
+않습니다. 위의 읽기 전용 복구 계약은 `SessionStart` handler에 적용됩니다.
+
 복구는 최신 사용자 지시 → 기존 원장·원문·현재 mutable target → 복구 기록의 순서로 정합성을
 확인합니다. 확인된 승인은 유지하되 출처 없는 승인 문구는 쓰기 권한으로 승격하지 않습니다.
 외부 쓰기 전에는 pending 대상을 기록하고 이후 응답·readback을 기록합니다. 중간에 끊겨 결과가

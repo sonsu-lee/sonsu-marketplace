@@ -45,6 +45,9 @@ commit의 일부로, commit·push·PR·merge·배포는 각각 해당 승인을 
 
 - 여러 단계의 작업을 맡았다면 [작업 연속성](../task-continuity/SKILL.md)으로 진행과 근거를 기록한다.
 - 단계에서 품질 판정을 요구하면 [품질 게이트 계약](references/quality-gates.md)을 적용한다.
+- 계획 기반 작업에서 완료 근거의 누락·리비전 변화를 자동 관찰하려면
+  [완료 근거 관찰 도구](references/evidence-gates.md)로 고정 task ID와 필수 검사를 등록한다.
+  관찰 pilot은 선택 사항이며 Fast Path에 새 필수 단계를 추가하지 않는다.
 - 에이전트를 위임·재개할 때에는 [실행 계약](references/agent-execution.md)을 적용한다.
 - 플랫폼별 도구 대응이 필요하면 현재 환경의 자료를 읽는다:
   [Codex](references/codex-tools.md), [Claude Code](references/claude-code-tools.md),

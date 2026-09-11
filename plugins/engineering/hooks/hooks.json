@@ -12,6 +12,17 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\" && test -n \"$plugin_root\" && python3 \"$plugin_root/scripts/evidence-gates.py\" hook",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }
