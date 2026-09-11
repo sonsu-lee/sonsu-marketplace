@@ -43,7 +43,7 @@ classification과 정상 escalation은 `quality_status`, `classification_outcome
   resumption·context loss·handoff·unexplained drift는 일반 workflow로 올리고 budget을 초기화하지 않습니다.
 - Fast Path 최초 구현과 한 번의 집중 수정은 중단 없는 같은 실행에서만 허용합니다. false·unknown
   predicate와 실행 중 숨은 복잡성은 `disqualified`를 기록한 뒤 가장 가까운 일반 workflow로 routing합니다.
-- Fast Path의 숨은 복잡성 upgrade와 red-team의 변경 입력 기반 재시도는 flow diagram에서도 실제로 도달 가능해야 합니다.
+- Fast Path의 숨은 복잡성 upgrade와 red-team의 변경 입력 기반 재시도는 실제 절차의 분기에서도 이어져야 합니다.
 - Fast Path eligibility와 실행 전 classification은 quality `passed`가 아니며 정상 escalation도 quality failure가 아닙니다.
 - Code Mode는 결정론적 실행 수단이며 Fast Path 적합성이나 품질 통과의 증거가 아닙니다.
 - plan-backed 완료에는 일반 최종 리뷰와 별개의 fresh-context red-team 판정이 필요합니다.
@@ -157,3 +157,10 @@ model/effort는 `unknown`으로 기록합니다. 자기보고나 요청값을 �
 보고하는지, 비차단 개선과 명시된 아키텍처 계약 위반을 구분하는지, 파일 길이·호출자 수만으로
 불필요한 분할·삭제를 요구하지 않는지 평가합니다. 이 사례도 합성 계약이며 모델 실행은
 `not_run`입니다. 기존의 기본값·override·추측성 timeout 사례도 유지합니다.
+
+## 승인 범위와 절차 전환
+
+`approval-boundary-*` 사례는 기존 승인 유지, 설계 전용, 구현 전 확인, 미정 규칙과 독립 작업,
+Git 권한을 구분한다. 현재 지침을 적용한 실제 다음 행동을 기대값과 대조한다. 문서의 특정
+문구나 DOT 노드 유무만으로 이 동작을 검증하지 않는다. 단순 설명의 과도한 호출은
+[스킬 선택 사례](../skill-routing/cases.json)의 `engineering-short-*`로 함께 확인한다.

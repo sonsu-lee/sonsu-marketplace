@@ -1,16 +1,16 @@
-# Pi 도구 mapping
+# Pi 도구 대응
 
-스킬은 "dispatch a subagent", "create a todo", "read a file" 같은 작업을 표현한다. Pi에서는 이를 아래 도구에 대응한다.
+Pi의 현재 확장 도구를 확인하고 [공통 실행 계약](agent-execution.md)을 적용한다.
 
-| 스킬이 요청하는 작업 | Pi 대응 도구 |
+| 작업 | 대응 기능 |
 | --- | --- |
-| Subagent 위임(`Subagent (general-purpose):` template) | 사용할 수 있으면 `pi-subagents`의 `subagent`처럼 설치된 subagent 도구를 사용한다. |
-| Task 추적("create a todo", "mark complete") | 설치된 todo/task 도구가 있으면 사용하고, 없으면 plan 또는 `TODO.md`에서 task를 추적한다. |
+| 에이전트 위임 | 설치된 `pi-subagents`의 `subagent` 등 실제 제공되는 도구 |
+| 진행 추적 | 설치된 작업 추적 도구 또는 기존 계획·Markdown 체크리스트 |
 
-## Subagent 사용
+Pi core에는 표준 에이전트 위임·작업 목록 도구가 없다. `pi-subagents`를 설치한 환경은 단일
+실행·순차 연결·병렬·비동기·문맥 분기·재개·상태 조회 중 현재 버전이 지원하는 기능을 사용한다.
+선택 위임이 없으면 현재 세션에서 직접 순차 실행할 수 있다. 필수 독립 리뷰 기능이 없으면
+`blocked` 또는 `not_run`으로 보고한다.
 
-Pi core는 표준 subagent 도구를 제공하지 않는다. 선택적으로 함께 사용하기 좋은 `pi-subagents` package는 single-agent, chain, parallel, async, forked-context, resume/status workflow를 지원하는 `subagent` 도구를 제공한다. subagent 도구를 사용할 수 없다면 `Task` 호출을 지어내지 말고 현재 session에서 순차적으로 실행하거나 선택적인 subagent capability가 설치되지 않았다고 설명한다.
-
-## Task 목록
-
-Pi core는 표준 task-list 도구를 제공하지 않는다. todo/task extension이 설치되어 있으면 문서화된 도구를 사용한다. 그 외에는 Engineering plan 파일, Markdown checklist 또는 저장소 로컬 `TODO.md`로 task를 추적한다. 이전 upstream 문서에서 `TodoWrite`를 언급할 수 있는데, 이는 위의 task 추적 작업으로 취급한다.
+별도 추적 도구가 없으면 기존 Engineering 계획이나 허용된 `TODO.md`를 사용한다.
+원 문서의 `TodoWrite`는 특정 도구 호출이 아닌 진행 추적 요청으로 해석한다.

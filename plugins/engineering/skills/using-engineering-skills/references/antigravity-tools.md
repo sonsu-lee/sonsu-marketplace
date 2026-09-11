@@ -1,23 +1,19 @@
-# Antigravity CLI (`agy`) Tool Mapping
+# Antigravity CLI (`agy`) 도구 대응
 
-Skills speak in actions ("dispatch a subagent", "create a todo", "read a file"). On the Antigravity CLI (`agy`) these resolve to the tools below.
+현재 도구와 입력 스키마를 확인해 다음 대응을 적용한다. 위임·환경·예산은
+[공통 실행 계약](agent-execution.md)을 따른다.
 
-| Action skills request | Antigravity CLI equivalent |
-|----------------------|----------------------|
-| Dispatch a subagent (`Subagent (general-purpose):` template) | `invoke_subagent` with a built-in `TypeName` — `self` for full-capability work, `research` for read-only |
-| Task tracking ("create a todo", "mark complete") | a **task artifact** — `write_to_file` with `IsArtifact: true` and `ArtifactType: "task"` (see [Task tracking](#task-tracking)). **Not** `manage_task`, which manages background processes. |
+| 작업 | 대응 기능 |
+| --- | --- |
+| 에이전트 위임 | `invoke_subagent`의 기본 `TypeName`. `self`는 전체 기능, `research`는 읽기 전용 작업에 대응한다 |
+| 진행 추적 | `write_to_file`로 작업 산출물을 만들고 제공되는 편집 도구로 갱신한다 |
 
-## Task tracking
+## 진행 추적
 
-Antigravity has **no todo tool** (`manage_task` manages background
-processes — `list`/`kill`/`status`/`send_input` — it is *not* a checklist). When a
-skill says to create a todo list or track tasks, maintain a **task artifact**: a
-markdown checklist saved with `write_to_file` (`IsArtifact: true`,
-`ArtifactMetadata.ArtifactType: "task"`), edited with `replace_file_content` /
-`multi_replace_file_content` as you go.
+`manage_task`는 백그라운드 프로세스의 `list`·`kill`·`status`·`send_input`을 관리하는 기능이다.
+작업 체크리스트는 지원되는 경우 `write_to_file`의 `IsArtifact: true`와
+`ArtifactMetadata.ArtifactType: "task"`로 저장한다. 실제 필드 배치는 현재 스키마를 따른다.
 
-At the start of any multi-step task, create the task artifact listing every step of
-your plan. As you complete each step, edit the artifact to mark it done (`- [x]`).
-If the plan changes, update the checklist. Keep it current — it is your source of
-truth for what remains; once the conversation gets long, re-read it before starting
-each step.
+여러 단계의 진행 기록이 필요하면 기존 계획을 체크리스트로 사용하고 `replace_file_content`
+또는 `multi_replace_file_content`로 완료 항목과 계획 변경을 반영한다. 재개할 때 현재 파일·
+근거와 대조한다. 별도 파일을 만들 권한이 없으면 허용된 대화 기록을 사용한다.

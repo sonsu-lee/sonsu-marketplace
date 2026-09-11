@@ -1,37 +1,36 @@
-# Upstream provenance
+# 원본과 출처
 
-Writing `0.2.0-beta.2` is an independent composition plugin. It complements Fluent Languages and
-Workflow; it does not replace their installations, call names, language guidance or ticket/PR templates.
+Writing은 글의 구성을 다루는 독립 플러그인이다. Fluent Languages·Workflow와 함께
+사용할 수 있으며, 두 플러그인의 설치·호출명·언어 지침·티켓 및 PR 양식은 그대로 유지한다.
 
-The entrypoint is [`skills/writing/SKILL.md`](skills/writing/SKILL.md). It reads the common
-[composition](skills/writing/references/composition.md) and [integrity](skills/writing/references/integrity.md)
-guidance and the relevant README, comment or colleague-message reference. Fluent expression guidance
-is optional and selected from the available skill inventory. There are no cross-plugin generated copies.
+진입점은 [`skills/writing/SKILL.md`](skills/writing/SKILL.md)이다. 공통
+[구성 지침](skills/writing/references/composition.md)과 [보존 지침](skills/writing/references/integrity.md),
+대상에 맞는 README·주석·동료 메시지 참고 자료를 읽는다. Fluent 표현 지침은 사용할 수 있는
+스킬 중에서 선택적으로 적용한다. 플러그인 사이에 생성해 공유하는 사본은 없다.
 
-## Local shared guidance
+## 로컬 공통 지침의 유래
 
-Common composition principles originated in this marketplace's Fluent Languages
-`sources/core/communication.md` at `91b4a0efc4d4bb031a9d04fcdb6eb88a873ed736`. Writing expands them into
-sentence relationships, paragraph roles and information order. They are local guidance, not copied from
-or attributed to `im-not-ai`. Integrity guidance distinguishes required structures from free prose that
-can be reorganized within an explicitly requested editing scope.
+공통 구성 원칙은 이 마켓플레이스의 Fluent Languages
+`sources/core/communication.md`(`91b4a0efc4d4bb031a9d04fcdb6eb88a873ed736`)에서 시작했다.
+Writing은 이를 문장 관계·문단 역할·정보 순서 지침으로 확장했다. 이 로컬 지침은 `im-not-ai`에서
+복사하거나 그 프로젝트에 귀속한 내용이 아니다. 보존 지침은 고정 구조와, 요청된 편집 범위 안에서
+재구성할 수 있는 자유 설명을 구분한다.
 
-Fluent keeps its language-specific sources, independent integrity rules and original provenance.
-Writing retains the inherited [MIT license](LICENSE) and [third-party notices](THIRD_PARTY_NOTICES.md)
-from its initial implementation. Retaining those notices does not mean their language rules are bundled here.
+Fluent는 언어별 원본·독립적인 보존 규칙·기존 출처를 유지한다. Writing은 초기 구현에서 이어받은
+[MIT 라이선스](LICENSE)와 [제삼자 고지](THIRD_PARTY_NOTICES.md)를 보존한다.
+고지 보존이 해당 언어 규칙의 포함을 뜻하지는 않는다.
 
-## Work-document structure sources (2026-09-11)
+## 업무 문서 구성의 출처 (2026-09-11)
 
-Korean originals from Banksalad and Toss, Japanese originals from LINEヤフー, and English originals from
-Go support brief excerpts and local analysis in [readme.md](skills/writing/references/readme.md),
-[comments.md](skills/writing/references/comments.md) and [messages.md](skills/writing/references/messages.md).
-Exact links sit beside each rule/example. Ticket/PR guidance and its Mozilla, Google Engineering Practices,
-Wantedly and Woowahan sources now reside with Workflow's independently maintained templates.
+Banksalad·Toss의 한국어 원문, LINEヤフー의 일본어 원문, Go의 영어 원문을
+[readme.md](skills/writing/references/readme.md), [comments.md](skills/writing/references/comments.md),
+[messages.md](skills/writing/references/messages.md)에서 짧게 인용하고 분석했다. 정확한 링크는
+해당 지침·예시 옆에 있다. 티켓·PR 지침과 그 출처인 Mozilla, Google Engineering Practices,
+Wantedly, Woowahan 자료는 현재 Workflow가 양식과 함께 독립적으로 관리한다.
 
-These are author- or organization-recommended examples, not controlled readability or productivity
-experiments. Translated editions are not counted as independent native originals. Local examples are
-labeled. No complete article or external template is vendored.
+이 자료는 저자·조직의 권장 사례이며 가독성·생산성을 측정한 통제 실험이 아니다. 번역본은
+별개의 원어 표본으로 세지 않고, 로컬 예시는 따로 표시한다. 원문 전체나 외부 양식을 복사해
+포함하지 않았다.
 
-Past Fluent evaluation names, protocols and results retain their original identities. They do not establish
-Writing's automatic selection, combined-skill behavior or native-speaker approval. See the current
-[validation scope](../../evals/writing/README.md).
+과거 Fluent 평가의 이름·프로토콜·결과는 기존 정체성을 유지한다. 이를 Writing의 자동 선택·
+스킬 조합 동작·원어민 선호의 근거로 사용하지 않는다. 현재 [검증 범위](../../evals/writing/README.md)를 참고한다.

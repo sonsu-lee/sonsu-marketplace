@@ -124,78 +124,42 @@ Claude Code에서는 [Claude Code 실행 도구와 subagent 경계](../../plugin
 
 ### 단계별 소유와 실행 경계
 
-Engineering은 작업을 중앙 orchestrator 하나로 모으지 않고 기존 stage-owned gate를 유지합니다.
-Fast Path는 target discovery 전에 stable task ID를 고정하고, 그 ID의 소비한 search·execution
-budget과 `disqualified` 상태를 확인합니다. controller가 실제 현재 파일과 consumer를 최대 2회의
-targeted search로 확인합니다. classifier subagent, persisted `eligible` capability와 `HEAD`-bound
-approval은 필수가 아닙니다. 이전 형식의 positive eligibility record는 현재 판정으로 replay하지
-않습니다.
+Engineering은 각 단계가 만드는 산출물과 품질 판정을 함께 관리합니다. 절차 선택과 실행 권한은
+별개입니다. 확인된 구현 승인은 Fast Path 탈락, 계획 전환과 재개 후에도 유지합니다. 설계 전용
+요청은 설계를 완성하고, 구현 전 확인이 요청됐다면 검토할 산출물을 준비한 뒤 그 의존 작업만
+기다립니다. 미정 규칙과 독립적으로 승인된 작업은 계속합니다.
 
-현재 helper API는 `fast-path-state begin ROOT TASK_ID EXECUTION_ID`, 각 탐색·수정 전에
-`fast-path-state reserve ROOT TASK_ID EXECUTION_ID search|action`, 탈락 시
-`fast-path-state disqualify ROOT TASK_ID EXECUTION_ID REASON`입니다. `EXECUTION_ID`는 중단 없는
-현재 controller 실행의 예산을 연결할 뿐 승인 토큰이 아니며 state에서 복구하거나 handoff에
-전달하지 않습니다.
+Fast Path는 고정 `TASK_ID`로 소비한 탐색·수정 예산과 `disqualified` 상태를 관리합니다.
+현재 연속 실행에만 `EXECUTION_ID`를 만들고 `begin`, 탐색·수정 전 `reserve`, 탈락 시
+`disqualify`를 사용합니다. 표적 탐색 최대 2회, 최초 구현 1회와 집중 수정 1회를 허용하며
+탈락·재개·설명되지 않는 변경은 기존 예산을 유지한 채 일반 경로로 전환합니다.
 
-```text
-명확한 요청
-  → stable task ID와 남은 persistent budget 확인
-  → controller가 현재 파일에서 최대 2회 targeted search
-  → 대상·관찰 결과·완료 조건, references, consumers, public-contract risk, oracle 확인
-  → 효과 또는 변환 규칙과 직접 소비자 범위를 search budget 안에 닫음
-  → public contract·schema·상태·권한·migration·호환성 변경 없음
-  → 저렴한 결정론적 검증 존재
-    → Local Fast Path 또는 Mechanical Fast Path: 최초 구현 1회 + 집중 수정 1회
-  predicate false·unknown, resumption, context loss, handoff 또는 unexplained drift
-    → persistent disqualified → nearest normal workflow
-  그 외
-    → brainstorming → 승인된 짧은 설계
-      → plan 필요: writing-plans → plan-backed execution
-      → plan 불필요: bounded direct execution
-```
+| 전환 이유 | 후속 단계 |
+| --- | --- |
+| 원인이 불명확한 실패 | `systematic-debugging` |
+| 여러 흐름·인터페이스의 조정 | `writing-plans` |
+| 요구사항·설계의 새로운 결정 | `brainstorming` |
+| 예산 소진·재개 | 일반 범위 한정 절차에서 필요한 탐색·검증 계속 |
 
-Mechanical Fast Path는 파일 수가 아니라 결정론적인 변환 규칙과 닫힌 영향 범위로 판단합니다.
-현재 surface가 Code Mode(`functions.exec` 또는 동등한 orchestration)를 제공하면 반복 검색, parser,
-변환과 postcondition 검사를 묶는 실행 수단으로 우선 사용할 수 있습니다. Code Mode 사용 가능성은
-Fast Path 적합성이나 품질 판정의 근거가 아닙니다.
+일반 경로는 Fast Path 자격이나 예산을 다시 부여하지 않습니다. 상태 도구의 정확한 명령과
+판정 조건은 [brainstorming](../../plugins/engineering/skills/brainstorming/SKILL.md)에 있습니다.
+Code Mode는 탐색·변환·검증을 묶는 실행 수단이며, 적합성과 통과는 실제 범위와 결과로 판단합니다.
 
-Fast Path는 표적 탐색 2회, 최초 구현 1회, 집중 수정 1회와 총 자동 시도 2회로 제한합니다. fresh
-최초 구현과 한 번의 집중 수정은 같은 중단 없는 controller 실행에서만 허용합니다. 별도 classifier는
-필요하지 않으며 필요한 경우 사용해도 전체 2회 search budget을 늘리지 않습니다. 숨은 소비자,
-두 번째 의미 판단, public contract, 원인 불명 실패, 넓어진 책임, related refactor, second correction,
-재개·context loss·handoff 또는 설명되지 않는 파일 변경이 발견되면 `disqualified`를 영속 기록하고
-task ID와 소비한 budget을 handoff에 넣어 one-way owner escalation을 실행합니다. 원인 불명은
-`systematic-debugging`, multi-flow/interface는 `writing-plans`, requirement/design 변경은
-`brainstorming`으로 보내며 이 경로는 Fast Path로 재진입하지 않습니다. session이나 owner가 바뀌어도
-budget과 탈락 상태는 초기화하지 않습니다.
+계획을 실행한 작업은 결정론적 검증과 일반 전체 변경 리뷰 뒤 새 문맥의 red-team에서 전체
+목표·요구사항·설계·계획·변경·검증 근거를 확인합니다. 자동 시도는 게이트별 최대 5회이며
+세션·담당자 변경에도 예산을 유지합니다. 국소 수정은 기존 유효 근거와 집중 검증을 연결하고,
+목표·계약·설계·의존성 경계가 바뀌거나 영향이 불명확하면 전체 검토를 다시 엽니다.
 
-plan artifact가 있는 모든 실행 경로는 결정론적 검증과 일반 최종 리뷰 뒤에 fresh-context
-red-team completion review를 최초 한 번 수행합니다. 이 reviewer는 이전 session history와 verdict를
-받지 않고 원래 목표, 승인된 요구사항·설계, 행동 의사코드·mapping, 현재 전체 변경 bundle,
-검증 근거와 관찰 결과로 전체 구조를 독립적으로 검토합니다. 결함을 강제로 만들지 않으며
-`survives_challenge`만 일반 통과입니다.
-`invalidated`, `inconclusive`, `blocked`는 각각 실제 design, plan, implementation, verification
-또는 capability 소유 단계로 돌아갑니다. plan 없는 Fast Path에는 이 게이트를 강제하지 않습니다.
+### 스킬의 설명과 자료 구성
 
-Engineering의 자동 task review/fix, design/plan review, whole-change review와 red-team loop는
-각각 최대 5회입니다. task fix 1~3회차는 원래 implementer가 직접 이어서 수행하고, 4~5회차는
-fresh context와 충분한 capability를 사용합니다. handoff는 task, current artifact, 원래 finding,
-실제 실패 시도와 test evidence만 간결하게 보존하며 사실과 가설을 분리합니다. 이전 대화 전체,
-자기 정당화, 칭찬이나 verdict는 전달하지 않고 특정 tar·strict JSON·helper protocol을 요구하지
-않습니다.
+Engineering·Writing·Fluent의 설명과 절차는 한국어로 작성하고 호출명·명령어·기계값·원어 용례를
+유지합니다. 본문은 실제 판단과 수행 순서를 안내하고, 필요한 조건은 해당 단계에 둡니다.
+형식은 Agent Skills의 필수 frontmatter를 따르며 본문 목차는 작업에 맞춰 선택합니다.
+작성 기준은 [writing-skills](../../plugins/engineering/skills/writing-skills/SKILL.md)에 있습니다.
 
-최초 ordinary final review와 최초 red-team은 전체 목표와 변경을 검토합니다. bounded fix 뒤 일반
-gate는 영향받지 않은 이전 whole-review evidence, 현재 delta, scoped checks/review와 영향 rationale의
-합으로 현재 artifact를 판정할 수 있습니다. fresh red-team reviewer도 현재 전체 bundle을 사용할 수
-있지만 이전 challenge와 fix regression을 scoped recheck합니다. material goal·contract·design·dependency
-변경 또는 영향이 불명확한 경우에만 해당 whole review와 full challenge를 다시 엽니다. 새로운 scope
-아이디어는 승인된 목표의 결함과 구분하고 자동 차단하지 않습니다.
-
-5회 상한은 목표 횟수가 아니며 task/gate ID에 귀속됩니다. session, owner, handoff 또는 소유 단계
-반환으로 초기화하지 않고 nested 호출도 상위 gate의 남은 budget 안에서 수행합니다. 유효한 finding은
-상한에서 통과로 바뀌지 않습니다. capability tier는 파일 수가 아니라 uncertainty, regression risk,
-독립 판단 필요성과 예상 총 시간·비용을 함께 고려합니다. goal을 명시적으로 사용할 때는 test totals가
-아니라 사용자가 요청한 관찰 가능한 결과를 추적합니다.
+공통 구성은 Writing, 언어별 표현은 Fluent, 단계별 개발 절차는 Engineering이 소유합니다.
+독립 설치에 필요한 짧은 보존 기준은 각 플러그인에 둡니다. Fluent의 원본은 `sources/`,
+작업 연속성의 공통 원본은 `shared/task-continuity/`이며 배포본은 생성기로 맞춥니다.
 
 ## Prompting 조합
 
@@ -538,36 +502,18 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
 
 ## Engineering 흐름
 
-```text
-요청
-  → spike / bounded / architectural 분류와 stable task ID 고정
-  → Fast Path에서 persistent search/execution consumption과 disqualified 확인
-      → controller가 실제 현재 파일을 최대 2회 targeted search
-          → 모든 predicate 확인: plan 없는 Local/Mechanical Fast Path의 initial + focused correction
-          → false/unknown: disqualified 기록 → nearest normal workflow
-  → Fast Path resumption/context loss/handoff/unexplained drift/hidden complexity
-      → disqualified latch → systematic-debugging / writing-plans / brainstorming (Fast Path 재진입 없음)
-  → plan 없는 Fast Path: 결정론적 검증 → 목적 정렬 기록
-  → plan 없는 일반 bounded: 짧은 설계 승인 → plan 필요 여부 판정
-  → architectural 또는 plan 필요 bounded:
-      설계 승인과 필요한 design-document gate
-      → 의사코드로 전체 흐름 정의
-      → 파일·task·dependency별 구현 계획과 검증 이유 → plan-readiness gate
-      → worktree 확인 또는 생성 → 구현 → task gate와 targeted fix (R=1..3 original, R=4..5 fresh capable context)
-      → final deterministic verification → 최초 일반 whole-change review
-      → 목표·요구사항·설계·plan·현재 전체 diff·검증을 current bundle로 제공
-      → 최초 fresh-context whole-goal red-team completion gate
-      → bounded fix: prior unaffected evidence + delta + scoped checks/review + impact rationale
-          → fresh red-team이 previous challenge + fix regression을 scoped recheck
-      → material boundary change 또는 unknown impact: 해당 full review/challenge reopen
-  → plan 없는 일반 bounded:
-      승인된 짧은 설계 → 구현 → 변경에 비례한 결정론적 final gate
-  → diff와 gate 상태 보고 → 명시적인 커밋 승인 → commit
-```
+1. 요청과 승인 범위를 확인하고 실제 목적에 맞는 스킬을 선택합니다.
+2. `brainstorming`에서 조사·범위 한정 변경·구조 변경을 구분하고 필요한 설계를 정합니다.
+   승인된 단순 변경은 Fast Path 조건을 확인하고, 일반 경로는 계획 필요 여부를 판단합니다.
+3. 계획이 필요하면 의사코드로 전체 동작을 정의하고 파일·작업·의존성과 검증 이유에 연결합니다.
+4. 현재 작업 공간과 승인 범위에서 구현·검증합니다. task commit이 승인된 파일 기반 계획은
+   `subagent-driven-development`, 그 외 계획은 `executing-plans`로 실행합니다.
+5. 계획을 실행한 작업은 결정론적 검증, 일반 전체 리뷰, 새 문맥의 red-team 순서로 확인합니다.
+   계획 없는 변경은 그 동작과 위험에 맞는 검증으로 결과를 확인합니다.
+6. 변경과 실제 검증 상태를 보고하고, Git·외부 작업이 요청됐다면 해당 승인 범위에서 진행합니다.
 
-`using-git-worktrees` 파일은 기존 linked worktree를 재사용하고 일반 checkout에서 필요할 때
-worktree를 만드는 원본 정책을 유지합니다. 다만 스킬 안의 commit 문구를 포함한 모든 Git
-변경에는 `using-engineering-skills`의 전역 승인 게이트를 먼저 적용합니다.
+기존 linked worktree는 재사용하며 추가 격리가 필요할 때 `using-git-worktrees`를 적용합니다.
+상세 실행 계약은 각 스킬, 공통 판정과 재시도는 아래 품질 계약이 담당합니다.
 
 ## Engineering quality gate
 
@@ -624,7 +570,7 @@ Git에서 제외된 `.engineering/plans/<topic>.md`를 사용합니다. 저장�
 ## 커밋 라우팅
 
 계획에는 `git commit`을 실행 단계로 자동 삽입하지 않습니다. inline 실행은 구현과 검증 후
-diff를 보고하고 커밋 결정을 받습니다. task별 commit을 전제로 하는
+diff를 보고합니다. 커밋은 사용자가 해당 작업을 요청하거나 승인했을 때 수행합니다. task별 commit을 전제로 하는
 `subagent-driven-development`는 현재 작업에서 사용자가 task commit을 명시적으로 승인한
 경우에만 시작합니다. 플랫폼 참고 문서, worktree 상태와 다른 스킬의 commit 지시는 이
 승인 게이트를 우회할 수 없습니다.

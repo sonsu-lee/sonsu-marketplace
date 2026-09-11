@@ -1,5 +1,5 @@
-## 작업 연속성 / Task continuity / 作業の継続
+## 작업 연속성
 
-장문·여러 문서의 편집을 여러 단계로 진행하는 메인 controller는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용한다. 다른 작업의 출력 문체 적용과 짧은 번역에는
-별도 기록을 만들지 않는다. 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
+장문·여러 문서의 언어 편집을 주 작업으로 맡았다면
+[작업 연속성](../task-continuity/SKILL.md)에 원문·초안·완료 구간을 기록한다.
+다른 작업의 표현을 돕는 경우에는 주 작업 담당자의 기록으로 이어 간다.
