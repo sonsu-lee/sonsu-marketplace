@@ -101,12 +101,17 @@ def read_json(path):
 
 
 def atomic_write(path, data):
+    atomic_chunks(path, (data,))
+
+
+def atomic_chunks(path, chunks):
     safe_path(path)
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(dir=path.parent, prefix=".pending-")
     try:
         with os.fdopen(fd, "wb") as stream:
-            stream.write(data)
+            for chunk in chunks:
+                stream.write(chunk)
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary, path)
@@ -179,14 +184,18 @@ def snapshot(root, config):
         else:
             require(path.is_file(), "submodules and directory artifacts are not supported")
             entries.append([name, bool(path.stat().st_mode & stat.S_IXUSR), digest(path.read_bytes())])
-    policy = Path(__file__).resolve().parents[1] / "skills/using-engineering-skills/references/quality-gates.md"
+    package = Path(__file__).resolve().parents[1]
+    policies = ("skills/using-engineering-skills/references/quality-gates.md",
+                "skills/requesting-code-review/review-criteria.md",
+                "skills/requesting-code-review/code-reviewer.md",
+                "skills/requesting-code-review/red-team-reviewer.md")
     return digest(encode({"files": entries, "config": config,
                           "index": digest(git(root, "ls-files", "--stage", "-v", "-z")),
                           "staged_diff": digest(git(root, "diff", "--cached", "--raw", "--no-renames",
                                                     "--no-ext-diff", "--no-abbrev", "-z")),
                           "head": digest(git(root, "rev-parse", "--revs-only", "HEAD")),
                           "runtime": digest(Path(__file__).read_bytes()),
-                          "policy": digest(read_file(policy))}))
+                          "policy": {name: file_digest(package / name) for name in policies}}))
 
 
 def exclude_state(root):
@@ -448,19 +457,30 @@ def run_check(root, args):
 
 
 def prepare_review(root, args):
-    content = read_file(Path(args.package).absolute(), MAX_REPORT)
-    require(content.strip(), "review package is empty")
-    with lock(root):
-        state = load(root, args.task_id)
-        receipt = reserve(root, state, state["reviews"][args.gate], args.gate)
-        name = args.gate + "-" + str(receipt["attempt"]) + "-input.md"
-        path = task_path(root, args.task_id).parent / name
-        require(not path.exists(), "review package already exists")
-        receipt["files"][name] = digest(content)
-        save(root, state)
-        atomic_write(path, content)
-        return {"gate": args.gate, "attempt": receipt["attempt"], "artifact_digest": receipt["artifact_digest"],
-                "package": str(path), "package_digest": digest(content)}
+    source = safe_path(Path(args.package).absolute())
+    require(source.is_file(), "required file is unavailable")
+    # Freeze the input before reserving an attempt; package size is independent of reports.
+    with tempfile.TemporaryFile() as frozen:
+        value, nonempty = hashlib.sha256(), False
+        with source.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(64 * 1024), b""):
+                nonempty = nonempty or bool(chunk.strip())
+                value.update(chunk)
+                frozen.write(chunk)
+        require(nonempty, "review package is empty")
+        fingerprint = "sha256:" + value.hexdigest()
+        frozen.seek(0)
+        with lock(root):
+            state = load(root, args.task_id)
+            receipt = reserve(root, state, state["reviews"][args.gate], args.gate)
+            name = args.gate + "-" + str(receipt["attempt"]) + "-input.md"
+            path = task_path(root, args.task_id).parent / name
+            require(not path.exists(), "review package already exists")
+            receipt["files"][name] = fingerprint
+            save(root, state)
+            atomic_chunks(path, iter(lambda: frozen.read(64 * 1024), b""))
+            return {"gate": args.gate, "attempt": receipt["attempt"], "artifact_digest": receipt["artifact_digest"],
+                    "package": str(path), "package_digest": fingerprint}
 
 
 def record_review(root, args):
@@ -500,6 +520,7 @@ def record_review(root, args):
 def finish(root, args):
     with lock(root):
         state = load(root, args.task_id)
+        require(not state["closed"], "task is closed; explicitly resume it with init")
         if args.command == "abandon":
             rows = state["reviews"].get(args.gate)
             if args.gate.startswith("check:"):

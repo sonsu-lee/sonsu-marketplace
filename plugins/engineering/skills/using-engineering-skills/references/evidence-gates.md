@@ -187,3 +187,15 @@ pilot을 중단하려면 task를 `superseded`로 닫는다. 설치본을 되돌�
   `ready: false`, `observation: inconclusive`, `reason: time_budget_exceeded`를 저장하고 알린다.
   task 확인 이전에 예산을 초과하면 상태를 쓰지 않고 확인 불가 알림만 반환한다.
   운영체제의 중단 불가능한 I/O나 호스트 자체 종료까지 보장하는 제한은 아니다.
+
+### 패키지·종료 상태·정책 변경 처리
+
+리뷰 package는 report의 1 MiB 제한을 적용하지 않고 64 KiB 단위로 복사·해시한다.
+입력을 임시 파일로 고정한 뒤 task 디렉터리에 원자적으로 게시하므로 package 크기에 비례한
+임시 디스크 공간은 필요하다. report 제한은 그대로 유지한다. `red-team-package`도 기본
+임시 경로를 물리 경로로 정규화한다.
+
+닫힌 task의 `close`와 `abandon`은 거부한다. 동일한 종료 상태를 다시 요청하더라도 먼저
+같은 task/config로 `init`해야 한다. 리뷰 정책 digest에는 `quality-gates.md` 외에
+`review-criteria.md`, `code-reviewer.md`, `red-team-reviewer.md`도 포함한다.
+정책 파일 변경은 기존 근거를 오래된 상태로 판정하며, 파일 누락은 검사 오류로 보고한다.

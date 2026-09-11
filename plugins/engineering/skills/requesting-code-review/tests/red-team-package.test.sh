@@ -64,8 +64,9 @@ default_result=$(TMPDIR="$fixture_dir" "$red_team_package" \
   "$fixture_dir/outcomes.md" \
   "$fixture_dir/provenance.md")
 default_package_path=$(awk -F': ' '/^Package: / {print $2}' <<<"$default_result")
+physical_fixture_dir=$(cd "$fixture_dir" && pwd -P)
 case "$default_package_path" in
-  "$fixture_dir"/engineering-red-team.*) ;;
+  "$physical_fixture_dir"/engineering-red-team.*) ;;
   *)
     echo "default output path was unexpected: $default_package_path" >&2
     exit 1

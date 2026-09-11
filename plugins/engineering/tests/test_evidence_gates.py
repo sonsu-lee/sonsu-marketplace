@@ -32,6 +32,10 @@ class EvidenceGateTests(unittest.TestCase):
         policy.parent.mkdir(parents=True)
         policy.write_text("Verification, final review, and a fresh red-team are required.\n")
         self.policy = policy
+        for name in ("review-criteria.md", "code-reviewer.md", "red-team-reviewer.md"):
+            target = self.package / "skills/requesting-code-review" / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / "plugins/engineering/skills/requesting-code-review" / name, target)
         self.env = dict(os.environ, CODEX_THREAD_ID="session-a", PYTHONDONTWRITEBYTECODE="1")
         for key in ("CLAUDE_CODE_SESSION_ID", "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"):
             self.env.pop(key, None)
@@ -181,6 +185,61 @@ class EvidenceGateTests(unittest.TestCase):
         observation = json.loads((self.state_path.parent / "observation.json").read_text())
         self.assertEqual(observation.get("reason"), "time_budget_exceeded")
         self.assertIn("systemMessage", json.loads(result.stdout))
+
+    def test_red_team_default_package_normalizes_temp_parent(self):
+        self.ok(self.init())
+        self.ok(self.run_check())
+        self.review()
+        alias = self.base / "temp-alias"
+        alias.symlink_to(self.base, target_is_directory=True)
+        helper = ROOT / "plugins/engineering/skills/requesting-code-review/scripts/red-team-package"
+        result = subprocess.run(["bash", str(helper), *([str(self.bundle)] * 7)],
+                                env=dict(self.env, TMPDIR=str(alias)), capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        package = next(line.removeprefix("Package: ") for line in result.stdout.splitlines() if line.startswith("Package: "))
+        self.assertEqual(Path(package), Path(package).resolve())
+        self.ok(self.call("prepare-review", "--task-id", "task-a", "--gate", "red-team", "--package", package))
+
+    def test_large_packages_are_preserved_for_both_review_stages(self):
+        import hashlib
+        self.ok(self.init())
+        self.ok(self.run_check())
+        content = b"whole diff\n" * 200000
+        self.bundle.write_bytes(content)
+        for gate in ("final-review", "red-team"):
+            ticket = self.ok(self.prepare(gate))
+            self.assertEqual(Path(ticket["package"]).read_bytes(), content)
+            self.assertEqual(ticket["package_digest"], "sha256:" + hashlib.sha256(content).hexdigest())
+            self.ok(self.record(gate))
+        self.assertTrue(self.status()["ready"])
+
+    def test_closed_task_requires_init_before_lifecycle_mutation(self):
+        self.ok(self.init())
+        self.ok(self.run_check())
+        self.review()
+        self.review("red-team")
+        for outcome in ("superseded", "complete"):
+            self.ok(self.call("close", "--task-id", "task-a", "--outcome", outcome))
+            before = self.state_path.read_bytes()
+            for target in ("superseded", "complete"):
+                result = self.call("close", "--task-id", "task-a", "--outcome", target)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("explicitly resume", result.stderr)
+                self.assertEqual(self.state_path.read_bytes(), before)
+            self.ok(self.init())
+
+    def test_each_reviewer_policy_invalidates_existing_evidence(self):
+        self.ok(self.init())
+        self.ok(self.run_check())
+        self.review()
+        self.review("red-team")
+        for name in ("review-criteria.md", "code-reviewer.md", "red-team-reviewer.md"):
+            policy = self.package / "skills/requesting-code-review" / name
+            before = policy.read_bytes()
+            policy.write_bytes(before + b"\nNew mandatory rule.\n")
+            self.assertFalse(self.status()["ready"])
+            policy.write_bytes(before)
+            self.assertTrue(self.status()["ready"])
 
     def test_missing_evidence_is_not_a_pass_and_check_fails(self):
         self.ok(self.init())

@@ -61,6 +61,7 @@ if [ $# -eq 8 ]; then
   staging=$(mktemp "$out.staging.XXXXXX")
 else
   temp_root=${TMPDIR:-/tmp}
+  temp_root=$(cd "$temp_root" && pwd -P)
   out=$(mktemp "${temp_root%/}/engineering-red-team.XXXXXX")
   staging=$out
 fi
