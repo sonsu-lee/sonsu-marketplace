@@ -51,3 +51,20 @@ model role과 availability는 time-sensitive다. 이 plugin은 일반 model reco
 - Owl Listener designer skills snapshot: <https://github.com/Owl-Listener/designer-skills/tree/20e34c492474534327494e3b8f75ad1d9d43e4d3>
 
 repository popularity, stars와 issue count는 quality proof로 취급하지 않는다. current provider documentation과 actual connected tool schema가 community example보다 우선한다.
+
+### 화면 구성과 동선 보완 (2026-09-11)
+
+designbywani의 릴스 캡션에서 다음 주제를 확인하고 기존 layout·text·interaction 계약의 적용 예시로 해석했다.
+영상 전체의 전사나 비공개 DM 자료를 확보한 것은 아니며 문장·프롬프트·Figma asset은 복사하지 않았다.
+
+- [정렬·간격·강약](https://www.instagram.com/reel/Dc3CXUjzjSp/): 작업별 정보 묶음과 읽는 순서
+- [텍스트 역할과 스타일](https://www.instagram.com/reel/Dcs0qmTT4u1/): 필요한 역할을 기존 Text Style에 매핑
+- [중첩 카드 모서리](https://www.instagram.com/reel/DdEBHpTT_ys/): 균일한 inset을 가진 surface의 국소적인 곡률 검토
+- [PRD에서 화면 동선으로](https://www.instagram.com/reel/Dcx5VQ-TbmC/): 목표·화면·권한을 기존 transition에 대응
+
+[Atlassian spacing](https://atlassian.design/foundations/spacing/)의 semantic grouping·proximity와
+[WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)로 간격·대비 해석을 대조했다.
+[CSS corner shaping](https://www.w3.org/TR/css-backgrounds-3/#corner-shaping)은 border·padding 경계의 반지름과
+0 하한을 설명한다. 이를 중첩 surface에 적용하는 것은 동일한 원호와 균일한 inset을 전제로 한 설계 참고이며,
+브라우저가 자식 element의 radius를 자동 계산한다는 뜻은 아니다. social tip을 새 차단 gate나 고정 style scale로
+승격하지 않고 기존 system reuse와 렌더링 검증 안에 통합했다.

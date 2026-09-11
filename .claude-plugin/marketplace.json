@@ -59,14 +59,14 @@
       "name": "product",
       "source": "./plugins/product",
       "description": "제품 기회를 탐색하고, 근거를 종합하고, 제품 도메인을 모델링하고, 검증을 설계·판정하며, 승인된 결정을 PRD로 변환합니다.",
-      "version": "0.2.2",
+      "version": "0.2.3",
       "category": "Productivity"
     },
     {
       "name": "figma-workflow",
       "source": "./plugins/figma-workflow",
       "description": "Figma에서 제품 화면을 만들고 검토할 때 native layout, reusable system, exact assets, interaction과 handoff 품질을 안내합니다.",
-      "version": "0.2.2",
+      "version": "0.2.3",
       "category": "Productivity"
     },
     {
@@ -80,7 +80,7 @@
       "name": "operations-ui",
       "source": "./plugins/operations-ui",
       "description": "운영형 B2B 화면을 하나의 디자인 언어로 설계, 재설계하고 증거 기반 품질 게이트로 검토합니다.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "category": "Developer Tools"
     },
     {

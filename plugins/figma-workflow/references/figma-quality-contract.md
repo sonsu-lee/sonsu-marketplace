@@ -10,7 +10,10 @@
 
 ## Layout model, Auto Layout과 responsive behavior
 
-각 container는 content relationship과 resize intent에 따라 layout model을 선택한다. 한 축의 순서·정렬·간격이
+각 container는 사용자 작업에서 함께 읽거나 조작할 내용을 묶고, 읽는 순서와 resize intent에 따라 layout model을 선택한다.
+같은 묶음의 제목·설명·control은 읽기 방향의 시작선을 맞추고, 관련 요소 사이의 gap을 다른 묶음 사이보다 작게
+잡는다. 숫자 열의 끝선 정렬처럼 정보 해석에 필요한 정렬은 유지하며 모든 child를 같은 간격으로 펼치지 않는다.
+이 관계를 기존 spacing token과 Auto Layout의 alignment·gap·padding으로 표현한다. 한 축의 순서·정렬·간격이
 핵심이면 horizontal 또는 vertical Auto Layout을 사용하고, 같은 주축에서 반복 항목이 다음 줄로 reflow하면 wrap을
 사용한다. row와 column track, cell 또는 span이 함께 의미를 가지는 2차원 구조에는 Grid Auto Layout을 사용한다.
 각 nesting level이 독립적인 한 축 관계를 가질 때에는 nested Auto Layout을 유지하되, 2차원 관계를 의미 없는
@@ -26,6 +29,12 @@ clipping으로 layout defect를 숨기지 않고 overflow를 명시한다. 의�
 text, empty/optional element, localized copy, 0/1/many item, icon-present/absent state를 확인한다. material section
 마다 screenshot과 node sizing을 함께 읽는다.
 
+같은 곡선 형태의 두 surface가 균일한 inset으로 중첩되면, 안쪽 radius는 `max(0, outer radius - inset)`을
+출발점으로 검토한다. inset은 두 윤곽 사이의 실제 거리이며 stroke 위치·두께도 포함해 읽는다. 이 계산은
+원호형 모서리의 관계를 확인하는 방법이다. corner smoothing, 비대칭 여백, pill 또는 독립된 내부 control에는
+그대로 적용하지 않는다. 기존 component·radius token을 먼저 확인하고, 조정이 필요하면 해당 중첩 surface에
+한정해 바인딩과 화면 결과를 다시 읽는다.
+
 ## Components, variants와 variables
 
 Code Connected component, enabled library, local component, existing screen pattern, new component 순서로 찾는다.
@@ -39,8 +48,15 @@ styles가 project convention이면 유지한다.
 
 ## Text, icons와 handoff
 
+먼저 실제 화면의 제목, 본문, control label과 보조 정보가 어떤 역할과 읽는 순서를 가지는지 정하고 기존 Text Style에
+매핑한다. 기존 체계가 없다면 현재 화면에서 반복되는 역할에 필요한 style만 만든다. `Display`, `Title`, `Body`,
+`Label`, `Caption`은 역할을 찾는 예시이며 모든 프로젝트에 다섯 이름이나 새로운 크기 scale을 강제하지 않는다.
+font size·weight·line height는 Text Style로, text color는 기존 semantic variable 또는 color style로 연결한다.
+중요도 차이는 크기·굵기·간격으로 표현하고, 보조 정보를 연하게 만들 때도 실제 배경에서 읽을 수 있는 대비를 유지한다.
+
 actual font를 확인하고 `font_load`가 제공되면 load한다. 불가능하면 다른 font로 조용히 대체하지 않는다.
-wrapping intent에 맞는 text sizing과 realistic content, max-line/truncation을 유지한다. icon은
+wrapping intent에 맞는 text sizing과 realistic content, max-line/truncation을 유지한다. 같은 역할이 여러 화면과
+긴 번역문에서도 일관되게 읽히는지 screenshot과 style binding으로 확인한다. icon은
 [icon policy](icon-policy.md)의 exact component/provenance, accessible name, intended size와 state behavior를
 따른다.
 
