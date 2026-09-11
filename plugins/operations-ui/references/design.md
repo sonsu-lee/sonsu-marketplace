@@ -21,6 +21,11 @@ Precision Operations Console은 운영자가 많은 데이터와 상태를 빠�
 - list workspace의 기본 순서는 `page context → status summary → filters → batch actions → data table → detail surface`다.
 - 표는 기본 `48px` row, form control은 `36px`, compact control은 `32px`다.
 
+Screen Contract의 `primary_decision`을 기준으로 먼저 읽을 정보와 다음 행동을 정하고 이 순서를 배치에 반영한다.
+예를 들어 상태명과 건수, label과 입력값은 가까이 묶고, 필터 묶음과 결과 표 사이에는 더 큰 간격을 둔다.
+같은 정보 묶음의 제목·설명·control은 읽기 방향의 시작선을 맞추되 숫자 열은 비교하기 쉬운 끝선 정렬을 유지한다.
+간격은 기존 spacing token에서 골라 관계를 표현하며 모든 요소에 같은 gap을 주거나 새 card로 감싸서 구분하지 않는다.
+
 ### 색상
 
 - canvas `#F4F6F8`, surface `#FFFFFF`, border `#E1E7EF`
@@ -38,10 +43,18 @@ Precision Operations Console은 운영자가 많은 데이터와 상태를 빠�
 - gradient, glass, glow, oversized illustration은 기본 문법이 아니다.
 - map/control-tower처럼 공간 정보가 작업의 핵심일 때만 dark content surface를 쓸 수 있다. 일반 table/list 화면을 dark theme로 바꾸지 않는다.
 
+면 안에 면이 균일한 간격으로 들어갈 때에는 모서리의 관계를 함께 본다. 원호형 모서리라면
+`inner radius = max(0, outer radius - inset)`을 출발점으로 검토한다. inset은 CSS border를 포함한 두 윤곽 사이의
+거리다. 예를 들어 radius `10px`인 면에서 border와 padding을 합친 inset이 `4px`라면 내부는 기존 small radius
+`6px`와 맞는다. 이 예시는 기본 padding이나 token을 바꾸는 지시가 아니다. pill, 독립된 내부 버튼, 비대칭 여백이나
+다른 곡선 형태는 기존 component를 우선하고, 중첩 면의 국소 조정은 실제 렌더링으로 확인한다.
+
 ### 타이포그래피와 밀도
 
 - 숫자, 상태, 식별자는 빠르게 훑을 수 있게 tabular alignment와 일관된 weight를 사용한다.
-- heading의 크기보다 정보 관계, whitespace, label/value 대비로 계층을 만든다.
+- 화면 제목, section 제목, cell 본문, control label, 보조 설명의 역할을 기존 typography style에 매핑한다. 같은
+  역할은 같은 style을 재사용하고 필요한 역할이 없을 때만 보완한다. 크기를 전부 키우기보다 정보 관계, 간격,
+  weight와 label/value 대비로 계층을 만들며 보조 설명에도 실제 배경에서 읽을 수 있는 대비를 유지한다.
 - density를 높이되 primary action, destructive action, status와 selection은 주변 정보와 분명히 구분한다.
 - ellipsis는 접근 경로가 있을 때만 허용한다. tooltip, drawer, detail page 또는 expandable cell 중 하나를 제공한다.
 
@@ -51,4 +64,7 @@ Precision Operations Console은 운영자가 많은 데이터와 상태를 빠�
 
 ## 판정
 
-이 문서의 값과 시각 문법은 [quality-contract.md](quality-contract.md)의 G2에서 실제 렌더링과 token mapping으로 검증한다. 문서나 Figma만 존재하고 실제 UI가 없으면 G2와 G7은 통과할 수 없다.
+이 문서의 값과 시각 문법은 [quality-contract.md](quality-contract.md)의 G2에서 실제 렌더링과 token mapping으로 검증한다.
+기존 G1의 `information-hierarchy`에는 먼저 읽을 정보와 다음 행동이 드러나는지를, G2의 `density-and-components`에는
+반복되는 정보 묶음·텍스트 역할·중첩 면이 일관되는지를 연결한다. Screen Contract에 선언된 viewport와 긴 번역문에서도 이 관계를 확인하고
+텍스트 대비는 G6의 기존 `contrast` 근거로 판정한다. 문서나 Figma만 존재하고 실제 UI가 없으면 G2와 G7은 통과할 수 없다.

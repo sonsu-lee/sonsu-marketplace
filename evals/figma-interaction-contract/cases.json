@@ -2,6 +2,12 @@
   "schema_version": "figma-interaction-contract-v1",
   "cases": [
     {
+      "id": "prd-goal-maps-to-role-aware-entry-and-return",
+      "scenario": "승인된 PRD로 Figma 주문 조회 flow를 만든다. viewer는 목록·상세 조회와 돌아가기만 가능하고 editor만 편집할 수 있다. 직접 상세에 들어가는 경로도 있으며 접근 거부 시 목록으로 복귀한다. 필요한 제품 규칙은 이미 정해졌고 FigJam은 요청하지 않았다.",
+      "expected": ["map-user-goal-to-entry-screen-state-and-next-action", "reuse-approved-role-permissions", "cover-direct-entry-permission-and-return-path", "record-mapping-in-transitions-and-named-states", "validate-from-named-starting-point"],
+      "must_not": ["reask-settled-product-decisions", "treat-hidden-menu-as-complete-access-handling", "require-separate-figjam-or-navigation-document", "invent-viewer-edit-permission"]
+    },
+    {
       "id": "button-navigation-uses-actual-control",
       "scenario": "기존 화면의 Continue 버튼을 다음 화면으로 연결한다.",
       "expected": ["reaction-on-actual-button", "trigger-action-destination", "resolvable-destination-id", "concise-annotation", "named-starting-point"],

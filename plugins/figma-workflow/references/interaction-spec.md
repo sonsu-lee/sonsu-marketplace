@@ -2,6 +2,13 @@
 
 ## Figma interaction contract
 
+PRD나 요구사항에서 새 flow를 시작하면 사용자 목표별로 진입점, 필요한 화면·상태, 접근 가능한 역할과 다음 행동을
+대응시킨다. 기존 flow를 수정할 때에는 이 대응을 현재 starting point와 destination에서 확인한다. 이미 합의된
+권한·제품 규칙을 재사용하고, 빠진 결정이 실제로 바꾸는 경로만 확인 대상으로 남긴다. 예를 들어 조회만 가능한
+사용자는 목록에서 상세를 보고 돌아올 수 있지만 편집 action은 해당 권한 조건에 따라 달라진다. 메뉴에서 숨겼다는
+사실만으로 직접 진입의 권한 처리까지 정의됐다고 보지 않는다. 이 대응은 아래 transition과 named state에 담으며
+별도의 문서나 FigJam 작성 단계를 필수로 추가하지 않는다.
+
 의미 있는 transition마다 다음 세 evidence layer를 동기화한다.
 
 1. actual control의 executable reaction: trigger, action, destination/result, transition, condition
