@@ -91,6 +91,12 @@ Engineering은 단독으로 설치할 수 있다. Git·티켓·PR을 직접 요�
 신뢰 설정을 관리하며, hook을 사용할 수 없으면 스킬의 조회 절차부터 수동으로 재개한다.
 저장 도구는 Python 3.9+와 POSIX 환경을 사용한다.
 
+계획 기반 작업에는 선택적인 [완료 근거 관찰 도구](skills/using-engineering-skills/references/evidence-gates.md)를
+제공한다. 등록한 검사 명령의 실제 결과와 일반 리뷰·red-team 근거를 현재 파일·정책의 digest에
+연결하고, 누락·변경 후 오래된 결과·누적 시도를 검사한다. 등록한 root session의 `Stop` 훅은
+관찰 결과와 알림만 남기며 작업을 차단하거나 계속 실행하지 않는다. 설치만으로 활성 작업이
+등록되거나 훅이 신뢰되지는 않는다. 의미적 정확성과 실제 리뷰 독립성은 기존 검증으로 확인한다.
+
 임시 계획·진행 원장·선택적 시각 보조 세션은 `.engineering/`에 저장한다. 자세한 근거는
 [스킬 라우팅](../../docs/architecture/skill-routing.md),
 [Fast Path·red-team 결정](../../docs/decisions/0011-use-fast-path-and-plan-red-team-gates.md),

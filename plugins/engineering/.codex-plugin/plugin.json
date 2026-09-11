@@ -1,6 +1,6 @@
 {
   "name": "engineering",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "요청에 맞는 설계·구현·디버깅·검증·리뷰 절차를 선택하고 승인 범위 안에서 개발 작업을 수행한다.",
   "author": {
     "name": "sonsu-lee",

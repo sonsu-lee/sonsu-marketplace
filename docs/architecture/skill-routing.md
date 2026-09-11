@@ -13,6 +13,10 @@
 자동 선택하지 않습니다. fresh reviewer와 subagent는 controller의 checkpoint를 자동 상속하지 않습니다.
 저장·예산·권한·외부 작업 중복 방지 규칙은 [작업 연속성 계약](../reference/task-continuity.md)에 있습니다.
 
+Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering/skills/using-engineering-skills/references/evidence-gates.md)는
+등록한 계획 기반 task의 검사·리뷰 근거를 연결합니다. `Stop`은 현재 근거의 누락·stale 상태만
+관찰하며, 스킬 라우팅·실행 권한·다른 플러그인의 상태를 결정하지 않습니다.
+
 - Status: Current
 - Last reviewed: 2026-09-08
 
