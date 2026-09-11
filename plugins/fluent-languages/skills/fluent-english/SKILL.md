@@ -5,7 +5,7 @@ description: Use when writing or editing natural English answers, reports, expla
 
 # Natural English output
 
-Write English explanatory prose that fits the requested genre, audience, voice, and format. Do not change facts, required formatting or ordered structures, certainty, or obligation while improving the wording. When a style preference conflicts with a preservation rule, preserve the source meaning and form.
+Write English explanatory prose that fits the requested genre, audience, voice, and format. Do not change facts, required formatting or procedural order, certainty, or obligation while improving the wording. When a style preference conflicts with a preservation rule, preserve the source meaning and form.
 
 ## Scope
 
@@ -21,14 +21,15 @@ Write English explanatory prose that fits the requested genre, audience, voice, 
 [task-continuity](../task-continuity/SKILL.md)를 적용한다. 다른 작업의 출력 문체 적용과 짧은 번역에는
 별도 기록을 만들지 않는다. 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
 
-## 공통 의사소통 원칙
+## 표현 지침의 범위
 
-- 사용자가 요청한 내용, 독자, 목적, 장르, 어조와 출력 형식을 따릅니다.
-- 과업에 필요한 원인, 조건, 근거, 대조, 순서와 귀속 관계를 독자가 복원할 수 있게 구성합니다.
-- 과업상 중요한 행위자와 대상이 문맥에서 안정적으로 복원되게 합니다.
-- 관련 정보를 묶고, 독자가 필요한 정보를 찾고 사용할 수 있도록 장르와 과업에 맞는 순서를 선택합니다.
-- 불필요한 추론 부담은 줄이되, 해당 언어와 장르에서 자연스러운 생략과 관습을 강제로 제거하지 않습니다.
-- 문단 구분, 접속어, 반복, 주어 표현과 결론 위치는 위 목표를 실현하는 수단입니다. 항상 결론부터 쓰거나 특정 문장·문단 길이를 맞추는 고정 형식으로 강제하지 않습니다.
+요청된 언어의 어순·어휘·어조와 자연스러운 생략을 다룹니다. 문서 전체의 정보 순서와 장르별
+양식은 사용자 또는 현재 작업을 맡은 스킬이 정한 구성을 따릅니다. 표현을 다듬기 위해 전체 문서를
+다시 설계하거나 다른 스킬을 호출하는 단계를 만들지 않습니다.
+
+Writing이나 Workflow와 함께 적용할 때에도 같은 초안에 필요한 지침을 한 번씩 반영합니다.
+구성을 맡은 쪽으로 다시 호출을 돌리거나 언어별 재작성 작업을 별도로 만들지 않습니다.
+단독으로 사용해도 요청 범위에서 작성·편집하며 다른 플러그인의 설치를 요구하지 않습니다.
 
 ## 내용과 형식 보존
 
@@ -41,9 +42,17 @@ Write English explanatory prose that fits the requested genre, audience, voice, 
 - 수치, 날짜, 단위, URL과 Markdown link destination
 - 직접 인용문, 보호 문자열과 literal
 
-요청되거나 입력에 주어진 제목 계층, 표의 형태와 의미, 불릿과 번호 목록의 종류와 순서를 유지합니다. 번호 절차의 단계 수와 실행 순서를 바꾸거나 합치지 않습니다. 형식 변경 요청이 없다면 표, 목록과 절차를 산문으로 바꾸지 않습니다.
+부분 수정이나 표현만 다듬는 요청에서는 지정 범위 밖의 제목·표·목록 순서를 유지합니다.
+사용자가 자유 초안의 전체 재작성이나 형식 변경을 요청했고 Writing 등 현재 작성 담당이 그 범위에서
+구성을 정했다면, 정해진 새 구성을 기준으로 표현을 다듬습니다. 이전 초안의 구조로 되돌리지 않습니다.
+단독으로도 명시된 구조 변경 범위를 따르되, 고정 양식·필수 필드·HTML marker와 번호 절차의
+실행 순서·조건은 문체 개선만으로 바꾸지 않습니다. 보호할 구조인지 불명확하면 유지합니다.
+`Fixes`, `Closes`, `Part of`, `Ignore`와 ticket ID·Jira key·연결 URL은 실제 동작에 영향을 줄 수 있으므로
+명시된 관계·문법·위치를 번역·치환·이동하거나 새로 만들지 않습니다.
 
-사실, 주장, 귀속, 인과 관계와 영향 범위를 추가하거나 삭제하지 않습니다. 부정과 긍정, 조건, 전제, 예외와 제한 범위를 유지합니다. 추측, 가능성, 확신과 불확실성의 정도를 바꾸지 않습니다. `must`, `should`, `may`에 해당하는 의무와 허용 수준도 유지합니다. 입력으로 뒷받침되지 않는 결론, 수치, 사례, 출처나 행위자를 만들지 않습니다.
+표현 수정만으로 사실, 주장, 귀속, 인과 관계와 영향 범위를 추가하거나 삭제하지 않습니다.
+요약을 명시적으로 요청받았다면 목적에 불필요한 정보를 생략할 수 있지만, 남긴 주장의 진위를
+바꾸는 조건·예외·확실성은 보존합니다. 구성 담당이 정한 요약 범위를 임의로 되돌리거나 넓히지 않습니다. 부정과 긍정, 조건, 전제, 예외와 제한 범위를 유지합니다. 추측, 가능성, 확신과 불확실성의 정도를 바꾸지 않습니다. `must`, `should`, `may`에 해당하는 의무와 허용 수준도 유지합니다. 입력으로 뒷받침되지 않는 결론, 수치, 사례, 출처나 행위자를 만들지 않습니다.
 
 ## Actors and reference
 

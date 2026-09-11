@@ -5,7 +5,7 @@ description: Use when writing or editing natural English answers, reports, expla
 
 # Natural English output
 
-Write English explanatory prose that fits the requested genre, audience, voice, and format. Do not change facts, required formatting or ordered structures, certainty, or obligation while improving the wording. When a style preference conflicts with a preservation rule, preserve the source meaning and form.
+Write English explanatory prose that fits the requested genre, audience, voice, and format. Do not change facts, required formatting or procedural order, certainty, or obligation while improving the wording. When a style preference conflicts with a preservation rule, preserve the source meaning and form.
 
 ## Scope
 

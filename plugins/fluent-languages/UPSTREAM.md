@@ -1,12 +1,14 @@
 # Upstream provenance
 
+Version `0.1.0-beta.7` keeps Fluent Languages independently installable. Language-specific rule bodies and source/legal history remain intact. Shared document-composition rules move to the separate Writing plugin; Fluent retains expression scope and its own integrity safeguards. Explicitly authorized composition is preserved when combined with Writing, without a reverse invocation or installation dependency. The intra-plugin source generator remains canonical.
+
 The Korean, Japanese and English skills in this local Codex plugin are generation-oriented local adaptations. They are not byte-identical vendor snapshots of the referenced MIT-licensed projects.
 
-The reusable local source is split at build time. `sources/core/` contains the shared communication and integrity contracts, while `sources/languages/` contains each entrypoint and its language guidance. `scripts/render-skills.py` combines every `sources/languages/<language>.md` file into a self-contained `skills/fluent-<language>/SKILL.md`; the core is not a separately triggered skill or runtime dependency.
+The reusable local source is split at build time. `sources/core/` contains the shared expression-scope and integrity contracts, while `sources/languages/` contains each entrypoint and its language guidance. `scripts/render-skills.py` combines every `sources/languages/<language>.md` file into a self-contained `skills/fluent-<language>/SKILL.md`; the core is not a separately triggered skill or runtime dependency.
 
 This personal marketplace intentionally maintains the shared instruction source once in Korean. The language of those instructions does not select the response language; each generated skill's name, description, scope, and language-specific source do. A future externally distributed localization would require a separate equivalence review rather than independently edited core copies.
 
-The cross-language discourse principles in `sources/core/communication.md` are local guidance derived from this marketplace's language-design review. They are not copied from or attributed to `im-not-ai`.
+The cross-language discourse principles previously in `sources/core/communication.md` are local guidance derived from this marketplace's language-design review and now belong to Writing. The remaining fragment defines Fluent's expression and composition boundary. Those principles were not copied from or attributed to `im-not-ai`.
 
 ## `im-not-ai`
 
@@ -40,7 +42,7 @@ The cross-language discourse principles in `sources/core/communication.md` are l
   - [`plugins/fluent-languages/skills/fluent-english/SKILL.md`](https://github.com/sonsu-lee/fluent-languages/blob/d53bf65057445b3556efb6d7d011d49ed8a5aac7/plugins/fluent-languages/skills/fluent-english/SKILL.md)
   - [`docs/research/english-language-characteristics.md`](https://github.com/sonsu-lee/fluent-languages/blob/d53bf65057445b3556efb6d7d011d49ed8a5aac7/docs/research/english-language-characteristics.md)
 - Adapted subset: requested-output-language routing, conditional actor-action-target clarity, reader and software role distinction, unambiguous pronoun reference, conditional active voice and direct verbs, noun-string and limiting-modifier scope, English variety and register preservation, contextual fragments, international-audience guidance, and project terminology consistency.
-- Local changes: language-independent information order and preservation rules defer to the shared core. The coding-only split and subagent-specific wording were removed, so the local skill covers both technical and non-technical English explanatory prose.
+- Local changes: language-independent information order belongs to Writing; Fluent retains its shared preservation core. The coding-only split and subagent-specific wording were removed, so the local skill covers both technical and non-technical English explanatory prose.
 - Excluded: fixed SVO output, unconditional active voice or second person, given-before-new and result-first as English-specific rules, numeric sentence or modifier limits, mandatory American or British English, and vocabulary-based authorship or quality judgments.
 - Validation status: the source was a pre-native-review beta. This local adaptation remains beta until representative model outputs receive English native-speaker or equivalent editorial review.
 

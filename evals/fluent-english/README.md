@@ -1,5 +1,9 @@
 # Fluent English 행동 평가
 
+Fluent는 현재도 독립 플러그인입니다. `0.1.0-beta.7`에서 공통 구성 책임을 Writing으로 분리하고
+명시된 편집 범위의 결합 규칙을 조정했습니다. 아래 과거 결과는 당시 snapshot에 대한 근거이며,
+현재 세 플러그인의 결합 행동은 [별도 평가](../writing/README.md)로 구분합니다.
+
 [`cases.json`](cases.json)은 `fluent-english`의 라우팅, 의미 보존과 영어 표현을 이후 실제
 모델로 확인하기 위한 고정 입력이다. 이 fixture는 특정 정답 문장을 요구하지 않고, 바뀌면
 안 되는 literal과 구조, 의미 계약, 과잉 교정 반례와 사람이 볼 항목을 분리한다.

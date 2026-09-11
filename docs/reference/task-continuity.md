@@ -1,9 +1,9 @@
 # 작업 연속성 계약
 
-Engineering, Quality Engineering, Workflow, Research, Product, Figma Workflow, Fluent Languages와
+Engineering, Quality Engineering, Workflow, Research, Product, Figma Workflow, Fluent Languages, Writing과
 Prompting은 각각 `task-continuity` 스킬과 `SessionStart` hook을 포함합니다. 여러 단계의 작업을
 기록하고 컴팩션·같은 session 재개 후 현재 근거와 대조합니다. 짧은 단발 작업과 다른 작업의
-출력 문체만 담당하는 Fluent Languages에는 별도 기록을 만들지 않습니다.
+구성·표현만 담당하는 Writing·Fluent에는 별도 기록을 만들지 않습니다.
 
 각 플러그인은 단독으로 설치할 수 있습니다. 공통 runtime과 스킬 본문은
 [`shared/task-continuity/`](../../shared/task-continuity/)를 정본으로 삼고
@@ -66,6 +66,20 @@ Research의 `persistence: off`, cache/catalog와 원문 저장 제한도 계속 
 다른 task ID로 전환하려면 현재 작업이 닫혀 있어야 합니다. 이전 닫힌 기록은 history에 보존한 뒤
 새 task를 revision 1로 기록합니다. history는 자동 복구 대상으로 검색하지 않습니다. 자동 삭제나
 보존 기간 정책은 없습니다. 사용자가 정리하면 기존 산출물에서 수동으로 복구합니다.
+
+## Writing·Fluent·Workflow의 기록 소유
+
+세 플러그인은 서로 다른 작업과 기록을 관리합니다. 기존 Fluent 설치·호출명과
+`<current-worktree-root>/.sonsu/continuity/<session-id>/fluent-languages.json`을 유지합니다.
+Writing은 같은 디렉터리의 `writing.json`, Workflow는 `workflow.json`을 사용합니다.
+기존 Fluent 기록을 Writing으로 이름 변경하거나 옮길 필요가 없습니다.
+
+주 작업을 맡은 controller만 자기 플러그인의 기록을 만듭니다. 티켓·PR 작업에서 Writing·Fluent가
+구성·표현만 돕는다면 별도 편집 작업이나 checkpoint를 만들지 않습니다. Writing이 맡은 장문 편집에서
+Fluent 표현 지침만 적용할 때도 Writing 기록으로 계속합니다. 각 helper는 다른 플러그인의 파일을
+자동 검색·복구하지 않고, 파일명만 바꿔도 record의 plugin identity가 다르면 거부합니다.
+실제로 담당 작업을 바꿀 때는 원문·현재 산출물·사용자 지시를 확인해 필요한 진행 사항을 명시적으로
+인계하며, 요약만으로 원문·권한·최신 상태를 추정하지 않습니다.
 
 ## CLI
 
@@ -149,7 +163,7 @@ python3 -B -m unittest discover -s evals/task-continuity -p 'test_*.py' -v
 python3 -B evals/task-continuity/native_probe.py --output /absolute/new-evidence-directory
 ```
 
-native probe는 새 CODEX_HOME에 로컬 fixture 플러그인을 설치해 8개 단독·전체 조합의
+native probe는 새 CODEX_HOME에 로컬 fixture 플러그인을 설치해 9개 플러그인의 단독·전체 조합에서
 `plugin/read`, `skills/list`, `hooks/list`를 검사합니다. 사용자 인증이나 설정을 복사하지 않고
 모델 호출·hook 신뢰 변경을 하지 않습니다. 실제 compaction 연결 검증 절차와 행동 fixture는
 [평가 안내](../../evals/task-continuity/README.md)에 정리합니다.

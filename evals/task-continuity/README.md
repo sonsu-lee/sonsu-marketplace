@@ -8,16 +8,21 @@
 ```sh
 python3 -B -m unittest discover -s evals/task-continuity -p 'test_*.py' -v
 python3 scripts/render-continuity.py --check
-python3 plugins/fluent-languages/scripts/render-skills.py --check
 ```
 
 `test_runtime.py`는 실제 CLI·파일시스템·Git fixture를 사용합니다. session/worktree 격리,
 read-only·plan 및 session 부재 시 무쓰기, stale 갱신 거부, 종료·history 보존, 손상·symlink
-경계, 원자적 replace 실패, 8개 plugin의 동시 저장·hook, 본문 비주입을 검사합니다.
+경계, 원자적 replace 실패, 9개 plugin의 동시 저장·hook, 본문 비주입을 검사합니다.
+현재 목록에는 Fluent Languages와 Writing이 각각 포함됩니다. 실제 helper로 두 기록을 만들고,
+Writing이 Fluent 기록을 대신 읽거나 이름만 바꾼 다른 plugin identity를 허용하지 않는지 검사합니다.
 OS replace 실패를 주입하는 검사 외에는 도구 결과를 mock하지 않습니다. 임시 Git commit은
 테스트 fixture 안에서만 만들며 현재 repository의 commit·index는 변경하지 않습니다.
 
 ## 행동 시나리오
+
+보관된 `cases.json`과 아래 2026-09-07 관찰은 당시 Fluent Languages를 포함한 구성을 대상으로
+합니다. Writing의 새 평가에는 현재 스킬·참조와 기대값을 별도 고정하고 결과도 분리합니다.
+과거 Fluent의 스킬 선택·로딩·decision 결과를 Writing의 검증으로 재표기하지 않습니다.
 
 `cases.json`의 `input`만 모델에 제공하고, `expected`와 판정을 암시하는 설명은 evaluator가
 보관합니다. 후보에는 해당 플러그인의 전체 task-continuity 스킬을 읽게 하고 다음 행동·순서·쓰기
@@ -40,7 +45,7 @@ python3 -B evals/task-continuity/native_probe.py --output /absolute/new-evidence
 ```
 
 새 evidence 디렉터리만 허용합니다. 각 구성은 별도 CODEX_HOME과 workspace를 사용합니다.
-8개 단독 설치와 전체 설치에서 `plugin/read`·`plugin/install`·`skills/list`·`hooks/list`를 실제로
+9개 플러그인의 단독 설치와 전체 설치에서 `plugin/read`·`plugin/install`·`skills/list`·`hooks/list`를 실제로
 호출하고 namespace를 포함한 스킬 이름, hook event·matcher와 최초 untrusted 상태를 검사합니다.
 사용자의 인증·설정을 복사하거나 신뢰 상태를 바꾸지 않습니다. native event와 결과는 해당 evidence
 디렉터리에 남깁니다. 기존 user-level standalone skill이 로더에 보일 수 있어 검사는 fixture
@@ -67,7 +72,7 @@ python3 -B evals/task-continuity/native_probe.py --output /absolute/new-evidence
 `not_run`·`inconclusive`를 구분합니다. native hook 실행이 미검증이면 자동 복구의 전체 인수는
 완료되지 않은 상태이며 helper·로더 검사 통과로 대체하지 않습니다.
 
-## 이번 구현에서의 관찰
+## 이전 구현에서의 관찰 (2026-09-07)
 
 2026-09-07, Codex CLI 0.152.1에서 8개 단독·전체 조합의 스킬과 hook 발견을 확인했습니다.
 첫 probe의 상대 CODEX_HOME 경로와 namespace 없는 이름 비교는 evaluator 오류였으며 수정 후
