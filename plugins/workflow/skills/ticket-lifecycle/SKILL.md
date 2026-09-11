@@ -9,7 +9,7 @@ description: 기존 Linear, GitHub Issues 또는 Jira 티켓의 상태·담당�
 
 여러 단계의 작업이나 외부 쓰기를 맡은 메인 controller는 [task-continuity](../task-continuity/SKILL.md)로 진행과 근거를 기록한다. 컴팩션·재개 후에는 실제 상태와 대조한다. 짧은 단발 작업과 위임된 작업자는 별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 수정하지 않는다.
 
-설명과 보고는 `writing:writing`이 있으면 함께 적용하며, 코드·식별자·링크와 의미는 보존한다. 해당 스킬이 없어도 작업은 계속하고 자동 설치하지 않는다.
+설명과 보고에 Writing·Fluent를 함께 적용할 때는 [작성 지침 결합 기준](../../references/writing-composition.md)을 따른다. 해당 스킬이 없어도 작업은 계속하며 코드·식별자·링크와 의미를 보존한다.
 
 ## 책임과 권한을 구분한다
 

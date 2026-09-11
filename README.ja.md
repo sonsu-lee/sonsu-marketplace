@@ -62,7 +62,8 @@ host側で別途設定し、実際にtoolが利用できることを確認して
 | [Engineering](plugins/engineering/README.md) | ソフトウェア変更の設計、実装、デバッグ、検証 | `engineering` |
 | [Quality Engineering](plugins/quality-engineering/README.md) | コードの簡素化と、保守性・障害経路・運用上の問題のレビュー | `quality-engineering` |
 | [Workflow](plugins/workflow/) | Gitのブランチ・コミット・プッシュ、チケット、GitHub PRの作成・管理 | `workflow` |
-| [Writing](plugins/writing/) | 韓国語・日本語・英語の文章を、構成から表現まで目的に合わせて作成・編集 | `writing` |
+| [Fluent Languages](plugins/fluent-languages/) | 技術的な内容を保った自然な韓国語・日本語・英語の文章作成 | `fluent-languages` |
+| [Writing](plugins/writing/) | 読み手と目的に合わせた文の関係・段落構成・情報の順序 | `writing` |
 | [Research](plugins/research/README.md) | 複数の情報源の調査、事実確認、根拠に基づく回答の作成 | `research` |
 | [Prompting](plugins/prompting/README.md) | Codex・ChatGPT・OpenAI API向けプロンプトの作成・改善 | `prompting` |
 | [Product](plugins/product/README.md) | プロダクトのアイデア探索、ユーザーに関する根拠の整理、仮説検証、PRD作成 | `product` |
@@ -73,6 +74,8 @@ host側で別途設定し、実際にtoolが利用できることを確認して
 
 各プラグインは独立して利用できます。含まれるスキルや詳しい使い方は、上のリンクから確認してください。
 
+Writingは文章の構成、Fluent Languagesは各言語の表現、Workflowはチケット・PRのテンプレートと公開手順を担当します。それぞれ単独でも使用でき、併用時は利用可能な指針を一つの草稿に反映します。既存のFluentを削除したり、記録を移行したりする必要はありません。責任範囲と併用方法は[Writingの説明](plugins/writing/README.md)を参照してください。
+
 ## 使用例
 
 対応するプラグインをインストールしたら、CodexまたはClaude Codeに次のように依頼できます。
@@ -82,7 +85,8 @@ host側で別途設定し、実際にtoolが利用できることを確認して
 | Engineering | 「このバグの原因を特定して修正し、再現手順で修正結果を検証して。」 |
 | Quality Engineering | 「現在のdiffに不要な抽象化や到達可能な障害経路がないかレビューして。」 |
 | Workflow | 「現在の変更をコミットして、Draft PRを作成して。」 |
-| Writing | 「この日本語のPR説明を、変更理由と動作がレビュー担当者に伝わる構成に直して。意味とコードの識別子は保って。」 |
+| Fluent Languages | 「この日本語の技術説明を、意味とコードの識別子を保ちながら自然な文章に整えて。」 |
+| Writing | 「事実を保ちながら、段落構成と情報の順序を整えて。」 |
 | Research | 「この2つのサービスの料金と制限を、公式資料に基づいて比較して。」 |
 | Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
@@ -122,27 +126,10 @@ claude plugin update engineering@sonsu-marketplace
 `/reload-plugins`を実行して最新のスキル一覧を読み込んでください。
 
 <details>
-<summary>Fluent Languagesからの移行とスキルの重複解消</summary>
+<summary>同じスキルをすでにインストールしている場合</summary>
 
-Writing `0.2.0-beta.1`はFluent Languagesを置き換えるプラグインです。`writing:writing`スキルで
-文章の構成と言語別の表現を扱います。利用するホストに合わせて、新しいプラグインをインストールしてください。
-
-```sh
-codex plugin add writing@sonsu-marketplace
-```
-
-```sh
-claude plugin install writing@sonsu-marketplace
-```
-
-スキルが重複して検出されないよう、インストール済みの`fluent-languages`も削除してください。
-マーケットプレイスを更新しても、インストール済みプラグインの名前やcontinuityの記録は自動では変わりません。
-Fluentで未完了の作業があり、記録の場所が分かっている場合は、削除する前に元のプラグインで原文と下書きを復旧し、
-確認した作業範囲と根拠をWritingの新しいタスクへ明示的に引き継いでください。他のプラグインの記録を自動で
-読み込んだり、名前だけを変えて再利用したりしません。詳しくは[作業継続の契約](docs/reference/task-continuity.md)を参照してください。
-
-`prompt-builder`、`product-discovery`、`to-prd`を単体でインストールしている場合も、同名スキルの
-重複を避けるため、既存のコピーを先に削除してください。
+別のマーケットプレイスから `fluent-languages` をインストールしている場合や、
+`prompt-builder`、`product-discovery`、`to-prd` を単体でインストールしている場合は、同名スキルの重複を避けるため、既存のコピーを先に削除してください。
 
 </details>
 
@@ -194,17 +181,14 @@ sonsu-marketplace/
 find .agents .claude-plugin plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
 python3 scripts/render-claude-compat.py --check
-python3 scripts/render-writing.py --check
-python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" \
-  plugins/writing/skills/writing
+python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
 claude plugin validate . --strict
 git diff --check
 ```
 
-これらのコマンドは、JSON構文、Writingの正本から生成したWorkflow資料の一致、スキルのmetadata、
-評価用fixtureとrunnerの構造を確認します。
+これらのコマンドは、JSON構文、生成されたスキルと正本の一致、評価用fixtureとrunnerの構造を確認します。
 実際のモデルによるスキル選択や出力品質は、別途検証が必要です。プラグインの構造を変更した場合は、
 分離したCodex・Claude Code環境でマーケットプレイスの登録、プラグインのインストール、スキルが利用可能になることも確認してください。
 
@@ -219,12 +203,13 @@ git diff --check
 
 - Engineeringには[MITライセンス](plugins/engineering/LICENSE)が適用されます。
 - Quality Engineeringは複数のバージョンを固定したアップストリームソースに基づき、[Apache-2.0ライセンス](plugins/quality-engineering/LICENSE)、[NOTICE](plugins/quality-engineering/NOTICE)、[出典の対応表](plugins/quality-engineering/UPSTREAM.md)、[MITライセンスの原文通知](plugins/quality-engineering/THIRD_PARTY_NOTICES.md)を保持しています。
-- Workflowには、現在個別のライセンスを宣言していません。Writingから同梱した作成指針とテンプレートには、[MITの表記](plugins/workflow/WRITING_LICENSE.md)を別途保持しています。
+- Workflowには、現在個別のライセンスを宣言していません。既存の文章作成指針とテンプレートの[MIT表記](plugins/workflow/WRITING_LICENSE.md)を別途保持しています。
 - Promptingには、現在個別のライセンスを宣言していません。
 - Productには、現在個別のライセンスを宣言していません。
 - Memory Managerは独自に作成したプラグインで、現在個別のライセンスを宣言していません。設計で参照した出典は[UPSTREAM.md](plugins/memory-manager/UPSTREAM.md)に記録しています。
 - Operations UIは外部のUIコードやアセットをコピーせずに独自に作成したプラグインで、現在個別のライセンスを宣言していません。設計で参照した出典は[UPSTREAM.md](plugins/operations-ui/UPSTREAM.md)に記録しています。
 - Design Patternsはパターン名と出典位置のみを索引化し、選択・レビュー契約は独自に作成しています。現在個別のライセンスは宣言しておらず、収録範囲と出典条件は[UPSTREAM.md](plugins/design-patterns/UPSTREAM.md)に記録しています。
 - Figma Workflowは外部ファイルをコピーせずに独自に作成したプラグインで、現在個別のライセンスを宣言していません。参照した出典と外部ファイルをコピーしない方針は、[UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md)に記録しています。
-- WritingがFluent Languagesから引き継いだライセンスと各ソースの出典は、[LICENSE](plugins/writing/LICENSE)、[UPSTREAM.md](plugins/writing/UPSTREAM.md)、[THIRD_PARTY_NOTICES.md](plugins/writing/THIRD_PARTY_NOTICES.md)に記録しています。
+- Fluent Languagesのライセンスと各ソースの出典は、[LICENSE](plugins/fluent-languages/LICENSE)、[UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md)、[THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md)に記録しています。
+- Writingの構成・意味保持の指針と出典は、[LICENSE](plugins/writing/LICENSE)、[UPSTREAM.md](plugins/writing/UPSTREAM.md)、[THIRD_PARTY_NOTICES.md](plugins/writing/THIRD_PARTY_NOTICES.md)に記録しています。
 - Researchは基準とした元のソースでライセンスファイルを確認できておらず、利用が許可されているとは推定していません。基準コミットと収録範囲は、[UPSTREAM.md](plugins/research/UPSTREAM.md)に記録しています。

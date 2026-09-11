@@ -1,6 +1,6 @@
 # PR 품질 기준
 
-PR 초안이나 게시 payload의 설명과 근거를 검토할 때 읽는다. 적용 양식·언어는 [PR 템플릿 규칙](pr-template.md), 본문 구성과 표현은 번들 [PR 작성 지침](pr-writing.md), 게시 조건과 원격 확인은 [GitHub PR 규칙](github.md)을 따른다.
+PR 초안이나 게시 payload의 설명과 근거를 검토할 때 읽는다. 적용 양식·언어는 [PR 템플릿 규칙](pr-template.md), 본문 구성과 표현은 [PR 작성 지침](pr-writing.md), 게시 조건과 원격 확인은 [GitHub PR 규칙](github.md)을 따른다.
 
 ## 실제 변경을 설명한다
 
@@ -10,7 +10,7 @@ merge base부터 current head까지의 commit과 전체 diff를 읽고 staged·u
 
 번들 작성 지침에 전달할 실제 변경, 설계 근거와 rollout·migration·호환성·rollback 제약을 확보한다. 제목·본문이 최종 head와 같은 변경을 설명하는지 확인한다.
 
-`writing:writing`이 있으면 결정된 언어와 양식으로 함께 적용하고, 없어도 번들 지침으로 작성한다. 작성·수정 뒤에는 고정 양식·코드·식별자·링크·의무 수준과 보호할 연결 문법을 다시 대조한다.
+Writing·Fluent 적용은 [공통 결합 기준](../../../references/writing-composition.md)을 따른다. 표현을 고친 뒤에도 고정 양식·코드·식별자·링크·의무 수준과 보호할 연결 문법을 다시 대조한다.
 
 ## 근거의 범위를 정확히 표현한다
 

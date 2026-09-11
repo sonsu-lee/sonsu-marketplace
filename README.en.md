@@ -61,7 +61,8 @@ Code host and verify that their tools are available.
 | [Engineering](plugins/engineering/README.md) | Design, implement, debug, and verify software changes | `engineering` |
 | [Quality Engineering](plugins/quality-engineering/README.md) | Simplify code and review maintainability, failure paths, and operational issues | `quality-engineering` |
 | [Workflow](plugins/workflow/) | Work with Git branches, commits, pushes, tickets, and GitHub PRs | `workflow` |
-| [Writing](plugins/writing/) | Compose and edit Korean, Japanese, and English for the document's purpose, from structure to wording | `writing` |
+| [Fluent Languages](plugins/fluent-languages/) | Write natural Korean, Japanese, and English while preserving technical content | `fluent-languages` |
+| [Writing](plugins/writing/) | Organize sentence relationships, paragraphs, and information for the reader and purpose | `writing` |
 | [Research](plugins/research/README.md) | Research multiple sources, verify facts, and write answers supported by evidence | `research` |
 | [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, and the OpenAI API | `prompting` |
 | [Product](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | `product` |
@@ -72,6 +73,8 @@ Code host and verify that their tools are available.
 
 Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
 
+Writing owns composition, Fluent Languages owns language-specific expression, and Workflow owns ticket/PR templates and publication. Each works alone; when installed together, their available guidance can inform one draft. Keep the existing Fluent installation and records. See [Writing](plugins/writing/README.md) for responsibilities and composition rules.
+
 ## Usage examples
 
 After installing the relevant plugin, try requests like these in Codex or Claude Code:
@@ -81,7 +84,8 @@ After installing the relevant plugin, try requests like these in Codex or Claude
 | Engineering | “Find and fix the cause of this bug, then verify the fix using the reproduction steps.” |
 | Quality Engineering | “Review the current diff for unnecessary abstractions and reachable failure paths.” |
 | Workflow | “Commit the current changes and create a Draft PR.” |
-| Writing | “Restructure this Japanese PR description so reviewers can understand the reason for the change and its behavior, while preserving its meaning and code identifiers.” |
+| Fluent Languages | “Make this Japanese technical explanation read naturally while preserving its meaning and code identifiers.” |
+| Writing | “Improve the paragraph structure and information order while preserving the facts.” |
 | Research | “Compare the pricing and limits of these two services using official sources.” |
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
@@ -121,28 +125,10 @@ After installing or updating plugins, start a new Codex task or run `/reload-plu
 load the latest skill list.
 
 <details>
-<summary>Migrating from Fluent Languages or removing duplicate skills</summary>
+<summary>If you have already installed the same skills</summary>
 
-Writing `0.2.0-beta.1` replaces Fluent Languages. Its `writing:writing` skill combines document
-composition with guidance for the requested language. Install the new plugin in your host:
-
-```sh
-codex plugin add writing@sonsu-marketplace
-```
-
-```sh
-claude plugin install writing@sonsu-marketplace
-```
-
-Remove the installed `fluent-languages` plugin to avoid duplicate skill discovery. A marketplace refresh
-does not automatically rename installed plugins or continuity records. If an unfinished Fluent task has
-a known record, restore its source and draft with the original plugin before removing it, then explicitly
-hand the verified scope and evidence to a new Writing task. Do not automatically load another plugin's
-records or reuse them by renaming them. See the [task continuity contract](docs/reference/task-continuity.md)
-for the record boundaries.
-
-If you installed standalone copies of `prompt-builder`, `product-discovery`, or `to-prd`, remove those
-copies first to avoid duplicate skill names.
+If you installed `fluent-languages` from another marketplace or standalone copies of `prompt-builder`,
+`product-discovery`, or `to-prd`, remove those copies first to avoid duplicate skill names.
 
 </details>
 
@@ -194,17 +180,14 @@ Run these static checks from the repository root:
 find .agents .claude-plugin plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
 python3 scripts/render-claude-compat.py --check
-python3 scripts/render-writing.py --check
-python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" \
-  plugins/writing/skills/writing
+python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
 claude plugin validate . --strict
 git diff --check
 ```
 
-These commands check JSON syntax, whether generated Workflow materials match their Writing sources,
-skill metadata, and the structure of evaluation fixtures and the runner.
+These commands check JSON syntax, whether generated skills match their canonical source, and the structure of evaluation fixtures and the runner.
 Actual model skill selection and output quality require separate validation. If you change a plugin's structure,
 also verify marketplace registration, plugin installation, and skill availability in isolated Codex and Claude Code environments.
 
@@ -219,12 +202,13 @@ No root-level license is currently declared for the repository as a whole. Licen
 
 - Engineering is covered by the [MIT License](plugins/engineering/LICENSE).
 - Quality Engineering is based on several pinned upstream sources and retains the [Apache-2.0 License](plugins/quality-engineering/LICENSE), [NOTICE](plugins/quality-engineering/NOTICE), [source mapping](plugins/quality-engineering/UPSTREAM.md), and [original MIT notices](plugins/quality-engineering/THIRD_PARTY_NOTICES.md).
-- Workflow currently has no separately declared license. Bundled Writing guidance and templates retain their [MIT notice](plugins/workflow/WRITING_LICENSE.md).
+- Workflow currently has no separately declared license. Existing writing guidance and templates retain their [MIT notice](plugins/workflow/WRITING_LICENSE.md).
 - Prompting currently has no separately declared license.
 - Product currently has no separately declared license.
 - Memory Manager was independently authored and currently has no separately declared license. Design references are recorded in [UPSTREAM.md](plugins/memory-manager/UPSTREAM.md).
 - Operations UI was independently authored without copying external UI code or assets and currently has no separately declared license. Design references are recorded in [UPSTREAM.md](plugins/operations-ui/UPSTREAM.md).
 - Design Patterns indexes only pattern names and source locations; its selection and review contracts are independently authored and currently have no separately declared license. Inclusion and source terms are recorded in [UPSTREAM.md](plugins/design-patterns/UPSTREAM.md).
 - Figma Workflow was independently authored without copying external files and currently has no separately declared license. Consulted sources and the policy against copying external files are documented in [UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md).
-- Writing retains the licensing and source attribution inherited from Fluent Languages in [LICENSE](plugins/writing/LICENSE), [UPSTREAM.md](plugins/writing/UPSTREAM.md), and [THIRD_PARTY_NOTICES.md](plugins/writing/THIRD_PARTY_NOTICES.md).
+- Fluent Languages records its licensing and attribution for each source in [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md), and [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md).
+- Writing records its composition and integrity sources in [LICENSE](plugins/writing/LICENSE), [UPSTREAM.md](plugins/writing/UPSTREAM.md), and [THIRD_PARTY_NOTICES.md](plugins/writing/THIRD_PARTY_NOTICES.md).
 - Research's upstream baseline had no license file that could be verified, and permission to use it is not assumed. The baseline commit and included scope are recorded in [UPSTREAM.md](plugins/research/UPSTREAM.md).

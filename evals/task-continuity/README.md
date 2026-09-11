@@ -8,15 +8,13 @@
 ```sh
 python3 -B -m unittest discover -s evals/task-continuity -p 'test_*.py' -v
 python3 scripts/render-continuity.py --check
-python3 scripts/render-writing.py --check
 ```
 
 `test_runtime.py`는 실제 CLI·파일시스템·Git fixture를 사용합니다. session/worktree 격리,
 read-only·plan 및 session 부재 시 무쓰기, stale 갱신 거부, 종료·history 보존, 손상·symlink
-경계, 원자적 replace 실패, 8개 plugin의 동시 저장·hook, 본문 비주입을 검사합니다.
-현재 plugin 목록에는 Fluent Languages를 대체한 Writing이 포함됩니다. Writing이 기존
-`fluent-languages.json`을 자동 복구하지 않고, 파일명만 바꾼 기록의 다른 plugin identity도
-거부하는 이전 경계를 검사합니다.
+경계, 원자적 replace 실패, 9개 plugin의 동시 저장·hook, 본문 비주입을 검사합니다.
+현재 목록에는 Fluent Languages와 Writing이 각각 포함됩니다. 실제 helper로 두 기록을 만들고,
+Writing이 Fluent 기록을 대신 읽거나 이름만 바꾼 다른 plugin identity를 허용하지 않는지 검사합니다.
 OS replace 실패를 주입하는 검사 외에는 도구 결과를 mock하지 않습니다. 임시 Git commit은
 테스트 fixture 안에서만 만들며 현재 repository의 commit·index는 변경하지 않습니다.
 
@@ -47,7 +45,7 @@ python3 -B evals/task-continuity/native_probe.py --output /absolute/new-evidence
 ```
 
 새 evidence 디렉터리만 허용합니다. 각 구성은 별도 CODEX_HOME과 workspace를 사용합니다.
-8개 단독 설치와 전체 설치에서 `plugin/read`·`plugin/install`·`skills/list`·`hooks/list`를 실제로
+9개 플러그인의 단독 설치와 전체 설치에서 `plugin/read`·`plugin/install`·`skills/list`·`hooks/list`를 실제로
 호출하고 namespace를 포함한 스킬 이름, hook event·matcher와 최초 untrusted 상태를 검사합니다.
 사용자의 인증·설정을 복사하거나 신뢰 상태를 바꾸지 않습니다. native event와 결과는 해당 evidence
 디렉터리에 남깁니다. 기존 user-level standalone skill이 로더에 보일 수 있어 검사는 fixture

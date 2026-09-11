@@ -14,7 +14,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "shared/task-continuity/task_continuity.py"
 PLUGINS = ["engineering", "quality-engineering", "workflow", "research", "product",
-           "figma-workflow", "writing", "prompting"]
+           "figma-workflow", "writing", "fluent-languages", "prompting"]
 SUMMARY = {"goal": "Finish current work", "scope": "User requested local changes only",
            "progress": "Task 1 complete; Task 2 reopened; attempt 3/5",
            "next_action": "Read current ledger before continuing",
@@ -227,13 +227,12 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(self.hook().stdout, "")
         self.assertEqual(list(outside.iterdir()), [])
 
-    def test_writing_does_not_restore_or_rename_legacy_fluent_records(self):
+    def test_writing_and_fluent_records_keep_independent_identities(self):
         self.assertEqual(self.write(plugin="writing").returncode, 0)
         current = self.path("writing")
         legacy = self.path("fluent-languages")
-        record = json.loads(current.read_text())
-        record.update(plugin="fluent-languages", active_skill="fluent-korean")
-        legacy.write_text(json.dumps(record))
+        self.assertEqual(self.write(plugin="fluent-languages").returncode, 0)
+        self.assertEqual(self.run_cli("read", plugin="fluent-languages").returncode, 0)
         current.unlink()
         original = legacy.read_bytes()
 

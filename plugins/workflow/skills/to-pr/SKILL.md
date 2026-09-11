@@ -35,7 +35,7 @@ GitHub Draft 상태와 다르다.
 
 [PR 템플릿 규칙](references/pr-template.md)으로 적용 양식과 언어를 결정하고, [PR 품질 기준](references/pr-quality-bar.md)에 따라 전체 diff와 현재 검증 근거로 제목·본문을 작성한다. commit 제목이나 `--fill` 결과만으로 변경 내용을 추론하지 않는다.
 
-본문 구성과 표현은 번들 [PR 작성 지침](references/pr-writing.md)을 따른다. `writing:writing`이 있으면 함께 적용하고, 없어도 번들 지침으로 작성하며 자동 설치하지 않는다. 적용 양식과 확인 상태, 출력 언어, 실제 변경·검증 근거와 보호할 연결 문법을 작성에 전달한다. 임시로 작성한 문구는 양식 확정이나 게시 조건 충족을 뜻하지 않는다.
+본문은 이 플러그인의 [PR 작성 지침](references/pr-writing.md)에 따라 구성한다. 선택적 Writing·Fluent 적용은 [작성 지침 함께 적용하기](../../references/writing-composition.md)를 따른다. 적용 양식과 확인 상태, 출력 언어, 실제 근거·편집 범위와 보호할 연결 문법을 함께 전달한다. 임시 초안은 양식 확정이나 게시 조건 충족을 뜻하지 않는다.
 
 ## 티켓을 연결한다
 

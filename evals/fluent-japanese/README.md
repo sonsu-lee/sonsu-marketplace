@@ -1,22 +1,12 @@
-# Fluent Japanese 행동 평가 보관 자료
+# Fluent Japanese 행동 평가
+
+Fluent는 현재도 독립 플러그인입니다. `0.1.0-beta.7`에서 공통 구성 책임을 Writing으로 분리하고
+명시된 편집 범위의 결합 규칙을 조정했습니다. 아래 과거 결과는 당시 snapshot에 대한 근거이며,
+현재 세 플러그인의 결합 행동은 [별도 평가](../writing/README.md)로 구분합니다.
 
 [`cases.json`](cases.json)은 `fluent-japanese`의 라우팅, 의미 보존과 일본어 표현을 실제
 모델로 확인하기 위한 고정 입력이다. 이 fixture는 특정 정답 문장을 요구하지 않고, 바뀌면
 안 되는 literal과 구조, 의미 계약, 과잉 교정 반례와 사람이 볼 항목을 분리한다.
-
-이 디렉터리의 protocol, fixture, runner와 2026-09-06 결과는 당시 Fluent Languages 평가를
-재현하기 위해 원래 식별자를 보존한다. 현재 진입점은
-[`writing:writing`](../../plugins/writing/skills/writing/SKILL.md)이며, 일본어 지침의 정본은
-[`references/languages/japanese.md`](../../plugins/writing/skills/writing/references/languages/japanese.md)다.
-이전 Fluent의 주입 실험이나 native 로딩 결과는 Writing의 스킬 선택·참조 로딩·출력 품질을
-입증하지 않는다. 아래 정적 검사는 현재 패키지와 보관 fixture를 각각 확인한다.
-
-Writing의 새 실험은 별도 protocol·snapshot·결과 디렉터리로 시작한다. 지침 주입 실험에는
-주 스킬, `references/composition.md`, `references/integrity.md`, 일본어 참조와 해당 문서 종류에
-필요한 참조를 함께 포함하고 경로·revision·hash를 고정한다. 라우팅 기대값과 편집 범위도 새
-런타임에 맞춰 별도 버전에서 검토한다. 아래의 기존 runner는 `fluent-japanese` snapshot 계약을
-검사하므로 Writing 주 스킬만 그 인자에 넣거나 언어 참조의 이름만 바꾸어 재사용하지 않는다.
-실제 선택과 참조 파일 읽기는 native trace로 별도 확인하며, 원어민 검토 전 beta 한계를 유지한다.
 
 모델에는 각 case의 `prompt`와 `evidence`만 전달한다. `expectations`와 `review_points`는
 실행 모델에 노출하지 않고 평가자가 사용한다.
@@ -39,16 +29,16 @@ Writing의 새 실험은 별도 protocol·snapshot·결과 디렉터리로 시�
 
 ```sh
 python3 -m json.tool evals/fluent-japanese/cases.json >/dev/null
-python3 scripts/render-writing.py --check
+python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" \
-  plugins/writing/skills/writing
+  plugins/fluent-languages/skills/fluent-japanese
 ```
 
-기존 Fluent snapshot으로 모델 smoke test를 재현한다면 먼저 `generation` case를 실행하고, `routing` case는 실제
+실제 모델 smoke test를 수행한다면 먼저 `generation` case를 실행하고, `routing` case는 실제
 Codex trace에서 선택된 skill을 별도로 확인한다. 자동 검사를 통과해도 귀속·조건·modality
 위반이 있으면 실패다. 실제 실행을 하지 않았다면 정적 검증 결과와 섞어 `pass`로 쓰지 않는다.
 
-## 이전 문어·한일 번역 확장 평가의 재현
+## 문어·한일 번역 확장 평가
 
 [`writing-cases.json`](writing-cases.json)은 신규 40문항(8개 family별 5문항)과 위 fixture의
 generation 10문항을 합친 50문항이다. 신규 문항 중 유지 16개와 모호성 보존 8개를 포함한다.
@@ -56,11 +46,10 @@ generation 10문항을 합친 50문항이다. 신규 문항 중 유지 16개와 
 규칙을 바탕으로 별도 작성했다. 원문 사례 수와 평가 문항 수를 합산하지 않으며, 공개된
 고정 세트이므로 held-out이라고 부르지 않는다. hidden target은 의미가 같은 대안을 허용한다.
 
-이전 실험을 재현하려면 당시 revision의 [protocol.md](protocol.md)와 [`eval.py`](eval.py)를
-고정하고 manifest를 만든다. 두 arm에는 당시 렌더링된 독립 Fluent SKILL snapshot을 사용한다.
-이전 `sources/languages/japanese.md`처럼 include marker가 남은 원본을 baseline으로 쓰지 않는다.
-기존 source와 renderer는 현재 Writing 패키지에서 제거됐으므로, 다음 인자의 두 파일은
-저장소 밖에 보존한 당시의 컴파일된 snapshot이다. 새 Writing 실험의 실행 명령이 아니다.
+실행 전에 [protocol.md](protocol.md)를 고정하고 [`eval.py`](eval.py)로 manifest를 만든다.
+두 arm에는 렌더링한 독립 SKILL snapshot을 사용한다. `sources/languages/japanese.md`처럼
+include marker가 남은 원본을 baseline으로 사용하지 않는다. 다음 인자의 두 파일은
+저장소 밖에 미리 복사한 컴파일된 snapshot이다.
 
 ```sh
 python3 evals/fluent-japanese/eval.py plan \

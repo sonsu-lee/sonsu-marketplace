@@ -21,10 +21,17 @@
       "category": "Developer Tools"
     },
     {
+      "name": "fluent-languages",
+      "source": "./plugins/fluent-languages",
+      "description": "Codex and Claude Code guidance for natural Korean, Japanese, and English output.",
+      "version": "0.1.0-beta.7",
+      "category": "Productivity"
+    },
+    {
       "name": "writing",
       "source": "./plugins/writing",
-      "description": "Compose and revise work documents in Korean, Japanese, and English with genre-specific structure and meaning preservation.",
-      "version": "0.2.0-beta.1",
+      "description": "Compose and revise work documents by reader, purpose, editing scope, sentence relationships, and information order.",
+      "version": "0.2.0-beta.2",
       "category": "Productivity"
     },
     {

@@ -527,11 +527,11 @@
       "prompt": "Linear Acme workspace ENG-42 본문에 Safari 18에서도 재현된다는 새 관찰만 반영해 줘. 기존 결정·검증 기록은 유지해. 한국어로 작성해 줘.",
       "installed_plugins": [
         "workflow",
-        "writing"
+        "fluent-languages"
       ],
       "expected_sequence": [
         "workflow:to-ticket",
-        "writing:writing"
+        "fluent-languages:fluent-korean"
       ],
       "expected_action": "revise",
       "expected_mode": "publish",
@@ -847,24 +847,24 @@
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "korean-ticket-composes-with-writing",
-      "installed_plugins": ["workflow", "writing"],
+      "id": "korean-ticket-composes-with-fluent-language",
+      "installed_plugins": ["workflow", "fluent-languages"],
       "prompt": "이 버그 보고를 Linear 티켓 초안으로 만들고 본문은 한국어로 작성해줘.",
-      "expected_sequence": ["workflow:to-ticket", "writing:writing"],
+      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-korean"],
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "english-ticket-composes-with-writing",
-      "installed_plugins": ["workflow", "writing"],
+      "id": "english-ticket-composes-with-fluent-language",
+      "installed_plugins": ["workflow", "fluent-languages"],
       "prompt": "Turn this approved maintenance task into a concise GitHub issue in English.",
-      "expected_sequence": ["workflow:to-ticket", "writing:writing"],
+      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-english"],
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "japanese-ticket-composes-with-writing",
-      "installed_plugins": ["workflow", "writing"],
+      "id": "japanese-ticket-composes-with-fluent-language",
+      "installed_plugins": ["workflow", "fluent-languages"],
       "prompt": "合意済みの調査項目をJiraチケットの下書きにして、本文は日本語で書いてください。",
-      "expected_sequence": ["workflow:to-ticket", "writing:writing"],
+      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-japanese"],
       "must_not_assume_plugin_dependency": true
     },
     {
@@ -1077,10 +1077,10 @@
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "research-and-writing-compose-orthogonally",
-      "installed_plugins": ["research", "writing"],
+      "id": "research-and-fluent-compose-orthogonally",
+      "installed_plugins": ["research", "fluent-languages"],
       "prompt": "주요 브라우저의 WebAuthn 지원 차이를 공식 문서 여러 개로 조사하고 기술 검토 결과를 한국어로 작성해줘.",
-      "expected_sequence": ["research:research", "writing:writing"],
+      "expected_sequence": ["research:research", "fluent-languages:fluent-korean"],
       "must_not_assume_plugin_dependency": true
     },
     {
@@ -1317,10 +1317,10 @@
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "quality-and-writing-compose-orthogonally",
-      "installed_plugins": ["quality-engineering", "writing"],
+      "id": "quality-and-fluent-compose-orthogonally",
+      "installed_plugins": ["quality-engineering", "fluent-languages"],
       "prompt": "현재 diff를 broad quality review로 검토하고 결과를 자연스러운 한국어로 보고해줘.",
-      "expected_sequence": ["quality-engineering:review-quality", "writing:writing"],
+      "expected_sequence": ["quality-engineering:review-quality", "fluent-languages:fluent-korean"],
       "must_not_assume_plugin_dependency": true
     },
     {
@@ -1560,11 +1560,11 @@
       "prompt": "새 프로젝트마다 설정을 반복하고 있어 공통 템플릿이 필요해. Next.js를 선호하지만 스택은 아직 합의하지 않았고, Node 22 지원은 합의했어. 구현 방식은 담당자가 정하도록 티켓 초안만 써 줘.",
       "installed_plugins": [
         "workflow",
-        "writing"
+        "fluent-languages"
       ],
       "expected_sequence": [
         "workflow:to-ticket",
-        "writing:writing"
+        "fluent-languages:fluent-korean"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
@@ -1780,6 +1780,99 @@
       "must_not_retry_uncertain_mutation": true,
       "must_keep_draft": true,
       "must_report_unknown": true
+    },
+    {
+      "id": "writing-fluent-ko-rewrite",
+      "installed_plugins": [
+        "writing",
+        "fluent-languages"
+      ],
+      "prompt": "다음 자유 초안을 연결된 짧은 문단으로 전체 재작성해 줘. 제목이나 목록은 없어도 돼. 사실을 추가하지 말고 결과만 줘.\n## 요청\n- 원인 확인 부탁\n## 메모\n- CSV 다운로드 파일의 한글이 오늘 두 번 깨짐\n- 원인 아직 모름\n- 다른 파일 형식은 확인 안 함",
+      "expected_sequence": [
+        "writing:writing",
+        "fluent-languages:fluent-korean"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "writing-fluent-ja-fixed-pr",
+      "installed_plugins": [
+        "writing",
+        "fluent-languages"
+      ],
+      "prompt": "次のPR説明の自由記述だけを自然な日本語に直してください。指定テンプレートの見出し・順序・HTML marker・関連行は変更せず、セクションを追加しないでください。結果のみ返してください。\n## 変更の理由\n保存成功の前に完了通知が出るので誤認される可能性があります。\n## 変更した動作\n保存成功を確認した後で完了通知を出すようにします。保存が失敗したときは完了通知を出しません。\n<!-- tracker: keep -->\nPart of ENG-123\n## 未確認\n実機ではまだ確認していません。",
+      "expected_sequence": [
+        "writing:writing",
+        "fluent-languages:fluent-japanese"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "writing-fluent-en-readme",
+      "installed_plugins": [
+        "writing",
+        "fluent-languages"
+      ],
+      "prompt": "Draft a concise English README from these facts only: tool name logpeek; reads local .log files and prints lines containing the supplied literal; requires Python 3.9+; command `python3 logpeek.py app.log ERROR`; exits 0 when a line matches and 1 when none match; never edits the input file. No install package or test results are provided. Make it easy to understand and try.",
+      "expected_sequence": [
+        "writing:writing",
+        "fluent-languages:fluent-english"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "workflow-fluent-ja-fixed-pr",
+      "installed_plugins": [
+        "workflow",
+        "fluent-languages"
+      ],
+      "prompt": "검증된 자료로 PR 초안만 작성해 줘. 추가 조회나 게시를 하지 말고 이 테스트의 자료를 사용해. Writing은 설치되지 않았고 Fluent는 설치되어 있다. 실제 전체 diff: 저장 성공 확인 이후에만 완료 알림을 표시한다. 배경: 성공 전 알림 때문에 실패한 저장을 완료로 오인할 수 있었다. 실패하면 완료 알림을 표시하지 않는다. 실제 UI 검증과 첨부 자료는 아직 없고, 정적 검사만 통과했다. 유효한 저장소 양식은 아래와 같고 제목, 순서, marker, 관련 행을 그대로 유지해야 한다. 검증된 canonical 관계는 ENG-123의 일부이며 완료시키지 않는다. 아래 URL과 문법은 입력 자료에 있는 그대로다.\n## 맥락\n\n## 변경\n\n## 관련\n<!-- tracker: keep -->\nPart of https://linear.app/example/issue/ENG-123\n\n## 확인할 내용\n\nUI 자료는 확인할 내용 항목에 놓는다.\n자유 설명은 일본어로 작성하고 지정 제목은 유지해.",
+      "expected_sequence": [
+        "workflow:to-pr",
+        "fluent-languages:fluent-japanese"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "workflow-fluent-en-fixed-pr",
+      "installed_plugins": [
+        "workflow",
+        "fluent-languages"
+      ],
+      "prompt": "검증된 자료로 PR 초안만 작성해 줘. 추가 조회나 게시를 하지 말고 이 테스트의 자료를 사용해. Writing은 설치되지 않았고 Fluent는 설치되어 있다. 실제 전체 diff: 저장 성공 확인 이후에만 완료 알림을 표시한다. 배경: 성공 전 알림 때문에 실패한 저장을 완료로 오인할 수 있었다. 실패하면 완료 알림을 표시하지 않는다. 실제 UI 검증과 첨부 자료는 아직 없고, 정적 검사만 통과했다. 유효한 저장소 양식은 아래와 같고 제목, 순서, marker, 관련 행을 그대로 유지해야 한다. 검증된 canonical 관계는 ENG-123의 일부이며 완료시키지 않는다. 아래 URL과 문법은 입력 자료에 있는 그대로다.\n## 맥락\n\n## 변경\n\n## 관련\n<!-- tracker: keep -->\nPart of https://linear.app/example/issue/ENG-123\n\n## 확인할 내용\n\nUI 자료는 확인할 내용 항목에 놓는다.\nWrite the free prose in English; preserve the specified headings.",
+      "expected_sequence": [
+        "workflow:to-pr",
+        "fluent-languages:fluent-english"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "workflow-writing-unverified",
+      "installed_plugins": [
+        "workflow",
+        "writing"
+      ],
+      "prompt": "PR 제목과 준비 가능한 초안을 써 줘. 게시하지 마. 이 테스트에서 아래 조회 결과가 확정된 입력이며 추가 원격 조회는 하지 마. base main, head abc123, 전체 diff는 저장 성공 전에 뜨던 완료 알림을 저장 성공 후에만 표시하도록 옮긴 변경이다. 저장 실패 시 완료 알림은 표시하지 않는다. 로컬 정적 검사만 통과했고 실제 UI는 미확인이다. 저장소 default branch와 owner의 .github 양식을 권한 문제로 읽지 못해 양식은 unverified이다. 사용자 지정 양식은 없다. 필요한 이미지도 아직 없다. Writing은 설치되어 있고 Fluent는 설치되지 않았다.",
+      "expected_sequence": [
+        "workflow:to-pr",
+        "writing:writing"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "all-three-ja-fixed-pr",
+      "installed_plugins": [
+        "workflow",
+        "writing",
+        "fluent-languages"
+      ],
+      "prompt": "검증된 자료로 PR 초안만 작성해 줘. 추가 조회나 게시를 하지 말고 이 테스트의 자료를 사용해. Writing과 Fluent가 모두 설치되어 있다. 실제 전체 diff: 저장 성공 확인 이후에만 완료 알림을 표시한다. 배경: 성공 전 알림 때문에 실패한 저장을 완료로 오인할 수 있었다. 실패하면 완료 알림을 표시하지 않는다. 실제 UI 검증과 첨부 자료는 아직 없고, 정적 검사만 통과했다. 유효한 저장소 양식은 아래와 같고 제목, 순서, marker, 관련 행을 그대로 유지해야 한다. 검증된 canonical 관계는 ENG-123의 일부이며 완료시키지 않는다. 아래 URL과 문법은 입력 자료에 있는 그대로다.\n## 맥락\n\n## 변경\n\n## 관련\n<!-- tracker: keep -->\nPart of https://linear.app/example/issue/ENG-123\n\n## 확인할 내용\n\nUI 자료는 확인할 내용 항목에 놓는다.\n자유 설명은 일본어로 작성하고 지정 제목은 유지해.",
+      "expected_sequence": [
+        "workflow:to-pr",
+        "writing:writing",
+        "fluent-languages:fluent-japanese"
+      ],
+      "must_not_install_plugins": true
     }
   ]
 }

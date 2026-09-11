@@ -1,0 +1,88 @@
+[
+  {
+    "id": "writing-fluent-ko-rewrite",
+    "prompt": "다음 자유 초안을 연결된 짧은 문단으로 전체 재작성해 줘. 제목이나 목록은 없어도 돼. 사실을 추가하지 말고 결과만 줘.\n## 요청\n- 원인 확인 부탁\n## 메모\n- CSV 다운로드 파일의 한글이 오늘 두 번 깨짐\n- 원인 아직 모름\n- 다른 파일 형식은 확인 안 함",
+    "installed_plugins": [
+      "writing",
+      "fluent-languages"
+    ],
+    "entry_skill": "writing:writing"
+  },
+  {
+    "id": "writing-fluent-ja-fixed-pr",
+    "prompt": "次のPR説明の自由記述だけを自然な日本語に直してください。指定テンプレートの見出し・順序・HTML marker・関連行は変更せず、セクションを追加しないでください。結果のみ返してください。\n## 変更の理由\n保存成功の前に完了通知が出るので誤認される可能性があります。\n## 変更した動作\n保存成功を確認した後で完了通知を出すようにします。保存が失敗したときは完了通知を出しません。\n<!-- tracker: keep -->\nPart of ENG-123\n## 未確認\n実機ではまだ確認していません。",
+    "installed_plugins": [
+      "writing",
+      "fluent-languages"
+    ],
+    "entry_skill": "writing:writing"
+  },
+  {
+    "id": "writing-fluent-en-readme",
+    "prompt": "Draft a concise English README from these facts only: tool name logpeek; reads local .log files and prints lines containing the supplied literal; requires Python 3.9+; command `python3 logpeek.py app.log ERROR`; exits 0 when a line matches and 1 when none match; never edits the input file. No install package or test results are provided. Make it easy to understand and try.",
+    "installed_plugins": [
+      "writing",
+      "fluent-languages"
+    ],
+    "entry_skill": "writing:writing"
+  },
+  {
+    "id": "workflow-fluent-ja-fixed-pr",
+    "skill": "to-pr",
+    "prompt": "검증된 자료로 PR 초안만 작성해 줘. 추가 조회나 게시를 하지 말고 이 테스트의 자료를 사용해. Writing은 설치되지 않았고 Fluent는 설치되어 있다. 실제 전체 diff: 저장 성공 확인 이후에만 완료 알림을 표시한다. 배경: 성공 전 알림 때문에 실패한 저장을 완료로 오인할 수 있었다. 실패하면 완료 알림을 표시하지 않는다. 실제 UI 검증과 첨부 자료는 아직 없고, 정적 검사만 통과했다. 유효한 저장소 양식은 아래와 같고 제목, 순서, marker, 관련 행을 그대로 유지해야 한다. 검증된 canonical 관계는 ENG-123의 일부이며 완료시키지 않는다. 아래 URL과 문법은 입력 자료에 있는 그대로다.\n## 맥락\n\n## 변경\n\n## 관련\n<!-- tracker: keep -->\nPart of https://linear.app/example/issue/ENG-123\n\n## 확인할 내용\n\nUI 자료는 확인할 내용 항목에 놓는다.\n자유 설명은 일본어로 작성하고 지정 제목은 유지해.",
+    "installed_plugins": [
+      "workflow",
+      "fluent-languages"
+    ],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-fluent-en-fixed-pr",
+    "skill": "to-pr",
+    "prompt": "검증된 자료로 PR 초안만 작성해 줘. 추가 조회나 게시를 하지 말고 이 테스트의 자료를 사용해. Writing은 설치되지 않았고 Fluent는 설치되어 있다. 실제 전체 diff: 저장 성공 확인 이후에만 완료 알림을 표시한다. 배경: 성공 전 알림 때문에 실패한 저장을 완료로 오인할 수 있었다. 실패하면 완료 알림을 표시하지 않는다. 실제 UI 검증과 첨부 자료는 아직 없고, 정적 검사만 통과했다. 유효한 저장소 양식은 아래와 같고 제목, 순서, marker, 관련 행을 그대로 유지해야 한다. 검증된 canonical 관계는 ENG-123의 일부이며 완료시키지 않는다. 아래 URL과 문법은 입력 자료에 있는 그대로다.\n## 맥락\n\n## 변경\n\n## 관련\n<!-- tracker: keep -->\nPart of https://linear.app/example/issue/ENG-123\n\n## 확인할 내용\n\nUI 자료는 확인할 내용 항목에 놓는다.\nWrite the free prose in English; preserve the specified headings.",
+    "installed_plugins": [
+      "workflow",
+      "fluent-languages"
+    ],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-writing-unverified",
+    "skill": "to-pr",
+    "prompt": "PR 제목과 준비 가능한 초안을 써 줘. 게시하지 마. 이 테스트에서 아래 조회 결과가 확정된 입력이며 추가 원격 조회는 하지 마. base main, head abc123, 전체 diff는 저장 성공 전에 뜨던 완료 알림을 저장 성공 후에만 표시하도록 옮긴 변경이다. 저장 실패 시 완료 알림은 표시하지 않는다. 로컬 정적 검사만 통과했고 실제 UI는 미확인이다. 저장소 default branch와 owner의 .github 양식을 권한 문제로 읽지 못해 양식은 unverified이다. 사용자 지정 양식은 없다. 필요한 이미지도 아직 없다. Writing은 설치되어 있고 Fluent는 설치되지 않았다.",
+    "installed_plugins": [
+      "workflow",
+      "writing"
+    ],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "all-three-ja-fixed-pr",
+    "skill": "to-pr",
+    "prompt": "검증된 자료로 PR 초안만 작성해 줘. 추가 조회나 게시를 하지 말고 이 테스트의 자료를 사용해. Writing과 Fluent가 모두 설치되어 있다. 실제 전체 diff: 저장 성공 확인 이후에만 완료 알림을 표시한다. 배경: 성공 전 알림 때문에 실패한 저장을 완료로 오인할 수 있었다. 실패하면 완료 알림을 표시하지 않는다. 실제 UI 검증과 첨부 자료는 아직 없고, 정적 검사만 통과했다. 유효한 저장소 양식은 아래와 같고 제목, 순서, marker, 관련 행을 그대로 유지해야 한다. 검증된 canonical 관계는 ENG-123의 일부이며 완료시키지 않는다. 아래 URL과 문법은 입력 자료에 있는 그대로다.\n## 맥락\n\n## 변경\n\n## 관련\n<!-- tracker: keep -->\nPart of https://linear.app/example/issue/ENG-123\n\n## 확인할 내용\n\nUI 자료는 확인할 내용 항목에 놓는다.\n자유 설명은 일본어로 작성하고 지정 제목은 유지해.",
+    "installed_plugins": [
+      "workflow",
+      "writing",
+      "fluent-languages"
+    ],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "writing-fluent-ko-summary",
+    "prompt": "다음 절차를 실행용 매뉴얼이 아닌 두 문장의 개요로 요약해 줘. 원본 링크는 유지해 줘.\n원본 절차: https://example.test/runbook\n1. 쓰기를 중지한다.\n2. 백업이 완료됐는지 확인한다. 완료되지 않았으면 작업을 중단한다.\n3. 마이그레이션을 실행한다.\n4. 검증에 실패하면 원래 버전으로 복구한다.\n5. 검증에 성공한 경우에만 쓰기를 재개한다.",
+    "installed_plugins": [
+      "writing",
+      "fluent-languages"
+    ],
+    "entry_skill": "writing:writing"
+  },
+  {
+    "id": "writing-fluent-en-rewrite",
+    "installed_plugins": [
+      "writing",
+      "fluent-languages"
+    ],
+    "entry_skill": "writing:writing",
+    "prompt": "Rewrite this free draft as one connected paragraph in English. You may remove headings and the outline numbering; this is a note, not an execution procedure. Keep the facts and return only the paragraph.\n## Request\n1. Please investigate the cause.\n## Notes\n1. CSV downloads contained broken Korean text twice today.\n2. The cause is unknown.\n3. Other file formats have not been checked."
+  }
+]
