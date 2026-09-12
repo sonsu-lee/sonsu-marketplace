@@ -24,7 +24,9 @@ description: 개발 작업을 시작하거나 작업 성격이 바뀔 때 요청
 | 승인된 계획의 직접 실행 | `engineering:executing-plans` |
 | 독립 작업의 위임 | `engineering:dispatching-parallel-agents` |
 | 동작 변경을 테스트로 보호 | `engineering:test-driven-development`의 적용 기준 확인 |
-| 리뷰 요청·결과 처리 | `engineering:requesting-code-review`, `engineering:receiving-code-review` |
+| 개발 절차의 리뷰·명시적 독립 리뷰 | `engineering:requesting-code-review`의 워크플로우 분기 |
+| 지정 코드·diff의 일반 직접 리뷰 | 설치된 일반 품질 리뷰 전용 스킬 우선. 없거나 이 스킬을 명시했으면 `engineering:requesting-code-review`의 직접 리뷰 분기 |
+| 리뷰 피드백 검증·처리 | `engineering:receiving-code-review` |
 | 완료나 검사 성공 보고 | `engineering:verification-before-completion` |
 | 스킬 작성·수정 | `engineering:writing-skills` |
 
