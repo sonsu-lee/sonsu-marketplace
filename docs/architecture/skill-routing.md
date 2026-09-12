@@ -68,8 +68,10 @@ Memory Manager는 Codex의 `policy.allow_implicit_invocation: false`와 Claude C
 `disable-model-invocation: true`를 함께 사용합니다. Codex에서는 `$memory-manager`, Claude Code에서는
 `/memory-manager:memory-manager`로 명시적으로 호출할 때만 실행하며, 일반 작업이나 “기억해 줘”라는
 요청에서 자동 선택하지 않습니다.
-점검 요청은 읽기 전용이고 정리 요청은 대상 호스트가 허용하는 직접 편집 또는 수정 노트
-방식으로 수행합니다. 수정 노트 생성과 원본 메모리 반영은 별도 결과로 보고합니다.
+점검 요청은 읽기 전용이고, 정리 요청은 정리 방법과 근거를 확인한 뒤 별도 전체 교체용 MD를
+만들어 파일 링크와 실제 로컬 원본의 절대 경로를 함께 제공합니다. 원본 직접 편집은 사용자가
+명시적으로 요청하고 호스트도 허용할 때만 수행합니다. 수정 노트가 필요한 호스트에서는 지정된
+방식을 따르며, MD 생성·수정 노트 작성·원본 반영을 각각 구분해 보고합니다.
 
 Operations UI는 WMS나 배송처럼 특정 산업명이 아니라 상태 판단, 반복 작업, 권한과 위험한
 행동, 고밀도 데이터가 중심인 화면에 적용합니다. marketing·editorial·brand page는 대상이

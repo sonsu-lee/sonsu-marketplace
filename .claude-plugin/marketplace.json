@@ -73,7 +73,7 @@
       "name": "memory-manager",
       "source": "./plugins/memory-manager",
       "description": "명시적으로 호출해 Codex와 Claude Code의 저장된 메모리를 점검하고 정리합니다.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "category": "Productivity"
     },
     {
