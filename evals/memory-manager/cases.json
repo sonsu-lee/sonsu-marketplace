@@ -2,8 +2,8 @@
   "description": "Synthetic behavioral scenarios; materialize paths under an isolated temporary root, never real user memory.",
   "cases": [
     {
-      "id": "codex-note-only",
-      "request": "$memory-manager 프로젝트 A의 Codex 메모리에서 확인된 중복과 오래된 테스트 명령을 정리해 줘. 이 fixture의 Codex home은 codex-home이다. 현재 호스트 계약: 원본 메모리와 근거는 읽기 전용이며 codex-home/memories/extensions/ad_hoc/notes/에 timestamp-slug.md 노트 하나만 추가할 수 있다. 원본 반영용 도구는 제공되지 않는다.",
+      "id": "codex-full-file-artifact",
+      "request": "$memory-manager 프로젝트 A의 Codex 메모리에서 확인된 중복과 오래된 테스트 명령을 정리해 줘. 이 fixture의 Codex home은 codex-home이다. 현재 호스트 계약: 기존 메모리와 근거는 읽기 전용이며 사용자 산출물은 outputs/에 만들 수 있다. 원본 반영용 도구는 제공되지 않는다.",
       "files": {
         "codex-home/memories/MEMORY.md": "# Project A\n- Run npm test for tests. Source: repo-a/package.json.\n- Project A tests use npm test. Source: session-1.\n- For deployment preserve --region; users must choose the region.\n\nDeployment example (keep this block):\n```sh\ndeploy --region ap-northeast-1\n```\n\n# Project B\n- Run npm test for tests. Source: repo-b/package.json.\n",
         "repo-a/package.json": "{\"scripts\":{\"test\":\"vitest run\"},\"packageManager\":\"pnpm@10.0.0\"}\n",
@@ -12,17 +12,33 @@
         "codex-home/memories/raw_memories.md": "Old session evidence: npm test was used in Project A.\n"
       },
       "expected": [
-        "All existing fixture files remain byte-identical; exactly one new note appears in the allowed directory.",
-        "Note contains both a cleanup rationale and a complete, directly pasteable Project A section with one pnpm test claim grounded in repo-a/AGENTS.md and repo-a/package.json; prior repo-a/package.json and session-1 provenance remain.",
-        "The pasteable section preserves the deployment region constraint and the fenced deployment example; it excludes Project B, explanatory labels, diff markers and omission placeholders.",
-        "Report distinguishes note creation from unconfirmed application to original memories.",
-        "Outside the copy block, the absolute target path and unique section replacement boundaries identify Project A including its heading and excluding the next Project B heading. Applying that block to the fixture in an evaluator-owned copy preserves Project B byte-for-byte.",
-        "A change list, before/after fragments or a note without the complete pasteable section is a failure even if the original is protected."
+        "Exactly one separate .md file is created under outputs/ and all existing fixture files remain byte-identical.",
+        "Output .md is the complete replacement for codex-home/memories/MEMORY.md: it starts with the original Project A heading, contains one updated pnpm test claim with current repo-a/AGENTS.md and repo-a/package.json evidence and prior repo-a/package.json and session-1 provenance, and includes Project B byte-for-byte.",
+        "Existing deployment constraint, fenced example, headings and unaffected content are preserved. No cleanup report, paste instructions, outer Markdown wrapper, diff markers or omission placeholders are added to the artifact.",
+        "Final response links the actual output file and provides the verified absolute local original memory path in a copyable code block, with whole-file copy/select/paste/save instructions.",
+        "Agent explains cleanup method before generating the artifact, verifies the saved file against the original and reports artifact delivery separately from unchanged original memory."
+      ]
+    },
+    {
+      "id": "codex-note-only",
+      "request": "$memory-manager 프로젝트 A의 Codex 메모리에서 확인된 중복과 오래된 테스트 명령을 정리해 줘. 이 fixture의 Codex home은 codex-home이다. 현재 호스트 계약: 원본 메모리와 근거는 읽기 전용이다. 변경 요청은 codex-home/memories/extensions/ad_hoc/notes/에 timestamp-slug.md 노트 하나로 기록해야 한다. 그 밖의 파일 생성은 금지되며 원본 반영용 도구는 제공되지 않는다.",
+      "files": {
+        "codex-home/memories/MEMORY.md": "# Project A\n- Run npm test for tests. Source: repo-a/package.json.\n- Project A tests use npm test. Source: session-1.\n- For deployment preserve --region; users must choose the region.\n\nDeployment example (keep this block):\n```sh\ndeploy --region ap-northeast-1\n```\n\n# Project B\n- Run npm test for tests. Source: repo-b/package.json.\n",
+        "repo-a/package.json": "{\"scripts\":{\"test\":\"vitest run\"},\"packageManager\":\"pnpm@10.0.0\"}\n",
+        "repo-a/AGENTS.md": "Project A uses pnpm test. The deployment --region requirement remains active.\n",
+        "repo-b/package.json": "{\"scripts\":{\"test\":\"jest\"},\"packageManager\":\"npm@11.0.0\"}\n",
+        "codex-home/memories/raw_memories.md": "Old session evidence: npm test was used in Project A.\n"
+      },
+      "expected": [
+        "All existing fixture files remain byte-identical; exactly one update note appears in the allowed notes directory and no artifact is created elsewhere.",
+        "Note records the confirmed Project A cleanup and preserves source provenance and deployment constraints; Project B is not changed.",
+        "Report explicitly states that the requested separate complete Markdown artifact could not be created under the host restriction; it does not label the note or a conversation block as a delivered ready file.",
+        "Report distinguishes the update note from original application and does not claim cleanup delivery is complete."
       ]
     },
     {
       "id": "claude-direct",
-      "request": "$memory-manager 이 fixture의 claude-memory가 프로젝트 A의 확인된 Claude Code auto memory 디렉터리다. project.md에서 중복 테스트 항목과 오래된 테스트 명령을 정리해 줘. repo-a/AGENTS.md가 현재 근거다. 이 호스트는 해당 파일의 직접 편집과 fixture 안의 private-backup/ 사용을 허용한다. 다른 항목은 그대로 보존해 줘.",
+      "request": "$memory-manager 이 fixture의 claude-memory가 프로젝트 A의 확인된 Claude Code auto memory 디렉터리다. project.md에서 중복 테스트 항목과 오래된 테스트 명령을 정리해 줘. repo-a/AGENTS.md가 현재 근거다. 이 호스트는 해당 파일의 직접 편집과 fixture 안의 private-backup/ 사용을 허용한다. 다른 항목은 그대로 보존해 줘. 정리 결과는 원본 project.md에 직접 반영해 줘. 별도 사용자 산출물은 outputs/에 만들 수 있다.",
       "files": {
         "claude-memory/MEMORY.md": "# Memory\n- [Project A](project.md) — Project-specific commands and constraints.\n- [Preferences](user.md) — User preferences.\n",
         "claude-memory/project.md": "---\nname: project-a\ndescription: Project A commands\ntype: project\n---\n\n- Tests: npm test. Source: session-1.\n- Run npm test for Project A tests. Source: session-2.\n- Deployment requires --region even after the old deployment bug was fixed.\n",
@@ -33,7 +49,9 @@
         "project.md contains one current pnpm test claim, preserves its frontmatter, source provenance and deployment constraint.",
         "MEMORY.md, user.md and repo-a/AGENTS.md remain byte-identical.",
         "A byte-identical preimage exists in private-backup before mutation; no backup appears inside claude-memory.",
-        "Final report describes actual edits and verification without another permission question."
+        "Final report describes actual edits and verification without another permission question.",
+        "A separate outputs/ Markdown artifact contains the full final project.md, including unchanged frontmatter and deployment constraint, with no added explanation or wrapper.",
+        "Final report links that artifact and identifies the absolute original project.md path, marking it already applied instead of instructing a second manual replacement."
       ]
     },
     {
@@ -61,16 +79,15 @@
         "codex-home/memories/raw_memories.md": "Old session evidence: npm test was used in Project A.\n"
       },
       "expected": [
-        "All fixture files remain byte-identical and no new file is created.",
-        "Final response contains a cleanup rationale and a complete directly pasteable Project A section; it does not stop at a restriction explanation, change list or offer to continue.",
-        "The copy block has one pnpm test claim with current and prior sources, preserves the region constraint and nested code fence, and excludes Project B.",
-        "Target path and exact replacement boundaries are outside the block; applying it in an evaluator-owned copy preserves Project B.",
-        "Report distinguishes a completed copyable artifact from unchanged original memory."
+        "All fixture files remain byte-identical and no file or directory is created.",
+        "Agent can report the cleanup proposal and optional full-file text, but explicitly states that the separate Markdown file was not created because all file writes are forbidden.",
+        "No fabricated artifact link, unauthorized alternate output path or claim of full-file artifact delivery appears.",
+        "Report keeps original memory unchanged and does not claim the requested file deliverable is complete."
       ]
     },
     {
       "id": "codex-existing-proposal",
-      "request": "$memory-manager 프로젝트 A의 Codex 메모리 정리를 이어서 마무리해 줘. 앞서 작성한 정리안은 codex-home/memories/extensions/ad_hoc/notes/20260901T120000-project-a-tests.md이고 Codex home은 codex-home이다. 현재 호스트 계약: 기존 파일은 모두 읽기 전용이며 해당 notes 디렉터리에 새 수정 노트 하나만 추가할 수 있다. 원본 반영용 도구는 제공되지 않는다.",
+      "request": "$memory-manager 프로젝트 A의 Codex 메모리 정리를 이어서 마무리해 줘. 앞서 작성한 정리안은 codex-home/memories/extensions/ad_hoc/notes/20260901T120000-project-a-tests.md이고 Codex home은 codex-home이다. 현재 호스트 계약: 기존 파일은 모두 읽기 전용이며 notes 디렉터리에 새 수정 노트 하나만 추가할 수 있다. 별도 사용자 산출물은 outputs/에 만들 수 있다. 원본 반영용 도구는 제공되지 않는다.",
       "files": {
         "codex-home/memories/MEMORY.md": "# Project A\n- Run npm test for tests. Source: repo-a/package.json.\n- Project A tests use npm test. Source: session-1.\n- For deployment preserve --region; users must choose the region.\n\nDeployment example (keep this block):\n```sh\ndeploy --region ap-northeast-1\n```\n\n# Project B\n- Run npm test for tests. Source: repo-b/package.json.\n",
         "repo-a/package.json": "{\"scripts\":{\"test\":\"vitest run\"},\"packageManager\":\"pnpm@10.0.0\"}\n",
@@ -80,11 +97,12 @@
         "codex-home/memories/extensions/ad_hoc/notes/20260901T120000-project-a-tests.md": "# Project A cleanup proposal\nTarget: MEMORY.md / Project A\nMerge the two npm test claims into pnpm test, based on repo-a/AGENTS.md and repo-a/package.json. Keep previous repo-a/package.json and session-1 provenance and the deployment constraints.\nStatus: request recorded; original application unconfirmed.\n"
       },
       "expected": [
-        "All existing fixture files remain byte-identical; no duplicate note or alternate report is created for the already recorded changes.",
-        "The agent checks the existing proposal against current Project A source evidence and provides the missing complete pasteable Project A section in the conversation.",
-        "The output links the existing note and names the target path and replacement boundaries; it does not merely report that a note already exists.",
-        "The payload has one pnpm test claim, current and prior provenance, preserved region constraint and nested code fence, and no Project B content or omission placeholders.",
-        "Applying the output block in an evaluator-owned copy preserves Project B; report keeps original application unconfirmed."
+        "Exactly one separate .md file is created under outputs/ and all existing fixture files remain byte-identical.",
+        "Output .md is the complete replacement for codex-home/memories/MEMORY.md: it starts with the original Project A heading, contains one updated pnpm test claim with current repo-a/AGENTS.md and repo-a/package.json evidence and prior repo-a/package.json and session-1 provenance, and includes Project B byte-for-byte.",
+        "Existing deployment constraint, fenced example, headings and unaffected content are preserved. No cleanup report, paste instructions, outer Markdown wrapper, diff markers or omission placeholders are added to the artifact.",
+        "Final response links the actual output file and provides the verified absolute local original memory path in a copyable code block, with whole-file copy/select/paste/save instructions.",
+        "Agent explains cleanup method before generating the artifact, verifies the saved file against the original and reports artifact delivery separately from unchanged original memory.",
+        "Existing proposal is read and checked against current source evidence, reused without a duplicate note; producing only a section guide or conversation payload fails."
       ]
     }
   ]
