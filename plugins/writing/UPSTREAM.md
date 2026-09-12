@@ -1,6 +1,6 @@
 # 원본과 출처
 
-Writing은 글의 구성을 다루는 독립 플러그인이다. Fluent Languages·Workflow와 함께
+Writing은 정보 선별·문서 배치와 글의 구성을 다루는 독립 플러그인이다. Fluent Languages·Workflow와 함께
 사용할 수 있으며, 두 플러그인의 설치·호출명·언어 지침·티켓 및 PR 양식은 그대로 유지한다.
 
 진입점은 [`skills/writing/SKILL.md`](skills/writing/SKILL.md)이다. 공통
@@ -14,7 +14,9 @@ Writing은 글의 구성을 다루는 독립 플러그인이다. Fluent Language
 `sources/core/communication.md`(`91b4a0efc4d4bb031a9d04fcdb6eb88a873ed736`)에서 시작했다.
 Writing은 이를 문장 관계·문단 역할·정보 순서 지침으로 확장했다. 이 로컬 지침은 `im-not-ai`에서
 복사하거나 그 프로젝트에 귀속한 내용이 아니다. 보존 지침은 고정 구조와, 요청된 편집 범위 안에서
-재구성할 수 있는 자유 설명을 구분한다.
+재구성할 수 있는 자유 설명을 구분한다. 문서 배치 지침은 이 저장소의 기존 문서 영향 판단과
+사용자 요청에서 정리한 로컬 정책이다. 작업별 README 누적을 줄이는 목적이며, 아래 외부 출처가
+이 정책 전체나 실제 효과를 검증했다는 뜻은 아니다.
 
 Fluent는 언어별 원본·독립적인 보존 규칙·기존 출처를 유지한다. Writing은 초기 구현에서 이어받은
 [MIT 라이선스](LICENSE)와 [제삼자 고지](THIRD_PARTY_NOTICES.md)를 보존한다.

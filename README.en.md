@@ -62,7 +62,7 @@ Code host and verify that their tools are available.
 | [Quality Engineering](plugins/quality-engineering/README.md) | Simplify code and review maintainability, failure paths, and operational issues | `quality-engineering` |
 | [Workflow](plugins/workflow/) | Work with Git branches, commits, pushes, tickets, and GitHub PRs | `workflow` |
 | [Fluent Languages](plugins/fluent-languages/) | Write natural Korean, Japanese, and English while preserving technical content | `fluent-languages` |
-| [Writing](plugins/writing/) | Organize sentence relationships, paragraphs, and information for the reader and purpose | `writing` |
+| [Writing](plugins/writing/) | Select information, choose where it belongs, and organize writing for the reader and purpose | `writing` |
 | [Research](plugins/research/README.md) | Research multiple sources, verify facts, and write answers supported by evidence | `research` |
 | [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, and the OpenAI API | `prompting` |
 | [Product](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | `product` |
@@ -73,7 +73,9 @@ Code host and verify that their tools are available.
 
 Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
 
-Writing owns composition, Fluent Languages owns language-specific expression, and Workflow owns ticket/PR templates and publication. Each works alone; when installed together, their available guidance can inform one draft. Keep the existing Fluent installation and records. See [Writing](plugins/writing/README.md) for responsibilities and composition rules.
+Writing selects and places information and organizes the text, Fluent Languages handles language-specific
+expression, and Workflow handles ticket/PR templates and publication. See the
+[skill routing documentation](docs/architecture/skill-routing.md) for how to use them together.
 
 ## Usage examples
 
@@ -85,7 +87,7 @@ After installing the relevant plugin, try requests like these in Codex or Claude
 | Quality Engineering | “Review the current diff for unnecessary abstractions and reachable failure paths.” |
 | Workflow | “Commit the current changes and create a Draft PR.” |
 | Fluent Languages | “Make this Japanese technical explanation read naturally while preserving its meaning and code identifiers.” |
-| Writing | “Improve the paragraph structure and information order while preserving the facts.” |
+| Writing | “Select and summarize what the README needs from this material, and update the existing documents with the details.” |
 | Research | “Compare the pricing and limits of these two services using official sources.” |
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
@@ -97,7 +99,6 @@ After installing the relevant plugin, try requests like these in Codex or Claude
 Codex and Claude Code select skills based on your request and the descriptions of installed skills.
 Memory Manager runs only when explicitly invoked with `$memory-manager` in Codex or
 `/memory-manager:memory-manager` in Claude Code.
-See the [skill routing documentation](docs/architecture/skill-routing.md) for how plugins share responsibilities when used together.
 
 Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
 Figma Workflow requires the official Figma MCP connection and the tool's prerequisite skills for canvas operations.
@@ -124,91 +125,20 @@ installed at `project` or `local` scope, specify the matching `--scope project` 
 After installing or updating plugins, start a new Codex task or run `/reload-plugins` in Claude Code to
 load the latest skill list.
 
-<details>
-<summary>If you have already installed the same skills</summary>
-
 If you installed `fluent-languages` from another marketplace or standalone copies of `prompt-builder`,
 `product-discovery`, or `to-prd`, remove those copies first to avoid duplicate skill names.
 
-</details>
-
 ## Development and contributing
 
-To modify or add plugins, clone the repository and register it as a local marketplace:
+The [plugin development guide](docs/guides/adding-a-plugin.md) covers local setup, modifying and adding
+plugins, and validation. The detailed guides below are maintained in Korean.
 
-```sh
-git clone https://github.com/sonsu-lee/sonsu-marketplace.git
-cd sonsu-marketplace
-codex plugin marketplace add .
-codex plugin list --marketplace sonsu-marketplace
-
-claude plugin marketplace add . --scope local
-claude plugin list --available --json
-```
-
-The GitHub source and local path share the `sonsu-marketplace` identifier, so use one registration method per environment.
-
-- [Adding a plugin](docs/guides/adding-a-plugin.md) — Directory layout and manifest registration
-- [Documentation guide](docs/README.md) — Architecture, design decisions, and plugin contracts
+- [Architecture overview](docs/architecture/overview.md) — Repository structure and loading boundaries
 - [Upstream update runbook](docs/runbooks/updating-upstream-plugin.md) — Update upstream content while keeping local changes separate
 - [Evaluation tools](evals/) — Validate language output, skill routing, and plugin quality
 - [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues) — Bug reports and improvement suggestions
 
-<details>
-<summary>Repository structure and validation commands</summary>
-
-### Repository structure
-
-```text
-sonsu-marketplace/
-├── .agents/plugins/marketplace.json  # Plugin catalog
-├── .claude-plugin/marketplace.json   # Claude Code plugin catalog
-├── plugins/
-│   └── <plugin>/
-│       ├── .codex-plugin/plugin.json # Plugin metadata
-│       ├── .claude-plugin/plugin.json # Generated Claude Code metadata
-│       └── skills/                  # Skills and reference materials
-├── docs/                            # Maintenance documentation
-└── evals/                           # Evaluation fixtures and validation tools
-```
-
-### Validation
-
-Run these static checks from the repository root:
-
-```sh
-find .agents .claude-plugin plugins evals -name '*.json' -print0 \
-  | xargs -0 -n1 python3 -m json.tool >/dev/null
-python3 scripts/render-claude-compat.py --check
-python3 plugins/fluent-languages/scripts/render-skills.py --check
-python3 evals/language-style/eval.py validate
-python3 -m unittest -v evals/language-style/test_eval.py
-claude plugin validate . --strict
-git diff --check
-```
-
-These commands check JSON syntax, whether generated skills match their canonical source, and the structure of evaluation fixtures and the runner.
-Actual model skill selection and output quality require separate validation. If you change a plugin's structure,
-also verify marketplace registration, plugin installation, and skill availability in isolated Codex and Claude Code environments.
-
-The platform-specific formats follow the [official OpenAI plugin packaging documentation](https://developers.openai.com/plugins/build/plugins)
-and the [official Anthropic marketplace documentation](https://code.claude.com/docs/en/plugin-marketplaces).
-
-</details>
-
 ## Licenses and sources
 
-No root-level license is currently declared for the repository as a whole. Licensing and source information vary by plugin:
-
-- Engineering is covered by the [MIT License](plugins/engineering/LICENSE).
-- Quality Engineering is based on several pinned upstream sources and retains the [Apache-2.0 License](plugins/quality-engineering/LICENSE), [NOTICE](plugins/quality-engineering/NOTICE), [source mapping](plugins/quality-engineering/UPSTREAM.md), and [original MIT notices](plugins/quality-engineering/THIRD_PARTY_NOTICES.md).
-- Workflow currently has no separately declared license. Existing writing guidance and templates retain their [MIT notice](plugins/workflow/WRITING_LICENSE.md).
-- Prompting currently has no separately declared license.
-- Product currently has no separately declared license.
-- Memory Manager was independently authored and currently has no separately declared license. Design references are recorded in [UPSTREAM.md](plugins/memory-manager/UPSTREAM.md).
-- Operations UI was independently authored without copying external UI code or assets and currently has no separately declared license. Design references are recorded in [UPSTREAM.md](plugins/operations-ui/UPSTREAM.md).
-- Design Patterns indexes only pattern names and source locations; its selection and review contracts are independently authored and currently have no separately declared license. Inclusion and source terms are recorded in [UPSTREAM.md](plugins/design-patterns/UPSTREAM.md).
-- Figma Workflow was independently authored without copying external files and currently has no separately declared license. Consulted sources and the policy against copying external files are documented in [UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md).
-- Fluent Languages records its licensing and attribution for each source in [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md), and [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md).
-- Writing records its composition and integrity sources in [LICENSE](plugins/writing/LICENSE), [UPSTREAM.md](plugins/writing/UPSTREAM.md), and [THIRD_PARTY_NOTICES.md](plugins/writing/THIRD_PARTY_NOTICES.md).
-- Research's upstream baseline had no license file that could be verified, and permission to use it is not assumed. The baseline commit and included scope are recorded in [UPSTREAM.md](plugins/research/UPSTREAM.md).
+No license is currently declared for the repository as a whole. Check the terms and original notices for
+each plugin in [Licenses and sources by plugin](docs/reference/licenses-and-sources.md) (Korean).

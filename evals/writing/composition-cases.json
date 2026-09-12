@@ -84,5 +84,14 @@
     ],
     "entry_skill": "writing:writing",
     "prompt": "Rewrite this free draft as one connected paragraph in English. You may remove headings and the outline numbering; this is a note, not an execution procedure. Keep the facts and return only the paragraph.\n## Request\n1. Please investigate the cause.\n## Notes\n1. CSV downloads contained broken Korean text twice today.\n2. The cause is unknown.\n3. Other file formats have not been checked."
+  },
+  {
+    "id": "writing-fluent-ko-docs-mixed-change",
+    "prompt": "CSV Inspect의 구현 변경을 반영해 필요한 문서를 갱신해 줘. 문서에 반영한 내용과 작업 결과를 알려 줘.\n\n현재 파일은 아래와 같으며 경로는 임시 작업 루트 기준이다. 나열한 파일 외에 기존 문서는 없다.\n\n### README.md\n```markdown\n# CSV Inspect\n\nCSV의 열 이름과 행 수를 검사하는 CLI입니다. Python 3.11 이상에서 실행합니다.\n\n## 시작\n\n저장소 루트에서 `python3 csv_inspect.py sample.csv`를 실행하세요. 예제 결과는 `Columns: name, email`과 `Rows: 10`입니다. 입력 파일은 변경하지 않습니다.\n\n[명령 사용법](docs/guides/commands.md)\n```\n\n### docs/guides/commands.md\n```markdown\n# 명령 사용법\n\n`python3 csv_inspect.py <file.csv>`로 열 이름과 행 수를 출력합니다. 입력은 UTF-8 CSV입니다. 정상 입력은 종료 코드 0, 읽기 오류는 종료 코드 1입니다.\n```\n\n### docs/architecture/overview.md\n```markdown\n# 처리 구조\n\nReader가 모든 행을 메모리에 담고 Inspector가 열 이름과 행 수를 계산합니다. 출력은 Formatter가 담당합니다.\n```\n\n변경 자료:\n- `python3 csv_inspect.py sample.csv --summary`를 추가했다. 열별 빈 값 수를 출력하며 예제 결과는 `Empty: name=0, email=2`이다. 빈 문자열을 빈 값으로 세고 공백만 있는 문자열은 빈 값으로 세지 않는다.\n- 기본 명령, 입력 무변경, Python 요구 버전과 종료 코드는 유지된다.\n- Reader를 행 단위 순회로 바꾸고 Inspector가 통계만 누적하도록 구현했다. 클래스명은 RowAccumulator다. Formatter 책임은 유지한다.\n- 작업 메모: 오전에 배열 접근을 세 번 수정했고 로컬 테스트 18개가 통과했다. 다른 운영체제에서는 실행하지 않았다.",
+    "installed_plugins": [
+      "writing",
+      "fluent-languages"
+    ],
+    "entry_skill": "writing:writing"
   }
 ]

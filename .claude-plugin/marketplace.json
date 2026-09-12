@@ -10,7 +10,7 @@
       "name": "engineering",
       "source": "./plugins/engineering",
       "description": "요청에 맞는 설계·구현·디버깅·검증·리뷰 절차를 선택하고 승인 범위 안에서 개발 작업을 수행한다.",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "category": "Developer Tools"
     },
     {
@@ -24,14 +24,14 @@
       "name": "fluent-languages",
       "source": "./plugins/fluent-languages",
       "description": "Codex와 Claude Code에서 한국어·일본어·영어를 자연스럽게 작성하는 표현 지침을 제공한다.",
-      "version": "0.1.0-beta.8",
+      "version": "0.1.0-beta.9",
       "category": "Productivity"
     },
     {
       "name": "writing",
       "source": "./plugins/writing",
-      "description": "독자·목적·편집 범위에 맞춰 업무 문서의 문장 관계·문단 역할·정보 순서를 작성하고 다듬는다.",
-      "version": "0.2.0-beta.3",
+      "description": "독자·목적·편집 범위에 맞춰 업무 문서의 정보를 선별하고, 문서 배치와 문장·문단 구성을 다듬는다.",
+      "version": "0.2.0-beta.4",
       "category": "Productivity"
     },
     {
