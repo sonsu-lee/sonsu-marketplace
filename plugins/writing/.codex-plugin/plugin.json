@@ -1,7 +1,7 @@
 {
   "name": "writing",
   "version": "0.2.0-beta.3",
-  "description": "독자·목적·편집 범위에 맞춰 업무 문서의 문장 관계·문단 역할·정보 순서를 작성하고 다듬는다.",
+  "description": "독자·목적·편집 범위에 맞춰 업무 문서의 정보를 선별하고, 문서 배치와 문장·문단 구성을 다듬는다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
@@ -20,14 +20,14 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Writing",
-    "shortDescription": "문장·문단과 정보 순서를 다듬는 업무 글쓰기",
-    "longDescription": "문장 관계·문단 역할·정보 순서와 README·주석·동료 메시지의 구성을 다룬다. Fluent의 언어별 표현, Workflow의 티켓·PR 양식과 함께 적용하거나 단독으로 사용할 수 있다.",
+    "shortDescription": "정보 선별·문서 배치와 글 구성을 다듬는 업무 글쓰기",
+    "longDescription": "문서화할 내용을 선별하고 기존 문서를 우선 갱신하며, README의 주요 안내와 상세 문서를 연결한다. 문장·문단 구성과 주석·동료 메시지 작성도 다루고, Fluent의 표현 및 Workflow의 티켓·PR 양식과 함께 적용하거나 단독으로 사용할 수 있다.",
     "developerName": "sonsu",
     "category": "Productivity",
     "capabilities": [
       "Write"
     ],
-    "defaultPrompt": "독자와 목적에 맞춰 글의 문장·문단과 형식을 다듬어 줘."
+    "defaultPrompt": "독자와 목적에 필요한 내용을 골라 문서 배치와 글의 구성을 다듬어 줘."
   },
   "hooks": "./hooks/hooks.json"
 }

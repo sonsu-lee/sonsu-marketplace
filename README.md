@@ -63,7 +63,7 @@ UI metadata는 Claude manifest에 복사하지 않으므로, Figma 같은 외부
 | [Quality Engineering](plugins/quality-engineering/README.md) | 코드 단순화와 유지보수성, 실패 경로, 운영 문제 검토 | `quality-engineering` |
 | [Workflow](plugins/workflow/) | Git branch·commit·push, 티켓 작성·수정·상태 관리와 GitHub PR 작업 | `workflow` |
 | [Fluent Languages](plugins/fluent-languages/) | 기술 내용을 보존하는 자연스러운 한국어·일본어·영어 작성 | `fluent-languages` |
-| [Writing](plugins/writing/) | 독자·목적에 맞는 문장 관계·문단 구성·정보 순서 | `writing` |
+| [Writing](plugins/writing/) | 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성 | `writing` |
 | [Research](plugins/research/README.md) | 여러 출처 조사, 사실 검증과 근거를 갖춘 답변 작성 | `research` |
 | [Prompting](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API용 프롬프트 작성과 개선 | `prompting` |
 | [Product](plugins/product/README.md) | 제품 아이디어 탐색, 사용자 근거 정리, 가설 검증과 PRD 작성 | `product` |
@@ -74,7 +74,9 @@ UI metadata는 Claude manifest에 복사하지 않으므로, Figma 같은 외부
 
 각 플러그인은 독립적으로 사용할 수 있습니다. 포함된 스킬과 상세 사용법은 위 링크에서 확인하세요.
 
-Writing은 글의 구성을, Fluent Languages는 언어별 표현을, Workflow는 티켓·PR의 양식과 게시를 담당합니다. 각각 단독으로 사용할 수 있고, 함께 설치하면 현재 제공되는 지침을 한 초안에 적용합니다. 기존 Fluent를 제거하거나 기록을 이전할 필요는 없습니다. 자세한 책임과 결합 방식은 [Writing 안내](plugins/writing/README.md)를 참고하세요.
+글을 작성할 때 Writing은 정보 선별·배치와 구성을, Fluent Languages는 언어별 표현을,
+Workflow는 티켓·PR의 양식과 게시를 담당합니다. 함께 쓰는 방법은
+[스킬 라우팅 문서](docs/architecture/skill-routing.md)를 참고하세요.
 
 ## 사용 예시
 
@@ -86,7 +88,7 @@ Writing은 글의 구성을, Fluent Languages는 언어별 표현을, Workflow�
 | Quality Engineering | “현재 diff에서 불필요한 추상화와 도달 가능한 실패 경로를 검토해 줘.” |
 | Workflow | “현재 변경을 커밋하고 Draft PR을 만들어 줘.” |
 | Fluent Languages | “이 일본어 기술 설명을 의미와 코드 식별자를 유지하면서 자연스럽게 다듬어 줘.” |
-| Writing | “이 설명의 사실은 유지하면서 문단과 정보 순서를 다듬어 줘.” |
+| Writing | “이 자료에서 README에 필요한 내용을 골라 요약하고, 상세 내용은 기존 문서에 반영해 줘.” |
 | Research | “이 두 서비스의 요금과 제한 사항을 공식 자료로 비교해 줘.” |
 | Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
 | Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
@@ -98,7 +100,6 @@ Writing은 글의 구성을, Fluent Languages는 언어별 표현을, Workflow�
 Codex와 Claude Code는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
 Memory Manager는 Codex의 `$memory-manager` 또는 Claude Code의
 `/memory-manager:memory-manager`로 명시적으로 호출할 때만 작동합니다.
-여러 플러그인을 함께 사용할 때의 역할은 [스킬 라우팅 문서](docs/architecture/skill-routing.md)에 정리되어 있습니다.
 
 Research의 Exa·Perplexity 연동은 선택 사항이며, 사용 가능한 web·browser·connector와 로컬 자료로도 조사할 수 있습니다.
 Figma Workflow의 캔버스 작업에는 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
@@ -125,92 +126,20 @@ claude plugin update engineering@sonsu-marketplace
 플러그인을 설치하거나 업데이트한 뒤에는 Codex에서 새 작업을 시작하거나 Claude Code에서
 `/reload-plugins`를 실행해 최신 스킬 목록을 불러오세요.
 
-<details>
-<summary>이전에 같은 스킬을 설치했다면</summary>
-
 다른 마켓플레이스의 `fluent-languages`나 standalone `prompt-builder`, `product-discovery`, `to-prd`를
 설치했다면 같은 이름의 스킬이 중복되지 않도록 기존 복사본을 먼저 제거하세요.
 
-</details>
-
 ## 개발 및 기여
 
-플러그인을 수정하거나 추가하려면 저장소를 clone하고 로컬 마켓플레이스로 등록합니다.
+로컬 개발 환경, 플러그인 수정·추가와 검증 절차는
+[플러그인 개발 가이드](docs/guides/adding-a-plugin.md)에 있습니다.
 
-```sh
-git clone https://github.com/sonsu-lee/sonsu-marketplace.git
-cd sonsu-marketplace
-codex plugin marketplace add .
-codex plugin list --marketplace sonsu-marketplace
-
-claude plugin marketplace add . --scope local
-claude plugin list --available --json
-```
-
-GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용하므로 한 환경에서는 한 가지 방식으로 등록합니다.
-
-- [플러그인 추가 가이드](docs/guides/adding-a-plugin.md) — 디렉터리 구성과 manifest 등록
-- [문서 안내](docs/README.md) — 아키텍처, 설계 결정과 플러그인 계약
+- [아키텍처 개요](docs/architecture/overview.md) — 저장소 구성과 로딩 경계
 - [업스트림 업데이트 런북](docs/runbooks/updating-upstream-plugin.md) — 원본과 로컬 변경을 구분해 갱신하는 절차
 - [평가 도구](evals/) — 언어 출력, 스킬 라우팅과 플러그인 품질 검증
 - [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues) — 버그 보고와 개선 제안
 
-<details>
-<summary>저장소 구조와 검증 명령</summary>
-
-### 저장소 구조
-
-```text
-sonsu-marketplace/
-├── .agents/plugins/marketplace.json  # 플러그인 목록
-├── .claude-plugin/marketplace.json   # Claude Code 플러그인 목록
-├── plugins/
-│   └── <plugin>/
-│       ├── .codex-plugin/plugin.json # 플러그인 정보
-│       ├── .claude-plugin/plugin.json # 생성된 Claude Code 플러그인 정보
-│       └── skills/                  # 스킬과 참고 자료
-├── docs/                            # 유지보수 문서
-└── evals/                           # 평가 fixture와 검증 도구
-```
-
-### 검증
-
-저장소 루트에서 다음 정적 검사를 실행합니다.
-
-```sh
-find .agents .claude-plugin .claude-plugins plugins evals -name '*.json' -print0 \
-  | xargs -0 -n1 python3 -m json.tool >/dev/null
-python3 scripts/render-claude-compat.py --check
-python3 plugins/fluent-languages/scripts/render-skills.py --check
-python3 evals/language-style/eval.py validate
-python3 -m unittest -v evals/language-style/test_eval.py
-claude plugin validate . --strict
-git diff --check
-```
-
-이 명령은 JSON 구문, 생성된 스킬의 정본 일치 여부와 평가 fixture·runner의 구조를 확인합니다.
-실제 모델의 스킬 선택이나 출력 품질은 별도 검증이 필요합니다. 플러그인 구조를 변경했다면
-격리된 Codex와 Claude Code 환경에서 마켓플레이스 등록, 플러그인 설치와 스킬 노출도 확인하세요.
-
-플랫폼별 형식은 [OpenAI 공식 플러그인 패키징 문서](https://developers.openai.com/plugins/build/plugins)와
-[Anthropic 공식 marketplace 문서](https://code.claude.com/docs/en/plugin-marketplaces)를 따릅니다.
-
-</details>
-
 ## 라이선스와 출처
 
-저장소 전체에 공통으로 적용되는 root-level 라이선스는 현재 선언하지 않았습니다. 각
-플러그인의 범위는 다음과 같이 구분합니다.
-
-- Engineering에는 [MIT 라이선스](plugins/engineering/LICENSE)가 적용됩니다.
-- Quality Engineering은 여러 고정 upstream을 기반으로 하며 [Apache-2.0 라이선스](plugins/quality-engineering/LICENSE), [NOTICE](plugins/quality-engineering/NOTICE), [출처 mapping](plugins/quality-engineering/UPSTREAM.md)과 [MIT 원문 고지](plugins/quality-engineering/THIRD_PARTY_NOTICES.md)를 유지합니다.
-- Workflow에는 현재 별도의 라이선스를 선언하지 않았습니다. 기존 작성 지침·양식의 [MIT 고지](plugins/workflow/WRITING_LICENSE.md)는 별도로 보존합니다.
-- Prompting에는 현재 별도의 라이선스를 선언하지 않았습니다.
-- Product에는 현재 별도의 라이선스를 선언하지 않았습니다.
-- Memory Manager는 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 설계 참고 출처는 [UPSTREAM.md](plugins/memory-manager/UPSTREAM.md)에 기록합니다.
-- Operations UI는 외부 UI 코드나 asset을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 설계 참고 출처는 [UPSTREAM.md](plugins/operations-ui/UPSTREAM.md)에 기록합니다.
-- Design Patterns는 원천 카탈로그의 이름과 출처만 인덱싱하고 선택·검토 계약과 설명은 독자 작성했으며 현재 별도의 라이선스를 선언하지 않았습니다. 포함 범위와 원천별 조건은 [UPSTREAM.md](plugins/design-patterns/UPSTREAM.md)에 기록합니다.
-- Figma Workflow는 외부 파일을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 검토한 출처와 비복사 원칙은 [UPSTREAM.md](plugins/figma-workflow/UPSTREAM.md)에 기록합니다.
-- Fluent Languages의 라이선스와 원본별 출처는 [LICENSE](plugins/fluent-languages/LICENSE), [UPSTREAM.md](plugins/fluent-languages/UPSTREAM.md)와 [THIRD_PARTY_NOTICES.md](plugins/fluent-languages/THIRD_PARTY_NOTICES.md)에 기록합니다.
-- Writing의 공통 구성·보존 지침과 출처는 [LICENSE](plugins/writing/LICENSE), [UPSTREAM.md](plugins/writing/UPSTREAM.md), [THIRD_PARTY_NOTICES.md](plugins/writing/THIRD_PARTY_NOTICES.md)에 기록합니다.
-- Research는 기준 원본에서 라이선스 파일을 확인하지 못했으며 사용 허가를 추정하지 않습니다. 기준 commit과 포함 범위는 [UPSTREAM.md](plugins/research/UPSTREAM.md)에 기록합니다.
+저장소 전체에 공통으로 적용되는 라이선스는 현재 선언하지 않았습니다. 사용하려는 플러그인의
+조건과 원문 고지는 [플러그인별 라이선스와 출처](docs/reference/licenses-and-sources.md)에서 확인하세요.

@@ -2054,6 +2054,34 @@
       "must_not_mutate_source_git_or_remote": true,
       "must_preserve_required_independent_review": true,
       "must_separate_preliminary_observations_from_independent_verdict": true
+    },
+    {
+      "id": "writing-existing-document-update",
+      "installed_plugins": [
+        "writing"
+      ],
+      "prompt": "CSV Inspect의 설정 담당자가 쓸 문서를 갱신해 줘. 기존 README에는 설치와 기본 실행이 있고 docs/reference/options.md에는 선택 옵션 설명이 있어. 새 선택 옵션 --max-errors는 기본값 20, 범위 1~200이고 전체 검사 뒤 출력할 오류 수를 제한해. 정상 입력의 기본 실행은 그대로야. 문서 내용을 어디에 반영할지 정하고 변경안을 작성해 줘.",
+      "expected_sequence": [
+        "writing:writing"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "writing-short-sentence-without-document-work",
+      "installed_plugins": [
+        "writing",
+        "engineering"
+      ],
+      "prompt": "이 문장 하나만 자연스럽게 고쳐 줘. 결과만 줘: 확인 후 결과를 공유해 주시기 바랍니다.",
+      "expected_sequence": [
+        "writing:writing"
+      ],
+      "must_not_select": [
+        "engineering:brainstorming",
+        "engineering:writing-plans",
+        "engineering:task-continuity"
+      ],
+      "must_not_install_plugins": true
     }
   ]
 }

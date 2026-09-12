@@ -3,7 +3,7 @@
   "name": "writing",
   "displayName": "Writing",
   "version": "0.2.0-beta.3",
-  "description": "독자·목적·편집 범위에 맞춰 업무 문서의 문장 관계·문단 역할·정보 순서를 작성하고 다듬는다.",
+  "description": "독자·목적·편집 범위에 맞춰 업무 문서의 정보를 선별하고, 문서 배치와 문장·문단 구성을 다듬는다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"

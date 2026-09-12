@@ -162,9 +162,25 @@ Engineering·Writing·Fluent의 설명과 절차는 한국어로 작성하고 �
 형식은 Agent Skills의 필수 frontmatter를 따르며 본문 목차는 작업에 맞춰 선택합니다.
 작성 기준은 [writing-skills](../../plugins/engineering/skills/writing-skills/SKILL.md)에 있습니다.
 
-공통 구성은 Writing, 언어별 표현은 Fluent, 단계별 개발 절차는 Engineering이 소유합니다.
+정보 선별·문서 배치와 공통 구성은 Writing, 언어별 표현은 Fluent, 단계별 개발 절차는 Engineering이 소유합니다.
 독립 설치에 필요한 짧은 보존 기준은 각 플러그인에 둡니다. Fluent의 원본은 `sources/`,
 작업 연속성의 공통 원본은 `shared/task-continuity/`이며 배포본은 생성기로 맞춥니다.
+
+## Writing·Fluent·Workflow 조합
+
+Writing은 독자·목적·편집 범위에 따라 내용을 선별하고 문서 위치와 문장·문단 구성을 정합니다.
+Fluent는 요청된 언어의 어순·표현·어조를 다듬고, Workflow는 티켓·PR 양식과 필수 항목,
+사실·검증 근거 확인, 연결 문법·게시·재조회를 담당합니다. 각 플러그인은 단독으로 사용할 수 있습니다.
+
+함께 사용할 때는 현재 제공되는 지침을 같은 초안에 한 번씩 적용합니다. 독자·목적·선별한 사실,
+출력 언어·편집 범위·정해진 구성을 전달하고, 영속 문서는 이미 정한 목적·경로·갱신 범위도 이어받습니다.
+Fluent는 구성 단계에서 제외한 참고 내용을 다시 추가하지 않습니다. Workflow가 확인한 양식과
+필수 정보는 Writing·Fluent가 유지하며, 표현 개선이 양식 확인이나 게시 조건을 대신하지 않습니다.
+
+공통 작성 규칙의 정본은 Writing, 언어별 표현과 독립적인 보존 기준은 Fluent, 티켓·PR 양식과
+운영 지침은 Workflow에 있습니다. Fluent 내부 생성기는 공통 원본을 세 언어 스킬에 반영하지만
+Writing과 Workflow 사이에서 지침을 생성·복사하는 단계는 없습니다. 상세 조합 계약은
+[Workflow의 작성 지침 함께 적용하기](../../plugins/workflow/references/writing-composition.md)를 참고합니다.
 
 ## Prompting 조합
 
@@ -565,10 +581,19 @@ stage별 유한한 상한을 가집니다. 상한에 남은 실제 필수 findin
 
 ## 문서 라우팅
 
+Writing은 영속 문서 작업에서 이후에도 찾아볼 내용인지 판단하고, 해당 주제를 담당하는 기존
+문서를 우선 갱신합니다. 독립된 읽기 목적이 있고 기존 문서에 적합한 자리가 없을 때 새 문서를
+만듭니다. README는 주요 이해·첫 사용·중요한 제약·탐색 경로에 영향이 있을 때 갱신하며,
+일회성 작업·검사 기록만 있다면 작업 보고에 남깁니다. 문서 배치의 판단은
+[Writing](../../plugins/writing/skills/writing/SKILL.md)이, 이 저장소의 구체적인 분류·경로는
+[`docs/README.md`](../README.md)가 설명합니다.
+
 `brainstorming`은 날짜 기반 spec 파일을 자동 생성하지 않습니다. 먼저
 [`docs/README.md`](../README.md)의 기준으로 기존 문서를 조사하고, 변경 없음·기존 문서
 갱신·새 문서 생성·결정 대체 중 하나를 제안합니다. 새 문서나 큰 재구성은 경로와 목적을
-사용자가 검토한 뒤 작성합니다.
+제시하고, 이미 승인된 작업에 필요한 문서는 해당 범위 안에서 작성합니다. 설계만 요청받았거나
+구현 전 확인이 명시된 경우에는 그 경계를 유지합니다. 결정한 문서 영향·목적·경로·갱신 범위는
+후속 계획과 작성에 전달하고 변경된 부분만 다시 확인합니다.
 
 `writing-plans`는 구현 계획을 기본적으로 대화에 작성합니다. 실행을 위해 파일이 필요하면
 Git에서 제외된 `.engineering/plans/<topic>.md`를 사용합니다. 저장소의 기존 이슈·티켓이나
