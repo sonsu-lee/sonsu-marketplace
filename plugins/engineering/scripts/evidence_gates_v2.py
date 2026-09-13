@@ -10,6 +10,7 @@ import io
 from contextlib import contextmanager, ExitStack
 import os
 import stat
+import sys
 import subprocess
 import tarfile
 import tempfile
@@ -576,16 +577,32 @@ def run(root, args):
             rows = data['checks'].setdefault(args.check, [])
             need(not rows or rows[-1]['outcome'] != 'pending', 'check already pending')
             b = binding(root, state, u)
-            prefix = args.unit + '-check-' + args.check + '-' + str(len(rows) + 1)
+            attempt = rows[-1]['attempt'] + 1 if rows else 1
+            # Archive settled receipts before replacing the inline history. A retry
+            # after partial archiving must preserve, never overwrite, prior evidence.
+            previous = None
+            for settled in rows:
+                archive = args.unit + '-check-' + args.check + '-' + str(settled['attempt']) + '.receipt.json'
+                encoded = G.encode(settled)
+                target = G.safe_path(directory(root, state) / archive)
+                if target.exists():
+                    need(G.file_digest(target) == G.digest(encoded), 'archived check receipt conflicts with current history')
+                else:
+                    G.atomic_write(target, encoded)
+                    target.chmod(0o400)
+                previous = {'path': archive, 'digest': G.digest(encoded)}
+            prefix = args.unit + '-check-' + args.check + '-' + str(attempt)
             lease_path = G.safe_path(directory(root, state) / (prefix + '.lease'))
             lease = execution.enter_context(lease_path.open('a+b'))
             G.fcntl.flock(lease, G.fcntl.LOCK_EX | G.fcntl.LOCK_NB)
             invocation = {'id': G.digest(os.urandom(32)), 'owner_pid': os.getpid(),
                           'lease': prefix + '.lease', 'process': prefix + '.process.json',
                           'log': prefix + '.log', 'scope': 'process-group-and-inherited-lease'}
-            row = {'attempt': len(rows) + 1, 'binding': b, 'outcome': 'pending',
+            row = {'attempt': attempt, 'binding': b, 'outcome': 'pending',
                    'execution': 'incomplete', 'files': {}, 'invocation': invocation}
-            rows.append(row)
+            if previous is not None:
+                row['previous_receipt'] = previous
+            rows[:] = [row]
             save(root, state)
             run_cwd = cwd(root, u)
         return execute_check(root, args, state, check, run_cwd, row, lease)
@@ -671,6 +688,37 @@ def execute_check(root, args, state, check, run_cwd, row, lease):
         return row
 
 
+def zombie_group(pgid):
+    """Accept only two identical, nonempty Linux zombie-only snapshots.
+
+    A zombie cannot execute or spawn. Unknown visibility, a live member, or
+    changing membership leaves the conservative killpg result in force.
+    """
+    if sys.platform != 'linux':
+        return False
+    def snapshot():
+        members = {}
+        try:
+            for entry in Path('/proc').iterdir():
+                if not entry.name.isdecimal():
+                    continue
+                try:
+                    fields = (entry / 'stat').read_text().rsplit(') ', 1)[1].split()
+                except FileNotFoundError:
+                    continue  # A process that exited during enumeration.
+                if int(fields[2]) == pgid:
+                    # A dead thread-group leader can still have live workers.
+                    # Only a single-thread zombie is proof of stopped execution.
+                    if fields[0] not in ('Z', 'X') or int(fields[17]) != 1:
+                        return None
+                    members[entry.name] = fields[19]  # starttime guards PID reuse.
+        except (OSError, ValueError, IndexError):
+            return None
+        return members or None
+    first = snapshot()
+    return first is not None and first == snapshot()
+
+
 @contextmanager
 def quiescent_check(root, state, row):
     """Prove that neither an inherited lease holder nor an owned group remains.
@@ -704,7 +752,7 @@ def quiescent_check(root, state, row):
             except PermissionError as error:
                 raise G.GateError('owned process group liveness is unknown; cannot recover') from error
             else:
-                raise G.GateError('owned process group is still active; wait for completion')
+                need(zombie_group(process['pgid']), 'owned process group is still active; wait for completion')
         yield process
 
 
@@ -763,8 +811,22 @@ def prepare(root, state, args, body):
         need(p['scope'] == 'full' and p['outcome'] in ('passed', 'failed') and 'adjudication' in p and p['binding']['context'] == b['context'] and
              valid_files(root, state, p), 'prior full evidence is not valid for reuse')
         text(body.get('impact_assessment'), 'impact assessment')
-    package = G.read_file(Path(args.package).absolute())
-    need(package.strip(), 'empty review package')
+    source = G.safe_path(Path(args.package).absolute())
+    need(source.is_file(), 'required file is unavailable')
+    with tempfile.TemporaryFile() as package:
+        fingerprint, nonempty = G.hashlib.sha256(), False
+        with source.open('rb') as stream:
+            for chunk in iter(lambda: stream.read(64 * 1024), b''):
+                nonempty = nonempty or bool(chunk.strip())
+                fingerprint.update(chunk)
+                package.write(chunk)
+        need(nonempty, 'empty review package')
+        package.seek(0)
+        return prepare_frozen(root, state, args, body, u, data, b, rows, scope, normal, prior,
+                              package, 'sha256:' + fingerprint.hexdigest())
+
+
+def prepare_frozen(root, state, args, body, u, data, b, rows, scope, normal, prior, package, fingerprint):
     prefix = args.unit + '-' + args.gate + '-' + str(len(rows) + 1)
     name = prefix + '-input.md'
     role = 'red_team' if args.gate == 'red-team' else ('focused_review' if scope == 'focused' else 'general_review')
@@ -784,9 +846,9 @@ def prepare(root, state, args, body):
         row['prior_review'] = {'attempt': prior, 'outcome': p['outcome'], 'adjudication': p['adjudication'], 'files': p['files']}
         row['intervening_reviews'] = [{'attempt': r['attempt'], 'outcome': r['outcome'], 'adjudication': r['adjudication'], 'files': r['files']} for r in chain if r['attempt'] > prior]
         row['unresolved_prior_findings'] = sorted(unresolved_findings(chain))
-    G.atomic_write(directory(root, state) / name, package)
+    G.atomic_chunks(directory(root, state) / name, iter(lambda: package.read(64 * 1024), b''))
     (directory(root, state) / name).chmod(0o400)
-    row['files'][name] = G.digest(package)
+    row['files'][name] = fingerprint
     row['package'] = str(directory(root, state) / name)
     rows.append(row)
     save(root, state)

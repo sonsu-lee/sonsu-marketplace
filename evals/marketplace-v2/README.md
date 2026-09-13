@@ -45,7 +45,9 @@ snapshot을 자동으로 무효화하지 않는지도 확인한다.
 ## 실행
 
 최종 후보가 고정된 뒤 아래 순서로 실행한다. `prepare` output은 반드시 존재하지 않는 저장소 밖
-경로여야 한다. 재실행은 기존 결과를 덮어쓰지 않으므로 새 output을 사용한다. Review comparison과
+경로여야 한다. `--candidate-root`가 별도 checkout이면 그 경로 밖이어야 하며, symlink를 해석한
+output이 evaluator 저장소나 candidate 내부에 있으면 파일 생성 전에 거부한다.
+재실행은 기존 결과를 덮어쓰지 않으므로 새 output을 사용한다. Review comparison과
 native workflow smoke는 필요하면 서로 다른 artifact로 준비해 source digest와 적용 범위를 분리한다.
 Staging·manifest·discovery 코드가 바뀌면 독립 리뷰용 source를 고정하기 전에 실제 `prepare`와
 model-free `preflight`를 먼저 실행해 native loader 계약을 확인한다. 비용이 드는 semantic model
@@ -122,6 +124,12 @@ Controlled plan도 `controlled_benchmark.py` 자체 digest를 canonical plan ID�
 재검증한다. 따라서 scheduler·worker·adjudicator 구현이 달라진 plan은 새로 준비해야 한다.
 
 각 fixture workspace는 user/global Git config와 hook을 읽지 않는 로컬 Git baseline을 갖는다.
+Fixture 초기화, candidate revision 조회, 실행 환경은 `git rev-parse --local-env-vars`의
+저장소별 환경 변수와 `GIT_NAMESPACE`를 정적 목록으로 제거한다. 여기에는 외부 저장소·index·object
+경로와 `GIT_CONFIG`, `GIT_CONFIG_PARAMETERS`, `GIT_CONFIG_COUNT`가 포함되며,
+`GIT_CONFIG_KEY_*`·`GIT_CONFIG_VALUE_*`도 제거하여 상속된 설정이 외부 파일로 향하지 않게 한다.
+그 외 `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_NOSYSTEM` 같은 환경 정책은 유지하며,
+fixture 초기화는 위에 설명한 global/system config 격리를 별도로 적용한다.
 `.sonsu/`, `.engineering/`, `node_modules/` 같은 generated infrastructure는 제품 diff에서 분리하지만
 전체 변경 목록과 final workspace digest에는 남긴다. `.agents/`와 `.eval-input.json`은 고정 입력이며,
 실행 뒤 candidate/public-input digest가 바뀌면 해당 실행은 `inconclusive`다. 제품 `src/`, contract,

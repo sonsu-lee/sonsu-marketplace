@@ -439,7 +439,7 @@ class ManagedGates(unittest.TestCase):
         self.enter(request='after-interruption')
         self.ok('run', '--unit', 'design', '--check', 'verify')
         state = json.loads(state_path.read_text())
-        self.assertEqual([r['attempt'] for r in state['units']['design']['checks']['verify']], [1, 2])
+        self.assertEqual([r['attempt'] for r in state['units']['design']['checks']['verify']], [2])
         self.complete()
         self.assertTrue(self.ok('status')['ready'])
 
@@ -687,7 +687,9 @@ class ManagedGates(unittest.TestCase):
         state = json.loads((self.root / '.engineering/gates/tasks/task/state.json').read_text())
         self.assertEqual(state['config']['revision'], corrected['revision'])
         self.assertEqual(state['config_history'], [self.config])
-        self.assertEqual([(r['attempt'], r['outcome']) for r in state['units']['design']['checks']['verify']], [(1, 'failed'), (2, 'passed')])
+        self.assertEqual([(r['attempt'], r['outcome']) for r in state['units']['design']['checks']['verify']], [(2, 'passed')])
+        archived = self.root / '.engineering/gates/tasks/task/design-check-verify-1.receipt.json'
+        self.assertEqual(json.loads(archived.read_text())['outcome'], 'failed')
 
     def test_revise_preserves_contract_dependency_and_artifact_coverage(self):
         (self.root / 'extra.md').write_text('Additional contract and artifact')

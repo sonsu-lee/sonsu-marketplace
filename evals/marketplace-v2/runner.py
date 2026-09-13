@@ -143,13 +143,15 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _require_external(path: Path) -> Path:
+def _require_external(path: Path, candidate_root: Path = REPO_ROOT) -> Path:
     resolved = path.expanduser().resolve()
-    try:
-        resolved.relative_to(REPO_ROOT.resolve())
-    except ValueError:
-        return resolved
-    raise EvaluationError(f"artifact directory must be outside the repository: {resolved}")
+    for root in (REPO_ROOT, candidate_root):
+        try:
+            resolved.relative_to(root.resolve())
+        except ValueError:
+            continue
+        raise EvaluationError(f"artifact directory must be outside the repository: {resolved}")
+    return resolved
 
 
 def _require_not_model_visible(manifest: Mapping[str, Any], path: Path) -> Path:
@@ -283,14 +285,26 @@ def _copy_candidate_profile(source: Path, destination: Path) -> None:
             shutil.copy2(child, destination / name)
 
 
+def _repository_environment() -> dict[str, str]:
+    # git rev-parse --local-env-vars, plus namespace and counted config payloads.
+    local = {
+        "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR", "GIT_PREFIX",
+        "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_NAMESPACE",
+        "GIT_CONFIG", "GIT_CONFIG_PARAMETERS", "GIT_CONFIG_COUNT", "GIT_IMPLICIT_WORK_TREE",
+        "GIT_GRAFT_FILE", "GIT_NO_REPLACE_OBJECTS", "GIT_REPLACE_REF_BASE", "GIT_SHALLOW_FILE",
+    }
+    return {key: value for key, value in os.environ.items()
+            if key not in local and not key.startswith(("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_"))}
+
+
 def _git_revision(candidate_root: Path) -> str:
     command = ["git", "-C", str(candidate_root), "rev-parse", "HEAD"]
-    completed = subprocess.run(command, text=True, capture_output=True, check=False)
+    completed = subprocess.run(command, env=_repository_environment(), text=True, capture_output=True, check=False)
     return completed.stdout.strip() if completed.returncode == 0 else "unavailable"
 
 
 def _initialize_fixture_git(workspace: Path) -> None:
-    env = dict(os.environ)
+    env = _repository_environment()
     env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
     commands = [
         ["git", "-c", "init.templateDir=", "init", "-q"],
@@ -346,8 +360,8 @@ def _run_matrix(cases: Mapping[str, Any], cohorts: Mapping[str, Any]) -> list[di
 
 
 def prepare(output: Path, candidate_root: Path, codex_binary: Path) -> dict[str, Any]:
-    output = _require_external(output)
     candidate_root = candidate_root.resolve()
+    output = _require_external(output, candidate_root)
     if output.exists():
         raise EvaluationError(f"output must be a new directory: {output}")
     source = validate_sources(candidate_root)
@@ -467,7 +481,7 @@ def _isolated_environment(run_root: Path, node_runtime: Mapping[str, Any] | None
     if not auth_link.exists():
         auth_link.symlink_to(auth_source.resolve())
 
-    env = dict(os.environ)
+    env = _repository_environment()
     for key in list(env):
         upper = key.upper()
         if upper.startswith(("AWS_", "GOOGLE_")) or upper in {
