@@ -19,6 +19,7 @@ import re
 import selectors
 import shutil
 import signal
+import stat
 import statistics
 import subprocess
 import sys
@@ -35,6 +36,12 @@ DEFAULT_CODEX = Path("/Applications/ChatGPT.app/Contents/Resources/codex")
 MANIFEST_VERSION = "marketplace-v2-manifest-v1"
 RESULT_VERSION = "marketplace-v2-result-v1"
 ADJUDICATION_VERSION = "marketplace-v2-adjudication-v1"
+# Reaching a byte cap is conservatively incomplete, even at exact equality.
+# File sizes make this state independently reproducible during result readback.
+MAX_STDOUT_BYTES = 32 * 1024 * 1024
+MAX_STDERR_BYTES = 8 * 1024 * 1024
+MAX_TRACE_LINE_BYTES = 4 * 1024 * 1024
+MAX_TRACE_LINES = 100_000
 MANIFEST_FIELDS = {
     "schema_version", "created_at", "artifact_dir", "candidate_root", "candidate_git_revision",
     "candidate_profiles", "cases_sha256", "cohorts_sha256", "runner_sha256", "codex_binary",
@@ -115,7 +122,11 @@ def _tree_entries(root: Path, excluded: Sequence[str] = ()) -> list[dict[str, An
         if path.is_symlink():
             entries.append({"path": str(relative), "kind": "symlink", "target": os.readlink(path)})
         elif path.is_file():
-            entries.append({"path": str(relative), "kind": "file", "sha256": _sha_file(path), "size": path.stat().st_size})
+            metadata = path.stat()
+            entries.append({
+                "path": str(relative), "kind": "file", "sha256": _sha_file(path),
+                "size": metadata.st_size, "executable_bits": stat.S_IMODE(metadata.st_mode) & 0o111,
+            })
     return entries
 
 
@@ -511,36 +522,147 @@ def _command(manifest: Mapping[str, Any], run: Mapping[str, Any], output_path: P
     ]
 
 
+def _kill_process_group(process: subprocess.Popen) -> None:
+    try:
+        if os.name == "posix":
+            os.killpg(process.pid, signal.SIGKILL)
+        else:
+            process.kill()
+    except ProcessLookupError:
+        pass
+
+
+def _collect_bounded_process(
+    argv: Sequence[str], workspace: Path, env: Mapping[str, str], prompt: str,
+    trace_path: Path, stderr_path: Path, timeout: float,
+) -> tuple[int, bool]:
+    """Multiplex input/output without buffering a turn or allowing unbounded files.
+
+    Kill the session on a byte cap or timeout and close inherited pipes rather
+    than waiting for descendant EOF. Only the retained prefix enters evidence.
+    """
+    deadline = time.monotonic() + timeout
+    timed_out = False
+    with trace_path.open("wb") as stdout, stderr_path.open("wb") as stderr, selectors.DefaultSelector() as selector:
+        process = subprocess.Popen(
+            argv, cwd=workspace, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, bufsize=0, start_new_session=(os.name == "posix"),
+        )
+        pending = memoryview(prompt.encode("utf-8"))
+        destinations = {process.stdout: [stdout, MAX_STDOUT_BYTES, 0], process.stderr: [stderr, MAX_STDERR_BYTES, 0]}
+        try:
+            for pipe in (process.stdin, process.stdout, process.stderr):
+                os.set_blocking(pipe.fileno(), False)
+            for pipe in destinations:
+                selector.register(pipe, selectors.EVENT_READ)
+            if pending:
+                selector.register(process.stdin, selectors.EVENT_WRITE)
+            else:
+                process.stdin.close()
+            limit_reached = False
+            while selector.get_map() or process.poll() is None:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    timed_out = True
+                    break
+                for key, _ in selector.select(min(remaining, 0.1)):
+                    pipe = key.fileobj
+                    if pipe is process.stdin:
+                        try:
+                            written = os.write(pipe.fileno(), pending[:65536])
+                            pending = pending[written:]
+                        except BrokenPipeError:
+                            pending = pending[len(pending):]
+                        if not pending:
+                            selector.unregister(pipe)
+                            pipe.close()
+                        continue
+                    chunk = os.read(pipe.fileno(), 65536)
+                    if not chunk:
+                        selector.unregister(pipe)
+                        pipe.close()
+                        continue
+                    destination = destinations[pipe]
+                    retained = chunk[:destination[1] - destination[2]]
+                    destination[0].write(retained)
+                    destination[2] += len(retained)
+                    if destination[2] >= destination[1]:
+                        limit_reached = True
+                        break
+                if limit_reached:
+                    break
+        finally:
+            # Includes exceptions and cancellation; the reservation remains as
+            # evidence if the caller never reaches its immutable result write.
+            _kill_process_group(process)
+            for pipe in (process.stdin, process.stdout, process.stderr):
+                pipe.close()
+            process.wait()
+    return process.returncode, timed_out
+
+
 def _read_trace(path: Path) -> tuple[list[dict[str, Any]], list[str]]:
     events: list[dict[str, Any]] = []
     errors: list[str] = []
     if not path.is_file():
         return events, ["trace is missing"]
-    for line_number, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-        if not line.strip():
-            continue
-        try:
-            value = json.loads(line)
-        except json.JSONDecodeError as exc:
-            errors.append(f"line {line_number}: {exc}")
-            continue
-        if isinstance(value, dict):
-            events.append(value)
+    if path.stat().st_size >= MAX_STDOUT_BYTES:
+        errors.append(f"stdout byte limit reached: {MAX_STDOUT_BYTES}; trace is incomplete")
+    with path.open("rb") as handle:
+        remaining = MAX_STDOUT_BYTES
+        for line_number in range(1, MAX_TRACE_LINES + 1):
+            if remaining <= 0:
+                break
+            line = handle.readline(min(MAX_TRACE_LINE_BYTES + 1, remaining))
+            if not line:
+                break
+            remaining -= len(line)
+            if len(line) > MAX_TRACE_LINE_BYTES:
+                errors.append(f"trace line byte limit exceeded at line {line_number}: {MAX_TRACE_LINE_BYTES}")
+                break
+            if not line.strip():
+                continue
+            try:
+                value = json.loads(line.decode("utf-8", errors="replace"))
+            except (json.JSONDecodeError, RecursionError) as exc:
+                errors.append(f"line {line_number}: {exc}")
+                continue
+            if isinstance(value, dict):
+                events.append(value)
+            else:
+                errors.append(f"line {line_number}: trace event must be an object")
         else:
-            errors.append(f"line {line_number}: trace event must be an object")
+            if remaining > 0 and handle.read(1):
+                errors.append(f"trace line count limit exceeded: {MAX_TRACE_LINES}")
     if not events:
         errors.append("trace has no JSON events")
     return events, errors
 
 
+def _read_execution_trace(trace: Path, stderr: Path) -> tuple[list[dict[str, Any]], list[str]]:
+    events, errors = _read_trace(trace)
+    if stderr.is_file() and stderr.stat().st_size >= MAX_STDERR_BYTES:
+        errors.append(f"stderr byte limit reached: {MAX_STDERR_BYTES}; execution output is incomplete")
+    return events, errors
+
+
+def _output_limited(errors: Sequence[str]) -> bool:
+    return any(error.startswith(("stdout byte limit", "stderr byte limit", "trace line byte limit", "trace line count limit")) for error in errors)
+
+
 def _walk(value: Any) -> Iterable[Any]:
-    yield value
-    if isinstance(value, dict):
-        for child in value.values():
-            yield from _walk(child)
-    elif isinstance(value, list):
-        for child in value:
-            yield from _walk(child)
+    pending = [iter((value,))]
+    while pending:
+        try:
+            current = next(pending[-1])
+        except StopIteration:
+            pending.pop()
+            continue
+        yield current
+        if isinstance(current, dict):
+            pending.append(iter(current.values()))
+        elif isinstance(current, list):
+            pending.append(iter(current))
 
 
 def _trace_observations(events: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
@@ -656,24 +778,9 @@ def execute_run(manifest: Mapping[str, Any], run: Mapping[str, Any], case: Mappi
     spawn_error: str | None = None
     try:
         env = _isolated_environment(run_root, manifest["node_runtime"])
-        with trace_path.open("w", encoding="utf-8") as stdout, stderr_path.open("w", encoding="utf-8") as stderr:
-            process = subprocess.Popen(
-                argv, cwd=workspace, env=env, stdin=subprocess.PIPE, stdout=stdout, stderr=stderr,
-                text=True, start_new_session=(os.name == "posix"),
-            )
-            try:
-                process.communicate(prompt, timeout=timeout)
-            except subprocess.TimeoutExpired:
-                timed_out = True
-                if os.name == "posix":
-                    try:
-                        os.killpg(process.pid, signal.SIGKILL)
-                    except ProcessLookupError:
-                        pass
-                else:
-                    process.kill()
-                process.communicate()
-            returncode = process.returncode
+        returncode, timed_out = _collect_bounded_process(
+            argv, workspace, env, prompt, trace_path, stderr_path, timeout,
+        )
     except (OSError, EvaluationError) as exc:
         spawn_error = f"{type(exc).__name__}: {exc}"
         if not stderr_path.exists():
@@ -681,7 +788,7 @@ def execute_run(manifest: Mapping[str, Any], run: Mapping[str, Any], case: Mappi
         if not trace_path.exists():
             trace_path.write_text("", encoding="utf-8")
     latency = round(time.monotonic() - started, 6)
-    events, trace_errors = _read_trace(trace_path)
+    events, trace_errors = _read_execution_trace(trace_path, stderr_path)
     observations = _trace_observations(events)
     after = _tree_entries(workspace, excluded=PRODUCT_DIFF_EXCLUDED)
     after_all = _tree_entries(workspace, excluded=(".git",))
@@ -691,7 +798,10 @@ def execute_run(manifest: Mapping[str, Any], run: Mapping[str, Any], case: Mappi
         returncode == 0 and not timed_out and not trace_errors
         and observations["turn_completed"] and final_available and candidate_intact
     )
-    if spawn_error or (returncode not in (0, None) and not observations["turn_completed"]):
+    if _output_limited(trace_errors):
+        status = "inconclusive"
+        reason = "native output limit reached; retained evidence is incomplete"
+    elif spawn_error or (returncode not in (0, None) and not observations["turn_completed"]):
         status = "not_run"
         reason = spawn_error or f"Codex exited {returncode} before a completed turn"
     elif not complete:
@@ -911,7 +1021,7 @@ def _validate_result(
     }
     if command != expected_command:
         raise EvaluationError(f"result command provenance mismatch: {run['run_id']}")
-    events, errors = _read_trace(Path(expected_artifacts["trace"]))
+    events, errors = _read_execution_trace(Path(expected_artifacts["trace"]), Path(expected_artifacts["stderr"]))
     observations = _trace_observations(events)
     if value.get("trace_errors") != errors or value.get("trace_observations") != observations:
         raise EvaluationError(f"result trace derivation mismatch: {run['run_id']}")
@@ -927,7 +1037,9 @@ def _validate_result(
         raise EvaluationError(f"result execution classification mismatch: {run['run_id']}")
     if value.get("semantic_adjudication") != "not_run":
         raise EvaluationError(f"raw result contains semantic adjudication: {run['run_id']}")
-    if value.get("spawn_error") or (value.get("returncode") not in (0, None) and not observations["turn_completed"]):
+    if _output_limited(errors):
+        expected_status = "inconclusive"
+    elif value.get("spawn_error") or (value.get("returncode") not in (0, None) and not observations["turn_completed"]):
         expected_status = "not_run"
     else:
         expected_status = "inconclusive"

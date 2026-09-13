@@ -16,8 +16,6 @@ import json
 import os
 from pathlib import Path
 import shutil
-import signal
-import subprocess
 import sys
 import time
 from typing import Any, Mapping, Sequence
@@ -222,35 +220,22 @@ def _execute_call(
     returncode: int | None = None
     try:
         env = runner._isolated_environment(call_root, manifest["node_runtime"])
-        with trace.open("w", encoding="utf-8") as stdout, stderr.open("w", encoding="utf-8") as errors:
-            process = subprocess.Popen(
-                argv, cwd=workspace, env=env, stdin=subprocess.PIPE, stdout=stdout, stderr=errors,
-                text=True, start_new_session=(os.name == "posix"),
-            )
-            try:
-                process.communicate(prompt, timeout=timeout)
-            except subprocess.TimeoutExpired:
-                timed_out = True
-                if os.name == "posix":
-                    try:
-                        os.killpg(process.pid, signal.SIGKILL)
-                    except ProcessLookupError:
-                        pass
-                else:
-                    process.kill()
-                process.communicate()
-            returncode = process.returncode
+        returncode, timed_out = runner._collect_bounded_process(
+            argv, workspace, env, prompt, trace, stderr, timeout,
+        )
     except (OSError, runner.EvaluationError) as exc:
         spawn_error = f"{type(exc).__name__}: {exc}"
     latency = round(time.monotonic() - started, 6)
-    events, trace_errors = runner._read_trace(trace)
+    events, trace_errors = runner._read_execution_trace(trace, stderr)
     observations = runner._trace_observations(events)
     final_available = output.is_file() and output.stat().st_size > 0
     complete = (
         returncode == 0 and not timed_out and not trace_errors
         and observations["turn_completed"] and final_available
     )
-    if spawn_error or (returncode not in (0, None) and not observations["turn_completed"]):
+    if runner._output_limited(trace_errors):
+        status = "inconclusive"
+    elif spawn_error or (returncode not in (0, None) and not observations["turn_completed"]):
         status = "not_run"
     elif not complete:
         status = "inconclusive"
@@ -344,7 +329,7 @@ def _load_call(
     }
     if runner._read_json(call_root / "command.json") != expected_command:
         raise runner.EvaluationError(f"controlled call command mismatch: {plan_run['run_id']}/{call_id}")
-    events, errors = runner._read_trace(call_root / "trace.jsonl")
+    events, errors = runner._read_execution_trace(call_root / "trace.jsonl", call_root / "stderr.txt")
     observations = runner._trace_observations(events)
     if value.get("trace_errors") != errors or value.get("trace_observations") != observations:
         raise runner.EvaluationError(f"controlled call trace mismatch: {plan_run['run_id']}/{call_id}")
@@ -354,11 +339,16 @@ def _load_call(
         value.get("returncode") == 0 and value.get("timed_out") is False and not errors
         and observations["turn_completed"] and final_available
     )
-    derived = "not_run" if value.get("spawn_error") or (value.get("returncode") not in (0, None) and not observations["turn_completed"]) else (
-        "inconclusive" if not complete else (
-            "fail" if observations["collaboration_tools"] or observations["unknown_collaboration_tools"] else "complete"
-        )
-    )
+    if runner._output_limited(errors):
+        derived = "inconclusive"
+    elif value.get("spawn_error") or (value.get("returncode") not in (0, None) and not observations["turn_completed"]):
+        derived = "not_run"
+    elif not complete:
+        derived = "inconclusive"
+    elif observations["collaboration_tools"] or observations["unknown_collaboration_tools"]:
+        derived = "fail"
+    else:
+        derived = "complete"
     if value.get("status") != derived:
         raise runner.EvaluationError(f"controlled call status derivation mismatch: {plan_run['run_id']}/{call_id}")
     return value
@@ -661,7 +651,7 @@ def make_adjudication_template(output: Path, destination: Path) -> dict[str, Any
             item["run_id"] for item in value["runs"]
             if item["adjudicator_status"] == "complete" and all(status == "complete" for status in item["worker_statuses"])
         },
-        "verdict": "inconclusive" if row["adjudicator_status"] == "complete" else row["adjudicator_status"],
+        "verdict": "not_run" if row["adjudicator_status"] == "not_run" else "inconclusive",
         "validated_defects": [], "critical_misses": [], "false_positives": [],
         "duplicate_findings": [], "unnecessary_changes": [], "notes": "",
     } for row in value["runs"]]

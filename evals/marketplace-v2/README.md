@@ -102,6 +102,16 @@ python3 -B evals/marketplace-v2/runner.py report \
 runner는 자동 retry를 하지 않는다. 실행 오류는 코드 판단 오답으로 세지 않고 `not_run`, 완료 없는
 timeout·불완전 trace는 `inconclusive`로 유지한다.
 
+Native run과 controlled worker·adjudicator는 같은 수집기로 stdout을 최대 32 MiB,
+stderr를 최대 8 MiB까지 저장한다. 어느 byte 한도든 도달하면 프로세스 그룹을 종료하고 저장한
+앞부분만 증거로 남긴다. 정확히 한도와 같은 크기도 보수적으로 불완전 출력으로 판정한다.
+Trace 파서는 최대 32 MiB, 100,000행(빈 행 포함), 한 행당 4 MiB만 처리하며 행 한도를 넘으면
+남은 내용을 읽지 않는다. 한도에 걸린 실행은 `turn.completed`가 남아 있어도 `inconclusive`이고,
+report와 template의 재검증도 파일 크기와 파싱 한도에서 같은 제한 상태를 재계산한다.
+이 한도는 stdout·stderr 수집과 trace 파싱에 적용하며 Codex가 직접 쓰는 `final.md`나 workspace
+전체에 대한 디스크 quota는 아니다. Timeout과 byte 한도 종료 시 POSIX 프로세스 그룹을 정리하고
+상속된 pipe의 EOF를 무한히 기다리지 않는다.
+
 manifest ID는 ID 자체를 제외한 canonical content hash이며 현재 runner·Codex binary digest,
 candidate revision, snapshot과 run path를 다시 확인한다. 각 실행은 atomic reservation을 먼저 만들고
 중단된 reservation도 자동 재시도하지 않는다. report와 adjudication template은 result identity,
@@ -115,7 +125,9 @@ Controlled plan도 `controlled_benchmark.py` 자체 digest를 canonical plan ID�
 `.sonsu/`, `.engineering/`, `node_modules/` 같은 generated infrastructure는 제품 diff에서 분리하지만
 전체 변경 목록과 final workspace digest에는 남긴다. `.agents/`와 `.eval-input.json`은 고정 입력이며,
 실행 뒤 candidate/public-input digest가 바뀌면 해당 실행은 `inconclusive`다. 제품 `src/`, contract,
-tests와 docs는 제품 diff에 그대로 포함한다.
+tests와 docs는 제품 diff에 그대로 포함한다. 파일 digest에는 내용·크기와 실행 권한 비트
+(`stat.S_IMODE(mode) & 0o111`)를 포함하므로 내용이 같아도 `chmod 644 → 755`는 candidate·workspace
+변경으로 검출한다. 디렉터리 권한과 파일의 읽기·쓰기 권한 비트는 이 digest에 포함하지 않는다.
 
 `preflight`는 같은 격리 workspace를 native `skills/list`로 읽어 필수 skill 이름과 loader error를
 검사한다. 모델을 호출하지 않으며, discovery 통과를 실제 skill 선택이나 행동 통과로 간주하지 않는다.
@@ -128,6 +140,9 @@ adjudicator의 원출력·trace는 분리 보존하며, 이 trace도 underlying 
 Native smoke의 `evaluation_control`은 manifest metadata에만 있고 model stdin에는 넣지 않는다.
 Controlled report만 cohort 품질 지표를 집계하며 native 표는 controller-confounded workflow 관찰로
 표시한다.
+Controlled adjudicator의 실행 규칙 위반 `fail`은 원 실행 결과와 summary에 보존한다.
+의미 판정용 template에서는 해당 실행을 `execution_available=false`, `verdict=inconclusive`로
+작성하며, 실행하지 않은 `not_run`은 그대로 유지한다.
 
 ## 관측 한계
 
