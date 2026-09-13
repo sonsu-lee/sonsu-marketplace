@@ -102,6 +102,7 @@ def validate(config, root, check_inputs=True):
         if u['checks']:
             G.config_validate({'inputs': config['contracts'], 'checks': u['checks']}, root)
         else:
+            need(u['review'] != 'checks', 'checks policy requires at least one check')
             text(u.get('checks_reason'), 'checks_reason for no applicable command')
     seen, active = set(), set()
     by_id = {u['id']: u for u in units}
@@ -325,6 +326,9 @@ def inspect(root, state):
                 status = next((v for v in ('failed', 'blocked', 'inconclusive', 'stale') if v in values), status)
         except (G.GateError, OSError):
             status, fresh = ('stale' if rows else 'blocked'), False
+        if any(rs and rs[-1]['outcome'] == 'pending' for rs in
+               list(data['checks'].values()) + list(data['reviews'].values())):
+            status = 'pending'
         reviews = [r for rs in data['reviews'].values() for r in rs]
         result[name] = {'status': status, 'stage': u['stage'], 'artifact_digest': b['artifact'] if b else None,
                         'checks': check_status, 'reviews': review_status,
@@ -416,6 +420,7 @@ def writer_lock(root, u):
     if target == root:
         yield
     else:
+        G.exclude_state(target)
         with G.lock(target):
             yield
 
@@ -434,6 +439,27 @@ def release_writer(root, state, u):
         if path.exists():
             need(G.read_json(path) == writer_identity(root, state, u), 'managed writer lease changed')
             path.unlink()
+
+
+def save_released_writer(root, state, u, was_owned):
+    # Persist the receipt and cleared owner before relinquishing exclusivity.
+    # If unlink is interrupted, a retry/abandon can remove our residual lease.
+    with writer_lock(root, u):
+        path = writer_path(root, u)
+        ours = path.exists() and G.read_json(path) == writer_identity(root, state, u)
+        need(not was_owned or not path.exists() or ours, 'managed writer lease changed')
+        save(root, state)
+        if ours:
+            path.unlink()
+
+
+def cleanup_released_writer(root, state, u):
+    # An old idempotent request must not release a later entry or another task.
+    if unit(state, u['id'])['owner'] is None:
+        with writer_lock(root, u):
+            path = writer_path(root, u)
+            if path.exists() and G.read_json(path) == writer_identity(root, state, u):
+                path.unlink()
 
 
 def active(root, state, name):
@@ -509,6 +535,7 @@ def complete(root, state, args, body):
     payload = {'command': 'complete-unit', 'unit': args.unit, 'body': body}
     previous = remember(state, args.request_id, payload)
     if previous:
+        cleanup_released_writer(root, state, definition(state, args.unit))
         return previous
     u, data = active(root, state, args.unit)
     b = binding(root, state, u)
@@ -528,11 +555,10 @@ def complete(root, state, args, body):
     if inherited:
         row['inherited_acceptances'] = [{'unit': r['unit'], 'receipt_id': r['receipt_id'], 'receipt_digest': G.digest(G.encode(r))} for r in inherited]
         row['outcome'] = 'accepted_risk'
-    release_writer(root, state, u)
     data['completions'].append(row)
     data['owner'] = None
     remember(state, args.request_id, payload, row)
-    save(root, state)
+    save_released_writer(root, state, u, was_owned=True)
     return row
 
 
@@ -617,6 +643,19 @@ def execute_check(root, args, state, check, run_cwd, row, lease):
         state = load(root, args.task_id)
         row = unit(state, args.unit)['checks'][args.check][-1]
         need(row['outcome'] == 'pending', 'check reservation no longer pending')
+        # Closing our reference (not LOCK_UN) preserves a descendant's inherited
+        # flock. Probe through a new open description while recovery is locked out.
+        lease.close()
+        try:
+            with quiescent_check(root, state, row):
+                pass
+        except (G.GateError, OSError) as error:
+            row.update(execution='incomplete', exit_code=exit_code,
+                       files={name: G.file_digest(path)}, quiescence_error=str(error))
+            if process_path.exists():
+                row['files'][invocation['process']] = G.file_digest(process_path)
+            save(root, state)
+            return row
         row.update(outcome='inconclusive', execution='complete' if exit_code is not None else 'incomplete',
                    exit_code=exit_code, files={name: G.file_digest(path)})
         if process_path.exists():
@@ -632,43 +671,51 @@ def execute_check(root, args, state, check, run_cwd, row, lease):
         return row
 
 
-def recover_pending_checks(root, state, data):
-    """Recover only quiescent invocations owned by this task; never signal them.
+@contextmanager
+def quiescent_check(root, state, row):
+    """Prove that neither an inherited lease holder nor an owned group remains.
 
     Commands must remain in their registered process group or retain the lease
     in descendants. Deliberate daemonization that leaves the group and closes
     the lease is outside this managed execution contract, not a sandbox escape
     this helper claims to detect. PID reuse/permission uncertainty fails closed.
     """
+    invocation = row.get('invocation')
+    need(isinstance(invocation, dict) and invocation.get('scope') == 'process-group-and-inherited-lease',
+         'pending check has no durable invocation ownership; operator verification is required')
+    lease_path = G.safe_path(directory(root, state) / invocation['lease'])
+    need(lease_path.is_file(), 'invocation lease evidence missing; cannot establish quiescence')
+    with lease_path.open('r+b') as lease:
+        try:
+            G.fcntl.flock(lease, G.fcntl.LOCK_EX | G.fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise G.GateError('check invocation or an owned descendant is still active; wait for completion') from error
+        process_path = directory(root, state) / invocation['process']
+        process = None
+        if process_path.exists():
+            process = G.read_json(process_path)
+            need(process.get('invocation_id') == invocation['id'] and
+                 type(process.get('pid')) is int and process['pid'] > 0 and
+                 process.get('pgid') == process['pid'], 'invocation process identity is invalid')
+            try:
+                os.killpg(process['pgid'], 0)
+            except ProcessLookupError:
+                pass
+            except PermissionError as error:
+                raise G.GateError('owned process group liveness is unknown; cannot recover') from error
+            else:
+                raise G.GateError('owned process group is still active; wait for completion')
+        yield process
+
+
+def recover_pending_checks(root, state, data):
+    """Recover only quiescent invocations owned by this task; never signal them."""
     for rows in data['checks'].values():
         for row in rows:
             if row['outcome'] != 'pending':
                 continue
             invocation = row.get('invocation')
-            need(isinstance(invocation, dict) and invocation.get('scope') == 'process-group-and-inherited-lease',
-                 'pending check has no durable invocation ownership; operator verification is required')
-            lease_path = G.safe_path(directory(root, state) / invocation['lease'])
-            need(lease_path.is_file(), 'invocation lease evidence missing; cannot establish quiescence')
-            with lease_path.open('r+b') as lease:
-                try:
-                    G.fcntl.flock(lease, G.fcntl.LOCK_EX | G.fcntl.LOCK_NB)
-                except BlockingIOError as error:
-                    raise G.GateError('check invocation or an owned descendant is still active; wait for completion') from error
-                process_path = directory(root, state) / invocation['process']
-                process = None
-                if process_path.exists():
-                    process = G.read_json(process_path)
-                    need(process.get('invocation_id') == invocation['id'] and
-                         type(process.get('pid')) is int and process['pid'] > 0 and
-                         process.get('pgid') == process['pid'], 'invocation process identity is invalid')
-                    try:
-                        os.killpg(process['pgid'], 0)
-                    except ProcessLookupError:
-                        pass
-                    except PermissionError as error:
-                        raise G.GateError('owned process group liveness is unknown; cannot recover') from error
-                    else:
-                        raise G.GateError('owned process group is still active; wait for completion')
+            with quiescent_check(root, state, row) as process:
                 # Neither a runner/lease holder nor an owned group remains. A
                 # missing process record means execution never passed pre-exec.
                 evidence_files = {}
@@ -885,18 +932,26 @@ def dispatch(g, root, args, config=None):
                         unit(state, u['id'])['checks'].setdefault(c['id'], [])
         elif args.command == 'abandon':
             data = unit(state, args.unit)
+            was_owned = data['owner'] is not None
             # A live invocation remains protected; interrupted invocations can
             # be abandoned only after their durable ownership proves quiescent.
             recover_pending_checks(root, state, data)
             for rs in data['reviews'].values():
                 if rs and rs[-1]['outcome'] == 'pending':
                     rs[-1]['outcome'] = 'inconclusive'
-            release_writer(root, state, definition(state, args.unit))
             data['owner'] = None
+            save_released_writer(root, state, definition(state, args.unit), was_owned)
+            return inspect(root, state)
         elif args.command == 'close':
-            need(args.outcome == 'superseded' or inspect(root, state)['ready'] or
-                 (args.outcome == 'accepted_risk' and inspect(root, state)['complete']), 'all units must currently pass or explicitly close accepted risk')
+            status = inspect(root, state)
+            if args.outcome == 'accepted_risk':
+                need(status['complete'] and any(u['status'] == 'accepted_risk' for u in status['units'].values()),
+                     'accepted_risk closure requires a current accepted_risk unit and all units complete')
+            else:
+                need(args.outcome == 'superseded' or status['ready'], 'all units must currently pass or explicitly close accepted risk')
             need(all(d['owner'] is None for d in state['units'].values()), 'abandon active units before close')
+            for u in state['config']['units']:
+                cleanup_released_writer(root, state, u)
             state['closed'] = args.outcome
         else:
             raise G.GateError('unsupported managed command')

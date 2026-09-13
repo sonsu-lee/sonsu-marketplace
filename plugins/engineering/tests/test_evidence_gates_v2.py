@@ -447,6 +447,9 @@ class ManagedGates(unittest.TestCase):
         started = self.base / 'live-started'
         runner = self.start_long_check(f"import time; from pathlib import Path; Path({str(started)!r}).write_text('started'); time.sleep(0.8)")
         self.wait_for_file(started)
+        status = self.ok('status')['units']['design']
+        self.assertEqual(status['status'], 'pending')
+        self.assertEqual(status['checks']['verify'], 'pending')
         self.assertFalse(self.ok('status')['units']['design']['ready_to_enter'])
         blocked = self.call('abandon', '--unit', 'design')
         self.assertNotEqual(blocked.returncode, 0)
@@ -457,6 +460,153 @@ class ManagedGates(unittest.TestCase):
         self.assertEqual(runner.returncode, 0, stderr + stdout)
         self.complete()
         self.assertTrue(self.ok('status')['ready'])
+
+    def test_detached_lease_holder_prevents_success_and_release(self):
+        started, stop, done = (self.base / name for name in ('detached-started', 'stop', 'done'))
+        child = (f"import os,time; from pathlib import Path; os.setsid(); os.close(1); os.close(2); "
+                 f"Path({str(started)!r}).write_text(str(os.getpid()))\n"
+                 f"while not Path({str(stop)!r}).exists(): time.sleep(0.02)\n"
+                 f"Path({str(done)!r}).write_text('done')")
+        script = (f"import os,time; from pathlib import Path\n"
+                  f"if os.fork() == 0:\n exec({child!r}); os._exit(0)\n"
+                  f"while not Path({str(started)!r}).exists(): time.sleep(0.02)\n")
+        runner = self.start_long_check(script)
+        def stop_child():
+            stop.touch()
+            self.wait_for_file(done)
+        self.addCleanup(stop_child)
+        self.wait_for_file(started)
+        stdout, stderr = runner.communicate(timeout=5)
+        row = json.loads(stdout)
+        self.assertEqual(runner.returncode, 1, stderr + stdout)
+        self.assertEqual(row['outcome'], 'pending')
+        self.assertEqual(row['execution'], 'incomplete')
+        self.assertEqual(self.ok('status')['units']['design']['status'], 'pending')
+        (self.root / 'design.md').write_text('changed while descendant runs')
+        self.assertEqual(self.ok('status')['units']['design']['status'], 'pending')
+        (self.root / 'design.md').write_text('design one')
+        self.assertNotEqual(self.call('complete-unit', '--unit', 'design', '--request-id', 'early').returncode, 0)
+        blocked = self.call('abandon', '--unit', 'design')
+        self.assertIn('still active', blocked.stderr)
+        stop.touch()
+        self.wait_for_file(done)
+        self.recover_interrupted()
+        self.assertEqual(self.ok('status')['units']['design']['checks']['verify'], 'inconclusive')
+
+    def test_checks_only_requires_a_check_but_review_can_explain_no_command(self):
+        self.config['units'][0].update(checks=[], checks_reason='No command applies')
+        result = self.call('init', data=self.config)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('checks policy requires at least one check', result.stderr)
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.enter()
+        self.prepare()
+        self.review_pass()
+        self.complete()
+        self.assertTrue(self.ok('status')['ready'])
+
+    def test_isolated_workspace_gate_state_is_ignored(self):
+        target = self.base / 'isolated'
+        subprocess.run(['git', 'init', '-q', str(target)], check=True)
+        (target / 'source.py').write_text('value = 1')
+        self.config['units'][0].update(stage='implementation', artifact={'kind': 'workspace', 'path': str(target)})
+        self.init()
+        self.enter()
+        status = subprocess.check_output(['git', '-C', str(target), 'status', '--porcelain', '--untracked-files=all'], text=True)
+        self.assertIn('source.py', status)
+        self.assertNotIn('.engineering', status)
+        self.assertTrue((target / '.engineering/gates/writer.json').exists())
+
+    def test_all_passed_cannot_close_as_accepted_risk(self):
+        self.init()
+        self.checked()
+        self.complete()
+        result = self.call('close', '--outcome', 'accepted_risk')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('current accepted_risk unit', result.stderr)
+        self.assertFalse(self.ok('status')['closed'])
+        self.ok('close')
+
+    def test_writer_completion_crashes_are_retryable(self):
+        import importlib.util
+        from types import SimpleNamespace
+        from unittest import mock
+        self.init()
+        self.checked()
+        def load_module(name, path):
+            spec = importlib.util.spec_from_file_location(name, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+        gate = load_module('gate_completion_fixture', self.script)
+        managed = load_module('managed_completion_fixture', self.script.parent / 'evidence_gates_v2.py')
+        managed.G = gate
+        args = SimpleNamespace(task_id='task', unit='design', request_id='complete-crash')
+        writer = self.root / '.engineering/gates/writer.json'
+        with gate.lock(self.root):
+            with mock.patch.object(managed, 'save', side_effect=RuntimeError('before save')):
+                with self.assertRaisesRegex(RuntimeError, 'before save'):
+                    managed.complete(self.root, managed.load(self.root, 'task'), args, {})
+        self.assertTrue(writer.exists(), 'failed persistence must retain the writer lease')
+        self.assertIsNotNone(managed.load(self.root, 'task')['units']['design']['owner'])
+        # Crash after persistence but before lease removal must preserve the receipt.
+        original_unlink = Path.unlink
+        def interrupt_unlink(path, *args, **kwargs):
+            if path == writer:
+                raise RuntimeError('before unlink')
+            return original_unlink(path, *args, **kwargs)
+        with gate.lock(self.root):
+            with mock.patch.object(Path, 'unlink', interrupt_unlink):
+                with self.assertRaisesRegex(RuntimeError, 'before unlink'):
+                    managed.complete(self.root, managed.load(self.root, 'task'), args, {})
+        persisted = managed.load(self.root, 'task')
+        self.assertIsNone(persisted['units']['design']['owner'])
+        self.assertEqual(len(persisted['units']['design']['completions']), 1)
+        self.assertTrue(writer.exists())
+        self.complete(request='complete-crash')
+        self.assertFalse(writer.exists())
+        # Replaying an old completion must never release a newly entered writer.
+        (self.root / 'design.md').write_text('second revision')
+        self.enter(request='next-entry')
+        self.complete(request='complete-crash')
+        self.assertTrue(writer.exists())
+        self.assertTrue(self.ok('status')['units']['design']['entered'])
+
+    def test_writer_abandon_crashes_are_retryable(self):
+        import importlib.util
+        from types import SimpleNamespace
+        from unittest import mock
+        self.init()
+        self.enter()
+        def load_module(name, path):
+            spec = importlib.util.spec_from_file_location(name, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+        gate = load_module('gate_abandon_fixture', self.script)
+        managed = load_module('managed_abandon_fixture', self.script.parent / 'evidence_gates_v2.py')
+        managed.G = gate
+        args = SimpleNamespace(command='abandon', task_id='task', unit='design')
+        writer = self.root / '.engineering/gates/writer.json'
+        with mock.patch.object(managed, 'save', side_effect=RuntimeError('before save')):
+            with self.assertRaisesRegex(RuntimeError, 'before save'):
+                managed.dispatch(gate, self.root, args)
+        self.assertTrue(writer.exists())
+        self.assertIsNotNone(managed.load(self.root, 'task')['units']['design']['owner'])
+        original_unlink = Path.unlink
+        def interrupt_unlink(path, *args, **kwargs):
+            if path == writer:
+                raise RuntimeError('before unlink')
+            return original_unlink(path, *args, **kwargs)
+        with mock.patch.object(Path, 'unlink', interrupt_unlink):
+            with self.assertRaisesRegex(RuntimeError, 'before unlink'):
+                managed.dispatch(gate, self.root, args)
+        self.assertIsNone(managed.load(self.root, 'task')['units']['design']['owner'])
+        self.assertTrue(writer.exists())
+        self.ok('abandon', '--unit', 'design')
+        self.assertFalse(writer.exists())
+        self.enter(request='after-abandon')
 
     def test_orphan_descendant_without_inherited_fd_still_blocks_recovery(self):
         started, child_started, child_done = self.base / 'parent-started', self.base / 'child-started', self.base / 'child-done'
@@ -478,6 +628,9 @@ class ManagedGates(unittest.TestCase):
         return config
 
     def test_revise_cannot_remove_failed_check_or_reset_budget(self):
+        # With review evidence still required, an empty command list is otherwise
+        # valid. Exercise revision's obligation check, not initial config rejection.
+        self.config['units'][0]['review'] = 'independent'
         self.config['units'][0]['checks'][0]['argv'] = [sys.executable, '-c', 'raise SystemExit(1)']
         self.init()
         self.enter()

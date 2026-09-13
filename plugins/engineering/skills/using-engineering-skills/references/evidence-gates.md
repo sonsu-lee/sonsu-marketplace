@@ -10,6 +10,7 @@ Python 표준 라이브러리·Git·POSIX를 사용하며 모델 실행·의미 
 등록은 Git의 `info/exclude`에 `/.engineering/gates/` 규칙이 없을 때만 추가한다. 이미 있으면
 읽기만 한다. `.git` 쓰기를 제한하는 sandbox는 실행 환경 준비 단계에서 해당 규칙을 설정한다.
 규칙이 없고 추가 권한도 없으면 등록을 차단하며, 제외 설정 실패를 게이트 통과로 처리하지 않는다.
+별도 workspace를 잠글 때에도 해당 Git 저장소의 제외 규칙을 먼저 확인·설정한다.
 
 ## 등록
 
@@ -40,6 +41,8 @@ Python 표준 라이브러리·Git·POSIX를 사용하며 모델 실행·의미 
 
 `init --task-id <stable-id> --session-id <native-session>`의 stdin에 전달한다. 새 작업은 v2를
 명시한다. `stage`는 design/plan/implementation/integration, 정책은 checks/independent/red-team이다.
+`checks` 정책에는 검사가 하나 이상 필요하다. `independent`·`red-team`에서 적용할 명령이
+없으면 `checks:[]`와 `checks_reason`을 기록할 수 있으며 필수 리뷰는 그대로 수행한다.
 누락 ID·cycle은 거부한다. 계약은 controller root 상대 파일이다. 문서 산출물은 고정 파일
 패키지로, 구현/통합은 실제 Git workspace 전체로 식별한다. workspace는 tracked + untracked nonignored 소스 전체와 존재하는 root manifest/lockfile을
 포함한다. ignored probe 파일이 필요하면 artifact.inputs에 명시한다. node_modules/cache/build를
@@ -73,12 +76,20 @@ unit은 workspace를 분리하고 한 checkout의 순차 소스 변경은 하나
 유효 상태가 만료된다. 이전 근거·요청은 이력으로 남고 선행 변경의 소비자도 다시 검증해야 한다.
 
 관리되는 writer는 같은 workspace에서 하나만 실행한다. 리뷰 준비 중에는 writer를 멈춘다.
+완료·포기는 writer 잠금 아래 owner 해제와 receipt를 먼저 저장하고 lease를 삭제한다.
+저장 전에 중단되면 기존 소유권을 유지한다. 저장 뒤 lease 삭제 전에 중단되면 같은 완료 요청을
+재시도하거나 `abandon --unit`으로 남은 lease를 정리한다. 새 소유자의 lease는 삭제하지 않는다.
+
 `abandon --unit`은 사용 가능한 관리 상태를 해제하는 명시적 복구 동작이다. 중단된 pending
 검사는 invocation lease와 등록된 process group이 모두 종료된 경우에만 기존 attempt·부분 로그를
 보존하고 incomplete/inconclusive로 복구한다. 살아 있는 실행은 해제하지 않는다. 관리되는 검사와
 자식은 해당 group에 남거나 전달된 lease를 유지해야 한다. 둘 다 버리는 의도적인 daemon은
 이 실행 계약의 대상이 아니며 별도 서비스 검증을 사용한다. 외부 편집이나
 중간에 바뀌었다가 되돌린 파일까지 완전히 차단·감지하는 파일시스템 보안 장치는 아니다.
+직접 자식이 종료돼도 lease 보유자나 등록된 group의 종료를 확인하지 못하면 검사 결과를
+`pending`·`incomplete`로 남기고 `run`은 비정상 종료한다. unit 완료와 소유권 해제를 막으며,
+실행이 모두 끝난 뒤 `abandon`으로 `inconclusive` 복구한다. 실행 중인 unit의 집계 상태도
+`pending`으로 표시한다.
 
 ## 리뷰 라운드
 
@@ -128,6 +139,7 @@ root의 검증 뒤 challenge 판정도 원결과와 구분해 보존한다.
 기록한다. 수용은 별도 결과이며 조정자나 budget 소진이 대신할 수 없다. downstream에도
 그 수용 이력이 남으며 일반 passed로 숨기지 않는다. aggregate accepted-risk 종료는
 `close --outcome accepted_risk`로 명시한다.
+이 종료 방식은 모든 unit이 현재 완료되고 그중 `accepted_risk`인 unit이 있을 때만 허용한다.
 
 v1은 역사적 observer 기록으로 보존한다. 기존 v1 통과를 v2 unit 근거로 자동 이관하지 않는다.
 새 정책을 적용하려면 새 v2 등록과 현재 근거를 만든다. 도구는 사용자의 실제 승인이나 임의
