@@ -9,7 +9,7 @@ codex plugin add fluent-languages@sonsu-marketplace
 
 ## Writing·Workflow와 함께 사용하기
 
-Fluent는 언어별 어순·표현·어조를, Writing은 문장 관계·문단 구성·정보 순서를 담당한다.
+Fluent는 언어별 어순·표현·어조를, Writing은 정보 선별·문서 배치와 문장·문단 구성을 담당한다.
 Workflow는 티켓·PR의 실제 양식과 필수 항목, 근거 확인·연결·게시를 담당한다.
 세 플러그인은 각각 설치해 단독으로 사용하거나 같은 초안에 함께 적용할 수 있다.
 

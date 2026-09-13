@@ -5,7 +5,7 @@ Workflow는 티켓·PR의 적용 양식·필수 항목, 실제 사실·diff·검
 
 현재 inventory에 있는 스킬만 다음 범위에서 함께 적용한다.
 
-- `writing:writing`: 문장 관계·문단 역할·정보 순서. 실제 양식과 확인 상태, 사실·근거,
+- `writing:writing`: 정보 선별·문서 배치와 문장·문단 구성. 실제 양식과 확인 상태, 사실·근거,
   출력 언어, 편집 범위와 보존할 제목·marker·연결 문법을 전달한다.
 - `fluent-languages:fluent-korean`, `fluent-languages:fluent-japanese`,
   `fluent-languages:fluent-english`: 요청된 출력 언어에 맞는 표현. Writing이 없을 때에도

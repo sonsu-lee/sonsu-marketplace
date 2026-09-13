@@ -184,3 +184,28 @@ AI 판정의 진실성, 인간 승인, 적대적 파일 변조 방어를 증명�
 최종 판정 뒤 변경은 `REPORT.md`, 이 기록과 원본 복사본 `FINAL-REDTEAM.md`의 완료 기록뿐이다.
 실행 코드·스킬·모델 정책·fixture·case는 검토한 source와 동일하다. 저장소 소스 반영과 검증이
 완료됐으며 설치 캐시·사용자 설정·원격 저장소는 이 작업에서 변경하지 않았다.
+
+
+## PR 게시를 위한 main 통합
+
+사용자의 PR 게시 요청 후 기존 검증 소스를 `7bff4b6e9935a0305a4cce260ef3b98f7ec2bbc1`에
+보존하고, `main`의 문서 구성 개선 `908366872f66b8e60b292da93657859a02672084`를 통합했다.
+README의 상세 내용을 담당 문서로 이동한 개선과 Writing·Fluent 지침을 보존하면서, Codex 전용
+구조·Engineering 품질 통합·라이선스 경로를 유지했다. Fluent는 `0.1.0-beta.10`, Writing은
+`0.2.0-beta.5`로 배포 버전을 올렸다.
+
+통합 검토 입력은 tree `4dbe9f56f7a741404b9ec14e285683b706151064`, tar SHA-256
+`9454d6451d4dc32bb4eb9223c02df657d44c406da367f3610bf5f706375d0c23`이다. 새 문맥의
+Luna xhigh 검토는 v2 대비 통합 차이에 한정했다. Writing 책임을 예전 문구로 설명하는
+Fluent README·Workflow README·Workflow 조합 참조의 불일치 1건을 `changes_requested`로
+보고했고, 해당 세 파일의 각 한 줄을 수정했다. 같은 검토자의 제한된 후속 확인은 `passed`이며
+새 전체 리뷰가 아니다. 최종 내용 tree는 `075b28b213f83c5665c86c4125bffab61e4f2e24`이고,
+이후 변경은 이 검증 기록과 REPORT의 관측 범위 안내뿐이다.
+
+- 원본 국소 리뷰: `/tmp/sonsu-v2-pr-integration-review.md`, SHA-256 `642bb65b25ec872b21ee29672d6814f37875d9f383fe2277c46cbb3e5f549784`.
+- 수정 확인: `/tmp/sonsu-v2-pr-integration-closure.md`, SHA-256 `13b04595e9af271f1d408bdf17e58e7f0da96e6ef6cdc2c30427a7b642b86bda`.
+- 통합 후 패키징 2개·언어 평가기 15개 테스트, 언어 사례 validation, 변경 JSON 34개 파싱,
+  agent-policy·continuity·Fluent 생성 결과 검사, 상대 링크와 diff 검사가 통과했다.
+- 관리형 게이트 실행 코드·모델 정책·marketplace-v2 사례 및 평가기 코드는 기존 v2 커밋과
+  byte-identical이다. Native 전체 matrix와 red-team을 새로 실행하지 않았으며 기존 고정 근거와
+  이번 국소 검증을 구분한다. `/tmp` 위치는 로컬 원본 식별자이고 원격 첨부가 아니다.

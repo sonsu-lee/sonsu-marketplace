@@ -15,9 +15,16 @@
 | 정확한 형식, 필드와 계약은 무엇인가? | [`reference/`](reference/) | 구현과 일치하도록 갱신 |
 | 반복 작업을 어떻게 실행, 검증하고 복구하는가? | [`runbooks/`](runbooks/) | 실제 실행 가능성을 유지 |
 
-새 문서를 만들기 전에 `README.md`, `CONTEXT.md`, `docs/**`, 기존 이슈와 티켓을
-검색합니다. 관련 문서가 있으면 새 날짜 문서를 만들기보다 기존 문서를 갱신합니다.
-두 위치가 모두 가능해 보이면 문서가 답해야 하는 주된 질문으로 분류합니다.
+이후에도 찾아볼 정보인지 먼저 판단한 뒤 `README.md`, `CONTEXT.md`, `docs/**`, 기존 이슈와
+티켓에서 해당 주제를 담당하는 위치를 확인합니다. 이미 문서 목적·경로·갱신 범위를 정했다면
+그 결정을 이어받습니다. 관련 문서가 있으면 갱신하고, 독립된 읽기 목적이 있으며 기존 문서에
+적합한 자리가 없을 때 새 문서를 만듭니다. 두 위치가 모두 가능해 보이면 문서가 답해야 하는
+주된 질문으로 분류합니다. 작업 과정과 일회성 검사 결과는 작업 보고·PR·이슈에 남깁니다.
+
+루트 README에는 프로젝트의 용도, 주요 기능, 설치·첫 사용, 중요한 제약과 상세 문서를 찾는
+경로를 둡니다. 이 안내에 영향이 있을 때 README를 갱신하며, 작업을 완료했다는 이유만으로
+내용을 추가하지 않습니다. 상세 절차·설정·계약은 담당 문서에서 관리하고 README에는 필요한
+요약과 링크를 제공합니다. 짧은 설명으로 충분하면 README 안에서 완결할 수 있습니다.
 
 ## 계획과 문서 처리
 
@@ -70,7 +77,8 @@
 - [Design Patterns 독립 플러그인 결정](decisions/0013-add-design-patterns-plugin.md)
 - [현재 Codex 전용 Engineering과 관리형 게이트 결정](decisions/0014-use-codex-managed-engineering.md)
 - [마켓플레이스 요구사항](product/marketplace-requirements.md)
-- [플러그인 추가 가이드](guides/adding-a-plugin.md)
+- [플러그인 개발·수정·추가 가이드](guides/adding-a-plugin.md)
 - [플러그인 매니페스트 참조](reference/plugin-manifest.md)
+- [플러그인별 라이선스와 출처](reference/licenses-and-sources.md)
 - [컴팩션 전후 작업 연속성 계약](reference/task-continuity.md)
 - [업스트림 플러그인 업데이트 런북](runbooks/updating-upstream-plugin.md)

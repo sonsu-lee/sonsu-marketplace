@@ -2,6 +2,10 @@
 
 ## 현재 판정
 
+아래 native 평가와 최종 red-team은 PR 통합 전 고정 v2 소스의 관측이다. 이후 원격 `main`의
+문서 개선 통합은 [별도 통합 검증 기록](IMPLEMENTATION-REVIEW.md#pr-게시를-위한-main-통합)을
+따른다. 이전 native 실행이나 red-team을 통합 소스 전체의 새 실행으로 재표기하지 않는다.
+
 별도 최종 red-team은 `survives_challenge`로 판정했다. 현재 목표를 막는 반례나 필수 검증 공백은
 확인되지 않았다. [전체 판정과 관찰 한계](FINAL-REDTEAM.md)를 함께 보존한다. 역사적
 complete-package smoke와 N11 run의 실패 기록은 그대로 유지한다. 후속 scope 수정은 정적 focused review를 통과했고,
