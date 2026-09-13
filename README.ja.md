@@ -2,7 +2,7 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-開発、リサーチ、プロダクト企画、文章作成に使えるCodex・Claude Codeプラグイン集です。
+開発、リサーチ、プロダクト企画、文章作成に使えるCodexプラグイン集です。
 必要なプラグインを選んでインストールし、利用中のコーディングエージェントに作業を依頼してください。
 
 [インストール](#インストール) · [プラグイン](#プラグイン) · [使用例](#使用例) · [ドキュメント](docs/README.md)
@@ -35,32 +35,11 @@ codex plugin add workflow@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
-### Claude Code
-
-Claude Codeでは、同じリポジトリをマーケットプレイスとして登録し、必要なプラグインをインストールします。
-
-```sh
-claude plugin marketplace add sonsu-lee/sonsu-marketplace
-claude plugin install engineering@sonsu-marketplace
-```
-
-別のプラグインをインストールする場合は、下の表にあるインストール名に置き換えてください。
-インストール済みの項目とマーケットプレイスで利用できる項目は、次のコマンドで確認できます。
-
-```sh
-claude plugin list --available --json
-```
-
-Claude Code向けパッケージは、同じ`skills/`、`hooks/`、`scripts/`を使用します。Codex専用の
-`apps`とUI metadataはClaude manifestへコピーしないため、Figmaなどの外部ツールはClaude Code
-host側で別途設定し、実際にtoolが利用できることを確認してください。
-
 ## プラグイン
 
 | プラグイン | 用途 | インストール名 |
 | --- | --- | --- |
-| [Engineering](plugins/engineering/README.md) | ソフトウェア変更の設計、実装、デバッグ、検証 | `engineering` |
-| [Quality Engineering](plugins/quality-engineering/README.md) | コードの簡素化と、保守性・障害経路・運用上の問題のレビュー | `quality-engineering` |
+| [Engineering](plugins/engineering/README.md) | ソフトウェア変更の設計・実装・検証、簡素化、品質レビュー | `engineering` |
 | [Workflow](plugins/workflow/) | Gitのブランチ・コミット・プッシュ、チケット、GitHub PRの作成・管理 | `workflow` |
 | [Fluent Languages](plugins/fluent-languages/) | 技術的な内容を保った自然な韓国語・日本語・英語の文章作成 | `fluent-languages` |
 | [Writing](plugins/writing/) | 読み手と目的に合わせた情報の選別、記載先の判断、文章の構成 | `writing` |
@@ -80,12 +59,11 @@ Workflowはチケット・PRのテンプレートと公開手順を担当しま�
 
 ## 使用例
 
-対応するプラグインをインストールしたら、CodexまたはClaude Codeに次のように依頼できます。
+対応するプラグインをインストールしたら、Codexに次のように依頼できます。
 
 | プラグイン | 依頼の例 |
 | --- | --- |
-| Engineering | 「このバグの原因を特定して修正し、再現手順で修正結果を検証して。」 |
-| Quality Engineering | 「現在のdiffに不要な抽象化や到達可能な障害経路がないかレビューして。」 |
+| Engineering | 「このバグを修正して検証するか、現在のdiffに不要な抽象化や到達可能な障害経路がないかレビューして。」 |
 | Workflow | 「現在の変更をコミットして、Draft PRを作成して。」 |
 | Fluent Languages | 「この日本語の技術説明を、意味とコードの識別子を保ちながら自然な文章に整えて。」 |
 | Writing | 「この資料からREADMEに必要な内容を選んで要約し、詳細は既存のドキュメントに反映して。」 |
@@ -93,13 +71,12 @@ Workflowはチケット・PRのテンプレートと公開手順を担当しま�
 | Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
 | Figma Workflow | 「このFigma画面のAuto Layoutとプロトタイプの接続をレビューして。」 |
-| Memory Manager | Codex: 「$memory-manager このプロジェクトのCodexメモリを点検して。」<br>Claude Code: 「/memory-manager:memory-manager このプロジェクトのClaude Codeメモリを点検して。」 |
+| Memory Manager | 「$memory-manager このプロジェクトのCodexメモリを点検して。」 |
 | Operations UI | 「この受注運用画面をScreen Contractから実装し、ブラウザーの証跡で検証して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
 
-CodexとClaude Codeは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
-Memory Managerは、Codexでは`$memory-manager`、Claude Codeでは
-`/memory-manager:memory-manager`で明示的に呼び出したときだけ動作します。
+Codexは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
+Memory Managerは、`$memory-manager`で明示的に呼び出したときだけ動作します。
 
 ResearchのExa・Perplexity連携は任意です。利用可能なWebツール、ブラウザー、コネクター、ローカル資料でも調査できます。
 Figma Workflowでキャンバスを操作するには、公式Figma MCP接続と、そのツールで必須とされるスキルが必要です。
@@ -113,18 +90,7 @@ Figma Workflowでキャンバスを操作するには、公式Figma MCP接続と
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-Claude Codeでは、マーケットプレイスの一覧を更新してから、インストール済みの各プラグインを更新します。
-
-```sh
-claude plugin marketplace update sonsu-marketplace
-claude plugin update engineering@sonsu-marketplace
-```
-
-`engineering`をインストール済みの各プラグイン名に置き換え、2つ目のコマンドを繰り返します。
-`project`または`local`スコープにインストールした場合は、同じスコープを`--scope project`または`--scope local`で指定します。
-
-プラグインのインストールやアップデート後は、Codexで新しいタスクを開始するか、Claude Codeで
-`/reload-plugins`を実行して最新のスキル一覧を読み込んでください。
+プラグインのインストールやアップデート後は、Codexで新しいタスクを開始して最新のスキル一覧を読み込んでください。
 
 別のマーケットプレイスから `fluent-languages` をインストールしている場合や、
 `prompt-builder`、`product-discovery`、`to-prd` を単体でインストールしている場合は、同名スキルの重複を避けるため、既存のコピーを先に削除してください。

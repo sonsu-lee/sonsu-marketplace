@@ -474,6 +474,61 @@ class ValidatorCliTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("mapped by multiple change contracts", result.stdout)
 
+    def test_contract_only_requires_declared_reachable_view_states(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            payload = valid_screen_contract()
+            payload["view_states"] = ["many"]
+            payload["evidence_scenarios"][0]["coverage"]["view_states"] = ["many"]
+            screen = self.write_json(directory, "screen.json", payload)
+            result = self.run_validator("screen-contract", str(screen))
+            self.assertEqual(result.returncode, 0, result.stdout)
+
+            payload["evidence_scenarios"][0]["coverage"]["view_states"] = []
+            screen = self.write_json(directory, "screen.json", payload)
+            result = self.run_validator("screen-contract", str(screen))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("scenario coverage missing view_states", result.stdout)
+
+    def test_pending_decision_preserves_unaffected_gate_evidence(self) -> None:
+        for mode in ("greenfield", "redesign", "audit"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as raw_directory:
+                directory = Path(raw_directory)
+                payload = valid_redesign_contract() if mode == "redesign" else valid_screen_contract()
+                payload["mode"] = mode
+                payload["unresolved_decisions"] = [{
+                    "id": "U1", "area": "supervisor permission",
+                    "reason": "supervisor policy is undecided",
+                    "evidence_needed": "product decision for supervisor actions",
+                    "gate_ids": ["G3"],
+                }]
+                screen = self.write_json(directory, "screen.json", payload)
+                result = self.run_validator("screen-contract", str(screen))
+                self.assertEqual(result.returncode, 0, result.stdout)
+
+                report_payload = not_run_quality_report()
+                report_payload["overall"] = "blocked"
+                report_payload["gates"][2]["status"] = "passed"
+                for check in report_payload["gates"][2]["checks"]:
+                    check["status"] = "passed"
+                report = self.write_json(directory, "report.json", report_payload)
+                result = self.run_validator("quality-report", str(report), str(screen))
+                self.assertEqual(result.returncode, 0, result.stdout)
+
+                for gate_index in (0, 3):
+                    report_payload["gates"][gate_index]["status"] = "passed"
+                    report = self.write_json(directory, "report.json", report_payload)
+                    result = self.run_validator("quality-report", str(report), str(screen))
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("unresolved_decisions forbid passed gates", result.stdout)
+                    report_payload["gates"][gate_index]["status"] = "not_run"
+
+                report_payload["overall"] = "passed"
+                report = self.write_json(directory, "report.json", report_payload)
+                result = self.run_validator("quality-report", str(report), str(screen))
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("overall=passed is invalid while unresolved_decisions remain", result.stdout)
+
     def test_greenfield_rejects_null_unresolved_decisions(self) -> None:
         with tempfile.TemporaryDirectory() as raw_directory:
             directory = Path(raw_directory)
@@ -484,7 +539,7 @@ class ValidatorCliTests(unittest.TestCase):
             result = self.run_validator("screen-contract", str(screen))
 
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("unresolved_decisions must be an empty array", result.stdout)
+            self.assertIn("unresolved_decisions must be an array", result.stdout)
 
     def test_screen_contract_rejects_null_exclusions(self) -> None:
         with tempfile.TemporaryDirectory() as raw_directory:
@@ -597,7 +652,7 @@ class ValidatorCliTests(unittest.TestCase):
             result = self.run_validator("quality-report", str(report), str(screen))
 
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("audit unresolved_decisions", result.stdout)
+            self.assertIn("unresolved_decisions", result.stdout)
 
     def test_malformed_nested_values_return_validation_errors_not_tracebacks(self) -> None:
         malformed_screens = []
@@ -941,7 +996,7 @@ class ValidatorCliTests(unittest.TestCase):
             result = self.run_validator("quality-report", str(report), str(screen))
 
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("audit unresolved_decisions forbid passed gates", result.stdout)
+            self.assertIn("unresolved_decisions forbid passed gates", result.stdout)
 
     def test_audit_unknown_forbids_its_declared_visual_gate(self) -> None:
         with tempfile.TemporaryDirectory() as raw_directory:

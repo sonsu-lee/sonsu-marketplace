@@ -1,80 +1,41 @@
 # Engineering quality gate 평가
 
-`cases.json`은 Engineering workflow가 quality gate 실패를 가장 가까운 소유 단계로 되돌리고,
-동일 입력을 무한 재시도하거나 실제 finding을 자동 통과시키지 않는지 확인하는 behavior fixture입니다.
+`cases.json`은 현재 Engineering quality policy를 읽고, 선택한 policy와 artifact·review·상태
+판정이 서로 맞는지 평가하는 behavior fixture다. 평가자는 Engineering plugin만 설치한 격리된
+읽기 전용 fixture에서 prompt를 실행하고, 실제 응답·tool trace를 case의 측정 가능한 조건과
+대조한다. 다른 plugin, Git 권한 또는 실제 model 실행을 가정하지 않는다.
 
-각 case는 초기 상태와 사건, 해당 stage의 기대 outcome, return target, retry 조건과 금지된 결론을 선언합니다.
-평가자는 해당 Engineering plugin만 설치한 격리된 읽기 전용 fixture에서 prompt를 실행하고 실제
-응답과 tool trace를 기대값에 대조해야 합니다. Quality Engineering, Workflow 또는 다른
-플러그인의 존재를 가정하지 않습니다.
+## 현재 평가 계약
 
-`retry_requires_changed_input`은 workflow가 다시 진행될 때 artifact, evidence, context,
-evaluator, capability 또는 human decision이 달라져야 하는지를 뜻합니다.
-`automatic_retry_allowed`는 현재 controller가 human/external change 없이 다음 retry를 시작할
-수 있는지를 별도로 나타냅니다. retry가 적용되지 않는 passed case의 `false`와, retry 전에
-변화가 필요하다는 조건을 혼동하지 않습니다.
+- 위험이 없는 기계적 변경은 `checks`, 동작 변경은 `independent`, 어려운 설계·권한·상태·데이터
+  무결성·동시성·복구·호환 경계는 `red-team` 정책을 사용한다. 계획 유무나 과거 fast-path
+  분류는 policy를 정하지 않는다.
+- 설계·계획은 고정 문서 package, 구현은 격리 workspace의 전체 snapshot, 통합은 최종 workspace의
+  전체 snapshot으로 식별한다. diff만으로 구현·통합 artifact를 대신하지 않는다.
+- 일반 전체 review는 동일한 고정 artifact와 기준을 Luna xhigh 5개 새 문맥에 제공하는 한 라운드다.
+  1개의 근거 있는 finding도 처리 대상이며, 필요한 reviewer가 하나라도 미완료면 통과가 아니다.
+- 국소 수정은 기존 전체 근거의 유효 범위, 현재 delta·영향 근거, 새 검사와 Luna xhigh 1개의 집중
+  rereview를 연결한다. 목표·계약·설계·의존 경계 변경 또는 영향 불명확성은 전체 5개 review를 다시 연다.
+- `red-team` policy만 independent 조건 뒤 fresh-context Astra high의 고정 bundle과
+  `survives_challenge` 판정을 요구한다. 계획 기반이라는 이유만으로 red-team을 추가하지 않는다.
+- 재개는 task ID·history·소비한 round를 보존하고 current source·contract·evidence를 대조한다.
+  재개 자체는 탈락·budget reset·과거 pass replay의 근거가 아니다.
+- 자동 수정·재검토는 같은 task/gate에 최대 5라운드다. 고정 3+2 담당자 배정이나 실패 횟수에 따른
+  모델 승격은 없다. 유효한 필수 finding이 남으면 자동 반복을 중단하고 상태·근거·반환 대상을 보존한다.
+- `accepted_risk`는 지명된 사람이 정확한 revision에서 내린 별도 결정이며 `passed`로 바꾸지 않는다.
 
-JSON 파싱과 schema field 검사는 fixture의 구조만 확인합니다. 실제 model behavior를 입증하지
-않습니다. 모델 기반 실행에는 별도의 model·비용·반복 횟수 승인이 필요하며 평가 결과를 `pass`,
-`fail`, `blocked`, `inconclusive`, `not_run`으로 구분합니다. quality gate가 실제로 실행된 case의
-`expected.status`는 평가 결과가 아니라 예상되는 Engineering gate status입니다. 실행 전
-classification과 정상 escalation은 `quality_status`, `classification_outcome`,
-`execution_outcome`처럼 해당 stage의 outcome field를 사용하며 `passed`나 `failed`를 억지로
-부여하지 않습니다. 실행하지 않은 case는 `not_run`으로 보고합니다.
+JSON parse는 fixture 구조만 확인한다. model 실행, native loading, 실제 품질·비용 효과는 별도
+근거가 필요하며 실행하지 않았다면 `not_run`이다. case의 `expected.status`는 예상 gate 상태이지
+평가 결과가 아니다.
 
-검토할 핵심 불변식은 다음과 같습니다.
+## Prior baseline — 현재 정책의 증거 아님
 
-- artifact 변경 뒤 이전 판정을 그대로 복사하지 않습니다. bounded fix는 영향받지 않은 이전 근거,
-  현재 delta, scoped checks/review와 impact rationale를 합쳐 현재 gate를 갱신할 수 있습니다.
-- deterministic failure는 전체 workflow가 아니라 실패를 고칠 수 있는 stage로 돌아갑니다.
-- retry에는 artifact, hypothesis, evidence, context, evaluator 또는 capability 변화가 필요합니다.
-- 자동 task review/fix, design/plan review, whole-change review와 red-team은 정확히 최대 5회이며,
-  상한은 변경 없는 입력이나 같은 evaluator를 반복할 권한이 아닙니다. session·owner·handoff로
-  초기화되지 않고 nested loop도 상위 gate의 남은 budget을 소비합니다.
-- tool·permission·external state 부재는 `blocked`이며 동일 명령을 반복하지 않습니다.
-- retry cap의 valid required finding은 human `accepted_risk` 없이 `passed`나 `complete`가 아닙니다.
-- quality gate와 Git·PR·publish authorization은 독립적으로 판정합니다.
-- subagent capability가 있어도 task commit 승인이 없으면 plan 실행은 `executing-plans`에 남고
-  `subagent-driven-development`로 순환하지 않습니다.
-- Fast Path controller는 target discovery 전에 stable task ID를 고정하고 실제 현재 파일을 최대 2회
-  targeted search로 확인합니다. classifier subagent는 필수가 아니며 persisted `eligible`이나
-  `HEAD` 일치를 승인으로 replay하지 않습니다.
-- persistent state는 stable task ID의 search·execution consumption과 `disqualified`를 보존합니다.
-  resumption·context loss·handoff·unexplained drift는 일반 workflow로 올리고 budget을 초기화하지 않습니다.
-- Fast Path 최초 구현과 한 번의 집중 수정은 중단 없는 같은 실행에서만 허용합니다. false·unknown
-  predicate와 실행 중 숨은 복잡성은 `disqualified`를 기록한 뒤 가장 가까운 일반 workflow로 routing합니다.
-- Fast Path의 숨은 복잡성 upgrade와 red-team의 변경 입력 기반 재시도는 실제 절차의 분기에서도 이어져야 합니다.
-- Fast Path eligibility와 실행 전 classification은 quality `passed`가 아니며 정상 escalation도 quality failure가 아닙니다.
-- Code Mode는 결정론적 실행 수단이며 Fast Path 적합성이나 품질 통과의 증거가 아닙니다.
-- plan-backed 완료에는 일반 최종 리뷰와 별개의 fresh-context red-team 판정이 필요합니다.
-- task fix 1~3회차는 원래 implementer가 직접 이어서 수행하고 4~5회차는 fresh context와 충분한
-  capability를 사용합니다. handoff는 task, current artifact, 원래 finding, 실패한 시도와 test evidence를
-  간결하게 보존하며 사실과 가설을 구분합니다. 이전 대화 전체·자기 정당화·칭찬·verdict는 제외하고
-  strict JSON, tar 또는 전용 helper protocol을 필수화하지 않습니다.
-- 최초 ordinary whole-change review와 최초 independent whole-goal red-team은 필수입니다. bounded fix는
-  영향 기반 근거 합성으로 current gate를 갱신하고 material goal·contract·design·dependency 변경이나
-  unknown impact에서만 full review를 다시 엽니다.
-- red-team의 목표·요구사항·설계·plan·전체 diff·검증·관찰 결과·review provenance는 source 경로가
-  아니라 하나의 content-digested bundle 안에 고정되어야 합니다.
-- SDD review package는 binary patch를 포함하고 같은 range를 다시 생성해도 기존 package를
-  덮어쓰지 않아야 합니다.
-- red-team이 원래 문제 정의나 사용자 목표를 무효화하면 brainstorming만으로 닫지 않고 사용자 재승인으로 돌아갑니다.
-- bounded fix의 fresh red-team은 현재 full bundle을 사용할 수 있지만 이전 challenge와 fix regression을
-  scoped recheck합니다. 결함 수를 강제하지 않고 새로운 scope 아이디어만으로 차단하지 않습니다.
-- red-team 직전에는 현재 HEAD의 전체 변경 package를 다시 고정하고, 잘못된 기존 review finding은
-  verdict·칭찬이 제거된 finding-to-fix provenance로 반증한 뒤 근거와 함께 무효화하여 영향 task를
-  다시 엽니다.
-- SDD workspace는 local merge와 merge 결과 검증 전까지 보존합니다.
-- 모델과 reasoning effort는 uncertainty·risk와 예상 총 시간·비용을 함께 보고 선택합니다. goal은
-  명시적으로 요청된 plan에 최대 하나이며 test totals가 아니라 관찰 가능한 사용자 결과를 추적합니다.
+이후 섹션은 과거 snapshot과 실행에서 기록한 관찰을 보존한다. 현재 `cases.json`의 policy,
+runtime compliance, 모델 성능·비용 또는 현재 Engineering 문서의 검증 근거로 사용하지 않는다.
 
-이 fixture는 선언된 입력·출력과 금지 경로를 평가하기 위한 data contract입니다. JSON parser, shell test,
-native loading과 model 실행 결과를 구분합니다. 특히 fixture 통과는 runtime model compliance나 실제
-품질·비용 효과를 주장하지 않습니다.
+## Codex 모델·prompt 변경 비교 (prior baseline)
 
-## Codex 모델·prompt 변경 비교
-
-### 2026-09-11 승인 경계 decision probe (과거 리비전)
+### 2026-09-11 승인 경계 decision probe (prior baseline)
 
 `approval-boundary-*` 8개 scenario에 대해 변경 전 `91b4a0e`와 수정 중 snapshot의
 `brainstorming`, `writing-plans`, `executing-plans`, `agent-execution`을 fresh agent에게 읽게 했습니다.
@@ -122,7 +83,7 @@ DOT를 전제로 한 검사는 함께 제거하며, 과거 6개 통과 결과를
 미완료와 잘못된 oracle도 별도 상태로 보존합니다. 품질 회귀가 있거나 이득을 확인하지 못하면
 기존 역할 기본값으로 돌아갑니다. 새로운 최적 모델·추론도 주장은 실제 비교 뒤에만 합니다.
 
-### 2026-09-06 구현자 decision probe
+### 2026-09-06 구현자 decision probe (prior baseline)
 
 변경 전 `d8c08f0`의 전체 구현자 template과 수정본을 각각 fresh native subagent에게 읽게 하고,
 `cases.json`의 아래 여섯 상황에 대응하는 짧은 입력에서 다음 행동을 반환하게 했습니다. 도구로
@@ -173,7 +134,7 @@ model/effort는 `unknown`으로 기록합니다. 자기보고나 요청값을 �
 실행은 `not_run`입니다. decision probe의 조건부 응답을 실제 모델 routing·파일 수정·게이트
 완료·비용 개선으로 일반화하지 않습니다.
 
-## 간결한 리뷰와 기본 동작
+## 간결한 리뷰와 기본 동작 (prior baseline)
 
 `review-respects-confirmed-provider-default`부터 `review-allows-equivalent-simple-implementation`까지
 일곱 사례는 확인된 기본 동작, 실제 override, 추측성 timeout 제안, 부족한 기본값, 판정에 필수인
@@ -187,7 +148,7 @@ model/effort는 `unknown`으로 기록합니다. 자기보고나 요청값을 �
 불필요한 분할·삭제를 요구하지 않는지 평가합니다. 이 사례도 합성 계약이며 모델 실행은
 `not_run`입니다. 기존의 기본값·override·추측성 timeout 사례도 유지합니다.
 
-## 승인 범위와 절차 전환
+## 승인 범위와 절차 전환 (prior baseline)
 
 `approval-boundary-*` 사례는 기존 승인 유지, 설계 전용, 구현 전 확인, 미정 규칙과 독립 작업,
 Git 권한을 구분한다. 현재 지침을 적용한 실제 다음 행동을 기대값과 대조한다. 문서의 특정

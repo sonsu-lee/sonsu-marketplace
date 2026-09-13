@@ -1,13 +1,9 @@
 # Workflow
 
-Git·티켓·PR 작업을 위한 독립 Codex·Claude Code 플러그인입니다.
+Git·티켓·PR 작업을 위한 독립 Codex 플러그인입니다.
 
 ```sh
-# Codex
 codex plugin add workflow@sonsu-marketplace
-
-# Claude Code
-claude plugin install workflow@sonsu-marketplace
 ```
 
 ## 제공하는 작업
@@ -21,7 +17,7 @@ claude plugin install workflow@sonsu-marketplace
 
 PR은 [PR 템플릿 규칙](skills/to-pr/references/pr-template.md)으로 적용 양식을 확인하고, [PR 작성 지침](skills/to-pr/references/pr-writing.md)으로 실제 변경을 설명합니다. Workflow는 diff·티켓·검증 근거 수집, 원격 양식 확인, 연결 문법과 게시·첨부·상태 결과 검증을 담당합니다. 임시로 작성한 본문은 적용 양식이나 게시 조건이 확정됐다는 뜻이 아닙니다.
 
-티켓·PR의 작성 기준과 기본 양식은 이 플러그인에서 직접 관리합니다. Writing은 공통 문장·문단
+티켓·PR의 작성 기준과 기본 양식은 이 플러그인에서 직접 관리합니다. Writing은 정보 선별·문서 배치와 문장·문단
 구성을, Fluent Languages는 한국어·일본어·영어 표현을 맡습니다. 현재 제공되는 스킬만
 [결합 기준](references/writing-composition.md)에 따라 한 초안에 적용하고, 없는 플러그인도 자동 설치하지 않습니다.
 Workflow만, Writing과 함께, Fluent와 함께 또는 세 플러그인을 함께 사용할 수 있습니다.

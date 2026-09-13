@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-import re
 import shutil
 import subprocess
 import sys
@@ -1011,40 +1010,13 @@ raise SystemExit(validator.main(["--root", sys.argv[2]]))
         self.assertIn("declared direction", guarantees)
         self.assertNotIn("implementation details", guarantees)
 
-    def test_review_skill_uses_runtime_specific_invocation_policies(self):
-        canonical_skill = (
-            REPOSITORY_ROOT
-            / "plugins/design-patterns/skills/review-pattern-usage/SKILL.md"
-        ).read_text(encoding="utf-8")
-        claude_skill = (
-            REPOSITORY_ROOT
-            / ".claude-plugins/design-patterns/skills/review-pattern-usage/SKILL.md"
-        ).read_text(encoding="utf-8")
+    def test_review_skill_is_explicit_only_in_codex_metadata(self):
         openai_agent = (
             REPOSITORY_ROOT
             / "plugins/design-patterns/skills/review-pattern-usage/agents/openai.yaml"
         ).read_text(encoding="utf-8")
 
-        self.assertNotIn("disable-model-invocation", canonical_skill)
-        self.assertIn("disable-model-invocation: true", claude_skill)
         self.assertIn("allow_implicit_invocation: false", openai_agent)
-
-    def test_claude_projection_has_no_broken_relative_markdown_links(self):
-        projection_root = REPOSITORY_ROOT / ".claude-plugins/design-patterns"
-        broken = []
-        for document in projection_root.rglob("*.md"):
-            text = document.read_text(encoding="utf-8")
-            for target in re.findall(r"\[[^]]+\]\(([^)]+)\)", text):
-                if "://" in target or target.startswith("#"):
-                    continue
-                resolved = (document.parent / target.split("#", 1)[0]).resolve()
-                if (
-                    not resolved.is_relative_to(projection_root.resolve())
-                    or not resolved.exists()
-                ):
-                    broken.append(f"{document.relative_to(projection_root)} -> {target}")
-
-        self.assertEqual(broken, [])
 
     def test_rejects_decision_ready_overlay_for_unknown_pattern(self):
         with tempfile.TemporaryDirectory() as directory:

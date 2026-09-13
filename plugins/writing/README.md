@@ -1,16 +1,12 @@
 # Writing
 
 독자와 목적에 맞춰 업무 문서의 내용을 선별하고, 문서 배치와 문장·문단 구성을 다듬는
-Codex·Claude Code 플러그인이다. 기존 문서를 우선 갱신하고 README에는 주요 안내를 남긴다.
+Codex 플러그인이다. 기존 문서를 우선 갱신하고 README에는 주요 안내를 남긴다.
 
 [마켓플레이스를 등록](../../README.md#설치)한 뒤 설치한다.
 
 ```sh
-# Codex
 codex plugin add writing@sonsu-marketplace
-
-# Claude Code
-claude plugin install writing@sonsu-marketplace
 ```
 
 ## 사용 범위

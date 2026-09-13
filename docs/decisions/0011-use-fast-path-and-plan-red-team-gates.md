@@ -1,5 +1,8 @@
 # 0011 Use Fast Paths and Plan-Backed Red-Team Gates
 
+> 역사적 결정입니다. Quality Engineering 경계·Fast Path·모델/수정자 기본값의 현재 정책은 [ADR 0014](0014-use-codex-managed-engineering.md)가 대체합니다.
+
+
 - Status: Accepted
 - Date: 2026-09-04
 - Last amended: 2026-09-11

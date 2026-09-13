@@ -1,16 +1,12 @@
 # Research
 
-여러 출처가 필요한 조사, 사실 확인, 문헌 검토와 외부 코드 사례 조사를 위한 개인 Codex·Claude Code
+여러 출처가 필요한 조사, 사실 확인, 문헌 검토와 외부 코드 사례 조사를 위한 개인 Codex
 플러그인입니다. 특정 검색 공급자가 없어도 현재 host에 이미 제공된 web, browser, connector와
 로컬 자료를 사용해 가능한 범위에서 독립적으로 동작합니다. Engineering 또는 별도의
 planning·Git workflow를 먼저 실행하거나 함께 설치했다고 가정하지 않습니다.
 
 ```sh
-# Codex
 codex plugin add research@sonsu-marketplace
-
-# Claude Code
-claude plugin install research@sonsu-marketplace
 ```
 
 ## 선택적 공급자 설정
@@ -21,7 +17,7 @@ connector와 로컬 자료로 조사하고, 그 결과가 현재성·완전성·
 밝힙니다. plugin manifest에 provider dependency나 `mcpServers`를 선언하지 않고 별도
 `.mcp.json`도 함께 배포하지 않습니다.
 
-Codex, Claude Code 또는 호스트가 관리하는 공급자는 읽기 전용 도구 노출, 현재 입력 스키마, 인증과 최소
+Codex가 관리하는 공급자는 읽기 전용 도구 노출, 현재 입력 스키마, 인증과 최소
 읽기 호출이 모두 확인되면 사용할 수 있습니다. 이 경로는 아래 README 선언이나 환경 변수를
 요구하지 않습니다.
 

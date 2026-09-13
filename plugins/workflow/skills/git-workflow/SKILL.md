@@ -29,14 +29,9 @@ description: 하나의 Git 변경에 필요한 branch 이름·생성, staging, C
 
 ## 권한 경계를 지킨다
 
-스킬의 자동 활성화, 스킬 이름 언급, Git 작업에 관한 상담 또는 산출물 검토는 Git 상태를 변경할 권한이 아니다.
-
-- 이름, 메시지, 계획 또는 검토만 요청받았다면 읽기 전용으로 유지한다.
-- branch 생성·전환은 사용자가 해당 동작을 명시한 경우에만 수행한다.
-- staging은 사용자가 stage 또는 commit을 명시한 경우에만 수행하고, 새 commit은 실제 commit 생성을 명시한 경우에만 만든다.
-- push는 사용자가 push 또는 publish를 명시한 경우에만 수행한다.
-- `workflow` 모드의 모든 쓰기 단계를 실행하려면 사용자가 대상 repository에서 branch 생성부터 commit과 push까지의 전체 실행을 명시해야 한다.
-- 한 단계의 권한을 다른 단계로 확대하지 않으며 이미 확인된 권한을 반복해서 묻지 않는다.
+[공유 전달 권한](../../references/delivery-authority.md)을 따른다. 이름·메시지·계획·리뷰만
+요청받았다면 읽기 전용이다. 이 스킬의 branch 생성·전환은 해당 동작 요청이 있을 때 수행한다.
+`workflow` 모드는 사용자가 지정한 쓰기 단계만 실행한다. 이미 확인된 권한은 반복해서 묻지 않는다.
 
 PR·ticket 작성과 게시, worktree 생성·이동, fork·remote 생성, `amend`, commit rewrite, rebase, reset, restore, 자동 stash, force push, merge, branch·tag 삭제와 Git 설정 변경은 담당하지 않는다. 관계없는 dirty·staged·untracked 변경을 정리하거나 함께 게시하지 않으며 hook, signing과 branch protection을 우회하지 않는다.
 

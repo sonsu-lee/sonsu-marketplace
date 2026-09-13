@@ -10,5 +10,13 @@
 - 마케팅·에디토리얼 UI에는 operations-ui를 자동 선택하지 않는다.
 - Figma는 명시 요청에서만 선택하고 core dependency로 취급하지 않는다.
 - browser evidence가 없으면 `overall: passed`를 금지한다.
+- 타입·입력 경계에서 배제한 상태의 분기를 만들지 않고, 선언한 실제 상태는 scenario coverage로 검증한다.
+- 미결정 항목은 의존 작업과 G0·영향 gate·전체 통과만 막고 독립 작업과 유효 근거는 보존한다.
+- 같은 작업의 자동 수정·재검증 누적 5회 상한은 에이전트·세션을 바꿔도 유지한다.
+
+`must_decide`는 모델의 실제 행동·산출물을 대조할 기대 판단이며 fixture validator가 해당 행동을
+실행하거나 강제하지 않는다. `plugins/operations-ui/tests/test_validate_contracts.py`는 선언 상태의
+coverage, 모든 mode의 미결정 항목 구조, 전체·영향 gate의 허위 통과 거부와 무관한 gate 근거
+보존을 CLI에서 검사한다. 의존성의 의미적 정확성과 재시도 횟수 준수는 별도 native 행동 평가다.
 
 이 fixture의 JSON parse와 semantic validator는 실제 model routing, Codex native loader, Figma canvas 또는 target browser 동작을 증명하지 않는다. 실행하지 않은 검증은 `not_run`이다.

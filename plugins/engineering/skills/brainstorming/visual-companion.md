@@ -30,11 +30,7 @@ scripts/start-server.sh --project-dir /path/to/project --open
 
 | 환경 | 실행 방법 |
 | --- | --- |
-| Claude Code | 위 기본 명령을 사용한다. 스크립트가 백그라운드를 처리한다. Windows는 포그라운드로 전환되므로 셸 도구의 `run_in_background: true`를 사용하고 다음 턴에 `server-info`를 읽는다. |
 | Codex | 위 기본 명령을 사용한다. 실행기는 `CODEX_CI`에서 포그라운드로 전환하며 실제 실행 환경의 지속 실행 방식을 따른다. |
-| Gemini CLI | `--foreground`와 셸 도구의 `is_background: true`를 사용한다. |
-| Copilot CLI | `bash scripts/start-server.sh --project-dir /path/to/project --open --foreground`를 지속 실행 가능한 셸 기능으로 시작한다. Windows는 Git Bash의 `bash.exe`를 사용할 수 있다. |
-| 기타 | 분리된 프로세스를 종료하는 환경이면 `--foreground`와 플랫폼의 백그라운드 실행 기능을 조합한다. |
 
 원격 환경·컨테이너에서 루프백 URL에 접속할 수 없으면 필요한 호스트와 사용자에게 표시할 URL 호스트를 지정한다.
 

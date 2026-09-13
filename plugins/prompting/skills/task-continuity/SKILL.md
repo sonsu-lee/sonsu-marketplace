@@ -18,8 +18,7 @@ description: "프롬프트 작성·수정·검증이 여러 단계로 이어지�
 [저장 도구](../../scripts/task-continuity.py)는 Python 3.9+와 POSIX 환경의 표준 라이브러리를
 사용한다. 현재 읽은 스킬의 실제 설치 위치에서 도구의 절대 경로를 구하고 `--help`로 옵션을 확인한다.
 
-1. 세션은 명시한 `--session-id`, `CODEX_THREAD_ID`, `CLAUDE_CODE_SESSION_ID` 순서로 정한다.
-   두 호스트의 변수가 함께 있는 중첩 실행은 현재 호스트의 정확한 ID를 명시한다. ID를 알 수
+1. 세션은 명시한 `--session-id`를 우선하고, 생략하면 `CODEX_THREAD_ID`를 사용한다. ID를 알 수
    없으면 기존 산출물로 수동 복구한다. 다른 세션이나 최신 디렉터리에서 ID를 추정하지 않는다.
 2. 작업 루트는 현재 Git worktree, Git 밖에서는 `--cwd`의 실제 경로다. 기록 위치는
    `<root>/.sonsu/continuity/<session-id>/prompting.json`이다.

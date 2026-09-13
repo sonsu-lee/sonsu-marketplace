@@ -8,12 +8,17 @@
 - `entities`, `lifecycle`: 무엇을 어떤 상태 전이로 관리하는가
 - `primary_decision`: 이 화면에서 가장 먼저 내려야 하는 한 가지 판단
 - `actions`, `permissions`, `risks`: 가능한 행동, 권한, 잘못됐을 때의 비용
-- `view_states`: loading, empty, error, permission-denied, zero, one, many, long-localized
+- `view_states`: 현재 화면에서 도달 가능한 상태. loading, empty, error, permission-denied, zero, one, many, long-localized는 적용 여부를 검토할 예시이며 필수 상태 목록이 아니다. 제외 판단은 실제 타입·입력 경계·기존 동작에 근거하고, 미확인 상태는 `unresolved_decisions`로 남긴다.
 - `viewports`: 실제 증거를 수집할 viewport. wide는 기본 `1440x900`이다.
 - `requirements`: 검증 가능한 요구사항과 연결된 scenario ID
 - `evidence_scenarios`: initial state, action sequence, expected outcome, required viewport와 `coverage`
 - `exclusions`: 적용하지 않는 check와 구체적인 이유. `id`, `kind`, `check_ids`, `reason`을 사용하며 허용 kind는 `embedded-shell`, `desktop-only`, `capability-absent`다.
-- `unresolved_decisions`: greenfield와 redesign 구현 전에는 반드시 빈 배열이어야 한다. 읽기 전용 audit는 확인하지 못한 항목을 `id`, `area`, `reason`, `evidence_needed`, 영향받는 `gate_ids`로 구조화해 남긴다.
+- `unresolved_decisions`: 모든 mode에서 확인하지 못한 항목을 `id`, `area`, `reason`, `evidence_needed`, 영향받는 `gate_ids`로 구조화한다. `area`에는 판단이 필요한 기능·권한·상태의 범위를 식별할 수 있게 쓴다. 조정자는 이 범위와 의존성을 대조해 관련 작업만 보류하고, 독립적으로 확정된 작업은 계속한다.
+
+validator 성공은 필드·참조·coverage의 구조적 유효성이며 전체 구현 준비나 의미적 독립성을
+증명하지 않는다. 미결정 항목이 남으면 전체 완료와 G0 및 지정된 gate의 통과는 금지된다.
+영향이 없는 gate의 현재 근거는 보존할 수 있다. 미결정 항목은 해결 근거 없이 삭제하거나
+영향 gate를 줄여 통과시키지 않는다.
 
 ## 완료 조건
 
@@ -38,6 +43,9 @@
 | `implementation_target` | 변경하거나 보존할 코드 위치 |
 | `scenario_ids` | 재검증할 browser scenario |
 
-하나라도 decision, implementation target 또는 scenario mapping이 없으면 구현을 시작하지 않는다. 보존·변경 ID의 mapping coverage가 100%가 아니면 재설계를 완료로 판정하지 않는다.
+decision, implementation target 또는 scenario mapping이 없는 항목과 의존 작업은 실행을 보류한다.
+확정된 독립 범위는 기존 inventory와 미결정 항목을 보존한 채 별도 Screen Contract로 분리해
+구조를 검증하고 진행할 수 있다. 부분 계약 통과는 전체 재설계 통과가 아니다. 전체 보존·변경 ID의
+mapping coverage가 100%가 아니면 재설계를 완료로 판정하지 않는다.
 
 `current_behavior_inventory`와 `change_contract`는 `mode: redesign`의 필수 필드다. Change Contract의 `inventory_ids` 합집합은 inventory ID 전체와 정확히 일치해야 하고, 각 inventory ID는 정확히 하나의 Change Contract에만 속해야 하며 각 항목은 존재하는 requirement와 browser scenario를 참조한다. 하나의 Change Contract 묶음에 들어간 모든 inventory와 requirement는 적어도 하나의 동일한 scenario를 공유해야 한다. 공유하지 않으면 서로 다른 묶음으로 나눈다.

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Observe planned-work completion evidence. Python 3.9+, Git and POSIX only.
+"""Manage registered v2 evidence DAGs; retain explicit v1 observer history.
 
-The fixed dependency graph is checks -> verification -> final-review -> red-team.
-Receipts bind observations to content; they do not prove review honesty or grant
-permission. The Stop hook never executes checks, blocks, or continues a turn.
+Python 3.9+, Git and POSIX only. Receipts bind observations to content; they do
+not prove review honesty, model identity, or authorization. The passive Stop
+hook never executes checks, blocks, or continues a turn.
 """
 import argparse
 from contextlib import contextmanager
@@ -186,7 +186,9 @@ def snapshot(root, config):
             entries.append([name, bool(path.stat().st_mode & stat.S_IXUSR), digest(path.read_bytes())])
     package = Path(__file__).resolve().parents[1]
     policies = ("skills/using-engineering-skills/references/quality-gates.md",
-                "skills/requesting-code-review/review-criteria.md",
+                "references/code-quality.md",
+                "references/review-criteria.md",
+                "references/javascript-typescript-review.md",
                 "skills/requesting-code-review/code-reviewer.md",
                 "skills/requesting-code-review/red-team-reviewer.md")
     return digest(encode({"files": entries, "config": config,
@@ -203,12 +205,14 @@ def exclude_state(root):
     if not path.is_absolute():
         path = root / path
     safe_path(path)
+    rule = b"/" + STATE_DIR.encode() + b"/"
+    if path.is_file() and rule in path.read_bytes().splitlines():
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a+b") as stream:
         fcntl.flock(stream, fcntl.LOCK_EX)
         stream.seek(0)
         original = stream.read()
-        rule = b"/" + STATE_DIR.encode() + b"/"
         if rule not in original.splitlines():
             stream.write((b"\n" if original and not original.endswith(b"\n") else b"") + rule + b"\n")
 
@@ -318,10 +322,10 @@ def inspect(root, state):
             "checks": checks, "attempts": {name: len(rows) for name, rows in state["reviews"].items()}}
 
 
-def initialize(root, args):
-    config = config_validate(parse_json(sys.stdin.buffer.read(MAX_JSON + 1)), root)
+def initialize(root, args, supplied=None):
+    config = config_validate(supplied if supplied is not None else parse_json(sys.stdin.buffer.read(MAX_JSON + 1)), root)
     snapshot(root, config)  # reject unreadable inputs before any persistent write
-    session = identifier(args.session_id or os.environ.get("CODEX_THREAD_ID") or os.environ.get("CLAUDE_CODE_SESSION_ID"))
+    session = identifier(args.session_id or os.environ.get("CODEX_THREAD_ID"))
     path = task_path(root, args.task_id)
     pointer = session_path(root, session)
     with lock(root):
@@ -349,8 +353,8 @@ def initialize(root, args):
     return inspect(root, state)
 
 
-def revise(root, args):
-    config = config_validate(parse_json(sys.stdin.buffer.read(MAX_JSON + 1)), root)
+def revise(root, args, supplied=None):
+    config = config_validate(supplied if supplied is not None else parse_json(sys.stdin.buffer.read(MAX_JSON + 1)), root)
     snapshot(root, config)
     with lock(root):
         state = load(root, args.task_id)
@@ -572,12 +576,19 @@ def observe_hook():
     require(isinstance(current, dict) and set(current) == {"task_id"}, "invalid session pointer")
     # Only registered tasks write observations; status never mutates receipts.
     with lock(root):
-        state = load(root, identifier(current["task_id"]))
+        raw = read_json(task_path(root, identifier(current["task_id"])))
+        managed = raw.get("schema_version") == 2
+        if managed:
+            import evidence_gates_v2
+            evidence_gates_v2.G = sys.modules[__name__]
+            state = evidence_gates_v2.load(root, current["task_id"])
+        else:
+            state = load(root, current["task_id"])
         require(event["session_id"] in state["sessions"], "session is not registered for this task")
         if state["closed"]:
             return None
         try:
-            status = inspect(root, state)
+            status = evidence_gates_v2.inspect(root, state) if managed else inspect(root, state)
         except ObservationTimeout:
             status = {"mode": "observe", "task_id": state["task_id"], "ready": False,
                       "observation": "inconclusive", "reason": "time_budget_exceeded"}
@@ -598,26 +609,29 @@ def parser():
     p.add_argument("--cwd", default=os.getcwd())
     sub = p.add_subparsers(dest="command", required=True)
     sub.add_parser("hook")
-    for command in ("init", "revise", "status", "check", "run", "prepare-review", "record-review", "abandon", "close"):
+    for command in ("init", "revise", "status", "check", "run", "prepare-review", "record-review", "abandon", "close", "ready", "enter", "complete-unit", "adjudicate"):
         item = sub.add_parser(command)
         item.add_argument("--task-id", required=True)
+        item.add_argument("--unit")
+        if command in ("enter", "complete-unit"):
+            item.add_argument("--request-id", required=True)
         if command == "init":
             item.add_argument("--session-id")
         elif command == "run":
             item.add_argument("--check", required=True)
             item.add_argument("--timeout", type=float, default=300)
-        elif command in ("prepare-review", "record-review", "abandon"):
-            item.add_argument("--gate", required=True, **({"choices": REVIEWS} if command != "abandon" else {}))
+        elif command in ("prepare-review", "record-review", "abandon", "adjudicate"):
+            item.add_argument("--gate", required=command != "abandon", **({"choices": REVIEWS} if command != "abandon" else {}))
             if command == "prepare-review":
                 item.add_argument("--package", required=True)
             else:
-                item.add_argument("--attempt", required=True, type=int)
+                item.add_argument("--attempt", required=command != "abandon", type=int)
             if command == "record-review":
-                item.add_argument("--verdict", required=True)
+                item.add_argument("--verdict")
                 item.add_argument("--reviewer-id", required=True)
                 item.add_argument("--report", required=True)
         elif command == "close":
-            item.add_argument("--outcome", choices=("complete", "superseded"), default="complete")
+            item.add_argument("--outcome", choices=("complete", "superseded", "accepted_risk"), default="complete")
     return p
 
 
@@ -629,10 +643,30 @@ def main():
         else:
             identifier(args.task_id)
             root = workspace(args.cwd)
+            supplied = parse_json(sys.stdin.buffer.read(MAX_JSON + 1)) if args.command in ("init", "revise") else None
+            if args.command in ("init", "revise"):
+                require(isinstance(supplied, dict), "configuration must be a JSON object")
+            managed = supplied.get("schema_version") == 2 if supplied is not None else (
+                read_json(task_path(root, args.task_id)).get("schema_version") == 2)
+            if managed:
+                import evidence_gates_v2
+                result = evidence_gates_v2.dispatch(sys.modules[__name__], root, args, supplied)
+                print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+                if args.command == "check":
+                    return 0 if result["ready"] else 1
+                if args.command == "run":
+                    return 0 if result["outcome"] == "passed" else 1
+                return 0
+            if args.command == "close" and args.outcome == "accepted_risk":
+                raise GateError("accepted_risk requires a v2 task")
+            if args.command == "abandon":
+                require(args.gate is not None and args.attempt is not None, "legacy abandon requires gate and attempt")
+            if args.command in ("ready", "enter", "complete-unit", "adjudicate") or args.unit:
+                raise GateError("managed commands require a v2 task; legacy receipts cannot pass v2")
             if args.command == "init":
-                result = initialize(root, args)
+                result = initialize(root, args, supplied)
             elif args.command == "revise":
-                result = revise(root, args)
+                result = revise(root, args, supplied)
             elif args.command in ("status", "check"):
                 result = inspect(root, load(root, args.task_id))
             elif args.command == "run":

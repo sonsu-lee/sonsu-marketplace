@@ -38,17 +38,8 @@
     "risks": {"$ref": "#/$defs/nonEmptyStrings"},
     "view_states": {
       "type": "array",
+      "minItems": 1,
       "uniqueItems": true,
-      "allOf": [
-        {"contains": {"const": "loading"}},
-        {"contains": {"const": "empty"}},
-        {"contains": {"const": "error"}},
-        {"contains": {"const": "permission-denied"}},
-        {"contains": {"const": "zero"}},
-        {"contains": {"const": "one"}},
-        {"contains": {"const": "many"}},
-        {"contains": {"const": "long-localized"}}
-      ],
       "items": {"type": "string", "minLength": 1}
     },
     "viewports": {
@@ -205,10 +196,6 @@
     {
       "if": {"properties": {"mode": {"const": "redesign"}}},
       "then": {"required": ["current_behavior_inventory", "change_contract"]}
-    },
-    {
-      "if": {"properties": {"mode": {"enum": ["greenfield", "redesign"]}}},
-      "then": {"properties": {"unresolved_decisions": {"maxItems": 0}}}
     },
     {
       "anyOf": [

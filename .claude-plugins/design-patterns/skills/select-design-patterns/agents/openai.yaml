@@ -1,6 +1,0 @@
-interface:
-  display_name: "Select Design Patterns"
-  short_description: "실제 forces와 보장에 맞는 최소 패턴을 선택"
-  default_prompt: "$select-design-patterns 이 설계 문제에 패턴이 필요한지부터 판단해 줘."
-policy:
-  allow_implicit_invocation: true
