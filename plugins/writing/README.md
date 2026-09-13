@@ -1,14 +1,10 @@
 # Writing
 
-독자와 목적에 맞춰 업무 글의 문장·문단·정보 순서를 작성하고 다듬는 Codex·Claude Code
+독자와 목적에 맞춰 업무 글의 문장·문단·정보 순서를 작성하고 다듬는 Codex
 플러그인이다. 한국어·일본어·영어 표현은 별도 Fluent Languages 지침과 함께 다듬을 수 있다.
 
 ```sh
-# Codex
 codex plugin add writing@sonsu-marketplace
-
-# Claude Code
-claude plugin install writing@sonsu-marketplace
 ```
 
 ## 사용 범위

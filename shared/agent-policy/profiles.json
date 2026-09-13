@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "verified_at": "2026-09-13",
+  "evaluation_status": "user-observed-default; repository comparison recorded in evals/marketplace-v2",
+  "sources": [
+    "https://developers.openai.com/api/docs/guides/latest-model#prompting-best-practices",
+    "https://developers.openai.com/api/docs/guides/reasoning#reasoning-effort",
+    "https://learn.chatgpt.com/docs/agent-configuration/subagents"
+  ],
+  "roles": {
+    "extraction": {"model": "gpt-5.6-luna", "effort": "medium", "count": 1},
+    "exploration": {"model": "gpt-5.6-terra", "effort": "medium", "count": 1},
+    "localized_implementation": {"model": "gpt-5.6-terra", "effort": "high", "count": 1},
+    "implementation": {"model": "gpt-5.6-sol", "effort": "high", "count": 1},
+    "complex_design": {"model": "gpt-6-astra", "effort": "high", "count": 1},
+    "general_review": {"model": "gpt-5.6-luna", "effort": "xhigh", "count": 5},
+    "focused_review": {"model": "gpt-5.6-luna", "effort": "xhigh", "count": 1},
+    "adjudication": {"model": "gpt-5.6-sol", "effort": "high", "count": 1},
+    "complex_adjudication": {"model": "gpt-6-astra", "effort": "high", "count": 1},
+    "red_team": {"model": "gpt-6-astra", "effort": "high", "count": 1}
+  }
+}

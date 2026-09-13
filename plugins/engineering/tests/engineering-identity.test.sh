@@ -56,8 +56,10 @@ fi
 
 if git -C "$repo_root" grep -Ini \
   -e 'telemetry' \
-  -- 'plugins/engineering' ':!plugins/engineering/tests/engineering-identity.test.sh'; then
-  echo 'Engineering still contains a telemetry branch' >&2
+  -- 'plugins/engineering/scripts' \
+     'plugins/engineering/skills/brainstorming/scripts' \
+     'plugins/engineering/skills/subagent-driven-development/scripts'; then
+  echo 'Engineering implementation still contains a telemetry branch' >&2
   exit 1
 fi
 

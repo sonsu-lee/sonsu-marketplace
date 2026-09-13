@@ -9,12 +9,7 @@ Writing의 공통 구성, Fluent의 한국어·일본어·영어 표현, Workflo
 ```sh
 python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 scripts/render-continuity.py --check
-python3 scripts/render-claude-compat.py --check
 python3 -B -m unittest -v evals/task-continuity/test_runtime.py evals/plugin-compat/test_compat.py evals/language-style/test_eval.py evals/fluent-japanese/test_eval.py
-claude plugin validate . --strict
-claude plugin validate plugins/writing --strict
-claude plugin validate plugins/fluent-languages --strict
-claude plugin validate plugins/workflow --strict
 ```
 
 JSON·frontmatter와 세 패키지의 스킬/참조 상대 경로를 확인한다. Fluent의 한국어 지침은 기존 언어별 규칙과 의미·조건·적용 범위를 대조한다.
@@ -22,8 +17,8 @@ JSON·frontmatter와 세 패키지의 스킬/참조 상대 경로를 확인한�
 PR 기본 양식과 `unverified` 시 기본형을 확정하지 않는 정책, marker·연결 문법은 별도로 검토한다.
 continuity 검사는 각각의 Fluent·Writing 기록을 실제 helper로 만들고 서로 대신 복구하지 않는지 확인한다.
 
-Fluent 내부 스킬 생성기, 공통 continuity 생성기와 Claude 호환 생성기는 유지한다.
-Writing에서 Workflow로 지침·양식을 복사하는 생성기와 그 전용 projection 검사는 없다.
+Fluent 내부 스킬 생성기와 공통 continuity 생성기는 유지한다.
+Writing에서 Workflow로 지침·양식을 복사하는 생성기는 없다.
 양식 수정은 Workflow에서, 언어 지침 수정은 Fluent에서 한다. 각 플러그인의 링크·경로와
 생성 결과 검사는 실제 모델의 지침 적용을 증명하지 않는다.
 
@@ -70,7 +65,7 @@ Writing에서 Workflow로 지침·양식을 복사하는 생성기와 그 전용
 
 ## 패키지 설치
 
-각각 별도의 임시 Codex 설정 루트와 Claude 설정 루트에 로컬 마켓플레이스를 등록하고
-Writing만, Fluent만, Workflow만, 세 플러그인을 함께 설치한다. 총 8개 설정 구성에서 설치된
+별도의 임시 Codex 설정 루트에 로컬 마켓플레이스를 등록하고 Writing만, Fluent만, Workflow만,
+세 플러그인을 함께 설치한다. 설치된
 패키지·스킬·참조·hook 목록을 확인한다. 실제 사용자 설치·설정은 검증용으로 교체하지 않는다.
 설치·inventory 성공, 명시적 작성 사례, 자동 선택·원어민 평가를 구분해 보고한다.

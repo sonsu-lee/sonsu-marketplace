@@ -181,16 +181,6 @@ KNOWN_SKILL_IDS = {
     "operations-ui:audit-operations-ui",
     "operations-ui:figma-operations-flow",
 }
-REQUIRED_VIEW_STATES = {
-    "loading",
-    "empty",
-    "error",
-    "permission-denied",
-    "zero",
-    "one",
-    "many",
-    "long-localized",
-}
 REQUIRED_BROWSER_FIELDS = {
     "scenario_id",
     "command",
@@ -484,50 +474,38 @@ def validate_screen_contract(payload: Any) -> list[str]:
         if field in payload and not non_empty_string_list(payload[field]):
             errors.append(f"{field} must be a non-empty array of strings")
 
-    states = payload.get("view_states", [])
-    if non_empty_string_list(states):
-        missing_states = sorted(REQUIRED_VIEW_STATES - set(states))
-        if missing_states:
-            errors.append(f"view_states missing required values: {missing_states}")
-
     unresolved = payload.get("unresolved_decisions")
-    if mode in ("greenfield", "redesign"):
-        if unresolved != []:
-            errors.append(
-                "unresolved_decisions must be an empty array before greenfield or redesign implementation"
-            )
-    elif mode == "audit":
-        if not isinstance(unresolved, list):
-            errors.append("audit unresolved_decisions must be an array")
-        else:
-            for index, unknown in enumerate(unresolved):
-                if not isinstance(unknown, dict):
-                    errors.append(
-                        f"unresolved_decisions[{index}] must be a structured object in audit mode"
-                    )
-                    continue
-                reject_unknown_fields(
-                    unknown,
-                    UNRESOLVED_DECISION_FIELDS,
-                    f"unresolved_decisions[{index}]",
-                    errors,
+    if not isinstance(unresolved, list):
+        errors.append("unresolved_decisions must be an array")
+    else:
+        for index, unknown in enumerate(unresolved):
+            if not isinstance(unknown, dict):
+                errors.append(
+                    f"unresolved_decisions[{index}] must be a structured object"
                 )
-                for field in ("id", "area", "reason", "evidence_needed"):
-                    if not non_empty_string(unknown.get(field)):
-                        errors.append(
-                            f"unresolved_decisions[{index}].{field} must be a non-empty string"
-                        )
-                gate_ids = unknown.get("gate_ids")
-                if not non_empty_string_list(gate_ids):
+                continue
+            reject_unknown_fields(
+                unknown,
+                UNRESOLVED_DECISION_FIELDS,
+                f"unresolved_decisions[{index}]",
+                errors,
+            )
+            for field in ("id", "area", "reason", "evidence_needed"):
+                if not non_empty_string(unknown.get(field)):
                     errors.append(
-                        f"unresolved_decisions[{index}].gate_ids must be a non-empty array of strings"
+                        f"unresolved_decisions[{index}].{field} must be a non-empty string"
                     )
-                else:
-                    invalid_gate_ids = sorted(set(gate_ids) - set(GATE_IDS))
-                    if invalid_gate_ids:
-                        errors.append(
-                            f"unresolved_decisions[{index}] has unknown gate_ids: {invalid_gate_ids}"
-                        )
+            gate_ids = unknown.get("gate_ids")
+            if not non_empty_string_list(gate_ids):
+                errors.append(
+                    f"unresolved_decisions[{index}].gate_ids must be a non-empty array of strings"
+                )
+            else:
+                invalid_gate_ids = sorted(set(gate_ids) - set(GATE_IDS))
+                if invalid_gate_ids:
+                    errors.append(
+                        f"unresolved_decisions[{index}] has unknown gate_ids: {invalid_gate_ids}"
+                    )
 
     exclusions = payload.get("exclusions")
     valid_exclusions: dict[str, dict[str, Any]] = {}
@@ -1050,11 +1028,10 @@ def validate_quality_report(
         errors.append(f"overall must be one of {sorted(GATE_STATUSES)}")
     if (
         payload.get("overall") == "passed"
-        and screen.get("mode") == "audit"
         and screen.get("unresolved_decisions")
     ):
         errors.append(
-            "overall=passed is invalid while audit unresolved_decisions remain"
+            "overall=passed is invalid while unresolved_decisions remain"
         )
 
     profile = payload.get("design_profile")
@@ -1161,7 +1138,7 @@ def validate_quality_report(
                     f"{gate_id}.status=passed is invalid because checks are not passed: {non_passing_checks}"
                 )
 
-    if screen.get("mode") == "audit" and screen.get("unresolved_decisions"):
+    if screen.get("unresolved_decisions"):
         affected_gate_ids = {"G0"}
         for unknown in screen["unresolved_decisions"]:
             if isinstance(unknown, dict):
@@ -1176,7 +1153,7 @@ def validate_quality_report(
         ]
         if passed_unknown_gates:
             errors.append(
-                "audit unresolved_decisions forbid passed gates: "
+                "unresolved_decisions forbid passed gates: "
                 f"{passed_unknown_gates}"
             )
 

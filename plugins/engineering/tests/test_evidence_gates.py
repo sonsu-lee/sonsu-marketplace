@@ -32,10 +32,14 @@ class EvidenceGateTests(unittest.TestCase):
         policy.parent.mkdir(parents=True)
         policy.write_text("Verification, final review, and a fresh red-team are required.\n")
         self.policy = policy
-        for name in ("review-criteria.md", "code-reviewer.md", "red-team-reviewer.md"):
+        for name in ("code-reviewer.md", "red-team-reviewer.md"):
             target = self.package / "skills/requesting-code-review" / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / "plugins/engineering/skills/requesting-code-review" / name, target)
+        for name in ("code-quality.md", "review-criteria.md", "javascript-typescript-review.md"):
+            target = self.package / "references" / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("Canonical shared policy fixture: " + name + "\n")
         self.env = dict(os.environ, CODEX_THREAD_ID="session-a", PYTHONDONTWRITEBYTECODE="1")
         for key in ("CLAUDE_CODE_SESSION_ID", "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"):
             self.env.pop(key, None)
@@ -68,6 +72,18 @@ class EvidenceGateTests(unittest.TestCase):
 
     def init(self, **kw):
         return self.call("init", "--task-id", "task-a", data=kw.get("config", self.config), env=kw.get("env"))
+
+    def test_preconfigured_readonly_exclude_allows_init(self):
+        exclude = self.work / ".git/info/exclude"
+        original = b"# local rules\n/.engineering/gates/\n"
+        exclude.write_bytes(original)
+        exclude.chmod(0o444)
+        try:
+            self.ok(self.init())
+            self.assertEqual(exclude.read_bytes(), original)
+            self.assertEqual(exclude.stat().st_mode & 0o777, 0o444)
+        finally:
+            exclude.chmod(0o644)
 
     def status(self):
         return self.ok(self.call("status", "--task-id", "task-a"))
@@ -233,7 +249,7 @@ class EvidenceGateTests(unittest.TestCase):
         self.ok(self.run_check())
         self.review()
         self.review("red-team")
-        for name in ("review-criteria.md", "code-reviewer.md", "red-team-reviewer.md"):
+        for name in ("code-reviewer.md", "red-team-reviewer.md"):
             policy = self.package / "skills/requesting-code-review" / name
             before = policy.read_bytes()
             policy.write_bytes(before + b"\nNew mandatory rule.\n")
@@ -594,13 +610,13 @@ class EvidenceGateTests(unittest.TestCase):
         self.assertEqual(self.hook().stdout, "")
         self.assertEqual(self.status()["checks"]["unit"]["attempts"], 0)
 
-    def test_generated_stop_command_runs_with_either_host_plugin_root(self):
+    def test_generated_stop_command_runs_with_codex_plugin_root(self):
         self.ok(self.init())
         hooks = json.loads((ROOT / "plugins/engineering/hooks/hooks.json").read_text())["hooks"]
         self.assertIn("Stop", hooks, "Engineering must package the observation hook")
         command = hooks["Stop"][0]["hooks"][0]["command"]
         event = {"hook_event_name": "Stop", "session_id": "session-a", "cwd": str(self.work)}
-        for variable in ("PLUGIN_ROOT", "CLAUDE_PLUGIN_ROOT"):
+        for variable in ("PLUGIN_ROOT",):
             env = self.env.copy()
             env.pop("PLUGIN_ROOT", None)
             env.pop("CLAUDE_PLUGIN_ROOT", None)

@@ -1,6 +1,6 @@
 # Memory Manager
 
-필요할 때 명시적으로 호출해 Codex와 Claude Code의 저장된 메모리를 점검하고 정리하는
+필요할 때 명시적으로 호출해 Codex의 저장된 메모리를 점검하고 정리하는
 플러그인입니다. 하나의 `memory-manager` 스킬을 제공합니다.
 
 ## 사용
@@ -11,26 +11,15 @@
 # Codex
 codex plugin add memory-manager@sonsu-marketplace
 
-# Claude Code
-claude plugin install memory-manager@sonsu-marketplace
 ```
 
-Codex에서는 `$memory-manager`, Claude Code에서는 `/memory-manager:memory-manager`로 명시적으로
-호출합니다.
+Codex에서 `$memory-manager`로 명시적으로 호출합니다.
 
 Codex 실행 예시:
 
 ```text
 $memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘. 파일은 바꾸지 마.
 $memory-manager 현재 프로젝트의 Codex 메모리에서 확인된 중복과 오래된 명령을 정리해 줘.
-$memory-manager 이 경로의 Claude Code 메모리를 정리해 줘: /absolute/path/to/memory
-```
-
-Claude Code 실행 예시:
-
-```text
-/memory-manager:memory-manager 현재 프로젝트의 Claude Code 메모리를 점검해 줘. 파일은 바꾸지 마.
-/memory-manager:memory-manager 이 경로의 Claude Code 메모리를 정리해 줘: /absolute/path/to/memory
 ```
 
 인자 없이 호출하면 현재 프로젝트의 메모리를 점검합니다. 대상이 여러 개면 대상만 확인합니다.
@@ -38,7 +27,6 @@ Claude Code 실행 예시:
 수정을 다시 승인받는 고정 단계는 없습니다.
 
 `agents/openai.yaml`의 `policy.allow_implicit_invocation: false`로 Codex의 암묵적 호출을
-비활성화하고, `SKILL.md`의 `disable-model-invocation: true`로 Claude Code의 자동 호출도
 비활성화합니다. 자동 수집, 세션 종료 hook, 예약 실행과 외부 메모리 서비스는 포함하지 않습니다.
 다른 플러그인이나 MCP 연결 없이 동작하며 별도 helper runtime도 필요하지 않습니다.
 
@@ -50,8 +38,7 @@ Claude Code 실행 예시:
 - 인덱스의 링크와 주제 파일을 확인하고 불확실한 항목은 보류합니다.
 
 저장소 지시·문서·설정·스킬로의 이동은 제안으로 남깁니다. 파일 전체 삭제, raw transcript·DB
-재작성이나 Git 작업은 포함하지 않습니다. 에이전트별 차이는 [Codex 참고 파일](skills/memory-manager/references/codex.md)과
-[Claude Code 참고 파일](skills/memory-manager/references/claude-code.md)에서 다룹니다.
+재작성이나 Git 작업은 포함하지 않습니다. Codex의 메모리 계약은 [참고 파일](skills/memory-manager/references/codex.md)에서 다룹니다.
 
 ## Codex의 수정 노트 방식
 

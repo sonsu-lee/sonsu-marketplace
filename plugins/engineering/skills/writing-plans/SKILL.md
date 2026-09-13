@@ -7,13 +7,13 @@ description: 여러 단계의 구현 작업에 대해 승인된 요구사항이 
 
 기존 코드와 승인된 요구사항을 바탕으로 다른 실행자도 이해할 구현 계획을 작성한다. 순서는 **동작 의사코드 → 파일·작업·의존성 대응 관계 → 검증 방법과 이유 → 구현·검증**이다.
 
-요구사항 출처는 원래 구현 요청, 이전 사용자 승인, 승인된 문서·이슈·티켓일 수 있다. [brainstorming의 실행 권한](../brainstorming/SKILL.md)에 따라 승인된 범위는 계속한다. 절차 전환·Fast Path 탈락·재개를 이유로 재승인을 요구하지 않는다. 설계 전용 요청은 산출물 완성으로 종료한다. 명시적 구현 전 확인은 먼저 요청된 산출물을 완성한 뒤 의존 작업만 보류한다. 미결정 계약과 독립적인 승인 작업은 계속한다.
+요구사항 출처는 원래 구현 요청, 이전 사용자 승인, 승인된 문서·이슈·티켓일 수 있다. [brainstorming의 실행 권한](../brainstorming/SKILL.md)에 따라 승인된 범위는 계속한다. 절차 전환·재개를 이유로 재승인을 요구하지 않는다. 설계 전용 요청은 산출물 완성으로 종료한다. 명시적 구현 전 확인은 먼저 요청된 산출물을 완성한 뒤 의존 작업만 보류한다. 미결정 계약과 독립적인 승인 작업은 계속한다.
 
 주 조정자의 여러 단계 작업은 [task-continuity](../task-continuity/SKILL.md)에 기록한다. 위임된 작업자와 새 문맥의 검토자는 별도 연속성 기록을 만들지 않는다.
 
 ## 적용 범위와 위치
 
-여러 단계·파일·구성 요소, 인터페이스·상태 전이·오류·마이그레이션·회귀 위험을 조정해야 하면 계획을 작성한다. 오탈자나 명백한 기계적 수정처럼 범위 설명과 검증으로 닫을 수 있으면 긴 의사코드를 만들지 않는다. Fast Path는 `engineering:brainstorming`의 모든 조건과 예산을 충족할 때만 사용하며, 탈락한 작업은 일반 기준으로 계획 필요성을 판단한다.
+여러 단계·파일·구성 요소, 인터페이스·상태 전이·오류·마이그레이션·회귀 위험을 조정해야 하면 계획을 작성한다. 오탈자나 명백한 기계적 수정처럼 범위 설명과 검증으로 닫을 수 있으면 긴 의사코드를 만들지 않는다. 설계 깊이와 검증은 현재 계약·위험으로 선택한다.
 
 기본 산출물은 대화의 계획이다. 실행 도구에 파일이 필요하면 Git에서 제외한 `.engineering/plans/<feature-name>.md`에 임시 자료 사본을 둔다. 저장소의 이슈·티켓 관례나 사용자 지정 위치가 있으면 따른다. 날짜 기반 계획이나 `docs/engineering/plans/`를 자동 생성하지 않는다. 격리가 필요하면 실행 시점에 `engineering:using-git-worktrees`를 적용한다.
 
@@ -65,7 +65,7 @@ TDD를 선택한 작업에는 테스트 우선 순서를 적용한다. 다른 �
 
 ## 계획 형식
 
-`Requirements source`, `Documentation impact`, `Commit authorization`, `Red-team completion gate`는 대화 계획에도 유지한다. 짧은 계획은 본문에 접근이 있고 전역 제약이 없을 때 `Approach`, `Global Constraints`를 생략할 수 있다. 구현 접근과 파일별 세부사항은 의사코드 뒤에서 도출한다.
+`Requirements source`, `Documentation impact`, `Commit authorization`, `Quality policy`는 대화 계획에도 유지한다. 짧은 계획은 본문에 접근이 있고 전역 제약이 없을 때 `Approach`, `Global Constraints`를 생략할 수 있다. 구현 접근과 파일별 세부사항은 의사코드 뒤에서 도출한다.
 
 ```markdown
 # [기능 이름] 구현 계획
@@ -74,7 +74,7 @@ TDD를 선택한 작업에는 테스트 우선 순서를 적용한다. 다른 �
 **Requirements source:** [원래 구현 요청·이전 승인·승인 문서; 명시적 구현 전 확인 조건 포함]
 **Documentation impact:** [없음·갱신 경로·승인된 생성 경로·대체할 결정]
 **Commit authorization:** [granted for this plan | not granted]
-**Red-team completion gate:** required
+**Quality policy:** checks | independent | red-team (현재 위험과 근거)
 
 ## 전역 제약
 [모든 작업이 보존할 정확한 제약]
@@ -129,8 +129,9 @@ Expected: `[관찰 가능한 결과]`
 
 현재 사용자 승인에 맞게 `Commit authorization: granted for this plan` 또는 `Commit authorization: not granted`를 기록한다. 계획은 Git 권한을 부여하지 않는다. `git add`·`git commit`을 자동 작업 단계로 추가하지 않으며 푸시·PR·병합·배포도 각각의 권한을 따른다.
 
-- 작업별 커밋 미승인: `engineering:executing-plans`로 직접 구현·검증하고 최종 차이를 보고한다. 미승인 커밋을 요구하지 않는다.
-- 파일 기반 계획·하위 에이전트 기능·명시적 작업 커밋 승인이 모두 있음: 복구와 리뷰 범위에 작업별 커밋을 쓰는 `engineering:subagent-driven-development`를 선택할 수 있다.
+직접 실행과 위임은 같은 `engineering:executing-plans` 절차를 사용한다. 독립 작업과 격리된
+쓰기 범위가 있으면 필요한 작업자를 할당한다. 파일 계획과 작업별 커밋은 위임의 선행 조건이
+아니다. 작은 brief는 직접 전달하고, 큰 계획의 파일 사본은 선택적으로 사용한다.
 
 ## 자체 리뷰와 준비 상태 게이트
 
@@ -152,4 +153,8 @@ Expected: `[관찰 가능한 결과]`
 
 ## 완료 계약 인계
 
-계획 위치·권한·준비 상태·남은 결정과 적용 가능한 실행 방법을 전달한다. 모든 구현 계획이 있는 작업은 전체 결정론적 검증과 일반 전체 변경 리뷰 뒤 fresh-context 레드팀 completion 게이트를 거친다. `survives_challenge` 또는 정확한 리비전·위험에 대한 사람의 명시적 `accepted_risk`가 필요하다. 필수 새 문맥의 검토자 기능이 없으면 `blocked` 또는 `not_run`으로 기록한다. 실행 방식 선택이 Git·외부 작업 권한을 늘리지는 않는다.
+계획 위치·권한·준비 상태·남은 결정, unit 의존성·산출물·검사·정책을 실행자에게 전달한다.
+설계와 계획의 gate는 읽을 수 있는 고정 문서 패키지를 식별하며, 이후 구현 workspace 변화로
+그 문서의 근거를 자동 만료시키지 않는다. 실제 계약 변화는 의존 근거를 다시 연다.
+`checks`, `independent`, `red-team`은 위험에 따라 선택한다. 계획이 있다는 이유만으로
+red-team을 추가하지 않는다. 실행 방식은 Git·외부 권한을 늘리지 않는다.

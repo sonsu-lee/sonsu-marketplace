@@ -1,14 +1,10 @@
 # Fluent Languages
 
-코드·명령어·사실을 보존하며 한국어·일본어·영어를 자연스럽게 작성하는 독립 Codex·Claude Code
+코드·명령어·사실을 보존하며 한국어·일본어·영어를 자연스럽게 작성하는 독립 Codex
 플러그인이다. 지침은 한국어로 관리하고, 출력 언어는 사용자가 요청한 언어를 따른다.
 
 ```sh
-# Codex
 codex plugin add fluent-languages@sonsu-marketplace
-
-# Claude Code
-claude plugin install fluent-languages@sonsu-marketplace
 ```
 
 ## Writing·Workflow와 함께 사용하기

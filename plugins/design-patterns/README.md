@@ -11,7 +11,6 @@
 
 ```sh
 codex plugin add design-patterns@sonsu-marketplace
-claude plugin install design-patterns@sonsu-marketplace
 ```
 
 ## 스킬
@@ -25,8 +24,7 @@ claude plugin install design-patterns@sonsu-marketplace
 프레임워크 기능이나 직접 구현으로 요구 보장이 충분하면 `no-pattern`을 반환합니다. 증거가 부족하면
 패턴 이름을 추측하지 않고 `insufficient-evidence`로 남깁니다.
 
-`review-pattern-usage`는 Codex에서 `policy.allow_implicit_invocation: false`, Claude Code projection에서
-`disable-model-invocation: true`를 적용해 두 런타임 모두 사용자가 명시적으로 호출한 경우에만 실행합니다.
+`review-pattern-usage`는 `policy.allow_implicit_invocation: false`를 적용해 사용자가 명시적으로 호출한 경우에만 실행합니다.
 
 ## 선택 게이트
 

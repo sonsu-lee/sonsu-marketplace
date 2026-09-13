@@ -131,6 +131,9 @@ def exclude_scratch(root):
         exclude = root / exclude
     # Git-dir parents can legitimately use symlinks (e.g. a platform temp root).
     exclude = exclude.parent.resolve(strict=True) / exclude.name
+    safe_path(exclude)
+    if exclude.is_file() and EXCLUSION.rstrip(b"\n") in exclude.read_bytes().splitlines():
+        return
     with locked(exclude) as stream:
         existing = stream.read()
         if EXCLUSION.rstrip(b"\n") not in existing.splitlines():
@@ -275,9 +278,8 @@ def parser():
     for command in ("read", "write", "close"):
         q = sub.add_parser(command)
         q.add_argument("--cwd", default=os.getcwd())
-        q.add_argument("--session-id", default=(os.environ.get("CODEX_THREAD_ID")
-                                               or os.environ.get("CLAUDE_CODE_SESSION_ID")),
-                       help="exact current session; defaults to CODEX_THREAD_ID, then CLAUDE_CODE_SESSION_ID")
+        q.add_argument("--session-id", default=os.environ.get("CODEX_THREAD_ID"),
+                       help="exact current session; defaults to CODEX_THREAD_ID")
         if command != "read":
             q.add_argument("--mode", choices=("read-only", "plan", "write"), default="read-only")
             q.add_argument("--task-id", required=True)

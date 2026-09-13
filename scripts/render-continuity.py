@@ -23,14 +23,14 @@ def outputs():
         yield root / "scripts/task-continuity.py", helper
         hooks = {"hooks": {"SessionStart": [{"matcher": "^(compact|resume)$", "hooks": [{
             "type": "command",
-            "command": ('plugin_root="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}" && '
+            "command": ('plugin_root="${PLUGIN_ROOT:-}" && '
                         'test -n "$plugin_root" && '
                         'python3 "$plugin_root/scripts/task-continuity.py" hook'),
             "timeout": 5, "additionalContextLimit": 600}]}]}}
         if plugin == "engineering":
             hooks["hooks"]["Stop"] = [{"hooks": [{
                 "type": "command",
-                "command": ('plugin_root="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}" && '
+                "command": ('plugin_root="${PLUGIN_ROOT:-}" && '
                             'test -n "$plugin_root" && '
                             'python3 "$plugin_root/scripts/evidence-gates.py" hook'),
                 "timeout": 10}]}]

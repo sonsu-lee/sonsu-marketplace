@@ -2,7 +2,7 @@
 
 ## 컴팩션과 작업 연속성
 
-8개 플러그인은 각각 자기 namespace의 `task-continuity`를 제공합니다. 현재 메인 controller가
+연속성 profile이 있는 플러그인은 각각 자기 namespace의 `task-continuity`를 제공합니다. 현재 메인 controller가
 여러 단계의 작업을 소유하거나 외부 쓰기 결과를 이어서 확인해야 할 때 기존 작업 스킬에서
 같은 플러그인의 연속성 스킬을 사용합니다. 다른 플러그인의 연속성 스킬을 필수 호출하지 않습니다.
 짧은 단발 산출물과 다른 작업의 출력 문체만 담당하는 Fluent Languages에는 별도 기록이 없습니다.
@@ -18,27 +18,27 @@ Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering
 관찰하며, 스킬 라우팅·실행 권한·다른 플러그인의 상태를 결정하지 않습니다.
 
 - Status: Current
-- Last reviewed: 2026-09-08
+- Last reviewed: 2026-09-13
 
 ## 플러그인 경계
 
-Engineering, Quality Engineering, Workflow, Research, Prompting, Product, Figma Workflow, Operations UI, Design Patterns, Memory Manager와 Fluent Languages는
+Engineering, Workflow, Research, Prompting, Product, Figma Workflow, Operations UI, Design Patterns, Memory Manager와 Fluent Languages는
 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
-Codex 또는 Claude Code가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
+Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
 선택합니다.
 
 | 직접 목적 | 담당 |
 | --- | --- |
 | 구현, 디버깅, 계획 실행과 개발 방법론 | `engineering:*` |
-| 확인된 계약과 trust boundary를 코드 형태로 직접 반영 | `quality-engineering:domain-shaped-code` |
-| 명시적으로 요청한 최소 구현, 삭제 우선과 YAGNI | `quality-engineering:simplify-code` |
-| diff·commit·branch의 over-engineering 검토 | `quality-engineering:review-overengineering` |
-| repository 또는 큰 경로의 over-engineering audit | `quality-engineering:audit-overengineering` |
-| reader load와 유지보수성 검토 | `quality-engineering:review-maintainability` |
-| 도달 가능한 실패 경로 검토 | `quality-engineering:review-failure-modes` |
-| error ownership, logging과 운용 가능성 검토 | `quality-engineering:review-operability` |
-| 코드·diff의 일반 직접 리뷰 또는 여러 품질 관점의 리뷰 | `quality-engineering:review-quality` 우선, Engineering만 있으면 `requesting-code-review` 직접 리뷰 분기 |
+| 확인된 계약과 trust boundary를 코드 형태로 직접 반영 | `engineering:domain-shaped-code` |
+| 명시적으로 요청한 최소 구현, 삭제 우선과 YAGNI | `engineering:simplify-code` |
+| diff·commit·branch의 over-engineering 검토 | `engineering:review-overengineering` |
+| repository 또는 큰 경로의 over-engineering audit | `engineering:audit-overengineering` |
+| reader load와 유지보수성 검토 | `engineering:review-maintainability` |
+| 도달 가능한 실패 경로 검토 | `engineering:review-failure-modes` |
+| error ownership, logging과 운용 가능성 검토 | `engineering:review-operability` |
+| 코드·diff의 일반 직접 리뷰 또는 여러 품질 관점의 리뷰 | `engineering:review-quality` (Luna xhigh 5개 기본) |
 | Engineering 절차의 검토·명시적 독립 리뷰 | `engineering:requesting-code-review` 워크플로우 분기 |
 | branch, staging, commit, 일반 push와 Git 변경 검토 | `workflow:git-workflow` |
 | ticket·issue·backlog 접수·초안·게시 또는 기존 제목·본문 보강 | `workflow:to-ticket` |
@@ -46,7 +46,7 @@ Codex 또는 Claude Code가 현재 설치된 스킬의 description과 요청의 
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 반복 문제와 설계 forces에 맞는 named pattern 선택 | `design-patterns:select-design-patterns` |
 | 명시적으로 요청한 기존 pattern 적용·오용의 읽기 전용 검토 | `design-patterns:review-pattern-usage` |
-| 명시적 호출에 따른 Codex·Claude Code 메모리 점검과 정리 | `memory-manager:memory-manager` |
+| 명시적 호출에 따른 Codex 메모리 점검과 정리 | `memory-manager:memory-manager` |
 | 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
 | Codex·ChatGPT·OpenAI API용 프롬프트 생성·재작성·최적화 | `prompting:prompt-builder` |
 | 제품 문제·기회·가치 제안과 해법 후보 발산 | `product:product-brainstorming` |
@@ -64,10 +64,8 @@ Codex 또는 Claude Code가 현재 설치된 스킬의 description과 요청의 
 | 기존 운영 화면과 증거의 읽기 전용 품질 감사 | `operations-ui:audit-operations-ui` |
 | 명시적으로 요청된 Figma 운영 화면을 Screen Contract와 구현 handoff에 연결 | `operations-ui:figma-operations-flow` |
 
-Memory Manager는 Codex의 `policy.allow_implicit_invocation: false`와 Claude Code skill의
-`disable-model-invocation: true`를 함께 사용합니다. Codex에서는 `$memory-manager`, Claude Code에서는
-`/memory-manager:memory-manager`로 명시적으로 호출할 때만 실행하며, 일반 작업이나 “기억해 줘”라는
-요청에서 자동 선택하지 않습니다.
+Memory Manager는 Codex의 `policy.allow_implicit_invocation: false`로 명시적 호출만 허용합니다.
+`$memory-manager`를 직접 요청할 때 실행하며 일반 작업에서 자동 선택하지 않습니다.
 점검 요청은 읽기 전용이고 정리 요청은 대상 호스트가 허용하는 직접 편집 또는 수정 노트
 방식으로 수행합니다. 수정 노트 생성과 원본 메모리 반영은 별도 결과로 보고합니다.
 
@@ -92,79 +90,24 @@ Git·ticket·PR 작업이 독립적으로 동작하고, Engineering만 설치된
 branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 트리거가 반복해서 확인되기
 전에는 추가하지 않습니다.
 
-## Engineering 실행 경로
+## Engineering 실행과 모델 선택
 
-### Codex의 작업별 모델·팀 구성
+일반 리뷰의 진입점은 Engineering 안에 통합됐습니다. 일반 리뷰는 Luna xhigh 5개의 같은 고정
+입력·같은 기준, focused 리뷰는 1개가 기본입니다. 직접 리뷰 요청은 전체 개발 계획·소스 수정으로
+확장하지 않습니다. root가 작업자 할당을 소유하고 worker는 추가 할당을 root로 요청합니다.
 
-모델, 추론도와 team 크기는 각각 판단합니다. 기존 Engineering 기본값은 유지하며, 아래 표는
-그 밖의 작업에 공식 역할 안내를 적용한 잠정 권고입니다. 플러그인별 성능 비교 결과나 고정
-pipeline이 아닙니다. 현재 요청에 필요한 단계만 선택하고 각 플러그인의 단독 실행을 유지합니다.
+정확한 역할 모델·추론 수준은 [공유 프로필](../../plugins/engineering/references/model-profiles.md),
+실행은 [공통 수명주기](../../plugins/engineering/skills/executing-plans/SKILL.md),
+현재 근거와 진행 조건은 [관리형 게이트](../../plugins/engineering/skills/using-engineering-skills/references/evidence-gates.md)를
+따릅니다. 이 링크는 저장소 문서의 탐색이며 전문 플러그인이 Engineering 설치를 요구하는 계약이 아닙니다.
 
-| 작업 | 모델·추론도 시작 후보 | 별도 agent가 필요한 경우 |
-| --- | --- | --- |
-| 정형 추출·변환·좁은 조회 | Luna medium, 속도 우선의 검증된 작업은 low | 독립 자료가 많고 결과를 간추려 전달할 수 있을 때 |
-| Product 근거 정리·합의 내용의 PRD 변환 | Terra medium | 자료별 독립 조사. 새로운 제품 결정을 대신 확정하지 않음 |
-| Product 문제·도메인 규칙·실험 설계 | Sol medium/high | 상충 근거 또는 독립 가정의 검토가 결과를 바꿀 때 |
-| Research 수집·종합 | 조사 Terra medium, 종합 Sol medium/high | 출처·증거 목적이 겹치지 않는 조사와 필요시 검증자 |
-| Figma 화면·prototype·검증 | 정해진 작업 Terra medium, 흐름·시각 판단 Sol medium/high | 독립 자료·구현 조사. 동일 canvas와 UI 세션의 writer는 한 명 |
-| Quality Engineering 검토 | 일반 Terra/Sol medium, 복잡한 실패·복구·trust boundary Sol high | 현재 변경의 명명된 독립 위험. 모든 lens별 고정 team은 만들지 않음 |
-| Workflow·Fluent Languages의 확정 사실 전달 | Luna/Terra medium | 단일 변환에는 별도 team 불필요. 원격 변경은 승인된 단일 실행 소유자가 재조회까지 담당 |
-| 위 작업을 여러 시스템·도구·단계에 걸쳐 끝까지 통합하는 가장 어려운 작업 | Astra medium, 깊은 경계 분석 high | 조정자는 전체 목표·결정을 유지하고 독립 작업만 worker에 위임 |
+기계적 작업은 결정론적 검사, 동작 변경은 independent, 고위험 경계는 별도 red-team을 선택합니다.
+계획 파일 존재·재개·고정 탐색 횟수로 위험을 결정하지 않습니다. 직접/위임은 같은 절차이고
+파일 계획·커밋 승인은 위임의 선행 조건이 아닙니다. 모델보다 실제 도구·환경 가용성을 먼저
+확인하며 사용자 권한과 gate 통과를 구분합니다.
 
-모델 capability와 실제 도구 가용성은 별도로 확인합니다. 모델을 높여도 없는 Figma·browser
-도구나 실행 환경이 생기지 않으며 시각 작업은 실제 렌더링·interaction 근거가 필요합니다.
-기존 Engineering의 [역할·추론도·prompt 대응](../../plugins/engineering/skills/using-engineering-skills/references/codex-tools.md)은
-해당 플러그인의 실행 reference입니다. 다른 플러그인의 설치 의존성이나 필수 선행 호출로
-사용하지 않습니다. 각 역할의 brief는 목표, 현재 근거, 소유 범위와 완료 조건을 중심으로
-간결하게 만들고 단순한 task에는 기존 controller를 그대로 사용합니다.
-
-Claude Code에서는 [Claude Code 실행 도구와 subagent 경계](../../plugins/engineering/skills/using-engineering-skills/references/claude-code-tools.md)를
-적용합니다. Codex의 model 이름이나 agent tool schema를 Claude Code에 그대로 요구하지 않습니다.
-
-이 권고는 [공식 모델 안내](https://learn.chatgpt.com/docs/models),
-[Codex subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents),
-[GPT-5.6 prompt 지침](https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6)과
-[Astra prompt 지침](https://developers.openai.com/api/docs/guides/latest-model#prompting-best-practices)을
-2026-09-06에 대조했습니다. API 실행 옵션과 Codex 도구 schema를 혼용하지 않습니다.
-
-### 단계별 소유와 실행 경계
-
-Engineering은 각 단계가 만드는 산출물과 품질 판정을 함께 관리합니다. 절차 선택과 실행 권한은
-별개입니다. 확인된 구현 승인은 Fast Path 탈락, 계획 전환과 재개 후에도 유지합니다. 설계 전용
-요청은 설계를 완성하고, 구현 전 확인이 요청됐다면 검토할 산출물을 준비한 뒤 그 의존 작업만
-기다립니다. 미정 규칙과 독립적으로 승인된 작업은 계속합니다.
-
-Fast Path는 고정 `TASK_ID`로 소비한 탐색·수정 예산과 `disqualified` 상태를 관리합니다.
-현재 연속 실행에만 `EXECUTION_ID`를 만들고 `begin`, 탐색·수정 전 `reserve`, 탈락 시
-`disqualify`를 사용합니다. 표적 탐색 최대 2회, 최초 구현 1회와 집중 수정 1회를 허용하며
-탈락·재개·설명되지 않는 변경은 기존 예산을 유지한 채 일반 경로로 전환합니다.
-
-| 전환 이유 | 후속 단계 |
-| --- | --- |
-| 원인이 불명확한 실패 | `systematic-debugging` |
-| 여러 흐름·인터페이스의 조정 | `writing-plans` |
-| 요구사항·설계의 새로운 결정 | `brainstorming` |
-| 예산 소진·재개 | 일반 범위 한정 절차에서 필요한 탐색·검증 계속 |
-
-일반 경로는 Fast Path 자격이나 예산을 다시 부여하지 않습니다. 상태 도구의 정확한 명령과
-판정 조건은 [brainstorming](../../plugins/engineering/skills/brainstorming/SKILL.md)에 있습니다.
-Code Mode는 탐색·변환·검증을 묶는 실행 수단이며, 적합성과 통과는 실제 범위와 결과로 판단합니다.
-
-계획을 실행한 작업은 결정론적 검증과 일반 전체 변경 리뷰 뒤 새 문맥의 red-team에서 전체
-목표·요구사항·설계·계획·변경·검증 근거를 확인합니다. 자동 시도는 게이트별 최대 5회이며
-세션·담당자 변경에도 예산을 유지합니다. 국소 수정은 기존 유효 근거와 집중 검증을 연결하고,
-목표·계약·설계·의존성 경계가 바뀌거나 영향이 불명확하면 전체 검토를 다시 엽니다.
-
-### 스킬의 설명과 자료 구성
-
-Engineering·Writing·Fluent의 설명과 절차는 한국어로 작성하고 호출명·명령어·기계값·원어 용례를
-유지합니다. 본문은 실제 판단과 수행 순서를 안내하고, 필요한 조건은 해당 단계에 둡니다.
-형식은 Agent Skills의 필수 frontmatter를 따르며 본문 목차는 작업에 맞춰 선택합니다.
-작성 기준은 [writing-skills](../../plugins/engineering/skills/writing-skills/SKILL.md)에 있습니다.
-
-공통 구성은 Writing, 언어별 표현은 Fluent, 단계별 개발 절차는 Engineering이 소유합니다.
-독립 설치에 필요한 짧은 보존 기준은 각 플러그인에 둡니다. Fluent의 원본은 `sources/`,
-작업 연속성의 공통 원본은 `shared/task-continuity/`이며 배포본은 생성기로 맞춥니다.
+공통 구성은 Writing, 언어 표현은 Fluent, 개발 단계와 코드 품질은 Engineering이 소유합니다.
+공유 원본에서 필요한 패키지 참조만 생성해 단독 설치를 유지합니다.
 
 ## Prompting 조합
 
@@ -181,50 +124,20 @@ Prompting만 설치된 환경에서도 Codex, ChatGPT와 OpenAI API용 프롬프
 있어야 합니다. 특정 OpenAI 모델이나 제품 surface가 결과에 영향을 주면 포함된 snapshot을
 참고하고, 최신 또는 현재 권고를 요청받으면 OpenAI 공식 문서를 다시 확인합니다.
 
-## Quality Engineering 조합
+## 코드 품질과 리뷰
 
-Quality Engineering은 code shape, simplicity, maintainability, reachable failure mode와 operability를
-담당합니다. 일반적인 기능 설계·구현·디버깅 요청은 Engineering이 유지하고, 사용자가 도메인
-형태나 최소 구현을 직접 요구할 때 Quality Engineering 구현 스킬을 선택합니다.
+일반 리뷰, 도메인 타입·상태, 단순화, 유지보수·실패·운영성은 Engineering 내부의 전문 스킬입니다.
+일반 리뷰는 `review-quality`, 특정 관점은 해당 focused 스킬, 독립 실행은
+`requesting-code-review`가 맡습니다. 판단 기준은 패키지의 공통 references를 재사용합니다.
 
-```text
-도메인 계약에 맞춰 최소 구현하고 품질 검토
-  → Engineering이 전체 개발 lifecycle과 검증 흐름을 유지
-  → Quality Engineering의 domain-shaped-code 또는 simplify-code로 명시된 제약을 구현
-  → Quality Engineering의 관련 review lens만 읽기 전용으로 적용
-```
+root는 일반 리뷰에 같은 고정 입력·기준을 받은 Luna xhigh 5개를 할당합니다. 각 지적을 실제
+계약·도달 경로·영향으로 검증하고 중복 원인을 합칩니다. 다수결로 판정하지 않습니다. 리뷰 전용
+요청은 구현 계획·DAG·소스 수정을 요구하지 않으며 쓰기 금지 시 inline 고정 입력을 사용합니다.
+기본 Codex `/review`나 GitHub 자동 리뷰의 hook을 설치하는 기능은 별도 제공하지 않습니다.
 
-이 조합은 dependency가 아닙니다. Quality Engineering만 설치된 환경에서도 구현·review 스킬은
-자기 범위를 독립적으로 완료하며 Engineering의 계획, TDD 또는 branch 완료 skill ID를 호출하지
-않습니다. Engineering만 설치된 환경도 Quality Engineering이 있다고 가정하지 않습니다.
-
-일반적인 “이 코드/diff 리뷰해줘”와 여러 품질 관점을 요청한 경우 `review-quality`가 관련 관점을
-선택합니다. 한 관점만 지정하면 해당 집중 리뷰를 선택합니다. Engineering만 설치했으면
-`requesting-code-review`의 직접 리뷰 분기로 완료합니다. 두 플러그인이 함께 있으면 일반 직접
-리뷰는 Quality Engineering, 개발 절차가 선언한 리뷰·명시적 독립 리뷰는 Engineering이 담당합니다.
-명시한 스킬은 우선하며, 다른 플러그인의 설치나 공통 router를 필수로 요구하지 않습니다.
-
-각 패키지의 공통 리뷰 기준은 발생 조건·실제 영향·근거의 적용 이유와 최소 수정을 설명하도록
-합니다. 일반 직접 리뷰에 패키지·새 독립 리뷰어·완료 게이트·관찰 도구 등록을 요구하지 않습니다.
-기존 워크플로우의 필수 리뷰를 직접 리뷰로 대체하지도 않습니다. 리뷰·감사는 소스·Git·외부 상태를
-수정하지 않으며 임시 쓰기는 기존 허용 범위에 따릅니다. 모든 쓰기를 금지한 요청은 임시 자료도
-만들지 않습니다. 각 관점마다 지적 수를 채우거나 선택적 개선을 필수 작업으로 바꾸지 않습니다.
-
-이 선택 규칙은 설치된 스킬과 개발 워크플로우에 적용합니다. Codex 기본 `/review`나 GitHub 자동
-PR 리뷰에 연결하는 hook·설정은 제공하지 않으며 플러그인 설치만으로 해당 연결이 된다고 가정하지 않습니다.
-
-Quality Engineering은 다음 책임으로 확장하지 않습니다.
-
-- 제품 용어집, `CONTEXT.md`, ADR과 미결 architecture decision
-- 일반 debugging, TDD, 계획과 branch 완료 lifecycle
-- branch, commit, ticket, push와 PR
-- penetration test, repository-wide security scan과 취약점 판정
-- 일반 문서 작성, 조사 방법과 출력 언어
-
-명백한 correctness, security, data integrity, accessibility 또는 compatibility 문제는 단순성보다
-우선하지만, 깊은 전문 검토가 필요하면 관련 범위를 밝히고 해당 전문 skill로 라우팅합니다.
-error handling과 logging은 별도 규칙으로 강제하지 않고 오류를 소유하는 경계와 실제 운영 질문을
-기준으로 함께 판단합니다.
+도메인 타입은 확인된 규칙으로 불가능한 상태를 제외하고, 실제 외부·가변 경계는 검증합니다.
+이미 보장한 내부 경로에 중복 guard를 추가하거나 확인되지 않은 미래 요구의 fallback·추상화를
+만들지 않습니다. 전문 보안 감사·제품 규칙 발견·Git 전달·조사·언어 정책은 해당 책임에 남깁니다.
 
 ## Design Patterns 조합
 
@@ -241,7 +154,7 @@ guarantee를 먼저 판단합니다. 일반 기능 구현이나 사소한 리팩
 
 이 조합은 runtime 책임 분담이며 manifest dependency가 아닙니다. Design Patterns만 설치된 환경에서도
 선택과 읽기 전용 검토를 완성하고 Engineering의 skill ID나 계획 절차를 호출하지 않습니다.
-Engineering도 Design Patterns가 없으면 일반 설계·구현을 독립적으로 수행합니다. Quality Engineering은
+Engineering도 Design Patterns가 없으면 일반 설계·구현을 독립적으로 수행합니다. Engineering의 품질 스킬은
 broad code shape와 실패·운용 문제를 검토하고, Design Patterns review는 named pattern이 약속한
 guarantee, cost와 scope에만 집중합니다.
 
@@ -269,7 +182,7 @@ Product와 다른 플러그인의 경계는 다음과 같습니다.
   인터뷰·피드백·지표를 제품 질문에 맞게 종합하는 작업은 `synthesize-product-evidence`가
   담당합니다.
 - 제품 용어·상태·규칙의 후보를 찾는 작업은 `product-domain-discovery`가 담당하고, 확인된
-  계약을 code shape와 제어 흐름에 반영하는 작업은 Quality Engineering의
+  계약을 code shape와 제어 흐름에 반영하는 작업은 Engineering의
   `domain-shaped-code`가 담당합니다.
 - 제품 문제, 결과와 요구사항은 Product가 담당하고, 기술 설계·구현·검증 lifecycle은
   Engineering이 담당합니다.
@@ -515,94 +428,16 @@ web·browser·local 기능으로 조사하고, provider plugin이나 도구를 �
 않습니다. Fluent Languages 같은 문체 스킬은 조사 방법이나 개발 lifecycle을 소유하지 않으며,
 요청한 출력 언어에 따라 Research 또는 Engineering과 독립적으로 함께 선택할 수 있습니다.
 
-## Engineering 흐름
+## 개발·문서·검증 경계
 
-1. 요청과 승인 범위를 확인하고 실제 목적에 맞는 스킬을 선택합니다.
-2. `brainstorming`에서 조사·범위 한정 변경·구조 변경을 구분하고 필요한 설계를 정합니다.
-   승인된 단순 변경은 Fast Path 조건을 확인하고, 일반 경로는 계획 필요 여부를 판단합니다.
-3. 계획이 필요하면 의사코드로 전체 동작을 정의하고 파일·작업·의존성과 검증 이유에 연결합니다.
-4. 현재 작업 공간과 승인 범위에서 구현·검증합니다. task commit이 승인된 파일 기반 계획은
-   `subagent-driven-development`, 그 외 계획은 `executing-plans`로 실행합니다.
-5. 계획을 실행한 작업은 결정론적 검증, 일반 전체 리뷰, 새 문맥의 red-team 순서로 확인합니다.
-   계획 없는 변경은 그 동작과 위험에 맞는 검증으로 결과를 확인합니다.
-6. 변경과 실제 검증 상태를 보고하고, Git·외부 작업이 요청됐다면 해당 승인 범위에서 진행합니다.
+구현 요청은 Engineering에서 범위·위험·의존성·검사를 정하고 실행합니다. 확인된 승인 안의
+내부 선택은 진행하며 새 목표·미결정 제품 규칙에 의존하는 작업만 보류합니다. 문서 생성은
+승인된 작업에 필요한 만큼 수행하고 형식적인 추가 승인이나 날짜 기반 명세를 요구하지 않습니다.
+계획은 대화가 기본이며 큰 brief의 임시 파일은 선택적입니다.
 
-기존 linked worktree는 재사용하며 추가 격리가 필요할 때 `using-git-worktrees`를 적용합니다.
-상세 실행 계약은 각 스킬, 공통 판정과 재시도는 아래 품질 계약이 담당합니다.
-
-## Engineering quality gate
-
-Engineering의 공통 [quality gate 계약](../../plugins/engineering/skills/using-engineering-skills/references/quality-gates.md)은
-gate ID, artifact와 exact revision, 필수 검사, evidence, finding, status, return target,
-attempt/cap과 decision owner를 기록합니다. `passed`, `failed`, `blocked`, `inconclusive`,
-`not_run`, `not_applicable`, `accepted_risk`를 구분합니다. artifact가 바뀌면 이전 pass를 그대로
-복사하지 않고 변경 영향에 따라 유효한 이전 근거와 새 근거를 현재 artifact에 연결합니다.
-quality gate는 문서 작성, 구현, commit, push, PR, merge, deploy 또는 publish 권한을 부여하지
-않습니다.
-
-각 stage가 자기 artifact의 gate와 return target을 소유합니다. 중앙 gate router나 전체 workflow의
-재귀 호출은 사용하지 않습니다.
-
-| Gate | 기본 evidence | 실패 return target |
-| --- | --- | --- |
-| design document | self-review, link/path/schema check, architectural/high-risk일 때 independent review | 영향받은 문서 section 또는 design decision |
-| implementation plan | 의사코드 선행 여부, flow-task-path-dependency-verification 추적성, 검증 선택 이유, cross-component·long-running·high-risk일 때 independent review | 영향받은 의사코드·plan task 또는 `brainstorming` |
-| inline task | task별 test·build·parser·loader·consuming command | task implementation 또는 `systematic-debugging` |
-| subagent task review | task brief와 정확한 BASE..HEAD, spec·quality verdict | scoped fix loop; plan/design defect면 해당 소유 stage |
-| whole change ordinary review | plan-backed 전체 diff, 요구사항 mapping, final deterministic verification와 독립 reviewer | 가장 가까운 implementation, plan 또는 design stage |
-| red-team completion | 모든 plan-backed 작업의 목표·요구사항·설계·plan·전체 diff·검증을 포함한 content-digested bundle과 fresh-context reviewer | 사용자 재승인 또는 가장 가까운 design, plan, implementation, verification stage |
-| plan 없는 direct completion | Fast Path 또는 승인된 bounded 구현의 비례한 결정론적 검증과 목적 정렬 | 영향받은 구현 또는 일반 workflow escalation |
-
-deterministic oracle를 inferential review보다 먼저 실행합니다. retry는 artifact, hypothesis,
-implementation, evidence, context, evaluator, capability 또는 human decision 가운데 하나 이상이 바뀌어야 하며
-stage별 유한한 상한을 가집니다. 상한에 남은 실제 필수 finding은 `passed`나 `complete`로
-자동 전환하지 않습니다. 사용자 또는 확인된 human decision-maker만 exact revision의 위험을
-`accepted_risk`로 수락할 수 있고, 이 상태는 `passed`와 구분해 보고합니다.
-
-이 내부 계약은 Quality Engineering 플러그인을 필요로 하지 않습니다. 특정 quality lens를
-명시적으로 요청하면 runtime에서 Quality Engineering을 조합할 수 있지만, Engineering gate가
-그 플러그인의 설치나 skill ID를 전제로 하지는 않습니다.
-
-## 문서 라우팅
-
-`brainstorming`은 날짜 기반 spec 파일을 자동 생성하지 않습니다. 먼저
-[`docs/README.md`](../README.md)의 기준으로 기존 문서를 조사하고, 변경 없음·기존 문서
-갱신·새 문서 생성·결정 대체 중 하나를 제안합니다. 새 문서나 큰 재구성은 경로와 목적을
-사용자가 검토한 뒤 작성합니다.
-
-`writing-plans`는 구현 계획을 기본적으로 대화에 작성합니다. 실행을 위해 파일이 필요하면
-Git에서 제외된 `.engineering/plans/<topic>.md`를 사용합니다. 저장소의 기존 이슈·티켓이나
-사용자가 지정한 위치가 있으면 그 위치를 우선합니다.
-계획이 필요한 작업에서는 구현 세부사항과 테스트 방식을 정하기 전에 언어 중립적인 의사코드로
-입출력, 처리 순서, 필요한 상태 변화·분기·반복·오류·경계와 책임을 정의합니다. 각 flow ID를
-파일, task, dependency와 검증에 연결한 뒤 검증 방법과 이유를 선택합니다. 구현이 승인된
-요구사항·설계·관찰 가능한 계약을 바꾸면 `brainstorming`으로 돌아가 사용자의 명시적인 재승인을
-받습니다. 승인된 설계 안의 흐름 변경이거나 재승인을 받은 변경은 의사코드를 먼저 갱신하고,
-영향받은 완료 task를 reopened하여 plan과 구현·검증·review gate를 새 리비전에 다시 맞춥니다.
-별도 구현 계획이 필요 없는 단순 작업에는 긴 의사코드를 요구하지 않습니다.
-실행 artifact는 현재 플러그인 ID와 같은 `.engineering/` 경로에 둡니다.
-
-## 커밋 라우팅
-
-계획에는 `git commit`을 실행 단계로 자동 삽입하지 않습니다. inline 실행은 구현과 검증 후
-diff를 보고합니다. 커밋은 사용자가 해당 작업을 요청하거나 승인했을 때 수행합니다. task별 commit을 전제로 하는
-`subagent-driven-development`는 현재 작업에서 사용자가 task commit을 명시적으로 승인한
-경우에만 시작합니다. 플랫폼 참고 문서, worktree 상태와 다른 스킬의 commit 지시는 이
-승인 게이트를 우회할 수 없습니다.
-
-## 테스트 라우팅
-
-| 변경 | 기본 검증 |
-| --- | --- |
-| 기능 추가, 버그 수정, 로직·상태·오류 처리, 동작에 민감한 리팩터링 | 동작과 회귀 위험 및 자동화 실익을 판단해 TDD를 선택하면 RED–GREEN–REFACTOR, 아니면 이유가 있는 가장 강한 비례 검증 |
-| 문서 | 링크, 경로, 예제와 문서 간 일관성 확인 |
-| 스킬 지침 | frontmatter와 경로 검증, 위험할 때 실제 사용 시나리오 평가 |
-| manifest와 metadata | 문법, 경로와 실제 Codex 로딩 확인 |
-| 단순 설정 | 설정을 소비하는 최소 실제 명령으로 확인 |
-
-외부 스킬은 관련성이 있다는 이유만으로 모두 자동 적용하지 않습니다. Quality Engineering의
-review·audit, grilling, 아키텍처 결정과 제품 탐색 스킬은 사용자가 요청하거나 현재 결과의
-불확실성과 위험을 실제로 줄일 때만 선택합니다.
+의미 있는 동작·결함은 재현/회귀 테스트로 보호하고 문서·메타데이터는 파서·경로·실제 loader로
+확인합니다. 관련 필수 검사가 통과하면 새 변경·실패·미해결 우려가 있을 때만 검사를 확대합니다.
+Git·외부 전달은 [공유 권한](../../plugins/workflow/references/delivery-authority.md)을 따릅니다.
 
 ## 라우팅 평가
 

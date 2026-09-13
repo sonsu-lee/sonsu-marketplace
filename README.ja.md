@@ -2,7 +2,7 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-開発、リサーチ、プロダクト企画、文章作成に使えるCodex・Claude Codeプラグイン集です。
+開発、リサーチ、プロダクト企画、文章作成に使えるCodexプラグイン集です。
 必要なプラグインを選んでインストールし、利用中のコーディングエージェントに作業を依頼してください。
 
 [インストール](#インストール) · [プラグイン](#プラグイン) · [使用例](#使用例) · [ドキュメント](docs/README.md)
@@ -35,32 +35,11 @@ codex plugin add workflow@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
-### Claude Code
-
-Claude Codeでは、同じリポジトリをマーケットプレイスとして登録し、必要なプラグインをインストールします。
-
-```sh
-claude plugin marketplace add sonsu-lee/sonsu-marketplace
-claude plugin install engineering@sonsu-marketplace
-```
-
-別のプラグインをインストールする場合は、下の表にあるインストール名に置き換えてください。
-インストール済みの項目とマーケットプレイスで利用できる項目は、次のコマンドで確認できます。
-
-```sh
-claude plugin list --available --json
-```
-
-Claude Code向けパッケージは、同じ`skills/`、`hooks/`、`scripts/`を使用します。Codex専用の
-`apps`とUI metadataはClaude manifestへコピーしないため、Figmaなどの外部ツールはClaude Code
-host側で別途設定し、実際にtoolが利用できることを確認してください。
-
 ## プラグイン
 
 | プラグイン | 用途 | インストール名 |
 | --- | --- | --- |
-| [Engineering](plugins/engineering/README.md) | ソフトウェア変更の設計、実装、デバッグ、検証 | `engineering` |
-| [Quality Engineering](plugins/quality-engineering/README.md) | コードの簡素化と、保守性・障害経路・運用上の問題のレビュー | `quality-engineering` |
+| [Engineering](plugins/engineering/README.md) | ソフトウェア変更の設計・実装・検証、簡素化、品質レビュー | `engineering` |
 | [Workflow](plugins/workflow/) | Gitのブランチ・コミット・プッシュ、チケット、GitHub PRの作成・管理 | `workflow` |
 | [Fluent Languages](plugins/fluent-languages/) | 技術的な内容を保った自然な韓国語・日本語・英語の文章作成 | `fluent-languages` |
 | [Writing](plugins/writing/) | 読み手と目的に合わせた文の関係・段落構成・情報の順序 | `writing` |
@@ -78,12 +57,11 @@ Writingは文章の構成、Fluent Languagesは各言語の表現、Workflowは�
 
 ## 使用例
 
-対応するプラグインをインストールしたら、CodexまたはClaude Codeに次のように依頼できます。
+対応するプラグインをインストールしたら、Codexに次のように依頼できます。
 
 | プラグイン | 依頼の例 |
 | --- | --- |
-| Engineering | 「このバグの原因を特定して修正し、再現手順で修正結果を検証して。」 |
-| Quality Engineering | 「現在のdiffに不要な抽象化や到達可能な障害経路がないかレビューして。」 |
+| Engineering | 「このバグを修正して検証するか、現在のdiffに不要な抽象化や到達可能な障害経路がないかレビューして。」 |
 | Workflow | 「現在の変更をコミットして、Draft PRを作成して。」 |
 | Fluent Languages | 「この日本語の技術説明を、意味とコードの識別子を保ちながら自然な文章に整えて。」 |
 | Writing | 「事実を保ちながら、段落構成と情報の順序を整えて。」 |
@@ -91,13 +69,12 @@ Writingは文章の構成、Fluent Languagesは各言語の表現、Workflowは�
 | Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
 | Figma Workflow | 「このFigma画面のAuto Layoutとプロトタイプの接続をレビューして。」 |
-| Memory Manager | Codex: 「$memory-manager このプロジェクトのCodexメモリを点検して。」<br>Claude Code: 「/memory-manager:memory-manager このプロジェクトのClaude Codeメモリを点検して。」 |
+| Memory Manager | 「$memory-manager このプロジェクトのCodexメモリを点検して。」 |
 | Operations UI | 「この受注運用画面をScreen Contractから実装し、ブラウザーの証跡で検証して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
 
-CodexとClaude Codeは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
-Memory Managerは、Codexでは`$memory-manager`、Claude Codeでは
-`/memory-manager:memory-manager`で明示的に呼び出したときだけ動作します。
+Codexは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
+Memory Managerは、`$memory-manager`で明示的に呼び出したときだけ動作します。
 複数のプラグインを併用する際の役割分担は、[スキルルーティングのドキュメント](docs/architecture/skill-routing.md)にまとめています。
 
 ResearchのExa・Perplexity連携は任意です。利用可能なWebツール、ブラウザー、コネクター、ローカル資料でも調査できます。
@@ -112,18 +89,7 @@ Figma Workflowでキャンバスを操作するには、公式Figma MCP接続と
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-Claude Codeでは、マーケットプレイスの一覧を更新してから、インストール済みの各プラグインを更新します。
-
-```sh
-claude plugin marketplace update sonsu-marketplace
-claude plugin update engineering@sonsu-marketplace
-```
-
-`engineering`をインストール済みの各プラグイン名に置き換え、2つ目のコマンドを繰り返します。
-`project`または`local`スコープにインストールした場合は、同じスコープを`--scope project`または`--scope local`で指定します。
-
-プラグインのインストールやアップデート後は、Codexで新しいタスクを開始するか、Claude Codeで
-`/reload-plugins`を実行して最新のスキル一覧を読み込んでください。
+プラグインのインストールやアップデート後は、Codexで新しいタスクを開始して最新のスキル一覧を読み込んでください。
 
 <details>
 <summary>同じスキルをすでにインストールしている場合</summary>
@@ -142,9 +108,6 @@ git clone https://github.com/sonsu-lee/sonsu-marketplace.git
 cd sonsu-marketplace
 codex plugin marketplace add .
 codex plugin list --marketplace sonsu-marketplace
-
-claude plugin marketplace add . --scope local
-claude plugin list --available --json
 ```
 
 GitHubソースとローカルパスは同じ `sonsu-marketplace` 識別子を使うため、1つの環境ではどちらか一方の方法で登録してください。
@@ -163,11 +126,9 @@ GitHubソースとローカルパスは同じ `sonsu-marketplace` 識別子を�
 ```text
 sonsu-marketplace/
 ├── .agents/plugins/marketplace.json  # プラグイン一覧
-├── .claude-plugin/marketplace.json   # Claude Codeプラグイン一覧
 ├── plugins/
 │   └── <plugin>/
 │       ├── .codex-plugin/plugin.json # プラグイン情報
-│       ├── .claude-plugin/plugin.json # 生成されたClaude Codeプラグイン情報
 │       └── skills/                  # スキルと参考資料
 ├── docs/                            # 保守用ドキュメント
 └── evals/                           # 評価用fixtureと検証ツール
@@ -178,22 +139,19 @@ sonsu-marketplace/
 リポジトリのルートで、次の静的検査を実行します。
 
 ```sh
-find .agents .claude-plugin plugins evals -name '*.json' -print0 \
+find .agents plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
-python3 scripts/render-claude-compat.py --check
 python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
-claude plugin validate . --strict
 git diff --check
 ```
 
 これらのコマンドは、JSON構文、生成されたスキルと正本の一致、評価用fixtureとrunnerの構造を確認します。
 実際のモデルによるスキル選択や出力品質は、別途検証が必要です。プラグインの構造を変更した場合は、
-分離したCodex・Claude Code環境でマーケットプレイスの登録、プラグインのインストール、スキルが利用可能になることも確認してください。
+分離したCodex環境でマーケットプレイスの登録、プラグインのインストール、スキルが利用可能になることも確認してください。
 
-各プラットフォームの形式は、[OpenAI公式のプラグインパッケージングドキュメント](https://developers.openai.com/plugins/build/plugins)と
-[Anthropic公式のマーケットプレイスドキュメント](https://code.claude.com/docs/en/plugin-marketplaces)に従います。
+パッケージ形式は、[OpenAI公式のプラグインパッケージングドキュメント](https://developers.openai.com/plugins/build/plugins)に従います。
 
 </details>
 
@@ -201,8 +159,7 @@ git diff --check
 
 リポジトリ全体に適用するルートレベルのライセンスは、現在宣言していません。各プラグインのライセンスと出典は次のとおりです。
 
-- Engineeringには[MITライセンス](plugins/engineering/LICENSE)が適用されます。
-- Quality Engineeringは複数のバージョンを固定したアップストリームソースに基づき、[Apache-2.0ライセンス](plugins/quality-engineering/LICENSE)、[NOTICE](plugins/quality-engineering/NOTICE)、[出典の対応表](plugins/quality-engineering/UPSTREAM.md)、[MITライセンスの原文通知](plugins/quality-engineering/THIRD_PARTY_NOTICES.md)を保持しています。
+- Engineeringでは、既存のlifecycle資料に[MITライセンス](plugins/engineering/LICENSE)、移行した品質資料に[Apache-2.0ライセンス](plugins/engineering/LICENSE-APACHE-2.0)を適用します。[NOTICE](plugins/engineering/NOTICE)、[出典の対応表](plugins/engineering/UPSTREAM.md)、[MITライセンスの原文通知](plugins/engineering/THIRD_PARTY_NOTICES.md)も保持しています。
 - Workflowには、現在個別のライセンスを宣言していません。既存の文章作成指針とテンプレートの[MIT表記](plugins/workflow/WRITING_LICENSE.md)を別途保持しています。
 - Promptingには、現在個別のライセンスを宣言していません。
 - Productには、現在個別のライセンスを宣言していません。
