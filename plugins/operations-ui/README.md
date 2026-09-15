@@ -2,14 +2,10 @@
 
 제안·Figma-only·구현과 일반 UI 직접 호출은 [산출물별 작업 경계](references/delivery.md)로 구분합니다. 아래 실행용 JSON·G0–G7은 운영형 웹 구현·런타임 감사 계약입니다.
 
-`operations-ui`는 WMS, 배송, 고객지원, 금융 운영, 콘텐츠 검수처럼 **많은 상태와 데이터를 보고 다음 행동을 결정하는 B2B 화면**을 위한 Codex·Claude Code 플러그인입니다. 특정 산업의 용어가 아니라 작업 구조를 기준으로 라우팅합니다.
+`operations-ui`는 WMS, 배송, 고객지원, 금융 운영, 콘텐츠 검수처럼 **많은 상태와 데이터를 보고 다음 행동을 결정하는 B2B 화면**을 위한 Codex 플러그인입니다. 특정 산업의 용어가 아니라 작업 구조를 기준으로 라우팅합니다.
 
 ```sh
-# Codex
 codex plugin add operations-ui@sonsu-marketplace
-
-# Claude Code
-claude plugin install operations-ui@sonsu-marketplace
 ```
 
 ## 디자인 언어

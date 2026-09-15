@@ -27,6 +27,9 @@ gate별 check ID도 아래 순서로 고정한다. `status: passed`인 gate의 c
 
 Screen Contract 필수 필드가 완성되고 unresolved decision이 없으며 requirement와 action, permission, risk, view state의 scenario coverage가 100%다.
 
+미결정 항목이 있는 계약도 구조 검증은 통과할 수 있지만 G0와 해당 항목의 `gate_ids`는
+`passed`가 될 수 없다. 영향받지 않은 작업·gate의 근거는 보존하고 전체 판정은 미완료로 남긴다.
+
 필수 증거: screen contract artifact, coverage matrix.
 
 ### G1 Task & Information Architecture
@@ -44,6 +47,11 @@ primary decision/action, 선택한 screen pattern, entity/lifecycle/status/filte
 ### G3 Data & State Resilience
 
 contract상 applicable한 loading, empty, error, permission-denied, zero, one, many, long-localized와 overflow 상태가 구현되고 관찰된다.
+
+위 이름은 검토 예시다. 존재하지 않는 상태·권한·데이터 경로를 검사 통과 목적으로 구현하지 않는다.
+고정 check ID는 그 관점의 책임을 식별하며 모든 예시 상태를 만들라는 뜻이 아니다. 각 check의
+근거에는 적용되는 상태의 관찰과 나머지가 해당하지 않는 도메인·타입·입력 경계 근거를 연결한다.
+단순 누락이나 미확인은 적용 제외의 근거가 아니다.
 
 필수 증거: state matrix, scenario별 actual-render capture 또는 observation.
 
@@ -73,4 +81,4 @@ keyboard reach/order, visible focus, accessible names/roles/states, non-color-on
 
 ## 전체 판정
 
-`overall: passed`는 G0–G7이 정확한 순서로 모두 `passed`이고, 모든 필수 evidence와 required browser receipt가 있을 때만 허용한다. 하나라도 `failed`, `blocked`, `inconclusive`, `not_run`이면 가장 가까운 책임 단계로 반환하고 수정·재실행한다.
+`overall: passed`는 G0–G7이 정확한 순서로 모두 `passed`이고, 모든 필수 evidence와 required browser receipt가 있을 때만 허용한다. 하나라도 `failed`, `blocked`, `inconclusive`, `not_run`이면 전체 통과를 보고하지 않는다. 수정 가능한 실패는 [재시도와 종료](execution-workflow.md#재시도와-종료)에 따라 소유 단계로 반환하며, 필수 입력·환경 부재는 반복 호출하지 않는다.

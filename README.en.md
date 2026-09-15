@@ -2,7 +2,7 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-A collection of Codex and Claude Code plugins for development, research, product planning, and writing.
+A collection of Codex plugins for development, research, product planning, and writing.
 Install the plugins you need, then work with your coding agent as usual.
 
 [Installation](#installation) · [Plugins](#plugins) · [Usage examples](#usage-examples) · [Documentation](docs/README.md)
@@ -35,31 +35,11 @@ Start a new Codex task after installation. To list the plugins in the marketplac
 codex plugin list --marketplace sonsu-marketplace
 ```
 
-### Claude Code
-
-In Claude Code, register the same repository as a marketplace and install the plugin you need.
-
-```sh
-claude plugin marketplace add sonsu-lee/sonsu-marketplace
-claude plugin install engineering@sonsu-marketplace
-```
-
-Replace the plugin name with an installation name from the table below. To list installed and available plugins, run:
-
-```sh
-claude plugin list --available --json
-```
-
-Claude Code packages use the same `skills/`, `hooks/`, and `scripts/`. Codex-only `apps` and UI metadata
-are not copied into Claude manifests, so configure external tools such as Figma separately in the Claude
-Code host and verify that their tools are available.
-
 ## Plugins
 
 | Plugin | Purpose | Installation name |
 | --- | --- | --- |
-| [Engineering](plugins/engineering/README.md) | Design, implement, debug, and verify software changes | `engineering` |
-| [Quality Engineering](plugins/quality-engineering/README.md) | Simplify code and review maintainability, failure paths, and operational issues | `quality-engineering` |
+| [Engineering](plugins/engineering/README.md) | Design, implement, verify, simplify, and review software changes | `engineering` |
 | [Workflow](plugins/workflow/) | Work with Git branches, commits, pushes, tickets, and GitHub PRs | `workflow` |
 | [Fluent Languages](plugins/fluent-languages/) | Write natural Korean, Japanese, and English while preserving technical content | `fluent-languages` |
 | [Writing](plugins/writing/) | Select information, choose where it belongs, and organize writing for the reader and purpose | `writing` |
@@ -80,12 +60,11 @@ expression, and Workflow handles ticket/PR templates and publication. See the
 
 ## Usage examples
 
-After installing the relevant plugin, try requests like these in Codex or Claude Code:
+After installing the relevant plugin, try requests like these in Codex:
 
 | Plugin | Example request |
 | --- | --- |
-| Engineering | “Find and fix the cause of this bug, then verify the fix using the reproduction steps.” |
-| Quality Engineering | “Review the current diff for unnecessary abstractions and reachable failure paths.” |
+| Engineering | “Fix and verify this bug, or review the current diff for unnecessary abstractions and reachable failure paths.” |
 | Workflow | “Commit the current changes and create a Draft PR.” |
 | Fluent Languages | “Make this Japanese technical explanation read naturally while preserving its meaning and code identifiers.” |
 | Writing | “Select and summarize what the README needs from this material, and update the existing documents with the details.” |
@@ -93,14 +72,13 @@ After installing the relevant plugin, try requests like these in Codex or Claude
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
 | Figma Workflow | “Review the Auto Layout and prototype connections in this Figma screen.” |
-| Memory Manager | Codex: “$memory-manager Review the Codex memories for this project.”<br>Claude Code: “/memory-manager:memory-manager Review the Claude Code memories for this project.” |
+| Memory Manager | “$memory-manager Review the Codex memories for this project.” |
 | Interface Design | “Design a mobile signup flow and improve the chart presentation.” |
 | Operations UI | “Implement this order-operations screen from a Screen Contract and verify it with browser evidence.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
 
-Codex and Claude Code select skills based on your request and the descriptions of installed skills.
-Memory Manager runs only when explicitly invoked with `$memory-manager` in Codex or
-`/memory-manager:memory-manager` in Claude Code.
+Codex selects skills based on your request and the descriptions of installed skills.
+Memory Manager runs only when explicitly invoked with `$memory-manager`.
 
 Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
 Figma Workflow requires the official Figma MCP connection and the tool's prerequisite skills for canvas operations.
@@ -114,18 +92,7 @@ Fetch the latest snapshot of the registered Git marketplace:
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-In Claude Code, refresh the marketplace listing, then update each installed plugin:
-
-```sh
-claude plugin marketplace update sonsu-marketplace
-claude plugin update engineering@sonsu-marketplace
-```
-
-Repeat the second command for each installed plugin, replacing `engineering` with its name. For plugins
-installed at `project` or `local` scope, specify the matching `--scope project` or `--scope local` option.
-
-After installing or updating plugins, start a new Codex task or run `/reload-plugins` in Claude Code to
-load the latest skill list.
+After installing or updating plugins, start a new Codex task to load the latest skill list.
 
 If you installed `fluent-languages` from another marketplace or standalone copies of `prompt-builder`,
 `product-discovery`, or `to-prd`, remove those copies first to avoid duplicate skill names.

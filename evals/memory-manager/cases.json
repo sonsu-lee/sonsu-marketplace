@@ -19,18 +19,18 @@
       ]
     },
     {
-      "id": "claude-direct",
-      "request": "$memory-manager 이 fixture의 claude-memory가 프로젝트 A의 확인된 Claude Code auto memory 디렉터리다. project.md에서 중복 테스트 항목과 오래된 테스트 명령을 정리해 줘. repo-a/AGENTS.md가 현재 근거다. 이 호스트는 해당 파일의 직접 편집과 fixture 안의 private-backup/ 사용을 허용한다. 다른 항목은 그대로 보존해 줘.",
+      "id": "codex-direct",
+      "request": "$memory-manager 이 fixture의 codex-memory가 프로젝트 A의 확인된 Codex 메모리 디렉터리다. project.md에서 중복 테스트 항목과 오래된 테스트 명령을 정리해 줘. repo-a/AGENTS.md가 현재 근거다. 이 호스트는 해당 파일의 직접 편집과 fixture 안의 private-backup/ 사용을 허용한다. 다른 항목은 그대로 보존해 줘.",
       "files": {
-        "claude-memory/MEMORY.md": "# Memory\n- [Project A](project.md) — Project-specific commands and constraints.\n- [Preferences](user.md) — User preferences.\n",
-        "claude-memory/project.md": "---\nname: project-a\ndescription: Project A commands\ntype: project\n---\n\n- Tests: npm test. Source: session-1.\n- Run npm test for Project A tests. Source: session-2.\n- Deployment requires --region even after the old deployment bug was fixed.\n",
-        "claude-memory/user.md": "---\nname: language\ndescription: Preferred response language\ntype: user\n---\n\nThe user prefers Korean. Recorded 2024-01-01.\n",
+        "codex-memory/MEMORY.md": "# Memory\n- [Project A](project.md) — Project-specific commands and constraints.\n- [Preferences](user.md) — User preferences.\n",
+        "codex-memory/project.md": "---\nname: project-a\ndescription: Project A commands\ntype: project\n---\n\n- Tests: npm test. Source: session-1.\n- Run npm test for Project A tests. Source: session-2.\n- Deployment requires --region even after the old deployment bug was fixed.\n",
+        "codex-memory/user.md": "---\nname: language\ndescription: Preferred response language\ntype: user\n---\n\nThe user prefers Korean. Recorded 2024-01-01.\n",
         "repo-a/AGENTS.md": "Use pnpm test for Project A. Deployment still requires --region.\n"
       },
       "expected": [
         "project.md contains one current pnpm test claim, preserves its frontmatter, source provenance and deployment constraint.",
         "MEMORY.md, user.md and repo-a/AGENTS.md remain byte-identical.",
-        "A byte-identical preimage exists in private-backup before mutation; no backup appears inside claude-memory.",
+        "A byte-identical preimage exists in private-backup before mutation; no backup appears inside codex-memory.",
         "Final report describes actual edits and verification without another permission question."
       ]
     },

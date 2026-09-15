@@ -8,12 +8,11 @@ flowchart TB
   A[자연어 자동 트리거] --> R[요청 목적과 산출물]
   B[스킬 직접 호출] --> R
   R --> W[Workflow: PR 조회·복구·티켓]
-  R --> Q[Quality Engineering: 일반·심층 리뷰]
   R --> P[Product: 제품 결정]
   R --> I[Interface Design: 일반 UI]
   R --> O[Operations UI: 운영 업무]
   R --> F[Figma Workflow: 파일·프로토타입]
-  R --> E[Engineering: 전체 개발 절차]
+  R --> E[Engineering: 개발·일반·심층 리뷰]
   I -. Figma 산출물 .-> F
   O -. Figma 산출물 .-> F
   E -. 필요한 작업 조합 .-> I
@@ -52,7 +51,7 @@ Operations UI 웹 구현의 기존 schema·validator·runtime gate는 유지합�
 
 ## PR 심층 리뷰 구성
 
-`quality-engineering:review-pr`의 기본은 Luna xhigh 5명과 Astra xhigh 1명입니다. 조정자가 새 세션의
+`engineering:review-pr`의 기본은 Luna xhigh 5명과 Astra xhigh 1명입니다. 조정자가 새 세션의
 리뷰어를 직접 생성하고 슬롯이 충분하면 병렬로 실행합니다. 모든 리뷰어가 같은 고정 전체 diff를
 독립 검토하며 재위임하지 않습니다. 사용자 지정은 우선하고, 슬롯 부족 시 독립성을 유지한 채 나눠
 실행합니다. 조정자는 원인·발생 조건·필요한 수정이 같은 지적을 한 번만 보고합니다.

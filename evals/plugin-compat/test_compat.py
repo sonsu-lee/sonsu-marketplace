@@ -1,283 +1,44 @@
-"""Cross-runtime packaging contracts for Codex and Claude Code plugins."""
+"""Codex marketplace packaging contracts."""
 import json
 from pathlib import Path
-import subprocess
-import sys
-import tempfile
 import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-RENDERER = ROOT / "scripts/render-claude-compat.py"
+CATALOG = ROOT / ".agents/plugins/marketplace.json"
 
 
-class ClaudeCompatibilityTests(unittest.TestCase):
-    def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name) / "repo"
-        marketplace_dir = self.root / ".agents/plugins"
-        plugin_dir = self.root / "plugins/example/.codex-plugin"
-        marketplace_dir.mkdir(parents=True)
-        plugin_dir.mkdir(parents=True)
-        (marketplace_dir / "marketplace.json").write_text(
-            json.dumps(
-                {
-                    "name": "fixture-marketplace",
-                    "interface": {"displayName": "Fixture Marketplace"},
-                    "plugins": [
-                        {
-                            "name": "example",
-                            "source": {"source": "local", "path": "./plugins/example"},
-                            "policy": {
-                                "installation": "AVAILABLE",
-                                "authentication": "ON_INSTALL",
-                            },
-                            "category": "Developer Tools",
-                        }
-                    ],
-                }
+class CodexPackagingTests(unittest.TestCase):
+    def test_catalog_entries_reference_matching_plugin_manifests(self):
+        catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
+        names = set()
+
+        for entry in catalog["plugins"]:
+            with self.subTest(plugin=entry["name"]):
+                self.assertNotIn(entry["name"], names)
+                names.add(entry["name"])
+                self.assertEqual(entry["source"]["source"], "local")
+                self.assertEqual(entry["source"]["path"], f"./plugins/{entry['name']}")
+
+                manifest_path = ROOT / "plugins" / entry["name"] / ".codex-plugin/plugin.json"
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                self.assertEqual(manifest["name"], entry["name"])
+
+    def test_declared_package_paths_stay_inside_each_plugin(self):
+        catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
+
+        for entry in catalog["plugins"]:
+            package_root = (ROOT / "plugins" / entry["name"]).resolve()
+            manifest = json.loads(
+                (package_root / ".codex-plugin/plugin.json").read_text(encoding="utf-8")
             )
-            + "\n"
-        )
-        (plugin_dir / "plugin.json").write_text(
-            json.dumps(
-                {
-                    "name": "example",
-                    "version": "1.2.3",
-                    "description": "Fixture plugin",
-                    "author": {"name": "Fixture", "url": "https://example.invalid"},
-                    "license": "MIT",
-                    "keywords": ["fixture", "skills"],
-                    "skills": "./skills/",
-                    "hooks": "./hooks/hooks.json",
-                    "apps": "./.app.json",
-                    "interface": {
-                        "displayName": "Example Plugin",
-                        "shortDescription": "Codex-only UI metadata",
-                    },
-                }
-            )
-            + "\n"
-        )
-
-    def run_renderer(self, *args):
-        self.assertTrue(RENDERER.is_file(), "Claude compatibility renderer is missing")
-        return subprocess.run(
-            [sys.executable, str(RENDERER), "--root", str(self.root), *args],
-            text=True,
-            capture_output=True,
-            timeout=15,
-        )
-
-    def test_renders_native_claude_catalog_and_plugin_manifest(self):
-        result = self.run_renderer()
-        self.assertEqual(result.returncode, 0, result.stderr)
-
-        marketplace = json.loads(
-            (self.root / ".claude-plugin/marketplace.json").read_text()
-        )
-        self.assertEqual(
-            marketplace,
-            {
-                "name": "fixture-marketplace",
-                "owner": {"name": "sonsu-lee", "url": "https://github.com/sonsu-lee"},
-                "description": "Codex와 Claude Code에서 사용하는 재사용 가능한 에이전트 플러그인 모음입니다.",
-                "plugins": [
-                    {
-                        "name": "example",
-                        "source": "./plugins/example",
-                        "description": "Fixture plugin",
-                        "version": "1.2.3",
-                        "category": "Developer Tools",
-                    }
-                ],
-            },
-        )
-
-        manifest = json.loads(
-            (self.root / "plugins/example/.claude-plugin/plugin.json").read_text()
-        )
-        self.assertEqual(
-            manifest,
-            {
-                "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
-                "name": "example",
-                "displayName": "Example Plugin",
-                "version": "1.2.3",
-                "description": "Fixture plugin",
-                "author": {"name": "Fixture", "url": "https://example.invalid"},
-                "license": "MIT",
-                "keywords": ["fixture", "skills"],
-                "skills": "./skills/",
-            },
-        )
-        self.assertNotIn("hooks", manifest)
-
-    def test_projects_runtime_specific_skill_frontmatter_for_claude(self):
-        plugin_root = self.root / "plugins/example"
-        skill_root = plugin_root / "skills/manual-review"
-        catalog_root = plugin_root / "catalog"
-        reference_root = plugin_root / "references"
-        skill_root.mkdir(parents=True)
-        catalog_root.mkdir()
-        reference_root.mkdir()
-        canonical_skill = """---
-name: manual-review
-description: Run only when the user explicitly requests this review.
----
-
-Read [the catalog](../../catalog/example.json) and [the contract](../../references/contract.md).
-"""
-        (skill_root / "SKILL.md").write_text(canonical_skill)
-        (catalog_root / "example.json").write_text('{"schema_version": 1}\n')
-        (reference_root / "contract.md").write_text("# Contract\n")
-        obsolete_source = reference_root / "obsolete.md"
-        obsolete_source.write_text("# Obsolete\n")
-        (plugin_root / "UPSTREAM.md").write_text("# Upstream\n")
-        (plugin_root / ".claude-plugin").mkdir()
-        (plugin_root / ".claude-plugin/compat.json").write_text(
-            json.dumps(
-                {
-                    "schema_version": 1,
-                    "include": ["catalog", "references", "UPSTREAM.md"],
-                    "skill_frontmatter": {
-                        "manual-review": {"disable-model-invocation": True}
-                    },
-                }
-            )
-            + "\n"
-        )
-
-        result = self.run_renderer()
-
-        self.assertEqual(result.returncode, 0, result.stderr)
-        marketplace = json.loads(
-            (self.root / ".claude-plugin/marketplace.json").read_text()
-        )
-        self.assertEqual(
-            marketplace["plugins"][0]["source"],
-            "./.claude-plugins/example",
-        )
-        projected_root = self.root / ".claude-plugins/example"
-        projected_skill = (projected_root / "skills/manual-review/SKILL.md").read_text()
-        self.assertEqual((skill_root / "SKILL.md").read_text(), canonical_skill)
-        self.assertIn("disable-model-invocation: true", projected_skill)
-        self.assertEqual(
-            (projected_root / "catalog/example.json").read_text(),
-            '{"schema_version": 1}\n',
-        )
-        self.assertEqual(
-            (projected_root / "references/contract.md").read_text(),
-            "# Contract\n",
-        )
-        self.assertEqual(
-            (projected_root / "UPSTREAM.md").read_text(),
-            "# Upstream\n",
-        )
-        self.assertTrue(
-            (projected_root / ".claude-plugin/plugin.json").is_file()
-        )
-        self.assertFalse(
-            (plugin_root / ".claude-plugin/plugin.json").exists()
-        )
-
-        obsolete_source.unlink()
-        stale = self.run_renderer("--check")
-        self.assertEqual(stale.returncode, 1, stale.stdout + stale.stderr)
-        self.assertIn(
-            "stale: .claude-plugins/example/references/obsolete.md",
-            stale.stdout,
-        )
-
-        refreshed = self.run_renderer()
-        self.assertEqual(refreshed.returncode, 0, refreshed.stderr)
-        self.assertIn(
-            "removed: .claude-plugins/example/references/obsolete.md",
-            refreshed.stdout,
-        )
-        self.assertFalse(
-            (projected_root / "references/obsolete.md").exists()
-        )
-        self.assertEqual(self.run_renderer("--check").returncode, 0)
-
-    def test_check_detects_and_then_accepts_generated_outputs(self):
-        stale = self.run_renderer("--check")
-        self.assertEqual(stale.returncode, 1)
-        self.assertIn(".claude-plugin/marketplace.json", stale.stdout)
-        self.assertIn("plugins/example/.claude-plugin/plugin.json", stale.stdout)
-
-        rendered = self.run_renderer()
-        self.assertEqual(rendered.returncode, 0, rendered.stderr)
-        current = self.run_renderer("--check")
-        self.assertEqual(current.returncode, 0, current.stdout + current.stderr)
-        self.assertEqual(current.stdout, "")
-
-    def test_rejects_a_source_outside_the_named_plugin_directory(self):
-        marketplace_path = self.root / ".agents/plugins/marketplace.json"
-        marketplace = json.loads(marketplace_path.read_text())
-        marketplace["plugins"][0]["source"]["path"] = "./plugins/example/../other"
-        marketplace_path.write_text(json.dumps(marketplace) + "\n")
-
-        result = self.run_renderer()
-
-        self.assertEqual(result.returncode, 2)
-        self.assertIn("invalid local plugin path", result.stderr)
-        self.assertFalse((self.root / ".claude-plugin/marketplace.json").exists())
-
-    def test_traversal_name_cannot_overwrite_an_external_manifest(self):
-        outside = Path(self.tmp.name) / "outside"
-        (outside / ".codex-plugin").mkdir(parents=True)
-        (outside / ".codex-plugin/plugin.json").write_text(
-            json.dumps({"name": "../../outside", "version": "1.0.0"})
-        )
-        (outside / ".claude-plugin").mkdir()
-        target = outside / ".claude-plugin/plugin.json"
-        target.write_text("preserve external manifest\n")
-        catalog_path = self.root / ".agents/plugins/marketplace.json"
-        catalog = json.loads(catalog_path.read_text())
-        catalog["plugins"].append({
-            "name": "../../outside",
-            "source": {"source": "local", "path": "./plugins/../../outside"},
-        })
-        catalog_path.write_text(json.dumps(catalog))
-
-        for args in (("--check",), ()):
-            with self.subTest(args=args):
-                result = self.run_renderer(*args)
-                self.assertEqual(target.read_text(), "preserve external manifest\n")
-                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-                self.assertFalse((self.root / "plugins/example/.claude-plugin/plugin.json").exists())
-                self.assertFalse((self.root / ".claude-plugin/marketplace.json").exists())
-
-    def test_plugin_symlink_cannot_write_outside_the_plugins_directory(self):
-        outside = Path(self.tmp.name) / "outside"
-        (outside / ".codex-plugin").mkdir(parents=True)
-        (outside / ".codex-plugin/plugin.json").write_text(json.dumps({"name": "linked"}))
-        (self.root / "plugins/linked").symlink_to(outside, target_is_directory=True)
-        catalog_path = self.root / ".agents/plugins/marketplace.json"
-        catalog = json.loads(catalog_path.read_text())
-        catalog["plugins"].append({
-            "name": "linked", "source": {"source": "local", "path": "./plugins/linked"},
-        })
-        catalog_path.write_text(json.dumps(catalog))
-
-        result = self.run_renderer()
-
-        self.assertFalse((outside / ".claude-plugin/plugin.json").exists())
-        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-
-    def test_output_symlink_cannot_overwrite_an_external_manifest(self):
-        outside = Path(self.tmp.name) / "outside"
-        outside.mkdir()
-        target = outside / "plugin.json"
-        target.write_text("preserve external manifest\n")
-        (self.root / "plugins/example/.claude-plugin").symlink_to(outside, target_is_directory=True)
-
-        result = self.run_renderer()
-
-        self.assertEqual(target.read_text(), "preserve external manifest\n")
-        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            for field in ("skills", "hooks", "apps"):
+                if field not in manifest:
+                    continue
+                with self.subTest(plugin=entry["name"], field=field):
+                    target = (package_root / manifest[field]).resolve()
+                    self.assertTrue(target.is_relative_to(package_root))
+                    self.assertTrue(target.exists())
 
 
 if __name__ == "__main__":

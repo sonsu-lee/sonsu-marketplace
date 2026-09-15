@@ -74,13 +74,13 @@ description: API 변경을 검토할 때 입력·응답·오류와 기존 호출
 매번 필요한 판단은 `SKILL.md`에 두고, 특정 상황에서만 필요한 긴 설명은 참고 파일로 연결한다.
 링크 옆에 읽을 조건을 적고 본문에서 바로 접근할 수 있게 한다. 단순 중복은 삭제한다.
 
-공식 권장은 본문 500줄 미만·5,000토큰 미만이다. 이를 상한을 채우는 목표로 삼기보다 각
-스킬에 필요한 분량으로 작성한다. `scripts/`는 반복 실행할 도구, `references/`는 세부 자료,
+본문은 실제 판단과 실행에 필요한 분량으로 작성하고 세부 자료는 필요한 시점에 읽게 한다. `scripts/`는 반복 실행할 도구, `references/`는 세부 자료,
 `assets/`는 양식과 자원에 사용할 수 있으며 디렉터리는 필요할 때 만든다.
 
-- 공식 작성 원칙을 대조할 때 [공식 지침 요약](anthropic-best-practices.md)을 읽는다.
+- 작성 원칙을 비교할 때 [Anthropic 연구 참고](anthropic-best-practices.md)를 읽을 수 있다.
+  이 자료는 비교 근거이며 Claude runtime 설정·호출 형식을 Codex 배포에 적용하지 않는다.
 - 호출 조건·권한·작업 순서의 실제 적용을 평가할 때 [동작 평가 방법](testing-skills-with-subagents.md)을 읽는다.
-- 호출 지침의 대조 사례가 필요하면 [적용 조건 평가 예시](examples/CLAUDE_MD_TESTING.md)를 읽는다.
+- 호출 지침의 대조 사례가 필요하면 [적용 조건 평가 예시](examples/skill-routing-evaluation.md)를 읽는다.
 - 기존 DOT 흐름을 사람이 확인해야 하면 `render-graphs.js <skill-directory>`로 SVG를 만든다.
   선형 절차는 번호 목록, 같은 기준의 비교는 표로 설명할 수 있다.
 

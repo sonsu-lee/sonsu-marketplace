@@ -1,7 +1,7 @@
 # JavaScript·TypeScript 리뷰 판단 평가
 
-이 fixture는 Quality Engineering의 공통
-[`JavaScript·TypeScript 개인 리뷰 체크리스트`](../../plugins/quality-engineering/references/javascript-typescript-review.md)가
+이 fixture는 Engineering의 공통
+[`JavaScript·TypeScript 개인 리뷰 체크리스트`](../../plugins/engineering/references/javascript-typescript-review.md)가
 실제 코드 문맥에서 올바른 finding과 no-finding을 구분하는지 평가합니다.
 
 ## 평가 범위
@@ -14,7 +14,7 @@
 - 무조건적인 hardening이나 잘못된 단순화를 막는 `must_not`
 
 평가 모델에는 `id`와 `expected`를 숨기고 `request`, `contract`, `code`, `context`만 제공합니다.
-Quality Engineering의 요청에 맞는 스킬과 공통 reference를 읽게 한 뒤 결과를 `expected`와
+Engineering의 요청에 맞는 스킬과 공통 reference를 읽게 한 뒤 결과를 `expected`와
 대조합니다. 단어 포함 여부만으로 통과시키지 않고 trigger, 실제 영향, 경계 소유자와 최소 수정이
 현재 코드 흐름에 맞는지 확인합니다.
 
@@ -56,6 +56,6 @@ node "$fixture_out/satisfies-runtime.js"
 python3 -m json.tool evals/javascript-typescript-review/cases.json >/dev/null
 ```
 
-위 명령은 fixture 문법만 확인합니다. 모델 기반 사례 실행과 격리된 Codex 설치본에서 다섯 스킬이
+위 명령은 fixture 문법만 확인합니다. 모델 기반 사례 실행과 격리된 Codex 설치본에서 관련 스킬이
 공통 reference를 실제로 읽는지 확인하는 native loading·behavior 검증은 별도입니다. 실행하지
 않은 항목을 통과로 기록하지 않습니다.

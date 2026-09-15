@@ -1,19 +1,13 @@
 # Figma Workflow
 
-Figma Design에서 제품 화면, responsive Auto Layout, component·variant·variable, exact icon과 clickable prototype을 생성·수정·감사할 때 native 구조와 evidence 기준을 제공하는 Codex·Claude Code plugin입니다. 판단이 필요한 canvas read/write의 agent writer는 현재 host에 실제로 등록된 official Figma MCP connection 하나입니다.
+Figma Design에서 제품 화면, responsive Auto Layout, component·variant·variable, exact icon과 clickable prototype을 생성·수정·감사할 때 native 구조와 evidence 기준을 제공하는 Codex plugin입니다. 판단이 필요한 canvas read/write의 agent writer는 현재 host에 실제로 등록된 official Figma MCP connection 하나입니다.
 
 ```sh
-# Codex
 codex plugin add figma-workflow@sonsu-marketplace
-
-# Claude Code
-claude plugin install figma-workflow@sonsu-marketplace
 ```
 
-Codex manifest의 `apps`는 official Figma connector discovery용 metadata입니다. Claude Code manifest에는
-이 Codex 전용 필드를 복사하지 않으므로, Claude Code에서는 사용할 Figma MCP를 host에 별도로
-구성하고 실제 tool과 prerequisite skill 노출을 확인해야 합니다. 설치만으로 canvas access가
-생겼다고 간주하지 않습니다.
+Codex manifest의 `apps`는 official Figma connector discovery용 metadata입니다. 설치만으로 canvas
+access가 생겼다고 간주하지 않습니다.
 
 ## 스킬
 

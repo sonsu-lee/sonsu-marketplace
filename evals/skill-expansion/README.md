@@ -11,7 +11,7 @@
 선택한 스킬과 읽은 파일 경로, 다음 행동, 결과·완료 판정의 근거를 원시 trace에 남긴다.
 외부 PR·Figma·tracker를 실제 수정하지 않고 사용자 설치 상태도 바꾸지 않는다.
 
-1. 형식·경로·compat renderer와 기존 Operations UI validator 회귀를 검사한다.
+1. 형식·경로·Codex 패키징·생성 결과와 기존 Operations UI validator 회귀를 검사한다.
 2. 별도 임시 marketplace/CODEX_HOME의 native plugin/read → install → skills/list로 신규 이름·
    description·enabled·errors를 확인한다. 사용자 HOME·설치·인증 파일을 수정하지 않는다.
 3. 이름 없는 요청과 이름 지정 요청을 별도로 평가한다. 본문을 강제 제공한 실행은 명시적

@@ -12,8 +12,7 @@
   → 원본 동일성 검증
   → 별도 기준 commit
   → Codex 정본 manifest와 marketplace 등록
-  → Claude Code native manifest 결정론적 생성
-  → 플랫폼별 validation과 실제 로딩 검증
+  → Codex package 검증과 실제 로딩 검증
   → 로컬 정책 변경
   → 로컬 변경 commit
   → 이후 업스트림 업데이트
@@ -38,21 +37,17 @@ Engineering은 [독립 플러그인 결정](../decisions/0009-maintain-engineeri
 따라 독립 semantic version을 사용하며 upstream 동기화나 이전 호환 경로를 배포 계약으로 두지
 않습니다.
 
-## 플랫폼 호환성 계층
+## Codex 배포와 공통 정책
 
-`.agents/plugins/marketplace.json`과 plugin별 `.codex-plugin/plugin.json`이 metadata의 정본입니다.
-[`scripts/render-claude-compat.py`](../../scripts/render-claude-compat.py)는 이 정본에서 root
-`.claude-plugin/marketplace.json`과 plugin별 `.claude-plugin/plugin.json`을 생성합니다. 생성물을
-직접 편집하지 않으며, platform-specific 필드 차이는 renderer와 fixture test에서 명시적으로
-관리합니다. 기본적으로 공유 `skills/`, `hooks/`, `scripts/` 본문은 복제하지 않고 두 manifest가 같은
-plugin root를 가리킵니다. 한 플랫폼의 필수 frontmatter가 다른 플랫폼 validator와 충돌할 때만
-plugin별 `compat.json`을 정본 입력으로 두고 `.claude-plugins/<plugin-name>/`에 필요한 skill과 resource를
-결정론적으로 projection합니다.
+`.agents/plugins/marketplace.json`과 각 `.codex-plugin/plugin.json`이 배포 계약입니다.
+Claude 전용 manifest/projection/renderer는 제공하지 않습니다. 기존 연구·라이선스·upstream
+기록은 유지합니다. `shared/agent-policy`와 `shared/task-continuity`에서 각 플러그인에 필요한
+자료를 생성해 다른 패키지 설치 없이 실행되게 합니다.
 
 ## 검증
 
-매니페스트와 JSON 문법만 확인하는 것으로 완료하지 않습니다. renderer의 `--check`, Claude Code의
-strict validator와 격리 설치, Codex의 실제 플러그인 읽기 경로를 각각 확인합니다. 이름, 버전,
-source, 스킬과 hook 목록을 플랫폼별 증거로 구분하며 실행하지 못한 경로는 `not_run`으로 남깁니다.
-업스트림 업데이트는 [업스트림 플러그인 업데이트 런북](../runbooks/updating-upstream-plugin.md)을
-따릅니다.
+생성기의 `--check`, Codex manifest·스킬 경로·frontmatter 검증과 실제 native loader/행동 평가를
+구분합니다. 정적 JSON 통과만으로 실제 스킬 선택이나 host hook 실행을 주장하지 않습니다.
+미실행은 `not_run`, 원인 불명은 `inconclusive`로 기록합니다.
+[업데이트 런북](../runbooks/updating-upstream-plugin.md)과
+[ADR 0014](../decisions/0014-use-codex-managed-engineering.md)를 따릅니다.

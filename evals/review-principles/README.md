@@ -1,7 +1,7 @@
 # 리뷰 원칙 행동 평가
 
-Engineering과 Quality Engineering의 리뷰가 실제 문제·조건부 위험·선택적 개선을 구분하고,
-일반 직접 리뷰에 불필요한 절차를 만들지 않는지 평가한다. [cases.json](cases.json)의 합성 코드와
+Engineering의 lifecycle 리뷰와 품질 리뷰가 실제 문제·조건부 위험·선택적 개선을 구분하고,
+리뷰 요청에서 구현 절차나 소스 수정을 만들지 않는지 평가한다. [cases.json](cases.json)의 합성 코드와
 계약을 사용한다. framework·AWS 형태의 조회 값은 fixture가 정한 조건이며 실제 제품 동작이나
 운영 상태를 주장하지 않는다.
 
@@ -24,21 +24,23 @@ Engineering과 Quality Engineering의 리뷰가 실제 문제·조건부 위험�
 | `workflow-optional` | 선택적 구조 제안과 필수 red-team을 구분하고 Stop 무알림을 통과로 해석하지 않음 |
 | `frozen-red-team` | 고정 묶음의 공백을 가변 자료로 대체하지 않고 verification에 반환 |
 
-앞의 두 사례는 두 플러그인 각각, 나머지 여섯은 `owners`의 담당 플러그인에서 실행한다.
-총 10개 문맥을 변경 전·후에 실행하면 20회다. Engineering의 일반 사례는
-`requesting-code-review`, 피드백 사례는 `receiving-code-review`, red-team 사례는 공통 기준과
-`red-team-reviewer.md`를 사용한다. QE 사례는 `review-quality`를 통해 필요한 관점을 적용한다.
+여덟 사례 모두 `owners`가 가리키는 Engineering에서 실행한다. 일반 품질 사례는 `review-quality`,
+집중 관점 사례는 해당 review skill, 피드백 사례는 `receiving-code-review`, red-team 사례는
+공통 기준과 `red-team-reviewer.md`를 사용한다.
 red-team 입력은 기존 생성기로 일곱 구성요소를 고정하고 digest를 전달한다.
 
 ## 실제 스킬 선택
 
 [스킬 선택 사례](../skill-routing/cases.json)의 `review-principles-*` 여섯 사례를 변경 후 별도로
-실행한다. Engineering 단독, QE 단독, 함께 설치한 일반 리뷰, 집중 리뷰, 워크플로우 리뷰와
-명시적 독립 리뷰를 구분한다. 기존 스킬 설명을 native loader에 노출하고 본문은 모델이 선택해
+실행한다. 일반 리뷰의 기본 5개 fresh 검토자, 쓰기 금지 artifact 전달, lens 비할당, 집중 리뷰의
+기본 1개 검토자, 워크플로우 리뷰와 명시적 독립 리뷰를 구분한다. 기존 스킬 설명을 native loader에 노출하고 본문은 모델이 선택해
 읽게 한다. 기대 스킬명이나 판단 정답을 사용자 요청에 삽입하지 않는다.
 
-`expected_review_mode`는 결과의 직접 리뷰·집중 리뷰·워크플로우 분기를 검사한다.
-`must_not_require_package_or_fresh_reviewer`는 일반 리뷰에 강제 준비 절차가 없는지,
+`expected_review_mode`는 결과의 직접 리뷰·집중 리뷰·워크플로우 분기를 검사한다. 일반 리뷰는
+`expected_fresh_reviewer_count`, `expected_reviewer_model`, `expected_reviewer_thinking`과
+`must_share_immutable_artifact_and_criteria`로 기본 실행을 확인한다. 집중 리뷰는 검토자 1명을
+기대한다. `must_not_create_implementation_dag`는 리뷰 요청이 전체 구현 workflow로 커지지 않는지,
+`must_not_use_majority_vote`는 반복 횟수 대신 각 지적의 근거로 판정하는지 검사한다.
 `must_preserve_required_independent_review`는 도구가 없을 때 자체 리뷰를 독립 리뷰로 대신하지
 않는지 검사한다. `must_separate_preliminary_observations_from_independent_verdict`는 보조 정적
 관찰을 미수행 독립 리뷰의 공식 판정으로 대신하지 않는지 확인한다. 두 분기 모두 새 observer
@@ -62,9 +64,11 @@ fixture의 모든 쓰기 금지는 임시 파일·진행 기록도 포함한다.
 JSON·frontmatter·참조 경로 검사, 실제 모델 행동, native 스킬 발견·선택, 실제 host hook 실행은
 서로 다른 검증이다. 실제 host `Stop` 실행은 이 평가 범위에 포함하지 않는다.
 
-## 실행 결과
+## 과거 실행 결과: Quality Engineering 병합 전
 
-2026-09-12, 기준 `6151b5b`와 이 변경을 앱에 포함된 Codex CLI `0.153.4`로 평가했다.
+아래 결과는 Quality Engineering이 독립 플러그인이던 2026-09-12의 기록이며, 현재 병합 후
+5-reviewer 기본값이나 단일 Engineering namespace를 검증한 결과가 아니다. 기준 `6151b5b`와
+당시 변경을 앱에 포함된 Codex CLI `0.153.4`로 평가했다.
 요청 설정은 사용자 기본값인 `gpt-6-astra` / `xhigh` / service tier `default`로 같게 유지했다.
 CLI trace에서 underlying 실제 모델·추론 수준은 별도 관측하지 못했으므로 `unknown`이다.
 
@@ -80,7 +84,7 @@ CLI trace에서 underlying 실제 모델·추론 수준은 별도 관측하지 �
 `failed / With fixes`로 제시했다. `requesting-code-review`의 workflow 진입에서 제공된 역할·
 고정 입력을 확인하고, 공식 독립 리뷰의 미수행 상태와 보조 관찰을 구분하도록 보완했다.
 재실행은 `blocked`와 확인된 결함을 구분했고, 일반 직접 리뷰는 그대로 수행했다. 이 보완은
-워크플로우 진입에 한정되며 공통 판단 기준·QE·입력 코드는 같아 나머지 행동 근거를 재사용했다.
+워크플로우 진입에 한정되며 당시 공통 판단 기준·Quality Engineering·입력 코드는 같아 나머지 행동 근거를 재사용했다.
 
 모델은 모의 PR·운영 설정·공식 자료를 실제 조회해 당시 2초 작업의 선택과 현재 12초 작업·
 운영 5초 lease를 대조했다. 조회 거부는 조건부 위험으로, red-team의 고정 자료 공백은 가변

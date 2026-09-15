@@ -69,22 +69,21 @@ class RuntimeTests(unittest.TestCase):
         event.update(changes)
         return self.run_cli("hook", plugin=plugin, data=event)
 
-    def test_generated_hook_resolves_codex_and_claude_plugin_roots(self):
+    def test_generated_hook_resolves_codex_plugin_root(self):
         hook_file = ROOT / "plugins/engineering/hooks/hooks.json"
         command = json.loads(hook_file.read_text())["hooks"]["SessionStart"][0]["hooks"][0]["command"]
         event = {"hook_event_name": "SessionStart", "source": "compact",
                  "session_id": "session-a", "cwd": str(self.work), "permission_mode": "default"}
         plugin_root = ROOT / "plugins/engineering"
 
-        for root_variable in ("PLUGIN_ROOT", "CLAUDE_PLUGIN_ROOT"):
-            with self.subTest(root_variable=root_variable):
-                env = self.env.copy()
-                env.pop("PLUGIN_ROOT", None)
-                env.pop("CLAUDE_PLUGIN_ROOT", None)
-                env[root_variable] = str(plugin_root)
-                result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
-                                        capture_output=True, cwd=self.work, env=env, timeout=15)
-                self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("CLAUDE_PLUGIN_ROOT", command)
+        env = self.env.copy()
+        env.pop("PLUGIN_ROOT", None)
+        env.pop("CLAUDE_PLUGIN_ROOT", None)
+        env["PLUGIN_ROOT"] = str(plugin_root)
+        result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
+                                capture_output=True, cwd=self.work, env=env, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def git(self, *args, cwd=None):
         return subprocess.run(["git", *args], cwd=cwd or self.work, env=self.env,
@@ -103,25 +102,17 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(json.loads(read.stdout), saved)
         self.assertEqual(self.path().read_bytes(), raw)
 
-    def test_claude_session_default_supports_the_checkpoint_lifecycle(self):
+    def test_missing_codex_thread_id_requires_an_explicit_session(self):
         env = self.env.copy()
         env.pop("CODEX_THREAD_ID")
         env["CLAUDE_CODE_SESSION_ID"] = "claude-session"
         result = self.write(env=env)
-        self.assertEqual(result.returncode, 0, result.stderr)
-        record = json.loads(self.run_cli("read", env=env).stdout)
-        self.assertEqual(record["session_id"], "claude-session")
-        recovered = self.hook(session_id="claude-session")
-        self.assertIn(str(self.path(session="claude-session")),
-                      json.loads(recovered.stdout)["hookSpecificOutput"]["additionalContext"])
-        closed = self.run_cli("close", "--mode", "write", "--task-id", "task-a",
-                              "--expected-revision", "1", env=env)
-        self.assertEqual(closed.returncode, 0, closed.stderr)
-        self.assertEqual(json.loads(self.run_cli("read", env=env).stdout)["status"], "complete")
-        self.assertEqual(self.hook(session_id="claude-session").stdout, "")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("missing or invalid current identity", result.stderr)
+        self.assertFalse(self.path(session="claude-session").exists())
 
-    def test_explicit_session_overrides_both_host_defaults(self):
-        env = dict(self.env, CLAUDE_CODE_SESSION_ID="claude-session")
+    def test_explicit_session_overrides_codex_default(self):
+        env = self.env.copy()
         result = self.run_cli("write", "--mode", "write", "--task-id", "task-a",
                               "--skill", "example-work", "--expected-revision", "0",
                               "--session-id", "explicit-session", data=SUMMARY, env=env)
@@ -251,6 +242,21 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(self.hook(plugin="writing").stdout, "")
         self.assertNotEqual(self.write(plugin="writing", revision=1).returncode, 0)
         self.assertEqual(current.read_bytes(), original)
+
+    def test_preconfigured_readonly_exclude_allows_checkpoint(self):
+        self.git("init", "-q")
+        exclude = self.work / ".git/info/exclude"
+        original = b"# local rules\n/.sonsu/continuity/\n"
+        exclude.write_bytes(original)
+        exclude.chmod(0o444)
+        try:
+            result = self.write()
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(self.path().is_file())
+            self.assertEqual(exclude.read_bytes(), original)
+            self.assertEqual(exclude.stat().st_mode & 0o777, 0o444)
+        finally:
+            exclude.chmod(0o644)
 
     def test_subdirectory_uses_worktree_root_and_exclude_preserves_existing_bytes(self):
         self.git("init", "-q")

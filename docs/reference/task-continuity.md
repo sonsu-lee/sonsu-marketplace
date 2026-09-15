@@ -23,18 +23,18 @@
 ```
 
 Git 밖에서는 현재 작업 디렉터리의 실제 경로를 root로 사용합니다. linked worktree는 자기 root를
-사용합니다. session은 명시한 `--session-id`를 우선하고, 생략하면 `CODEX_THREAD_ID`,
-`CLAUDE_CODE_SESSION_ID` 순서로 읽습니다. 두 호스트의 변수가 함께 남은 중첩 실행에서는 현재
-호스트의 정확한 ID를 `--session-id`로 지정합니다. ID를 알 수 없으면 다른 session이나 최신
+사용합니다. session은 명시한 `--session-id`를 우선하고, 생략하면 `CODEX_THREAD_ID`를 읽습니다.
+ID를 알 수 없으면 다른 session이나 최신
 디렉터리를 검색하지 않습니다. `--cwd`가 다르면 기존 기록을
 자동 이동하거나 다른 worktree에서 찾아오지 않습니다. subagent와 fresh reviewer는 기록 소유자가 아닙니다.
-Claude Code의 일반 명령은 host가 제공하는 `CLAUDE_CODE_SESSION_ID`를 기본값으로 사용하고,
 hook은 event에 포함된 session ID로 기존 기록을 조회합니다. ID를 별도로 저장하는 startup hook은
 필요하지 않으며, host가 정확한 ID를 제공하지 않으면 `--session-id`를 추측하지 않습니다.
 
-최초 쓰기 전에 Git의 `info/exclude`에 `/.sonsu/continuity/` 한 줄을 추가합니다. 기존 바이트와
+최초 쓰기 전에 Git의 `info/exclude`에 `/.sonsu/continuity/` 한 줄이 있는지 확인하고 없을 때 추가합니다. 기존 바이트와
 다른 규칙은 보존하며 tracked `.gitignore`는 수정하지 않습니다. linked worktree가 공유하는
-exclude는 파일 lock으로 직렬화합니다. 환경 권한 때문에 exclude를 갱신할 수 없으면 checkpoint도
+exclude 변경은 파일 lock으로 직렬화하고 lock 안에서 규칙을 다시 확인합니다. 이미 규칙이 있으면
+쓰기를 요청하지 않습니다. `.git` 쓰기를 제한하는 sandbox에서는 실행 환경 준비 단계에서 해당
+규칙을 설정할 수 있습니다. 필요한 규칙이 없고 환경 권한 때문에 추가할 수 없으면 checkpoint도
 쓰지 않습니다. 읽기와 hook은 exclude·lock·디렉터리도 만들지 않습니다.
 
 ## 형식과 수명
@@ -114,8 +114,7 @@ helper는 stale revision, 다른 identity, 손상·지원하지 않는 기록, s
 
 각 manifest는 `hooks: "./hooks/hooks.json"`을 선언하며 `SessionStart`의 matcher는
 `^(compact|resume)$`입니다. hook에는 root의 native event JSON이 stdin으로 들어옵니다.
-실행 명령은 Claude Code의 `CLAUDE_PLUGIN_ROOT`를 우선하고 Codex의 `PLUGIN_ROOT`를 fallback으로
-사용해 같은 package-local helper를 찾습니다.
+실행 명령은 Codex의 `PLUGIN_ROOT`로 같은 package-local helper를 찾습니다.
 활성 기록이 있을 때만 다음 내용을 `hookSpecificOutput.additionalContext`로 반환합니다.
 
 - 고정된 복구 안내와 JSON-인코딩된 절대 skill/checkpoint 경로
@@ -137,9 +136,9 @@ Engineering에는 별도로 선택적 [완료 근거 관찰](../../plugins/engin
 불명확하면 재시도보다 실제 대상 조회가 먼저입니다. 이미 목표 상태면 중복 쓰기하지 않습니다.
 revision이 바뀌면 영향받은 증거만 다시 검증하고 unknown/not_run과 예산을 유지합니다.
 
-Engineering에서는 최신 ledger의 complete/reopened와 누적 attempt를 따릅니다. 컴팩션 이전
-Fast Path의 eligible 판정과 EXECUTION_ID를 복원하지 않고, 기존 task ID·예산을 유지한 채
-기존 disqualification 절차로 일반 workflow에 진입합니다. fresh reviewer는 구현자 기록을 자동
+Engineering에서는 최신 ledger의 complete/reopened와 누적 round를 따릅니다.
+재개에서는 현재 소스·계약과 근거를 대조하고 기존 task/unit ID·누적 라운드를 유지합니다.
+재개 자체를 영구 탈락 사유로 삼지 않습니다. fresh reviewer는 구현자 기록을 자동
 상속하지 않습니다. 손상·누락된 입력은 기존 산출물에서 복구하고 꼭 필요한 미확인 입력만 질문합니다.
 
 ## 설치와 관찰 가능한 보장

@@ -1,6 +1,6 @@
 # 코드 리뷰어 프롬프트
 
-조정자는 [공통 리뷰 기준](review-criteria.md)의 내용을 아래 프롬프트 앞에 붙이고 빈칸을 채운다.
+조정자는 [공통 리뷰 기준](../../references/review-criteria.md)의 내용을 아래 프롬프트 앞에 붙이고 빈칸을 채운다.
 경로만 전달한 것을 기준 전달로 취급하지 않는다.
 모델·추론 수준은 현재 실행 환경에서 지원하는 설정과 역할에 맞춘다.
 
@@ -11,16 +11,20 @@
 구현 내용: [DESCRIPTION]
 요구사항 / 계획: [PLAN_OR_REQUIREMENTS]
 실행 범위·허용 환경/임시 작업 공간·예산: [EXECUTION_CONTEXT]
-Package: [REVIEW_PACKAGE]
+Artifact: [고정 inline 내용 또는 REVIEW_PACKAGE]
 Revision: [REVIEW_REVISION]
 
-패키지를 읽고 shasum -a 256 또는 sha256sum으로 선언된 SHA-256과 대조한다.
+패키지 입력이면 읽고 shasum -a 256 또는 sha256sum으로 선언된 SHA-256과 대조한다.
 없거나 읽을 수 없으면 blocked, 비어 있거나 digest가 다르면 inconclusive다. 이 경우에는
 Gate status, Cause(missing/unreadable/empty/digest-mismatch), Return target: artifact-owner,
 Review performed: no를 반환한다. 다른 산출물로 대체해 판정하지 않는다.
 
-최초 리뷰는 전체 변경을 다룬다. 의사코드가 있으면 관찰 가능한 동작·책임 경계를 대조한다.
-요구사항·설계 변경에는 재승인과 영향받은 계획·작업 갱신 근거를 확인한다.
+완전한 inline 입력이면 제공된 내용 자체를 고정 대상으로 사용하며 패키지 생성을 요구하지 않는다.
+일반 최초 리뷰는 지정한 전체 변경을 다룬다. 집중 리뷰는 처음 수행하더라도 지정 대상과
+관점에 한정하며, 패키지의 주변 자료는 해당 대상에 영향을 주는 관계를 확인하는 근거로 읽는다.
+의사코드가 있으면 관찰 가능한 동작·책임 경계를 대조한다.
+현재 승인 범위를 바꾸는 요구사항·설계 결정에는 사용자 결정과 영향받은 계획·작업 갱신 근거를 확인한다.
+기존 승인 계약 안의 내부 선택·수정은 새 사용자 승인 조건으로 만들지 않는다.
 수정 재리뷰는 기존 지적과 수정 회귀를 다루고, 이전 전체 근거의 유효 범위와 새 근거가
 현재 전체 필수 조건을 충족하는지 확인한다. 계약·의존 경계 변경이나 영향 불명확성이
 있으면 해당 전체 리뷰를 다시 열도록 요청한다.
@@ -35,13 +39,13 @@ blocked, 판정 근거 부족은 inconclusive로 두고 코드 결함과 구분�
 
 출력:
 Gate status: passed | failed | inconclusive | blocked
-Merge 준비가 됐는가?: Yes | No | With fixes
+미해결 지적과 검증 범위: [현재 역할의 관찰]
 근거: 짧은 기술적 판정
 
 조치할 지적은 심각도, file:line, 근거가 이 변경에 적용되는 이유·발생 조건·영향과 최소 수정안을 적는다.
 공통 기준으로 중복·추측·불필요한 절차 요구를 걸러내며 조건·예외·불확실성은 보존한다.
 필수 근거 공백은 확인할 내용과 반환 대상을 적는다. 유효한 Critical/Important가 열려
-있으면 failed / With fixes다. 현재 필수 근거까지 충분할 때 passed / Yes다.
+있으면 failed다. 현재 필수 근거까지 충분할 때 passed다.
 ```
 
 `[DESCRIPTION]`, `[PLAN_OR_REQUIREMENTS]`에는 승인 범위와 기대 동작을 넣는다.

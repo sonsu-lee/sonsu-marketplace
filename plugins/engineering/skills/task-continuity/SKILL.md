@@ -1,6 +1,6 @@
 ---
 name: task-continuity
-description: "구현·디버깅·계획 실행이 여러 단계로 이어져 진행 기록이 필요하거나, 컴팩션·세션 재개 후 해당 개발 작업을 복구할 때 사용한다."
+description: "구현·디버깅·계획 실행 또는 코드 품질 검토·단순화가 여러 단계로 이어져 진행 기록이 필요하거나, 컴팩션·세션 재개 후 해당 Engineering 작업을 복구할 때 사용한다."
 ---
 
 # Engineering 작업 연속성
@@ -18,8 +18,7 @@ description: "구현·디버깅·계획 실행이 여러 단계로 이어져 진
 [저장 도구](../../scripts/task-continuity.py)는 Python 3.9+와 POSIX 환경의 표준 라이브러리를
 사용한다. 현재 읽은 스킬의 실제 설치 위치에서 도구의 절대 경로를 구하고 `--help`로 옵션을 확인한다.
 
-1. 세션은 명시한 `--session-id`, `CODEX_THREAD_ID`, `CLAUDE_CODE_SESSION_ID` 순서로 정한다.
-   두 호스트의 변수가 함께 있는 중첩 실행은 현재 호스트의 정확한 ID를 명시한다. ID를 알 수
+1. 세션은 명시한 `--session-id`를 우선하고, 생략하면 `CODEX_THREAD_ID`를 사용한다. ID를 알 수
    없으면 기존 산출물로 수동 복구한다. 다른 세션이나 최신 디렉터리에서 ID를 추정하지 않는다.
 2. 작업 루트는 현재 Git worktree, Git 밖에서는 `--cwd`의 실제 경로다. 기록 위치는
    `<root>/.sonsu/continuity/<session-id>/engineering.json`이다.
@@ -51,7 +50,7 @@ description: "구현·디버깅·계획 실행이 여러 단계로 이어져 진
 
 ## 이 플러그인의 보존 항목
 
-계획·작업 ID와 리비전, 현재 단계와 진행 원장 위치, complete/reopened, 검증 리비전과 리뷰 시도 횟수·상한·남은 예산을 보존한다. 최신 원장에서 가장 이른 미완료 작업을 찾는다. Fast Path 재개는 기존 task ID와 소비 예산으로 brainstorming의 disqualification 절차를 거쳐 일반 경로로 전환한다. 과거 eligible 판정과 EXECUTION_ID는 재사용하지 않는다.
+계획·작업 ID와 리비전, 현재 단계와 진행 원장 위치, complete/reopened, 검증 리비전과 리뷰 시도 횟수·상한·남은 예산을 보존한다. 품질 검토에서는 대상 revision, 이미 검토한 범위, 열린 finding·근거와 남은 범위를 보존하고 diff가 달라지면 영향받은 finding과 증거를 재검증한다. 읽기 전용 review는 수정 권한이 아니며 scratch 쓰기까지 금지된 요청에서는 checkpoint도 쓰지 않는다. 최신 원장에서 가장 이른 미완료 작업을 찾는다. 재개는 현재 소스·계약과 근거를 다시 대조하며 task/unit ID·누적 라운드를 유지한다. 재개 자체를 영구 탈락으로 취급하지 않고 새 위험이 있으면 해당 정책과 의존 근거를 갱신한다. 요청 model+effort와 관측값(없으면 unknown), 개별 호출 수와 리뷰 라운드를 구분한다.
 
 ## 현재 상태에서 복구한다
 

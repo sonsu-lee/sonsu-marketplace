@@ -125,7 +125,6 @@
       "id": "pr-state-auto",
       "installed_plugins": [
         "workflow",
-        "quality-engineering",
         "engineering"
       ],
       "prompt": "열린 PR의 CI와 리뷰 상태를 정리해 줘.",
@@ -138,7 +137,6 @@
       "id": "pr-repair-auto",
       "installed_plugins": [
         "workflow",
-        "quality-engineering",
         "engineering"
       ],
       "prompt": "이 PR의 CI 실패를 고쳐 줘. 아직 commit이나 push는 하지 마.",
@@ -152,14 +150,13 @@
       "id": "pr-normal-review",
       "installed_plugins": [
         "workflow",
-        "quality-engineering",
         "engineering"
       ],
       "prompt": "https://github.com/example/project/pull/12 리뷰해 줘.",
       "expected": {
-        "select": "quality-engineering:review-quality",
+        "select": "engineering:review-quality",
         "must_not_select": [
-          "quality-engineering:review-pr"
+          "engineering:review-pr"
         ]
       }
     },
@@ -167,12 +164,11 @@
       "id": "pr-deep-auto",
       "installed_plugins": [
         "workflow",
-        "quality-engineering",
         "engineering"
       ],
       "prompt": "PR #12를 독립 리뷰어 3명으로 심층 검토해 줘.",
       "expected": {
-        "select": "quality-engineering:review-pr",
+        "select": "engineering:review-pr",
         "reviewers": 3,
         "writes": "none",
         "models": {
@@ -206,11 +202,11 @@
     {
       "id": "pr-deep-direct",
       "installed_plugins": [
-        "quality-engineering"
+        "engineering"
       ],
       "prompt": "$review-pr PR #12를 검토해 줘.",
       "expected": {
-        "select": "quality-engineering:review-pr",
+        "select": "engineering:review-pr",
         "reviewers": 6,
         "models": {
           "gpt-5.6-luna": 5,
@@ -279,7 +275,7 @@
     {
       "id": "review-incomplete-head",
       "installed_plugins": [
-        "quality-engineering"
+        "engineering"
       ],
       "prompt": "$review-pr 아래 검토 결과를 통합해 보고해 줘.",
       "expected": {
@@ -412,7 +408,7 @@
     {
       "id": "pr-six-slot-pressure",
       "installed_plugins": [
-        "quality-engineering"
+        "engineering"
       ],
       "prompt": "$review-pr PR #12를 심층 검토해 줘. 현재 새 리뷰어 슬롯은 2개이고 완료 후에는 반환돼.",
       "expected": {
@@ -431,7 +427,7 @@
     {
       "id": "pr-required-model-unavailable",
       "installed_plugins": [
-        "quality-engineering"
+        "engineering"
       ],
       "prompt": "$review-pr PR #12를 심층 검토해 줘. 호스트는 Luna xhigh만 지원하고 Astra 실행과 외부 실행 도구는 사용할 수 없어.",
       "expected": {
@@ -443,7 +439,7 @@
     {
       "id": "pr-duplicate-root-cause",
       "installed_plugins": [
-        "quality-engineering"
+        "engineering"
       ],
       "prompt": "$review-pr 이미 완료된 리뷰 결과를 통합해 줘. 같은 고정 base/head를 검토한 Luna 5명 중 3명이 동일한 무권한 수정 경로를 각각 보고했고, Astra 1명도 같은 원인을 다른 표현으로 보고했어. 한 Luna는 별도의 재시도 중복 결제를 발견했어. 두 문제 모두 재현 근거가 확인됐어.",
       "expected": {
@@ -455,11 +451,11 @@
     {
       "id": "pr-explicit-model-effort-count",
       "installed_plugins": [
-        "quality-engineering"
+        "engineering"
       ],
       "prompt": "PR #12를 Luna high 3명으로 독립 검토해 줘.",
       "expected": {
-        "select": "quality-engineering:review-pr",
+        "select": "engineering:review-pr",
         "reviewers": 3,
         "models": {
           "gpt-5.6-luna": 3

@@ -20,11 +20,14 @@ description: 기존 운영형 B2B, admin, back-office 또는 data-work 화면을
 1. repo instruction, implementation, route, test와 실제 화면을 읽는다.
 2. [screen contract](../../references/screen-contract.md)의 Current Behavior Inventory 형식으로 feature, state, action, permission, data-shape를 기록한다.
 3. 각 inventory ID에 `preserve` 또는 `change`, evidence, reason, implementation target과 scenario ID를 지정한다.
-4. decision이나 mapping이 하나라도 없으면 구현하지 않고 `blocked`로 반환한다.
+4. decision이나 mapping이 없는 항목의 영향 범위를 먼저 확인한다. 해당 항목과 의존 작업만 보류하고, 계약과 mapping이 완성된 독립 작업은 계속한다. 기존 기능을 계약에서 삭제해 준비된 것처럼 만들지 않는다.
 
 Current Behavior Inventory와 Change Contract를 포함한 Screen Contract JSON을 만든 직후 현재
 스킬 위치에서 `../../scripts/validate_contracts.py`의 실제 경로를 해석해 검증한다. 실패하면
-재설계를 시작하지 않고 inventory 또는 mapping 단계로 돌아간다.
+inventory 또는 mapping의 구조 오류를 수정한다. 검증 성공은 구조 유효성만 뜻하며, 조정자는
+현재 작업이 `unresolved_decisions`에 의존하지 않는지 따로 확인한다. 완전한 mapping을
+아직 만들 수 없다면 그 항목의 실행을 보류하며, 확인된 독립 범위는 별도 계약으로 분리해
+검증할 수 있다. 전체 inventory와 남은 미결정 항목은 유지한다.
 
 ```bash
 python3 <operations-ui-plugin-root>/scripts/validate_contracts.py screen-contract <screen-contract.json>
@@ -46,7 +49,7 @@ python3 <operations-ui-plugin-root>/scripts/validate_contracts.py screen-contrac
 
 [quality contract](../../references/quality-contract.md), [evidence contract](../../references/evidence-contract.md), [accessibility](../../references/accessibility.md)을 사용한다. preserve/change mapping coverage가 100%인지 확인하고 기존 scenario와 새 scenario를 actual browser에서 실행한다.
 
-하나라도 보존 회귀가 있으면 inventory/change mapping 또는 구현 단계로 되돌린다. screenshot만 있거나 브라우저 실행이 없으면 G7은 통과하지 않는다. 결과에는 inventory, Change Contract, mapping coverage, 변경 파일, checks, Quality Report와 browser receipt를 포함한다.
+보존 회귀가 있으면 [execution workflow의 재시도·종료 기준](../../references/execution-workflow.md#재시도와-종료)에 따라 영향받은 inventory/change mapping 또는 구현 단계로 되돌린다. screenshot만 있거나 브라우저 실행이 없으면 G7은 통과하지 않는다. 결과에는 inventory, Change Contract, mapping coverage, 변경 파일, checks, Quality Report와 browser receipt를 포함한다.
 
 Quality Report JSON을 만든 뒤에는 같은 validator로 report와 Screen Contract를 함께 검증한다.
 실패하면 출력된 contract 또는 gate의 책임 단계로 돌아가며 `overall: passed`를 보고하지 않는다.
