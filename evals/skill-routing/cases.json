@@ -2098,6 +2098,68 @@
         "engineering:task-continuity"
       ],
       "must_not_install_plugins": true
+    },
+    {
+      "id": "writing-developer-blog-debugging",
+      "installed_plugins": [
+        "writing"
+      ],
+      "prompt": "이 repository에서 확인한 race condition의 증상, 처음 예상과 실제 원인, 재현 명령과 수정 후 결과를 개발자 블로그 글로 써 줘. 먼저 독자와 글의 흐름을 의사코드로 보여 줘.",
+      "expected_sequence": [
+        "writing:write-developer-blog"
+      ],
+      "must_not_select": [
+        "writing:writing"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "writing-developer-blog-short-til",
+      "installed_plugins": [
+        "writing",
+        "engineering"
+      ],
+      "prompt": "오늘 `git diff --check`가 trailing whitespace를 찾아 준 과정을 짧은 TIL로 써 줘. 명령과 관찰 결과는 이미 제공한 사실만 사용하고 흐름과 본문을 한 번에 줘.",
+      "expected_sequence": [
+        "writing:write-developer-blog"
+      ],
+      "must_not_select": [
+        "writing:writing",
+        "engineering:brainstorming",
+        "engineering:writing-plans",
+        "engineering:task-continuity"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "writing-blogging-method-research-near-miss",
+      "installed_plugins": [
+        "writing",
+        "research"
+      ],
+      "prompt": "개발자들이 기술 블로그를 쓰는 방법을 여러 공개 스킬과 저자 원문에서 조사하고 비교해 줘. 아직 내 블로그 글이나 초안은 작성하지 마.",
+      "expected_sequence": [
+        "research:research"
+      ],
+      "must_not_select": [
+        "writing:write-developer-blog",
+        "writing:writing"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "writing-readme-near-miss-not-blog",
+      "installed_plugins": [
+        "writing"
+      ],
+      "prompt": "이 CLI를 처음 쓰는 개발자를 위한 README를 작성해 줘. 설치 조건, 실행 명령과 종료 코드를 제공한 사실만으로 구성해 줘.",
+      "expected_sequence": [
+        "writing:writing"
+      ],
+      "must_not_select": [
+        "writing:write-developer-blog"
+      ],
+      "must_not_install_plugins": true
     }
   ]
 }
