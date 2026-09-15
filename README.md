@@ -69,6 +69,7 @@ UI metadata는 Claude manifest에 복사하지 않으므로, Figma 같은 외부
 | [Product](plugins/product/README.md) | 제품 아이디어 탐색, 사용자 근거 정리, 가설 검증과 PRD 작성 | `product` |
 | [Figma Workflow](plugins/figma-workflow/README.md) | Figma 제품 화면, 클릭 가능한 프로토타입과 디자인 품질 검토 | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | 명시적으로 호출하는 코딩 에이전트 메모리 점검과 정리 | `memory-manager` |
+| [Interface Design](plugins/interface-design/README.md) | 일반 웹·앱 화면의 설계·재설계와 정보 자산 검증 | `interface-design` |
 | [Operations UI](plugins/operations-ui/README.md) | 상태·데이터 중심 운영형 B2B 화면의 설계, 재설계와 품질 감사 | `operations-ui` |
 | [Design Patterns](plugins/design-patterns/README.md) | 실제 설계 forces에 맞는 패턴 선택과 기존 적용 검토 | `design-patterns` |
 
@@ -94,6 +95,7 @@ Workflow는 티켓·PR의 양식과 게시를 담당합니다. 함께 쓰는 방
 | Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
 | Figma Workflow | “이 Figma 화면의 Auto Layout과 프로토타입 연결을 검토해 줘.” |
 | Memory Manager | Codex: “$memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘.”<br>Claude Code: “/memory-manager:memory-manager 현재 프로젝트의 Claude Code 메모리를 점검해 줘.” |
+| Interface Design | “새 모바일 가입 흐름을 디자인해 줘. 이 차트의 정보 표현도 개선해 줘.” |
 | Operations UI | “이 주문 운영 화면을 Screen Contract부터 구현하고 브라우저 증거로 검증해 줘.” |
 | Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
 

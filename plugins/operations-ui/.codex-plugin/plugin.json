@@ -1,7 +1,7 @@
 {
   "name": "operations-ui",
-  "version": "0.1.2",
-  "description": "운영형 B2B 화면을 하나의 디자인 언어로 설계, 재설계하고 증거 기반 품질 게이트로 검토합니다.",
+  "version": "0.2.0",
+  "description": "운영 업무 UI의 제안·Figma·구현을 산출물별로 설계·재설계하고 검증합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Operations UI",
     "shortDescription": "운영형 B2B 화면을 설계하고 검증합니다.",
-    "longDescription": "Precision Operations Console 디자인 시스템과 Screen Contract를 사용해 범용 운영 화면을 code-first로 설계·재설계하고, 실제 브라우저 증거가 있는 경우에만 품질 통과를 판정합니다.",
+    "longDescription": "운영 업무의 상태·권한·대량 처리·부분 실패를 중심으로 제안·Figma·구현을 완성합니다. 웹 구현은 기존 Screen Contract와 실제 브라우저 증거로 검증하고 디자인 결과와 실행 결과를 구분합니다.",
     "developerName": "sonsu",
     "category": "Developer Tools",
     "capabilities": [

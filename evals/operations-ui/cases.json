@@ -12,7 +12,7 @@
     },
     {
       "id": "redesign-wms-list-preserves-behavior",
-      "prompt": "기존 출고관리 화면을 첨부 이미지 느낌으로 재설계하되 현재 상태, 권한, 필터와 작업을 빠뜨리지 말아 줘.",
+      "prompt": "기존 출고관리 웹 화면을 실제 코드로 재설계하되 현재 상태, 권한, 필터와 작업을 빠뜨리지 말고 브라우저로 검증해 줘.",
       "expected": {
         "select": ["operations-ui:redesign-operations-ui"],
         "must_inventory_current_behavior": true,

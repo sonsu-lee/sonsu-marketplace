@@ -1,15 +1,15 @@
 {
   "name": "workflow",
-  "version": "0.10.1",
-  "description": "명시적인 Git, 티켓 작성·수정·lifecycle과 GitHub Pull Request 작업을 위한 Codex·Claude Code 플러그인입니다.",
+  "version": "0.11.0",
+  "description": "Git·티켓·PR 작성과 PR 상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
   "author": {
     "name": "sonsu"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Workflow",
-    "shortDescription": "Git, 티켓 작성·수정·lifecycle과 Pull Request 워크플로",
-    "longDescription": "원자적인 Git 변경을 준비하고, 버그 보고·기능 요청부터 실행 작업까지 상황에 맞는 티켓을 작성하거나 기존 제목·본문을 보강합니다. 명시된 상태·담당자·관계 변경을 처리하며, 저장소 템플릿과 게시 권한에 따라 기본 Draft GitHub Pull Request를 만듭니다.",
+    "shortDescription": "Git·티켓·PR 작성과 PR 상태 조회·복구",
+    "longDescription": "원자적인 Git 변경과 티켓 작성·보강·lifecycle 변경, 기본 Draft GitHub Pull Request 작성을 담당합니다. 열린 PR의 현재 head·CI·리뷰 상태를 조회하고 요청 범위에서 충돌·리뷰 지적·CI 실패를 복구합니다. 자연어 요청과 스킬 직접 호출을 모두 지원하며 원격 반영은 기존 승인 범위를 따릅니다.",
     "developerName": "sonsu",
     "category": "Developer Tools",
     "capabilities": [
@@ -21,7 +21,9 @@
       "이 Git 변경을 검토하고 원자적인 브랜치와 Conventional Commit을 제안해 줘.",
       "이 요청에 맞는 티켓 초안을 작성하거나 지정한 기존 티켓 내용을 보강해 줘.",
       "명시한 기존 티켓의 현재 상태를 확인하고 요청한 lifecycle 변경을 적용해 줘.",
-      "현재 브랜치를 리뷰 가능한 GitHub Pull Request로 준비해 줘."
+      "현재 브랜치를 리뷰 가능한 GitHub Pull Request로 준비해 줘.",
+      "열린 PR의 CI와 리뷰 상태를 정리해 줘.",
+      "$repair-pr 이 PR의 리뷰 지적을 검증하고 필요한 코드를 수정해 줘."
     ]
   },
   "hooks": "./hooks/hooks.json"

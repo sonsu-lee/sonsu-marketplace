@@ -7,6 +7,11 @@ description: Figma Design에서 제품 화면이나 composed view를 생성 또�
 
 Figma Design이 최종 제품 화면의 source of truth일 때 native frame, Auto Layout, component, variable과 검증된 exact asset으로 화면을 만든다. 시각적 유사성만으로 완료를 판단하지 않고 resize, 상태와 handoff evidence까지 유지한다.
 
+일반 UI나 운영 업무의 디자인 명세와 조합할 때 그 작업 담당자의 과업·보존 조건을 이어받고
+이 스킬은 Figma 제작·검증을 담당한다. Figma 파일 자체 편집 요청은 이 스킬이 중심이며,
+다른 플러그인 설치나 전체 개발 절차를 선행 조건으로 요구하지 않는다. 명세를 중복 탐색하거나
+제안/Figma-only 요청에 코드 구현을 추가하지 않는다.
+
 ## 작업 연속성
 
 현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의

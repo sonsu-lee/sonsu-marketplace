@@ -1,5 +1,7 @@
 # Screen Contract
 
+이 문서의 실행용 계약과 JSON/validator는 운영형 웹 구현·런타임 감사에 적용한다. 제안/Figma-only·일반 UI의 범위·결과는 [산출물별 작업 경계](delivery.md)를 따른다.
+
 화면을 그리기 전에 `screen-contract.schema.json` 형식으로 작업 계약을 확정한다. 구현 중 새로 발견된 제품 결정은 추측해 숨기지 말고 계약으로 되돌린다.
 
 ## 필수 내용

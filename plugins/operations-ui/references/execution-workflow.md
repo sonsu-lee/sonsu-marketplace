@@ -1,10 +1,12 @@
 # Execution workflow
 
+먼저 [산출물별 작업 경계](delivery.md)를 읽는다. 아래 신규 설계·재설계와 G0–G7은 운영형 웹 코드 구현 요청의 절차다. 제안/Figma-only와 일반 UI 직접 호출은 그 문서의 해당 경로로 완료한다.
+
 ## 신규 설계
 
 ```text
 inspect target repository
-if request is not operational/admin/data-work UI: stop as near miss
+if request is not operational/admin/data-work UI: return requested artifact via delivery.md selection/direct-invocation and general-UI path
 build complete Screen Contract
 if unresolved decision exists: blocked -> contract clarification
 select one primary screen pattern
@@ -43,7 +45,7 @@ evaluate G0..G7 using the same completion rule
 
 ## 선택형 Figma
 
-사용자가 Figma를 명시하지 않으면 Figma 단계는 적용하지 않는다. 명시했고 official capability가 있으면 현재 설치된 Figma prerequisite를 따라 Screen Contract scenario와 native frame, component, state, reaction을 연결한다. capability가 없으면 Figma가 필수 artifact일 때 `blocked`, 선택 사항일 때 `not_run`으로 보고하고 specification만 제공한다. 이후에도 code implementation과 Browser Gate를 거쳐야 한다.
+사용자가 Figma를 명시하지 않으면 Figma 단계는 적용하지 않는다. 명시했고 official capability가 있으면 현재 Figma prerequisite를 따라 업무 명세의 scenario ID와 native frame, component, state, 요청된 reaction을 연결한다. capability가 없으면 해당 Figma artifact를 `blocked` 또는 `not_run`으로 보고하고 현재 명세를 제공한다. 운영형 웹 구현도 요청했을 때만 실행용 Screen Contract와 G0–G7으로 이어지며, 일반 UI·네이티브 구현은 delivery.md의 해당 검증 경로를 따른다.
 
 ## 반환 경로
 

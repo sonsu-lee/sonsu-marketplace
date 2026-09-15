@@ -1,0 +1,6 @@
+interface:
+  display_name: "Inspect PRs"
+  short_description: "열린 PR 또는 지정 PR의 CI·리뷰 상태를 조회합니다"
+  default_prompt: "$inspect-prs 열린 PR 상태를 정리해 줘."
+policy:
+  allow_implicit_invocation: true

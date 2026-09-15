@@ -1,7 +1,7 @@
 # 작업 연속성 계약
 
-Engineering, Quality Engineering, Workflow, Research, Product, Figma Workflow, Fluent Languages, Writing과
-Prompting은 각각 `task-continuity` 스킬과 `SessionStart` hook을 포함합니다. 여러 단계의 작업을
+`shared/task-continuity/profiles.json`에 등록된 플러그인은 각각
+`task-continuity` 스킬과 `SessionStart` hook을 포함합니다. 여러 단계의 작업을
 기록하고 컴팩션·같은 session 재개 후 현재 근거와 대조합니다. 짧은 단발 작업과 다른 작업의
 구성·표현만 담당하는 Writing·Fluent에는 별도 기록을 만들지 않습니다.
 
@@ -167,7 +167,7 @@ python3 -B -m unittest discover -s evals/task-continuity -p 'test_*.py' -v
 python3 -B evals/task-continuity/native_probe.py --output /absolute/new-evidence-directory
 ```
 
-native probe는 새 CODEX_HOME에 로컬 fixture 플러그인을 설치해 9개 플러그인의 단독·전체 조합에서
+native probe는 새 CODEX_HOME에 로컬 fixture 플러그인을 설치해 현재 프로필 목록의 모든 플러그인을 단독·전체 조합으로
 `plugin/read`, `skills/list`, `hooks/list`를 검사합니다. 사용자 인증이나 설정을 복사하지 않고
 모델 호출·hook 신뢰 변경을 하지 않습니다. 실제 compaction 연결 검증 절차와 행동 fixture는
 [평가 안내](../../evals/task-continuity/README.md)에 정리합니다.

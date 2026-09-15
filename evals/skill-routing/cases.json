@@ -2082,6 +2082,257 @@
         "engineering:task-continuity"
       ],
       "must_not_install_plugins": true
+    },
+    {
+      "id": "expansion-web-new-auto",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "독서 기록 웹의 새 책 상세 화면을 디자인해 줘. 제목, 저자, 긴 리뷰와 다음 책 탐색이 중요해.",
+      "expected_sequence": [
+        "interface-design:design-interface"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "web-new-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-mobile-proposal-auto",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "모바일 앱의 가입 흐름을 제안해 줘. 이메일 입력과 인증 코드 화면이 필요하고 코드는 바꾸지 마.",
+      "expected_sequence": [
+        "interface-design:design-interface"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "mobile-proposal-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-redesign-auto",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "이 개인 독서 앱 화면의 구성을 개선해 줘. 기존 읽기 상태와 평점은 유지해 줘.",
+      "expected_sequence": [
+        "interface-design:redesign-interface"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "redesign-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-design-direct",
+      "installed_plugins": [
+        "interface-design"
+      ],
+      "prompt": "$design-interface 새 설정 화면의 시안을 만들어 줘.",
+      "expected_sequence": [
+        "interface-design:design-interface"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "design-direct",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-redesign-direct-priority",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "$redesign-interface 이 사내 주문 비교 화면의 시안을 재설계해 줘. 구현하지 마.",
+      "expected_sequence": [
+        "interface-design:redesign-interface"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "redesign-direct-priority",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-ops-proposal-auto",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "운영자가 주문을 필터링하고 선택해 일괄 보류하는 화면을 제안해 줘. 구현은 하지 마.",
+      "expected_sequence": [
+        "operations-ui:design-operations-ui"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "ops-proposal-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-figma-file-auto",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "이 Figma 파일의 컴포넌트와 변수 연결을 정리하고 Auto Layout을 수정해 줘.",
+      "expected_sequence": [
+        "figma-workflow:figma-product-design"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "figma-file-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-figma-only-ops",
+      "installed_plugins": [
+        "operations-ui"
+      ],
+      "prompt": "운영 대시보드를 Figma에 만들고 상세 drawer prototype까지 연결해 줘. 제품 코드는 수정하지 마.",
+      "expected_sequence": [
+        "operations-ui:figma-operations-flow"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "figma-only-ops",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-state-auto",
+      "installed_plugins": [
+        "workflow",
+        "quality-engineering",
+        "engineering"
+      ],
+      "prompt": "열린 PR의 CI와 리뷰 상태를 정리해 줘.",
+      "expected_sequence": [
+        "workflow:inspect-prs"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-state-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-repair-auto",
+      "installed_plugins": [
+        "workflow",
+        "quality-engineering",
+        "engineering"
+      ],
+      "prompt": "이 PR의 CI 실패를 고쳐 줘. 아직 commit이나 push는 하지 마.",
+      "expected_sequence": [
+        "workflow:repair-pr"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-repair-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-normal-review",
+      "installed_plugins": [
+        "workflow",
+        "quality-engineering",
+        "engineering"
+      ],
+      "prompt": "https://github.com/example/project/pull/12 리뷰해 줘.",
+      "expected_sequence": [
+        "quality-engineering:review-quality"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-normal-review",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-deep-auto",
+      "installed_plugins": [
+        "workflow",
+        "quality-engineering",
+        "engineering"
+      ],
+      "prompt": "PR #12를 독립 리뷰어 3명으로 심층 검토해 줘.",
+      "expected_sequence": [
+        "quality-engineering:review-pr"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-deep-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-inspect-direct",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "$inspect-prs PR #12 상태를 확인해 줘.",
+      "expected_sequence": [
+        "workflow:inspect-prs"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-inspect-direct",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-repair-direct",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "$repair-pr PR #12의 리뷰 지적을 검증하고 필요한 부분을 수정해 줘.",
+      "expected_sequence": [
+        "workflow:repair-pr"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-repair-direct",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-deep-direct",
+      "installed_plugins": [
+        "quality-engineering"
+      ],
+      "prompt": "$review-pr PR #12를 검토해 줘.",
+      "expected_sequence": [
+        "quality-engineering:review-pr"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-deep-direct",
+        "writes": "none"
+      }
     }
   ]
 }

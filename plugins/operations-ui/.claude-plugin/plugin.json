@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "operations-ui",
   "displayName": "Operations UI",
-  "version": "0.1.2",
-  "description": "운영형 B2B 화면을 하나의 디자인 언어로 설계, 재설계하고 증거 기반 품질 게이트로 검토합니다.",
+  "version": "0.2.0",
+  "description": "운영 업무 UI의 제안·Figma·구현을 산출물별로 설계·재설계하고 검증합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"

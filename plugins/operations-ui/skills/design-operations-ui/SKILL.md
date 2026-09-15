@@ -1,16 +1,24 @@
 ---
 name: design-operations-ui
-description: 신규 운영형 B2B, admin, back-office 또는 data-work 화면을 실제 코드로 설계·구현하면서 정보 구조, 상태, table, action, responsive behavior와 browser evidence를 함께 다뤄야 할 때 사용한다. 기존 화면의 기능 보존 재설계, 읽기 전용 감사, Figma-only 요청, marketing·editorial·brand page에는 사용하지 않는다.
+description: 신규 운영형 B2B, admin, back-office 또는 data-work 화면을 설계·제안하거나 Figma·기존 프로젝트 구현으로 완성할 때 사용한다. 자연어 운영 화면 설계 요청과 직접 호출을 모두 지원한다. 기존 화면 재설계와 수정 없는 감사는 전용 스킬로, 일반 콘텐츠·브랜드 화면과 Figma 파일 자체의 구조 편집은 해당 전문 스킬로 선택한다.
 ---
 
 # Design Operations UI
 
 Precision Operations Console 디자인 언어로 신규 운영 화면을 구현한다. 예쁜 한 장보다 반복 작업, 상태 판단, 위험한 행동과 실제 데이터의 복원력을 우선한다.
 
+## 산출물을 먼저 정한다
+
+[산출물별 작업 경계](../../references/delivery.md)를 먼저 읽는다. 제안은 업무 명세와 시각적 제안,
+Figma는 native 디자인과 요청된 prototype으로 완료한다. 이 두 경로는 실행용 Screen Contract
+JSON이나 코드 구현·브라우저 게이트를 선행 조건으로 요구하지 않고 해당 산출물 보고에서 끝낸다.
+일반 UI를 직접 지정한 경우에는 같은 문서의 일반 UI 경로로 요청 산출물을 완성한다.
+아래 시작·구현·검증 절차는 운영형 웹 코드 구현을 요청한 경우에 적용한다.
+
 ## 시작
 
 1. 대상 저장소의 instruction, framework, token, component, route, test와 browser harness를 읽는다.
-2. [design](../../references/design.md)에서 적용 범위를 확인한다. operational/admin/data-work가 아니면 이 스킬을 적용하지 않는다.
+2. [design](../../references/design.md)에서 운영형 구현 범위를 확인한다. 비운영 UI는 [작업 경계](../../references/delivery.md)의 자동 선택·직접 호출 규칙에 따라 일반 UI 경로로 보낸다.
 3. [screen contract](../../references/screen-contract.md)에 따라 Screen Contract를 만든다. 제품 요구가 해결되지 않아 `unresolved_decisions`가 남으면 구현을 `blocked`로 보고한다.
 4. [tool routing](../../references/tool-routing.md)으로 이미 있는 구현·검증 도구를 선택한다.
 

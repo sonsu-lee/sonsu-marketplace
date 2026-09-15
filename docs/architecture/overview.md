@@ -43,15 +43,16 @@ frontmatter 변환이 필요한 패키지는 `.claude-plugins/<name>/`에서 읽
 등록하거나 설치하는 작업도 각각 외부 상태 변경이므로 사용자가 요청한 범위에서만 수행합니다.
 
 플러그인은 책임과 업데이트 경계에 따라 독립적으로 설치됩니다. Engineering은 개발 lifecycle,
-Quality Engineering은 코드 shape·단순성·유지보수성·실패 모드·운용 가능성, Workflow는 Git과
-delivery 산출물, Research는 외부 다중 출처 조사, Prompting은 프롬프트 산출물, Fluent Languages는
+Quality Engineering은 코드 shape·단순성·유지보수성·실패 모드·운용 가능성과 심층 PR 리뷰, Workflow는 Git과
+delivery 산출물·PR 상태 조회·복구, Research는 외부 다중 출처 조사, Prompting은 프롬프트 산출물, Fluent Languages는
 출력 언어를 담당합니다. Writing은 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성을 담당합니다.
 Memory Manager는 명시적으로 호출하는 에이전트 메모리 점검·정리를
 담당하며 저장 방식과 수정 권한은 대상 호스트의 계약을 따릅니다. Product는 제품 기회·문제·근거·도메인 규칙·검증과 PRD 변환을,
 Figma Workflow는 Figma 제품 화면·prototype의 구조, interaction과 handoff 품질을 담당합니다.
-Operations UI는 상태와 데이터가 많은 운영형 B2B 화면의 Screen Contract, 구현·재설계,
-브라우저 증거와 품질 게이트를 담당합니다. Figma Workflow는 Figma artifact를 소유하고,
-Operations UI의 선택형 Figma 흐름은 그 결과를 코드 구현과 실제 브라우저 검증에 연결합니다.
+[Interface Design](interface-design.md)은 일반 웹·앱의 설계·재설계와 정보 자산의 의미를 담당합니다.
+Operations UI는 운영 업무 화면의 제안·Figma·구현을 산출물별로 설계하고 검증합니다.
+Figma Workflow는 Figma artifact를 소유합니다. Operations UI의 Screen Contract와 브라우저
+품질 게이트는 웹 구현에 적용하며, Figma 전용 요청은 요청한 디자인·프로토타입 결과로 완료합니다.
 Design Patterns는 실제 설계 forces와 필요한 guarantee에 근거한 named pattern 선택과 기존 적용의
 읽기 전용 검토를 담당합니다. 전체 개발 lifecycle이나 broad code quality review는 소유하지 않습니다.
 Figma canvas의 agent mutation은 registered official Figma MCP가 단독으로 소유하고, companion은

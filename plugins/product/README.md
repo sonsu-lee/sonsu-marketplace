@@ -53,3 +53,5 @@ claude plugin install product@sonsu-marketplace
 직접 호출해 수동으로 재개할 수 있습니다. helper는 Python 3.9+와 POSIX(macOS/Linux) 환경을 사용합니다.
 [기록 형식·운영 계약](../../docs/reference/task-continuity.md)과
 [검증 범위](../../evals/task-continuity/README.md)를 참고하세요.
+
+외부 연동·데이터·운영 결정은 [선택형 질문 목록](skills/product-discovery/references/operational-questions.md)으로 관련 항목만 점검합니다. 모든 질문의 답이나 구현 세부사항을 PRD의 선행 조건으로 만들지 않습니다.

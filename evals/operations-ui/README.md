@@ -9,6 +9,7 @@
 - WMS뿐 아니라 고객지원, 금융 운영, 콘텐츠 검수에도 같은 작업 구조를 적용한다.
 - 마케팅·에디토리얼 UI에는 operations-ui를 자동 선택하지 않는다.
 - Figma는 명시 요청에서만 선택하고 core dependency로 취급하지 않는다.
-- browser evidence가 없으면 `overall: passed`를 금지한다.
+- 웹 구현 report는 browser evidence가 없으면 `overall: passed`를 금지한다.
+- 제안/Figma-only는 실행용 report/schema와 구분한다. 관련 동작 사례는 [독립 스킬 평가](../skill-expansion/README.md)에 있다.
 
 이 fixture의 JSON parse와 semantic validator는 실제 model routing, Codex native loader, Figma canvas 또는 target browser 동작을 증명하지 않는다. 실행하지 않은 검증은 `not_run`이다.

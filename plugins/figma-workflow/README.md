@@ -62,3 +62,10 @@ visual screenshot, native structure/readback, component·variable·icon provenan
 직접 호출해 수동으로 재개할 수 있습니다. helper는 Python 3.9+와 POSIX(macOS/Linux) 환경을 사용합니다.
 [기록 형식·운영 계약](../../docs/reference/task-continuity.md)과
 [검증 범위](../../evals/task-continuity/README.md)를 참고하세요.
+
+## 일반·운영 UI 디자인과 조합
+
+일반 UI의 과업·정보 구조는 Interface Design, 운영 업무 기준은 Operations UI가 담당할 수 있습니다.
+Figma 파일 자체의 제작·구조·프로토타입은 이 플러그인이 중심이며 다른 플러그인 설치를 요구하지
+않습니다. 혼합 요청은 기존 명세와 승인 범위를 이어받아 Figma를 정본으로 제작·검증합니다.
+Figma-only 요청에 코드 구현이나 브라우저 검증을 새 완료 조건으로 추가하지 않습니다.

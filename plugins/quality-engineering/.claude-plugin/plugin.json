@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "quality-engineering",
   "displayName": "Quality Engineering",
-  "version": "0.4.0",
-  "description": "도메인 구조를 반영한 구현과 단순성, 유지보수성, 실패 모드 및 운용 가능성에 대한 근거 중심 리뷰를 제공합니다.",
+  "version": "0.5.1",
+  "description": "코드 품질·집중 리뷰와 Luna 5명·Astra 1명의 독립 심층 PR 리뷰를 제공합니다.",
   "author": {
     "name": "sonsu-lee",
     "url": "https://github.com/sonsu-lee"

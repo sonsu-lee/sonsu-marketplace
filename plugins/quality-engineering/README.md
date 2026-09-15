@@ -40,12 +40,17 @@ claude plugin install quality-engineering@sonsu-marketplace --scope local
 | `review-maintainability` | reader load, 변경 이유, 중복 지식과 public surface 검토 | maintainability 또는 reader-load review 요청 |
 | `review-failure-modes` | 도달 가능한 실패, retry, 부분 성공, concurrency와 cleanup 검토 | failure-mode 또는 adversarial review 요청 |
 | `review-operability` | error ownership, logging, telemetry와 민감정보 검토 | operability·observability review 요청 |
+| `review-pr` | 고정 PR을 Luna xhigh 5명과 Astra xhigh 1명이 독립 검토하고 중복 제거·근거 확인 | 명시적인 심층·다중 PR 리뷰 또는 직접 호출 |
 | `review-quality` | 동작·구조·패턴에서 관련 관점만 골라 중복 없이 통합 | 일반 코드·diff 리뷰 또는 여러 품질 관점의 리뷰 요청 |
 
 일반적인 “이 코드/diff 리뷰해줘”는 `review-quality`, 한 관점만 지정한 요청은 해당 집중 리뷰가
-담당합니다. 개발 절차가 선언한 리뷰와 명시적 독립 리뷰어 요청은 해당 개발 절차의 범위입니다.
-이 플러그인은 독립적으로 직접 리뷰를 완료하며 다른 플러그인·패키지·독립 리뷰어·관찰 도구 등록을
-필수 조건으로 요구하지 않습니다. Codex 기본 `/review`·GitHub 자동 PR 리뷰 연결은 포함하지 않습니다.
+담당합니다. 개발 절차가 선언한 리뷰는 해당 개발 절차의 범위입니다. 독립된 PR의 심층·다중 리뷰 요청은
+`review-pr`가 담당합니다. PR URL만으로 심층 리뷰를 선택하지 않습니다.
+일반 직접 리뷰는 다른 플러그인·패키지·독립 리뷰어·관찰 도구 등록을 요구하지 않습니다.
+`review-pr`는 기본적으로 `gpt-5.6-luna` xhigh 5명과 `gpt-6-astra` xhigh 1명을 새 세션으로 생성합니다.
+슬롯이 충분하면 병렬로 실행하며 각 리뷰어는 재위임 없이 전체 diff를 한 번 검토합니다. 사용자 지정은 우선하고,
+설정 지원·슬롯·메모리 격리의 한계와 실패는 명시합니다. Astra도 다른 리뷰 결과를 보기 전에 독립 검토합니다.
+자동 트리거와 `$review-pr` 직접 호출을 모두 지원하며 코드 수정·GitHub 리뷰 게시·수렴 반복은 하지 않습니다. Codex 기본 `/review`·GitHub 자동 PR 리뷰 연결은 포함하지 않습니다.
 
 [공통 리뷰 기준](references/review-criteria.md)은 근거가 현재 변경에 적용되는 이유, 발생 조건·영향과
 최소 수정 방향을 설명합니다. 코드·호출자·설정으로 해결되지 않는 중요한 의문만 허용된 읽기 전용

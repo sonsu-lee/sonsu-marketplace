@@ -108,3 +108,11 @@ SHA-256과 라이선스 고지를 먼저 이 문서에 추가합니다.
 3. 새 baseline commit을 로컬 customization과 분리해 기록합니다.
 4. 현재 final mapping에 upstream 변경을 적용하고 로컬 정책을 재적용합니다.
 5. manifest, references, marketplace, 실제 Codex loading과 routing evidence를 다시 검증합니다.
+
+## 2026-09-15 독립 스킬 확장 참고
+
+- 외부 설계 참고: [kdy1/kdy1-scripts](https://github.com/kdy1/kdy1-scripts/tree/92a8fbe9a57bce5064ed7dba3a8f87f331930dc6/skills), commit `92a8fbe9a57bce5064ed7dba3a8f87f331930dc6`.
+- 참고 경로: `review-full/SKILL.md`.
+- 원문 절차를 조사한 뒤 사용자와 합의한 계약에 맞춰 새로 작성했다. 원문 문구·helper 스크립트를 복제하지 않았다. 해당 snapshot에서 별도 LICENSE 파일을 확인하지 못했으며 설치 안내를 재배포 라이선스로 해석하지 않는다.
+- 채택: 고정 리비전, 독립 리뷰와 원인별 중복 제거.
+- 제외: 새 지적 없이 3회 연속까지 무제한 반복, 고정 CLI 의존, 자동 리뷰 게시.
