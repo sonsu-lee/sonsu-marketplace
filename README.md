@@ -55,7 +55,7 @@ codex plugin list --marketplace sonsu-marketplace
 각 플러그인은 독립적으로 사용할 수 있습니다. 포함된 스킬과 상세 사용법은 위 링크에서 확인하세요.
 
 글을 작성할 때 Writing은 정보 선별·배치와 구성을, Fluent Languages는 언어별 표현을,
-Workflow는 티켓·PR의 양식과 게시를 담당합니다. 함께 쓰는 방법은
+Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR의 리뷰 결과 게시를 담당합니다. 함께 쓰는 방법은
 [스킬 라우팅 문서](docs/architecture/skill-routing.md)를 참고하세요.
 
 ## 사용 예시

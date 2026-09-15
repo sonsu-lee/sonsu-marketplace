@@ -88,6 +88,11 @@ Operations UI의 Figma skill은 사용자가 명시했을 때 업무 명세를 n
 코드 구현도 요청한 경우에만 실행용 Screen Contract와 브라우저 게이트까지 이어갑니다.
 일반 UI의 과업·플랫폼·산출물 구조는 [Interface Design](interface-design.md)을 참고하세요.
 PR URL만으로 심층 리뷰를 시작하지 않고, 일반 리뷰와 명시적인 심층·다중 리뷰를 구분합니다.
+리뷰 의도는 요청과 기존 문맥에서 확인하며, 문맥 없는 URL 단독 입력에 리뷰·게시를 추가하지 않습니다.
+두 PR 리뷰 경로 모두 리뷰어별 별도 세션·워크트리에서 병렬 검토한 뒤 원인별로 중복을 제거해
+해당 PR에 `COMMENT` 리뷰를 게시합니다. 로컬 전용·게시 금지 요청은 우선합니다.
+[PR 실행·게시 계약](../../plugins/engineering/references/pr-review-execution.md)이 SHA 고정,
+Codex 일시 오류 재시도, 기존 댓글 중복과 게시 결과 재조회를 소유합니다.
 
 직접적인 산출물과 관점 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
 요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
@@ -157,8 +162,9 @@ Prompting만 설치된 환경에서도 Codex, ChatGPT와 OpenAI API용 프롬프
 ## 코드 품질과 리뷰
 
 일반 리뷰, 도메인 타입·상태, 단순화, 유지보수·실패·운영성은 Engineering 내부의 전문 스킬입니다.
-일반 리뷰는 `review-quality`, 특정 관점은 해당 focused 스킬, 독립 실행은
-`requesting-code-review`가 맡습니다. 판단 기준은 패키지의 공통 references를 재사용합니다.
+일반 리뷰는 `review-quality`, 특정 관점은 해당 focused 스킬, 개발 단계·PR 이외의 독립 실행은
+`requesting-code-review`, 독립 PR 심층·다중 리뷰는 `review-pr`가 맡습니다.
+판단 기준은 패키지의 공통 references를 재사용합니다.
 
 root는 일반 리뷰에 같은 고정 입력·기준을 받은 Luna xhigh 5개를 할당합니다. 각 지적을 실제
 계약·도달 경로·영향으로 검증하고 중복 원인을 합칩니다. 다수결로 판정하지 않습니다. 리뷰 전용

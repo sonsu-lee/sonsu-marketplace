@@ -1,7 +1,7 @@
 # Engineering
 
 Codex에서 설계·구현·디버깅·코드 품질·독립 리뷰를 수행하는 플러그인입니다. Quality Engineering의
-8개 품질 스킬을 통합하고 심층 PR 리뷰를 추가한 2.1.0이며, 일반 코드 리뷰도 `engineering:review-quality`로 진입합니다.
+8개 품질 스킬을 통합하고 PR 리뷰의 워크트리 실행·결과 게시를 제공하는 2.2.0이며, 일반 코드 리뷰도 `engineering:review-quality`로 진입합니다.
 기존 `quality-engineering:` 별칭과 별도 패키지는 제공하지 않습니다.
 
 ## 실행 경계
@@ -37,9 +37,16 @@ root가 위험과 작업 경계를 판단하고 필요한 수만큼 작업자를
 확정한 도메인 타입으로 불가능한 경로를 제거하고 실제 신뢰 경계에서 검증합니다. 이미 보장한
 내부 경로의 중복 가드와 현재 요구 없는 fallback/추상화를 추가하지 않습니다.
 
-PR URL만 있는 일반 리뷰는 `review-quality`가 담당합니다. 명시적인 PR 심층·다중 리뷰는
-`review-pr`가 같은 전체 diff의 독립 검토와 중복 제거를 담당하며 개발 완료 게이트·수정·게시로
-확장하지 않습니다. 직접 스킬을 지정하면 해당 선택을 우선합니다.
+PR URL이나 번호를 대상으로 한 일반 리뷰 요청은 `review-quality`가 담당합니다. 명시적인 PR 심층·다중 리뷰는
+`review-pr`가 담당합니다. 두 경로 모두 같은 전체 diff를 별도 세션·워크트리에서 병렬 검토하고
+중복 제거한 결과를 PR의 `COMMENT` 리뷰로 게시·재조회합니다. 일반 리뷰는 Luna xhigh 5명,
+심층 리뷰는 Luna xhigh 5명 + Astra xhigh 1명이 기본입니다. 직접 스킬 지정과 모델·인원 지정,
+로컬 전용·게시 금지 요청은 우선합니다. 개발 완료 게이트·소스 수정·merge는 포함하지 않습니다.
+
+`Selected model is at capacity`는 원인 미상의 Codex 일시 실행 오류로 기록하고 같은 설정으로
+재시도합니다. 이 문자열만으로 로컬 슬롯·계정 한도·모델 미지원이나 실제 서버 전체 장애를
+확정하지 않습니다. [PR 실행·게시 계약](references/pr-review-execution.md)에 재시도 상한,
+SHA 변경·불명확한 게시 응답·기존 댓글 중복 처리와 실행 한계를 정리했습니다.
 
 ## 실행 정책과 프로그램 제어
 
@@ -56,7 +63,8 @@ PR URL만 있는 일반 리뷰는 `review-quality`가 담당합니다. 명시적
 공유 정책 원본은 `shared/agent-policy`, 연속성 원본은 `shared/task-continuity`입니다.
 각 패키지에 필요한 사본을 생성하므로 Engineering 단독 설치로 동작합니다. 실행 시 다른
 플러그인 파일 경로나 설치를 전제하지 않습니다. 변경과 [전달 권한](references/delivery-authority.md)은
-별개이며 Git/PR 전달은 요청한 범위에서 Workflow와 연결합니다.
+별개이며 Git 작업·PR 생성과 제목/본문 작성은 요청한 범위에서 Workflow와 연결합니다.
+기존 PR의 통합 리뷰 게시·재조회는 Engineering의 PR 리뷰 계약이 소유합니다.
 
 ## 검증
 

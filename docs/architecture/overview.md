@@ -37,7 +37,7 @@ Sonsu Marketplace는 개인적으로 사용하는 Codex 플러그인을 한 저�
 등록하거나 설치하는 작업도 각각 외부 상태 변경이므로 사용자가 요청한 범위에서만 수행합니다.
 
 플러그인은 책임과 업데이트 경계에 따라 독립적으로 설치됩니다. Engineering은 개발 lifecycle과
-코드 shape·단순성·유지보수성·실패 모드·운용 가능성과 심층 PR 리뷰, Workflow는 Git과
+코드 shape·단순성·유지보수성·실패 모드·운용 가능성 및 PR 리뷰·통합 결과 게시, Workflow는 Git과
 delivery 산출물·PR 상태 조회·복구, Research는 외부 다중 출처 조사, Prompting은 프롬프트 산출물, Fluent Languages는
 출력 언어를 담당합니다. Writing은 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성을 담당합니다.
 Memory Manager는 명시적으로 호출하는 에이전트 메모리 점검·정리를

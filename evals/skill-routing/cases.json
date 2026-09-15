@@ -2862,6 +2862,21 @@
         "case": "pr-deep-direct",
         "writes": "none"
       }
+    },
+    {
+      "id": "expansion-pr-local-only",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "PR #12를 로컬에서만 리뷰해 줘. GitHub에는 게시하지 마.",
+      "expected_sequence": [
+        "engineering:review-quality"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-local-only",
+        "writes": "none"
+      }
     }
   ]
 }

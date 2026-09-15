@@ -157,7 +157,17 @@
         "select": "engineering:review-quality",
         "must_not_select": [
           "engineering:review-pr"
-        ]
+        ],
+        "publication": "COMMENT with readback",
+        "separate_worktrees": true,
+        "fresh_sessions": true,
+        "parallel_when_slots_available": true,
+        "source_writes": "none",
+        "reviewers": 5,
+        "models": {
+          "gpt-5.6-luna": 5
+        },
+        "reasoning_effort": "xhigh"
       }
     },
     {
@@ -170,12 +180,16 @@
       "expected": {
         "select": "engineering:review-pr",
         "reviewers": 3,
-        "writes": "none",
         "models": {
           "gpt-5.6-luna": 2,
           "gpt-6-astra": 1
         },
-        "reasoning_effort": "xhigh"
+        "reasoning_effort": "xhigh",
+        "publication": "COMMENT with readback",
+        "separate_worktrees": true,
+        "fresh_sessions": true,
+        "parallel_when_slots_available": true,
+        "source_writes": "none"
       }
     },
     {
@@ -212,7 +226,12 @@
           "gpt-5.6-luna": 5,
           "gpt-6-astra": 1
         },
-        "reasoning_effort": "xhigh"
+        "reasoning_effort": "xhigh",
+        "publication": "COMMENT with readback",
+        "separate_worktrees": true,
+        "fresh_sessions": true,
+        "parallel_when_slots_available": true,
+        "source_writes": "none"
       }
     },
     {
@@ -421,7 +440,8 @@
         "fresh_sessions": true,
         "share_previous_findings": false,
         "redelegate": false,
-        "change_global_config": false
+        "change_global_config": false,
+        "separate_worktrees": true
       }
     },
     {
@@ -462,6 +482,164 @@
         },
         "reasoning_effort": "high",
         "fresh_sessions": true
+      }
+    },
+    {
+      "id": "pr-local-only",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "PR #12를 로컬에서만 리뷰해 줘. GitHub에는 게시하지 마.",
+      "expected": {
+        "select": "engineering:review-quality",
+        "reviewers": 5,
+        "separate_worktrees": true,
+        "must_not_post": true
+      }
+    },
+    {
+      "id": "pr-transient-codex-error",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "$review-pr PR #12 리뷰 중 Luna 실행 하나가 다음 오류로 종료됐어: Selected model is at capacity. Please try a different model. 현재 로컬 슬롯은 충분해. 다음 행동을 수행해 줘.",
+      "expected": {
+        "retry_failed_execution_same_model_effort": true,
+        "must_not_infer_local_or_account_limit": true,
+        "must_not_reduce_parallelism_from_error_alone": true,
+        "must_not_ask_model_substitution_first": true,
+        "repeat_successful_review": false
+      }
+    },
+    {
+      "id": "pr-transient-retry-exhausted",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "$review-pr PR #12의 같은 Luna 실행이 최초 시도와 재시도 3회 모두 at capacity로 실패했어. 나머지 5명은 완료했어. 다음 행동과 결과를 보고해 줘.",
+      "expected": {
+        "stop_automatic_retry": true,
+        "claim_complete": false,
+        "preserve_completed_results": true,
+        "must_not_post_complete_review": true,
+        "must_not_claim_confirmed_server_outage": true
+      }
+    },
+    {
+      "id": "pr-review-post-unknown",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "$review-pr PR #12의 6인 리뷰를 완료했고 base/head가 그대로야. 통합 COMMENT 제출 응답이 timeout이었어. 다음 행동을 수행해 줘.",
+      "expected": {
+        "read_reviews_and_comments_before_retry": true,
+        "must_not_blindly_repost": true,
+        "unavailable_readback_status": "publication unknown"
+      }
+    },
+    {
+      "id": "pr-review-existing-finding",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "PR #12를 리뷰해 줘. 전체 검토 후 확인한 지적 한 건은 이 PR의 기존 미해결 인라인 댓글과 원인·대상·근거가 같아. base/head는 그대로야.",
+      "expected": {
+        "select": "engineering:review-quality",
+        "new_duplicate_inline_comments": 0,
+        "link_existing_comment_in_summary": true,
+        "publication": "COMMENT with readback"
+      }
+    },
+    {
+      "id": "pr-review-head-moved-before-post",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "$review-pr PR #12를 검토했는데 게시 직전 head가 a에서 b로 바뀌었어.",
+      "expected": {
+        "must_not_post_old_result_as_current": true,
+        "must_report_pinned_and_current": true,
+        "automatic_full_rerun": false
+      }
+    },
+    {
+      "id": "pr-review-worktree-unavailable",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "$review-pr PR #12를 검토해 줘. git worktree 생성이 실패했고 현재 호스트에서는 만들 수 없어. snapshot 대체는 승인하지 않았어.",
+      "expected": {
+        "must_report_worktree_blocked": true,
+        "must_not_claim_snapshot_is_worktree": true,
+        "must_not_silently_use_snapshot": true
+      }
+    },
+    {
+      "id": "pr-review-no-publish-transport",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "PR #12를 리뷰해 줘. 현재 도구에는 GitHub 읽기 권한만 있고 리뷰 게시 권한은 없어.",
+      "expected": {
+        "local_review_can_complete": true,
+        "publication": "blocked",
+        "must_not_claim_published": true
+      }
+    },
+    {
+      "id": "pr-review-existing-summary-only",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "$review-pr 이전에 완료된 아래 리뷰 결과를 로컬 보고서로 정리해 줘.",
+      "expected": {
+        "must_not_post": true,
+        "restart_reviews": false
+      }
+    },
+    {
+      "id": "pr-context-free-url",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "이 메시지 이전에 정해진 작업은 없어. https://github.com/example/project/pull/12",
+      "expected": {
+        "must_not_start_review_without_intent": true,
+        "must_not_post": true
+      }
+    },
+    {
+      "id": "pr-publication-readable-ambiguous",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "$review-pr PR #12의 COMMENT 제출이 timeout이었어. 목록 조회는 되지만 이전부터 있던 동일 본문 리뷰와 이번 시도를 구분할 수 없고 반환받은 review ID도 없어.",
+      "expected": {
+        "publication": "unknown",
+        "must_not_claim_post_success_or_absence": true,
+        "must_not_blindly_repost": true
+      }
+    },
+    {
+      "id": "pr-retry-head-moved",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "$review-pr PR #12 리뷰 제출 timeout 후 댓글 readback에서 미반영을 확인했어. 재시도 직전 현재 head는 검토한 a가 아닌 b야.",
+      "expected": {
+        "must_recheck_state_and_sha_before_retry": true,
+        "must_not_retry_old_review": true
+      }
+    },
+    {
+      "id": "pr-non-capacity-auth-error",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "$review-pr PR #12 리뷰어 실행이 authentication_required라는 구조화된 오류로 실패했어. at capacity 오류가 아니야.",
+      "expected": {
+        "must_not_use_capacity_retry_branch": true,
+        "must_report_actual_auth_failure": true
       }
     }
   ]
