@@ -1,11 +1,19 @@
 ---
 name: redesign-operations-ui
-description: 기존 운영형 B2B, admin, back-office 또는 data-work 화면을 현재 기능, 상태, action, permission과 data shape를 보존하거나 명시적으로 변경하며 재설계·구현할 때 사용한다. 신규 화면 설계, 수정 없는 UI 감사, Figma-only 요청, 단순 색상 교체에는 사용하지 않는다.
+description: 기존 운영형 B2B, admin, back-office 또는 data-work 화면을 현재 기능, 상태, action, permission과 data shape를 보존하거나 명시적으로 변경하며 재설계 제안·Figma·구현을 만들 때 사용한다. 자연어 재설계 요청과 직접 호출을 모두 지원한다. 신규 설계와 수정 없는 감사는 전용 스킬로, 일반 콘텐츠 화면과 Figma 파일 자체의 구조 편집은 해당 전문 스킬로 선택한다.
 ---
 
 # Redesign Operations UI
 
 기존 화면의 동작을 먼저 증거로 고정하고 Precision Operations Console로 재설계한다. 시각 개선이 기능 손실을 가리지 못하게 inventory ID부터 browser scenario까지 추적한다.
+
+## 산출물을 먼저 정한다
+
+[산출물별 작업 경계](../../references/delivery.md)를 먼저 읽고 제안·Figma·구현을 구분한다.
+제안/Figma에서는 현재 기능·값·상태·행동·권한·데이터 관계의 보존/변경을 짧은 명세로 연결하고
+실제 시안 또는 Figma 결과를 확인해 해당 산출물 보고에서 끝낸다. 실행 코드·브라우저 매핑을
+미리 요구하지 않는다. 일반 UI를 직접 지정한 경우에는 같은 문서의 일반 UI 경로에서 원본의
+의미·동작을 보존하며 요청 산출물을 완성한다. 아래 JSON inventory·검증 절차는 운영형 웹 코드 구현 요청에 적용한다.
 
 ## 현재 동작 계약
 

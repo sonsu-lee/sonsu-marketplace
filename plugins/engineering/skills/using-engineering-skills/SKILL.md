@@ -12,7 +12,8 @@ description: 개발 작업을 시작하거나 작업 성격이 바뀔 때 Engine
 | --- | --- |
 | 코드·diff·commit·branch 일반 리뷰 | `engineering:review-quality` |
 | 불필요한 복잡성·유지보수·실패 경로·운영성 중 특정 관점 리뷰 | 해당 `review-*` 스킬 |
-| 개발 단계의 독립 리뷰 또는 명시적 독립 리뷰 | `engineering:requesting-code-review` |
+| 독립된 PR 심층·다중 리뷰 | `engineering:review-pr` |
+| 개발 단계의 독립 리뷰 또는 PR 이외의 명시적 독립 리뷰 | `engineering:requesting-code-review` |
 | 도메인 계약을 타입·상태·경계에 반영 | `engineering:domain-shaped-code` |
 | 현재 코드를 단순화 | `engineering:simplify-code` |
 | 범위·요구·설계 결정 | `engineering:brainstorming` |
@@ -27,6 +28,19 @@ description: 개발 작업을 시작하거나 작업 성격이 바뀔 때 Engine
 [품질 게이트](references/quality-gates.md)에 따라 위험을 분류한다. 기계적 변경은 결정론적 검사,
 동작 변경은 독립 리뷰, 고위험 계약은 별도 red-team을 추가한다. 파일 수나 계획 파일 존재로
 위험을 정하지 않는다. 현재 근거를 다시 확인하되 재개 자체를 위험 증가로 취급하지 않는다.
+
+## 독립 산출물과 자동 선택
+
+스킬 이름을 지정하지 않은 요청도 description의 시작·제외 조건으로 선택한다. 명시적 호출은
+우선하고 이름 지정 자체로 쓰기 권한을 확대하지 않는다. 별도의 만능 router를 만들지 않는다.
+PR 상태 조회·복구, 독립적인 심층 PR 리뷰, 일반 UI 설계·재설계는 해당 설치된 전문 스킬이
+있으면 바로 시작한다. PR 대상의 일반 리뷰 요청은 심층 리뷰로 승격하지 않는다. 웹/앱 설계와
+운영 업무·Figma 파일 편집의 목적을 구분하고, 전체 개발 절차가 요청된 경우에만 필요한 단계를
+조합한다. 기존에 선언한 필수 검증을 독립 스킬로 임의 대체하지 않는다.
+
+일반·심층 PR 리뷰는 [PR 실행·게시 계약](../../references/pr-review-execution.md)에 따라 별도
+세션·워크트리에서 병렬 검토하고 중복 제거한 결과를 해당 PR에 게시한다. 로컬 전용·게시 금지
+요청과 호스트 제한은 우선하며 소스 수정·merge까지 확장하지 않는다.
 
 구현에는 [공통 코드 품질](../../references/code-quality.md)을 적용한다. 도메인 발견은 Product,
 확정한 규칙의 타입·코드 구현은 Engineering, Git·티켓·PR 전달은 Workflow가 소유한다.

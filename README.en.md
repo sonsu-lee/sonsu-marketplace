@@ -48,6 +48,7 @@ codex plugin list --marketplace sonsu-marketplace
 | [Product](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | `product` |
 | [Figma Workflow](plugins/figma-workflow/README.md) | Create Figma product screens and clickable prototypes, and review design quality | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | Review and curate coding-agent memories on explicit invocation | `memory-manager` |
+| [Interface Design](plugins/interface-design/README.md) | Web and mobile interface design, redesign, and information asset verification | `interface-design` |
 | [Operations UI](plugins/operations-ui/README.md) | Design, redesign, and audit state- and data-intensive B2B operational interfaces | `operations-ui` |
 | [Design Patterns](plugins/design-patterns/README.md) | Select patterns from observed design forces and review existing usage | `design-patterns` |
 
@@ -72,6 +73,7 @@ After installing the relevant plugin, try requests like these in Codex:
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
 | Figma Workflow | “Review the Auto Layout and prototype connections in this Figma screen.” |
 | Memory Manager | “$memory-manager Review the Codex memories for this project.” |
+| Interface Design | “Design a mobile signup flow and improve the chart presentation.” |
 | Operations UI | “Implement this order-operations screen from a Screen Contract and verify it with browser evidence.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
 

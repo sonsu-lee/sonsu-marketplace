@@ -13,8 +13,7 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "shared/task-continuity/task_continuity.py"
-PLUGINS = ["engineering", "workflow", "research", "product",
-           "figma-workflow", "writing", "fluent-languages", "prompting"]
+PLUGINS = list(json.loads((ROOT / "shared/task-continuity/profiles.json").read_text()))
 SUMMARY = {"goal": "Finish current work", "scope": "User requested local changes only",
            "progress": "Task 1 complete; Task 2 reopened; attempt 3/5",
            "next_action": "Read current ledger before continuing",

@@ -1,5 +1,7 @@
 # Evidence contract
 
+이 문서의 실행용 계약과 JSON/validator는 운영형 웹 구현·런타임 감사에 적용한다. 제안/Figma-only·일반 UI의 범위·결과는 [산출물별 작업 경계](delivery.md)를 따른다.
+
 ## 증거 종류를 섞지 않는다
 
 - deterministic check: schema, type, lint, unit/integration test 결과

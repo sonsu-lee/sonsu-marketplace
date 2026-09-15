@@ -1,6 +1,6 @@
 ---
 name: requesting-code-review
-description: Engineering 개발 단계의 독립 리뷰나 사용자가 명시한 독립 리뷰를 준비·위임·검증할 때 사용한다. 일반 코드 리뷰의 진입점은 engineering:review-quality다.
+description: Engineering 개발 단계의 독립 리뷰나 사용자가 명시한 독립 리뷰를 준비·위임·검증할 때 사용한다. 일반 코드 리뷰는 engineering:review-quality, 독립된 PR 심층·다중 리뷰는 engineering:review-pr가 담당한다.
 ---
 
 # 독립 리뷰 실행
@@ -8,6 +8,8 @@ description: Engineering 개발 단계의 독립 리뷰나 사용자가 명시�
 이 스킬은 고정 입력, 독립 실행과 결과 수집을 소유한다. 의미적 판단은
 [공통 리뷰 기준](../../references/review-criteria.md)을 따른다. 위임된 리뷰어는 지정 입력을
 직접 검토하고 추가 리뷰어를 만들지 않는다. root만 할당한다.
+
+독립된 GitHub PR 심층·다중 리뷰 요청은 설치된 `engineering:review-pr`를 우선한다. 이 스킬을 직접 지정했거나 현재 개발 절차가 선언한 리뷰에는 아래 기존 계약을 적용한다.
 
 독립 실행을 준비할 때 [실행과 문맥 계약](../using-engineering-skills/references/agent-execution.md)을
 읽고 생성 응답·대기·완료 근거를 연결한다.
