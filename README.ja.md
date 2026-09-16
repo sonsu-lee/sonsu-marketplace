@@ -48,13 +48,14 @@ codex plugin list --marketplace sonsu-marketplace
 | [Product](plugins/product/README.md) | プロダクトのアイデア探索、ユーザーに関する根拠の整理、仮説検証、PRD作成 | `product` |
 | [Figma Workflow](plugins/figma-workflow/README.md) | Figmaでのプロダクト画面・クリック可能なプロトタイプの作成とデザイン品質のレビュー | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | 明示的に呼び出してコーディングエージェントのメモリを点検・整理 | `memory-manager` |
+| [Interface Design](plugins/interface-design/README.md) | Web・アプリ画面の設計・再設計と情報表現の検証 | `interface-design` |
 | [Operations UI](plugins/operations-ui/README.md) | 状態とデータを扱うB2B運用画面の設計・再設計・品質監査 | `operations-ui` |
 | [Design Patterns](plugins/design-patterns/README.md) | 実際の設計上のforcesに基づくパターン選択と既存適用のレビュー | `design-patterns` |
 
 各プラグインは独立して利用できます。含まれるスキルや詳しい使い方は、上のリンクから確認してください。
 
 Writingは情報の選別・記載先の判断と文章の構成、Fluent Languagesは各言語の表現、
-Workflowはチケット・PRのテンプレートと公開手順を担当します。併用方法は
+Workflowはチケット・PRの新規作成に使うテンプレートと公開手順、Engineeringは既存PRへのレビュー結果の投稿を担当します。併用方法は
 [スキルルーティングのドキュメント](docs/architecture/skill-routing.md)を参照してください。
 
 ## 使用例
@@ -72,6 +73,7 @@ Workflowはチケット・PRのテンプレートと公開手順を担当しま�
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
 | Figma Workflow | 「このFigma画面のAuto Layoutとプロトタイプの接続をレビューして。」 |
 | Memory Manager | 「$memory-manager このプロジェクトのCodexメモリを点検して。」 |
+| Interface Design | 「モバイルの登録フローを設計して。このグラフの情報表現も改善して。」 |
 | Operations UI | 「この受注運用画面をScreen Contractから実装し、ブラウザーの証跡で検証して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
 
