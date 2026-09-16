@@ -55,7 +55,8 @@ codex plugin list --marketplace sonsu-marketplace
 Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
 
 Writing selects and places information and organizes the text, Fluent Languages handles language-specific
-expression, and Workflow handles ticket/PR templates and publication. See the
+expression, Workflow handles templates and publication for new tickets and PRs, and Engineering publishes
+review results on existing PRs. See the
 [skill routing documentation](docs/architecture/skill-routing.md) for how to use them together.
 
 ## Usage examples

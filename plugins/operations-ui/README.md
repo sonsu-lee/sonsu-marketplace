@@ -29,7 +29,13 @@ codex plugin add operations-ui@sonsu-marketplace
 
 마케팅 사이트, 에디토리얼 페이지, 브랜드 캠페인, 일러스트레이션이 주목적인 요청은 이 플러그인의 기본 대상이 아닙니다.
 
-## 실행 계약
+## 요청 예시
+
+- 제안: “이 주문 운영 화면을 설계하고 명세와 시안을 제안해 줘.”
+- Figma: “이 관리 화면을 Figma에서 재설계하고 승인 흐름의 프로토타입까지 만들어 줘.”
+- 구현: “이 주문 운영 화면을 기존 프로젝트에 구현하고 Screen Contract와 실제 브라우저 증거로 검증해 줘.”
+
+## 운영형 웹 구현 계약
 
 1. [screen-contract.md](references/screen-contract.md)로 사용자, 작업, 엔터티, 상태, 권한, 위험과 검증 시나리오를 확정합니다.
 2. [screen-patterns.md](references/screen-patterns.md)와 [ux-patterns.md](references/ux-patterns.md)에서 작업 구조에 맞는 패턴을 고릅니다.

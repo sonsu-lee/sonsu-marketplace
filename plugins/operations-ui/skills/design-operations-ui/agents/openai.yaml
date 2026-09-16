@@ -1,6 +1,6 @@
 interface:
   display_name: "Design Operations UI"
-  short_description: "신규 운영형 B2B 화면을 code-first로 설계·검증합니다"
-  default_prompt: "$design-operations-ui를 사용해 이 운영 화면의 Screen Contract부터 실제 구현과 browser quality gate까지 완료해 줘."
+  short_description: "신규 운영 화면을 제안·Figma·구현 등 요청한 산출물로 설계·검증합니다"
+  default_prompt: "$design-operations-ui를 사용해 이 운영 화면을 설계하고, 요청한 산출물인 제안·Figma·구현에 맞춰 완성하고 검증해 줘. 운영형 웹 구현을 요청한 경우에는 Screen Contract와 실제 브라우저 검증까지 완료해 줘."
 policy:
   allow_implicit_invocation: true
