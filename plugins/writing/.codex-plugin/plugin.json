@@ -1,7 +1,7 @@
 {
   "name": "writing",
-  "version": "0.2.0-beta.5",
-  "description": "독자·목적·편집 범위에 맞춰 업무 문서의 정보를 선별하고, 문서 배치와 문장·문단 구성을 다듬는다.",
+  "version": "0.2.0-beta.6",
+  "description": "독자·목적·근거에 맞춰 업무 문서와 개발자 블로그의 정보를 선별하고, 문서 배치와 글의 흐름을 다듬는다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
@@ -10,6 +10,8 @@
   "keywords": [
     "writing",
     "technical-writing",
+    "developer-blog",
+    "til",
     "korean",
     "japanese",
     "english",
@@ -20,14 +22,14 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Writing",
-    "shortDescription": "정보 선별·문서 배치와 글 구성을 다듬는 업무 글쓰기",
-    "longDescription": "문서화할 내용을 선별하고 기존 문서를 우선 갱신하며, README의 주요 안내와 상세 문서를 연결한다. 문장·문단 구성과 주석·동료 메시지 작성도 다루고, Fluent의 표현 및 Workflow의 티켓·PR 양식과 함께 적용하거나 단독으로 사용할 수 있다.",
+    "shortDescription": "업무 문서와 근거 기반 개발자 블로그 글쓰기",
+    "longDescription": "문서화할 내용을 선별하고 기존 문서를 우선 갱신하며, README의 주요 안내와 상세 문서를 연결한다. 개발자 블로그는 흐름 의사코드를 먼저 정하고 저자 경험·코드·출처·검증 결과를 구분해 TIL, 디버깅 회고와 기술 선택 글을 작성한다. Engineering, Research, Fluent 및 Workflow와 함께 적용하거나 단독으로 사용할 수 있다.",
     "developerName": "sonsu",
     "category": "Productivity",
     "capabilities": [
       "Write"
     ],
-    "defaultPrompt": "독자와 목적에 필요한 내용을 골라 문서 배치와 글의 구성을 다듬어 줘."
+    "defaultPrompt": "독자와 목적에 필요한 내용을 골라 문서 또는 개발자 블로그의 흐름과 근거를 다듬어 줘."
   },
   "hooks": "./hooks/hooks.json"
 }

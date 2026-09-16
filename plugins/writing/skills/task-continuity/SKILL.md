@@ -50,7 +50,7 @@ description: "장문·여러 문서의 작성·편집이 여러 단계로 이어
 
 ## 이 플러그인의 보존 항목
 
-독자·목적, 장르·양식 출처, 새 작성·부분 수정·전체 재작성·요약의 범위, 원문과 초안 위치·리비전, 완료 구간과 남은 수정, 요청 언어·문체·보호 문자열을 보존한다. 원문은 알려진 위치에서 확보하고 확보하지 못한 부분은 미확인으로 남긴다.
+독자·목적, 장르·양식 출처, 새 작성·부분 수정·전체 재작성·요약의 범위, 원문과 초안 위치·리비전, 완료 구간과 남은 수정, 요청 언어·문체·보호 문자열을 보존한다. 개발자 블로그 작업이면 reader·reader_problem·main_answer·section_sequence·evidence_by_section·ending_and_limits, observed·source-confirmed·inference·unknown·not_run과 observer, 검증의 environment·input·command·expected·observed, 반례로 폐기한 가설과 바뀐 논지를 함께 보존한다. 재개할 때 현재 write-developer-blog 계약을 다시 읽고 저장한 근거와 실제 산출물을 대조한다. 원문은 알려진 위치에서 확보하고 확보하지 못한 부분은 미확인으로 남긴다.
 
 ## 현재 상태에서 복구한다
 
