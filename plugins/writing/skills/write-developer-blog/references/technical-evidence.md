@@ -7,14 +7,41 @@
 
 | 상태 | 의미 | 글에 반영하는 방법 |
 | --- | --- | --- |
-| `observed` | 현재 작업에서 지정한 입력으로 직접 관찰했다. | 환경·입력·명령·결과와 관찰 범위를 함께 쓴다. |
+| `observed` | 지정한 환경·입력에서 직접 관찰한 결과가 있으며 관찰 주체를 식별할 수 있다. | 환경·입력·명령·결과, 관찰 주체와 관찰 범위를 함께 쓴다. |
 | `source-confirmed` | 명시한 1차 출처가 주장을 직접 뒷받침한다. | 출처와 확인 시점, 출처가 말하지 않는 범위를 남긴다. |
 | `inference` | 관찰·출처로부터 추론했지만 직접 판정하지 않았다. | 사실과 분리해 추론임을 밝히고 근거를 연결한다. |
 | `unknown` | 자료가 없거나 서로 충돌해 판단할 수 없다. | 본문에서 단정하지 않고 필요한 자료를 적는다. |
 | `not_run` | 검증 후보였지만 실행하지 않았다. | 실행하지 않은 이유와 그로 인해 남는 한계를 적는다. |
 
-사용자가 제공한 테스트 결과는 사용자가 관찰했다고 진술한 자료이며 현재 agent가 직접 실행한
-`observed`와 구분한다. 과거 실행, 다른 branch·OS·버전의 결과를 현재 검증으로 바꾸지 않는다.
+모든 evidence ledger 항목에는 다섯 상태 중 하나인 `state`와 근거를 직접 관찰하거나 현재 상태를
+보고한 주체인 `observer`를 함께 둔다.
+
+- `observer: author`: 글의 저자가 자신의 경험·실행으로 확인하고 제공했다.
+- `observer: user`: 현재 사용자가 다른 사람의 기록이나 프로젝트 자료를 포함해 관찰 결과를 제공했다.
+- `observer: agent`: 현재 작업의 agent가 허용된 환경에서 직접 실행하거나 출처를 확인했다.
+
+실행 근거에는 `environment`, `input`, `command`, `expected`, `observed`, `current_task_rerun`과
+`limits`도 기록한다. 사용자가 제공한 테스트 결과를 재실행하지 않았다면 `state: observed`,
+`observer: author` 또는 `observer: user`, `current_task_rerun: false`로 남긴다. 현재 작업에서 다시
+실행하지 않았다는 사실을 `observer: agent`로 바꾸거나 그 결과 자체를 `unknown`으로 낮추지 않는다.
+재실행이 핵심 주장에 필요하다고 검토했지만 수행하지 않았다면 별도의 `not_run` 항목에 이유와
+남는 한계를 둔다. 과거 실행, 다른 branch·OS·버전의 결과를 현재 환경의 검증으로 바꾸지 않는다.
+
+```text
+state: observed | source-confirmed | inference | unknown | not_run
+observer: author | user | agent
+environment: 결과에 영향을 주는 환경과 버전
+input: 입력과 초기 상태
+command: 실행한 명령 또는 not_run인 검증 후보
+expected: 실행 전 가설
+observed: 원출력의 핵심 또는 관찰 결과 없음
+current_task_rerun: true | false | not_applicable
+limits: 이 근거로 단정하지 않는 범위
+```
+
+`source-confirmed`에서도 `observer`는 출처를 확인한 주체이며 출처 작성자를 뜻하지 않는다. URL·문서
+리비전·확인 시점은 별도 근거 위치로 남긴다. `unknown`과 `not_run`의 `observer`는 그 상태와 범위를
+보고한 주체이며, 관찰되지 않은 결과가 존재한다는 뜻이 아니다.
 
 ## 최소 검증을 설계한다
 

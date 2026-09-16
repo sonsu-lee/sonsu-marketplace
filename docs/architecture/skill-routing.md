@@ -2,7 +2,7 @@
 
 ## 컴팩션과 작업 연속성
 
-연속성 profile이 있는 플러그인은 각각 자기 namespace의 `task-continuity`를 제공합니다. 현재 메인 controller가
+작업 연속성을 제공하는 플러그인은 각각 자기 namespace의 `task-continuity`를 제공합니다. 현재 메인 controller가
 여러 단계의 작업을 소유하거나 외부 쓰기 결과를 이어서 확인해야 할 때 기존 작업 스킬에서
 같은 플러그인의 연속성 스킬을 사용합니다. 다른 플러그인의 연속성 스킬을 필수 호출하지 않습니다.
 짧은 단발 산출물과 다른 작업의 출력 문체만 담당하는 Fluent Languages에는 별도 기록이 없습니다.
@@ -18,11 +18,18 @@ Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering
 관찰하며, 스킬 라우팅·실행 권한·다른 플러그인의 상태를 결정하지 않습니다.
 
 - Status: Current
-- Last reviewed: 2026-09-13
+- Last reviewed: 2026-09-15
+
+## 자동 트리거와 직접 호출
+
+자연어 요청은 description의 목적·대상·산출물·제외 조건에 따라 선택하고 명시적인 이름 지정은
+우선합니다. 사용자가 스킬 이름을 알아야만 실행되는 방식으로 만들지 않습니다. 선택 자체는
+수정·게시 권한이 아니며 실제 요청과 기존 승인을 따릅니다. 별도의 만능 router는 없습니다.
+혼합 요청은 주 작업 담당 하나가 명세·결과를 소유하고 필요한 전문 지침을 조합합니다.
 
 ## 플러그인 경계
 
-Engineering, Workflow, Research, Prompting, Product, Figma Workflow, Operations UI, Design Patterns, Memory Manager와 Fluent Languages는
+Engineering, Workflow, Research, Prompting, Product, Interface Design, Figma Workflow, Operations UI, Design Patterns, Memory Manager, Writing과 Fluent Languages는
 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
 Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
@@ -43,6 +50,11 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | branch, staging, commit, 일반 push와 Git 변경 검토 | `workflow:git-workflow` |
 | ticket·issue·backlog 접수·초안·게시 또는 기존 제목·본문 보강 | `workflow:to-ticket` |
 | 기존 ticket의 작업 시작·review·완료 상태, 담당자와 native relation 변경 | `workflow:ticket-lifecycle` |
+| PR 상태·CI·리뷰·미해결 대화 조회 | `workflow:inspect-prs` |
+| 지정 PR의 충돌·리뷰 지적·CI 실패 처리 | `workflow:repair-pr` |
+| 독립된 PR 심층·다중 리뷰 또는 명시적 호출 | `engineering:review-pr` |
+| 일반 웹·앱의 새 화면·흐름 설계 | `interface-design:design-interface` |
+| 일반 웹·앱의 기존 화면 재설계 | `interface-design:redesign-interface` |
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 반복 문제와 설계 forces에 맞는 named pattern 선택 | `design-patterns:select-design-patterns` |
 | 명시적으로 요청한 기존 pattern 적용·오용의 읽기 전용 검토 | `design-patterns:review-pattern-usage` |
@@ -59,7 +71,7 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | Figma 제품 화면 생성·수정과 responsive layout | `figma-workflow:figma-product-design` |
 | Figma의 실제 prototype connection, overlay와 상태 동선 | `figma-workflow:figma-prototype-flow` |
 | 기존 Figma artifact의 구조·interaction에 대한 읽기 전용 감사 | `figma-workflow:figma-design-audit` |
-| 신규 운영형 B2B·admin·back-office 화면의 코드 우선 설계와 구현 | `operations-ui:design-operations-ui` |
+| 신규 운영형 B2B·admin·back-office 화면의 제안·Figma·구현 | `operations-ui:design-operations-ui` |
 | 기존 운영 화면의 동작을 보존하거나 명시적으로 변경하는 재설계 | `operations-ui:redesign-operations-ui` |
 | 기존 운영 화면과 증거의 읽기 전용 품질 감사 | `operations-ui:audit-operations-ui` |
 | 명시적으로 요청된 Figma 운영 화면을 Screen Contract와 구현 handoff에 연결 | `operations-ui:figma-operations-flow` |
@@ -72,8 +84,15 @@ Memory Manager는 Codex의 `policy.allow_implicit_invocation: false`로 명시�
 Operations UI는 WMS나 배송처럼 특정 산업명이 아니라 상태 판단, 반복 작업, 권한과 위험한
 행동, 고밀도 데이터가 중심인 화면에 적용합니다. marketing·editorial·brand page는 대상이
 아닙니다. Figma 자체 화면·component·prototype 생성과 수정은 Figma Workflow가 담당하며,
-Operations UI의 Figma skill은 사용자가 명시했을 때 그 artifact를 Screen Contract와 이후
-코드 구현·브라우저 게이트에 연결합니다.
+Operations UI의 Figma skill은 사용자가 명시했을 때 업무 명세를 native 산출물에 연결합니다.
+코드 구현도 요청한 경우에만 실행용 Screen Contract와 브라우저 게이트까지 이어갑니다.
+일반 UI의 과업·플랫폼·산출물 구조는 [Interface Design](interface-design.md)을 참고하세요.
+PR URL만으로 심층 리뷰를 시작하지 않고, 일반 리뷰와 명시적인 심층·다중 리뷰를 구분합니다.
+리뷰 의도는 요청과 기존 문맥에서 확인하며, 문맥 없는 URL 단독 입력에 리뷰·게시를 추가하지 않습니다.
+두 PR 리뷰 경로 모두 리뷰어별 별도 세션·워크트리에서 병렬 검토한 뒤 원인별로 중복을 제거해
+해당 PR에 `COMMENT` 리뷰를 게시합니다. 로컬 전용·게시 금지 요청은 우선합니다.
+[PR 실행·게시 계약](../../plugins/engineering/references/pr-review-execution.md)이 SHA 고정,
+Codex 일시 오류 재시도, 기존 댓글 중복과 게시 결과 재조회를 소유합니다.
 
 직접적인 산출물과 관점 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
 요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
@@ -143,8 +162,9 @@ Prompting만 설치된 환경에서도 Codex, ChatGPT와 OpenAI API용 프롬프
 ## 코드 품질과 리뷰
 
 일반 리뷰, 도메인 타입·상태, 단순화, 유지보수·실패·운영성은 Engineering 내부의 전문 스킬입니다.
-일반 리뷰는 `review-quality`, 특정 관점은 해당 focused 스킬, 독립 실행은
-`requesting-code-review`가 맡습니다. 판단 기준은 패키지의 공통 references를 재사용합니다.
+일반 리뷰는 `review-quality`, 특정 관점은 해당 focused 스킬, 개발 단계·PR 이외의 독립 실행은
+`requesting-code-review`, 독립 PR 심층·다중 리뷰는 `review-pr`가 맡습니다.
+판단 기준은 패키지의 공통 references를 재사용합니다.
 
 root는 일반 리뷰에 같은 고정 입력·기준을 받은 Luna xhigh 5개를 할당합니다. 각 지적을 실제
 계약·도달 경로·영향으로 검증하고 중복 원인을 합칩니다. 다수결로 판정하지 않습니다. 리뷰 전용
@@ -470,7 +490,8 @@ Writing은 영속 문서 작업에서 이후에도 찾아볼 내용인지 판단
 ```
 
 블로그 작성법·개발자 글 사례만 비교 조사하는 요청은 Research의 조사 산출물이며 Blog Writing을
-자동으로 선택하지 않습니다. 일반 README·업무 문서·코드 주석은 Writing이 계속 담당합니다.
+자동으로 선택하지 않습니다. 일반 기술 설명·질의응답도 블로그나 게시할 아티클 산출물을 요청하지
+않으면 Blog Writing의 범위가 아닙니다. 일반 README·업무 문서·코드 주석은 Writing이 계속 담당합니다.
 각 플러그인은 단독으로도 자신의 범위를 완료하며, 다른 플러그인의 설치나 외부 게시 권한을
 가정하지 않습니다.
 

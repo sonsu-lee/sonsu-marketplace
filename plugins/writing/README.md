@@ -27,12 +27,12 @@ README는 용도·주요 기능·첫 사용·중요한 제약·탐색 경로가 
 디버깅 회고와 기술 선택 글을 기획·작성·수정·검토한다. 본문 전에 독자·문제·핵심 답·절의 순서·
 근거·결말을 흐름 의사코드로 정하고, 저자의 1인칭 경험이나 의사결정 이유를 자료 없이 만들지 않는다.
 핵심 주장을 안전한 local test나 격리된 fixture로 확인할 수 있으면 최소 검증을 수행하고,
-`observed`, `source-confirmed`, `inference`, `unknown`, `not_run`을 구분한다.
+`observed`, `source-confirmed`, `inference`, `unknown`, `not_run`과 관찰 주체를 구분한다.
 
 예를 들어 “이 장애를 재현해서 디버깅 회고 글로 써 줘”, “오늘 알게 된 내용을 짧은 TIL로 정리해
-줘” 또는 “두 기술을 비교해 선택한 근거를 글로 써 줘”라고 요청할 수 있다. README·업무 문서와
-티켓·PR은 기존 `writing:writing`과 Workflow의 책임이며, 블로그 작성법 자체의 다중 출처 조사는
-Research가 담당한다.
+줘” 또는 “두 기술을 비교해 선택한 근거를 글로 써 줘”라고 요청할 수 있다. 일반 기술 설명·질의응답은
+블로그 산출물 요청이 아니므로 이 스킬을 선택하지 않는다. README·업무 문서와 티켓·PR은 기존
+`writing:writing`과 Workflow의 책임이며, 블로그 작성법 자체의 다중 출처 조사는 Research가 담당한다.
 
 ## Engineering·Research·Fluent·Workflow와 함께 사용하기
 

@@ -8,6 +8,8 @@ codex plugin add workflow@sonsu-marketplace
 
 ## 제공하는 작업
 
+- `inspect-prs`: 열린 PR 또는 지정 PR의 CI·리뷰·병합 상태 조회
+- `repair-pr`: 요청한 PR의 충돌·리뷰 의견·CI 실패 복구
 - `git-workflow`: 브랜치·commit·push와 Git 변경 검토
 - `to-ticket`: 티켓 초안·게시와 기존 제목·본문 수정
 - `ticket-lifecycle`: 기존 티켓의 상태·담당자·관계 변경
@@ -38,3 +40,12 @@ Workflow만, Writing과 함께, Fluent와 함께 또는 세 플러그인을 함�
 기존 Writing 구현에서 이어받은 작성 지침·양식에는 [MIT 고지](WRITING_LICENSE.md)를 보존합니다.
 이는 출처·권리 고지이며 Writing 설치나 파일 생성에 의존하지 않습니다. Workflow의 나머지 파일에
 새 라이선스를 부여하는 변경은 아닙니다.
+
+## 자동 트리거와 직접 호출
+
+“열린 PR 상태 정리해 줘”, “이 PR의 CI 실패를 고쳐 줘”처럼 요청하면 목적에 맞는 스킬을
+선택합니다. `$inspect-prs`, `$repair-pr`로 직접
+호출할 수도 있습니다. 이름 지정 자체는 commit·push·댓글·대화 해결 권한이 아닙니다.
+조회는 읽기 전용으로 완료하고 복구는 요청된 수정·검증과 승인된 원격 반영을 구분합니다.
+[PR 조회 기준](references/pr-inspection.md), [설계 참고](UPSTREAM.md),
+[평가 사례](../../evals/skill-expansion/README.md)를 참고하세요.

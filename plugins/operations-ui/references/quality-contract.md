@@ -1,5 +1,7 @@
 # Quality contract
 
+이 문서의 실행용 계약과 JSON/validator는 운영형 웹 구현·런타임 감사에 적용한다. 제안/Figma-only·일반 UI의 범위·결과는 [산출물별 작업 경계](delivery.md)를 따른다.
+
 ## 상태
 
 gate status는 `passed`, `failed`, `blocked`, `inconclusive`, `not_run` 중 하나다. G0–G7은 모두 `required: true`이고 gate 자체에는 `not_applicable`을 사용할 수 없다.

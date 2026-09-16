@@ -797,97 +797,166 @@
     },
     {
       "id": "direct-commit-routes-to-workflow",
-      "installed_plugins": ["engineering", "workflow"],
+      "installed_plugins": [
+        "engineering",
+        "workflow"
+      ],
       "prompt": "현재 변경 중 API 수정만 Conventional Commit으로 커밋해줘. push는 하지 마.",
-      "expected_sequence": ["workflow:git-workflow"],
-      "must_not_select": ["engineering:finishing-a-development-branch"]
+      "expected_sequence": [
+        "workflow:git-workflow"
+      ],
+      "must_not_select": [
+        "engineering:finishing-a-development-branch"
+      ]
     },
     {
       "id": "direct-pr-routes-to-workflow",
-      "installed_plugins": ["engineering", "workflow"],
+      "installed_plugins": [
+        "engineering",
+        "workflow"
+      ],
       "prompt": "현재 branch를 확인해서 GitHub PR 초안을 작성해줘. 아직 게시하지는 마.",
-      "expected_sequence": ["workflow:to-pr"],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
       "expected_mode": "draft",
       "expected_remote_action": "none",
-      "must_not_select": ["engineering:finishing-a-development-branch"]
+      "must_not_select": [
+        "engineering:finishing-a-development-branch"
+      ]
     },
     {
       "id": "unspecified-pr-publish-defaults-to-draft",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "현재 branch로 PR 올려줘.",
-      "expected_sequence": ["workflow:to-pr"],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
       "expected_mode": "publish",
       "expected_pr_state": "draft",
       "must_not_infer_ready": true
     },
     {
       "id": "explicit-ready-pr-overrides-default",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "현재 branch로 바로 리뷰할 수 있는 Ready PR을 올려줘.",
-      "expected_sequence": ["workflow:to-pr"],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
       "expected_mode": "publish",
       "expected_pr_state": "ready"
     },
     {
       "id": "pr-with-local-media-routes-to-workflow",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "현재 branch로 GitHub PR을 만들면서 변경 위치를 표시한 screenshot과 로컬 demo video도 함께 첨부해줘.",
-      "expected_sequence": ["workflow:to-pr"],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
       "expected_mode": "publish",
       "expected_pr_state": "draft",
-      "must_not_select": ["workflow:git-workflow", "publish-image"],
+      "must_not_select": [
+        "workflow:git-workflow",
+        "publish-image"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "direct-ticket-routes-to-workflow",
-      "installed_plugins": ["engineering", "workflow"],
+      "installed_plugins": [
+        "engineering",
+        "workflow"
+      ],
       "prompt": "합의된 구현 계획을 Linear 티켓 초안으로 변환해줘.",
-      "expected_sequence": ["workflow:to-ticket"],
-      "must_not_select": ["engineering:writing-plans"],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "must_not_select": [
+        "engineering:writing-plans"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "korean-ticket-composes-with-fluent-language",
-      "installed_plugins": ["workflow", "fluent-languages"],
+      "installed_plugins": [
+        "workflow",
+        "fluent-languages"
+      ],
       "prompt": "이 버그 보고를 Linear 티켓 초안으로 만들고 본문은 한국어로 작성해줘.",
-      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-korean"],
+      "expected_sequence": [
+        "workflow:to-ticket",
+        "fluent-languages:fluent-korean"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "english-ticket-composes-with-fluent-language",
-      "installed_plugins": ["workflow", "fluent-languages"],
+      "installed_plugins": [
+        "workflow",
+        "fluent-languages"
+      ],
       "prompt": "Turn this approved maintenance task into a concise GitHub issue in English.",
-      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-english"],
+      "expected_sequence": [
+        "workflow:to-ticket",
+        "fluent-languages:fluent-english"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "japanese-ticket-composes-with-fluent-language",
-      "installed_plugins": ["workflow", "fluent-languages"],
+      "installed_plugins": [
+        "workflow",
+        "fluent-languages"
+      ],
       "prompt": "合意済みの調査項目をJiraチケットの下書きにして、本文は日本語で書いてください。",
-      "expected_sequence": ["workflow:to-ticket", "fluent-languages:fluent-japanese"],
+      "expected_sequence": [
+        "workflow:to-ticket",
+        "fluent-languages:fluent-japanese"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "create-ticket-with-metadata-routes-to-to-ticket",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "Linear ENG 팀에 승인된 작업 티켓을 생성해 줘. 기존 Bug 라벨, High 우선순위, 3 estimate, 나를 담당자, Payments 프로젝트와 M2 마일스톤으로 지정하고 ENG-10에 blocked by로 연결해. 아직 작업 시작은 하지 마.",
-      "expected_sequence": ["workflow:to-ticket"],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
       "expected_mode": "publish",
-      "must_not_select": ["workflow:ticket-lifecycle"]
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ]
     },
     {
       "id": "create-and-start-ticket-composes-lifecycle",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "Linear ENG 팀에 승인된 작업 티켓을 생성하고, 생성 결과를 확인한 다음 바로 작업 시작 상태로 변경해 줘.",
-      "expected_sequence": ["workflow:to-ticket", "workflow:ticket-lifecycle"],
+      "expected_sequence": [
+        "workflow:to-ticket",
+        "workflow:ticket-lifecycle"
+      ],
       "expected_intent": "start",
       "must_reread_after_mutation": true
     },
     {
       "id": "explicit-ticket-start-routes-to-lifecycle",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "Linear Acme workspace의 ENG-123 작업을 시작하고 나를 담당자로 지정해 줘.",
-      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_sequence": [
+        "workflow:ticket-lifecycle"
+      ],
       "expected_intent": "start",
       "must_verify_canonical_ticket": true,
       "must_verify_assignee": true,
@@ -895,9 +964,13 @@
     },
     {
       "id": "github-ticket-unassigns-only-verified-target",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "GitHub sonsu/example#17의 assignee 중 octocat만 해제하고 다른 담당자는 유지해 줘.",
-      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_sequence": [
+        "workflow:ticket-lifecycle"
+      ],
       "expected_assignee_change": {
         "action": "unassign",
         "target": "octocat"
@@ -909,9 +982,13 @@
     },
     {
       "id": "github-ticket-unassigns-all-only-when-explicit",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "GitHub sonsu/example#17의 모든 assignee를 해제해 줘.",
-      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_sequence": [
+        "workflow:ticket-lifecycle"
+      ],
       "expected_assignee_change": {
         "action": "unassign",
         "target": "all"
@@ -922,9 +999,13 @@
     },
     {
       "id": "existing-ticket-related-routes-to-lifecycle",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "Linear Acme workspace의 ENG-123을 ENG-120과 related 관계로 연결해 줘. 본문이나 status는 바꾸지 마.",
-      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_sequence": [
+        "workflow:ticket-lifecycle"
+      ],
       "expected_relation": {
         "action": "add",
         "kind": "related",
@@ -934,9 +1015,13 @@
     },
     {
       "id": "existing-ticket-duplicate-routes-to-lifecycle",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "Linear Acme workspace의 ENG-123을 ENG-98의 duplicate로 표시해 줘. 본문이나 status는 바꾸지 마.",
-      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_sequence": [
+        "workflow:ticket-lifecycle"
+      ],
       "expected_relation": {
         "action": "add",
         "kind": "duplicate",
@@ -948,429 +1033,778 @@
     },
     {
       "id": "ticket-id-shaped-branch-hint-does-not-mutate",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "현재 ENG-123-fix branch의 변경을 검토해서 Conventional Commit 후보를 작성해 줘. 티켓 작업은 요청하지 않았어.",
-      "expected_sequence": ["workflow:git-workflow"],
+      "expected_sequence": [
+        "workflow:git-workflow"
+      ],
       "expected_remote_action": "none",
-      "must_not_select": ["workflow:ticket-lifecycle"],
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ],
       "must_not_infer_provider": true
     },
     {
       "id": "ticket-start-and-branch-compose-at-runtime",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "Linear Acme workspace의 ENG-123 작업을 시작하고, 이 작업용 Git branch도 만들어 줘.",
-      "expected_sequence": ["workflow:ticket-lifecycle", "workflow:git-workflow"],
+      "expected_sequence": [
+        "workflow:ticket-lifecycle",
+        "workflow:git-workflow"
+      ],
       "expected_intent": "start",
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "pr-native-automation-does-not-select-lifecycle-fallback",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "Linear GitHub 연동에서 PR open과 merge status automation이 설정된 ENG-123을 Fixes로 연결해서 현재 branch의 Draft PR을 만들어 줘.",
-      "expected_sequence": ["workflow:to-pr"],
-      "must_not_select": ["workflow:ticket-lifecycle"],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
+      "must_not_select": [
+        "workflow:ticket-lifecycle"
+      ],
       "must_not_duplicate_native_automation": true
     },
     {
       "id": "confirmed-pr-fallback-composes-lifecycle",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "Jira ACME-42를 연결해 현재 branch의 Ready PR을 만들어 줘. 이 repository에는 PR-created automation이 적용되지 않는 것이 확인됐고 현재 workflow의 To Review transition과 내 권한도 확인됐으니 티켓도 review 상태로 변경해 줘.",
-      "expected_sequence": ["workflow:to-pr", "workflow:ticket-lifecycle"],
+      "expected_sequence": [
+        "workflow:to-pr",
+        "workflow:ticket-lifecycle"
+      ],
       "expected_intent": "review",
       "must_verify_canonical_ticket": true,
       "must_reread_after_mutation": true
     },
     {
       "id": "workflow-lifecycle-remains-standalone",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "GitHub sonsu/example#17의 현재 상태를 확인하고, 열려 있으면 닫아 줘.",
-      "expected_sequence": ["workflow:ticket-lifecycle"],
+      "expected_sequence": [
+        "workflow:ticket-lifecycle"
+      ],
       "expected_intent": "complete",
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "integration-choice-routes-to-engineering",
-      "installed_plugins": ["engineering", "workflow"],
+      "installed_plugins": [
+        "engineering",
+        "workflow"
+      ],
       "prompt": "구현과 검증이 끝났고 commit도 모두 있어. 이 개발 branch를 어떻게 마무리할지 진행해줘.",
-      "expected_sequence": ["engineering:finishing-a-development-branch"],
-      "must_not_select": ["workflow:git-workflow", "workflow:to-pr"]
+      "expected_sequence": [
+        "engineering:finishing-a-development-branch"
+      ],
+      "must_not_select": [
+        "workflow:git-workflow",
+        "workflow:to-pr"
+      ]
     },
     {
       "id": "implementation-does-not-trigger-delivery",
-      "installed_plugins": ["engineering", "workflow"],
+      "installed_plugins": [
+        "engineering",
+        "workflow"
+      ],
       "prompt": "토큰 갱신 기능을 구현하고 필요한 테스트를 실행해줘. Git 작업은 하지 마.",
-      "expected_plugins": ["engineering"],
-      "must_not_select": ["workflow:git-workflow", "workflow:to-ticket", "workflow:to-pr"]
+      "expected_plugins": [
+        "engineering"
+      ],
+      "must_not_select": [
+        "workflow:git-workflow",
+        "workflow:to-ticket",
+        "workflow:to-pr"
+      ]
     },
     {
       "id": "planning-list-is-not-a-ticket-request",
-      "installed_plugins": ["engineering", "workflow"],
+      "installed_plugins": [
+        "engineering",
+        "workflow"
+      ],
       "prompt": "이 기능의 구현 계획을 단계별로 작성해줘. 티켓은 만들지 마.",
-      "expected_plugins": ["engineering"],
-      "must_not_select": ["workflow:to-ticket"]
+      "expected_plugins": [
+        "engineering"
+      ],
+      "must_not_select": [
+        "workflow:to-ticket"
+      ]
     },
     {
       "id": "implementation-then-pr-composes-at-runtime",
-      "installed_plugins": ["engineering", "workflow"],
+      "installed_plugins": [
+        "engineering",
+        "workflow"
+      ],
       "prompt": "이 기능을 구현하고 검증한 다음 현재 branch 기준 PR 초안까지 준비해줘.",
-      "expected_sequence": ["engineering:*", "workflow:to-pr"],
+      "expected_sequence": [
+        "engineering:*",
+        "workflow:to-pr"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "workflow-only-remains-standalone",
-      "installed_plugins": ["workflow"],
+      "installed_plugins": [
+        "workflow"
+      ],
       "prompt": "현재 branch의 GitHub PR 초안을 작성해줘.",
-      "expected_sequence": ["workflow:to-pr"],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "engineering-only-remains-standalone",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "구현과 검증이 끝났고 commit도 모두 있어. 이 개발 branch를 어떻게 마무리할지 진행해줘.",
-      "expected_sequence": ["engineering:finishing-a-development-branch"],
+      "expected_sequence": [
+        "engineering:finishing-a-development-branch"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "engineering-only-handles-external-evidence-without-research",
-      "installed_plugins": ["engineering"],
-      "available_fallbacks": ["web", "browser"],
+      "installed_plugins": [
+        "engineering"
+      ],
+      "available_fallbacks": [
+        "web",
+        "browser"
+      ],
       "prompt": "OAuth 2.1의 최신 공식 문서를 확인해서 이 서비스의 인증 방식을 설계해줘. 아직 구현하지 마.",
-      "expected_sequence": ["engineering:brainstorming"],
+      "expected_sequence": [
+        "engineering:brainstorming"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "direct-multi-source-research-routes-to-research",
-      "installed_plugins": ["engineering", "research"],
+      "installed_plugins": [
+        "engineering",
+        "research"
+      ],
       "prompt": "브라우저 cache partitioning의 현재 동작과 보안 trade-off를 표준 문서, 브라우저 공식 문서와 관련 논문을 교차 검증해서 비교해줘. 구현은 하지 마.",
-      "expected_sequence": ["research:research"],
-      "must_not_select": ["engineering:brainstorming"]
+      "expected_sequence": [
+        "research:research"
+      ],
+      "must_not_select": [
+        "engineering:brainstorming"
+      ]
     },
     {
       "id": "development-and-research-compose-at-runtime",
-      "installed_plugins": ["engineering", "research"],
+      "installed_plugins": [
+        "engineering",
+        "research"
+      ],
       "prompt": "이 서비스의 인증 방식을 설계하고 구현해줘. 설계 선택에 영향을 주는 최신 표준과 주요 라이브러리의 공식 문서를 여러 출처에서 먼저 검증해줘.",
-      "expected_sequence": ["engineering:brainstorming", "research:research", "engineering:*"],
+      "expected_sequence": [
+        "engineering:brainstorming",
+        "research:research",
+        "engineering:*"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "local-debugging-does-not-trigger-research",
-      "installed_plugins": ["engineering", "research"],
+      "installed_plugins": [
+        "engineering",
+        "research"
+      ],
       "prompt": "이 repository에서 실패하는 단위 테스트와 관련 코드를 확인해서 원인을 찾고 수정해줘. 외부 조사는 필요 없어.",
-      "expected_plugins": ["engineering"],
-      "must_not_select": ["research:research"]
+      "expected_plugins": [
+        "engineering"
+      ],
+      "must_not_select": [
+        "research:research"
+      ]
     },
     {
       "id": "single-official-doc-lookup-does-not-trigger-research",
-      "installed_plugins": ["engineering", "research"],
+      "installed_plugins": [
+        "engineering",
+        "research"
+      ],
       "prompt": "Node.js 공식 문서에서 --env-file option이 처음 추가된 버전 하나만 확인해줘.",
       "expected_plugins": [],
-      "must_not_select": ["research:research"]
+      "must_not_select": [
+        "research:research"
+      ]
     },
     {
       "id": "research-only-remains-standalone-with-fallbacks",
-      "installed_plugins": ["research"],
+      "installed_plugins": [
+        "research"
+      ],
       "available_provider_integrations": [],
-      "available_fallbacks": ["web", "browser", "local"],
+      "available_fallbacks": [
+        "web",
+        "browser",
+        "local"
+      ],
       "prompt": "세 가지 JavaScript package manager의 공급망 보안 정책을 공식 문서와 공개된 보안 자료를 교차 검증해서 비교해줘.",
-      "expected_sequence": ["research:research"],
+      "expected_sequence": [
+        "research:research"
+      ],
       "must_not_auto_install_provider": true,
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "research-and-fluent-compose-orthogonally",
-      "installed_plugins": ["research", "fluent-languages"],
+      "installed_plugins": [
+        "research",
+        "fluent-languages"
+      ],
       "prompt": "주요 브라우저의 WebAuthn 지원 차이를 공식 문서 여러 개로 조사하고 기술 검토 결과를 한국어로 작성해줘.",
-      "expected_sequence": ["research:research", "fluent-languages:fluent-korean"],
+      "expected_sequence": [
+        "research:research",
+        "fluent-languages:fluent-korean"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "direct-prompt-artifact-routes-to-prompting",
-      "installed_plugins": ["engineering", "prompting"],
+      "installed_plugins": [
+        "engineering",
+        "prompting"
+      ],
       "prompt": "이 요구사항을 Codex에서 바로 사용할 수 있는 작업 프롬프트로 정리해줘. 구현은 하지 마.",
-      "expected_sequence": ["prompting:prompt-builder"],
-      "must_not_select": ["engineering:brainstorming"]
+      "expected_sequence": [
+        "prompting:prompt-builder"
+      ],
+      "must_not_select": [
+        "engineering:brainstorming"
+      ]
     },
     {
       "id": "prompt-rewrite-routes-to-prompting",
-      "installed_plugins": ["prompting"],
+      "installed_plugins": [
+        "prompting"
+      ],
       "prompt": "이 system prompt에서 중복된 지시와 모호한 조건을 제거하고 복사해서 사용할 수 있는 형태로 다시 작성해줘.",
-      "expected_sequence": ["prompting:prompt-builder"],
+      "expected_sequence": [
+        "prompting:prompt-builder"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "prompt-engineering-explanation-does-not-trigger-prompting",
-      "installed_plugins": ["prompting"],
+      "installed_plugins": [
+        "prompting"
+      ],
       "prompt": "few-shot prompting과 zero-shot prompting의 차이를 설명해줘. 프롬프트를 작성할 필요는 없어.",
       "expected_plugins": [],
-      "must_not_select": ["prompting:prompt-builder"]
+      "must_not_select": [
+        "prompting:prompt-builder"
+      ]
     },
     {
       "id": "product-ideation-routes-to-product-brainstorming",
-      "installed_plugins": ["engineering", "product"],
+      "installed_plugins": [
+        "engineering",
+        "product"
+      ],
       "prompt": "반려동물 보호자를 위한 제품 기회와 서로 다른 해법 후보를 넓게 브레인스토밍해줘. 아직 검증됐다고 가정하지 마.",
-      "expected_sequence": ["product:product-brainstorming"],
-      "must_not_select": ["engineering:brainstorming", "product:product-discovery"]
+      "expected_sequence": [
+        "product:product-brainstorming"
+      ],
+      "must_not_select": [
+        "engineering:brainstorming",
+        "product:product-discovery"
+      ]
     },
     {
       "id": "technical-design-does-not-trigger-product-brainstorming",
-      "installed_plugins": ["engineering", "product"],
+      "installed_plugins": [
+        "engineering",
+        "product"
+      ],
       "prompt": "이 서비스의 API와 비동기 job 구조 대안을 설계하고 trade-off를 비교해줘. 제품 문제 탐색은 필요 없어.",
-      "expected_sequence": ["engineering:brainstorming"],
-      "must_not_select": ["product:product-brainstorming", "product:product-discovery"]
+      "expected_sequence": [
+        "engineering:brainstorming"
+      ],
+      "must_not_select": [
+        "product:product-brainstorming",
+        "product:product-discovery"
+      ]
     },
     {
       "id": "product-problem-framing-routes-to-discovery",
-      "installed_plugins": ["product"],
+      "installed_plugins": [
+        "product"
+      ],
       "prompt": "이 기능 아이디어에서 대상 사용자, 현재 문제, 기대 결과, 범위와 아직 결정하지 않은 내용을 제품 관점에서 구체화해줘.",
-      "expected_sequence": ["product:product-discovery"],
-      "must_not_select": ["product:product-brainstorming", "product:to-prd"],
+      "expected_sequence": [
+        "product:product-discovery"
+      ],
+      "must_not_select": [
+        "product:product-brainstorming",
+        "product:to-prd"
+      ],
       "must_not_select_all_product_skills": true
     },
     {
       "id": "provided-feedback-routes-to-product-evidence-synthesis",
-      "installed_plugins": ["product", "research"],
+      "installed_plugins": [
+        "product",
+        "research"
+      ],
       "prompt": "제공한 사용자 인터뷰와 support issue를 출처별 theme, 빈도, 반례, 충돌과 불확실성으로 종합해줘. 외부 조사는 하지 마.",
-      "expected_sequence": ["product:synthesize-product-evidence"],
-      "must_not_select": ["research:research", "product:product-discovery"]
+      "expected_sequence": [
+        "product:synthesize-product-evidence"
+      ],
+      "must_not_select": [
+        "research:research",
+        "product:product-discovery"
+      ]
     },
     {
       "id": "external-product-research-stays-with-research",
-      "installed_plugins": ["product", "research"],
+      "installed_plugins": [
+        "product",
+        "research"
+      ],
       "prompt": "현재 경쟁 제품의 가격, 정책과 사용자 평가를 여러 외부 출처에서 조사하고 원문을 교차 검증해줘.",
-      "expected_sequence": ["research:research"],
-      "must_not_select": ["product:synthesize-product-evidence"]
+      "expected_sequence": [
+        "research:research"
+      ],
+      "must_not_select": [
+        "product:synthesize-product-evidence"
+      ]
     },
     {
       "id": "product-rules-route-to-product-domain-discovery",
-      "installed_plugins": ["product", "engineering"],
+      "installed_plugins": [
+        "product",
+        "engineering"
+      ],
       "prompt": "주문 취소 기능의 제품 용어, 행위자, 상태, 사건, 규칙과 예외를 근거가 있는 후보 모델로 정리해줘. 코드는 바꾸지 마.",
-      "expected_sequence": ["product:product-domain-discovery"],
-      "must_not_select": ["engineering:domain-shaped-code", "domain-modeling"]
+      "expected_sequence": [
+        "product:product-domain-discovery"
+      ],
+      "must_not_select": [
+        "engineering:domain-shaped-code",
+        "domain-modeling"
+      ]
     },
     {
       "id": "code-domain-shape-does-not-trigger-product-domain-discovery",
-      "installed_plugins": ["product", "engineering"],
+      "installed_plugins": [
+        "product",
+        "engineering"
+      ],
       "prompt": "이미 승인된 주문 상태와 API 경계를 타입과 제어 흐름에 반영해서 구현해줘.",
-      "expected_sequence": ["engineering:domain-shaped-code"],
-      "must_not_select": ["product:product-domain-discovery"]
+      "expected_sequence": [
+        "engineering:domain-shaped-code"
+      ],
+      "must_not_select": [
+        "product:product-domain-discovery"
+      ]
     },
     {
       "id": "product-test-plan-routes-to-design",
-      "installed_plugins": ["product"],
+      "installed_plugins": [
+        "product"
+      ],
       "prompt": "이 가격 가설을 검증할 대상을 정하고, 실행 전에 반증 조건, 방법, 계측과 supported·invalidated·inconclusive 기준을 설계해줘. 아직 실행하지 마.",
-      "expected_sequence": ["product:design-product-test"],
-      "must_not_select": ["product:assess-product-test"]
+      "expected_sequence": [
+        "product:design-product-test"
+      ],
+      "must_not_select": [
+        "product:assess-product-test"
+      ]
     },
     {
       "id": "product-test-result-routes-to-assessment",
-      "installed_plugins": ["product"],
+      "installed_plugins": [
+        "product"
+      ],
       "prompt": "이 test plan과 실제 실행 로그, 관찰 결과를 대조해서 결과를 판정해줘. 성공 기준을 사후에 바꾸지는 마.",
-      "expected_sequence": ["product:assess-product-test"],
-      "must_not_select": ["product:design-product-test"]
+      "expected_sequence": [
+        "product:assess-product-test"
+      ],
+      "must_not_select": [
+        "product:design-product-test"
+      ]
     },
     {
       "id": "approved-product-context-routes-to-prd",
-      "installed_plugins": ["product", "engineering"],
+      "installed_plugins": [
+        "product",
+        "engineering"
+      ],
       "prompt": "현재 리비전에 승인된 제품 탐색 결과를 기존 문서 관례에 맞는 PRD로 작성해줘. 구현은 하지 마.",
-      "expected_sequence": ["product:to-prd"],
-      "must_not_select": ["product:product-discovery", "engineering:writing-plans"]
+      "expected_sequence": [
+        "product:to-prd"
+      ],
+      "must_not_select": [
+        "product:product-discovery",
+        "engineering:writing-plans"
+      ]
     },
     {
       "id": "missing-product-decisions-block-prd-without-invention",
-      "installed_plugins": ["product"],
+      "installed_plugins": [
+        "product"
+      ],
       "prompt": "누구를 위한 것인지와 핵심 규칙은 아직 모르지만 AI 일정 관리 아이디어로 완성된 PRD를 바로 써줘.",
-      "expected_sequence": ["product:to-prd"],
+      "expected_sequence": [
+        "product:to-prd"
+      ],
       "expected_workflow_status": "blocked",
       "must_not_invent_missing_product_decisions": true
     },
     {
       "id": "product-only-remains-standalone",
-      "installed_plugins": ["product"],
+      "installed_plugins": [
+        "product"
+      ],
       "prompt": "제공한 설문 응답에서 반복되는 제품 문제와 반례를 출처에 연결해서 정리해줘.",
-      "expected_sequence": ["product:synthesize-product-evidence"],
+      "expected_sequence": [
+        "product:synthesize-product-evidence"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "domain-shaped-implementation-routes-to-quality",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "주문 상태의 확인된 세 가지 variant와 API 입력 경계를 타입과 제어 흐름에 반영해서 구현해줘. 미래 상태는 만들지 마.",
-      "expected_sequence": ["engineering:domain-shaped-code"],
-      "must_not_select": ["domain-modeling", "architecture-decisions"]
+      "expected_sequence": [
+        "engineering:domain-shaped-code"
+      ],
+      "must_not_select": [
+        "domain-modeling",
+        "architecture-decisions"
+      ]
     },
     {
       "id": "explicit-minimal-implementation-routes-to-simplify",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "이 변경은 YAGNI로 가자. 새 abstraction 없이 현재 요구사항을 만족하는 가장 작은 코드로 구현해줘.",
-      "expected_sequence": ["engineering:simplify-code"],
-      "must_not_select": ["engineering:review-overengineering"]
+      "expected_sequence": [
+        "engineering:simplify-code"
+      ],
+      "must_not_select": [
+        "engineering:review-overengineering"
+      ]
     },
     {
       "id": "diff-overengineering-review-routes-to-focused-lens",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "현재 diff만 over-engineering과 불필요한 추상화 관점에서 리뷰해줘. 수정은 하지 마.",
-      "expected_sequence": ["engineering:review-overengineering"],
-      "must_not_select": ["engineering:audit-overengineering", "engineering:review-quality"]
+      "expected_sequence": [
+        "engineering:review-overengineering"
+      ],
+      "must_not_select": [
+        "engineering:audit-overengineering",
+        "engineering:review-quality"
+      ]
     },
     {
       "id": "repository-overengineering-audit-routes-to-audit",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "이 repository 전체를 over-engineering 관점에서 audit하고 삭제 효과가 큰 순서로 정리해줘.",
-      "expected_sequence": ["engineering:audit-overengineering"],
-      "must_not_select": ["engineering:review-overengineering"],
+      "expected_sequence": [
+        "engineering:audit-overengineering"
+      ],
+      "must_not_select": [
+        "engineering:review-overengineering"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "reader-load-review-routes-to-maintainability",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "현재 branch diff를 reader load, 중복 domain knowledge와 public surface 관점에서 유지보수성 리뷰해줘.",
-      "expected_sequence": ["engineering:review-maintainability"],
+      "expected_sequence": [
+        "engineering:review-maintainability"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "reachable-failures-route-to-failure-review",
-      "installed_plugins": ["engineering", "codex-security"],
+      "installed_plugins": [
+        "engineering",
+        "codex-security"
+      ],
       "prompt": "이 결제 consumer 변경에서 retry, duplicate delivery, 부분 write와 cleanup의 도달 가능한 실패 경로를 리뷰해줘.",
-      "expected_sequence": ["engineering:review-failure-modes"],
-      "must_not_select": ["codex-security:security-scan"]
+      "expected_sequence": [
+        "engineering:review-failure-modes"
+      ],
+      "must_not_select": [
+        "codex-security:security-scan"
+      ]
     },
     {
       "id": "error-and-logging-route-to-operability",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "이 diff의 error ownership, log-and-rethrow, 원인 보존과 민감정보 logging을 운용 가능성 관점에서 리뷰해줘.",
-      "expected_sequence": ["engineering:review-operability"],
+      "expected_sequence": [
+        "engineering:review-operability"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "broad-quality-review-routes-to-coordinator",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "현재 commit을 단순성, 유지보수성, 실패 모드와 운용 가능성을 아우르는 quality review로 검토해줘.",
-      "expected_sequence": ["engineering:review-quality"],
+      "expected_sequence": [
+        "engineering:review-quality"
+      ],
       "must_not_select_all_quality_lenses": true,
       "must_deduplicate_shared_root_causes": true
     },
     {
       "id": "generic-implementation-stays-with-engineering",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "사용자 프로필 편집 기능을 구현하고 테스트해줘.",
-      "expected_plugins": ["engineering"],
-      "must_not_select": ["engineering:domain-shaped-code", "engineering:simplify-code"]
+      "expected_plugins": [
+        "engineering"
+      ],
+      "must_not_select": [
+        "engineering:domain-shaped-code",
+        "engineering:simplify-code"
+      ]
     },
     {
       "id": "debugging-does-not-trigger-quality-review",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "실패하는 통합 테스트의 root cause를 찾아서 디버깅하고 수정해줘.",
-      "expected_plugins": ["engineering"],
-      "must_not_select": ["engineering:review-failure-modes", "engineering:review-quality"]
+      "expected_plugins": [
+        "engineering"
+      ],
+      "must_not_select": [
+        "engineering:review-failure-modes",
+        "engineering:review-quality"
+      ]
     },
     {
       "id": "architecture-decision-does-not-trigger-quality",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "이벤트 버스와 직접 호출 중 아직 결론이 나지 않은 아키텍처 선택을 비교해 결정 자료를 만들어줘.",
-      "must_not_select": ["engineering:domain-shaped-code", "engineering:review-quality"]
+      "must_not_select": [
+        "engineering:domain-shaped-code",
+        "engineering:review-quality"
+      ]
     },
     {
       "id": "domain-glossary-does-not-trigger-domain-shaped-code",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "이 repository의 도메인 용어를 조사해서 CONTEXT.md를 작성해줘.",
-      "must_not_select": ["engineering:domain-shaped-code"]
+      "must_not_select": [
+        "engineering:domain-shaped-code"
+      ]
     },
     {
       "id": "git-delivery-does-not-trigger-quality",
-      "installed_plugins": ["engineering", "workflow"],
+      "installed_plugins": [
+        "engineering",
+        "workflow"
+      ],
       "prompt": "현재 변경을 커밋하고 push한 뒤 PR을 만들어줘.",
-      "expected_sequence": ["workflow:git-workflow", "workflow:to-pr"],
-      "must_not_select": ["engineering:review-quality"]
+      "expected_sequence": [
+        "workflow:git-workflow",
+        "workflow:to-pr"
+      ],
+      "must_not_select": [
+        "engineering:review-quality"
+      ]
     },
     {
       "id": "deep-security-scan-does-not-trigger-quality",
-      "installed_plugins": ["engineering", "codex-security"],
+      "installed_plugins": [
+        "engineering",
+        "codex-security"
+      ],
       "prompt": "repository 전체를 대상으로 깊은 보안 감사를 수행하고 취약점을 검증해줘.",
-      "expected_sequence": ["codex-security:deep-security-scan"],
-      "must_not_select": ["engineering:review-failure-modes", "engineering:review-quality"]
+      "expected_sequence": [
+        "codex-security:deep-security-scan"
+      ],
+      "must_not_select": [
+        "engineering:review-failure-modes",
+        "engineering:review-quality"
+      ]
     },
     {
       "id": "long-file-is-not-a-maintainability-finding-by-itself",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "이 1,200줄 파일을 유지보수성 관점에서 리뷰해줘. 길다는 이유만으로 분할하지 말고 실제 reader load와 변경 이유를 확인해.",
-      "expected_sequence": ["engineering:review-maintainability"],
+      "expected_sequence": [
+        "engineering:review-maintainability"
+      ],
       "must_not_assume_finding_from_line_count": true
     },
     {
       "id": "trusted-internal-flow-does-not-require-duplicate-guards",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "API 경계에서 이미 검증한 Order를 내부 helper마다 다시 검사하지 않는 형태로 리팩터링해줘.",
-      "expected_sequence": ["engineering:domain-shaped-code"],
+      "expected_sequence": [
+        "engineering:domain-shaped-code"
+      ],
       "must_not_require_internal_revalidation": true
     },
     {
       "id": "operability-does-not-require-blanket-logging",
-      "installed_plugins": ["engineering"],
+      "installed_plugins": [
+        "engineering"
+      ],
       "prompt": "이 작은 로컬 변환 함수의 operability를 리뷰해줘. 실제 운영 질문이 없다면 모든 호출과 성공을 log하라고 요구하지 마.",
-      "expected_sequence": ["engineering:review-operability"],
+      "expected_sequence": [
+        "engineering:review-operability"
+      ],
       "must_not_require_blanket_logging": true
     },
     {
       "id": "implementation-quality-and-pr-compose-at-runtime",
-      "installed_plugins": ["engineering", "workflow"],
+      "installed_plugins": [
+        "engineering",
+        "workflow"
+      ],
       "prompt": "이 기능을 구현하고 검증한 다음 failure mode와 maintainability를 리뷰하고 현재 branch의 PR 초안까지 준비해줘.",
-      "expected_sequence": ["engineering:*", "engineering:review-failure-modes", "engineering:review-maintainability", "workflow:to-pr"],
+      "expected_sequence": [
+        "engineering:*",
+        "engineering:review-failure-modes",
+        "engineering:review-maintainability",
+        "workflow:to-pr"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "quality-and-fluent-compose-orthogonally",
-      "installed_plugins": ["engineering", "fluent-languages"],
+      "installed_plugins": [
+        "engineering",
+        "fluent-languages"
+      ],
       "prompt": "현재 diff를 broad quality review로 검토하고 결과를 자연스러운 한국어로 보고해줘.",
-      "expected_sequence": ["engineering:review-quality", "fluent-languages:fluent-korean"],
+      "expected_sequence": [
+        "engineering:review-quality",
+        "fluent-languages:fluent-korean"
+      ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "research-and-exa-current-technical-comparison",
-      "installed_plugins": ["research", "app-69ea4ed2cf7c8191b742ef3622479ddd"],
+      "installed_plugins": [
+        "research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd"
+      ],
       "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "TanStack Query와 SWR의 현재 React 지원 범위와 최근 변경을 비교해줘.",
-      "expected_sequence": ["research:research"],
+      "expected_sequence": [
+        "research:research"
+      ],
       "expected_first_search_provider": "perplexity",
       "must_select_provider_before_specialist_skill": true,
-      "must_not_select": ["app-69ea4ed2cf7c8191b742ef3622479ddd:Search"]
+      "must_not_select": [
+        "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
+      ]
     },
     {
       "id": "research-and-exa-ambiguous-technical-explanation",
-      "installed_plugins": ["research", "app-69ea4ed2cf7c8191b742ef3622479ddd"],
+      "installed_plugins": [
+        "research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd"
+      ],
       "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "Rust retry 설계의 장단점을 조사해서 설명해줘.",
-      "expected_sequence": ["research:research"],
+      "expected_sequence": [
+        "research:research"
+      ],
       "expected_first_search_provider": "perplexity",
       "must_select_provider_before_specialist_skill": true,
-      "must_not_select": ["app-69ea4ed2cf7c8191b742ef3622479ddd:Search"]
+      "must_not_select": [
+        "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
+      ]
     },
     {
       "id": "research-and-exa-unknown-candidates",
-      "installed_plugins": ["research", "app-69ea4ed2cf7c8191b742ef3622479ddd"],
+      "installed_plugins": [
+        "research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd"
+      ],
       "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "이름을 아직 모르는 Rust retry 구현 저장소를 폭넓게 찾아줘.",
-      "expected_sequence": ["research:research"],
+      "expected_sequence": [
+        "research:research"
+      ],
       "expected_first_search_provider": "exa",
-      "optional_after_provider_selection": ["app-69ea4ed2cf7c8191b742ef3622479ddd:Search"],
+      "optional_after_provider_selection": [
+        "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
+      ],
       "must_select_provider_before_specialist_skill": true
     },
     {
       "id": "explicit-exa-skill-overrides-host-default",
-      "installed_plugins": ["research", "app-69ea4ed2cf7c8191b742ef3622479ddd"],
+      "installed_plugins": [
+        "research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd"
+      ],
       "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "Exa Search 스킬을 사용해서 오늘 TypeScript 변경 소식을 검색해줘.",
-      "expected_sequence": ["app-69ea4ed2cf7c8191b742ef3622479ddd:Search"],
+      "expected_sequence": [
+        "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
+      ],
       "expected_first_search_provider": "exa"
     },
     {
       "id": "host-lookup-without-research-still-routes",
-      "installed_plugins": ["research", "app-69ea4ed2cf7c8191b742ef3622479ddd"],
+      "installed_plugins": [
+        "research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd"
+      ],
       "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
       "expected_sequence": [],
       "expected_first_search_provider": "perplexity",
       "expected_first_tool": "perplexity_search",
       "must_select_provider_before_specialist_skill": true,
-      "must_not_select": ["research:research", "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"]
+      "must_not_select": [
+        "research:research",
+        "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
+      ]
     },
     {
       "installed_plugins": [
@@ -1574,27 +2008,44 @@
       "must_not_add_empty_optional_sections": true,
       "must_not_invent_implementation": true,
       "must_not_classify_readiness": true,
-      "expected_required_headings": ["배경", "작업 내용", "참고"]
+      "expected_required_headings": [
+        "배경",
+        "작업 내용",
+        "참고"
+      ]
     },
     {
       "id": "general-ticket-without-reference-material",
       "prompt": "개발 안내 문서의 설치 단계 순서가 뒤섞여 새 구성원이 설정을 반복하고 있어. 실제 실행 순서에 맞게 안내 순서를 정리하는 티켓 초안만 작성해 줘. 별도 제약이나 참고 자료는 없어.",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-ticket"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
-      "expected_required_headings": ["배경", "작업 내용"],
-      "expected_omitted_headings": ["참고"],
+      "expected_required_headings": [
+        "배경",
+        "작업 내용"
+      ],
+      "expected_omitted_headings": [
+        "참고"
+      ],
       "must_not_add_completion_checklist": true,
       "must_not_invent_implementation": true
     },
     {
       "id": "visual-bug-keeps-steps-and-image",
       "prompt": "모바일 설정 화면에서 저장 버튼이 가려져 눌리지 않아. iOS Safari, 390px 화면에서 설정을 열고 키보드를 표시하면 재현돼. 버튼은 보여야 하고 누를 수 있어야 해. 첨부한 이미지로 버그 초안만 작성해 줘.",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-ticket"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
@@ -1606,7 +2057,10 @@
           "available": true
         }
       },
-      "expected_required_headings": ["현상", "재현 정보"],
+      "expected_required_headings": [
+        "현상",
+        "재현 정보"
+      ],
       "must_include_reproduction_section": true,
       "must_preserve_actual_and_expected": true,
       "must_include_reproduction_media": true,
@@ -1615,13 +2069,20 @@
     {
       "id": "nonvisual-bug-uses-request-response",
       "prompt": "POST /exports에 {\"format\":\"csv\"}를 보내면 500과 {\"error\":\"unsupported format\"}이 반환돼. 문서 계약은 CSV 지원과 201 응답이야. 테스트 환경 API v2에서 재현했어. 화면 자료 없이 버그 초안으로 정리해 줘.",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-ticket"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "bug",
-      "expected_required_headings": ["현상", "재현 정보"],
+      "expected_required_headings": [
+        "현상",
+        "재현 정보"
+      ],
       "must_preserve_actual_and_expected": true,
       "must_preserve_request_response": true,
       "must_not_require_visual_media": true,
@@ -1630,8 +2091,12 @@
     {
       "id": "bug-fix-with-cause-analysis-stays-bug",
       "prompt": "검색어를 지우면 결과 목록이 비어 버려. 검색 화면에서 아무 검색어나 입력한 다음 지우면 재현돼. 기존 계약은 전체 목록으로 돌아가는 거야. 원인을 조사해서 수정하는 티켓 초안을 써 줘.",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-ticket"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
@@ -1644,26 +2109,41 @@
     {
       "id": "investigation-delivers-answers",
       "prompt": "캐시 교체가 필요한지 판단할 근거가 부족해. 현재 Redis 운영의 문제점과 대안을 조사해서 답변과 근거를 전달하는 티켓 초안을 써 줘. 구현이나 도입은 이번 요청에 포함하지 않아.",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-ticket"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "investigation",
-      "expected_required_headings": ["확인할 질문", "남길 결과"],
+      "expected_required_headings": [
+        "확인할 질문",
+        "남길 결과"
+      ],
       "must_not_invent_deliverable_format": true,
       "must_not_invent_implementation": true
     },
     {
       "id": "general-ticket-summarizes-external-agreement",
       "prompt": "프로젝트 초기 설정을 반복하고 있어 공통 템플릿을 만들려고 해. 외부 회의에서 Node 22 지원은 합의했고 Next.js는 선호일 뿐이야. 회의 메모 https://example.com/meeting-42를 참고해서 티켓 초안을 써 줘.",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-ticket"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
-      "expected_required_headings": ["배경", "작업 내용", "참고"],
+      "expected_required_headings": [
+        "배경",
+        "작업 내용",
+        "참고"
+      ],
       "must_preserve_preference_vs_agreement": true,
       "must_summarize_external_decisions": true,
       "must_not_invent_implementation": true
@@ -1671,20 +2151,31 @@
     {
       "id": "general-ticket-keeps-agreed-completion",
       "prompt": "운영자가 저장한 검색 조건을 재사용할 수 없어 필터 저장 기능이 필요해. 사용자별 저장과 삭제를 제공해 줘. 운영 환경에서 저장한 조건을 다시 적용할 수 있고, 삭제한 조건은 목록에 남지 않아야 한다는 두 조건은 합의됐어. 이 내용으로 티켓 초안을 써 줘. 구현 방법은 담당자가 정해.",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-ticket"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
-      "expected_required_headings": ["배경", "작업 내용"],
+      "expected_required_headings": [
+        "배경",
+        "작업 내용"
+      ],
       "must_preserve_whole_completion": true,
       "must_not_invent_implementation": true
     },
     {
       "id": "partial-ticket-draft-preserves-team-structure",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-ticket"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
       "expected_action": "revise",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
@@ -1698,8 +2189,12 @@
     },
     {
       "id": "pr-default-form-keeps-non-ci-notes",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-pr"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
       "expected_mode": "draft",
       "expected_remote_action": "none",
       "prompt": "현재 branch의 한국어 PR 초안을 작성해 줘. Windows Chrome에서 한글 표시를 수동으로 확인했어. 게시하지 마.",
@@ -1714,8 +2209,16 @@
         "ci_coverage": "unit tests",
         "related_ticket": "none"
       },
-      "expected_required_headings": ["배경", "변경 사항", "참고"],
-      "expected_omitted_headings": ["검증", "관련 작업", "스크린샷 및 영상"],
+      "expected_required_headings": [
+        "배경",
+        "변경 사항",
+        "참고"
+      ],
+      "expected_omitted_headings": [
+        "검증",
+        "관련 작업",
+        "스크린샷 및 영상"
+      ],
       "must_preserve_manual_verification": true,
       "must_not_claim_ci_success": true,
       "must_keep_publication_procedure_outside_body": true,
@@ -1723,8 +2226,12 @@
     },
     {
       "id": "pr-ui-draft-plans-media-without-upload",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-pr"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
       "expected_mode": "draft",
       "expected_remote_action": "none",
       "prompt": "모바일 메뉴 버튼 위치를 바꾼 현재 branch의 한국어 PR 초안을 작성해 줘. 화면 자료도 포함할 예정이야. 아직 게시하지 마.",
@@ -1739,17 +2246,27 @@
         "related_ticket": "none",
         "media": "no captures yet"
       },
-      "expected_required_headings": ["배경", "변경 사항", "스크린샷 및 영상"],
+      "expected_required_headings": [
+        "배경",
+        "변경 사항",
+        "스크린샷 및 영상"
+      ],
       "must_not_claim_media_uploaded": true,
       "must_report_missing_required_media": true,
       "must_keep_publication_procedure_outside_body": true,
-      "expected_omitted_headings": ["참고"],
+      "expected_omitted_headings": [
+        "참고"
+      ],
       "must_only_state_missing_media_in_body": true
     },
     {
       "id": "pr-partial-upload-keeps-draft-and-does-not-retry",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-pr"],
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
       "expected_mode": "publish",
       "prompt": "이 흐름에서 만들던 Ready PR의 첨부 작업을 이어서 처리해 줘.",
       "fixture": {
@@ -2160,6 +2677,280 @@
         "writing:write-developer-blog"
       ],
       "must_not_install_plugins": true
+    },
+    {
+      "id": "writing-general-technical-explanation-near-miss",
+      "installed_plugins": [
+        "writing"
+      ],
+      "prompt": "TypeScript의 `satisfies`가 타입 추론에 어떤 영향을 주는지 설명해 줘. 개발자 블로그나 게시할 글을 작성하는 요청은 아니야.",
+      "expected_sequence": [],
+      "must_not_select": [
+        "writing:write-developer-blog"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "expansion-web-new-auto",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "독서 기록 웹의 새 책 상세 화면을 디자인해 줘. 제목, 저자, 긴 리뷰와 다음 책 탐색이 중요해.",
+      "expected_sequence": [
+        "interface-design:design-interface"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "web-new-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-mobile-proposal-auto",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "모바일 앱의 가입 흐름을 제안해 줘. 이메일 입력과 인증 코드 화면이 필요하고 코드는 바꾸지 마.",
+      "expected_sequence": [
+        "interface-design:design-interface"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "mobile-proposal-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-redesign-auto",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "이 개인 독서 앱 화면의 구성을 개선해 줘. 기존 읽기 상태와 평점은 유지해 줘.",
+      "expected_sequence": [
+        "interface-design:redesign-interface"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "redesign-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-design-direct",
+      "installed_plugins": [
+        "interface-design"
+      ],
+      "prompt": "$design-interface 새 설정 화면의 시안을 만들어 줘.",
+      "expected_sequence": [
+        "interface-design:design-interface"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "design-direct",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-redesign-direct-priority",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "$redesign-interface 이 사내 주문 비교 화면의 시안을 재설계해 줘. 구현하지 마.",
+      "expected_sequence": [
+        "interface-design:redesign-interface"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "redesign-direct-priority",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-ops-proposal-auto",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "운영자가 주문을 필터링하고 선택해 일괄 보류하는 화면을 제안해 줘. 구현은 하지 마.",
+      "expected_sequence": [
+        "operations-ui:design-operations-ui"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "ops-proposal-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-figma-file-auto",
+      "installed_plugins": [
+        "interface-design",
+        "operations-ui",
+        "figma-workflow",
+        "engineering"
+      ],
+      "prompt": "이 Figma 파일의 컴포넌트와 변수 연결을 정리하고 Auto Layout을 수정해 줘.",
+      "expected_sequence": [
+        "figma-workflow:figma-product-design"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "figma-file-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-figma-only-ops",
+      "installed_plugins": [
+        "operations-ui"
+      ],
+      "prompt": "운영 대시보드를 Figma에 만들고 상세 drawer prototype까지 연결해 줘. 제품 코드는 수정하지 마.",
+      "expected_sequence": [
+        "operations-ui:figma-operations-flow"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "figma-only-ops",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-state-auto",
+      "installed_plugins": [
+        "workflow",
+        "engineering"
+      ],
+      "prompt": "열린 PR의 CI와 리뷰 상태를 정리해 줘.",
+      "expected_sequence": [
+        "workflow:inspect-prs"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-state-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-repair-auto",
+      "installed_plugins": [
+        "workflow",
+        "engineering"
+      ],
+      "prompt": "이 PR의 CI 실패를 고쳐 줘. 아직 commit이나 push는 하지 마.",
+      "expected_sequence": [
+        "workflow:repair-pr"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-repair-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-normal-review",
+      "installed_plugins": [
+        "workflow",
+        "engineering"
+      ],
+      "prompt": "https://github.com/example/project/pull/12 리뷰해 줘.",
+      "expected_sequence": [
+        "engineering:review-quality"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-normal-review",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-deep-auto",
+      "installed_plugins": [
+        "workflow",
+        "engineering"
+      ],
+      "prompt": "PR #12를 독립 리뷰어 3명으로 심층 검토해 줘.",
+      "expected_sequence": [
+        "engineering:review-pr"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-deep-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-inspect-direct",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "$inspect-prs PR #12 상태를 확인해 줘.",
+      "expected_sequence": [
+        "workflow:inspect-prs"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-inspect-direct",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-repair-direct",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "prompt": "$repair-pr PR #12의 리뷰 지적을 검증하고 필요한 부분을 수정해 줘.",
+      "expected_sequence": [
+        "workflow:repair-pr"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-repair-direct",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-deep-direct",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "$review-pr PR #12를 검토해 줘.",
+      "expected_sequence": [
+        "engineering:review-pr"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-deep-direct",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-pr-local-only",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "prompt": "PR #12를 로컬에서만 리뷰해 줘. GitHub에는 게시하지 마.",
+      "expected_sequence": [
+        "engineering:review-quality"
+      ],
+      "fixture": {
+        "suite": "skill-expansion",
+        "case": "pr-local-only",
+        "writes": "none"
+      }
     }
   ]
 }

@@ -47,7 +47,7 @@ upstream 기준선이나 이전 호환 경로를 매니페스트 계약으로 �
 }
 ```
 
-정적 validator와 Codex 실제 런타임이 지원하는 필드가 다를 수 있습니다. 8개 플러그인은
+정적 validator와 Codex 실제 런타임이 지원하는 필드가 다를 수 있습니다. `profiles.json`에 등록된 플러그인은
 `hooks: "./hooks/hooks.json"`으로 작업 연속성 hook을 포함합니다. `plugin/read`, `skills/list`와
 `hooks/list`로 패키지·스킬·event·matcher를 확인하고, 실제 실행은 별도로 관찰합니다.
 설치만으로 hook이 신뢰되지는 않으며 현재 정의를 사용자가 검토해야 합니다. 정확한 동작과

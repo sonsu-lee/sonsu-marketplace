@@ -1,0 +1,6 @@
+interface:
+  display_name: "Review PR"
+  short_description: "별도 워크트리의 독립 PR 리뷰를 통합해 게시합니다"
+  default_prompt: "$review-pr 이 PR을 별도 세션·워크트리에서 병렬 검토하고 중복 지적을 합쳐 PR에 리뷰를 남겨 줘."
+policy:
+  allow_implicit_invocation: true

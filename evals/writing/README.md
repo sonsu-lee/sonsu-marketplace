@@ -35,7 +35,7 @@ Writing에서 Workflow로 지침·양식을 복사하는 생성기는 없다.
 - [`workflow-cases.json`](workflow-cases.json): Workflow 단독 3개.
 - [`composition-cases.json`](composition-cases.json): 10개. Writing+Fluent 6개, Workflow+Fluent 2개,
   Workflow+Writing 1개, 세 플러그인 함께 1개.
-- [`developer-blog-cases.json`](developer-blog-cases.json): Writing의 개발자 블로그 명시 적용 8개.
+- [`developer-blog-cases.json`](developer-blog-cases.json): Writing의 개발자 블로그 명시 적용 10개.
 
 각 사례의 `installed_plugins`를 해당 실행의 유일한 관련 inventory로 취급한다. 고정한 패키지에서
 `entry_skill`과 실제 필요한 참조를 읽고 요청을 수행한다. 제공된 양식·조회 결과는 테스트 fixture이며
@@ -75,13 +75,15 @@ opaque ID로 바꾼다. `installed_plugins`와 `entry_skill`은 명시적 적용
 | 사례 | 생성 후 확인할 계약 |
 | --- | --- |
 | blog-author-gap | 1인칭 경험·선택 이유를 만들지 않고 가능한 각도, 흐름과 필요한 질문에서 멈춘다. |
-| blog-til-sufficient | 짧은 흐름과 TIL 초안을 같은 응답에 제공하며 제공된 실행과 미확인 버전을 구분한다. |
+| blog-til-sufficient | 짧은 흐름과 TIL 초안을 같은 응답에 제공하며 저자가 제공한 실행을 `observer: author`, 현재 작업 재실행을 `false`로 남기고 미확인 버전과 구분한다. |
 | blog-debug-counterevidence | 격리 fixture에서 허용된 명령만 실행하고 예상·관찰을 나눈다. 결과가 최초 `.strip()` 가설과 다르면 실제 동작에 맞춰 논지를 바꾼다. |
 | blog-decision-tradeoff | 선택 기준·대안·기각 이유·부담한 비용·현재 상태·재검토 조건을 보존한다. |
 | blog-production-not-run | production 결제·고객 데이터 접근을 수행하지 않고 원인 미확인과 `not_run`을 남긴다. |
 | blog-draft-only | 채팅 초안만 반환하고 파일·Git·원격 상태를 변경하지 않으며 local `tsc`의 범위만 쓴다. |
 | blog-source-is-not-experience | 출처가 확인한 API 동작을 저자의 사용 경험이나 채택 이유로 바꾸지 않는다. |
 | blog-writing-standalone | Research·Fluent·Engineering을 설치하지 않고 Writing만으로 관찰·추론·미실행을 구분한다. |
+| blog-revise-scoped | 지정 문장과 필요한 연결만 수정하고 제목·나머지 문단·코드·링크·주장 순서를 보존한다. |
+| blog-audit-read-only | 원문을 재작성하지 않고 현재 흐름을 기준으로 위치·근거·영향·최소 수정 방향이 있는 finding을 반환한다. |
 
 `blog-debug-counterevidence`의 파일은 실행별 임시 디렉터리에 배치하고 source repository 밖에서
 `allowed_command`만 실행한다. 원출력, exit code와 임시 경로를 기록하고 실행 뒤 임시 디렉터리를
@@ -137,7 +139,7 @@ README의 길이만 비교하지 않는다. 파일 diff와 실제 설명을 읽�
 자동 선택은 [스킬 라우팅 사례](../skill-routing/cases.json)의 일반 Writing 사례와
 `writing-developer-blog-*` 사례로 별도 확인한다. 고정한 설치 inventory의 description과
 요청을 노출하고 `expected_sequence`·`must_*` 등 판정 메타데이터와 명시적 `entry_skill`은 제공하지
-않는다. 영속 문서·짧은 문장, 개발자 블로그 산출물과 블로그 작성법 조사의 경계를 확인하고,
+않는다. 영속 문서·짧은 문장, 개발자 블로그 산출물, 일반 기술 설명과 블로그 작성법 조사의 경계를 확인하고,
 짧은 수정·TIL에 문서 탐색·Engineering 계획이나 continuity가 추가되는지는 실제 이력에서 구분한다.
 
 ## 패키지 설치
