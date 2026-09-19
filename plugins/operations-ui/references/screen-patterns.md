@@ -36,4 +36,4 @@
 
 ## 조합 규칙
 
-상위 shell에는 primary pattern 하나만 둔다. dashboard에서 list로 drill down하거나 list에서 detail drawer를 여는 식으로 패턴 간 전이를 설계한다. 모든 전이는 Screen Contract scenario ID를 가져야 한다.
+상위 shell에는 primary pattern 하나만 둔다. dashboard에서 list로 drill down하거나 list에서 detail drawer를 여는 식으로 패턴 간 전이를 설계한다. 모든 전이는 Design Decision Contract의 task scenario ID를 가져야 한다.

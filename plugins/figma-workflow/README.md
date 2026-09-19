@@ -2,6 +2,10 @@
 
 Figma Design에서 제품 화면, responsive Auto Layout, component·variant·variable, exact icon과 clickable prototype을 생성·수정·감사할 때 native 구조와 evidence 기준을 제공하는 Codex plugin입니다. 판단이 필요한 canvas read/write의 agent writer는 현재 host에 실제로 등록된 official Figma MCP connection 하나입니다.
 
+Figma 화면도 `사용자·맥락 → 판단/과업 → 정보 → 표현 → 상태/interaction → 증거`의 공통 Design
+Decision Contract를 사용합니다. Figma scope는 DQ0–DQ7을 요구하며 DQ1–DQ6은 독립 평가자 2명의
+최솟값으로 판정합니다. 이 통과를 production runtime이나 live 사용자 성과로 확대하지 않습니다.
+
 ```sh
 codex plugin add figma-workflow@sonsu-marketplace
 ```
@@ -42,6 +46,11 @@ mutation은 explicit `nodeId`, expected state, same-plan preview receipt, apply 
 visual screenshot, native structure/readback, component·variable·icon provenance, reaction readback, prototype playback은 서로 다른 claim을 검증합니다. 하나의 screenshot이나 write response만으로 전체를 통과로 보고하지 않습니다. capability가 없으면 `blocked`, `inconclusive` 또는 `not_run`으로 범위를 분리합니다.
 
 이 repository의 정적 검증은 packaging, schema, test와 bundle을 확인합니다. actual Figma MCP exposure, live canvas mutation, Figma Desktop import와 companion 실행은 별도 환경에서 해야 하며 실행하지 않았다면 `not_run`입니다.
+
+```bash
+python3 scripts/validate_design_quality.py contract <contract.json>
+python3 scripts/validate_design_quality.py report <report.json> <contract.json>
+```
 
 출처와 consulted-only provenance는 [UPSTREAM.md](UPSTREAM.md)에 있습니다.
 

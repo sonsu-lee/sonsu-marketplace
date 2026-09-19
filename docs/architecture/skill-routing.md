@@ -74,7 +74,7 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 신규 운영형 B2B·admin·back-office 화면의 제안·Figma·구현 | `operations-ui:design-operations-ui` |
 | 기존 운영 화면의 동작을 보존하거나 명시적으로 변경하는 재설계 | `operations-ui:redesign-operations-ui` |
 | 기존 운영 화면과 증거의 읽기 전용 품질 감사 | `operations-ui:audit-operations-ui` |
-| 명시적으로 요청된 Figma 운영 화면을 Screen Contract와 구현 handoff에 연결 | `operations-ui:figma-operations-flow` |
+| 명시적으로 요청된 Figma 운영 화면을 Design Decision Contract와 구현 handoff에 연결 | `operations-ui:figma-operations-flow` |
 
 Memory Manager는 Codex의 `policy.allow_implicit_invocation: false`로 명시적 호출만 허용합니다.
 `$memory-manager`를 직접 요청할 때 실행하며 일반 작업에서 자동 선택하지 않습니다.
@@ -85,7 +85,7 @@ Operations UI는 WMS나 배송처럼 특정 산업명이 아니라 상태 판단
 행동, 고밀도 데이터가 중심인 화면에 적용합니다. marketing·editorial·brand page는 대상이
 아닙니다. Figma 자체 화면·component·prototype 생성과 수정은 Figma Workflow가 담당하며,
 Operations UI의 Figma skill은 사용자가 명시했을 때 업무 명세를 native 산출물에 연결합니다.
-코드 구현도 요청한 경우에만 실행용 Screen Contract와 브라우저 게이트까지 이어갑니다.
+코드 구현도 요청한 경우에만 implementation 범위의 Design Decision Contract와 DQ7 브라우저 증거까지 이어갑니다.
 일반 UI의 과업·플랫폼·산출물 구조는 [Interface Design](interface-design.md)을 참고하세요.
 PR URL만으로 심층 리뷰를 시작하지 않고, 일반 리뷰와 명시적인 심층·다중 리뷰를 구분합니다.
 리뷰 의도는 요청과 기존 문맥에서 확인하며, 문맥 없는 URL 단독 입력에 리뷰·게시를 추가하지 않습니다.

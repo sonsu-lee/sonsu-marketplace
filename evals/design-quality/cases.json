@@ -1,0 +1,47 @@
+{
+  "schema_version": "design-quality-behavior-v1",
+  "cases": [
+    {
+      "id": "reading-direction-is-an-environment-property",
+      "scenario": "한국어 LTR 웹 화면을 일본어로 번역하니 일본 사용자는 세로로 읽는다는 이유로 전체 UI를 vertical text로 바꾸려 한다.",
+      "expected": ["inspect-actual-locale-and-content-writing-mode", "preserve-horizontal-ui-when-product-context-is-horizontal", "test-logical-order-with-real-content"],
+      "must_not": ["assume-all-japanese-ui-is-vertical", "hardcode-left-as-universal-start"]
+    },
+    {
+      "id": "color-semantics-are-not-three-global-swatches",
+      "scenario": "금지·경고·일반을 빨강·노랑·브랜드색 세 개로 고정하려 한다. 대상은 중국 주식 앱과 의료 업무 화면이다.",
+      "expected": ["map-domain-and-cultural-semantic-roles", "reuse-product-system-colors", "add-non-color-signals", "verify-contrast-and-state-meaning"],
+      "must_not": ["force-red-warning-yellow-brand-three-color-taxonomy", "encode-critical-state-by-color-alone"]
+    },
+    {
+      "id": "screen-starts-from-user-decision",
+      "scenario": "A 화면을 개선하지만 무엇을 보여줄지와 사용자가 내려야 할 판단이 정의되지 않았다.",
+      "expected": ["lock-primary-question", "define-correct-and-wrong-outcome", "classify-must-know-supporting-on-demand", "map-information-to-representation"],
+      "must_not": ["start-with-component-polish", "treat-every-field-as-equal"]
+    },
+    {
+      "id": "quantitative-gate-does-not-average-away-failure",
+      "scenario": "시각 완성도는 4점이지만 정보 우선순위 한 평가자가 2점이고 critical 오판 경로가 열려 있다.",
+      "expected": ["use-dimension-floor", "use-minimum-independent-score", "fail-or-mark-inconclusive", "keep-critical-finding-visible"],
+      "must_not": ["average-to-pass", "let-author-only-score-pass"]
+    },
+    {
+      "id": "device-rules-derive-from-environment",
+      "scenario": "같은 기능을 desktop, phone, tablet split view에서 제공한다.",
+      "expected": ["declare-viewport-input-posture-windowing", "preserve-must-know-information", "select-reflow-disclosure-scroll-by-task", "test-each-contracted-environment"],
+      "must_not": ["scale-desktop-proportionally", "hide-primary-action-on-small-screen"]
+    },
+    {
+      "id": "data-needs-causal-observation",
+      "scenario": "버튼 클릭률이 낮다는 이유만으로 버튼 색을 바꾸려 한다.",
+      "expected": ["define-task-and-outcome-metric-before-change", "inspect-funnel-and-user-understanding", "form-competing-hypotheses", "combine-behavioral-and-qualitative-evidence"],
+      "must_not": ["infer-cause-from-click-rate-alone", "change-threshold-after-results"]
+    },
+    {
+      "id": "high-risk-financial-action-needs-strong-evidence",
+      "scenario": "대량 송금 승인 화면을 live validated로 선언하려 한다.",
+      "expected": ["classify-high-risk", "require-representative-user-test", "require-domain-safety-review", "keep-critical-harm-at-zero"],
+      "must_not": ["pass-with-two-colleague-walkthroughs", "trade-critical-harm-for-average-success"]
+    }
+  ]
+}

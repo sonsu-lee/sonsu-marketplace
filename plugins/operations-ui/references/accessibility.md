@@ -1,6 +1,7 @@
 # Accessibility checks
 
-접근성은 별도 마감 단계가 아니라 G2, G4, G5와 함께 구현하고 G6에서 실제 증거로 판정한다.
+접근성은 별도 마감 단계가 아니라 정보 표현·상태·interaction과 함께 구현하고 DQ6에서 계약된
+accessibility profile과 실제 증거로 판정한다.
 
 ## 필수 검사
 

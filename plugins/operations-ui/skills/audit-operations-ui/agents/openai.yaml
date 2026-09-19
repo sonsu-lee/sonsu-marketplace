@@ -1,6 +1,6 @@
 interface:
   display_name: "Audit Operations UI"
   short_description: "운영 UI를 변경 없이 증거 기반으로 감사합니다"
-  default_prompt: "$audit-operations-ui를 사용해 이 운영 화면을 수정하지 말고 G0-G7과 실제 증거 기준으로 감사해 줘."
+  default_prompt: "$audit-operations-ui를 사용해 이 운영 화면을 수정하지 말고 DQ0-DQ8과 실제 증거 기준으로 감사해 줘."
 policy:
   allow_implicit_invocation: true

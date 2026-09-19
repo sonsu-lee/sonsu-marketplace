@@ -25,6 +25,9 @@ Figma Design이 최종 제품 화면의 source of truth일 때 native frame, Aut
 2. [capability and evidence](../../references/capability-and-evidence.md)를 읽어 target, edit permission, connected Figma capability와 provider가 요구하는 prerequisite skill을 확인한다. 환경에 해당 prerequisite가 설치되어 있다면 현재 계약을 먼저 따르며, 없는 tool/API 이름을 추정하지 않는다.
 3. 실행 방식은 [deterministic execution](../../references/deterministic-execution.md)의 분류를 따른다. 판단을 요하는 canvas read/write는 registered official Figma MCP가 유일한 agent writer다. `use_figma`를 호출할 때마다 먼저 `figma:figma-use`를 invoke하고 tool call의 `skillNames`에 `figma-use`를 포함한다. 직접 MCP 작업 또는 explicit target을 가진 bounded code 모두 이 경로 안에서만 수행한다.
 4. 기존 page, selection, nearby screens, components, variables, styles와 Code Connect 정보를 읽는다. 기존 system을 읽지 않은 채 primitives부터 만들지 않는다.
+5. [공통 디자인 품질 계약](../../references/design-quality.md)에 따라 `artifact_scope: figma`, 사용자·
+   맥락·핵심 질문·오판 비용, 정보·표현·환경·metric을 잠근다. `extensions.figma`에는 target,
+   필요한 capability, component strategy, resize와 prototype scenario를 기록한다.
 
 composed screen/view는 `figma:figma-use`와 `figma:figma-generate-design`을 함께 invoke한 뒤 `use_figma`를 호출한다. 개별 component·library authoring은 `figma:figma-use`와 `figma:figma-generate-library`를 함께 invoke한다. motion 등 추가 official prerequisite가 현재 설치된 contract에 적용되면 그것도 함께 따른다. 실제 canvas I/O는 현재 연결된 official Figma MCP schema가 정한 경로만 사용하며, 이 skill은 native craft와 evidence 계약을 보완한다. design-to-code는 `figma:figma-design-to-code`의 범위다.
 
@@ -47,6 +50,14 @@ composed screen/view는 `figma:figma-use`와 `figma:figma-generate-design`을 �
 각 section과 전체 화면의 screenshot, node hierarchy, Auto Layout sizing, component/variable binding과 icon provenance를 다시 읽는다. short/long/localized text, absent/extra content, 0/1/many item, narrow/wide resize를 위험에 맞게 확인한다. interaction이 있으면 reaction readback과 playback evidence를 별도로 기록한다.
 
 결과에는 변경한 frame, 재사용한 component·variable·asset, accessible icon name/size, interaction handoff와 각 evidence 상태를 기록한다. write가 성공해도 screenshot·structure·reaction readback 중 필요한 근거가 없으면 해당 claim은 `inconclusive` 또는 `not_run`이다. 실제 Desktop companion 실행과 live Figma 실행을 이 문서 작업에서 했다고 주장하지 않는다.
+
+Figma 범위는 DQ0–DQ7을 요구한다. DQ1–DQ6은 작성자가 아닌 독립 평가자 2명이 같은 revision을
+평가하며 최솟값 3 미만이나 1보다 큰 점수 차이를 평균으로 숨기지 않는다.
+
+```bash
+python3 <figma-workflow-plugin-root>/scripts/validate_design_quality.py contract <contract.json>
+python3 <figma-workflow-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
+```
 
 ## 예시
 

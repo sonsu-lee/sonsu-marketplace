@@ -14,6 +14,7 @@
 | 특정 목표를 어떻게 달성하는가? | [`guides/`](guides/) | 절차가 바뀔 때 갱신 |
 | 정확한 형식, 필드와 계약은 무엇인가? | [`reference/`](reference/) | 구현과 일치하도록 갱신 |
 | 반복 작업을 어떻게 실행, 검증하고 복구하는가? | [`runbooks/`](runbooks/) | 실제 실행 가능성을 유지 |
+| 조사 코퍼스와 분석 방법은 무엇인가? | [`research/`](research/) | 원자료 상태와 검증 수준을 분리해 갱신 |
 
 이후에도 찾아볼 정보인지 먼저 판단한 뒤 `README.md`, `CONTEXT.md`, `docs/**`, 기존 이슈와
 티켓에서 해당 주제를 담당하는 위치를 확인합니다. 이미 문서 목적·경로·갱신 범위를 정했다면
@@ -83,3 +84,5 @@
 - [플러그인별 라이선스와 출처](reference/licenses-and-sources.md)
 - [컴팩션 전후 작업 연속성 계약](reference/task-continuity.md)
 - [업스트림 플러그인 업데이트 런북](runbooks/updating-upstream-plugin.md)
+- [Madia Designer 디자인 실무 관찰 방법](research/madia-design-practice-method.md)
+- [Madia Designer 공개 영상 카탈로그](research/madia-design-practice-catalog.md)

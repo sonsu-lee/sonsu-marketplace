@@ -2,11 +2,11 @@
 
 ## Status
 
-- Plugin version: `0.1.0`
+- Plugin version: `0.3.0`
 - Source model: locally authored, multi-source guidance
 - External files copied: none
 - License: not declared; decide before public distribution
-- Last reviewed: 2026-09-04
+- Last reviewed: 2026-09-17
 
 이 plugin은 외부 skill이나 문서를 파일 단위로 가져온 fork가 아닙니다. official tool contract와 공개 실무 자료에서 확인한 개념을 Sonsu Marketplace의 독립 plugin 정책에 맞게 새로 작성했습니다. 원문의 문장, code, asset을 복사하지 않습니다.
 
@@ -59,12 +59,15 @@ designbywani의 릴스 캡션에서 다음 주제를 확인하고 기존 layout�
 
 - [정렬·간격·강약](https://www.instagram.com/reel/Dc3CXUjzjSp/): 작업별 정보 묶음과 읽는 순서
 - [텍스트 역할과 스타일](https://www.instagram.com/reel/Dcs0qmTT4u1/): 필요한 역할을 기존 Text Style에 매핑
-- [중첩 카드 모서리](https://www.instagram.com/reel/DdEBHpTT_ys/): 균일한 inset을 가진 surface의 국소적인 곡률 검토
+- [중첩 카드 모서리](https://www.instagram.com/reel/DdEBHpTT_ys/): surface 관계를 검토한 practitioner 사례
 - [PRD에서 화면 동선으로](https://www.instagram.com/reel/Dcx5VQ-TbmC/): 목표·화면·권한을 기존 transition에 대응
 
 [Atlassian spacing](https://atlassian.design/foundations/spacing/)의 semantic grouping·proximity와
 [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)로 간격·대비 해석을 대조했다.
-[CSS corner shaping](https://www.w3.org/TR/css-backgrounds-3/#corner-shaping)은 border·padding 경계의 반지름과
-0 하한을 설명한다. 이를 중첩 surface에 적용하는 것은 동일한 원호와 균일한 inset을 전제로 한 설계 참고이며,
-브라우저가 자식 element의 radius를 자동 계산한다는 뜻은 아니다. social tip을 새 차단 gate나 고정 style scale로
-승격하지 않고 기존 system reuse와 렌더링 검증 안에 통합했다.
+surface와 control의 corner는 기존 component/token과 역할에서 판단하며 하나의 산식을 보편 규칙으로
+사용하지 않는다. social tip은 새 차단 gate나 고정 style scale로 승격하지 않는다.
+
+2026-09-17부터 [공통 source map](references/design-quality-sources.md)의 근거 계층과 DQ0–DQ8을
+사용한다. Figma 범위는 DQ0–DQ7이며 production runtime·live 사용자 결과와 분리한다. Madia
+Designer 공개 영상은 별도 연구 카탈로그에서 직접 관찰·반복·외부 근거·행동 평가를 충족하기 전까지
+Figma 차단 규칙으로 사용하지 않는다.

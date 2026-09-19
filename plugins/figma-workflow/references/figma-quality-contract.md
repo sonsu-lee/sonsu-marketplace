@@ -29,11 +29,9 @@ clipping으로 layout defect를 숨기지 않고 overflow를 명시한다. 의�
 text, empty/optional element, localized copy, 0/1/many item, icon-present/absent state를 확인한다. material section
 마다 screenshot과 node sizing을 함께 읽는다.
 
-같은 곡선 형태의 두 surface가 균일한 inset으로 중첩되면, 안쪽 radius는 `max(0, outer radius - inset)`을
-출발점으로 검토한다. inset은 두 윤곽 사이의 실제 거리이며 stroke 위치·두께도 포함해 읽는다. 이 계산은
-원호형 모서리의 관계를 확인하는 방법이다. corner smoothing, 비대칭 여백, pill 또는 독립된 내부 control에는
-그대로 적용하지 않는다. 기존 component·radius token을 먼저 확인하고, 조정이 필요하면 해당 중첩 surface에
-한정해 바인딩과 화면 결과를 다시 읽는다.
+surface와 control의 corner는 기존 component·semantic token, 계층, 조작 역할과 실제 화면 결과에서 정한다.
+바깥·안쪽 radius를 하나의 산식으로 일반화하지 않는다. 독립 control, nested surface, overlay는 서로 다른
+역할을 가질 수 있으며 변경이 필요하면 해당 component와 consuming screen의 binding·resize·시각 결과를 확인한다.
 
 ## Components, variants와 variables
 

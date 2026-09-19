@@ -1,0 +1,16 @@
+{
+  "schema_version": "madia-source-manifest-v1",
+  "channel": {
+    "id": "UCxRnfrmJAkRLarzeBJETB5g",
+    "title": "Madia Designer",
+    "url": "https://www.youtube.com/@uxuidesign"
+  },
+  "playlists": {
+    "uploads": "UUxRnfrmJAkRLarzeBJETB5g",
+    "uxui": "PLs8gZ5b9piXWi8j1bKnmMhTw7J39R2UzQ",
+    "viewer-review": "PLs8gZ5b9piXXortysLEQsFhWIA_lT3X7K",
+    "follow-along": "PLs8gZ5b9piXUuczVc_m-2ZJ5zcMMuJRLz",
+    "design-information": "PLs8gZ5b9piXUV9PMXNx6rbdFEfi_-JYgc",
+    "design-tools": "PLs8gZ5b9piXXqyPn0ruAStd5XPCPlcIMW"
+  }
+}

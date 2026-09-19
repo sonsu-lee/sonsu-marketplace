@@ -1,7 +1,7 @@
 {
   "name": "figma-workflow",
-  "version": "0.2.5",
-  "description": "Figma에서 제품 화면을 만들고 검토할 때 native layout, reusable system, exact assets, interaction과 handoff 품질을 안내합니다.",
+  "version": "0.3.0",
+  "description": "Figma 제품 화면을 사용자 판단 계약과 DQ0–DQ7, native structure·interaction 증거로 제작하고 검토합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Figma Workflow",
     "shortDescription": "Figma native 제품 디자인 품질 안내",
-    "longDescription": "Figma에서 Auto Layout, components, variables, exact icons와 executable prototype을 검증하고, 공식 Figma MCP와 수동 실행형 companion의 경계를 명확히 합니다.",
+    "longDescription": "사용자·과업·정보·환경을 Figma native frame, Auto Layout, component, variable, exact icon과 prototype scenario에 연결하고 독립 평가합니다.",
     "developerName": "sonsu",
     "category": "Productivity",
     "capabilities": [

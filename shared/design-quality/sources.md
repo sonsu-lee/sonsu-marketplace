@@ -1,0 +1,66 @@
+# Design-quality evidence map
+
+디자인 원칙은 출처의 권위를 섞지 않는다. 표준·플랫폼 규범, 일반 heuristic, 회사 사례, 개인의
+실무 관찰은 서로 다른 수준의 근거다. 모든 규칙은 대상 사용자·과업·환경에서 다시 검증한다.
+
+## A. 표준과 공식 플랫폼 지침
+
+- [ISO 9241-210:2019](https://www.iso.org/standard/77520.html): interactive system의 생애주기
+  전반에서 human-centred design 활동을 운영하는 상위 근거다. 특정 layout 값을 제공하는 문서가 아니다.
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/): perceivable, operable, understandable, robust 기준과
+  focus, target size, error prevention, status message 같은 검사 가능한 요구를 제공한다. W3C가
+  구분하듯 success criteria가 규범이고 Understanding/Technique는 설명·방법이다.
+- [W3C CSS Writing Modes](https://www.w3.org/TR/css-writing-modes-4/)와
+  [vertical text guidance](https://www.w3.org/International/articles/vertical-text/): LTR/RTL,
+  horizontal/vertical flow가 언어·문서 유형에 따라 달라짐을 보여준다. “일본 사용자는 항상
+  세로로 읽는다”가 아니라 contract의 실제 `writing_mode`를 확인해야 한다.
+- [Apple HIG: Right to left](https://developer.apple.com/design/human-interface-guidelines/right-to-left):
+  interface direction과 paragraph language를 구분하고 system component의 locale 적응을 활용한다.
+- [Apple HIG: Color](https://developer.apple.com/design/human-interface-guidelines/color): 색을
+  단독 신호로 쓰지 않고, semantic system color와 문화별 의미를 고려한다. 따라서
+  “빨강/노랑/브랜드색 3종”은 전역 규칙이 아니다.
+
+## B. 일반 usability heuristic과 측정
+
+- [Nielsen의 10 usability heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/)는
+  system status, real-world match, user control, consistency, error prevention, recognition,
+  efficiency, minimalism, recovery와 help를 보는 폭넓은 검사 관점이다. 저자 설명처럼 구체적
+  제품 규격이 아니라 heuristic이므로 그대로 합격 체크리스트로 쓰지 않는다.
+- [Task success rate](https://www.nngroup.com/articles/success-rate-the-simplest-usability-metric/)는
+  사용자가 정의한 과업을 완료했는지 측정하는 간단한 outcome이다. 실패 이유를 설명하지 못하고
+  partial success 정의에 따라 값이 달라지므로 사전 등록한 관찰 기준과 qualitative evidence를 함께 쓴다.
+- [Usability metrics](https://www.nngroup.com/articles/usability-metrics/)는 success, time, error,
+  satisfaction 같은 후보를 제공한다. 모든 화면에 같은 목표값을 강제하지 않고 baseline, 위험,
+  표본과 의사결정 비용에서 threshold를 정한다.
+
+## C. 제품 조직의 사례
+
+- Toss의 [Easy to answer](https://toss.tech/article/insurance-claim-process)는 사용자가 답하기 어려운
+  질문을 줄인 사례다. DQ1의 `primary_question`, DQ2의 필요한 정보, task test로 번역한다.
+- Toss의 [Value first, cost later](https://toss.tech/article/value-first-cost-later)는 행동 비용을
+  요구하기 전에 사용자가 얻는 가치를 구체적으로 이해시키는 사례다. 모든 funnel 순서를 강제하지
+  말고 정보·행동 순서 가설과 outcome으로 검증한다.
+- Toss의 [design system 사례](https://toss.tech/article/toss-design-system)는 긴 텍스트, 다양한
+  해상도, 큰 글자와 screen reader를 개별 화면이 아닌 component 수준에서도 다룬다. 제품의 실제
+  component와 semantic token을 먼저 매핑해야 한다는 근거다.
+- Toss의 [senior usability research](https://toss.tech/article/senior-usability-research)와
+  [Toss Navigation Score](https://toss.tech/article/Toss_Navigation_Score)는 “일반 사용자”를
+  추정하지 않고 대상 집단의 mental model과 실제 관찰로 개선한 사례다. 회사 사례의 수치나 패턴을
+  다른 제품의 보편 threshold로 복사하지 않는다.
+
+## D. Madia Designer 실무 관찰 코퍼스
+
+[Madia Designer 연구 방법](madia-design-practice-method.md)은 공개 영상에서
+문제→행동→이유→보이는 효과를 timestamp로 코딩하기 위한 별도 연구다. 개인의 발언·작업 습관은
+표준이 아니다. 비중복 직접 관찰, 다른 프로젝트 반복, 외부 근거와 행동 평가를 거쳐 P3가 된
+항목만 차단 규칙 후보가 된다. 아직 보지 않은 영상과 metadata-only 항목은 원칙 근거가 아니다.
+
+## 흔한 일반론을 계약으로 바꾸는 방법
+
+| 일반론 | 사용할 판단 |
+| --- | --- |
+| 화면은 왼쪽부터 읽는다 | locale, writing mode, platform direction과 실제 과업의 scan order를 environment별로 검증한다. |
+| 색은 빨강·노랑·브랜드색 세 종류다 | 제품의 semantic role, 위험 의미, 문화, 대비와 non-color signal을 매핑한다. |
+| 데이터 기반이면 맞다 | metric을 결과 전에 정의하고 behavioral data의 원인 공백을 인터뷰·task observation으로 보완한다. |
+| 인체공학적으로 편해야 한다 | input method, target, reach, posture, 빈도, 오류 비용과 accessibility profile을 명시한다. |
+| 모바일/데스크톱 원칙이 다르다 | 기기 이름보다 viewport, input, posture, interruption, windowing과 platform convention을 environment로 선언한다. |
