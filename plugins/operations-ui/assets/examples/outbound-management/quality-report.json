@@ -1,89 +1,230 @@
 {
-  "schema_version": "operations-ui-quality-report-v1",
-  "screen_contract_id": "outbound-request-workspace",
-  "overall": "not_run",
-  "design_profile": {
-    "name": "precision-operations-console-v1",
-    "canvas": "#F4F6F8",
-    "surface": "#FFFFFF",
-    "sidebar": "#1D2B3C",
-    "primary": "#356BD6",
-    "sidebar_width": 240,
-    "topbar_height": 48,
-    "content_padding": 24,
-    "section_gap": 16,
-    "control_height": 36,
-    "table_row_height": 48,
-    "radius": 10
+  "schema_version": "design-quality-report-v1",
+  "contract_id": "outbound-management-v2",
+  "contract_revision": "example-r2",
+  "contract_digest": "sha256:d98ab715d6847b36195ed7d274fa58a71c2896386b8eb3e61d31e097396133e5",
+  "profile": "operations-ui",
+  "artifact": {
+    "scope": "implementation",
+    "revision": "example-artifact-r2",
+    "locators": [
+      "expected-structure.md"
+    ]
   },
+  "scope_status": "not_run",
+  "end_to_end_status": "not_run",
+  "claim_level": "provisional",
   "gates": [
     {
-      "id": "G0", "required": true, "status": "not_run", "evidence": ["example/contract-coverage.json"],
+      "id": "DQ0",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
       "checks": [
-        {"id": "contract-artifact", "status": "not_run", "evidence": ["example/screen-contract.json"]},
-        {"id": "requirement-scenario-coverage", "status": "not_run", "evidence": ["example/contract-coverage.json"]}
+        {
+          "id": "contract-completeness",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "traceability",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "pre-registered-metrics",
+          "status": "not_run",
+          "evidence": []
+        }
       ]
     },
     {
-      "id": "G1", "required": true, "status": "not_run", "evidence": ["example/pattern-decision.md"],
+      "id": "DQ1",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
       "checks": [
-        {"id": "pattern-decision", "status": "not_run", "evidence": ["example/pattern-decision.md"]},
-        {"id": "information-hierarchy", "status": "not_run", "evidence": ["example/S1-wide.png"]},
-        {"id": "actual-wide-render", "status": "not_run", "evidence": ["example/S1-wide.png"]}
+        {
+          "id": "user-context-task",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "decision-and-error-cost",
+          "status": "not_run",
+          "evidence": []
+        }
       ]
     },
     {
-      "id": "G2", "required": true, "status": "not_run", "evidence": ["example/token-audit.json"],
+      "id": "DQ2",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
       "checks": [
-        {"id": "token-mapping", "status": "not_run", "evidence": ["example/token-audit.json"]},
-        {"id": "shell-and-navigation", "status": "not_run", "evidence": ["example/S1-wide.png"]},
-        {"id": "semantic-color", "status": "not_run", "evidence": ["example/token-audit.json"]},
-        {"id": "density-and-components", "status": "not_run", "evidence": ["example/S1-wide.png"]}
+        {
+          "id": "information-priority",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "representation-rationale",
+          "status": "not_run",
+          "evidence": []
+        }
       ]
     },
     {
-      "id": "G3", "required": true, "status": "not_run", "evidence": ["example/state-matrix.json"],
+      "id": "DQ3",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
       "checks": [
-        {"id": "state-matrix", "status": "not_run", "evidence": ["example/state-matrix.json"]},
-        {"id": "loading-empty-error-permission", "status": "not_run", "evidence": ["example/state-captures/"]},
-        {"id": "zero-one-many", "status": "not_run", "evidence": ["example/state-captures/"]},
-        {"id": "long-localized-overflow", "status": "not_run", "evidence": ["example/S1-wide.png", "example/S1-narrow.png"]}
+        {
+          "id": "design-system-mapping",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "semantic-not-color-only",
+          "status": "not_run",
+          "evidence": []
+        }
       ]
     },
     {
-      "id": "G4", "required": true, "status": "not_run", "evidence": ["example/interaction-trace.json"],
+      "id": "DQ4",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
       "checks": [
-        {"id": "primary-secondary-actions", "status": "not_run", "evidence": ["example/interaction-trace.json"]},
-        {"id": "bulk-destructive-actions", "status": "not_run", "evidence": ["example/interaction-trace.json"]},
-        {"id": "feedback-and-selection", "status": "not_run", "evidence": ["example/interaction-trace.json"]}
+        {
+          "id": "applicable-states",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "content-and-localization-resilience",
+          "status": "not_run",
+          "evidence": []
+        }
       ]
     },
     {
-      "id": "G5", "required": true, "status": "not_run", "evidence": ["example/viewport-observation.json"],
+      "id": "DQ5",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
       "checks": [
-        {"id": "wide-viewport", "status": "not_run", "evidence": ["example/S1-wide.png"]},
-        {"id": "narrow-or-excluded", "status": "not_run", "evidence": ["example/S1-narrow.png"]},
-        {"id": "overflow-and-detail-access", "status": "not_run", "evidence": ["example/viewport-observation.json"]}
+        {
+          "id": "action-feedback",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "safety-and-recovery",
+          "status": "not_run",
+          "evidence": []
+        }
       ]
     },
     {
-      "id": "G6", "required": true, "status": "not_run", "evidence": ["example/accessibility-observation.json"],
+      "id": "DQ6",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
       "checks": [
-        {"id": "keyboard-focus", "status": "not_run", "evidence": ["example/accessibility-observation.json"]},
-        {"id": "names-roles-states", "status": "not_run", "evidence": ["example/accessibility-observation.json"]},
-        {"id": "non-color-status", "status": "not_run", "evidence": ["example/accessibility-observation.json"]},
-        {"id": "contrast", "status": "not_run", "evidence": ["example/contrast-results.json"]}
+        {
+          "id": "adaptive-environments",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "accessibility-profile",
+          "status": "not_run",
+          "evidence": []
+        }
       ]
     },
     {
-      "id": "G7", "required": true, "status": "not_run", "evidence": ["example/browser-receipts.json"],
+      "id": "DQ7",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
       "checks": [
-        {"id": "actual-app-provenance", "status": "not_run", "evidence": ["example/browser-receipts.json"]},
-        {"id": "required-scenario-coverage", "status": "not_run", "evidence": ["example/browser-receipts.json"]},
-        {"id": "screenshots", "status": "not_run", "evidence": ["example/S1-wide.png", "example/S1-narrow.png"]},
-        {"id": "console-runtime", "status": "not_run", "evidence": ["example/browser-receipts.json"]}
+        {
+          "id": "artifact-provenance",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "scenario-environment-coverage",
+          "status": "not_run",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "DQ8",
+      "required": false,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
+      "checks": [
+        {
+          "id": "outcome-metrics",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "risk-appropriate-user-evidence",
+          "status": "not_run",
+          "evidence": []
+        }
       ]
     }
   ],
-  "browser_receipts": []
+  "evaluator_runs": [],
+  "metric_results": [],
+  "outcome_evidence": [],
+  "findings": [],
+  "extensions": {
+    "operations": {
+      "design_system_mapping": {
+        "system_id": "replace-with-target-product-system",
+        "token_source": "replace-with-target-token-source",
+        "mappings": [
+          {
+            "representation_ids": [
+              "priority-column"
+            ],
+            "semantic_role": "surface",
+            "token_id": "color.background.surface",
+            "evidence": [
+              "expected-structure.md"
+            ]
+          },
+          {
+            "representation_ids": [
+              "priority-column"
+            ],
+            "semantic_role": "primary-text",
+            "token_id": "color.text.primary",
+            "evidence": [
+              "expected-structure.md"
+            ]
+          }
+        ]
+      },
+      "browser_receipts": []
+    }
+  }
 }

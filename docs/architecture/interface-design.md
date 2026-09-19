@@ -43,8 +43,10 @@ Figma Workflow가 소유합니다. 전문 본문 전체를 복제하거나 설�
 각 플러그인의 단독 실행에 필요한 최소 계약은 그 안에 유지합니다.
 
 Figma에서는 component·variable·Auto Layout·state·reaction이 정본이고 텍스트는 결정과 제약을
-보충합니다. 제안/Figma-only에는 구현용 Screen Contract JSON·G0–G7을 강제하지 않습니다.
-Operations UI 웹 구현의 기존 schema·validator·runtime gate는 유지합니다.
+보충합니다. 세 플러그인은 같은 Design Decision Contract와 DQ0–DQ8을 사용하되 proposal,
+Figma, implementation, live의 필수 gate와 증거를 분리합니다.
+Operations UI는 공통 계약의 `extensions.operations`와 runtime receipt로 요구사항·시나리오·환경
+추적을 보강합니다. 고정 테마·고정 viewport의 이전 v1 schema는 사용하지 않습니다.
 
 스킬 발견, 명시적 지침 적용, 자동 선택과 결과 품질은 다른 검증입니다. 이전 차량 화면의 이미지
 실험을 신규 웹·모바일·운영 화면의 범용성 증거로 확대하지 않습니다.

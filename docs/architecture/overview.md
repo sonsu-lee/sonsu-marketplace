@@ -45,7 +45,7 @@ Memory Manager는 명시적으로 호출하는 에이전트 메모리 점검·�
 Figma Workflow는 Figma 제품 화면·prototype의 구조, interaction과 handoff 품질을 담당합니다.
 [Interface Design](interface-design.md)은 일반 웹·앱의 설계·재설계와 정보 자산의 의미를 담당합니다.
 Operations UI는 운영 업무 화면의 제안·Figma·구현을 산출물별로 설계하고 검증합니다.
-Figma Workflow는 Figma artifact를 소유합니다. Operations UI의 Screen Contract와 브라우저
+Figma Workflow는 Figma artifact를 소유합니다. Operations UI의 Design Decision Contract와 브라우저
 품질 게이트는 웹 구현에 적용하며, Figma 전용 요청은 요청한 디자인·프로토타입 결과로 완료합니다.
 Design Patterns는 실제 설계 forces와 필요한 guarantee에 근거한 named pattern 선택과 기존 적용의
 읽기 전용 검토를 담당합니다. 전체 개발 lifecycle이나 broad code quality review는 소유하지 않습니다.

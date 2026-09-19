@@ -74,7 +74,7 @@ Workflowはチケット・PRの新規作成に使うテンプレートと公開�
 | Figma Workflow | 「このFigma画面のAuto Layoutとプロトタイプの接続をレビューして。」 |
 | Memory Manager | 「$memory-manager このプロジェクトのCodexメモリを点検して。」 |
 | Interface Design | 「モバイルの登録フローを設計して。このグラフの情報表現も改善して。」 |
-| Operations UI | 「この受注運用画面をScreen Contractから実装し、ブラウザーの証跡で検証して。」 |
+| Operations UI | 「この受注運用画面をDesign Decision Contractから実装し、DQゲートとブラウザーの証跡で検証して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
 
 Codexは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。

@@ -8,16 +8,16 @@
       "must_not": ["generate-five-new-type-roles-unconditionally", "make-all-gaps-identical", "dim-helper-text-below-readable-contrast", "wrap-every-group-in-a-new-card"]
     },
     {
-      "id": "nested-surface-radius-uses-actual-inset",
-      "scenario": "원호형 radius 10인 surface 안에 같은 곡선의 surface가 있다. border 1과 padding 3을 합친 inset은 4이며 기존 radius token은 10과 6이다. 별도 예시에서는 outer radius 6보다 inset 8이 크다.",
-      "expected": ["measure-inset-between-corresponding-contours", "consider-inner-radius-six-for-inset-four", "clamp-negative-radius-to-zero", "reuse-compatible-existing-radius-token", "verify-local-surface-rendering"],
-      "must_not": ["subtract-padding-only-when-border-contributes", "emit-negative-radius", "change-global-padding-or-radius-scale"]
+      "id": "screen-traces-user-decision-to-representation",
+      "scenario": "상담원이 다음 처리 건을 선택하는 queue 화면을 Figma로 만든다. 위험도와 대기 시간이 must-know이고 고객 메모는 on-demand다.",
+      "expected": ["lock-primary-question-and-wrong-outcome-cost", "map-must-know-information-to-comparable-representation", "keep-on-demand-detail-accessible", "annotate-task-scenario-ids", "verify-decision-with-realistic-content"],
+      "must_not": ["start-from-aesthetic-layout-without-task-contract", "give-every-field-equal-emphasis", "hide-must-know-information-in-detail"]
     },
     {
-      "id": "nested-control-preserves-independent-shape",
-      "scenario": "corner smoothing을 쓰는 카드 안에 브랜드 pill 버튼이 있고 좌우·상하 여백이 다르다. 버튼은 기존 library instance다.",
-      "expected": ["recognize-nonuniform-inset-and-different-curve", "preserve-independent-control-shape", "inspect-existing-component-before-local-adjustment"],
-      "must_not": ["apply-nested-radius-formula-unconditionally", "detach-library-instance-to-change-radius", "replace-pill-radius-with-card-minus-padding"]
+      "id": "corner-and-surface-follow-system-and-role",
+      "scenario": "기존 product library의 card, overlay, pill button을 조합한다. 각 component는 서로 다른 semantic role과 radius token을 가진다.",
+      "expected": ["reuse-existing-component-and-token", "preserve-independent-control-role", "verify-hierarchy-binding-and-resize", "scope-any-exception-to-the-affected-component"],
+      "must_not": ["derive-every-inner-radius-from-one-formula", "detach-library-instance-for-cosmetic-match", "replace-product-radius-scale-with-plugin-default"]
     },
     {
       "id": "auto-layout-uses-semantic-relationships",

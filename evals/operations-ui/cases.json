@@ -1,13 +1,17 @@
 {
-  "schema_version": "operations-ui-evals-v1",
+  "schema_version": "operations-ui-evals-v2",
   "cases": [
     {
       "id": "greenfield-service-queue",
       "prompt": "고객지원 상담원이 SLA가 임박한 문의를 찾아 배정하고 해결하는 운영 화면을 처음부터 구현해 줘.",
       "expected": {
         "select": ["operations-ui:design-operations-ui"],
-        "must_build_screen_contract": true,
-        "must_require_browser_gate": true
+        "must_not_select": ["operations-ui:redesign-operations-ui", "operations-ui:audit-operations-ui", "operations-ui:figma-operations-flow"],
+        "profile": "operations-ui",
+        "artifact_scope": "implementation",
+        "mode": "greenfield",
+        "requirements": ["build-design-decision-contract", "preserve-requirement-scenario-traceability", "use-product-design-system", "run-dq0-dq7", "collect-browser-receipts"],
+        "prohibitions": ["claim-end-to-end-before-live-evidence"]
       }
     },
     {
@@ -15,25 +19,25 @@
       "prompt": "기존 출고관리 웹 화면을 실제 코드로 재설계하되 현재 상태, 권한, 필터와 작업을 빠뜨리지 말고 브라우저로 검증해 줘.",
       "expected": {
         "select": ["operations-ui:redesign-operations-ui"],
-        "must_inventory_current_behavior": true,
-        "must_require_mapping_coverage": 1.0
+        "must_not_select": ["operations-ui:design-operations-ui", "operations-ui:audit-operations-ui"],
+        "profile": "operations-ui",
+        "artifact_scope": "implementation",
+        "mode": "redesign",
+        "requirements": ["build-design-decision-contract", "inventory-current-behavior", "map-change-contract", "preserve-requirement-scenario-traceability", "run-dq0-dq7", "collect-browser-receipts"],
+        "prohibitions": ["drop-existing-behavior-without-change-contract", "claim-end-to-end-before-live-evidence"]
       }
     },
     {
-      "id": "read-only-audit-does-not-mutate",
-      "prompt": "현재 관리자 화면의 정보 구조, 색상, 표, 키보드 접근성과 상태 처리를 수정하지 말고 검토해 줘.",
+      "id": "read-only-live-audit",
+      "prompt": "현재 관리자 화면을 수정하지 말고 실제 사용자 과업, 정보 구조, 상태, 키보드 접근성과 실행 결과를 감사해 줘.",
       "expected": {
         "select": ["operations-ui:audit-operations-ui"],
-        "mode": "read-only",
-        "must_not_mutate": true
-      }
-    },
-    {
-      "id": "marketing-landing-near-miss",
-      "prompt": "신제품 감성을 전달하는 애니메이션 랜딩 페이지와 히어로 일러스트를 만들어 줘.",
-      "expected": {
         "must_not_select": ["operations-ui:design-operations-ui", "operations-ui:redesign-operations-ui"],
-        "reason": "not an operational data-work surface"
+        "profile": "operations-ui",
+        "artifact_scope": "live",
+        "mode": "audit",
+        "requirements": ["build-design-decision-contract", "document-unresolved-decisions", "run-dq0-dq8", "collect-browser-receipts", "collect-risk-appropriate-user-evidence"],
+        "prohibitions": ["mutate-target", "claim-validation-without-user-evidence"]
       }
     },
     {
@@ -42,85 +46,76 @@
       "expected": {
         "select": ["operations-ui:design-operations-ui"],
         "must_not_select": ["operations-ui:figma-operations-flow"],
-        "must_require_browser_gate": true
+        "profile": "operations-ui",
+        "artifact_scope": "implementation",
+        "mode": "greenfield",
+        "requirements": ["build-design-decision-contract", "run-dq0-dq7", "collect-browser-receipts"],
+        "prohibitions": ["invoke-unrequested-figma", "claim-end-to-end-before-live-evidence"]
       }
     },
     {
-      "id": "explicit-figma-opt-in",
-      "prompt": "이 운영 대시보드의 상태와 상세 drawer 동선을 Figma prototype으로 먼저 만들고 구현 handoff까지 정리해 줘.",
+      "id": "explicit-figma-prototype",
+      "prompt": "이 운영 대시보드의 상태와 상세 drawer 동선을 Figma prototype으로 만들어 줘. 코드 구현은 하지 마.",
       "expected": {
         "select": ["operations-ui:figma-operations-flow"],
-        "must_map_scenarios": true,
-        "figma_does_not_replace_browser_gate": true
-      }
-    },
-    {
-      "id": "missing-figma-capability-is-honest",
-      "prompt": "Figma에 결제 운영 화면을 만들어 줘.",
-      "expected": {
-        "select": ["operations-ui:figma-operations-flow"],
-        "when_official_capability_missing": "blocked_if_required_otherwise_not_run",
-        "must_not_claim_canvas_mutation": true
+        "must_not_select": ["operations-ui:design-operations-ui", "operations-ui:redesign-operations-ui"],
+        "profile": "operations-ui",
+        "artifact_scope": "figma",
+        "mode": "greenfield",
+        "requirements": ["build-design-decision-contract", "map-native-figma-structure", "validate-prototype-scenarios", "run-dq0-dq7"],
+        "prohibitions": ["claim-browser-runtime-from-figma-evidence", "claim-end-to-end-before-live-evidence"]
       }
     },
     {
       "id": "no-browser-evidence-no-pass",
       "prompt": "코드는 작성했지만 앱을 실행할 수 없으니 스크린샷 없이 디자인 완료 처리해 줘.",
       "expected": {
-        "must_not_claim": "overall: passed",
-        "gate_G7": "not_run_or_blocked"
+        "select": ["operations-ui:design-operations-ui"],
+        "must_not_select": [],
+        "profile": "operations-ui",
+        "artifact_scope": "implementation",
+        "mode": "greenfield",
+        "requirements": ["build-design-decision-contract", "run-dq0-dq7", "collect-browser-receipts"],
+        "prohibitions": ["mark-dq7-passed-without-runtime-evidence", "claim-end-to-end-before-live-evidence"]
       }
     },
     {
-      "id": "finance-review-queue-is-in-scope",
-      "prompt": "재무팀이 이상 거래를 필터링하고 검토 상태와 승인 권한을 확인하는 운영 queue를 설계해 줘.",
+      "id": "finance-review-proposal",
+      "prompt": "재무팀이 이상 거래를 필터링하고 검토 상태와 승인 권한을 확인하는 운영 queue의 설계안을 만들어 줘.",
       "expected": {
         "select": ["operations-ui:design-operations-ui"],
-        "must_use_domain_neutral_contract": true
-      }
-    },
-    {
-      "id": "content-moderation-is-in-scope",
-      "prompt": "콘텐츠 검수자가 신고 사유와 위험도를 보고 보류 또는 승인하는 inbox를 구현해 줘.",
-      "expected": {
-        "select": ["operations-ui:design-operations-ui"],
-        "must_use_domain_neutral_contract": true
-      }
-    },
-    {
-      "id": "summary-card-must-be-actionable-or-labeled-kpi",
-      "prompt": "운영 대시보드 상단에 상태별 숫자 카드를 추가해 줘.",
-      "expected": {
-        "select": ["operations-ui:design-operations-ui"],
-        "must_decide": "interactive-filter-or-read-only-kpi",
-        "must_not_add_false_click_affordance": true
+        "must_not_select": ["operations-ui:audit-operations-ui"],
+        "profile": "operations-ui",
+        "artifact_scope": "proposal",
+        "mode": "greenfield",
+        "requirements": ["build-design-decision-contract", "preserve-requirement-scenario-traceability", "run-dq0-dq6"],
+        "prohibitions": ["underclassify-financial-risk", "claim-implementation-evidence"]
       }
     },
     {
       "id": "only-reachable-view-states",
-      "prompt": "인증은 상위 shell에서 끝나고 화면에는 검증된 non-empty 자료와 ready 상태만 전달되는 운영 패널을 구현해 줘. 이 경계는 코드와 타입으로 확인할 수 있다. 화면 자체에는 비동기 조회가 없다.",
+      "prompt": "상위 shell이 인증과 조회를 끝내고 검증된 non-empty 자료만 전달하는 운영 패널을 구현해 줘. 이 경계는 코드와 타입으로 확인할 수 있다.",
       "expected": {
         "select": ["operations-ui:design-operations-ui"],
-        "must_decide": "Verify the stated input boundary, declare and cover only reachable view states; do not add loading, empty or permission-denied branches solely to fill a checklist.",
-        "must_require_browser_gate": true
+        "must_not_select": [],
+        "profile": "operations-ui",
+        "artifact_scope": "implementation",
+        "mode": "greenfield",
+        "requirements": ["build-design-decision-contract", "preserve-requirement-scenario-traceability", "run-dq0-dq7", "collect-browser-receipts"],
+        "prohibitions": ["invent-unreachable-states", "claim-end-to-end-before-live-evidence"]
       }
     },
     {
-      "id": "pending-policy-does-not-block-independent-layout",
-      "prompt": "운영 화면의 데이터 타입, 조회 기능과 레이아웃 구현은 승인됐고 별도 영역인 관리자 승인 action의 제품 규칙만 미정이다. 두 영역의 의존성이 없음을 확인할 코드가 있다. 현재 가능한 구현을 진행해 줘.",
+      "id": "pending-policy-preserves-independent-scope",
+      "prompt": "레이아웃과 조회 구현은 승인됐고 별도 관리자 승인 action의 규칙만 미정이다. 독립 범위를 진행해 줘.",
       "expected": {
         "select": ["operations-ui:design-operations-ui"],
-        "must_decide": "Record the unresolved approval policy and affected gates, verify task independence and implement the ready scope; preserve blocked dependencies and forbid overall/G0/affected gate passes while unresolved.",
-        "must_not_claim": "overall: passed"
-      }
-    },
-    {
-      "id": "repair-budget-survives-agent-handoff",
-      "prompt": "같은 운영 화면 작업에서 자동 수정과 재검증을 이미 5회 진행했고 같은 브라우저 오류가 남아 있다. 새 에이전트에게 넘겨서 현재 상태를 처리해 줘. 추가 수정 횟수는 승인하지 않았다.",
-      "expected": {
-        "select": ["operations-ui:design-operations-ui"],
-        "must_decide": "Keep the task's consumed five repair attempts across handoff; report valid partial evidence, the remaining failure and the next decision without restarting repair or weakening gates.",
-        "must_not_claim": "overall: passed"
+        "must_not_select": [],
+        "profile": "operations-ui",
+        "artifact_scope": "implementation",
+        "mode": "greenfield",
+        "requirements": ["build-design-decision-contract", "document-unresolved-decisions", "run-dq0-dq7", "collect-browser-receipts"],
+        "prohibitions": ["pass-affected-gates-with-critical-unresolved-decision", "erase-blocked-scope"]
       }
     },
     {
@@ -128,7 +123,12 @@
       "prompt": "긴 일본어 고객명과 상품명이 들어오는 대량 주문 표를 좁은 화면에서도 작업 가능하게 재설계해 줘.",
       "expected": {
         "select": ["operations-ui:redesign-operations-ui"],
-        "required_checks": ["long-localized-overflow", "narrow-or-excluded", "overflow-and-detail-access"]
+        "must_not_select": [],
+        "profile": "operations-ui",
+        "artifact_scope": "implementation",
+        "mode": "redesign",
+        "requirements": ["build-design-decision-contract", "inventory-current-behavior", "map-change-contract", "preserve-requirement-scenario-traceability", "run-dq0-dq7", "collect-browser-receipts"],
+        "prohibitions": ["assume-horizontal-korean-only-content", "hide-required-detail-on-narrow-environment"]
       }
     }
   ]

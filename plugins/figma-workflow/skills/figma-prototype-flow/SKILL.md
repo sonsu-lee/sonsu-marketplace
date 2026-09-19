@@ -20,6 +20,9 @@ Figma Design이 제품 interaction의 source of truth일 때 actual control과 n
 2. [capability and evidence](../../references/capability-and-evidence.md)를 읽어 target, permission과 `reaction_write`, `reaction_readback`, `prototype_playback` capability를 각각 기록한다. `use_figma`가 필요한 reaction read/write 전에는 `figma:figma-use`를 invoke하고 해당 tool call의 `skillNames`에 `figma-use`를 포함한다. motion 등 추가 official prerequisite가 현재 설치된 contract에 적용되면 그것도 함께 따른다.
 3. 판단형 reaction read/write는 registered official Figma MCP를 유일한 agent writer로 사용한다. direct official MCP와 explicit target을 좁힌 bounded code 모두 official MCP 경로 안에 한정한다. raw MCP, local bridge, second writer 또는 추정한 API 이름을 사용하지 않는다.
 4. existing starting point, screen·component states, reactions, variables와 annotations를 읽어 현재 graph를 만든다. Selection이나 node ID가 stale하면 write 전에 정확한 target을 다시 정한다.
+5. 기존 Design Decision Contract가 있으면 같은 revision을 사용하고, 없으면
+   [공통 디자인 품질 계약](../../references/design-quality.md)으로 사용자 과업·오판 비용·상태·환경과
+   prototype scenario를 잠근다. reaction을 보기 좋게 연결하는 것보다 observable success와 recovery를 우선한다.
 
 `figma:figma-use` 또는 필요한 capability가 설치·노출되지 않으면 interaction specification을 제공하고 mutation과 playback을 `blocked`, `not_run` 또는 `inconclusive`로 보고한다. tool/API를 추정하거나 우회하지 않는다. companion은 prototype graph를 write하는 도구가 아니다. 수동 companion의 `audit-prototype-links`는 selection 기반의 결정적 integrity evidence만 제공하며 자세한 계약은 [deterministic execution](../../references/deterministic-execution.md)과 [companion README](../../figma-plugin/README.md)를 따른다.
 
@@ -34,6 +37,9 @@ Figma Design이 제품 interaction의 source of truth일 때 actual control과 n
 readback capability가 있으면 reaction을 다시 읽어 trigger, action, destination, overlay dismissal과 back behavior를 확인한다. playback capability가 있으면 named starting point에서 primary, failure와 recovery path를 실행해 unreachable frame, dead end, 닫히지 않는 overlay와 잘못된 Back을 찾는다. Screenshot은 visible state만, reaction readback은 graph만 증명하므로 둘을 함께 기록한다.
 
 결과에는 starting point, 검증한 path, unresolved branch, annotation coverage와 evidence 상태를 기록한다. reaction write는 성공했지만 destination readback이 실패하거나 지원되지 않으면 해당 path는 `inconclusive`다. write와 readback이 성공해도 playback이 unsupported이면 playback은 `not_run`, 전체 clickable 결과는 `inconclusive`다. live MCP·Desktop 실행을 하지 않은 경우 passed라고 주장하지 않는다.
+
+prototype을 포함한 Figma 산출물은 DQ0–DQ7 report로 판정한다. DQ1–DQ6은 독립 평가자 2명이
+평가하고 DQ7은 screenshot, native reaction readback과 요청된 playback의 상태를 분리한다.
 
 ## 예시
 

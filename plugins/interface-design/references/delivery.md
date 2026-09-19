@@ -18,11 +18,16 @@ Figma 결과물이 포함되면 일반 디자인 명세와 Figma 제작 지침�
 
 ## 요청한 결과까지 수행
 
+작업 계약의 `artifact_scope`는 `proposal`, `figma`, `implementation`, `live` 중 하나다. 각각
+DQ0–DQ6, DQ0–DQ7, DQ0–DQ7, DQ0–DQ8을 요구한다. 앞 단계 통과는 뒤 단계 통과가 아니며 live
+전에는 `end_to_end_status: passed`를 주장하지 않는다.
+
 | 산출물 | 제작·완료 기준 |
 | --- | --- |
-| 제안 | 명세와 실제 시각적 제안을 제공한다. 기존 화면, 보존·변경 사항, 상태·흐름, 반응형과 인계 조건을 필요한 만큼 연결한다. |
-| Figma | native frame, Auto Layout, component, variable과 요청된 prototype을 제작하고 구조·화면·resize·reaction·playback을 각각 확인한다. |
-| 기존 프로젝트 구현 | 기존 stack·component·token으로 화면·상태·동작을 구현하고 관련 검사와 실제 렌더링·대표 조작을 확인한다. |
+| 제안 | 명세와 실제 시각적 제안을 제공하고 DQ0–DQ6을 평가한다. 기존 화면, 보존·변경 사항, 상태·흐름, 반응형과 인계 조건을 필요한 만큼 연결한다. |
+| Figma | native frame, Auto Layout, component, variable과 요청된 prototype을 제작하고 DQ7 구조·화면·resize·reaction·playback 근거를 확인한다. |
+| 기존 프로젝트 구현 | 기존 stack·component·token으로 화면·상태·동작을 구현하고 DQ7의 실제 렌더링·대표 조작 근거를 확인한다. |
+| Live 평가 | 사전 등록 metric과 위험도에 맞는 대표 사용자·production·domain safety 근거로 DQ8을 평가한다. |
 
 산출물이 불명확하면 현재 프로젝트·대화에서 먼저 해소하고 선택에 따라 작업이 크게 달라질 때만
 질문한다. 코드 구현 요청을 제안만으로 끝내거나, 제안 요청을 제품 코드 수정으로 확대하지 않는다.

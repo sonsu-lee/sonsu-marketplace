@@ -75,7 +75,7 @@ After installing the relevant plugin, try requests like these in Codex:
 | Figma Workflow | “Review the Auto Layout and prototype connections in this Figma screen.” |
 | Memory Manager | “$memory-manager Review the Codex memories for this project.” |
 | Interface Design | “Design a mobile signup flow and improve the chart presentation.” |
-| Operations UI | “Implement this order-operations screen from a Screen Contract and verify it with browser evidence.” |
+| Operations UI | “Implement this order-operations screen from a Design Decision Contract and verify it with DQ gates and browser evidence.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
 
 Codex selects skills based on your request and the descriptions of installed skills.

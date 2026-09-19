@@ -22,6 +22,10 @@ description: 기존 Figma file, page, frame 또는 selection의 Auto Layout, res
 
 Screenshot과 metadata, hierarchy, components, variables, icon provenance, reactions와 annotations를 필요한 범위에서 읽는다. Screenshot에서 보이지 않는 구조를 추정해 확정하지 않는다.
 
+[공통 디자인 품질 계약](../../references/design-quality.md)의 `artifact_scope: figma`, `mode: audit`로
+사용자 과업·정보·환경을 복원한다. `extensions.figma`에 실제 target과 관찰 가능한 capability,
+resize/prototype scenario를 기록하고 미확인은 `unresolved_decisions`에 남긴다.
+
 ## 감사 기준
 
 [Figma quality contract](../../references/figma-quality-contract.md)를 기준으로 다음을 확인한다.
@@ -42,6 +46,14 @@ prototype 또는 user flow가 범위에 있으면 [interaction specification](..
 finding마다 target, 관찰 evidence, 사용자 영향, 확실성, 최소 수정 방향을 제시한다. 실제 resize, prototype playback 또는 Desktop companion 실행을 하지 못한 항목은 `needs-live-validation`, `inconclusive` 또는 `not_run`으로 표시한다. 수동 audit output은 finding의 근거이지 디자인 판정의 자동 결론이 아니다.
 
 수정 요청으로 범위가 바뀌면 감사를 종료한다. 화면 구조 수정은 `figma-product-design`, prototype connection 수정은 `figma-prototype-flow`의 mutation workflow로 다시 시작한다.
+
+감사 결과는 DQ0–DQ7 report로 남긴다. DQ1–DQ6의 합격에는 독립 평가자 2명이 필요하며 실제로
+수행하지 않은 resize/playback은 `not_run`이다.
+
+```bash
+python3 <figma-workflow-plugin-root>/scripts/validate_design_quality.py contract <contract.json>
+python3 <figma-workflow-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
+```
 
 ## 예시
 

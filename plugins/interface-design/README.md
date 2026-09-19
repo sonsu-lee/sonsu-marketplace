@@ -3,6 +3,10 @@
 웹·모바일 화면을 과업·정보 구조·시각 체계에서 설계하고 요청한 제안·Figma·구현을 완성하는
 독립 Codex 플러그인입니다. 자연어 요청으로 자동 선택하거나 이름으로 직접 호출합니다.
 
+모든 작업은 `사용자·맥락 → 판단/과업 → 필요한 정보 → 표현 → 상태/상호작용 → 관찰 결과`를
+연결하는 공통 Design Decision Contract를 사용합니다. 차원별 DQ0–DQ8과 독립 평가자 2명으로
+품질을 판정하며 평균 총점으로 낮은 차원이나 critical finding을 숨기지 않습니다.
+
 ```sh
 codex plugin add interface-design@sonsu-marketplace
 ```
@@ -25,6 +29,11 @@ codex plugin add interface-design@sonsu-marketplace
 
 제안은 명세와 시각적 제안, Figma는 native 구조와 요청된 prototype, 구현은 기존 프로젝트의
 화면·대표 조작과 검증으로 완료합니다. 정적 이미지나 Figma를 실제 실행 검증으로 대신하지 않습니다.
+
+```bash
+python3 scripts/validate_design_quality.py contract <contract.json>
+python3 scripts/validate_design_quality.py report <report.json> <contract.json>
+```
 
 [설계와 호출 구조](../../docs/architecture/interface-design.md),
 [평가 사례](../../evals/skill-expansion/README.md), [출처](UPSTREAM.md)를 참고하세요.
