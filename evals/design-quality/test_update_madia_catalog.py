@@ -66,10 +66,7 @@ class MadiaCatalogUpdateTests(unittest.TestCase):
             mock.patch.object(MODULE, "fetch_recent_feed", return_value={}),
             mock.patch.object(MODULE, "load_existing", return_value=existing),
             mock.patch.object(
-                MODULE,
-                "fetch_video_channel_id",
-                return_value=MODULE.CHANNEL_ID,
-                create=True,
+                MODULE, "fetch_video_channel_id", return_value=MODULE.CHANNEL_ID
             ),
         ):
             return MODULE.build_catalog("2026-09-17")
@@ -93,6 +90,9 @@ class MadiaCatalogUpdateTests(unittest.TestCase):
             mock.patch.object(MODULE, "fetch_playlist", side_effect=fetch_playlist),
             mock.patch.object(MODULE, "fetch_recent_feed", return_value={}),
             mock.patch.object(MODULE, "load_existing", return_value=existing),
+            mock.patch.object(
+                MODULE, "fetch_video_channel_id", return_value=MODULE.CHANNEL_ID
+            ),
         ):
             catalog = MODULE.build_catalog("2026-09-17")
 
@@ -302,6 +302,128 @@ class MadiaCatalogUpdateTests(unittest.TestCase):
         self.assertEqual([item["video_id"] for item in videos], ["video000001", "video000002"])
         self.assertIsNone(continuation)
 
+    def test_root_candidate_ignores_unrelated_sibling_continuation(self) -> None:
+        def lockup(video_id: str) -> dict:
+            return {
+                "lockupViewModel": {
+                    "contentId": video_id,
+                    "metadata": {
+                        "lockupMetadataViewModel": {"title": {"content": video_id}}
+                    },
+                }
+            }
+
+        unrelated_continuation = {
+            "continuationItemViewModel": {
+                "continuationCommand": {
+                    "innertubeCommand": {
+                        "continuationCommand": {"token": "unrelated-token"}
+                    }
+                }
+            }
+        }
+        videos, continuation = MODULE.extract_video_page(
+            {
+                "items": [lockup("video000001"), lockup("video000002")],
+                "unrelated": unrelated_continuation,
+            }
+        )
+        self.assertEqual([item["video_id"] for item in videos], ["video000001", "video000002"])
+        self.assertIsNone(continuation)
+
+    def test_fresh_continuation_chain_is_bounded(self) -> None:
+        def lockup(video_id: str) -> dict:
+            return {
+                "lockupViewModel": {
+                    "contentId": video_id,
+                    "metadata": {
+                        "lockupMetadataViewModel": {"title": {"content": video_id}}
+                    },
+                }
+            }
+
+        def continuation(token: str) -> dict:
+            return {
+                "continuationItemViewModel": {
+                    "continuationCommand": {
+                        "innertubeCommand": {
+                            "continuationCommand": {"token": token}
+                        }
+                    }
+                }
+            }
+
+        initial = {"items": [lockup("video000001"), continuation("token-0")]}
+        page = (
+            f"<html><script>var ytInitialData = {json.dumps(initial)};</script>"
+            '<script>"INNERTUBE_API_KEY":"key";</script>'
+            '<script>"INNERTUBE_CONTEXT_CLIENT_VERSION":"1.0";</script></html>'
+        )
+        calls = 0
+
+        def next_page(*_args, **_kwargs):
+            nonlocal calls
+            calls += 1
+            if calls > 3:
+                raise AssertionError("continuation bound was not enforced")
+            return {
+                "items": [
+                    lockup(f"video{calls + 1:06d}"),
+                    continuation(f"token-{calls}"),
+                ]
+            }
+
+        with (
+            mock.patch.object(MODULE, "fetch_text", return_value=page),
+            mock.patch.object(MODULE, "post_json", side_effect=next_page),
+            mock.patch.object(MODULE, "MAX_PLAYLIST_CONTINUATION_PAGES", 2, create=True),
+        ):
+            with self.assertRaisesRegex(ValueError, "continuation page limit"):
+                MODULE.fetch_playlist("playlist")
+        self.assertEqual(calls, 2)
+
+    def test_playlist_video_accumulation_is_bounded(self) -> None:
+        def lockup(video_id: str) -> dict:
+            return {
+                "lockupViewModel": {
+                    "contentId": video_id,
+                    "metadata": {
+                        "lockupMetadataViewModel": {"title": {"content": video_id}}
+                    },
+                }
+            }
+
+        initial = {
+            "items": [
+                lockup("video000001"),
+                {
+                    "continuationItemViewModel": {
+                        "continuationCommand": {
+                            "innertubeCommand": {
+                                "continuationCommand": {"token": "next-token"}
+                            }
+                        }
+                    }
+                },
+            ]
+        }
+        page = (
+            f"<html><script>var ytInitialData = {json.dumps(initial)};</script>"
+            '<script>"INNERTUBE_API_KEY":"key";</script>'
+            '<script>"INNERTUBE_CONTEXT_CLIENT_VERSION":"1.0";</script></html>'
+        )
+        with (
+            mock.patch.object(MODULE, "fetch_text", return_value=page),
+            mock.patch.object(
+                MODULE,
+                "post_json",
+                return_value={"items": [lockup("video000002"), lockup("video000003")]},
+            ),
+            mock.patch.object(MODULE, "MAX_PLAYLIST_VIDEOS", 2, create=True),
+        ):
+            with self.assertRaisesRegex(ValueError, "video limit"):
+                MODULE.fetch_playlist("playlist")
+
     def test_channel_feed_only_video_is_included_in_inventory_union(self) -> None:
         uploads = [{"video_id": "uploadvid01", "title": "Upload"}]
 
@@ -321,6 +443,9 @@ class MadiaCatalogUpdateTests(unittest.TestCase):
             mock.patch.object(MODULE, "fetch_playlist", side_effect=fetch_playlist),
             mock.patch.object(MODULE, "fetch_recent_feed", return_value=recent),
             mock.patch.object(MODULE, "load_existing", return_value=None),
+            mock.patch.object(
+                MODULE, "fetch_video_channel_id", return_value=MODULE.CHANNEL_ID
+            ),
         ):
             catalog = MODULE.build_catalog("2026-09-17")
 
@@ -371,6 +496,57 @@ class MadiaCatalogUpdateTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "canonical channel"):
                 MODULE.build_catalog("2026-09-17")
 
+    def test_upload_video_requires_canonical_channel_owner(self) -> None:
+        uploads = [{"video_id": "uploadvid01", "title": "Upload"}]
+
+        def fetch_playlist(playlist_id: str):
+            if playlist_id == MODULE.UPLOADS_PLAYLIST_ID:
+                return uploads, True
+            return [], True
+
+        with (
+            mock.patch.object(MODULE, "fetch_playlist", side_effect=fetch_playlist),
+            mock.patch.object(MODULE, "fetch_recent_feed", return_value={}),
+            mock.patch.object(MODULE, "load_existing", return_value=None),
+            mock.patch.object(
+                MODULE,
+                "fetch_video_channel_id",
+                return_value="UC0000000000000000000000",
+            ) as owner,
+        ):
+            with self.assertRaisesRegex(ValueError, "canonical channel"):
+                MODULE.build_catalog("2026-09-17")
+        owner.assert_called_once_with("uploadvid01")
+
+    def test_playlist_video_in_channel_feed_still_requires_watch_page_owner(self) -> None:
+        uploads = [{"video_id": "uploadvid01", "title": "Upload"}]
+
+        def fetch_playlist(playlist_id: str):
+            if playlist_id == MODULE.UPLOADS_PLAYLIST_ID:
+                return uploads, True
+            return [], True
+
+        recent = {
+            "uploadvid01": {
+                "title": "Upload",
+                "published_at": "2026-09-17T00:00:00Z",
+                "content_type": "long-form",
+            }
+        }
+        with (
+            mock.patch.object(MODULE, "fetch_playlist", side_effect=fetch_playlist),
+            mock.patch.object(MODULE, "fetch_recent_feed", return_value=recent),
+            mock.patch.object(MODULE, "load_existing", return_value=None),
+            mock.patch.object(
+                MODULE,
+                "fetch_video_channel_id",
+                return_value="UC0000000000000000000000",
+            ) as owner,
+        ):
+            with self.assertRaisesRegex(ValueError, "canonical channel"):
+                MODULE.build_catalog("2026-09-17")
+        owner.assert_called_once_with("uploadvid01")
+
     def test_new_discovery_invalidates_promotions_and_dependent_gates(self) -> None:
         old = MODULE.pending_video("oldvideo001", "Old")
         existing = self.existing_catalog([old])
@@ -379,6 +555,16 @@ class MadiaCatalogUpdateTests(unittest.TestCase):
                 "id": "promoted-principle",
                 "tier": "P3",
                 "validation_status": "passed",
+                "behavior_fixture": {
+                    "fixture_id": "promoted-principle-v1",
+                    "run_id": "promoted-principle-run-1",
+                    "artifact_revision": "artifact-v1",
+                    "status": "passed",
+                    "expected": ["Expected behavior"],
+                    "must_not": ["Prohibited behavior"],
+                    "observed": ["Expected behavior"],
+                    "evidence": ["evidence/promoted-principle.json"],
+                },
             }
         ]
         existing["reliability"].update(
@@ -407,6 +593,9 @@ class MadiaCatalogUpdateTests(unittest.TestCase):
             mock.patch.object(MODULE, "fetch_recent_feed", return_value={}),
             mock.patch.object(MODULE, "load_existing", return_value=existing),
             mock.patch.object(MODULE, "validate_existing_catalog", return_value=None),
+            mock.patch.object(
+                MODULE, "fetch_video_channel_id", return_value=MODULE.CHANNEL_ID
+            ),
         ):
             catalog = MODULE.build_catalog("2026-09-17")
 
@@ -414,6 +603,9 @@ class MadiaCatalogUpdateTests(unittest.TestCase):
         self.assertTrue(all(gate["evidence"] == [] for gate in catalog["quality_gates"]))
         self.assertEqual(catalog["principles"][0]["tier"], "P0")
         self.assertEqual(catalog["principles"][0]["validation_status"], "not_run")
+        self.assertEqual(
+            catalog["principles"][0]["behavior_fixture"]["status"], "not_run"
+        )
         self.assertIsNone(catalog["reliability"]["production_double_coded_ratio"])
         self.assertIsNone(catalog["reliability"]["production_kappa"])
         self.assertEqual(catalog["reliability"]["production_evidence"], [])

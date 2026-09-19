@@ -608,7 +608,26 @@ class DesignQualityValidatorTests(unittest.TestCase):
         ]
         result = self.run_validator("report", report, contract)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("critical findings", result.stdout)
+        self.assertIn("blocking findings", result.stdout)
+
+    def test_unresolved_major_finding_blocks_scope_pass(self) -> None:
+        for status in ("open", "accepted_risk"):
+            with self.subTest(status=status):
+                contract = valid_contract()
+                report = valid_report(contract)
+                report["findings"] = [
+                    {
+                        "id": "f1",
+                        "gate_id": "DQ2",
+                        "severity": "major",
+                        "status": status,
+                        "summary": "The primary decision still has a material usability defect.",
+                        "evidence": ["evidence/f1.md"],
+                    }
+                ]
+                result = self.run_validator("report", report, contract)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("blocking findings", result.stdout)
 
     def test_medium_risk_requires_representative_or_production_evidence(self) -> None:
         contract = valid_contract("live", "medium")
@@ -739,6 +758,33 @@ class DesignQualityValidatorTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("scenario/environment coverage", result.stdout)
 
+    def test_operations_receipts_reject_unbound_scenario_environment_pairs(self) -> None:
+        contract = valid_operations_contract()
+        contract["environments"].append(
+            {
+                "id": "mobile-ko",
+                "platform": "web",
+                "width": 390,
+                "height": 844,
+                "input_methods": ["touch"],
+                "locale": "ko-KR",
+                "writing_mode": "horizontal-tb",
+                "accessibility_profile": "WCAG-2.2-AA",
+            }
+        )
+        report = valid_report(contract)
+        unbound = copy.deepcopy(
+            report["extensions"]["operations"]["browser_receipts"][0]
+        )
+        unbound["environment_id"] = "mobile-ko"
+        unbound["screenshots"] = ["evidence/unbound-mobile.png"]
+        report["extensions"]["operations"]["browser_receipts"].append(unbound)
+
+        result = self.run_validator("report", report, contract)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("not bound to the task scenario", result.stdout)
+
     def test_operations_receipts_reject_absolute_screenshot_paths(self) -> None:
         contract = valid_operations_contract()
         report = valid_report(contract)
@@ -748,6 +794,7 @@ class DesignQualityValidatorTests(unittest.TestCase):
         result = self.run_validator("report", report, contract)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("relative paths", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
 
     def test_operations_receipts_reject_nul_paths_without_traceback(self) -> None:
         contract = valid_operations_contract()
@@ -778,6 +825,70 @@ class DesignQualityValidatorTests(unittest.TestCase):
             )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("relative paths", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_operations_receipts_require_existing_screenshot_evidence(self) -> None:
+        contract = valid_operations_contract()
+        report = valid_report(contract)
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            self.materialize_evidence(base, contract)
+            self.materialize_evidence(base, report)
+            report["extensions"]["operations"]["browser_receipts"][0]["screenshots"] = [
+                "evidence/missing-runtime.png"
+            ]
+            report_path = base / "report.json"
+            contract_path = base / "contract.json"
+            report_path.write_text(json.dumps(report), encoding="utf-8")
+            contract_path.write_text(json.dumps(contract), encoding="utf-8")
+            result = subprocess.run(
+                [
+                    "python3",
+                    str(VALIDATOR),
+                    "report",
+                    str(report_path),
+                    str(contract_path),
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("does not identify a file", result.stdout)
+
+    def test_symlink_loop_evidence_path_fails_without_traceback(self) -> None:
+        contract = valid_contract("implementation", "low")
+        report = valid_report(contract)
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            self.materialize_evidence(base, contract)
+            self.materialize_evidence(base, report)
+            evidence = base / "evidence"
+            (evidence / "loop-a").symlink_to("loop-b")
+            (evidence / "loop-b").symlink_to("loop-a")
+            report["extensions"]["interface"]["runtime_receipts"][0]["screenshots"] = [
+                "evidence/loop-a"
+            ]
+            report_path = base / "report.json"
+            contract_path = base / "contract.json"
+            report_path.write_text(json.dumps(report), encoding="utf-8")
+            contract_path.write_text(json.dumps(contract), encoding="utf-8")
+            result = subprocess.run(
+                [
+                    "python3",
+                    str(VALIDATOR),
+                    "report",
+                    str(report_path),
+                    str(contract_path),
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("inside the report directory", result.stdout)
         self.assertNotIn("Traceback", result.stderr)
 
     def test_report_extension_cannot_cross_profiles(self) -> None:
@@ -819,6 +930,16 @@ class DesignQualityValidatorTests(unittest.TestCase):
                 result = self.run_validator("report", report, contract)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("token identifier", result.stdout)
+
+    def test_operations_design_system_mapping_rejects_padded_token_ids(self) -> None:
+        contract = valid_operations_contract()
+        report = valid_report(contract)
+        report["extensions"]["operations"]["design_system_mapping"]["mappings"][0][
+            "token_id"
+        ] = "  color.background.surface  "
+        result = self.run_validator("report", report, contract)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("token identifier", result.stdout)
 
     def test_figma_contract_requires_native_evidence_extension(self) -> None:
         contract = valid_figma_contract()
@@ -1001,6 +1122,15 @@ class DesignQualityValidatorTests(unittest.TestCase):
         self.assertIn("current_behavior_inventory", result.stdout)
         self.assertIn("does not identify a file", result.stdout)
 
+    def test_non_redesign_operations_rejects_null_redesign_fields(self) -> None:
+        contract = valid_operations_contract()
+        contract["mode"] = "greenfield"
+        contract["extensions"]["operations"]["current_behavior_inventory"] = None
+        contract["extensions"]["operations"]["change_contract"] = None
+        result = self.run_validator("contract", contract)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("only valid for redesign mode", result.stdout)
+
     def test_interface_implementation_dq7_requires_runtime_receipts(self) -> None:
         contract = valid_contract("implementation")
         report = valid_report(contract)
@@ -1119,6 +1249,49 @@ class DesignQualityValidatorTests(unittest.TestCase):
             )
         )
         self.assertIn("else", operations_rule)
+
+        redesign_rule = next(
+            rule
+            for rule in contract_schema["allOf"]
+            if rule.get("if", {}).get("properties", {}).get("profile", {}).get("const")
+            == "operations-ui"
+            and rule.get("if", {}).get("properties", {}).get("mode", {}).get("const")
+            == "redesign"
+        )
+        self.assertIn("else", redesign_rule)
+
+        def assert_non_blank_strings(value: object, context: str) -> None:
+            if isinstance(value, dict):
+                if value.get("type") == "string" and value.get("minLength") == 1:
+                    self.assertEqual(value.get("pattern"), r"\S", context)
+                for key, child in value.items():
+                    assert_non_blank_strings(child, f"{context}.{key}")
+            elif isinstance(value, list):
+                for index, child in enumerate(value):
+                    assert_non_blank_strings(child, f"{context}[{index}]")
+
+        assert_non_blank_strings(contract_schema, "contract_schema")
+        assert_non_blank_strings(report_schema, "report_schema")
+        token_schema = report_schema["$defs"]["operationsExtension"]["properties"][
+            "design_system_mapping"
+        ]["properties"]["mappings"]["items"]["properties"]["token_id"]
+        self.assertEqual(
+            token_schema,
+            {"$ref": "#/$defs/semanticTokenIdentifier"},
+        )
+        self.assertEqual(
+            report_schema["$defs"]["browserReceipt"]["properties"]["screenshots"],
+            {"$ref": "#/$defs/nonEmptyRelativePaths"},
+        )
+        for schema in (contract_schema, report_schema):
+            rejected_relative_paths = schema["$defs"]["relativePath"]["not"]["anyOf"]
+            self.assertIn({"pattern": r"^[\\/]"}, rejected_relative_paths)
+            self.assertIn({"pattern": r":[\\/]{2}"}, rejected_relative_paths)
+        self.assertTrue(
+            contract_schema["$defs"]["state"]["properties"]["reachability_evidence"][
+                "uniqueItems"
+            ]
+        )
 
         figma_rule = next(
             rule

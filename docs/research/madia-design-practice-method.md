@@ -34,8 +34,8 @@ Madia Designer의 공개 영상을 하나씩 관찰해 디자이너가 실제로
 ## 실행 순서
 
 1. `shared/design-quality/madia-source-manifest.json`에 고정한 채널 ID·canonical URL·uploads
-   playlist·공개 관련 playlist를 discovery 계약으로 사용한다. uploads와 채널 feed 항목은 해당
-   채널 소유로 검증하고, 관련 playlist에만 있는 영상은 watch page의 `externalChannelId`가
+   playlist·공개 관련 playlist를 discovery 계약으로 사용한다. 채널 feed 항목은 feed의 channel
+   ID로 검증하고, uploads를 포함한 모든 playlist 항목은 watch page의 `externalChannelId`가
    manifest의 채널 ID와 일치할 때만 합친다. 카탈로그의 `channel`과 `discovery_sources`도 이
    manifest와 정확히 일치해야 한다.
 2. 20개 파일럿은 long-form, short, 시청자 첨삭, 따라 만들기, 도구·정보 영상이 섞이도록
@@ -49,9 +49,12 @@ Madia Designer의 공개 영상을 하나씩 관찰해 디자이너가 실제로
    코더별 판정, 불일치, 합의 전 값과 계산 결과가 담긴 `pilot_evidence`와
    `production_evidence` 파일을 함께 남긴다. 각 파일은 `madia-coder-evidence-v1` JSON이며
    `phase`, 정확히 두 코더, `population_size`, 고유 `unit_id`별 `relevance`·`decision_stage`·
-   `evidence_kind`의 코더별 판정을 기록한다. validator는 세 차원의 Cohen's kappa를 다시 계산해
-   그 최솟값을 선언한 kappa와 비교하고, 본 분석 레코드 수를 `population_size`로 나누어 이중
-   코딩 비율을 다시 계산한다. 임의의 텍스트 파일이나 선언값만으로는 M3를 통과할 수 없다.
+   `evidence_kind`의 코더별 판정을 기록한다. `unit_id`는 pilot에서는 catalog video ID, production에서는
+   `analyzed` video ID여야 한다. pilot `population_size`는 전체 catalog video 수, production
+   `population_size`는 실제 `analyzed` video 수에서 validator가 다시 계산한다. validator는 세 차원의
+   Cohen's kappa를 다시 계산해 그 최솟값을 선언한 kappa와 비교하고, 본 분석 레코드 수를 재계산한
+   production 모집단으로 나누어 이중 코딩 비율을 계산한다. 임의의 ID·분모·텍스트 파일이나 선언값만으로는
+   M3를 통과할 수 없다.
 6. 반복되는 행동을 원칙 후보로 묶되 동일 영상·동일 프로젝트의 반복 편집을 독립 사례로 세지 않는다.
 7. 후보를 외부 표준·heuristic·제품 연구와 대조하고, 적용 조건·예외·검증 행동으로 변환한다.
    외부 근거는 `id`, `title`, canonical HTTPS `url`, `source_type`을 가진 레코드로 기록한다.
@@ -68,8 +71,9 @@ Madia Designer의 공개 영상을 하나씩 관찰해 디자이너가 실제로
 현재 카탈로그의 대부분은 게시일이 없어 임의의 연대순을 만들 수 없다. 파일럿 이후 본 분석 queue는
 JSON 원장의 배열 순서를 고정하고, 목록 갱신으로 새 영상이 추가되면 기존 순서를 바꾸지 않고 뒤에
 추가한다. 새 영상이 발견되면 코퍼스 완결성 주장이 깨지므로 M0–M8을 모두 `not_run`으로 되돌리고,
-기존 승격 후보는 P0·`validation_status: not_run`으로 내리며 production reliability 근거도
-무효화한다. queue 규칙을 바꾸면 변경 이유와 영향 범위를 별도 근거로 남긴다.
+기존 승격 후보는 P0·`validation_status: not_run`으로 내리고 기존 behavior fixture receipt도
+`status: not_run`으로 무효화하며 production reliability 근거도 무효화한다. queue 규칙을 바꾸면
+변경 이유와 영향 범위를 별도 근거로 남긴다.
 
 ## 원칙 승격 수준
 

@@ -30,6 +30,8 @@ PLAYLISTS = SOURCE_MANIFEST["playlists"]
 UPLOADS_PLAYLIST_ID = PLAYLISTS["uploads"]
 MAX_DISCOVERY_DEPTH = 256
 MAX_DISCOVERY_NODES = 100_000
+MAX_PLAYLIST_CONTINUATION_PAGES = 500
+MAX_PLAYLIST_VIDEOS = 100_000
 VIDEO_ID_RE = re.compile(r"^[A-Za-z0-9_-]{11}$")
 CHANNEL_ID_RE = re.compile(r"^UC[A-Za-z0-9_-]{22}$")
 USER_AGENT = "Mozilla/5.0 (compatible; design-research-metadata-snapshot/1.0)"
@@ -109,17 +111,17 @@ def bounded_walk(value: Any):
 
 
 def candidate_item_lists(value: Any):
-    stack: list[tuple[Any, int, Any]] = [(value, 0, value)]
+    stack: list[tuple[Any, int, Any]] = [(value, 0, None)]
     visited = 0
     while stack:
-        item, depth, branch = stack.pop()
+        item, depth, parent = stack.pop()
         visited += 1
         if depth > MAX_DISCOVERY_DEPTH or visited > MAX_DISCOVERY_NODES:
             raise ValueError("playlist parser traversal limit exceeded")
         if isinstance(item, list):
             lockup_count = sum(1 for child in item if direct_lockup(child) is not None)
             if lockup_count:
-                yield item, lockup_count, branch
+                yield item, lockup_count, parent
             stack.extend((child, depth + 1, item) for child in reversed(item))
         elif isinstance(item, dict):
             stack.extend(
@@ -136,7 +138,7 @@ def extract_video_page(data: dict[str, Any]) -> tuple[list[dict[str, str]], str 
     strongest = [candidate for candidate in candidates if candidate[1] == maximum]
     if len(strongest) != 1:
         raise ValueError("playlist parser found ambiguous item lists")
-    items, _, selected_branch = strongest[0]
+    items, _, selected_parent = strongest[0]
     videos: list[dict[str, str]] = []
     for item in items:
         if isinstance(item, dict) and "lockupViewModel" in item:
@@ -151,13 +153,22 @@ def extract_video_page(data: dict[str, Any]) -> tuple[list[dict[str, str]], str 
 
     continuation_tokens: set[str] = set()
     malformed_continuation = False
-    for value in bounded_walk(selected_branch):
-        if isinstance(value, dict) and "continuationItemViewModel" in value:
-            token = direct_continuation(value)
-            if token is None:
-                malformed_continuation = True
-            else:
-                continuation_tokens.add(token)
+    continuation_roots: list[Any] = [items]
+    if isinstance(selected_parent, dict):
+        for key, value in selected_parent.items():
+            if value is items:
+                continue
+            normalized_key = str(key).casefold()
+            if "continuation" in normalized_key or "pagination" in normalized_key:
+                continuation_roots.append(value)
+    for root in continuation_roots:
+        for value in bounded_walk(root):
+            if isinstance(value, dict) and "continuationItemViewModel" in value:
+                token = direct_continuation(value)
+                if token is None:
+                    malformed_continuation = True
+                else:
+                    continuation_tokens.add(token)
     if malformed_continuation:
         raise ValueError("playlist parser found malformed continuation")
     if len(continuation_tokens) > 1:
@@ -180,11 +191,17 @@ def fetch_playlist(playlist_id: str) -> tuple[list[dict[str, str]], bool]:
     if not videos:
         raise ValueError(f"playlist parser returned no videos for {playlist_id}")
     all_videos = list(videos)
+    if len(all_videos) > MAX_PLAYLIST_VIDEOS:
+        raise ValueError(f"playlist video limit exceeded for {playlist_id}")
     seen_tokens: set[str] = set()
+    continuation_pages = 0
     while continuation:
+        if continuation_pages >= MAX_PLAYLIST_CONTINUATION_PAGES:
+            raise ValueError(f"continuation page limit exceeded for {playlist_id}")
         if continuation in seen_tokens:
             raise ValueError(f"repeated continuation token for {playlist_id}")
         seen_tokens.add(continuation)
+        continuation_pages += 1
         response = post_json(
             f"https://www.youtube.com/youtubei/v1/browse?key={api_key_match.group(1)}",
             {
@@ -202,6 +219,8 @@ def fetch_playlist(playlist_id: str) -> tuple[list[dict[str, str]], bool]:
         if not page_videos:
             raise ValueError(f"continuation returned no videos for {playlist_id}")
         all_videos.extend(page_videos)
+        if len(all_videos) > MAX_PLAYLIST_VIDEOS:
+            raise ValueError(f"playlist video limit exceeded for {playlist_id}")
     unique: dict[str, dict[str, str]] = {}
     for video in all_videos:
         unique.setdefault(video["video_id"], video)
@@ -315,15 +334,16 @@ def build_catalog(as_of: str) -> dict[str, Any]:
             video_id,
             {"video_id": video_id, "title": title.strip()},
         )
-    trusted_channel_videos = {
-        video["video_id"] for video in playlist_videos.get("uploads", [])
-    } | set(recent)
-    related_only_video_ids = sorted(set(discovered) - trusted_channel_videos)
-    for video_id in related_only_video_ids:
+    playlist_video_ids = {
+        video["video_id"]
+        for videos in playlist_videos.values()
+        for video in videos
+    }
+    for video_id in sorted(playlist_video_ids):
         owner = fetch_video_channel_id(video_id)
         if owner != CHANNEL_ID:
             raise ValueError(
-                f"related playlist video {video_id} is not owned by the canonical channel"
+                f"playlist video {video_id} is not owned by the canonical channel"
             )
     existing_value = load_existing()
     if existing_value is None:
@@ -393,6 +413,9 @@ def build_catalog(as_of: str) -> dict[str, Any]:
             if isinstance(principle, dict):
                 principle["tier"] = "P0"
                 principle["validation_status"] = "not_run"
+                fixture = principle.get("behavior_fixture")
+                if isinstance(fixture, dict):
+                    fixture["status"] = "not_run"
         reliability["production_double_coded_ratio"] = None
         reliability["production_kappa"] = None
         reliability["production_evidence"] = []

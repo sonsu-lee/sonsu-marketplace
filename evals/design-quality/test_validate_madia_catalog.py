@@ -23,15 +23,16 @@ CANONICAL_DISCOVERY_SOURCES = [
 
 
 def coder_evidence(phase: str) -> dict:
-    population_size = 20 if phase == "pilot" else 100
+    population_size = 20 if phase == "pilot" else 3
+    record_count = 20 if phase == "pilot" else 2
     records = []
-    for index in range(20):
+    for index in range(record_count):
         relevance = "relevant" if index % 2 == 0 else "not_relevant"
         decision_stage = "information" if index % 2 == 0 else "interaction"
         evidence_kind = "verbalized" if index % 2 == 0 else "demonstrated"
         records.append(
             {
-                "unit_id": f"{phase}-unit-{index:02d}",
+                "unit_id": f"video{index:06d}",
                 "ratings": {
                     "relevance": {"coder-a": relevance, "coder-b": relevance},
                     "decision_stage": {
@@ -79,13 +80,17 @@ def evidence_unit(
 
 def valid_catalog() -> dict:
     videos = []
-    for index in range(3):
+    for index in range(20):
         video_id = f"video{index:06d}"
-        unit = evidence_unit(
-            f"{video_id}:001",
-            project_id="project-a" if index < 2 else "project-b",
-        )
-        unit["source_locator"] = f"https://www.youtube.com/watch?v={video_id}&t=10s"
+        analyzed = index < 3
+        evidence_units = []
+        if analyzed:
+            unit = evidence_unit(
+                f"{video_id}:001",
+                project_id="project-a" if index < 2 else "project-b",
+            )
+            unit["source_locator"] = f"https://www.youtube.com/watch?v={video_id}&t=10s"
+            evidence_units = [unit]
         videos.append(
             {
                 "video_id": video_id,
@@ -94,11 +99,11 @@ def valid_catalog() -> dict:
                 "published_at": "2026-09-17T00:00:00Z",
                 "content_type": "long-form",
                 "playlist_ids": ["uxui"],
-                "status": "analyzed",
-                "exclusion_reason": None,
+                "status": "analyzed" if analyzed else "excluded",
+                "exclusion_reason": None if analyzed else "Outside the UI/UX analysis scope.",
                 "blocking_reason": None,
                 "duplicate_of": None,
-                "evidence_units": [unit],
+                "evidence_units": evidence_units,
             }
         )
     return {
@@ -119,9 +124,9 @@ def valid_catalog() -> dict:
         "inventory": {
             "discovery_complete": True,
             "discovery_sources": CANONICAL_DISCOVERY_SOURCES,
-            "discovered_unique_videos": 3,
+            "discovered_unique_videos": 20,
             "analyzed": 3,
-            "excluded": 0,
+            "excluded": 17,
             "blocked": 0,
             "pending": 0,
             "corpus_coverage": 1.0,
@@ -130,7 +135,7 @@ def valid_catalog() -> dict:
             "pilot_sample_size": 20,
             "pilot_kappa": 1.0,
             "pilot_evidence": ["evidence/pilot-coder-records.json"],
-            "production_double_coded_ratio": 0.2,
+            "production_double_coded_ratio": 2 / 3,
             "production_kappa": 1.0,
             "production_evidence": ["evidence/production-coder-records.json"],
         },
@@ -183,6 +188,7 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
         *,
         materialize_evidence: bool = True,
         plain_coder_evidence: bool = False,
+        coder_evidence_payloads: dict[str, dict] | None = None,
     ) -> subprocess.CompletedProcess[str]:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "catalog.json"
@@ -205,7 +211,11 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
                                     else:
                                         phase = "pilot" if key == "pilot_evidence" else "production"
                                         evidence_path.write_text(
-                                            json.dumps(coder_evidence(phase)),
+                                            json.dumps(
+                                                (coder_evidence_payloads or {}).get(
+                                                    phase, coder_evidence(phase)
+                                                )
+                                            ),
                                             encoding="utf-8",
                                         )
                                 else:
@@ -231,7 +241,9 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
         payload = valid_catalog()
         payload["videos"][0]["status"] = "pending"
         payload["videos"][0]["evidence_units"] = []
-        payload["inventory"].update({"analyzed": 2, "pending": 1, "corpus_coverage": 2 / 3})
+        payload["inventory"].update(
+            {"analyzed": 2, "excluded": 17, "pending": 1, "corpus_coverage": 19 / 20}
+        )
         result = self.run_validator(payload)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("M0", result.stdout)
@@ -247,7 +259,7 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
         payload = valid_catalog()
         payload["videos"][0]["status"] = "excluded"
         payload["videos"][0]["evidence_units"] = []
-        payload["inventory"].update({"analyzed": 2, "excluded": 1})
+        payload["inventory"].update({"analyzed": 2, "excluded": 18})
         result = self.run_validator(payload)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("exclusion_reason", result.stdout)
@@ -255,6 +267,8 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
     def test_inferred_or_metadata_only_occurrences_cannot_reach_p1(self) -> None:
         payload = valid_catalog()
         for video in payload["videos"]:
+            if not video["evidence_units"]:
+                continue
             video["evidence_units"][0]["evidence_kind"] = "inferred"
             video["evidence_units"][0]["confidence"] = "low"
         payload["principles"][0]["tier"] = "P1"
@@ -415,6 +429,56 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
         result = self.run_validator(payload)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("computed", result.stdout)
+
+    def test_m3_coder_units_are_bound_to_catalog_videos(self) -> None:
+        pilot = coder_evidence("pilot")
+        pilot["records"][0]["unit_id"] = "foreign-video"
+        result = self.run_validator(
+            valid_catalog(),
+            coder_evidence_payloads={
+                "pilot": pilot,
+                "production": coder_evidence("production"),
+            },
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("outside the catalog sampling population", result.stdout)
+
+    def test_m3_population_size_is_recomputed_from_catalog(self) -> None:
+        payload = valid_catalog()
+        production = coder_evidence("production")
+        production["population_size"] = 4
+        payload["reliability"]["production_double_coded_ratio"] = 0.5
+        result = self.run_validator(
+            payload,
+            coder_evidence_payloads={
+                "pilot": coder_evidence("pilot"),
+                "production": production,
+            },
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("population_size must equal", result.stdout)
+
+    def test_symlink_loop_evidence_path_fails_without_traceback(self) -> None:
+        payload = valid_catalog()
+        payload["quality_gates"][0]["evidence"] = ["evidence/loop-a"]
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            evidence = base / "evidence"
+            evidence.mkdir()
+            (evidence / "loop-a").symlink_to("loop-b")
+            (evidence / "loop-b").symlink_to("loop-a")
+            path = base / "catalog.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            result = subprocess.run(
+                ["python3", str(VALIDATOR), str(path)],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("inside the catalog directory", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
 
     def test_failed_behavior_fixture_preserves_observed_failure_receipt(self) -> None:
         payload = valid_catalog()

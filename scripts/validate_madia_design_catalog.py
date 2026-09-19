@@ -188,11 +188,11 @@ def validate_evidence_files(
             continue
         if catalog_directory is None:
             continue
-        base = catalog_directory.resolve()
         try:
+            base = catalog_directory.resolve()
             resolved = (base / value).resolve(strict=True)
             resolved.relative_to(base)
-        except (OSError, ValueError):
+        except (OSError, RuntimeError, ValueError):
             errors.append(f"{item_context} does not identify a file inside the catalog directory: {value}")
             continue
         if not resolved.is_file() or resolved.stat().st_size == 0:
@@ -211,11 +211,11 @@ def resolve_catalog_file(
     if catalog_directory is None:
         errors.append(f"{context} cannot be checked without a catalog directory")
         return None
-    base = catalog_directory.resolve()
     try:
+        base = catalog_directory.resolve()
         resolved = (base / value).resolve(strict=True)
         resolved.relative_to(base)
-    except (OSError, ValueError):
+    except (OSError, RuntimeError, ValueError):
         errors.append(f"{context} does not identify a file inside the catalog directory: {value}")
         return None
     if not resolved.is_file() or resolved.stat().st_size == 0:
@@ -243,6 +243,8 @@ def load_coder_evidence(
     values: Any,
     phase: str,
     catalog_directory: Path | None,
+    sampling_unit_ids: set[str],
+    expected_population_size: int,
     errors: list[str],
 ) -> dict[str, Any] | None:
     context = f"reliability.{phase}_evidence"
@@ -250,7 +252,7 @@ def load_coder_evidence(
         errors.append(f"{context} must identify structured coder evidence files")
         return None
     expected_coders: list[str] | None = None
-    expected_population: int | None = None
+    declared_population: int | None = None
     records: list[dict[str, Any]] = []
     seen_units: set[str] = set()
     for index, relative in enumerate(values):
@@ -280,10 +282,15 @@ def load_coder_evidence(
         if not isinstance(population, int) or isinstance(population, bool) or population < 1:
             errors.append(f"{file_context}.population_size must be a positive integer")
             continue
+        if population != expected_population_size:
+            errors.append(
+                f"{file_context}.population_size must equal the catalog {phase} population "
+                f"({expected_population_size})"
+            )
         if expected_coders is None:
             expected_coders = coders
-            expected_population = population
-        elif coders != expected_coders or population != expected_population:
+            declared_population = population
+        elif coders != expected_coders or population != declared_population:
             errors.append(
                 f"{file_context} must use the same coders and population_size as other {phase} files"
             )
@@ -306,6 +313,11 @@ def load_coder_evidence(
                 errors.append(f"duplicate coder evidence unit_id: {unit_id}")
             else:
                 seen_units.add(unit_id)
+                if unit_id not in sampling_unit_ids:
+                    errors.append(
+                        f"{record_context}.unit_id is outside the catalog sampling population: "
+                        f"{unit_id}"
+                    )
             ratings = record.get("ratings")
             if not isinstance(ratings, dict) or set(ratings) != CODER_DIMENSIONS:
                 errors.append(
@@ -330,11 +342,15 @@ def load_coder_evidence(
             if valid_record and non_empty_string(unit_id):
                 records.append(record)
 
-    if expected_coders is None or expected_population is None or not records:
+    if expected_coders is None or declared_population is None or not records:
         return None
-    if len(records) > expected_population:
+    if expected_population_size < 1:
+        errors.append(f"{context} has no catalog {phase} population to sample")
+        return None
+    if len(records) > expected_population_size:
         errors.append(
-            f"{context} contains {len(records)} records for population_size {expected_population}"
+            f"{context} contains {len(records)} records for catalog population_size "
+            f"{expected_population_size}"
         )
         return None
     kappas: dict[str, float] = {}
@@ -353,7 +369,7 @@ def load_coder_evidence(
         return None
     return {
         "record_count": len(records),
-        "population_size": expected_population,
+        "population_size": expected_population_size,
         "minimum_kappa": min(kappas.values()),
         "kappas": kappas,
     }
@@ -907,12 +923,23 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
             reliability.get("pilot_evidence"),
             "pilot",
             catalog_directory,
+            set(video_ids),
+            len(video_ids),
             errors,
         )
+        analyzed_video_ids = {
+            video.get("video_id")
+            for video in videos
+            if isinstance(video, dict)
+            and video.get("status") == "analyzed"
+            and non_empty_string(video.get("video_id"))
+        }
         production_summary = load_coder_evidence(
             reliability.get("production_evidence"),
             "production",
             catalog_directory,
+            analyzed_video_ids,
+            len(analyzed_video_ids),
             errors,
         )
         if pilot_summary is not None:

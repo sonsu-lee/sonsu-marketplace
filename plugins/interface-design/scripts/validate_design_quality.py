@@ -370,7 +370,9 @@ def relative_path(value: Any) -> bool:
 def token_identifier(value: Any) -> bool:
     if not non_empty_string(value):
         return False
-    candidate = value.strip()
+    if value != value.strip():
+        return False
+    candidate = value
     if candidate.casefold() in CSS_NAMED_COLORS:
         return False
     if candidate.startswith("#"):
@@ -379,7 +381,11 @@ def token_identifier(value: Any) -> bool:
         return False
     if re.fullmatch(r"-?\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw)?", candidate, re.IGNORECASE):
         return False
-    return re.fullmatch(r"(?:--)?[A-Za-z_][A-Za-z0-9_.:/-]*", candidate) is not None
+    return re.fullmatch(
+        r"(?:--[A-Za-z_][A-Za-z0-9_.:/-]*|"
+        r"[A-Za-z_][A-Za-z0-9_]*(?:[._:/-][A-Za-z0-9_]+)+)",
+        candidate,
+    ) is not None
 
 
 def validate_evidence_paths(
@@ -397,12 +403,12 @@ def validate_evidence_paths(
             continue
         if report_directory is None:
             continue
-        base = report_directory.resolve()
-        candidate = base / value
         try:
+            base = report_directory.resolve()
+            candidate = base / value
             resolved = candidate.resolve(strict=True)
             resolved.relative_to(base)
-        except (OSError, ValueError):
+        except (OSError, RuntimeError, ValueError):
             errors.append(f"{item_context} does not identify a file inside the report directory: {value}")
             continue
         if not resolved.is_file():
@@ -685,7 +691,10 @@ def validate_operations_extension(
         if missing_inventory:
             errors.append(f"redesign change_contract does not map inventory ids: {missing_inventory}")
     else:
-        if inventory is not None or changes is not None:
+        if (
+            "current_behavior_inventory" in extension
+            or "change_contract" in extension
+        ):
             errors.append("current_behavior_inventory and change_contract are only valid for redesign mode")
 
 
@@ -1316,6 +1325,10 @@ def validate_operations_report_extension(
             errors.append(f"{context}.environment_id references an unknown environment")
         pair = (scenario_id, environment_id) if valid_scenario and valid_environment else None
         if pair is not None:
+            if environment_id not in set(scenarios[scenario_id].get("environment_ids") or []):
+                errors.append(
+                    f"{context} scenario/environment pair is not bound to the task scenario"
+                )
             if pair in seen_pairs:
                 errors.append(f"duplicate browser receipt for scenario/environment: {pair}")
             else:
@@ -1337,8 +1350,15 @@ def validate_operations_report_extension(
         screenshots = item.get("screenshots")
         if not non_empty_string_list(screenshots):
             errors.append(f"{context}.screenshots must be a non-empty unique string array")
-        elif not all(relative_path(path) for path in screenshots):
-            errors.append(f"{context}.screenshots must use relative paths without traversal")
+        else:
+            if not all(relative_path(path) for path in screenshots):
+                errors.append(f"{context}.screenshots must use relative paths without traversal")
+            validate_evidence_paths(
+                screenshots,
+                f"{context}.screenshots",
+                report_directory,
+                errors,
+            )
         console_errors = item.get("console_runtime_errors")
         if not isinstance(console_errors, list) or not all(isinstance(value, str) for value in console_errors):
             errors.append(f"{context}.console_runtime_errors must be a string array")
@@ -1848,7 +1868,7 @@ def validate_report(
     if not isinstance(findings, list):
         errors.append("findings must be an array")
         findings = []
-    open_critical = []
+    blocking_findings = []
     finding_ids: set[str] = set()
     for index, item in enumerate(findings):
         context = f"findings[{index}]"
@@ -1877,8 +1897,11 @@ def validate_report(
         validate_evidence_paths(
             item.get("evidence"), f"{context}.evidence", report_directory, errors
         )
-        if item.get("severity") == "critical" and item.get("status") != "resolved":
-            open_critical.append(item_id)
+        if (
+            item.get("severity") in {"critical", "major"}
+            and item.get("status") != "resolved"
+        ):
+            blocking_findings.append(item_id)
 
     targets = {
         item["id"]: item
@@ -2090,9 +2113,11 @@ def validate_report(
 
     required_statuses = [gate_statuses.get(gate_id, "inconclusive") for gate_id in GATE_IDS if gate_id in required_gate_ids]
     derived_scope = aggregate_status(required_statuses)
-    if open_critical and payload.get("scope_status") == "passed":
-        errors.append(f"scope_status cannot pass with open critical findings: {open_critical}")
-    if open_critical and derived_scope == "passed":
+    if blocking_findings and payload.get("scope_status") == "passed":
+        errors.append(
+            f"scope_status cannot pass with unresolved blocking findings: {blocking_findings}"
+        )
+    if blocking_findings and derived_scope == "passed":
         derived_scope = "failed"
     if payload.get("scope_status") != derived_scope:
         errors.append(f"scope_status must be {derived_scope} for the required gate statuses")

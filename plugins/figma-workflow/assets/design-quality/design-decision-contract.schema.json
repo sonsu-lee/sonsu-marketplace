@@ -11,17 +11,17 @@
   ],
   "properties": {
     "schema_version": {"const": "design-decision-contract-v1"},
-    "id": {"type": "string", "minLength": 1},
+    "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
     "profile": {"enum": ["interface-design", "operations-ui", "figma-workflow"]},
     "artifact_scope": {"enum": ["proposal", "figma", "implementation", "live"]},
     "mode": {"enum": ["greenfield", "redesign", "audit"]},
-    "revision": {"type": "string", "minLength": 1},
+    "revision": {"type": "string", "minLength": 1, "pattern": "\\S"},
     "locked_at": {"type": "string", "format": "date-time"},
     "actors": {"$ref": "#/$defs/nonEmptyStrings"},
     "contexts": {"$ref": "#/$defs/nonEmptyStrings"},
     "environments": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/environment"}},
-    "primary_question": {"type": "string", "minLength": 1},
-    "intended_outcome": {"type": "string", "minLength": 1},
+    "primary_question": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "intended_outcome": {"type": "string", "minLength": 1, "pattern": "\\S"},
     "risk_profile": {"$ref": "#/$defs/riskProfile"},
     "task_scenarios": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/taskScenario"}},
     "information_requirements": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/information"}},
@@ -34,19 +34,39 @@
     "extensions": {"$ref": "#/$defs/contractExtensions"}
   },
   "$defs": {
-    "nonEmptyStrings": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "nonEmptyStrings": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "not": {
+        "anyOf": [
+        {"pattern": "^[\\\\/]"},
+          {"pattern": "^[A-Za-z]:[\\\\/]"},
+          {"pattern": ":[\\\\/]{2}"},
+          {"pattern": "(^|[\\\\/])\\.\\.([\\\\/]|$)"},
+          {"pattern": "\\u0000"}
+        ]
+      }
+    },
+    "nonEmptyRelativePaths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/relativePath"}
+    },
     "environment": {
       "type": "object",
       "required": ["id", "platform", "input_methods", "locale", "writing_mode", "accessibility_profile"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "platform": {"enum": ["web", "ios", "android", "desktop", "other"]},
         "width": {"type": "integer", "minimum": 1},
         "height": {"type": "integer", "minimum": 1},
         "input_methods": {"$ref": "#/$defs/nonEmptyStrings"},
-        "locale": {"type": "string", "minLength": 1},
+        "locale": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "writing_mode": {"enum": ["horizontal-tb", "vertical-rl", "vertical-lr"]},
-        "accessibility_profile": {"type": "string", "minLength": 1}
+        "accessibility_profile": {"type": "string", "minLength": 1, "pattern": "\\S"}
       },
       "additionalProperties": false
     },
@@ -55,8 +75,8 @@
       "required": ["level", "factors", "rationale"],
       "properties": {
         "level": {"enum": ["low", "medium", "high"]},
-        "factors": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-        "rationale": {"type": "string", "minLength": 1}
+        "factors": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+        "rationale": {"type": "string", "minLength": 1, "pattern": "\\S"}
       },
       "additionalProperties": false
     },
@@ -64,17 +84,17 @@
       "type": "object",
       "required": ["id", "actor", "starting_context", "task", "correct_outcome", "wrong_outcome", "wrong_outcome_cost", "information_ids", "representation_ids", "environment_ids", "observable_success"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
-        "actor": {"type": "string", "minLength": 1},
-        "starting_context": {"type": "string", "minLength": 1},
-        "task": {"type": "string", "minLength": 1},
-        "correct_outcome": {"type": "string", "minLength": 1},
-        "wrong_outcome": {"type": "string", "minLength": 1},
-        "wrong_outcome_cost": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "actor": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "starting_context": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "task": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "correct_outcome": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "wrong_outcome": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "wrong_outcome_cost": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "information_ids": {"$ref": "#/$defs/nonEmptyStrings"},
         "representation_ids": {"$ref": "#/$defs/nonEmptyStrings"},
         "environment_ids": {"$ref": "#/$defs/nonEmptyStrings"},
-        "observable_success": {"type": "string", "minLength": 1},
+        "observable_success": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "requirement_ids": {"$ref": "#/$defs/nonEmptyStrings"},
         "actions": {"$ref": "#/$defs/nonEmptyStrings"},
         "coverage": {"$ref": "#/$defs/operationsCoverage"}
@@ -85,12 +105,12 @@
       "type": "object",
       "required": ["id", "role", "meaning", "source", "freshness", "uncertainty", "task_ids"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "role": {"enum": ["must_know", "supporting", "on_demand"]},
-        "meaning": {"type": "string", "minLength": 1},
-        "source": {"type": "string", "minLength": 1},
-        "freshness": {"type": "string", "minLength": 1},
-        "uncertainty": {"type": "string", "minLength": 1},
+        "meaning": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "source": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "freshness": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "uncertainty": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "task_ids": {"$ref": "#/$defs/nonEmptyStrings"}
       },
       "additionalProperties": false
@@ -99,12 +119,12 @@
       "type": "object",
       "required": ["id", "information_ids", "kind", "semantic_role", "non_color_signals", "rationale", "task_ids"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "information_ids": {"$ref": "#/$defs/nonEmptyStrings"},
-        "kind": {"type": "string", "minLength": 1},
-        "semantic_role": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "semantic_role": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "non_color_signals": {"$ref": "#/$defs/nonEmptyStrings"},
-        "rationale": {"type": "string", "minLength": 1},
+        "rationale": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "task_ids": {"$ref": "#/$defs/nonEmptyStrings"}
       },
       "additionalProperties": false
@@ -113,10 +133,10 @@
       "type": "object",
       "required": ["id", "applicable", "reason"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "applicable": {"type": "boolean"},
-        "reason": {"type": "string", "minLength": 1},
-        "reachability_evidence": {"type": "array", "items": {"type": "string", "minLength": 1}}
+        "reason": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "reachability_evidence": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}}
       },
       "additionalProperties": false
     },
@@ -124,13 +144,13 @@
       "type": "object",
       "required": ["id", "kind", "role", "operator", "target", "unit", "rationale"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "kind": {"enum": ["coverage", "count", "rate", "duration", "rubric"]},
         "role": {"enum": ["primary", "guardrail"]},
         "operator": {"enum": [">=", ">", "<=", "<", "=="]},
         "target": {"type": "number"},
-        "unit": {"type": "string", "minLength": 1},
-        "rationale": {"type": "string", "minLength": 1}
+        "unit": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "rationale": {"type": "string", "minLength": 1, "pattern": "\\S"}
       },
       "additionalProperties": false,
       "allOf": [
@@ -163,13 +183,13 @@
       "type": "object",
       "required": ["id", "scenario_ids", "metric_ids", "participant_criteria", "planned_participant_count", "protocol", "rationale"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "scenario_ids": {"$ref": "#/$defs/nonEmptyStrings"},
         "metric_ids": {"$ref": "#/$defs/nonEmptyStrings"},
-        "participant_criteria": {"type": "string", "minLength": 1},
+        "participant_criteria": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "planned_participant_count": {"type": "integer", "minimum": 1},
-        "protocol": {"type": "string", "minLength": 1},
-        "rationale": {"type": "string", "minLength": 1}
+        "protocol": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "rationale": {"type": "string", "minLength": 1, "pattern": "\\S"}
       },
       "additionalProperties": false
     },
@@ -177,10 +197,10 @@
       "type": "object",
       "required": ["id", "severity", "reason", "evidence_needed", "gate_ids"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "severity": {"enum": ["critical", "major", "minor"]},
-        "reason": {"type": "string", "minLength": 1},
-        "evidence_needed": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "evidence_needed": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "gate_ids": {"$ref": "#/$defs/nonEmptyStrings"}
       },
       "additionalProperties": false
@@ -189,14 +209,14 @@
       "type": "object",
       "required": ["id", "check_ids", "reason"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "check_ids": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
           "items": {"const": "content-and-localization-resilience"}
         },
-        "reason": {"type": "string", "minLength": 1}
+        "reason": {"type": "string", "minLength": 1, "pattern": "\\S"}
       },
       "additionalProperties": false
     },
@@ -204,13 +224,13 @@
       "type": "object",
       "required": ["jobs", "entities", "lifecycle", "actions", "permissions", "risks", "states"],
       "properties": {
-        "jobs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-        "entities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-        "lifecycle": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-        "actions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-        "permissions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-        "risks": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-        "states": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+        "jobs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+        "entities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+        "lifecycle": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+        "actions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+        "permissions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+        "risks": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+        "states": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}}
       },
       "additionalProperties": false
     },
@@ -218,8 +238,8 @@
       "type": "object",
       "required": ["id", "text", "scenario_ids"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
-        "text": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "text": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "scenario_ids": {"$ref": "#/$defs/nonEmptyStrings"}
       },
       "additionalProperties": false
@@ -228,13 +248,13 @@
       "type": "object",
       "required": ["id", "kind", "observed", "evidence", "decision", "reason", "implementation_target", "scenario_ids"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "kind": {"enum": ["feature", "state", "action", "permission", "data-shape"]},
-        "observed": {"type": "string", "minLength": 1},
-        "evidence": {"$ref": "#/$defs/nonEmptyStrings"},
+        "observed": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "evidence": {"$ref": "#/$defs/nonEmptyRelativePaths"},
         "decision": {"enum": ["preserve", "change"]},
-        "reason": {"type": "string", "minLength": 1},
-        "implementation_target": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "implementation_target": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "scenario_ids": {"$ref": "#/$defs/nonEmptyStrings"}
       },
       "additionalProperties": false
@@ -243,10 +263,10 @@
       "type": "object",
       "required": ["id", "inventory_ids", "requirement_ids", "description"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "inventory_ids": {"$ref": "#/$defs/nonEmptyStrings"},
         "requirement_ids": {"$ref": "#/$defs/nonEmptyStrings"},
-        "description": {"type": "string", "minLength": 1}
+        "description": {"type": "string", "minLength": 1, "pattern": "\\S"}
       },
       "additionalProperties": false
     },
@@ -271,10 +291,10 @@
       "type": "object",
       "required": ["id", "scenario_id", "environment_id", "expectation"],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
-        "scenario_id": {"type": "string", "minLength": 1},
-        "environment_id": {"type": "string", "minLength": 1},
-        "expectation": {"type": "string", "minLength": 1}
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "scenario_id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "environment_id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "expectation": {"type": "string", "minLength": 1, "pattern": "\\S"}
       },
       "additionalProperties": false
     },
@@ -282,9 +302,9 @@
       "type": "object",
       "required": ["target", "required_capabilities", "component_strategy", "resize_scenarios", "prototype_scenarios"],
       "properties": {
-        "target": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "required_capabilities": {"$ref": "#/$defs/nonEmptyStrings"},
-        "component_strategy": {"type": "string", "minLength": 1},
+        "component_strategy": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "resize_scenarios": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/figmaScenario"}},
         "prototype_scenarios": {"type": "array", "items": {"$ref": "#/$defs/figmaScenario"}}
       },
@@ -345,6 +365,22 @@
                 "properties": {
                   "current_behavior_inventory": {"minItems": 1},
                   "change_contract": {"minItems": 1}
+                }
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "extensions": {
+            "properties": {
+              "operations": {
+                "not": {
+                  "anyOf": [
+                    {"required": ["current_behavior_inventory"]},
+                    {"required": ["change_contract"]}
+                  ]
                 }
               }
             }
