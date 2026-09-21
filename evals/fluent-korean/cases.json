@@ -785,6 +785,121 @@
           "성능 향상 확정"
         ]
       }
+    },
+    {
+      "id": "L01-explicit-acronym-localization",
+      "families": [
+        "B"
+      ],
+      "mode": "editing",
+      "expected_action": "edit",
+      "prompt": "설명문의 API를 응용 프로그램 인터페이스로 풀어 쓰고 설명문에서 영문 약어는 제거해 주세요. 코드 블록은 그대로 유지하고 결과 본문만 출력하세요.",
+      "evidence": "추가로 확인된 사실은 없습니다.",
+      "source_text": "API는 프로그램 간 통신을 돕습니다.\n\n```ts\nconst API_URL = '/v1/items';\n```",
+      "expectations": {
+        "protected_literals": [
+          "응용 프로그램 인터페이스"
+        ],
+        "exact_code_blocks": [
+          "```ts\nconst API_URL = '/v1/items';\n```"
+        ],
+        "required_headings": [],
+        "ordered_markers": [],
+        "required_counts": {},
+        "must_preserve": [
+          "프로그램 간 통신을 돕는다는 의미",
+          "설명문의 API만 풀어쓰기",
+          "코드 블록 전체 유지"
+        ],
+        "must_not_introduce": [
+          "설명문에 API 병기",
+          "API_URL 식별자나 URL 변경"
+        ]
+      }
+    },
+    {
+      "id": "L02-acronym-preservation",
+      "families": [
+        "B"
+      ],
+      "mode": "editing",
+      "expected_action": "keep",
+      "prompt": "어색한 표현이 있을 때만 자연스럽게 다듬어 주세요. 의미·격식·형식은 유지하고, 이미 자연스러우면 그대로 반환하세요. 결과 본문만 출력하세요.",
+      "evidence": "추가로 확인된 사실은 없습니다.",
+      "source_text": "API는 프로그램 간 통신을 돕습니다. GPU는 병렬 연산에 사용됩니다.",
+      "expectations": {
+        "protected_literals": [
+          "API",
+          "GPU"
+        ],
+        "exact_code_blocks": [],
+        "required_headings": [],
+        "ordered_markers": [],
+        "required_counts": {},
+        "must_preserve": [
+          "두 약어와 각 설명"
+        ],
+        "must_not_introduce": [
+          "요청하지 않은 약어 번역·풀어쓰기"
+        ]
+      }
+    },
+    {
+      "id": "L03-state-focused-passive",
+      "families": [
+        "A"
+      ],
+      "mode": "editing",
+      "expected_action": "keep",
+      "prompt": "어색한 표현이 있을 때만 자연스럽게 다듬어 주세요. 의미·격식·형식은 유지하고, 이미 자연스러우면 그대로 반환하세요. 결과 본문만 출력하세요.",
+      "evidence": "추가로 확인된 사실은 없습니다.",
+      "source_text": "접근은 정책에 의해 제한된다.",
+      "expectations": {
+        "protected_literals": [
+          "접근은 정책에 의해 제한된다."
+        ],
+        "exact_code_blocks": [],
+        "required_headings": [],
+        "ordered_markers": [],
+        "required_counts": {},
+        "must_preserve": [
+          "접근의 제한 상태에 대한 초점",
+          "정책에 따른 제한",
+          "한다체"
+        ],
+        "must_not_introduce": [
+          "정책을 주어로 전환",
+          "새로운 행위자 추가"
+        ]
+      }
+    },
+    {
+      "id": "L04-actor-focused-active",
+      "families": [
+        "A"
+      ],
+      "mode": "editing",
+      "expected_action": "edit",
+      "prompt": "AI가 수행한 작업을 소개하는 문장입니다. AI를 주어로 삼아 자연스러운 능동문으로 다듬어 주세요. 의미·시제·격식은 유지하고 결과 본문만 출력하세요.",
+      "evidence": "추가로 확인된 사실은 없습니다.",
+      "source_text": "이 이미지는 AI에 의해 생성되었습니다.",
+      "expectations": {
+        "protected_literals": [
+          "AI"
+        ],
+        "exact_code_blocks": [],
+        "required_headings": [],
+        "ordered_markers": [],
+        "required_counts": {},
+        "must_preserve": [
+          "AI가 해당 이미지를 생성했다는 사실",
+          "과거 시제와 존댓말"
+        ],
+        "must_not_introduce": [
+          "행위자 변경",
+          "생성 방식이나 목적 추가"
+        ]
+      }
     }
   ]
 }
