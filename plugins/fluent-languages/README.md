@@ -22,8 +22,8 @@ codex plugin add fluent-languages@sonsu-marketplace
 한국어는 작성 후 [윤문 절차](skills/fluent-korean/references/post-editing.md)와
 [빠른 규칙](skills/fluent-korean/references/quick-rules.md)으로 점검한다. 적용 여부가 모호하면
 [전체 패턴](skills/fluent-korean/references/ai-tell-taxonomy.md)과 교정 예시를 확인한다.
-[커스텀 기준](skills/fluent-korean/references/customization.md)에 따라 의미·정보·형식·문체를
-먼저 보존하며, 이미 자연스러운 글은 그대로 둔다. 진단 등급·변경률·파일 출력을 강제하지 않는다.
+각 규칙의 적용 조건과 예외를 따르며 의미·정보·형식·문체를 보존한다.
+이미 자연스러운 글은 그대로 둔다. 진단 등급·변경률·파일 출력을 강제하지 않는다.
 [원본 출처](UPSTREAM.md)와 [라이선스 고지](THIRD_PARTY_NOTICES.md)를 함께 제공한다.
 
 ## Writing·Workflow와 함께 사용하기

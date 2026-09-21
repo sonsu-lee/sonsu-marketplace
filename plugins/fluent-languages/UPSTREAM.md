@@ -7,7 +7,7 @@ Fluent Languages의 언어별 SKILL.md와 참고 자료는 직접 편집하는 �
 - [snflkd/fluent-korean](https://github.com/snflkd/fluent-korean/tree/ce8683f0eba8cddb91de4dcd151425ff73e60498)의 한국어 output style을 SKILL.md에 복사하고 적용 범위·예시를 수정했다.
 - [epoko77-ai/im-not-ai](https://github.com/epoko77-ai/im-not-ai/tree/9747f036cdc28a1a8aea4dc71fef1f7846eb96f7)의 Codex용 humanize-korean 절차와 quick-rules·taxonomy·playbook·문헌·검증 자료를 references에 복사해 수정했다.
 
-충돌하는 처방과 호스트 전용 절차는 [한국어 커스텀 기준](skills/fluent-korean/references/customization.md)에 따라 조정했다. 두 원본은 MIT이며 [저작권·라이선스 고지](THIRD_PARTY_NOTICES.md)를 유지한다. 원본의 문헌·코퍼스 주장을 로컬에서 독립 재현한 것은 아니다.
+적용 조건과 예외는 각 작성·윤문 규칙에 직접 반영했다. 두 원본은 MIT이며 [저작권·라이선스 고지](THIRD_PARTY_NOTICES.md)를 유지한다. 원본의 문헌·코퍼스 주장을 로컬에서 독립 재현한 것은 아니다.
 
 ## `fluent-japanese`
 
