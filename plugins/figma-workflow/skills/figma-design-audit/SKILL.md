@@ -28,6 +28,9 @@ resize/prototype scenario를 기록하고 미확인은 `unresolved_decisions`에
 
 ## 감사 기준
 
+[DESIGN.md 형식과 CLI 검증](../../references/design-quality.md#designmd-형식과-cli-검증)의 감사
+경계를 따른다. 기존 파일에 공식 CLI lint를 실행하고 부재·오류를 보고하며 자동 수정하지 않는다.
+
 [Figma quality contract](../../references/figma-quality-contract.md)를 기준으로 다음을 확인한다.
 
 - section, frame와 semantic layer organization

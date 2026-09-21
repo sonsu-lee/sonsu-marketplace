@@ -8,6 +8,9 @@ description: 기존 운영형 B2B, admin, back-office 또는 data-work 화면을
 [공통 디자인 품질 계약](../../references/design-quality.md)과 [Operations 계약](../../references/screen-contract.md)을
 사용한다. 현재 화면을 보기 좋게 바꾸기 전에 관찰된 동작을 추적 가능한 계약으로 고정한다.
 
+[DESIGN.md 형식과 CLI 검증](../../references/design-quality.md#designmd-형식과-cli-검증)에 따라
+기존 시각 규칙을 보존하며 `DESIGN.md`를 갱신하고 공식 CLI lint 결과를 완료 근거에 포함한다.
+
 ## 진행
 
 1. 요청 산출물 범위와 쓰기 권한을 고정한다.

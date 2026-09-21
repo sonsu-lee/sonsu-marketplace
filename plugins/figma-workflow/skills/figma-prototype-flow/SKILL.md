@@ -28,6 +28,10 @@ Figma Design이 제품 interaction의 source of truth일 때 actual control과 n
 
 ## Interaction 계약
 
+새 visual state나 token을 만들면
+[DESIGN.md 형식과 CLI 검증](../../references/design-quality.md#designmd-형식과-cli-검증)을 적용한다.
+연결만 바꾸는 작업은 기존 `DESIGN.md`를 참조하며 시각 체계 재작성을 요구하지 않는다.
+
 [interaction specification](../../references/interaction-spec.md)의 필드를 각 중요한 transition에 적용한다. 화면 수준 결과는 별도 frame, 반복되는 local state는 이해 가능한 component variant 또는 variable로 표현한다. actual control에 목적에 맞는 native action을 연결하고 overlay dismissal, cancel/back, error와 recovery, loading과 edge case를 포함한다.
 
 같은 prototype graph, 연결된 state frame 또는 selection/current-page context를 수정하는 writer는 하나만 둔다. 다른 작업이 screen structure를 준비했다면 reaction 적용 직전에 최신 node와 destination을 다시 읽고 component·variable·prototype dependency가 겹치면 직렬화하거나 중단한다. annotation은 `Trigger → Result [Condition]` 형식으로 readable하게 남긴다.

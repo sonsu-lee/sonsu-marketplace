@@ -25,6 +25,9 @@ description: 새 웹·모바일 앱 화면이나 사용자 흐름을 디자인�
 
 ## 제작과 확인
 
+[DESIGN.md 형식과 CLI 검증](../../references/design-quality.md#designmd-형식과-cli-검증)에 따라
+제품의 `DESIGN.md`를 작성·갱신하고 공식 CLI lint 결과를 완료 근거에 포함한다.
+
 정보 구조 → 공간 배분 → 시각 체계 → 정보 자산 → 상태·흐름 순서로 실제 산출물을 만든다.
 지도·차트·도식·표가 과업의 중심이면 [정보 자산](../../references/information-assets.md)을 읽고
 영역 내부를 별도로 설계·검증한다. 코드·Figma·이미지 도구에는 이번 명세와 보존 조건을 전달한다.

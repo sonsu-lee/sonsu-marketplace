@@ -9,6 +9,9 @@ description: 사용자가 Figma를 명시한 운영형 B2B 화면·상태·overl
 읽는다. `artifact_scope: figma`인 Design Decision Contract를 작성해 사용자 과업·정보·상태·환경과
 native frame/component/variable/reaction을 같은 scenario ID로 연결한다.
 
+[DESIGN.md 형식과 CLI 검증](../../references/design-quality.md#designmd-형식과-cli-검증)을 적용해
+`DESIGN.md`와 실제 component·variable 대응을 유지하고 공식 CLI lint 결과를 전달한다.
+
 - 제품 library의 component와 semantic variable을 우선 사용한다.
 - content/resize intent에 맞는 Auto Layout, wrap 또는 grid를 선택한다.
 - 계약에 적용되는 상태, 긴 현지화 데이터, overflow와 action feedback을 만든다.
