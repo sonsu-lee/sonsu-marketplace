@@ -29,7 +29,6 @@ Fluent는 현재도 독립 플러그인입니다. `0.1.0-beta.7`에서 공통 �
 
 ```sh
 python3 -m json.tool evals/fluent-japanese/cases.json >/dev/null
-python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" \
   plugins/fluent-languages/skills/fluent-japanese
 ```
@@ -47,7 +46,7 @@ generation 10문항을 합친 50문항이다. 신규 문항 중 유지 16개와 
 고정 세트이므로 held-out이라고 부르지 않는다. hidden target은 의미가 같은 대안을 허용한다.
 
 실행 전에 [protocol.md](protocol.md)를 고정하고 [`eval.py`](eval.py)로 manifest를 만든다.
-두 arm에는 렌더링한 독립 SKILL snapshot을 사용한다. `sources/languages/japanese.md`처럼
+두 arm에는 독립 SKILL snapshot을 사용한다. 과거 `sources/languages/japanese.md`처럼
 include marker가 남은 원본을 baseline으로 사용하지 않는다. 다음 인자의 두 파일은
 저장소 밖에 미리 복사한 컴파일된 snapshot이다.
 

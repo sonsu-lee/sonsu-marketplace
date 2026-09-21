@@ -2039,8 +2039,8 @@
   },
   "source_rule_reference": {
     "catalog": "../../docs/research/fluent-japanese-writing-catalog.json",
-    "local:integrity": "../../plugins/fluent-languages/sources/core/integrity.md",
-    "local:actor-ambiguity": "../../plugins/fluent-languages/sources/languages/japanese.md#話題と行為者",
+    "local:integrity": "../../plugins/fluent-languages/skills/fluent-japanese/SKILL.md#내용과-형식-보존",
+    "local:actor-ambiguity": "../../plugins/fluent-languages/skills/fluent-japanese/SKILL.md#화제와-행위자",
     "interpretation": "관련 판단 규칙의 출처이며 이 평가 문장 자체가 원문에 등장한다는 뜻은 아니다. 예문은 original_evaluation이다."
   },
   "exact_gate_policy": "신규 문항의 exact는 사용자가 고정 표기로 지정한 인용·UI 문자열에만 적용한다. 일반 일본어 단어·번역된 숫자 표현은 semantic/target_ok에서 의미로 판단한다. legacy 10개는 prompt/evidence를 그대로 유지하며, 날짜 표현과 code block 참조의 문자열 순서에 대한 두 false positive는 scoring_amendment에 기록한다."

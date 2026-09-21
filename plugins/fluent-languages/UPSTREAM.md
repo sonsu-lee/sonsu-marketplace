@@ -1,26 +1,13 @@
-# 원본 출처와 변경 이력
+# 원본 출처
 
-Fluent Languages는 독립적으로 설치할 수 있다. 언어별 설명과 지침은 한국어로 관리하고, 출력 언어는 요청된 언어를 따른다. 문서 구성 원칙은 Writing에, 어순·표현·어조와 보존 기준은 Fluent에 둔다. 함께 사용할 때도 승인된 편집 범위와 구성을 유지한다. 원본의 출처·법적 고지와 플러그인 내부 생성 구조를 보존한다.
+Fluent Languages의 언어별 SKILL.md와 참고 자료는 직접 편집하는 독립 지침이다.
 
-이 플러그인의 한국어·일본어·영어 스킬은 아래 MIT 라이선스 프로젝트를 참고해 작성 시점에 적용하도록 조정한 로컬 지침이다. 참조한 원본을 그대로 복사한 배포본은 아니다.
+## 한국어
 
-재사용할 원본은 빌드 단계에서 결합한다. `sources/core/`는 표현 범위와 내용 보존 기준을, `sources/languages/`는 각 진입점과 언어별 지침을 담는다. `scripts/render-skills.py`는 각 `sources/languages/<language>.md`를 자체적으로 완결된 `skills/fluent-<language>/SKILL.md`로 생성한다. 공통 원본은 별도로 호출하는 스킬이나 런타임 의존성이 아니다.
+- [snflkd/fluent-korean](https://github.com/snflkd/fluent-korean/tree/ce8683f0eba8cddb91de4dcd151425ff73e60498)의 한국어 output style을 SKILL.md에 복사하고 적용 범위·예시를 수정했다.
+- [epoko77-ai/im-not-ai](https://github.com/epoko77-ai/im-not-ai/tree/9747f036cdc28a1a8aea4dc71fef1f7846eb96f7)의 Codex용 humanize-korean 절차와 quick-rules·taxonomy·playbook·문헌·검증 자료를 references에 복사해 수정했다.
 
-공통·언어별 지침은 한국어 정본 하나로 관리한다. 지침의 작성 언어와 응답 언어는 별개이며, 각 스킬의 이름·설명·적용 범위가 대상 출력 언어를 정한다. 향후 다른 언어로 지침을 배포한다면 한국어 정본과 의미가 동등한지 별도로 검토한다.
-
-`sources/core/communication.md`에 있던 언어 공통 구성 원칙은 이 저장소의 언어 설계 검토에서 도출한 로컬 지침이며 현재 Writing이 관리한다. Fluent의 해당 원본에는 표현과 구성의 담당 범위를 남긴다. 이 구성 원칙은 `im-not-ai`에서 복사한 내용이 아니며 해당 프로젝트에 귀속하지 않는다.
-
-## `im-not-ai`
-
-- 저장소: <https://github.com/epoko77-ai/im-not-ai>
-- 원본 commit: [`31a66d165a9cc6c26c4c1246553f95d0468d27fb`](https://github.com/epoko77-ai/im-not-ai/commit/31a66d165a9cc6c26c4c1246553f95d0468d27fb)
-- 참고한 파일:
-  - [`docs/en/integration.md`](https://github.com/epoko77-ai/im-not-ai/blob/31a66d165a9cc6c26c4c1246553f95d0468d27fb/docs/en/integration.md)
-  - [`skills/humanize-korean/references/quick-rules.md`](https://github.com/epoko77-ai/im-not-ai/blob/31a66d165a9cc6c26c4c1246553f95d0468d27fb/skills/humanize-korean/references/quick-rules.md)
-  - [`skills/humanize-korean/references/ai-tell-taxonomy.md`](https://github.com/epoko77-ai/im-not-ai/blob/31a66d165a9cc6c26c4c1246553f95d0468d27fb/skills/humanize-korean/references/ai-tell-taxonomy.md)
-- 반영한 범위: 장르·격식 보존, 이중 피동 교정, 구체적인 표현, 근거에 맞는 강조, 필요한 맺음말과 비유, 수치 기준을 두지 않는 반복 점검이다.
-- 제외한 범위: 작업 폴더 관리, 위험도 점수·심각도 등급, 수정 비율 계산, 파일 출력 절차, 진단·수정·마무리를 여러 번 호출하는 절차다.
-- 로컬 적용 범위: 구현 보고, 기술 답변과 기술 문서를 포함한 한국어 설명문이다. 코드, 명령어, 로그, 식별자, 보호 리터럴, 구조, 사실, 조건, 불확실성과 의무 수준을 보존한다.
+충돌하는 처방과 호스트 전용 절차는 [한국어 커스텀 기준](skills/fluent-korean/references/customization.md)에 따라 조정했다. 두 원본은 MIT이며 [저작권·라이선스 고지](THIRD_PARTY_NOTICES.md)를 유지한다. 원본의 문헌·코퍼스 주장을 로컬에서 독립 재현한 것은 아니다.
 
 ## `fluent-japanese`
 
@@ -30,7 +17,7 @@ Fluent Languages는 독립적으로 설치할 수 있다. 언어별 설명과 �
   - [`plugins/fluent-languages/skills/fluent-japanese/SKILL.md`](https://github.com/sonsu-lee/fluent-languages/blob/d53bf65057445b3556efb6d7d011d49ed8a5aac7/plugins/fluent-languages/skills/fluent-japanese/SKILL.md)
   - [`docs/research/japanese-language-characteristics.md`](https://github.com/sonsu-lee/fluent-languages/blob/d53bf65057445b3556efb6d7d011d49ed8a5aac7/docs/research/japanese-language-characteristics.md)
 - 반영한 범위: 문맥에 따른 주어 생략, 행위자 전환 시 역할명 명시, 조사·서술어·논항 관계, 수식 범위, 문장 구조에 맞는 문장부호, 격식·용어 선택과 조건에 따른 명사화·수동태 점검이다.
-- 로컬 변경: 행위자를 만들어 내거나 근거 없는 해석을 택하던 모호한 전후 비교 예시를 제거했다. 공통 보존 기준을 우선하며 기술·일반 일본어 설명문 모두에 적용한다.
+- 로컬 변경: 행위자를 만들어 내거나 근거 없는 해석을 택하던 모호한 전후 비교 예시를 제거했다. 해당 언어의 보존 기준을 우선하며 기술·일반 일본어 설명문 모두에 적용한다.
 - 제외한 범위: 코딩 전용 분리, 하위 에이전트 전용 절차, 고정 문장 길이, 일률적인 주어 복원과 능동태·동사형 우선 규칙이다.
 - 검증 상태: 원본은 원어민 검토 전의 베타였다. 이 로컬 지침도 대표 모델 출력에 대한 일본어 원어민 검토를 마칠 때까지 베타 상태를 유지한다.
 
@@ -42,7 +29,7 @@ Fluent Languages는 독립적으로 설치할 수 있다. 언어별 설명과 �
   - [`plugins/fluent-languages/skills/fluent-english/SKILL.md`](https://github.com/sonsu-lee/fluent-languages/blob/d53bf65057445b3556efb6d7d011d49ed8a5aac7/plugins/fluent-languages/skills/fluent-english/SKILL.md)
   - [`docs/research/english-language-characteristics.md`](https://github.com/sonsu-lee/fluent-languages/blob/d53bf65057445b3556efb6d7d011d49ed8a5aac7/docs/research/english-language-characteristics.md)
 - 반영한 범위: 요청된 출력 언어에 따른 선택, 행위자·행동·대상 관계, 독자와 소프트웨어의 역할 구분, 대명사 지시 대상, 조건에 따른 능동태·직접적인 동사 사용, 명사 나열과 한정 수식어의 범위, 영어 변종·격식 보존, 문맥에 맞는 불완전 문장, 국제 독자 고려와 프로젝트 용어 일관성이다.
-- 로컬 변경: 언어 공통 정보 순서는 Writing이 담당하고 Fluent는 공통 보존 기준을 유지한다. 코딩 전용 분리와 하위 에이전트 전용 표현을 제거해 기술·일반 영어 설명문 모두에 적용한다.
+- 로컬 변경: 언어 공통 정보 순서는 Writing이 담당하고 영어 스킬은 자체 보존 기준을 유지한다. 코딩 전용 분리와 하위 에이전트 전용 표현을 제거해 기술·일반 영어 설명문 모두에 적용한다.
 - 제외한 범위: 고정 SVO 출력, 일률적인 능동태·2인칭 사용, 기존 정보 우선·결과 우선을 영어 고유 규칙으로 취급하는 방식, 문장·수식어 수 제한, 특정 영어 변종 강제와 어휘만으로 작성 주체·품질을 판단하는 방식이다.
 - 검증 상태: 원본은 원어민 검토 전의 베타였다. 이 로컬 지침도 대표 모델 출력에 대한 영어 원어민 검토 또는 동등한 편집 검토를 마칠 때까지 베타 상태를 유지한다.
 
@@ -84,7 +71,7 @@ Fluent Languages는 독립적으로 설치할 수 있다. 언어별 설명과 �
 
 ## 검토했으나 반영하지 않은 자료
 
-- [`j1nn0/skills@e762558662251e48b05de5c79f518e676ab97699`](https://github.com/j1nn0/skills/tree/e762558662251e48b05de5c79f518e676ab97699/skills/writing-ja)의 사실·추론·판단·어조 보존 기준을 검토했다. 로컬 공통 원본이 이미 다루는 내용이므로 별도 실행 지침을 도입하지 않았다.
+- [`j1nn0/skills@e762558662251e48b05de5c79f518e676ab97699`](https://github.com/j1nn0/skills/tree/e762558662251e48b05de5c79f518e676ab97699/skills/writing-ja)의 사실·추론·판단·어조 보존 기준을 검토했다. 당시 로컬 보존 지침이 이미 다루는 내용이므로 별도 실행 지침을 도입하지 않았다.
 - [`devswha/patina@dd73aab0a1542db37b838cfe396b621e9ef1b928`](https://github.com/devswha/patina/tree/dd73aab0a1542db37b838cfe396b621e9ef1b928)는 패턴·평가 목록으로 검토했다. 점수 산정, 수치 기준, 재작성 절차와 초기 일본어 패턴은 반영하지 않았다.
 - [`gonta223/humanizer-ja@a1e343696e43aa50e7218891f3319ab22cde3464`](https://github.com/gonta223/humanizer-ja/tree/a1e343696e43aa50e7218891f3319ab22cde3464)는 일반적인 일본어 표현 교정 패턴을 검토하는 데 참고했다. 사실·수치·경험·의견을 만들거나 불확실성을 바꾸고, 격식 변주나 형식 변경을 강제할 수 있는 규칙은 반영하지 않았다.
 - [`blader/humanizer@e2e92e7b4b8229253ed5c8e81dc65463fdeddda5`](https://github.com/blader/humanizer/tree/e2e92e7b4b8229253ed5c8e81dc65463fdeddda5)는 영어 패턴 범위와 오탐 방지 기준을 검토하는 데 참고했다. 방대한 패턴 목록, 문장부호 규칙, 개성 추가, 편집 절차, 예시와 Wikipedia에서 유래한 문구는 반영하지 않았다.
