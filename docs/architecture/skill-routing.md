@@ -140,8 +140,8 @@ Fluent는 구성 단계에서 제외한 참고 내용을 다시 추가하지 않
 필수 정보는 Writing·Fluent가 유지하며, 표현 개선이 양식 확인이나 게시 조건을 대신하지 않습니다.
 
 공통 작성 규칙의 정본은 Writing, 언어별 표현과 독립적인 보존 기준은 Fluent, 티켓·PR 양식과
-운영 지침은 Workflow에 있습니다. Fluent 내부 생성기는 공통 원본을 세 언어 스킬에 반영하지만
-Writing과 Workflow 사이에서 지침을 생성·복사하는 단계는 없습니다. 상세 조합 계약은
+운영 지침은 Workflow에 있습니다. Fluent의 각 언어 SKILL은 자체 정본과 보존 기준을 가지며
+공통 언어 코어나 생성기가 없습니다. Writing과 Workflow 사이에서도 지침을 생성·복사하지 않습니다. 상세 조합 계약은
 [Workflow의 작성 지침 함께 적용하기](../../plugins/workflow/references/writing-composition.md)를 참고합니다.
 
 ## Prompting 조합

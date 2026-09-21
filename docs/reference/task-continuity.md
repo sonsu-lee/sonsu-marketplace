@@ -161,7 +161,6 @@ checkpoint 사이의 모든 대화 상태를 무손실 보존하는 기능은 �
 
 ```sh
 python3 scripts/render-continuity.py --check
-python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 -B -m unittest discover -s evals/task-continuity -p 'test_*.py' -v
 python3 -B evals/task-continuity/native_probe.py --output /absolute/new-evidence-directory
 ```

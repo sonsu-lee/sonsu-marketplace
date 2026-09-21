@@ -10,7 +10,6 @@ Writing의 정보 선별·문서 배치·공통 구성과 개발자 블로그의
 ```sh
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" plugins/writing/skills/write-developer-blog
 find .agents plugins evals -name '*.json' -print0 | xargs -0 -n1 python3 -m json.tool >/dev/null
-python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 scripts/render-agent-policy.py --check
 python3 scripts/render-continuity.py --check
 python3 evals/language-style/eval.py validate
@@ -19,12 +18,12 @@ python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v
 git diff --check
 ```
 
-JSON·frontmatter와 세 패키지의 스킬/참조 상대 경로를 확인한다. Fluent의 한국어 지침은 기존 언어별 규칙과 의미·조건·적용 범위를 대조한다.
+JSON·frontmatter와 세 패키지의 스킬/참조 상대 경로를 확인한다. Fluent는 언어별 독립 정본을 대조한다. 한국어 확장판의 효과는 [한국어 평가](../fluent-korean/README.md)에서 별도로 확인한다.
 원어 용례·보호 문자열과 법적 고지는 기존 main의 바이트를 기준으로 보존 여부를 확인한다. Workflow의 티켓 3종 본문도 기존 main과 같아야 한다.
 PR 기본 양식과 `unverified` 시 기본형을 확정하지 않는 정책, marker·연결 문법은 별도로 검토한다.
 continuity 검사는 각각의 Fluent·Writing 기록을 실제 helper로 만들고 서로 대신 복구하지 않는지 확인한다.
 
-Fluent 내부 스킬 생성기와 공통 continuity 생성기는 유지한다.
+Fluent는 언어별 SKILL을 직접 관리한다. 작업 재개용 공통 continuity 생성기는 유지하며 언어 표현 규칙을 생성하지 않는다.
 Writing에서 Workflow로 지침·양식을 복사하는 생성기는 없다.
 양식 수정은 Workflow에서, 언어 지침 수정은 Fluent에서 한다. 각 플러그인의 링크·경로와
 생성 결과 검사는 실제 모델의 지침 적용을 증명하지 않는다.

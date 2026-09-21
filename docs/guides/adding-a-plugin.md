@@ -28,8 +28,8 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
 
 1. 해당 플러그인의 README와 매니페스트에서 수정할 스킬·hook·script의 진입점을 확인합니다.
    외부 원본이 포함되어 있으면 `UPSTREAM.md`에서 원본과 로컬 변경의 경계를 확인합니다.
-2. 수정 대상의 정본을 갱신합니다. Fluent Languages의 스킬 문구는 `plugins/fluent-languages/sources/`를 고친 뒤
-   `python3 plugins/fluent-languages/scripts/render-skills.py`로 생성합니다.
+2. 수정 대상의 정본을 갱신합니다. Fluent Languages는 각 `skills/fluent-<language>/SKILL.md`와
+   해당 스킬의 참고 자료를 직접 편집합니다. 언어 사이에 공통 원본을 주입하지 않습니다.
 3. 변경한 동작에 맞는 평가를 [evals/](../../evals/)에서 선택하고 아래 검증을 실행합니다.
    사용법·계약·개발 절차가 달라졌다면 [문서 배치 기준](../README.md)에 따라 담당 문서를 갱신합니다.
 
@@ -76,7 +76,6 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
 ```sh
 find .agents plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
-python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 scripts/render-agent-policy.py --check
 python3 scripts/render-continuity.py --check
 python3 evals/language-style/eval.py validate

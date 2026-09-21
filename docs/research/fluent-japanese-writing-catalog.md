@@ -168,4 +168,4 @@ JTF 관련 분류와 짧은 용례는 일반사단법인 일본번역연맹의 [
 
 ## 스킬과 평가의 관계
 
-실행 스킬에는 이 목록 전체를 주입하지 않고 여섯 개 조건부 판단 지침만 둔다. [일본어 source](../../plugins/fluent-languages/sources/languages/japanese.md)의 「書き言葉の表記と翻訳」가 적용 위치다. [평가 문항](../../evals/fluent-japanese/writing-cases.json)은 별도로 작성한 고정 세트이며 비공개 held-out 세트가 아니다. 사례 수·정적 검사가 모델 품질 검증을 대신하지 않는다.
+실행 스킬에는 이 목록 전체를 주입하지 않고 여섯 개 조건부 판단 지침만 둔다. [일본어 스킬](../../plugins/fluent-languages/skills/fluent-japanese/SKILL.md)의 「문어 표기와 번역」이 적용 위치다. [평가 문항](../../evals/fluent-japanese/writing-cases.json)은 별도로 작성한 고정 세트이며 비공개 held-out 세트가 아니다. 사례 수·정적 검사가 모델 품질 검증을 대신하지 않는다.

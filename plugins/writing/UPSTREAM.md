@@ -15,8 +15,9 @@ Engineering·Research·Fluent Languages·Workflow와 함께 사용할 수 있으
 
 ## 로컬 공통 지침의 유래
 
-공통 구성 원칙은 이 마켓플레이스의 Fluent Languages
-`sources/core/communication.md`(`91b4a0efc4d4bb031a9d04fcdb6eb88a873ed736`)에서 시작했다.
+공통 구성 원칙은 이 마켓플레이스의 Fluent Languages의
+[이전 `sources/core/communication.md`](https://github.com/sonsu-lee/sonsu-marketplace/blob/91b4a0efc4d4bb031a9d04fcdb6eb88a873ed736/plugins/fluent-languages/sources/core/communication.md)에서 시작했다.
+이는 해당 commit의 역사적 출처이며, Fluent의 언어 독립화 이후 현재 정본 경로는 아니다.
 Writing은 이를 문장 관계·문단 역할·정보 순서 지침으로 확장했다. 이 로컬 지침은 `im-not-ai`에서
 복사하거나 그 프로젝트에 귀속한 내용이 아니다. 보존 지침은 고정 구조와, 요청된 편집 범위 안에서
 재구성할 수 있는 자유 설명을 구분한다. 문서 배치 지침은 이 저장소의 기존 문서 영향 판단과

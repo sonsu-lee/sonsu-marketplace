@@ -38,7 +38,6 @@ Generation prompt는 가능한 한 일반적인 산출물 요청으로 두고, �
 
 ```sh
 python3 -m json.tool evals/fluent-english/cases.json >/dev/null
-python3 plugins/fluent-languages/scripts/render-skills.py --check
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" \
   plugins/fluent-languages/skills/fluent-english
 ```
