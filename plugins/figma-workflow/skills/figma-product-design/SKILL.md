@@ -35,9 +35,6 @@ composed screen/view는 `figma:figma-use`와 `figma:figma-generate-design`을 �
 
 ## 생성과 수정
 
-[DESIGN.md 형식과 CLI 검증](../../references/design-quality.md#designmd-형식과-cli-검증)을 적용해
-`DESIGN.md`와 실제 component·variable 대응을 유지하고 공식 CLI lint 결과를 전달한다.
-
 [Figma quality contract](../../references/figma-quality-contract.md)를 적용한다. 화면과 wrapper를 먼저 만들고 한 visual section씩 작은 write와 readback으로 진행한다. 같은 page subtree, component set, variable collection, prototype graph 또는 selection/current-page state에 의존하는 mutation은 official MCP writer 하나가 직렬화한다.
 
 각 material container를 만들기 전에 한 축 flow, wrap 또는 2차원 track 중 content relationship과 resize intent에 맞는 layout model을 정한다. 웹 handoff에서는 Figma structure를 DOM과 일대일로 복제하지 않으면서 `flex`·`grid` 구현 의도를 복원할 수 있는 속성과 annotation을 남긴다.

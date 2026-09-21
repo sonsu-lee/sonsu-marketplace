@@ -37,6 +37,7 @@ def outputs():
         yield root / "references" / "design-quality-sources.md", sources
         yield root / "references" / "madia-design-practice-method.md", madia_method
         yield root / "scripts" / "validate_design_quality.py", validator
+        yield root / "scripts" / "design_md.mjs", (SOURCE / "design_md.mjs").read_bytes()
         for name in (
             "policy.json",
             "design-decision-contract.schema.json",
@@ -59,9 +60,10 @@ def managed_outputs() -> set[Path]:
         asset_directory = root / "assets" / "design-quality"
         if asset_directory.exists():
             managed.update(path for path in asset_directory.iterdir() if path.is_file())
-        validator = root / "scripts" / "validate_design_quality.py"
-        if validator.exists():
-            managed.add(validator)
+        for name in ("validate_design_quality.py", "design_md.mjs"):
+            validator = root / "scripts" / name
+            if validator.exists():
+                managed.add(validator)
         reference_directory = root / "references"
         if reference_directory.exists():
             for path in reference_directory.iterdir():

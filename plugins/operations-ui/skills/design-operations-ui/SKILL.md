@@ -9,9 +9,6 @@ description: 신규 운영형 B2B, admin, back-office 또는 data-work 화면을
 현재 범위를 고정한다. [공통 디자인 품질 계약](../../references/design-quality.md)을 판단 기준으로,
 [Operations 계약](../../references/screen-contract.md)을 도메인 확장으로 사용한다.
 
-[DESIGN.md 형식과 CLI 검증](../../references/design-quality.md#designmd-형식과-cli-검증)에 따라
-제품의 `DESIGN.md`를 작성·갱신하고 공식 CLI lint 결과를 완료 근거에 포함한다.
-
 ## 진행
 
 1. 대상 저장소의 instruction, 제품 디자인 시스템, component, data/state boundary와 검증 도구를 읽는다.

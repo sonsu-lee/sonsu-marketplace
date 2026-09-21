@@ -12,70 +12,58 @@
 3. 정보마다 표현 종류, semantic role, 선택 이유와 `non_color_signals`를 기록한다. 색상만으로 상태나 위험을 전달하지 않는다.
 4. 대상 locale, writing mode, viewport, input method와 accessibility profile을 environment로 선언한다.
 5. 적용 가능한 상태와 복구·안전 동작을 정한 뒤, `outcome_plan`에 scenario·metric·참가자 기준·목표 인원·protocol을 결과 관찰 전에 고정한다.
-6. 현재 산출물 범위의 DQ gate를 평가하고, 뒤 단계는 `not_run`으로 남긴다.
+6. 아래 DESIGN.md 공통 절차와 현재 산출물 범위의 DQ gate를 평가하고, 뒤 단계는 `not_run`으로 남긴다.
 
-## DESIGN.md 형식과 CLI 검증
+## DESIGN.md 공통 절차
 
-시각 체계를 만드는 신규 설계·재설계·Figma 제작에서는 대상 제품의 `DESIGN.md`를 필수
-산출물로 유지한다. 대상 제품의 기존 파일을 먼저 읽고 요청 범위의 token과 사용 규칙만 다룬다.
-제품 파일 수정이 승인된 범위이면 기존 경로를 유지해 갱신하고, 파일이 없으면 대상 앱의
-루트에 만든다. monorepo에서는 변경할 화면이 속한 앱/workspace 루트를 사용한다. 제품 파일
-수정 범위 밖의 제안·Figma 작업은 기존 문서를 참조하고, 필요한 신규 문서나 변경안은 쓰기가
-허용된 산출물 디렉터리의 `DESIGN.md`로 전달한다. 대상 앱과 문서의 실제 경로를 먼저 기록하고
-그 파일을 lint한다. Figma에서는 component·variable의 실제 이름/ID와 token 대응을 남긴다.
-형식을 맞추기 위해 기존 색상·폰트·간격을 다른 값으로 교체하지 않는다.
+이 계약을 사용하는 모든 스킬은 아래 작업 유형에 따라 같은 절차와 검증 명령을 사용한다.
 
-읽기 전용 감사에서는 기존 파일만 검사하고 부재·오류를 finding으로 보고한다. 문서나 제품을
-자동 수정하지 않는다. 시각 체계를 바꾸지 않는 prototype 연결 작업은 기존 문서를 참조하며,
-새 visual state나 token을 만들 때 이 작성·검증 절차를 적용한다. 기존 파일의 읽기 전용 lint는
-파일 수정 권한 없이 실행할 수 있다. 필요한 파일을 만들거나 고칠 권한이 없으면 그 작성·수정을
-`blocked`로 남기고, 실행한 lint 결과는 별도로 보고한다. 필수 도구가 없거나 실행하지 못했으면
-lint를 `blocked` 또는 `not_run`으로 남긴다. 가능한 명세·감사 결과는 그대로 전달한다.
+| 작업 | 적용 |
+| --- | --- |
+| 신규 설계·재설계·Figma 화면 제작 | 기존 DESIGN.md를 읽고 요청 범위의 시각 규칙을 작성·갱신한 뒤 검증한다. |
+| 읽기 전용 감사 | 기존 파일을 검증하고 부재·오류를 finding으로 보고한다. 파일은 수정하지 않는다. |
+| prototype 연결만 변경 | 기존 문서를 참조한다. 새 visual state나 token을 만들면 작성·검증 절차를 적용한다. |
 
-[Google Labs DESIGN.md](https://github.com/google-labs-code/design.md)의 공식 형식을 따른다.
-아래의 token 필수 조건은 공식 규격의 선택적 YAML frontmatter보다 엄격한 이 플러그인의
-작성 계약이다. 형식만 채운 빈 문서로 검증을 통과시키지 않는다.
+기존 제품의 token·component가 정본이면 값과 사용 규칙을 보존하고 문서에 출처·대응을 남긴다.
+Figma에서는 실제 component·variable 이름/ID와 연결한다. 제품 파일 수정이 승인된 범위에서
+기존 경로를 갱신하며, 파일이 없으면 대상 앱/workspace 루트에 만든다. 제품 파일 수정 범위
+밖의 제안·Figma 작업은 필요한 신규 문서나 변경안을 쓰기가 허용된 산출물 디렉터리에 둔다.
+대상 앱과 파일 경로를 먼저 고정한다. 쓰기 권한이 없어도 기존 파일의 읽기 전용 검증은 가능하며,
+작성·수정의 `blocked` 상태와 이미 실행한 검증 결과를 구분한다.
 
-- YAML frontmatter를 `---`로 감싸고 `name`과 이번 범위에서 실제 사용하는 token을 작성한다.
-  `colors`, `typography`, `spacing`, `rounded`, `components`에 해당하는 값을 공식 schema로
-  표현하고 참조는 `{colors.primary}` 같은 경로를 사용한다. 기존 시스템이 정본이면 그 출처와
-  대응을 본문에 남기며 값을 중복 관리하는 독립 시스템을 만들지 않는다.
-- 본문의 알려진 `##` 제목은 `Overview` → `Colors` → `Typography` → `Layout` →
-  `Elevation & Depth` → `Shapes` → `Components` → `Do's and Don'ts` 순서를 따른다.
-  공식 별칭 `Brand & Style`, `Layout & Spacing`, `Elevation`은 각각 `Overview`, `Layout`,
-  `Elevation & Depth`와 같은 위치로 판정하며 기존의 유효한 별칭을 바꾸지 않는다.
-  제목별로 적용 이유와 사용 규칙을 적는다. 적용하지 않는 부분은 이유를 기록하고 생략하며,
-  token group의 의도적 생략에는 공식 `omitted` 필드를 사용한다. 경고를 숨기려고 실제로
-  필요한 group을 생략하지 않는다. 설명 본문은 사용자 언어로 작성할 수 있다.
-- 생성·수정 후와 최종 전달 전에 아래 공식 CLI로 실제 대상 파일을 검사한다. `0.4.0`은
-  확인한 기준 버전이다. Node.js 18 이상과 npm이 필요하며 `designmd`는 공식 실행 별칭이다.
-  대상 프로젝트가 이미 고정한 다른 버전이 있으면 그 버전의 `spec --rules`와 결과를 확인하고
-  버전을 기록한다. alpha 규격이므로 버전을 생략한 최신 CLI로 검증 기준을 바꾸지 않는다.
+문서는 [Google Labs DESIGN.md](https://github.com/google-labs-code/design.md)의 token schema와
+본문 섹션 순서·공식 별칭을 따른다. 사용 이유와 적용 규칙을 본문에 적고 적용하지 않는 부분은
+이유와 함께 생략한다. token group의 의도적 생략에는 공식 `omitted`를 사용한다. 이 플러그인은
+공식 규격의 선택적 frontmatter보다 엄격하게 **YAML frontmatter의 비어 있지 않은 `name`과
+실제 사용하는 token**을 요구한다. 형식을 맞추려고 기존 디자인 값을 바꾸거나 경고를 숨기려고
+필요한 token을 생략하지 않는다.
+
+생성·수정 후 최종 전달할 파일에 공통 명령을 실행한다. Python 3.9+, Node.js 18+, npm과
+POSIX 환경이 필요하다. 최초 실행은 npm registry 접근이 필요할 수 있다.
+호출 디렉터리의 npm 설정을 사용하므로 프로젝트의 registry·proxy·cache 설정이 필요하면
+해당 프로젝트 루트에서 실행한다.
 
 ```bash
-npx --yes --package=@google/design.md@0.4.0 designmd spec --rules
-npx --yes --package=@google/design.md@0.4.0 designmd lint --format json ./DESIGN.md
+python3 <plugin-root>/scripts/validate_design_quality.py design-md <DESIGN.md>
 ```
 
-`./DESIGN.md`는 앞에서 확인한 실제 파일 경로로 바꾼다. CLI의 종료 코드가 0이고 JSON
-`summary.errors`가 0인지 함께 확인한다. 설치·네트워크·실행 실패나 JSON 출력 부재는 통과가
-아니다. 오류를 수정한 뒤 다시 실행한다. 경고는 각각 수정하거나 적용되지 않는 이유와 근거를
-기록한다. YAML 파싱 실패, frontmatter 부재, 필수 `name`·사용 token 누락은 severity와 무관하게
-통과를 막는 형식 오류이며 경고 사유 기록으로 면제하지 않는다. `section-order`와 잘못된
-key·무시된 token 경고도 형식 오류로 수정하고,
-`contrast-ratio`는 실제 사용 색 쌍의 접근성 기준을 검증해 미달이면 수정한다. CLI에서 경고가
-남아도 종료 코드 0일 수 있으므로 종료 코드만으로 전체 형식·접근성 통과를 선언하지 않는다.
+이 명령은 고정한 `@google/design.md@0.4.0`의 공식 linter API를 사용한다. YAML 파서나 token
+schema를 별도로 구현하지 않는다. 버전·실행·판정은 공통 도구가 소유하며 플러그인별 npx 명령이나
+경고 판정 규칙을 추가하지 않는다. 도구가 출력한 JSON을 현재 산출물의 검증 근거로 보존한다.
+JSON에는 파일 경로·SHA-256 digest·package 버전·실행 시각·명령·상태·진단이 포함된다.
+파일이 바뀌면 다시 실행한다.
 
-최종 근거에는 DESIGN.md 경로·revision 또는 digest, CLI 버전, 실행 명령, 종료 코드와 JSON
-진단을 남긴다. 파일이 바뀌면 lint를 다시 실행한다. 적용 대상 작업은 이 근거와 형식 오류 해소
-전까지 디자인 검증 완료로 보고하지 않는다. CI가 있는 대상 프로젝트에서 디자인 검증을
-자동화할 때도 같은 고정 버전과 판정 기준을 사용하며, CLI 실행 명령만 추가한 것을 경고까지
-차단하는 자동화로 보고하지 않는다.
+| 종료 코드 / 상태 | 처리 |
+| --- | --- |
+| `0` / `passed` | 자동 형식 검사 통과. 실제 사용 token의 범위와 화면 품질은 별도로 확인한다. |
+| `1` / `failed` | 입력·YAML·필수 항목·참조·섹션 순서·잘못된 key 등 형식 오류를 수정하고 재실행한다. |
+| `2` / `blocked` | 도구·설치·시간 초과·출력 오류를 해결한다. 통과로 처리하지 않는다. |
+| `3` / `needs_review` | 대비 등 남은 경고의 적용 여부를 실제 화면 근거로 판단한다. 미달이면 수정·재실행하고, 적용되지 않으면 이유와 근거를 별도 기록한다. 자동 검사 상태를 `passed`로 바꾸지 않는다. |
 
-이 검사는 문서 구조·token과 일부 색 쌍을 검사한다. 실제 화면의 시스템 준수, 모든 상태의
-대비, 사용성, Figma binding·readback과 DQ0–DQ8 검증은 각각 기존 절차로 확인한다.
-`validate_design_quality.py`는 DQ JSON 계약·report를 검사하며 DESIGN.md lint를 실행하지
-않으므로 두 검증 결과를 따로 남긴다.
+실행하지 않은 검사는 `not_run`이다. 형식 오류나 미해결 경고가 있으면 해당 디자인 검증 완료를
+주장하지 않는다. CI에서도 같은 명령의 종료 코드를 사용한다. 이 검사는 DQ0–DQ8, 실제 화면의
+모든 상태·대비·사용성, Figma binding·readback을 대신하지 않는다. 기존 `contract`·`report`
+명령의 DQ JSON 검증도 별도로 수행한다.
 
 ## 차원별 합격
 

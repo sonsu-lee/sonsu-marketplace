@@ -24,9 +24,6 @@ description: 기존 웹·모바일 앱 화면이나 흐름의 구성·가독성�
 
 ## 재설계
 
-[DESIGN.md 형식과 CLI 검증](../../references/design-quality.md#designmd-형식과-cli-검증)에 따라
-기존 시각 규칙을 보존하며 `DESIGN.md`를 갱신하고 공식 CLI lint 결과를 완료 근거에 포함한다.
-
 [공통 디자인 절차](../../references/design-process.md)를 적용하고 웹은
 [웹](../../references/web.md), 앱은 [모바일](../../references/mobile.md)을 함께 읽는다.
 가장 큰 문제와 기대하는 개선을 정한 뒤 그룹·읽는 순서·공간 배분부터 고친다. 부분 수정은

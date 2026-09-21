@@ -15,9 +15,6 @@ route/tab navigation만 허용한다. submit, create, update, delete, persisted 
 4. 실제 runtime을 관찰할 수 있으면 비파괴 scenario×environment receipt를 남긴다.
 5. representative user/production 결과가 없으면 live DQ8과 `validated` 주장을 통과시키지 않는다.
 
-[DESIGN.md 형식과 CLI 검증](../../references/design-quality.md#designmd-형식과-cli-검증)의 감사
-경계를 따른다. 기존 파일에 공식 CLI lint를 실행하고 부재·오류를 보고하며 자동 수정하지 않는다.
-
 각 finding에는 gate, severity, 관찰, 사용자 영향, 근거와 돌아갈 책임 단계를 기록한다. 근거가
 부족하면 사실로 단정하지 않는다.
 

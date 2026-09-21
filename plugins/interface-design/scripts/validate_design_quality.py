@@ -8,6 +8,7 @@ import hashlib
 import json
 import math
 import re
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -2137,9 +2138,64 @@ def validate_report(
     return errors
 
 
+DESIGN_MD_VERSION = "0.4.0"
+DESIGN_MD_EXIT_CODES = {"passed": 0, "failed": 1, "blocked": 2, "needs_review": 3}
+
+
+def check_design_md(path: Path) -> int:
+    """Use the official parser/linter and emit a receipt for the exact input bytes."""
+    receipt: dict[str, Any] = {
+        "file": str(path.absolute()),
+        "package": f"@google/design.md@{DESIGN_MD_VERSION}",
+        "checked_at": datetime.now().astimezone().isoformat(),
+    }
+
+    def finish(status: str, rule: str, message: str) -> int:
+        receipt.update(status=status, findings=[{
+            "severity": "error", "rule": rule, "message": message,
+        }])
+        print(json.dumps(receipt, ensure_ascii=False))
+        return DESIGN_MD_EXIT_CODES[status]
+
+    try:
+        content = path.read_bytes()
+        text = content.decode("utf-8")
+    except (OSError, UnicodeError, ValueError) as exc:
+        return finish("failed", "input", str(exc))
+    receipt["digest"] = "sha256:" + hashlib.sha256(content).hexdigest()
+    command = [
+        "npx", "--yes", f"--package=@google/design.md@{DESIGN_MD_VERSION}",
+        "--", "node", str(Path(__file__).resolve().with_name("design_md.mjs")),
+        DESIGN_MD_VERSION,
+    ]
+    receipt["command"] = command
+    try:
+        # Preserve the caller's npm project config. The adapter verifies the
+        # loaded package version; stdin carries the exact input snapshot.
+        run = subprocess.run(command, input=text, text=True, encoding="utf-8",
+                             capture_output=True, timeout=120)
+    except (OSError, subprocess.TimeoutExpired, UnicodeError) as exc:
+        return finish("blocked", "runtime", str(exc))
+    receipt["engine_exit_code"] = run.returncode
+    try:
+        result = json.loads(run.stdout)
+        status = result["status"]
+        if (not isinstance(result, dict) or status not in DESIGN_MD_EXIT_CODES
+                or run.returncode != DESIGN_MD_EXIT_CODES[status]
+                or not isinstance(result.get("findings"), list)):
+            raise ValueError("invalid adapter result")
+    except (ValueError, TypeError, KeyError):
+        return finish("blocked", "runtime", "Invalid or missing linter JSON: " + run.stderr[-2000:])
+    receipt.update(result)
+    print(json.dumps(receipt, ensure_ascii=False))
+    return DESIGN_MD_EXIT_CODES[status]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
+    design_md = subparsers.add_parser("design-md", help="lint DESIGN.md with the pinned official engine")
+    design_md.add_argument("file", type=Path)
     contract = subparsers.add_parser("contract")
     contract.add_argument("contract", type=Path)
     report = subparsers.add_parser("report")
@@ -2150,6 +2206,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if args.command == "design-md":
+        raise SystemExit(check_design_md(args.file))
     load_errors: list[str] = []
     if args.command == "contract":
         payload = load_json(args.contract, load_errors)
