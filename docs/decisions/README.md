@@ -43,3 +43,4 @@ Considered, Consequences와 Revisit When을 포함합니다.
 - [0013 Add an Independent Design Patterns Plugin](0013-add-design-patterns-plugin.md)
 
 - [ADR 0014: Codex 전용 Engineering과 관리형 품질 게이트](0014-use-codex-managed-engineering.md)
+- [ADR 0015: Thin Capability Packs](0015-use-thin-capability-packs.md)

@@ -1,9 +1,9 @@
 # 0009 Maintain Engineering as an Independent Plugin
 
-- Status: Accepted
+- Status: Superseded
 - Date: 2026-09-04
 - Supersedes: `0005` (identity-sensitive 예외에 따라 현재 tree에서 제거)
-- Superseded by: None
+- Superseded by: 0015
 - Approval: 사용자가 2026-09-04 현재 대화에서 Engineering의 독립 전환과 `1.0.0` 버전을 승인했습니다.
 
 ## Context
@@ -32,8 +32,8 @@ Engineering의 scratch plan, subagent workspace와 brainstorming session은 `.en
 이름과 경로는 다시 기록하지 않습니다. 기존 Git object history의 재작성은 이 결정의 범위가
 아닙니다.
 
-Engineering의 [`LICENSE`](../../plugins/engineering/LICENSE)는 MIT 저작권과 허가 고지를 계속
-보존합니다. 향후 외부 자료나 코드를 새로 포함하면 해당 라이선스가 요구하는 고지와 출처를 그
+당시 Engineering의 `plugins/engineering/LICENSE`는 MIT 저작권과 허가 고지를 계속
+보존했습니다. 향후 외부 자료나 코드를 새로 포함하면 해당 라이선스가 요구하는 고지와 출처를 그
 변경 범위에 맞게 기록합니다.
 
 ## Alternatives Considered

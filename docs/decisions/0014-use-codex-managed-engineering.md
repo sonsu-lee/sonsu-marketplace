@@ -1,8 +1,9 @@
 # ADR 0014: Codex 전용 Engineering과 관리형 품질 게이트
 
-- Status: Accepted
+- Status: Superseded
 - Date: 2026-09-13
 - Supersedes: ADR 0003의 Quality Engineering 독립 경계, ADR 0011의 고정 Fast Path 예산·계획 존재 기반 red-team, ADR 0012의 모델 역할 기본값·3+2 수정자 배정
+- Superseded by: 0015
 
 ## 문제
 
@@ -59,8 +60,8 @@ OpenAI Astra 가이드는 전체 SKILL/AGENTS의 충돌 감사, 승인된 작업
 [Reasoning effort](https://developers.openai.com/api/docs/guides/reasoning#reasoning-effort)
 
 독립 다중 실행의 발견 범위와 오류 상관관계는 로컬 평가로 확인한다. 외부 연구나 사용자 관찰을
-Luna5의 보편적 우월성으로 일반화하지 않는다. 실제 평가와 미실행·환경 한계는
-[marketplace-v2](../../evals/marketplace-v2/README.md)에 기록한다.
+Luna5의 보편적 우월성으로 일반화하지 않는다. 당시 실제 평가와 미실행·환경 한계는
+`evals/marketplace-v2/README.md`에 기록했다.
 
 ## 이관
 

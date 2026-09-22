@@ -1,9 +1,9 @@
 # 0004 Keep Research Independent and Providers Optional
 
-- Status: Accepted
+- Status: Superseded
 - Date: 2026-09-02
 - Supersedes: None
-- Superseded by: None
+- Superseded by: 0015
 - Approval: 사용자가 2026-09-02 현재 대화에서 이 설계와 커밋을 명시적으로 승인했습니다.
 
 ## Context
