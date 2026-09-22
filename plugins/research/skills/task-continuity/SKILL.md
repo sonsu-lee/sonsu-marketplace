@@ -1,5 +1,5 @@
 ---
-name: task-continuity
+name: research-task-continuity
 description: "여러 출처의 조사·주장 감사가 여러 단계로 이어지거나, 컴팩션·세션 재개 후 조사 범위와 남은 증거 공백을 복구할 때 사용한다."
 ---
 

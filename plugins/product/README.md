@@ -40,7 +40,7 @@ codex plugin add product@sonsu-marketplace
 
 ## 컴팩션 후 작업 재개
 
-[`product:task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계로 이어지는 작업의 계약·진행·근거 위치를
+Codex의 [`product:product-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://product-task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계로 이어지는 작업의 계약·진행·근거 위치를
 작업 폴더의 `.sonsu/continuity/`에 짧게 기록하고 같은 session의 컴팩션·재개 후 실제 상태와 대조합니다.
 짧은 단발 작업에는 기록하지 않으며, 파일 쓰기 금지와 기존 승인 범위를 유지합니다.
 

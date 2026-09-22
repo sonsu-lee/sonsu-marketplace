@@ -1,5 +1,5 @@
 ---
-name: task-continuity
+name: fluent-languages-task-continuity
 description: "장문·여러 문서의 언어 편집이 여러 단계로 이어지거나, 컴팩션·세션 재개 후 원문·초안·처리 구간을 복구할 때 사용한다."
 ---
 

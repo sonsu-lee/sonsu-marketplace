@@ -1,5 +1,5 @@
 ---
-name: task-continuity
+name: product-task-continuity
 description: "제품 탐색·요구사항·PRD·제품 검증 작업이 여러 단계로 이어지거나, 컴팩션·세션 재개 후 합의와 미결정 사항을 복구할 때 사용한다."
 ---
 

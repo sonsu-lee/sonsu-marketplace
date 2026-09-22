@@ -60,7 +60,7 @@ README는 용도·주요 기능·첫 사용·중요한 제약·탐색 경로가 
 
 ## 컴팩션 후 작업 재개
 
-[`writing:task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계의 작성·편집에서 원문·초안,
+Codex의 [`writing:writing-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://writing-task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계의 작성·편집에서 원문·초안,
 편집 범위와 완료 구간을 `.sonsu/continuity/`에 기록하고 같은 session의 재개 후 실제 상태와 대조한다.
 다른 작업의 출력 문체만 적용하거나 짧은 문장을 수정할 때는 기록하지 않는다.
 

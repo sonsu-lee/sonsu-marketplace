@@ -1,5 +1,5 @@
 ---
-name: task-continuity
+name: interface-design-task-continuity
 description: "일반 UI 설계·재설계가 여러 단계로 이어지거나 컴팩션·재개 후 명세·산출물·검증 범위를 복구할 때 사용한다."
 ---
 

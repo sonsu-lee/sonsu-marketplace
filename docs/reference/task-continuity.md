@@ -145,8 +145,9 @@ Engineering에서는 최신 ledger의 complete/reopened와 누적 round를 따�
 
 플러그인 설치만으로 hook은 신뢰되지 않습니다. CLI의 `/hooks`에서 **현재 hook 정의**를 검토하고
 신뢰해야 실행됩니다. 정의가 바뀌면 호스트의 재검토 절차를 따릅니다. helper와 설치 문서는 자동
-신뢰 설정이나 trust bypass를 수행하지 않습니다. hook을 사용할 수 없으면 `<plugin>:task-continuity`를
-직접 호출해 `read`부터 수동 복구할 수 있습니다.
+신뢰 설정이나 trust bypass를 수행하지 않습니다. hook을 사용할 수 없으면 Codex에서는
+`<plugin>:<plugin>-task-continuity`, OMP에서는 `skill://<plugin>-task-continuity`를 직접 호출해
+`read`부터 수동 복구할 수 있습니다.
 
 Codex는 root session의 `SessionStart(source: compact)` context를 다음 모델 요청 전에 전달한다고
 문서화합니다. 자동 compaction이 turn 도중 발생한 경우에도 같은 연결을 제공합니다.
