@@ -24,49 +24,84 @@ class ReviewProtocolTest(unittest.TestCase):
             "locked_sha": "abc123",
             "current_sha": "abc123",
             "reviewers": [
-                {"status": "complete", "attempt_count": 1},
-                {"status": "complete", "attempt_count": 1},
-                {"status": "complete", "attempt_count": 1},
+                {
+                    "id": f"reviewer-{index}",
+                    "locked_sha": "abc123",
+                    "checkout_receipt": f"checkout-{index}",
+                    "status": "complete",
+                    "attempt_count": 1,
+                }
+                for index in range(1, 4)
             ],
             "publish": {"attempted": False},
         }
 
-    def assert_action(self, state: dict, action: str, allowed: bool = False) -> None:
-        self.assertEqual(
-            MODULE.decide(state),
-            {"action": action, "publish_allowed": allowed},
-        )
+    def assert_action(
+        self,
+        state: dict,
+        action: str,
+        allowed: bool = False,
+        reviewer_ids: list[str] | None = None,
+    ) -> None:
+        expected = {"action": action, "publish_allowed": allowed}
+        if reviewer_ids is not None:
+            expected["reviewer_ids"] = reviewer_ids
+        self.assertEqual(MODULE.decide(state), expected)
 
     def test_wait_reviewers(self) -> None:
         state = self.state()
         state["reviewers"][1]["status"] = "running"
         self.assert_action(state, "wait_reviewers")
 
-    def test_retry_transient_reviewer_once(self) -> None:
+    def test_retry_transient_reviewers_once(self) -> None:
         state = self.state()
-        state["reviewers"][0] = {
-            "status": "failed",
-            "failure_kind": "transient",
-            "attempt_count": 1,
-        }
-        self.assert_action(state, "retry_reviewer_once")
+        for index in (0, 1):
+            state["reviewers"][index].update(
+                status="failed",
+                failure_kind="transient",
+            )
+        self.assert_action(
+            state,
+            "retry_reviewer_once",
+            reviewer_ids=["reviewer-1", "reviewer-2"],
+        )
 
     def test_abort_non_transient_or_exhausted_reviewer(self) -> None:
         for failure_kind, attempt_count in (("non_transient", 1), ("transient", 2)):
             with self.subTest(failure_kind=failure_kind, attempt_count=attempt_count):
                 state = self.state()
-                state["reviewers"][0] = {
-                    "status": "failed",
-                    "failure_kind": failure_kind,
-                    "attempt_count": attempt_count,
-                }
+                state["reviewers"][0].update(
+                    status="failed",
+                    failure_kind=failure_kind,
+                    attempt_count=attempt_count,
+                )
                 self.assert_action(state, "abort_reviewer_failed")
+
+    def test_abort_when_any_failure_is_not_retryable(self) -> None:
+        state = self.state()
+        state["reviewers"][0].update(status="failed", failure_kind="transient")
+        state["reviewers"][1].update(status="failed", failure_kind="non_transient")
+        self.assert_action(state, "abort_reviewer_failed")
 
     def test_abort_stale_before_waiting_or_posting(self) -> None:
         state = self.state()
         state["current_sha"] = "def456"
         state["reviewers"][0]["status"] = "running"
         self.assert_action(state, "abort_stale")
+
+    def test_reject_duplicate_reviewer_identity_or_checkout(self) -> None:
+        for field in ("id", "checkout_receipt"):
+            with self.subTest(field=field):
+                state = self.state()
+                state["reviewers"][1][field] = state["reviewers"][0][field]
+                with self.assertRaisesRegex(ValueError, "must be unique"):
+                    MODULE.decide(state)
+
+    def test_reject_reviewer_for_different_locked_sha(self) -> None:
+        state = self.state()
+        state["reviewers"][2]["locked_sha"] = "def456"
+        with self.assertRaisesRegex(ValueError, "must match locked_sha"):
+            MODULE.decide(state)
 
     def test_post_once_after_three_completed_reviewers(self) -> None:
         self.assert_action(self.state(), "post_once", allowed=True)

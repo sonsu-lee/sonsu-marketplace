@@ -33,10 +33,25 @@ def decide(state: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(reviewers, list) or len(reviewers) != 3:
         raise ValueError("reviewers must contain exactly three entries")
 
+    reviewer_ids: list[str] = []
+    checkout_receipts: list[str] = []
     failed: list[dict[str, Any]] = []
     for reviewer in reviewers:
         if not isinstance(reviewer, dict):
             raise ValueError("each reviewer must be an object")
+        reviewer_id = reviewer.get("id")
+        if not isinstance(reviewer_id, str) or not reviewer_id:
+            raise ValueError("each reviewer.id must be a non-empty string")
+        reviewer_ids.append(reviewer_id)
+        if reviewer.get("locked_sha") != locked_sha:
+            raise ValueError("each reviewer.locked_sha must match locked_sha")
+        checkout_receipt = reviewer.get("checkout_receipt")
+        if not isinstance(checkout_receipt, str) or not checkout_receipt:
+            raise ValueError("each reviewer.checkout_receipt must be a non-empty string")
+        checkout_receipts.append(checkout_receipt)
+        attempt_count = reviewer.get("attempt_count")
+        if type(attempt_count) is not int or attempt_count not in {1, 2}:
+            raise ValueError("each reviewer.attempt_count must be 1 or 2")
         status = reviewer.get("status")
         if status in {"pending", "running"}:
             return _result("wait_reviewers")
@@ -45,15 +60,23 @@ def decide(state: dict[str, Any]) -> dict[str, Any]:
         elif status != "complete":
             raise ValueError(f"unsupported reviewer status: {status!r}")
 
+    if len(set(reviewer_ids)) != 3:
+        raise ValueError("reviewer.id values must be unique")
+    if len(set(checkout_receipts)) != 3:
+        raise ValueError("reviewer.checkout_receipt values must be unique")
+
     if failed:
         retryable = [
             reviewer
             for reviewer in failed
             if reviewer.get("failure_kind") == "transient"
-            and reviewer.get("attempt_count") == 1
+            and reviewer["attempt_count"] == 1
         ]
-        if len(failed) == 1 and retryable:
-            return _result("retry_reviewer_once")
+        if len(retryable) == len(failed):
+            return _result(
+                "retry_reviewer_once",
+                reviewer_ids=[reviewer["id"] for reviewer in retryable],
+            )
         return _result("abort_reviewer_failed")
 
     publish = state.get("publish")
@@ -77,10 +100,18 @@ def decide(state: dict[str, Any]) -> dict[str, Any]:
     return _result("fail_ambiguous")
 
 
-def _result(action: str, *, publish_allowed: bool = False) -> dict[str, Any]:
+def _result(
+    action: str,
+    *,
+    publish_allowed: bool = False,
+    reviewer_ids: list[str] | None = None,
+) -> dict[str, Any]:
     if action not in _ACTIONS:
         raise AssertionError(f"unknown action: {action}")
-    return {"action": action, "publish_allowed": publish_allowed}
+    result: dict[str, Any] = {"action": action, "publish_allowed": publish_allowed}
+    if reviewer_ids is not None:
+        result["reviewer_ids"] = reviewer_ids
+    return result
 
 
 def main() -> int:

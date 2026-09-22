@@ -38,6 +38,10 @@ checkout하거나 사용자의 변경을 옮기지 않는다.
 checkout과 새 context를 주고 세 명을 가능한 한 병렬로 실행한다. 한 명도 다른 reviewer 결과나
 coordinator 잠정 결론을 보지 않는다.
 
+coordinator는 reviewer마다 고유한 logical `reviewer-id`, locked head SHA와 고유한 clean checkout
+receipt를 실행 상태에 기록한다. protocol helper는 정확히 세 ID와 receipt가 서로 다르고 세
+`locked_sha`가 현재 실행의 locked head와 같은 경우에만 완료 결과를 인정한다.
+
 각 reviewer의 계약:
 
 > 같은 locked base/head의 전체 PR diff와 관련 caller·test·contract를 읽기 전용으로 한 번
@@ -47,9 +51,11 @@ coordinator 잠정 결론을 보지 않는다.
 > 주장하지 않는다.
 
 실행 중 reviewer가 있으면 기다린다. 구조화된 host 결과가 transient 실행 실패라고 명시한 경우에만
-같은 model/reasoning, 같은 locked input으로 해당 logical reviewer를 **한 번** 재시도한다. 성공한
-reviewer를 다시 실행하지 않는다. non-transient 실패, 두 번째 실패, 인원 부족에는 model, 설정,
-인원수나 coordinator 자체 리뷰로 대체하지 않고 `incomplete`로 종료한다.
+같은 model/reasoning, 같은 locked input으로 해당 logical reviewer를 **한 번** 재시도한다. 동시에
+여러 reviewer가 첫 transient 실패를 반환하면 helper의 `reviewer_ids`에 포함된 각 logical reviewer를
+같은 입력으로 한 번씩 재시도한다. 성공한 reviewer를 다시 실행하지 않는다. non-transient 실패,
+두 번째 실패, 인원 부족에는 model, 설정, 인원수나 coordinator 자체 리뷰로 대체하지 않고
+`incomplete`로 종료한다.
 
 ## 3. 검증하고 중복을 제거한다
 
@@ -87,10 +93,10 @@ readback한다. readback이 complete하고 정확히 일치하면 `complete_from
 
 ## 5. 결과와 정리
 
-결과에는 PR URL, locked/current base·head, reviewer 3명의 완료 상태와 transient retry 0/1회,
-확인 범위, 중복 제거 finding, `run-id` marker, review URL/ID 또는 미게시 이유, readback 결과를
-포함한다. SHA 변경은 `abort_stale`, reviewer 실패는 `abort_reviewer_failed`, 불명확 게시 결과는
-`fail_ambiguous`로 정확히 보고한다.
+결과에는 PR URL, locked/current base·head, 서로 다른 reviewer 3명의 logical ID·locked SHA·clean
+checkout receipt, 완료 상태와 transient retry 0/1회, 확인 범위, 중복 제거 finding, `run-id`
+marker, review URL/ID 또는 미게시 이유, readback 결과를 포함한다. SHA 변경은 `abort_stale`,
+reviewer 실패는 `abort_reviewer_failed`, 불명확 게시 결과는 `fail_ambiguous`로 정확히 보고한다.
 
 reviewer 종료를 확인한 뒤 plugin이 만든 clean detached checkout만 제거한다. 종료 불명, dirty 상태
 또는 복구에 필요한 자료는 강제 삭제하지 않고 경로와 상태를 보고한다. 별도 continuity state,
