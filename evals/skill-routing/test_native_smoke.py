@@ -139,6 +139,13 @@ class NativeSmokeContractTest(unittest.TestCase):
         self.assertFalse(
             MODULE.result_contains_location(mixed_locations, "src/lib.rs:3")
         )
+        echoed_request = {
+            "content": [{"type": "text", "text": "[other.rs#L3]"}],
+            "details": {"request": {"position": "src/lib.rs:3"}},
+        }
+        self.assertFalse(
+            MODULE.result_contains_location(echoed_request, "src/lib.rs:3")
+        )
 
     def test_codex_case_loads_disposable_plugin_config(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

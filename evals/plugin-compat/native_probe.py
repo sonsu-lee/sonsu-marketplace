@@ -64,6 +64,34 @@ def run(command: list[str], *, cwd: Path, env: dict[str, str], timeout: int = 60
     return record
 
 
+def marketplace_skill_catalog(
+    skills: list[dict[str, Any]],
+    codex_home: Path,
+    expected_names: set[str],
+) -> list[dict[str, Any]]:
+    cache_root = (codex_home / "plugins/cache/sonsu-marketplace").resolve()
+    catalog = []
+    for skill in skills:
+        if skill.get("name") not in expected_names:
+            continue
+        plugin_id = skill.get("pluginId")
+        if plugin_id is not None and (
+            not isinstance(plugin_id, str)
+            or not plugin_id.endswith("@sonsu-marketplace")
+        ):
+            continue
+        path = skill.get("path")
+        if not isinstance(path, str):
+            continue
+        try:
+            resolved = Path(path).resolve(strict=True)
+            resolved.relative_to(cache_root.resolve(strict=True))
+        except (OSError, ValueError):
+            continue
+        catalog.append(skill)
+    return catalog
+
+
 def scrubbed_env(home: Path) -> dict[str, str]:
     env = os.environ.copy()
     for name in SECRET_NAMES:
@@ -82,8 +110,11 @@ class RpcClient:
         self.next_id = 1
         self.notifications: list[dict[str, Any]] = []
         self.messages: queue.Queue[dict[str, Any] | Exception | None] = queue.Queue()
+        self.stderr_chunks: list[str] = []
         self.reader = threading.Thread(target=self._read_stdout, daemon=True)
+        self.stderr_reader = threading.Thread(target=self._read_stderr, daemon=True)
         self.reader.start()
+        self.stderr_reader.start()
 
     def _read_stdout(self) -> None:
         assert self.process.stdout is not None
@@ -96,6 +127,11 @@ class RpcClient:
                     return
         finally:
             self.messages.put(None)
+
+    def _read_stderr(self) -> None:
+        assert self.process.stderr is not None
+        while chunk := self.process.stderr.read(4096):
+            self.stderr_chunks.append(chunk)
 
     def request(self, method: str, params: dict[str, Any], timeout: float = 20) -> dict[str, Any]:
         request_id = self.next_id
@@ -122,9 +158,7 @@ class RpcClient:
                     raise ProbeFailure(f"{method}: {message['error']}")
                 return message["result"]
             self.notifications.append(message)
-        stderr = ""
-        if self.process.poll() is not None and self.process.stderr is not None:
-            stderr = self.process.stderr.read()
+        stderr = "".join(self.stderr_chunks)
         raise ProbeFailure(f"timeout waiting for {method}; stderr={stderr}")
 
     def close(self) -> str:
@@ -136,10 +170,11 @@ class RpcClient:
                 self.process.kill()
                 self.process.wait(timeout=5)
         self.reader.join(timeout=1)
+        self.stderr_reader.join(timeout=1)
         assert self.process.stdin is not None
         assert self.process.stdout is not None
         assert self.process.stderr is not None
-        stderr = self.process.stderr.read()
+        stderr = "".join(self.stderr_chunks)
         self.process.stdin.close()
         self.process.stdout.close()
         self.process.stderr.close()
@@ -279,10 +314,12 @@ def codex_probe(work: Path) -> dict[str, Any]:
             })
         skills_response = client.request("skills/list", {"cwds": [str(ROOT)], "forceReload": True})
         skill_bucket = skills_response["data"][0]
-        loaded = {
-            item["name"] for item in skill_bucket["skills"]
-            if (item.get("pluginId") or "").endswith("@sonsu-marketplace")
-        }
+        marketplace_skills = marketplace_skill_catalog(
+            skill_bucket["skills"],
+            codex_home,
+            EXPECTED_SKILLS,
+        )
+        loaded = {item["name"] for item in marketplace_skills}
         if loaded != EXPECTED_SKILLS:
             raise ProbeFailure(f"Codex skill mismatch: missing={sorted(EXPECTED_SKILLS-loaded)} extra={sorted(loaded-EXPECTED_SKILLS)}")
         if skill_bucket.get("errors"):

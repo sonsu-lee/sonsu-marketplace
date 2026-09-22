@@ -242,10 +242,14 @@ def codex_registry_skills(env: dict[str, str]) -> tuple[list[dict[str, str]], li
             timeout=30,
         )
         bucket = response["data"][0]
+        marketplace_skills = native_probe.marketplace_skill_catalog(
+            bucket["skills"],
+            Path(env["CODEX_HOME"]),
+            namespaced_inventory(),
+        )
         catalog = [
             {"name": skill["name"], "description": skill.get("description", "")}
-            for skill in bucket["skills"]
-            if (skill.get("pluginId") or "").endswith("@sonsu-marketplace")
+            for skill in marketplace_skills
         ]
         return catalog, bucket.get("errors", [])
     finally:
@@ -487,10 +491,29 @@ def structured_location_matches(value: Any, path: str, zero_based_line: int) -> 
     )
 
 
+def output_text(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        return "\n".join(filter(None, (output_text(item) for item in value)))
+    if isinstance(value, dict):
+        return "\n".join(
+            filter(
+                None,
+                (
+                    output_text(value[key])
+                    for key in ("content", "output", "text")
+                    if key in value
+                ),
+            )
+        )
+    return ""
+
+
 def result_contains_location(result: Any, marker: str) -> bool:
     path, line_text = marker.rsplit(":", 1)
     line = int(line_text)
-    text = json.dumps(result, ensure_ascii=False).replace("\\\\", "/")
+    text = output_text(result).replace("\\", "/")
     displayed = re.compile(rf"(?:^|[^A-Za-z0-9_.-]){re.escape(path)}(?:#L|:L|#|:){line}\b")
     return bool(displayed.search(text) or structured_location_matches(result, path, line - 1))
 

@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -210,6 +211,8 @@ class NativeProbeIsolationTests(unittest.TestCase):
         server = (
             "import json, sys\n"
             "request = json.loads(sys.stdin.readline())\n"
+            "sys.stderr.write('x' * 200000)\n"
+            "sys.stderr.flush()\n"
             "print(json.dumps({'jsonrpc': '2.0', 'method': 'ready'}))\n"
             "print(json.dumps({'jsonrpc': '2.0', 'id': request['id'], "
             "'result': {'ok': True}}), flush=True)\n"
@@ -219,6 +222,7 @@ class NativeProbeIsolationTests(unittest.TestCase):
             cwd=ROOT,
             env=os.environ.copy(),
         )
+        stderr = ""
         try:
             self.assertEqual(client.request("probe", {}, timeout=2), {"ok": True})
             self.assertEqual(
@@ -226,7 +230,36 @@ class NativeProbeIsolationTests(unittest.TestCase):
                 ["ready"],
             )
         finally:
-            client.close()
+            stderr = client.close()
+        self.assertEqual(len(stderr), 200000)
+
+    def test_marketplace_skills_allow_missing_plugin_id(self):
+        with tempfile.TemporaryDirectory() as directory:
+            codex_home = Path(directory) / "codex-home"
+            cache = codex_home / "plugins/cache/sonsu-marketplace/code-review/1.0.0"
+            valid = cache / "skills/review-pr/SKILL.md"
+            valid.parent.mkdir(parents=True)
+            valid.write_text("review skill", encoding="utf-8")
+            unrelated = Path(directory) / "unrelated/SKILL.md"
+            unrelated.parent.mkdir()
+            unrelated.write_text("unrelated skill", encoding="utf-8")
+            skills = [
+                {
+                    "name": "code-review:review-pr",
+                    "path": str(valid),
+                },
+                {
+                    "name": "code-review:review-pr",
+                    "path": str(unrelated),
+                },
+            ]
+            catalog = NATIVE_PROBE.marketplace_skill_catalog(
+                skills,
+                codex_home,
+                {"code-review:review-pr"},
+            )
+
+        self.assertEqual(catalog, skills[:1])
 
 
 if __name__ == "__main__":
