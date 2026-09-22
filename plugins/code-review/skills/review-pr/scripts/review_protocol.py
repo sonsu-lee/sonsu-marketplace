@@ -20,6 +20,9 @@ _ACTIONS = {
 
 def decide(state: dict[str, Any]) -> dict[str, Any]:
     """Return the next action without performing I/O or retaining state."""
+    current_pr_state = state.get("current_pr_state")
+    if not isinstance(current_pr_state, str) or not current_pr_state:
+        raise ValueError("current_pr_state must be a non-empty string")
     locked_base_sha = state.get("locked_base_sha")
     current_base_sha = state.get("current_base_sha")
     if not isinstance(locked_base_sha, str) or not locked_base_sha:
@@ -32,7 +35,11 @@ def decide(state: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("locked_sha must be a non-empty string")
     if not isinstance(current_sha, str) or not current_sha:
         raise ValueError("current_sha must be a non-empty string")
-    if locked_base_sha != current_base_sha or locked_sha != current_sha:
+    if (
+        current_pr_state != "OPEN"
+        or locked_base_sha != current_base_sha
+        or locked_sha != current_sha
+    ):
         return _result("abort_stale")
 
     reviewers = state.get("reviewers")

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
@@ -59,6 +60,21 @@ class NativeSmokeContractTest(unittest.TestCase):
         )
         self.assertEqual(assessment, {"status": "fail", "reason": "unknown option"})
 
+    def test_native_cli_timeout_is_failure_record(self) -> None:
+        timeout = subprocess.TimeoutExpired(["codex", "exec"], 5, stderr="hung")
+        with mock.patch.object(MODULE.subprocess, "run", side_effect=timeout):
+            execution = MODULE.run(["codex", "exec"], cwd=Path.cwd(), env={}, timeout=5)
+
+        self.assertEqual(execution["returncode"], 124)
+        self.assertIn("timed out after 5s", execution["stderr"])
+        self.assertEqual(
+            MODULE.assess(
+                {"mode": "ownership", "expected_skills": []},
+                {**execution, "contract": None},
+            )["status"],
+            "fail",
+        )
+
     def test_semantic_success_requires_definition_and_reference_locations(self) -> None:
         case = {
             "mode": "behavior",
@@ -113,6 +129,16 @@ class NativeSmokeContractTest(unittest.TestCase):
         self.assertTrue(MODULE.result_contains_location(location, "src/lib.rs:3"))
         location["range"]["start"]["line"] = 3
         self.assertFalse(MODULE.result_contains_location(location, "src/lib.rs:3"))
+        mixed_locations = {
+            "details": {"request": {"file": "src/lib.rs", "line": 3}},
+            "locations": [
+                {"uri": "file:///tmp/fixture/other.rs", "range": {"start": {"line": 2}}},
+                {"uri": "file:///tmp/fixture/src/lib.rs", "range": {"start": {"line": 4}}},
+            ],
+        }
+        self.assertFalse(
+            MODULE.result_contains_location(mixed_locations, "src/lib.rs:3")
+        )
 
     def test_codex_case_loads_disposable_plugin_config(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

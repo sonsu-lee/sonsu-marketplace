@@ -51,7 +51,25 @@ def selected_cli_versions(hosts: Iterable[str]) -> dict[str, str | None]:
 
 
 def run(command: list[str], *, cwd: Path, env: dict[str, str], timeout: int = 600) -> dict[str, Any]:
-    completed = subprocess.run(command, cwd=cwd, env=env, text=True, capture_output=True, timeout=timeout)
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as error:
+        stdout = error.stdout.decode(errors="replace") if isinstance(error.stdout, bytes) else (error.stdout or "")
+        stderr = error.stderr.decode(errors="replace") if isinstance(error.stderr, bytes) else (error.stderr or "")
+        reason = f"native CLI timed out after {timeout}s"
+        return {
+            "command": command,
+            "returncode": 124,
+            "stdout": stdout,
+            "stderr": f"{reason}: {stderr}" if stderr else reason,
+        }
     return {
         "command": command, "returncode": completed.returncode,
         "stdout": completed.stdout, "stderr": completed.stderr,
@@ -436,15 +454,45 @@ def semantic_tool_results(events: list[Any]) -> dict[str, list[Any]]:
     return results
 
 
+def structured_location_matches(value: Any, path: str, zero_based_line: int) -> bool:
+    if isinstance(value, list):
+        return any(structured_location_matches(item, path, zero_based_line) for item in value)
+    if not isinstance(value, dict):
+        return False
+
+    path_values = [
+        candidate.replace("\\", "/")
+        for key in ("uri", "path", "file", "filePath")
+        if isinstance((candidate := value.get(key)), str)
+    ]
+    lines = [
+        candidate
+        for key in ("line", "startLine")
+        if type((candidate := value.get(key))) is int
+    ]
+    range_value = value.get("range")
+    if isinstance(range_value, dict):
+        start = range_value.get("start")
+        if isinstance(start, dict) and type(start.get("line")) is int:
+            lines.append(start["line"])
+    if (
+        any(candidate == path or candidate.endswith("/" + path) for candidate in path_values)
+        and zero_based_line in lines
+    ):
+        return True
+    return any(
+        structured_location_matches(child, path, zero_based_line)
+        for key, child in value.items()
+        if key not in {"request", "args", "input"}
+    )
+
+
 def result_contains_location(result: Any, marker: str) -> bool:
     path, line_text = marker.rsplit(":", 1)
     line = int(line_text)
     text = json.dumps(result, ensure_ascii=False).replace("\\\\", "/")
-    if path not in text:
-        return False
-    displayed = re.compile(rf"{re.escape(path)}(?:#L|:L|#|:){line}\b")
-    zero_based = re.compile(rf'"(?:line|startLine)"\s*:\s*{line - 1}\b')
-    return bool(displayed.search(text) or zero_based.search(text))
+    displayed = re.compile(rf"(?:^|[^A-Za-z0-9_.-]){re.escape(path)}(?:#L|:L|#|:){line}\b")
+    return bool(displayed.search(text) or structured_location_matches(result, path, line - 1))
 
 
 def semantic_trace_error(case: dict[str, Any], execution: dict[str, Any]) -> str | None:

@@ -15,11 +15,12 @@
 실행하지 않는다. Codex는 trusted workspace의 project scope 설치를 권장한다. user-scope enable은
 이후 여는 모든 workspace에도 language-server 실행 권한이 이어질 수 있다.
 
-Codex manifest만 non-autodiscovered `codex-mcp.json`을 참조한다. launcher는 session cwd를 그대로
-상속하고 canonical directory인지 확인한 뒤 plugin-owned config와
-`MCPLS_TRUST_PROJECT_CONFIG=false`, `MCPLS_LOG=warn`, `MCPLS_LOG_JSON=true`를 강제한다. project의
-`mcpls.toml`을 신뢰하지 않는다. `[workspace] roots=[]`는 process 시작 cwd 하나를 canonical root로
-사용하며 하위 project marker routing은 mcpls built-in heuristics가 담당한다.
+Codex manifest만 non-autodiscovered `codex-mcp.json`을 참조한다. MCP config는 installed plugin의
+relative cwd에서 `scripts/launch-mcpls.py`를 시작한다. launcher는 canonical directory인지 확인한 뒤
+plugin-owned config와 `MCPLS_TRUST_PROJECT_CONFIG=false`, `MCPLS_LOG=warn`,
+`MCPLS_LOG_JSON=true`를 강제한다. project의
+`mcpls.toml`을 신뢰하지 않는다. `[workspace] roots=[]`는 추가 고정 root를 선언하지 않으며 target
+project marker routing은 mcpls built-in heuristics가 담당한다.
 
 Codex read-only semantic allowlist의 실제 mcpls 0.6.0 tool name은 `lsp_get_definition`과
 `lsp_get_references`다. prefix를 생략하거나 `lsp_definition`/`lsp_references`로 축약하지 않는다.

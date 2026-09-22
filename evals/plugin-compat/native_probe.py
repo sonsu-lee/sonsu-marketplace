@@ -216,13 +216,35 @@ def codex_probe(work: Path) -> dict[str, Any]:
     env["PATH"] = str(fake_bin) + os.pathsep + env.get("PATH", "")
     env["FAKE_MCPLS_LOG"] = str(fake_log)
     codex_home.mkdir(parents=True)
+    probe_marketplace = work / "codex-marketplace"
+    shutil.copytree(ROOT / "plugins", probe_marketplace / "plugins")
+    catalog = probe_marketplace / ".agents/plugins/marketplace.json"
+    catalog.parent.mkdir(parents=True)
+    shutil.copy2(CATALOG, catalog)
+    probe_launcher = probe_marketplace / "plugins/code-intelligence/scripts/launch-mcpls.py"
+    launcher_text = probe_launcher.read_text(encoding="utf-8")
+    marker = 'REQUIRED_VERSION = "0.6.0"'
+    probe_environment = (
+        f"os.environ['PATH'] = {str(fake_bin)!r} + os.pathsep + os.environ.get('PATH', '')\n"
+        f"os.environ['FAKE_MCPLS_LOG'] = {str(fake_log)!r}\n\n"
+    )
+    if marker not in launcher_text:
+        raise ProbeFailure("mcpls launcher version marker is missing")
+    probe_launcher.write_text(
+        launcher_text.replace(marker, probe_environment + marker, 1),
+        encoding="utf-8",
+    )
     source_codex_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
     source_auth = source_codex_home / "auth.json"
     if source_auth.is_file():
         destination_auth = codex_home / "auth.json"
         shutil.copy2(source_auth, destination_auth)
         destination_auth.chmod(0o400)
-    registration = run(["codex", "plugin", "marketplace", "add", str(ROOT)], cwd=ROOT, env=env)
+    registration = run(
+        ["codex", "plugin", "marketplace", "add", str(probe_marketplace)],
+        cwd=ROOT,
+        env=env,
+    )
     client = RpcClient(
         [
             "codex", "app-server", "--stdio",
@@ -249,10 +271,10 @@ def codex_probe(work: Path) -> dict[str, Any]:
         installs = {}
         for name in EXPECTED:
             details[name] = client.request("plugin/read", {
-                "pluginName": name, "marketplacePath": str(CATALOG),
+                "pluginName": name, "marketplacePath": str(catalog),
             })["plugin"]
             installs[name] = client.request("plugin/install", {
-                "pluginName": name, "marketplacePath": str(CATALOG),
+                "pluginName": name, "marketplacePath": str(catalog),
                 "installAttemptId": f"native-probe-{name}",
             })
         skills_response = client.request("skills/list", {"cwds": [str(ROOT)], "forceReload": True})
@@ -270,10 +292,10 @@ def codex_probe(work: Path) -> dict[str, Any]:
         if hook_bucket["hooks"] or hook_bucket.get("errors"):
             raise ProbeFailure(f"unexpected marketplace hooks/errors: {hook_bucket}")
         figma = client.request("plugin/read", {
-            "pluginName": "figma-workflow", "marketplacePath": str(CATALOG),
+            "pluginName": "figma-workflow", "marketplacePath": str(catalog),
         })["plugin"]
         intelligence = client.request("plugin/read", {
-            "pluginName": "code-intelligence", "marketplacePath": str(CATALOG),
+            "pluginName": "code-intelligence", "marketplacePath": str(catalog),
         })["plugin"]
         if intelligence.get("mcpServers") != ["mcpls"]:
             raise ProbeFailure(f"Codex mcpls declaration missing: {intelligence.get('mcpServers')}")
@@ -286,12 +308,26 @@ def codex_probe(work: Path) -> dict[str, Any]:
         ]
         if len(mcpls_status) != 1:
             raise ProbeFailure(f"plugin-owned Codex mcpls status missing or ambiguous: {all_mcp_status}")
+        expected_tools = {"lsp_get_definition", "lsp_get_references"}
+        host_status = mcpls_status[0]
+        host_tools = host_status.get("tools")
+        if (
+            host_status.get("toolsError") is not None
+            or not isinstance(host_status.get("serverInfo"), dict)
+            or not isinstance(host_tools, dict)
+            or not expected_tools.issubset(host_tools)
+        ):
+            raise ProbeFailure(f"plugin-owned Codex mcpls did not start successfully: {host_status}")
 
         mcp_config = json.loads(
             (ROOT / "plugins/code-intelligence/codex-mcp.json").read_text(encoding="utf-8")
         )["mcpServers"]["mcpls"]
-        expected_args = ["${PLUGIN_ROOT}/scripts/launch-mcpls.py"]
-        if mcp_config.get("command") != "python3" or mcp_config.get("args") != expected_args:
+        expected_args = ["scripts/launch-mcpls.py"]
+        if (
+            mcp_config.get("command") != "python3"
+            or mcp_config.get("args") != expected_args
+            or mcp_config.get("cwd") != "."
+        ):
             raise ProbeFailure(f"unexpected plugin-owned mcpls command wiring: {mcp_config}")
 
         launcher = RpcClient(
@@ -310,7 +346,6 @@ def codex_probe(work: Path) -> dict[str, Any]:
             launcher_stderr = launcher.close()
             (work / "mcpls-launcher.stderr").write_text(launcher_stderr, encoding="utf-8")
         tool_names = {tool["name"] for tool in launcher_tools.get("tools", [])}
-        expected_tools = {"lsp_get_definition", "lsp_get_references"}
         if not expected_tools.issubset(tool_names):
             raise ProbeFailure(f"launcher did not expose expected mcpls tools: {launcher_tools}")
         fake_events = [

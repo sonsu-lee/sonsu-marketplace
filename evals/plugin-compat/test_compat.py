@@ -174,12 +174,12 @@ class ThinCatalogContractTests(unittest.TestCase):
             "mcpServers": {
                 "mcpls": {
                     "command": "python3",
-                    "args": ["${PLUGIN_ROOT}/scripts/launch-mcpls.py"],
+                    "args": ["scripts/launch-mcpls.py"],
+                    "cwd": ".",
                 }
             }
         })
         serialized = json.dumps(mcp)
-        self.assertNotIn("cwd", mcp)
         self.assertIsNone(re.search(r"(?i)(token|api[_-]?key|secret|password)", serialized))
         launcher = (ROOT / "plugins/code-intelligence/scripts/launch-mcpls.py").read_text(encoding="utf-8")
         self.assertIn('REQUIRED_VERSION = "0.6.0"', launcher)

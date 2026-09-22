@@ -94,10 +94,11 @@ readback한다. readback이 complete하고 정확히 일치하면 `complete_from
 
 ## 5. 결과와 정리
 
-결과에는 PR URL, locked/current base·head, 서로 다른 reviewer 3명의 logical ID·locked SHA·clean
-checkout receipt, 완료 상태와 transient retry 0/1회, 확인 범위, 중복 제거 finding, `run-id`
-marker, review URL/ID 또는 미게시 이유, readback 결과를 포함한다. SHA 변경은 `abort_stale`,
-reviewer 실패는 `abort_reviewer_failed`, 불명확 게시 결과는 `fail_ambiguous`로 정확히 보고한다.
+결과에는 PR URL과 current state, locked/current base·head, 서로 다른 reviewer 3명의 logical
+ID·locked SHA·clean checkout receipt, 완료 상태와 transient retry 0/1회, 확인 범위, 중복 제거
+finding, `run-id` marker, review URL/ID 또는 미게시 이유, readback 결과를 포함한다. PR close나 SHA
+변경은 `abort_stale`, reviewer 실패는 `abort_reviewer_failed`, 불명확 게시 결과는
+`fail_ambiguous`로 정확히 보고한다.
 
 reviewer 종료를 확인한 뒤 plugin이 만든 clean detached checkout만 제거한다. 종료 불명, dirty 상태
 또는 복구에 필요한 자료는 강제 삭제하지 않고 경로와 상태를 보고한다. 별도 continuity state,

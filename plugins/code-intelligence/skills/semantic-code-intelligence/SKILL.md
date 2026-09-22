@@ -19,11 +19,12 @@ client가 없으면 grep 결과를 의미론으로 가장하지 않는다.
    target이 workspace와 같거나 descendant인지 확인한다. 문자열 prefix 비교를 쓰지 않는다.
 3. root 밖 target, root 밖으로 해석되는 symlink, 복수 외부 root 요청은 semantic tool/server를
    호출하기 전에 `blocked: outside-workspace`로 끝낸다.
-4. 현재 workspace가 trusted라는 host signal을 확인한다. Codex에서는 trusted workspace의
-   project-scope 설치를 권장한다. user-scope enable은 이후 여는 모든 workspace에도 실행 권한이
-   이어질 수 있음을 알린다. OMP native LSP 호출 전에 host trust signal이 없으면 build script,
-   proc macro, compiler plugin과 project config 실행 가능성을 설명하고 사용자의 명시 확인을 받은
-   뒤에만 호출한다. 확인되지 않은 workspace에서는 server를 시작하지 않고 `blocked`로 끝낸다.
+4. current workspace가 trusted라는 host signal을 확인한다. Codex에서는 trusted workspace의
+   project-scope 설치를 권장한다. user-scope enable은 이후 여는 모든 workspace에도 host가 bundled
+   MCP를 초기화할 수 있음을 알린다. OMP native LSP 호출 전에 host trust signal이 없으면 build
+   script, proc macro, compiler plugin과 project config 실행 가능성을 설명하고 사용자의 명시 확인을
+   받은 뒤에만 호출한다. 확인되지 않은 workspace에서는 semantic tool을 호출하지 않고 `blocked`로
+   끝낸다.
 
 workspace를 바꾼 뒤에는 Codex MCP reconnect 또는 session restart가 필요하다.
 

@@ -36,9 +36,9 @@ base/head SHA, 기존 review/comment 전체를 다시 읽는다. locked base/hea
 commit과 canonical payload를 함께 동일성 기준으로 사용한다.
 
 [`../skills/review-pr/scripts/review_protocol.py`](../skills/review-pr/scripts/review_protocol.py)에
-locked/current base SHA와 head SHA, reviewer status·attempt count, publish attempt와 readback
-completeness·marker·author·commit·payload 일치 여부를 전달한다. `post_once`일 때만 최초 POST를
-수행한다.
+current PR state, locked/current base SHA와 head SHA, reviewer status·attempt count, publish attempt와
+readback completeness·marker·author·commit·payload 일치 여부를 전달한다. current state가 `OPEN`이고
+두 SHA 쌍이 일치할 때만 `post_once`를 수행한다.
 
 POST 응답이 불명확하면 review와 inline comment를 끝까지 readback한다. complete readback에서 marker,
 author, commit과 payload가 모두 일치하면 기존 POST 성공으로 확정한다. 하나라도 다르거나 readback이
@@ -47,6 +47,6 @@ idempotency key가 없는 한 GET 결과가 없다는 사실도 최초 POST 실�
 
 ## 결과와 cleanup
 
-locked/current base SHA와 head SHA, 세 reviewer 상태, retry, finding과 inconclusive, marker,
-POST/readback 결과, review URL 또는 중단 action을 보고한다. reviewer 종료 뒤 plugin-owned clean
-checkout만 제거한다. dirty 또는 종료 불명 checkout은 보존해 상태와 경로를 알린다.
+current PR state, locked/current base SHA와 head SHA, 세 reviewer 상태, retry, finding과 inconclusive,
+marker, POST/readback 결과, review URL 또는 중단 action을 보고한다. reviewer 종료 뒤 plugin-owned
+clean checkout만 제거한다. dirty 또는 종료 불명 checkout은 보존해 상태와 경로를 알린다.

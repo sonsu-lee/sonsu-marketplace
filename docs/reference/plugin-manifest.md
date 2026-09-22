@@ -64,13 +64,14 @@ OMP catalog에는 이를 복사하지 않습니다.
 ### Code Intelligence MCP
 
 `plugins/code-intelligence/.codex-plugin/plugin.json`의 `mcpServers: "./codex-mcp.json"`은 Codex에서
-native LSP가 없을 때 가능한 fallback entrypoint입니다. `codex-mcp.json`은 plugin-relative
-`scripts/launch-mcpls.py`만 실행하고 cwd를 고정하지 않습니다.
+native LSP가 없을 때 가능한 fallback entrypoint입니다. `codex-mcp.json`은 installed plugin의
+relative cwd에서 `scripts/launch-mcpls.py`를 실행합니다.
 
 Launcher는 PATH의 exact `mcpls 0.6.0`, canonical current directory와 별도 language server를 요구하며
 network install이나 version fallback을 수행하지 않습니다. `MCPLS_CONFIG`는 package의 absolute config,
 `MCPLS_TRUST_PROJECT_CONFIG=false`, JSON warning log로 고정됩니다. secret 값을 manifest/env에 넣지
-않습니다. workspace trust 확인 전에는 시작하지 않습니다.
+않습니다. Codex는 plugin load 때 MCP를 초기화할 수 있으므로 trust 확인 전 semantic tool 호출을
+금지합니다.
 
 OMP는 이 MCP metadata를 사용하지 않고 host-native `lsp`를 사용합니다. prerequisite가 없으면 semantic
 operation은 `blocked`이며 text search로 definition/reference 결과를 모사하지 않습니다.
