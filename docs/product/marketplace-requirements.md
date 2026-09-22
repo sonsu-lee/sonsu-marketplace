@@ -1,50 +1,42 @@
 # 마켓플레이스 요구사항
 
 - Status: Current
-- Last reviewed: 2026-09-03
+- Last reviewed: 2026-09-23
 
 ## 목표
 
-개인적으로 사용할 Codex 플러그인을 발견, 설치하고 업데이트할 수 있는 로컬 마켓플레이스를
-Git으로 관리합니다. 외부 플러그인의 원본 기준선과 개인용 정책 변경을 모두 추적할 수 있어야
-합니다.
+Codex와 OMP의 host baseline 위에 필요한 domain judgment와 external artifact contract만 독립 설치하는
+로컬 Git marketplace를 유지합니다. 출처·license·runtime prerequisite와 host별 load 결과를 추적합니다.
 
 ## 요구사항
 
-- 마켓플레이스는 저장소 루트에서 Codex에 등록할 수 있어야 합니다.
-- 각 플러그인은 독립된 디렉터리와 유효한 `.codex-plugin/plugin.json`을 가져야 합니다.
-- 각 플러그인의 핵심 기능은 다른 마켓플레이스 플러그인의 설치나 선행 실행 없이 동작해야 합니다.
-- 외부 플러그인은 저장소, 기준 commit, 라이선스와 포함 범위를 기록해야 합니다.
-- 최초 원본 가져오기와 로컬 커스텀은 별도 commit으로 구분해야 합니다.
-- 기존 linked worktree에서는 새 worktree를 중복 생성하지 않아야 합니다.
-- 새 장기 문서를 만들기 전에 기존 문서를 조사해야 합니다.
-- 문서 작성과 Git commit은 사용자의 권한 범위를 분리해야 합니다.
-- 검증은 변경 성격에 비례해야 하며 실제 Codex 로딩이 중요한 경우 정적 검사만으로 대체하지 않습니다.
-- 외부 design provider를 사용하는 스킬은 현재 tool capability와 permission을 확인하고 screenshot,
-  구조 readback과 실행 가능한 interaction evidence를 서로 대신하지 않아야 합니다.
-- Figma Design의 제품 화면·prototype, FigJam의 협업 board, draw.io의 system diagram은 최종 artifact의
-  source of truth를 기준으로 구분하고 지원되지 않는 기능을 다른 도구로 조용히 전환하거나 성공으로
-  보고하지 않아야 합니다.
-- Figma canvas agent mutation은 registered official Figma MCP가 단독으로 수행하며, `use_figma` 호출은
-  `figma:figma-use` prerequisite와 현재 capability를 확인해야 합니다. 같은 page subtree, component set,
-  variable collection, prototype graph와 editor state의 write는 충돌 도메인별로 직렬화하고 적용 직전
-  target을 다시 읽어야 합니다.
-- 수동 Figma Desktop companion은 versioned allowlist JSON, explicit node ID, expected state, same-plan
-  preview receipt와 apply-time readback을 요구합니다. local companion을 agent-callable bridge 또는 두 번째
-  canvas writer로 제공하지 않습니다.
-- Skill은 session model과 reasoning effort를 자동 변경하지 않으며 model 비교, live canvas 평가와
-  Figma Desktop import는 범위·비용·mutation 권한을 별도로 승인받아야 합니다.
-- 비밀 값은 저장소에 저장하지 않습니다.
+- Codex와 OMP catalog는 exact 10개 plugin을 같은 이름과 `1.0.0` version으로 제공해야 합니다.
+- 두 host는 exact 31개 공통 skill을 읽어야 하며 OMP skill name은 전역으로 유일해야 합니다.
+- 각 plugin은 다른 marketplace plugin, router, setup skill, hook, fixed model roster나 continuity engine 없이
+  핵심 기능을 수행해야 합니다.
+- 일반 구현·debugging·test·Git·웹 조사·문장 교정·memory·session resume는 host baseline에 남깁니다.
+- 외부 파일은 repository, exact commit, license와 포함 범위를 기록합니다. consulted-only 자료와 runtime
+  dependency는 재배포 material과 구분합니다.
+- Code Intelligence는 Codex에서만 pinned mcpls fallback metadata를 선언하고 OMP에서는 native LSP를
+  사용해야 합니다. installer, trust bypass, secret 또는 user-specific path를 포함하지 않아야 합니다.
+- Figma connector metadata는 Codex에만 선언하고 OMP에서는 current host가 노출한 official capability를
+  사용해야 합니다. capability가 없으면 다른 API/writer를 추정하지 않아야 합니다.
+- package 선택은 code edit, remote ticket/PR, review 게시, rename 또는 canvas mutation 권한을 만들지 않아야 합니다.
+- 정적 계약, model-free native loader와 behavior smoke를 분리해 검증해야 합니다. 미실행을 성공으로
+  표시하지 않고 blocker를 기록해야 합니다.
+- raw prompt export나 collector endpoint를 marketplace default로 켜지 않아야 합니다. host와 operator가
+  log retention/export/deletion을 소유해야 합니다.
+- secret을 repository에 저장하지 않아야 합니다.
 
 ## 제외 범위
 
-- 공개 마켓플레이스 운영
-- 다른 사용자를 위한 자동 배포와 호스팅
-- 사용자 계정의 플러그인 자동 설치 또는 활성화
-- 사용자의 요청이 없는 원격 push, PR, merge와 배포
-- 실제 충돌 근거가 없는 플러그인 간 hard dependency와 공통 router
+- 공개 marketplace hosting과 사용자 계정의 자동 install/activation
+- host baseline을 다시 구현하는 general engineering/research/writing/memory package
+- 삭제한 package 이름의 alias, wrapper 또는 deprecated path
+- 요청 없는 commit, push, PR/issue/review 게시, deploy와 Figma mutation
+- cache, `.sonsu/continuity`와 `.engineering` artifact의 자동 이동·삭제
 
 ## 완료 기준
 
-등록된 플러그인의 출처와 로컬 차이를 저장소에서 찾을 수 있고, 로컬 마켓플레이스를 Codex가
-실제로 읽을 수 있으며, 관련 문서와 Git 이력이 현재 정책을 정확히 설명해야 합니다.
+catalog/manifest/path/version/inventory 정적 계약, Codex·OMP native loader 결과와 대표 routing/behavior 결과가
+각각 evidence로 남고, package README·migration·license 문서가 현재 major cutover를 설명해야 합니다.

@@ -1,77 +1,82 @@
 # 플러그인 매니페스트 참조
 
-이 문서는 Sonsu Marketplace에서 사용하는 Codex 로컬 규칙을 설명합니다. 전체 Codex 형식의
-대체 문서가 아니며, 새 필드를 추가할 때에는 현재 공식 문서와 실제 로더 결과를 확인합니다.
+이 문서는 Sonsu Marketplace의 로컬 계약입니다. 공식 Codex/OMP 형식을 대체하지 않으며 새 field는
+현재 host 문서와 model-free loader 결과를 함께 확인합니다.
 
-## 파일 위치
+## 파일 위치와 정본
 
 ```text
-.agents/plugins/marketplace.json                 # 정본 marketplace catalog
-plugins/<plugin-name>/.codex-plugin/plugin.json  # 정본 plugin manifest
+.agents/plugins/marketplace.json                 # Codex catalog
+.omp-plugin/marketplace.json                     # OMP name/version/path projection
+plugins/<name>/.codex-plugin/plugin.json         # package manifest
+plugins/<name>/skills/<skill>/SKILL.md            # 두 host 공통 skill
 ```
 
-Codex 형식을 저장소의 정본으로 유지합니다. `interface`, `apps`, `hooks`는 각 필드를 지원하는
-Codex 로더에서만 실제 소비 결과를 확인합니다.
+Folder, manifest, 두 catalog의 `name`은 같고 현재 10개 manifest version은 모두 `1.0.0`입니다. Codex
+`source.path`는 repository root 기준 `./plugins/<name>`, OMP `source`는 `metadata.pluginRoot` 기준
+`./<name>`입니다.
 
-## 현재 사용하는 필드
+## 현재 사용하는 manifest field
 
-| 필드 | 용도 | 로컬 규칙 |
-| --- | --- | --- |
-| `name` | 플러그인 식별자 | 폴더명과 marketplace 항목 이름에 맞춤 |
-| `version` | 플러그인 버전 | 단일 upstream fork는 `<upstream>-sonsu.<revision>`, 여러 source를 합성하거나 새로 설계한 plugin은 독립 semantic version 사용 |
-| `description` | 기능 설명 | 실제 제공 범위만 기술 |
-| `author` | 현재 배포·유지관리 주체 | 로컬 fork는 로컬 주체를 표시하고 원저작자와 저작권은 `LICENSE`와 `UPSTREAM.md`에 보존 |
-| `homepage`, `repository` | 현재 배포본의 공개 위치 | 유지되는 로컬 공개 위치가 없으면 생략하고 원본 링크는 `UPSTREAM.md`에 기록 |
-| `license` | 라이선스 식별자 | 포함한 라이선스 파일과 일치 |
-| `skills` | 스킬 디렉터리 | 매니페스트 기준 상대 경로 사용 |
-| `hooks` | hook 선언 | plugin-relative `./hooks/hooks.json`; 실제 로더 노출과 hook 실행·신뢰를 별도 검증 |
-| `interface` | Codex UI 메타데이터 | 표시 이름, 설명, 아이콘과 기능 범위 정의 |
-| `apps` | 등록된 Codex connector 선언 | plugin-relative `.app.json`만 가리키며, connector ID와 실제 노출은 Codex가 소유 |
+| Field | 계약 |
+| --- | --- |
+| `name` | folder와 catalog entry에 일치 |
+| `version` | 현재 major cutover의 exact `1.0.0` |
+| `description` | 실제 package 책임과 negative boundary |
+| `author` | 현재 배포·유지관리 주체; 원저작권은 license/UPSTREAM에 보존 |
+| `license` | 실제 포함한 license file과 일치할 때만 사용 |
+| `skills` | package-relative skill directory array |
+| `apps` | Codex-only connector metadata; 현재 Figma Workflow만 사용 |
+| `mcpServers` | Codex-only MCP declaration; 현재 Code Intelligence만 사용 |
+| `interface` | 지원 host의 표시 metadata |
 
-Engineering은 독립 플러그인으로 관리하므로 `1.0.0`부터 독립 semantic version을 사용하고
-upstream 기준선이나 이전 호환 경로를 매니페스트 계약으로 두지 않습니다. MIT 고지는
-[`LICENSE`](../../plugins/engineering/LICENSE)에 보존합니다.
+Marketplace-owned `hooks`는 없습니다. 공통 router, setup, continuity, evidence gate 또는 model policy를
+manifest에 선언하지 않습니다.
 
-## 마켓플레이스 연결
-
-`.agents/plugins/marketplace.json`의 `source.path`는 마켓플레이스 JSON이 있는 디렉터리가
-아니라 저장소 루트를 기준으로 합니다.
+## Marketplace entry
 
 ```json
 {
-  "name": "engineering",
+  "name": "code-review",
   "source": {
     "source": "local",
-    "path": "./plugins/engineering"
-  }
+    "path": "./plugins/code-review"
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "category": "Developer Tools"
 }
 ```
 
-정적 validator와 Codex 실제 런타임이 지원하는 필드가 다를 수 있습니다. `profiles.json`에 등록된 플러그인은
-`hooks: "./hooks/hooks.json"`으로 작업 연속성 hook을 포함합니다. `plugin/read`, `skills/list`와
-`hooks/list`로 패키지·스킬·event·matcher를 확인하고, 실제 실행은 별도로 관찰합니다.
-설치만으로 hook이 신뢰되지는 않으며 현재 정의를 사용자가 검토해야 합니다. 정확한 동작과
-수동 복구는 [작업 연속성 계약](task-continuity.md)을 따릅니다.
+Code Intelligence도 `installation: AVAILABLE`이며 catalog 등록이 설치·실행·workspace trust를 자동
+승인하지 않습니다.
 
-Catalog의 각 local `source.path`는 해당 `plugins/<plugin-name>` 디렉터리를 가리켜야 합니다.
-Codex의 실제 `plugin/read`, `skills/list`, `hooks/list` 검증은 정적 JSON 검사와 별개의 관찰 결과로 기록합니다.
+## Codex-only metadata
 
-## Figma Workflow connector와 companion 경계
+### Figma apps
 
-`plugins/figma-workflow/.codex-plugin/plugin.json`은 `apps: "./.app.json"`으로 등록된 official
-Figma connector를 참조합니다. `.app.json`의 실제 shape는 다음과 같습니다.
+`plugins/figma-workflow/.codex-plugin/plugin.json`의 `apps: "./.app.json"`은 registered connector를
+찾는 metadata입니다. OAuth, seat, capability 또는 canvas mutation 권한을 부여하지 않습니다.
+OMP catalog에는 이를 복사하지 않습니다.
 
-```json
-{ "apps": { "figma": { "id": "connector_68df038e0ba48191908c8434991bbac2" } } }
-```
+### Code Intelligence MCP
 
-이 선언은 Codex가 connector를 찾는 metadata이며 OAuth, seat, capability 또는 canvas mutation 권한을
-부여하지 않습니다. 실제 `use_figma` 호출은 installed official contract의 `figma:figma-use`
-prerequisite를 먼저 적용하고, capability가 없으면 `blocked`, `inconclusive` 또는 `not_run`으로
-상태를 구분합니다.
+`plugins/code-intelligence/.codex-plugin/plugin.json`의 `mcpServers: "./codex-mcp.json"`은 Codex에서
+native LSP가 없을 때 가능한 fallback entrypoint입니다. `codex-mcp.json`은 plugin-relative
+`scripts/launch-mcpls.py`만 실행하고 cwd를 고정하지 않습니다.
 
-`plugins/figma-workflow/figma-plugin/manifest.json`은 Figma Desktop에서 사용자가 직접 import하는
-development companion manifest입니다. 이는 Codex plugin manifest나 agent-callable MCP bridge가 아니며,
-manual companion은 registered connector와 별개의 두 번째 writer가 아닙니다. companion은 versioned
-allowlist JSON만 받고 network access를 허용하지 않으며, mutation 전에 explicit target·preview receipt·
-apply-time readback을 요구합니다.
+Launcher는 PATH의 exact `mcpls 0.6.0`, canonical current directory와 별도 language server를 요구하며
+network install이나 version fallback을 수행하지 않습니다. `MCPLS_CONFIG`는 package의 absolute config,
+`MCPLS_TRUST_PROJECT_CONFIG=false`, JSON warning log로 고정됩니다. secret 값을 manifest/env에 넣지
+않습니다. workspace trust 확인 전에는 시작하지 않습니다.
+
+OMP는 이 MCP metadata를 사용하지 않고 host-native `lsp`를 사용합니다. prerequisite가 없으면 semantic
+operation은 `blocked`이며 text search로 definition/reference 결과를 모사하지 않습니다.
+
+## 검증
+
+정적 검사로 catalog parity, path, version, skill inventory, unsafe config와 host-specific metadata를
+확인합니다. Codex `plugin/read`, `skills/list`, `hooks/list`와 OMP disposable marketplace discovery를
+별도 model-free probe로 관찰합니다. JSON parse 성공을 native load 성공으로 보고하지 않습니다.

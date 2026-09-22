@@ -2,139 +2,98 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-A collection of Codex and Oh My Pi plugins for development, research, product planning, and writing.
-Install the plugins you need, then work with your coding agent as usual.
+Thin capability packs for Codex and Oh My Pi (OMP). The host owns general planning, implementation,
+debugging, testing, Git, web research, editing, continuity, and memory. Install only the domain judgment or
+external-artifact capability you need.
 
-[Installation](#installation) · [Plugins](#plugins) · [Usage examples](#usage-examples) · [Documentation](docs/README.md)
-
-## Installation
+## Install
 
 ### Codex
 
-Register the marketplace using a Codex CLI version that supports `codex plugin`.
-
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
-```
-
-Install a plugin that fits your work. For example, use Engineering for software development:
-
-```sh
-codex plugin add engineering@sonsu-marketplace
-```
-
-To install another plugin, use its installation name from the table below. For example, to install Workflow:
-
-```sh
-codex plugin add workflow@sonsu-marketplace
-```
-
-Start a new Codex task after installation. To list the plugins in the marketplace, run:
-
-```sh
+codex plugin add code-review@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
 ### Oh My Pi
 
-In Oh My Pi (OMP), register the OMP catalog and install each plugin at project or user scope:
-
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-omp plugin install --scope project engineering@sonsu-marketplace
-```
-
-List the available plugins with:
-
-```sh
+omp plugin install --scope project code-review@sonsu-marketplace
 omp plugin discover sonsu-marketplace
 ```
 
-OMP loads the shared `skills/` tree from each plugin and exposes unprefixed skill names such as
-`review-quality`. Codex-specific hooks and app connections declared under `.codex-plugin` do not run
-in OMP; those automation surfaces still require Codex.
+Choose `code-review`, `workflow`, `code-intelligence`, `product`, or a UI pack for the requested outcome.
+General feature work, debugging, tests, branches/commits, web research, language editing, and session resume
+do not require a marketplace plugin.
+
+`code-intelligence` never runs an installer. Codex requires an exact `mcpls 0.6.0` and the relevant language
+server on PATH, installed separately. OMP uses its native `lsp` capability and a language server; it does not
+start the mcpls MCP. Language servers can execute project code or configuration, so enable the pack only in a
+trusted workspace. Missing prerequisites produce `blocked`, never a text-search approximation.
 
 ## Plugins
 
-| Plugin | Purpose | Installation name |
+Every plugin is version `1.0.0`.
+
+| Plugin | Purpose | Skills |
 | --- | --- | --- |
-| [Engineering](plugins/engineering/README.md) | Design, implement, verify, simplify, and review software changes | `engineering` |
-| [Workflow](plugins/workflow/) | Work with Git branches, commits, pushes, tickets, and GitHub PRs | `workflow` |
-| [Fluent Languages](plugins/fluent-languages/) | Write natural Korean, Japanese, and English while preserving technical content | `fluent-languages` |
-| [Writing](plugins/writing/) | Select information, choose where it belongs, and organize writing for the reader and purpose | `writing` |
-| [Research](plugins/research/README.md) | Research multiple sources, verify facts, and write answers supported by evidence | `research` |
-| [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, and the OpenAI API | `prompting` |
-| [Product](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | `product` |
-| [Figma Workflow](plugins/figma-workflow/README.md) | Create Figma product screens and clickable prototypes, and review design quality | `figma-workflow` |
-| [Memory Manager](plugins/memory-manager/README.md) | Review and curate coding-agent memories on explicit invocation | `memory-manager` |
-| [Interface Design](plugins/interface-design/README.md) | Web and mobile interface design, redesign, and information asset verification | `interface-design` |
-| [Operations UI](plugins/operations-ui/README.md) | Design, redesign, and audit state- and data-intensive B2B operational interfaces | `operations-ui` |
-| [Design Patterns](plugins/design-patterns/README.md) | Select patterns from observed design forces and review existing usage | `design-patterns` |
+| [Code Review](plugins/code-review/README.md) | Focused read-only review and explicit PR review | `review-pr`, `review-failure-modes`, `review-maintainability`, `review-operability`, `review-overengineering`, `audit-overengineering` |
+| [Code Intelligence](plugins/code-intelligence/README.md) | Semantic definitions, references, types, and renames | `semantic-code-intelligence` |
+| [Workflow](plugins/workflow/README.md) | Ticket/PR artifacts and provider readback | `inspect-prs`, `repair-pr`, `to-ticket`, `ticket-lifecycle`, `to-pr` |
+| [Developer Writing](plugins/developer-writing/README.md) | Evidence-based developer articles | `write-developer-blog` |
+| [Prompting](plugins/prompting/README.md) | Copy-ready prompt artifacts | `prompt-builder` |
+| [Product](plugins/product/README.md) | Discovery, evidence, domain rules, tests, and PRDs | `product-discovery`, `synthesize-product-evidence`, `product-domain-discovery`, `design-product-test`, `assess-product-test`, `to-prd` |
+| [Figma Workflow](plugins/figma-workflow/README.md) | Figma screens, prototypes, and audits | `figma-product-design`, `figma-prototype-flow`, `figma-design-audit` |
+| [Interface Design](plugins/interface-design/README.md) | General UI design and redesign | `design-interface`, `redesign-interface` |
+| [Operations UI](plugins/operations-ui/README.md) | Operations UI design, redesign, audit, and Figma flow | `design-operations-ui`, `redesign-operations-ui`, `audit-operations-ui`, `figma-operations-flow` |
+| [Design Patterns](plugins/design-patterns/README.md) | Pattern selection and explicit usage review | `select-design-patterns`, `review-pattern-usage` |
 
-Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
+Both hosts load the same 31 skills. Only Codex declares the Figma `apps` metadata and Code Intelligence
+`codex-mcp.json`; the OMP catalog contains neither connector declaration.
 
-Writing selects and places information and organizes the text, Fluent Languages handles language-specific
-expression, Workflow handles templates and publication for new tickets and PRs, and Engineering publishes
-review results on existing PRs. See the
-[skill routing documentation](docs/architecture/skill-routing.md) for how to use them together.
+## Examples
 
-## Usage examples
+- “Review reachable failure modes in this change.” → `code-review:review-failure-modes`
+- “`$review-pr` review this PR with three independent reviewers and post one COMMENT.” → explicit `review-pr`
+- “Find this symbol's definition and every reference through LSP.” → `semantic-code-intelligence`
+- “Repair this PR's CI failure.” → `workflow:repair-pr`
+- “Turn the approved decisions into a PRD draft.” → `product:to-prd`
 
-After installing the relevant plugin, try requests like these in Codex or OMP:
+A general “review this code” request uses host-native review and does not auto-select `review-pr`.
 
-| Plugin | Example request |
-| --- | --- |
-| Engineering | “Fix and verify this bug, or review the current diff for unnecessary abstractions and reachable failure paths.” |
-| Workflow | “Commit the current changes and create a Draft PR.” |
-| Fluent Languages | “Make this Japanese technical explanation read naturally while preserving its meaning and code identifiers.” |
-| Writing | “Select and summarize what the README needs from this material, and update the existing documents with the details.” |
-| Research | “Compare the pricing and limits of these two services using official sources.” |
-| Prompting | “Improve this prompt so I can use it directly in Codex.” |
-| Product | “Extract the user problems and supporting evidence from these interview notes.” |
-| Figma Workflow | “Review the Auto Layout and prototype connections in this Figma screen.” |
-| Memory Manager | Codex: “`$memory-manager` Review the Codex memories for this project.” / OMP: “`/skill:memory-manager` Review the Codex memories for this project.” |
-| Interface Design | “Design a mobile signup flow and improve the chart presentation.” |
-| Operations UI | “Implement this order-operations screen from a Design Decision Contract and verify it with DQ gates and browser evidence.” |
-| Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
+## Major migration
 
-Codex and OMP select skills based on your request and the descriptions of installed skills.
-Memory Manager runs only when explicitly invoked with `$memory-manager` in Codex or `/skill:memory-manager` in OMP.
+The removed names have no aliases or wrappers. Remove old installations, then install only the new packs you
+need.
 
-Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
-Figma Workflow requires the official Figma MCP connection and the tool's prerequisite skills for canvas operations.
-See each plugin's documentation for setup and tool requirements.
+```sh
+codex plugin remove engineering@sonsu-marketplace
+codex plugin remove research@sonsu-marketplace
+codex plugin remove fluent-languages@sonsu-marketplace
+codex plugin remove memory-manager@sonsu-marketplace
+codex plugin remove writing@sonsu-marketplace
 
-## Updates
+omp plugin uninstall --scope <scope> engineering@sonsu-marketplace
+omp plugin uninstall --scope <scope> research@sonsu-marketplace
+omp plugin uninstall --scope <scope> fluent-languages@sonsu-marketplace
+omp plugin uninstall --scope <scope> memory-manager@sonsu-marketplace
+omp plugin uninstall --scope <scope> writing@sonsu-marketplace
+```
 
-In Codex, fetch the latest snapshot of the registered Git marketplace:
+Existing caches, `.sonsu/continuity`, and `.engineering` artifacts are not moved or deleted automatically.
+
+## Update
 
 ```sh
 codex plugin marketplace upgrade sonsu-marketplace
-```
-
-In OMP, refresh the catalog and then upgrade an installed plugin:
-
-```sh
 omp plugin marketplace update sonsu-marketplace
-omp plugin upgrade --scope project engineering@sonsu-marketplace
+omp plugin upgrade --scope project code-review@sonsu-marketplace
 ```
 
-Start a new Codex task after an update. In OMP, run `/reload-plugins` or restart the session to load the latest skills.
+Start a new Codex task or run OMP `/reload-plugins` after updating.
 
-If you installed `fluent-languages` from another marketplace or standalone copies of `prompt-builder`,
-`product-discovery`, or `to-prd`, remove those copies first to avoid duplicate skill names.
-
-## Development and contributing
-
-The [plugin development guide](docs/guides/adding-a-plugin.md) covers local setup, modifying and adding
-plugins, and validation. The detailed guides below are maintained in Korean.
-
-- [Architecture overview](docs/architecture/overview.md) — Repository structure and loading boundaries
-- [Upstream update runbook](docs/runbooks/updating-upstream-plugin.md) — Update upstream content while keeping local changes separate
-- [Evaluation tools](evals/) — Validate language output, skill routing, and plugin quality
-- [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues) — Bug reports and improvement suggestions
-
-## Licenses and sources
-
-No license is currently declared for the repository as a whole. Check the terms and original notices for
-each plugin in [Licenses and sources by plugin](docs/reference/licenses-and-sources.md) (Korean).
+See [documentation](docs/README.md), the [plugin guide](docs/guides/adding-a-plugin.md), and
+[licenses and sources](docs/reference/licenses-and-sources.md). The repository has no single root license;
+check each package's terms and provenance.

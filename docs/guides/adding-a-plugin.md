@@ -1,118 +1,94 @@
 # 플러그인 개발·수정·추가하기
 
-플러그인을 로컬에서 수정하고 검증하거나 새 플러그인을 마켓플레이스에 추가하는 절차입니다.
-구성 요소와 로딩 경계는 [아키텍처 개요](../architecture/overview.md), 외부 원본을 갱신하는
-절차는 [업스트림 업데이트 런북](../runbooks/updating-upstream-plugin.md)을 참고하세요.
+Sonsu Marketplace의 얇은 capability pack을 로컬에서 수정하고 검증하는 절차입니다. 현재 구조는
+[아키텍처](../architecture/overview.md), field 계약은 [manifest 참조](../reference/plugin-manifest.md),
+외부 원본 업데이트는 [upstream runbook](../runbooks/updating-upstream-plugin.md)을 참고합니다.
 
-## 로컬 개발 환경
+## 먼저 확인할 것
 
-저장소를 clone하고 사용하는 에이전트에서 로컬 마켓플레이스로 등록합니다.
+1. 요청이 host baseline으로 이미 해결되는지 확인합니다. 일반 구현·debugging·test·Git·웹 조사·문장
+   교정·memory·continuity를 plugin으로 다시 만들지 않습니다.
+2. domain judgment 또는 external artifact boundary가 독립 package를 정당화하는지 확인합니다.
+3. 이름, exact upstream commit/runtime version, 포함 범위와 license를 확인합니다.
+4. 다른 plugin 설치, router, setup skill, hook 또는 fixed model roster 없이 동작하도록 설계합니다.
+
+## 로컬 등록
 
 ```sh
 git clone https://github.com/sonsu-lee/sonsu-marketplace.git
 cd sonsu-marketplace
-```
-
-Codex에서는 `codex plugin` 명령을 지원하는 CLI를 사용합니다.
-
-```sh
 codex plugin marketplace add .
-codex plugin list --marketplace sonsu-marketplace
-```
-
-OMP에서는 로컬 OMP 카탈로그를 등록합니다.
-
-```sh
+# 또는
 omp plugin marketplace add .
-omp plugin discover sonsu-marketplace
 ```
 
-GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용하므로 한 환경에서는 한 가지
-방식으로 등록합니다. 실제 등록·설치 검증에는 기존 사용자 설정과 분리된 환경을 사용하세요.
-플러그인 설치와 설치 후 스킬 목록을 다시 불러오는 방법은 [루트 README](../../README.md#설치)에 있습니다.
+기존 사용자 설정과 분리한 disposable HOME/profile에서 실제 등록·설치 probe를 수행합니다.
 
-## 기존 플러그인 수정
+## Package 구조
 
-1. 해당 플러그인의 README와 매니페스트에서 수정할 스킬·hook·script의 진입점을 확인합니다.
-   외부 원본이 포함되어 있으면 `UPSTREAM.md`에서 원본과 로컬 변경의 경계를 확인합니다.
-2. 수정 대상의 정본을 갱신합니다. Fluent Languages는 각 `skills/fluent-<language>/SKILL.md`와
-   해당 스킬의 참고 자료를 직접 편집합니다. 언어 사이에 공통 원본을 주입하지 않습니다.
-3. 변경한 동작에 맞는 평가를 [evals/](../../evals/)에서 선택하고 아래 검증을 실행합니다.
-   사용법·계약·개발 절차가 달라졌다면 [문서 배치 기준](../README.md)에 따라 담당 문서를 갱신합니다.
+```text
+plugins/<name>/
+  .codex-plugin/plugin.json
+  README.md
+  skills/<skill>/SKILL.md
+  UPSTREAM.md                 # 외부 source/runtime/consulted material이 있을 때
+```
 
-## 새 플러그인 추가
+공통 skill은 두 host에서 읽을 수 있어야 합니다. Codex-only `apps`/`mcpServers`는 manifest에만 선언하고
+OMP catalog로 투영하지 않습니다. secret, user-specific absolute path, network installer와 unsafe trust
+bypass를 package config에 넣지 않습니다.
 
-### 사전 조건
+외부 파일을 포함하면 source path, exact commit, 최종 path와 license를 기록합니다. 아이디어만 참고하면
+`consulted-only`로 표시하고 재배포 license를 주장하지 않습니다. 실행 파일 dependency는 자동 download
+대신 exact version guard와 deterministic failure를 제공합니다.
 
-- 추가할 플러그인의 이름, 출처와 라이선스를 확인합니다.
-- 외부 플러그인이면 가져올 정확한 tag 또는 commit을 선택합니다.
-- 기존 `plugins/`, `.agents/plugins/marketplace.json`과 `.omp-plugin/marketplace.json`에서 같은 이름이 없는지 확인합니다.
+## Catalog 등록
 
-### 절차
-
-1. `plugins/<plugin-name>/`을 만들고 `.codex-plugin/plugin.json`을 작성합니다.
-2. 필요한 구성 요소만 추가합니다. 스킬은 `skills/<skill-name>/SKILL.md`에 두고 매니페스트가
-   해당 경로를 가리키게 합니다.
-3. 외부 플러그인은 원본 파일과 실행 권한을 검증하고 `UPSTREAM.md`에 출처, 기준 commit,
-   버전, 라이선스와 포함 범위를 기록합니다.
-4. `.agents/plugins/marketplace.json`과 `.omp-plugin/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
+`.agents/plugins/marketplace.json`에는 root-relative `./plugins/<name>`,
+`.omp-plugin/marketplace.json`에는 `metadata.pluginRoot`-relative `./<name>`을 등록합니다. folder, 두 entry,
+manifest의 이름과 version이 일치해야 합니다.
 
 ```json
 {
   "name": "my-plugin",
-  "source": {
-    "source": "local",
-    "path": "./plugins/my-plugin"
-  },
-  "policy": {
-    "installation": "AVAILABLE",
-    "authentication": "ON_INSTALL"
-  },
+  "source": { "source": "local", "path": "./plugins/my-plugin" },
+  "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
   "category": "Productivity"
 }
 ```
 
-OMP 카탈로그에는 Codex 매니페스트와 같은 이름·버전, OMP plugin root 기준 경로를 기록합니다.
-
 ```json
 {
   "name": "my-plugin",
-  "description": "플러그인의 책임",
+  "description": "실제 책임과 경계",
   "version": "1.0.0",
   "source": "./my-plugin",
   "category": "productivity"
 }
 ```
 
-폴더명, 플러그인 매니페스트와 두 마켓플레이스 항목의 `name`은 같아야 합니다.
-Codex `source.path`는 저장소 루트 기준이며, OMP `source`는
-`.omp-plugin/marketplace.json`의 `metadata.pluginRoot` 기준입니다.
-`.agents/plugins/marketplace.json`과 plugin별 `.codex-plugin/plugin.json`이 Codex 패키지의
-정본이고, `.omp-plugin/marketplace.json`은 이름·버전·경로의 OMP projection입니다.
+## Skill 작성
+
+Description은 positive target과 negative trigger를 함께 적습니다. host-native fallback이 의미상 같은
+결과를 보장하지 않으면 검색이나 추정으로 성공을 모사하지 말고 `blocked`를 반환합니다. write/remote
+operation은 skill 선택과 별도 approval boundary로 둡니다. 자동 선택하지 않을 skill은 frontmatter의
+`allow_implicit_invocation: false`를 사용하고 실제 host registry에서 확인합니다.
 
 ## 검증
 
-저장소 루트에서 다음 정적 검사를 실행합니다.
-
 ```sh
-find .agents .omp-plugin plugins evals -name '*.json' -print0 \
-  | xargs -0 -n1 python3 -m json.tool >/dev/null
-python3 scripts/render-agent-policy.py --check
-python3 scripts/render-continuity.py --check
-python3 evals/language-style/eval.py validate
-python3 -m unittest -v evals/language-style/test_eval.py
+python3 scripts/render-design-quality.py --check
+python3 -B -m unittest discover -s evals/design-quality -p 'test_*.py' -v
+python3 -B -m unittest discover -s plugins/code-review/tests -p 'test_*.py' -v
+python3 -B -m unittest discover -s plugins/code-intelligence/tests -p 'test_*.py' -v
 python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v
-git diff --check
+python3 evals/plugin-compat/native_probe.py --output /absolute/evidence-directory
+python3 evals/skill-routing/native_smoke.py --help
 ```
 
-플러그인을 추가하거나 구조를 변경했다면 `<plugin-name>`을 해당 이름으로 바꿔 개별 패키지도 검사합니다.
+정적 JSON/path 검사, model-free native loader probe, ownership case와 representative behavior를 서로
+구분합니다. semantic behavior는 exact mcpls/language-server prerequisite가 있을 때만 실행합니다.
+실행하지 못한 검사를 성공으로 표시하지 않고 blocker와 host/tool version을 기록합니다.
 
-```sh
-python3 -m json.tool .agents/plugins/marketplace.json
-python3 -m json.tool .omp-plugin/marketplace.json
-python3 -m json.tool plugins/<plugin-name>/.codex-plugin/plugin.json
-```
-
-JSON 문법과 참조 경로를 확인한 뒤 가능한 경우 Codex와 OMP의 실제 플러그인 읽기 경로에서
-이름, 버전과 구성 요소 목록을 확인합니다. 정적 검증을 실제 로딩 성공으로 간주하지 않습니다.
-API 키와 토큰은 저장하지 않으며 필요한 환경 변수 이름만 `.env.example`에 기록합니다.
+변경 후 package README, root README, routing, catalog, evaluation fixture와 migration 문서를 함께
+갱신합니다. 제거한 이름에는 alias나 deprecated wrapper를 남기지 않습니다.

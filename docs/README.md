@@ -1,88 +1,50 @@
 # 문서 안내
 
-이 디렉터리는 마켓플레이스와 플러그인을 장기간 유지하는 데 필요한 지식을 보관합니다.
-구현 순서만 담은 작업 계획은 기본적으로 대화, 기존 이슈·티켓 또는 Git에서 제외된
-`.engineering/plans/`에 두며, 단지 계획이라는 이유로 `docs/`에 저장하지 않습니다.
+이 디렉터리는 marketplace와 capability pack을 장기간 유지하는 지식을 보관합니다. 구현 순서만 있는
+계획은 대화, 기존 issue/ticket 또는 사용자가 지정한 위치에 두며 단지 계획이라는 이유로 `docs/`에
+추가하지 않습니다.
 
 ## 문서 배치 기준
 
-| 질문 | 위치 | 변경 방식 |
-| --- | --- | --- |
-| 시스템은 현재 어떻게 구성되어 있는가? | [`architecture/`](architecture/) | 현재 상태에 맞춰 갱신 |
-| 왜 이 선택을 했고 어떤 대안을 포기했는가? | [`decisions/`](decisions/) | 기존 기록을 보존하고 새 결정으로 대체 |
-| 무엇을 만들며 성공 조건은 무엇인가? | [`product/`](product/) | 제품 범위가 바뀔 때 갱신 |
-| 특정 목표를 어떻게 달성하는가? | [`guides/`](guides/) | 절차가 바뀔 때 갱신 |
-| 정확한 형식, 필드와 계약은 무엇인가? | [`reference/`](reference/) | 구현과 일치하도록 갱신 |
-| 반복 작업을 어떻게 실행, 검증하고 복구하는가? | [`runbooks/`](runbooks/) | 실제 실행 가능성을 유지 |
-| 조사 코퍼스와 분석 방법은 무엇인가? | [`research/`](research/) | 원자료 상태와 검증 수준을 분리해 갱신 |
+| 질문 | 위치 |
+| --- | --- |
+| 현재 구조와 routing은 무엇인가? | [`architecture/`](architecture/) |
+| 왜 이 선택을 했는가? | [`decisions/`](decisions/) |
+| 제품 범위와 성공 조건은 무엇인가? | [`product/`](product/) |
+| 목표를 어떻게 수행하는가? | [`guides/`](guides/) |
+| 정확한 field와 계약은 무엇인가? | [`reference/`](reference/) |
+| 반복 유지보수 절차는 무엇인가? | [`runbooks/`](runbooks/) |
+| 조사 corpus와 분석 방법은 무엇인가? | [`research/`](research/) |
 
-이후에도 찾아볼 정보인지 먼저 판단한 뒤 `README.md`, `CONTEXT.md`, `docs/**`, 기존 이슈와
-티켓에서 해당 주제를 담당하는 위치를 확인합니다. 이미 문서 목적·경로·갱신 범위를 정했다면
-그 결정을 이어받습니다. 관련 문서가 있으면 갱신하고, 독립된 읽기 목적이 있으며 기존 문서에
-적합한 자리가 없을 때 새 문서를 만듭니다. 두 위치가 모두 가능해 보이면 문서가 답해야 하는
-주된 질문으로 분류합니다. 작업 과정과 일회성 검사 결과는 작업 보고·PR·이슈에 남깁니다.
-
-루트 README에는 프로젝트의 용도, 주요 기능, 설치·첫 사용, 중요한 제약과 상세 문서를 찾는
-경로를 둡니다. 이 안내에 영향이 있을 때 README를 갱신하며, 작업을 완료했다는 이유만으로
-내용을 추가하지 않습니다. 상세 절차·설정·계약은 담당 문서에서 관리하고 README에는 필요한
-요약과 링크를 제공합니다. 짧은 설명으로 충분하면 README 안에서 완결할 수 있습니다.
-
-## 계획과 문서 처리
-
-설계 또는 구현 계획을 시작할 때 문서 영향을 다음 중 하나로 분류합니다.
-
-1. 문서 변경 없음
-2. 기존 문서 갱신
-3. 새 문서 생성
-4. 기존 결정 대체
-
-새 문서나 큰 문서 재구성이 필요하면 구현 전에 검토한 기존 문서, 제안 경로,
-목적과 예상 변경 범위를 사용자에게 제시합니다. 구현 계획은 기본적으로 대화에
-작성합니다. 파일이 필요한 실행 도구를 사용할 때에는 `.engineering/plans/<topic>.md`를
-사용합니다. 저장소가 이미 이슈·티켓 또는 다른 계획 위치를 사용하거나 사용자가 위치를
-지정하면 그 규칙을 우선합니다.
+현재 계약을 설명하는 문서는 구현과 함께 갱신합니다. 작업 log와 일회성 검사 결과는 task report,
+PR 또는 issue에 남깁니다. 새 문서는 독립된 읽기 목적이 있고 기존 정본에 맞는 위치가 없을 때만
+만듭니다.
 
 ## 승인 경계
 
-- 설계 승인은 문서 파일 작성 승인이 아닙니다.
-- 문서 작성 승인은 코드 구현 승인이 아닙니다.
-- 문서나 구현 승인은 Git 커밋 승인이 아닙니다.
-- 커밋은 현재 작업에서 사용자가 명시적으로 요청했거나 승인한 경우에만 수행합니다.
-- 한 번 승인한 범위 안에서는 같은 권한을 반복해서 묻지 않습니다.
-- push, PR 생성, merge와 배포는 커밋과 별개의 권한입니다.
+설계, 문서 작성, code edit, commit, push, PR/issue 게시와 deploy는 서로 다른 권한입니다. 한번 승인한
+현재 범위는 반복해서 묻지 않지만, 한 단계의 승인을 다음 remote action으로 확대하지 않습니다.
 
 ## 이름과 수명
 
-- 아키텍처, 제품, 가이드, 참조와 런북은 날짜가 없는 안정적인 주제 이름을 사용합니다.
-- 날짜가 필요하면 문서 안의 `Date` 또는 `Last reviewed`에 기록합니다.
-- 결정 기록은 `0001-<decision>.md` 형식의 순번을 사용합니다.
-- 대체된 결정은 내용을 지우지 않고 `Superseded` 상태와 새 결정 링크를 남깁니다. 다만
-  [0009 결정](decisions/0009-maintain-engineering-as-an-independent-plugin.md)처럼 사용자가 제거를
-  명시적으로 승인한 이전 플러그인 정체성을 직접 포함한 기록은 새 결정에 대상 번호, 삭제 이유와
-  현재 계약을 기록한 뒤 제거할 수 있습니다.
-- 실제 내용이 없는 폴더와 자리표시자 문서는 만들지 않습니다.
+아키텍처·가이드·참조·runbook은 날짜 없는 안정된 주제 이름을 사용합니다. 결정 기록은
+`NNNN-<decision>.md`이고 대체된 결정은 내용을 보존한 채 `Superseded`와 새 ADR 링크를 남깁니다.
+실제 내용이 없는 folder나 placeholder 문서는 만들지 않습니다.
 
 ## 현재 문서
 
 - [마켓플레이스 아키텍처](architecture/overview.md)
-- [플러그인 생명주기](architecture/plugin-lifecycle.md)
-- [스킬 라우팅](architecture/skill-routing.md)
+- [플러그인 생명주기와 observability](architecture/plugin-lifecycle.md)
+- [스킬 라우팅과 exact ownership](architecture/skill-routing.md)
 - [Interface Design과 디자인 책임](architecture/interface-design.md)
-- [플러그인 독립성과 runtime 라우팅 결정](decisions/0003-keep-plugins-independent.md)
-- [Research 독립성과 선택적 provider 결정](decisions/0004-keep-research-independent.md)
-- [Prompting 독립 플러그인 결정](decisions/0006-keep-prompting-independent.md)
-- [Engineering 단계별 quality gate 결정](decisions/0007-use-stage-owned-quality-gates.md)
-- [Product 독립 플러그인 결정](decisions/0008-add-product-plugin.md)
-- [Engineering 독립 플러그인 결정](decisions/0009-maintain-engineering-as-an-independent-plugin.md)
-- [Figma Workflow 플러그인 결정](decisions/0010-add-figma-workflow-plugin.md)
-- [이전 Engineering Fast Path와 plan-backed red-team 결정](decisions/0011-use-fast-path-and-plan-red-team-gates.md)
-- [Design Patterns 독립 플러그인 결정](decisions/0013-add-design-patterns-plugin.md)
-- [현재 Codex 전용 Engineering과 관리형 게이트 결정](decisions/0014-use-codex-managed-engineering.md)
+- [얇은 capability pack 결정](decisions/0015-use-thin-capability-packs.md)
 - [마켓플레이스 요구사항](product/marketplace-requirements.md)
-- [플러그인 개발·수정·추가 가이드](guides/adding-a-plugin.md)
-- [플러그인 매니페스트 참조](reference/plugin-manifest.md)
-- [플러그인별 라이선스와 출처](reference/licenses-and-sources.md)
-- [컴팩션 전후 작업 연속성 계약](reference/task-continuity.md)
-- [업스트림 플러그인 업데이트 런북](runbooks/updating-upstream-plugin.md)
-- [Madia Designer 디자인 실무 관찰 방법](research/madia-design-practice-method.md)
-- [Madia Designer 공개 영상 카탈로그](research/madia-design-practice-catalog.md)
+- [플러그인 개발·수정·추가](guides/adding-a-plugin.md)
+- [플러그인 manifest](reference/plugin-manifest.md)
+- [플러그인별 license와 source](reference/licenses-and-sources.md)
+- [upstream plugin 업데이트](runbooks/updating-upstream-plugin.md)
+- [Madia Designer 실무 관찰 방법](research/madia-design-practice-method.md)
+- [Madia Designer 공개 영상 catalog](research/madia-design-practice-catalog.md)
+
+ADR 0001–0014는 결정 당시의 구조를 보존합니다. `Superseded` ADR의 plugin path, model roster와 hook
+설명은 현재 실행 계약이 아닙니다.

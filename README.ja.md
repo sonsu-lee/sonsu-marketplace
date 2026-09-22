@@ -2,138 +2,97 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-開発、リサーチ、プロダクト企画、文章作成に使えるCodex・Oh My Piプラグイン集です。
-必要なプラグインを選んでインストールし、利用中のコーディングエージェントに作業を依頼してください。
-
-[インストール](#インストール) · [プラグイン](#プラグイン) · [使用例](#使用例) · [ドキュメント](docs/README.md)
+Codex と Oh My Pi（OMP）の標準的な計画・実装・デバッグ・検証の上に、ドメイン判断と外部
+artifact 契約だけを追加する薄い capability pack 集です。必要な pack だけをインストールします。
 
 ## インストール
 
 ### Codex
 
-`codex plugin` コマンドに対応したCodex CLIで、マーケットプレイスを登録します。
-
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
-```
-
-作業に必要なプラグインをインストールします。たとえば、ソフトウェア開発にはEngineeringを利用できます。
-
-```sh
-codex plugin add engineering@sonsu-marketplace
-```
-
-別のプラグインをインストールする場合は、下の表にあるインストール名に置き換えてください。Workflowの場合は次のとおりです。
-
-```sh
-codex plugin add workflow@sonsu-marketplace
-```
-
-インストール後は、新しいCodexタスクを開始してください。マーケットプレイスのプラグイン一覧は、次のコマンドで確認できます。
-
-```sh
+codex plugin add code-review@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
 ### Oh My Pi
 
-Oh My Pi（OMP）では、OMP用カタログを登録し、必要なプラグインをprojectまたはuser scopeにインストールします。
-
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-omp plugin install --scope project engineering@sonsu-marketplace
-```
-
-登録されたプラグインは次のコマンドで確認できます。
-
-```sh
+omp plugin install --scope project code-review@sonsu-marketplace
 omp plugin discover sonsu-marketplace
 ```
 
-OMPは各プラグインの共通`skills/`ツリーを読み込み、`review-quality`のようにprefixのないスキル名を
-公開します。`.codex-plugin`で宣言されたCodex専用hookとapp接続はOMPでは実行されないため、
-その自動化にはCodexが必要です。
+目的に応じて `code-review`、`workflow`、`code-intelligence`、`product`、UI pack を選びます。
+一般的な機能実装、デバッグ、テスト、branch/commit、Web 調査、文章校正、session 再開には
+marketplace plugin は不要です。
 
-## プラグイン
+`code-intelligence` は installer を実行しません。Codex では plugin とは別に PATH 上の exact
+`mcpls 0.6.0` と対象 language server が必要です。OMP は native `lsp` と language server を使い、
+mcpls MCP は起動しません。language server は project code/config を実行し得るため、信頼した
+workspace でだけ有効化してください。前提がなければ text search で推測せず `blocked` になります。
 
-| プラグイン | 用途 | インストール名 |
+## Plugin
+
+全 plugin の version は `1.0.0` です。
+
+| Plugin | 用途 | Skills |
 | --- | --- | --- |
-| [Engineering](plugins/engineering/README.md) | ソフトウェア変更の設計・実装・検証、簡素化、品質レビュー | `engineering` |
-| [Workflow](plugins/workflow/) | Gitのブランチ・コミット・プッシュ、チケット、GitHub PRの作成・管理 | `workflow` |
-| [Fluent Languages](plugins/fluent-languages/) | 技術的な内容を保った自然な韓国語・日本語・英語の文章作成 | `fluent-languages` |
-| [Writing](plugins/writing/) | 読み手と目的に合わせた情報の選別、記載先の判断、文章の構成 | `writing` |
-| [Research](plugins/research/README.md) | 複数の情報源の調査、事実確認、根拠に基づく回答の作成 | `research` |
-| [Prompting](plugins/prompting/README.md) | Codex・ChatGPT・OpenAI API向けプロンプトの作成・改善 | `prompting` |
-| [Product](plugins/product/README.md) | プロダクトのアイデア探索、ユーザーに関する根拠の整理、仮説検証、PRD作成 | `product` |
-| [Figma Workflow](plugins/figma-workflow/README.md) | Figmaでのプロダクト画面・クリック可能なプロトタイプの作成とデザイン品質のレビュー | `figma-workflow` |
-| [Memory Manager](plugins/memory-manager/README.md) | 明示的に呼び出してコーディングエージェントのメモリを点検・整理 | `memory-manager` |
-| [Interface Design](plugins/interface-design/README.md) | Web・アプリ画面の設計・再設計と情報表現の検証 | `interface-design` |
-| [Operations UI](plugins/operations-ui/README.md) | 状態とデータを扱うB2B運用画面の設計・再設計・品質監査 | `operations-ui` |
-| [Design Patterns](plugins/design-patterns/README.md) | 実際の設計上のforcesに基づくパターン選択と既存適用のレビュー | `design-patterns` |
+| [Code Review](plugins/code-review/README.md) | focused read-only review と明示的 PR review | `review-pr`, `review-failure-modes`, `review-maintainability`, `review-operability`, `review-overengineering`, `audit-overengineering` |
+| [Code Intelligence](plugins/code-intelligence/README.md) | semantic definition/reference/type/rename | `semantic-code-intelligence` |
+| [Workflow](plugins/workflow/README.md) | ticket/PR artifact と provider readback | `inspect-prs`, `repair-pr`, `to-ticket`, `ticket-lifecycle`, `to-pr` |
+| [Developer Writing](plugins/developer-writing/README.md) | 根拠に基づく開発者向け記事 | `write-developer-blog` |
+| [Prompting](plugins/prompting/README.md) | コピー可能な prompt artifact | `prompt-builder` |
+| [Product](plugins/product/README.md) | 探索・根拠・domain・検証・PRD | `product-discovery`, `synthesize-product-evidence`, `product-domain-discovery`, `design-product-test`, `assess-product-test`, `to-prd` |
+| [Figma Workflow](plugins/figma-workflow/README.md) | Figma 画面・prototype・audit | `figma-product-design`, `figma-prototype-flow`, `figma-design-audit` |
+| [Interface Design](plugins/interface-design/README.md) | 一般 UI の設計・再設計 | `design-interface`, `redesign-interface` |
+| [Operations UI](plugins/operations-ui/README.md) | 運用 UI の設計・再設計・audit・Figma flow | `design-operations-ui`, `redesign-operations-ui`, `audit-operations-ui`, `figma-operations-flow` |
+| [Design Patterns](plugins/design-patterns/README.md) | pattern 選択と明示的 usage review | `select-design-patterns`, `review-pattern-usage` |
 
-各プラグインは独立して利用できます。含まれるスキルや詳しい使い方は、上のリンクから確認してください。
-
-Writingは情報の選別・記載先の判断と文章の構成、Fluent Languagesは各言語の表現、
-Workflowはチケット・PRの新規作成に使うテンプレートと公開手順、Engineeringは既存PRへのレビュー結果の投稿を担当します。併用方法は
-[スキルルーティングのドキュメント](docs/architecture/skill-routing.md)を参照してください。
+両 host は同じ 31 skills を読み込みます。Figma `apps` と Code Intelligence `codex-mcp.json` を
+宣言するのは Codex だけで、OMP catalog には connector metadata を含めません。
 
 ## 使用例
 
-対応するプラグインをインストールしたら、CodexまたはOMPに次のように依頼できます。
+- 「この変更の到達可能な failure mode をレビューして」→ `review-failure-modes`
+- 「`$review-pr` で3人の独立 reviewer が確認し COMMENT を1件投稿して」→ explicit `review-pr`
+- 「この symbol の定義と全 reference を LSP で探して」→ `semantic-code-intelligence`
+- 「この PR の CI failure を修復して」→ `workflow:repair-pr`
+- 「承認済み決定を PRD draft にして」→ `product:to-prd`
 
-| プラグイン | 依頼の例 |
-| --- | --- |
-| Engineering | 「このバグを修正して検証するか、現在のdiffに不要な抽象化や到達可能な障害経路がないかレビューして。」 |
-| Workflow | 「現在の変更をコミットして、Draft PRを作成して。」 |
-| Fluent Languages | 「この日本語の技術説明を、意味とコードの識別子を保ちながら自然な文章に整えて。」 |
-| Writing | 「この資料からREADMEに必要な内容を選んで要約し、詳細は既存のドキュメントに反映して。」 |
-| Research | 「この2つのサービスの料金と制限を、公式資料に基づいて比較して。」 |
-| Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
-| Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
-| Figma Workflow | 「このFigma画面のAuto Layoutとプロトタイプの接続をレビューして。」 |
-| Memory Manager | Codex: 「`$memory-manager` このプロジェクトのCodexメモリを点検して。」 / OMP: 「`/skill:memory-manager` このプロジェクトのCodexメモリを点検して。」 |
-| Interface Design | 「モバイルの登録フローを設計して。このグラフの情報表現も改善して。」 |
-| Operations UI | 「この受注運用画面をDesign Decision Contractから実装し、DQゲートとブラウザーの証跡で検証して。」 |
-| Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
+一般的な「コードレビューして」は host-native review が処理し、`review-pr` は自動選択しません。
 
-CodexとOMPは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
-Memory Managerは、Codexでは`$memory-manager`、OMPでは`/skill:memory-manager`で明示的に呼び出したときだけ動作します。
+## Major migration
 
-ResearchのExa・Perplexity連携は任意です。利用可能なWebツール、ブラウザー、コネクター、ローカル資料でも調査できます。
-Figma Workflowでキャンバスを操作するには、公式Figma MCP接続と、そのツールで必須とされるスキルが必要です。
-設定方法と必要なツールは、各プラグインのドキュメントを参照してください。
+削除された名前の alias/wrapper はありません。旧 plugin を削除し、必要な新 pack だけを
+インストールしてください。
 
-## アップデート
+```sh
+codex plugin remove engineering@sonsu-marketplace
+codex plugin remove research@sonsu-marketplace
+codex plugin remove fluent-languages@sonsu-marketplace
+codex plugin remove memory-manager@sonsu-marketplace
+codex plugin remove writing@sonsu-marketplace
 
-Codexでは、登録済みのGitマーケットプレイスから最新のスナップショットを取得します。
+omp plugin uninstall --scope <scope> engineering@sonsu-marketplace
+omp plugin uninstall --scope <scope> research@sonsu-marketplace
+omp plugin uninstall --scope <scope> fluent-languages@sonsu-marketplace
+omp plugin uninstall --scope <scope> memory-manager@sonsu-marketplace
+omp plugin uninstall --scope <scope> writing@sonsu-marketplace
+```
+
+既存 cache、`.sonsu/continuity`、`.engineering` artifact は自動移動・削除しません。
+
+## 更新
 
 ```sh
 codex plugin marketplace upgrade sonsu-marketplace
-```
-
-OMPでは、カタログを更新してからインストール済みプラグインをアップグレードします。
-
-```sh
 omp plugin marketplace update sonsu-marketplace
-omp plugin upgrade --scope project engineering@sonsu-marketplace
+omp plugin upgrade --scope project code-review@sonsu-marketplace
 ```
 
-Codexでは新しいタスクを開始し、OMPでは`/reload-plugins`を実行するかセッションを再起動して、最新のスキル一覧を読み込んでください。
+更新後は Codex の新規 task、または OMP の `/reload-plugins` で再読込します。
 
-別のマーケットプレイスから `fluent-languages` をインストールしている場合や、
-`prompt-builder`、`product-discovery`、`to-prd` を単体でインストールしている場合は、同名スキルの重複を避けるため、既存のコピーを先に削除してください。
-
-## 開発・貢献
-
-ローカル環境の準備、プラグインの変更・追加、検証手順は
-[プラグイン開発ガイド](docs/guides/adding-a-plugin.md)にまとめています。詳細ガイドは韓国語で管理しています。
-
-- [アーキテクチャ概要](docs/architecture/overview.md) — リポジトリ構成と読み込みの境界
-- [アップストリーム更新ランブック](docs/runbooks/updating-upstream-plugin.md) — 元のソースとローカル変更を分けて更新する手順
-- [評価ツール](evals/) — 言語出力、スキルルーティング、プラグイン品質の検証
-- [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues) — バグ報告・改善提案
-
-## ライセンスと出典
-
-リポジトリ全体に適用するライセンスは、現在宣言していません。各プラグインの条件と原文の通知は
-[プラグイン別のライセンスと出典](docs/reference/licenses-and-sources.md)（韓国語）を確認してください。
+[ドキュメント](docs/README.md)、[plugin 開発ガイド](docs/guides/adding-a-plugin.md)、
+[license と出典](docs/reference/licenses-and-sources.md)を参照してください。repository 全体の共通
+root license はないため、各 package の条件を確認してください。

@@ -1,18 +1,30 @@
 # 플러그인별 라이선스와 출처
 
-저장소 전체에 공통으로 적용되는 root-level 라이선스는 현재 선언하지 않았습니다. 각
-플러그인의 범위는 다음과 같이 구분합니다.
+저장소 전체에 공통 root-level license는 없습니다. 각 package의 포함물과 검토 자료를 구분합니다.
 
-- Engineering은 기존 lifecycle 자료의 [MIT 라이선스](../../plugins/engineering/LICENSE)와 품질 자료의 [Apache-2.0 라이선스](../../plugins/engineering/LICENSE-APACHE-2.0)를 함께 사용합니다. [NOTICE](../../plugins/engineering/NOTICE), [출처 mapping](../../plugins/engineering/UPSTREAM.md)과 [MIT 원문 고지](../../plugins/engineering/THIRD_PARTY_NOTICES.md)를 보존합니다.
-- Workflow에는 현재 별도의 라이선스를 선언하지 않았습니다. 기존 작성 지침·양식의 [MIT 고지](../../plugins/workflow/WRITING_LICENSE.md)는 별도로 보존합니다.
-- Prompting에는 현재 별도의 라이선스를 선언하지 않았습니다.
-- Product에는 현재 별도의 라이선스를 선언하지 않았습니다.
-- Memory Manager는 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 설계 참고 출처는 [UPSTREAM.md](../../plugins/memory-manager/UPSTREAM.md)에 기록합니다.
-- Operations UI는 외부 UI 코드나 asset을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 설계 참고 출처는 [UPSTREAM.md](../../plugins/operations-ui/UPSTREAM.md)에 기록합니다.
-- Design Patterns는 원천 카탈로그의 이름과 출처만 인덱싱하고 선택·검토 계약과 설명은 독자 작성했으며 현재 별도의 라이선스를 선언하지 않았습니다. 포함 범위와 원천별 조건은 [UPSTREAM.md](../../plugins/design-patterns/UPSTREAM.md)에 기록합니다.
-- Figma Workflow는 외부 파일을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 검토한 출처와 비복사 원칙은 [UPSTREAM.md](../../plugins/figma-workflow/UPSTREAM.md)에 기록합니다.
-- Fluent Languages의 라이선스와 원본별 출처는 [LICENSE](../../plugins/fluent-languages/LICENSE), [UPSTREAM.md](../../plugins/fluent-languages/UPSTREAM.md)와 [THIRD_PARTY_NOTICES.md](../../plugins/fluent-languages/THIRD_PARTY_NOTICES.md)에 기록합니다.
-- Writing의 공통 구성·보존 지침과 출처는 [LICENSE](../../plugins/writing/LICENSE), [UPSTREAM.md](../../plugins/writing/UPSTREAM.md), [THIRD_PARTY_NOTICES.md](../../plugins/writing/THIRD_PARTY_NOTICES.md)에 기록합니다.
-- Research는 기준 원본에서 라이선스 파일을 확인하지 못했으며 사용 허가를 추정하지 않습니다. 기준 commit과 포함 범위는 [UPSTREAM.md](../../plugins/research/UPSTREAM.md)에 기록합니다.
+- **Code Review**: 가져온 review 자료의 [MIT](../../plugins/code-review/LICENSE)와
+  [Apache-2.0](../../plugins/code-review/LICENSE-APACHE-2.0) 조건을 따릅니다.
+  [NOTICE](../../plugins/code-review/NOTICE), [UPSTREAM](../../plugins/code-review/UPSTREAM.md),
+  [THIRD_PARTY_NOTICES](../../plugins/code-review/THIRD_PARTY_NOTICES.md)에 exact 포함 범위와 원문 고지를
+  보존합니다. Code Forge 기준 commit은 `1779c8ac9638c755d341b16e708f7e44aaf15b75`입니다.
+- **Code Intelligence**: marketplace는 mcpls binary를 재배포하지 않습니다. runtime dependency는
+  `mcpls 0.6.0`, upstream commit `6b06d1af30292b71d2e4af05928cfb3bcd9856b1`, MIT OR Apache-2.0입니다.
+  설치·업데이트는 사용자가 별도로 수행합니다. 세부 경계는
+  [UPSTREAM](../../plugins/code-intelligence/UPSTREAM.md)과
+  [THIRD_PARTY_NOTICES](../../plugins/code-intelligence/THIRD_PARTY_NOTICES.md)에 있습니다.
+- **Developer Writing**: package license와 provenance는
+  [LICENSE](../../plugins/developer-writing/LICENSE), [UPSTREAM](../../plugins/developer-writing/UPSTREAM.md),
+  [THIRD_PARTY_NOTICES](../../plugins/developer-writing/THIRD_PARTY_NOTICES.md)에 있습니다. kdy1의 공개
+  scripts commit `92a8fbe9a57bce5064ed7dba3a8f87f331930dc6`은 consulted-only이며 해당 repository code를
+  package에 포함하지 않습니다.
+- **Workflow**, **Prompting**, **Product**: 현재 별도 package license를 선언하지 않습니다. 외부에서
+  실제 포함한 내용과 검토-only 자료는 각 package `UPSTREAM.md`가 있는 경우 그 파일에 기록합니다.
+- **Interface Design**, **Operations UI**, **Figma Workflow**: 외부 UI code나 asset을 복사하지 않은
+  독자 작성 절차입니다. 검토한 자료와 비복사 경계는 각 package의 `UPSTREAM.md`에 기록합니다.
+- **Design Patterns**: 원천 catalog의 이름과 출처를 index하고 selection/review 계약과 설명은 독자
+  작성했습니다. 포함 범위와 원천별 조건은
+  [UPSTREAM](../../plugins/design-patterns/UPSTREAM.md)에 기록합니다.
 
-- Interface Design은 사용자 소유 디자인 실험과 외부 절차를 참고해 독자 작성했습니다. 별도 라이선스를 선언하지 않으며 채택·제외 범위는 [UPSTREAM.md](../../plugins/interface-design/UPSTREAM.md)에 기록합니다.
+ADR의 historical/consulted-only 근거는 package redistributable content가 아닙니다. 아이디어를 검토한
+사실을 license grant나 파일 포함으로 바꾸지 않습니다. 외부 runtime, provider connector, language
+server의 설치와 이용 조건은 각 공급자가 소유합니다.

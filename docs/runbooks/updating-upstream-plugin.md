@@ -8,9 +8,9 @@
 ## 사전 확인
 
 1. 작업 디렉터리, branch, `HEAD`, staged·unstaged·untracked 파일을 확인합니다.
-2. 기존 linked worktree이면 재사용하고, 일반 checkout이면 `using-git-worktrees` 정책을 따릅니다.
-3. 현재 `UPSTREAM.md`의 저장소, 기준 commit, 버전과 포함 범위를 읽습니다.
-4. 현재 로컬 커스텀 diff와 관련 결정 문서를 확인합니다.
+2. 현재 checkout/worktree를 재사용하고 사용자 작업을 덮어쓰지 않습니다.
+3. 현재 `UPSTREAM.md`의 저장소, 기준 commit, version, 포함 범위와 consulted-only/runtime 구분을 읽습니다.
+4. 현재 로컬 customization diff와 관련 결정 문서를 확인합니다.
 5. commit, push와 PR 권한이 각각 어디까지 승인되었는지 확인합니다.
 
 ## 업데이트
@@ -23,8 +23,9 @@
 6. 원본 파일만 포함한 diff와 검증 결과를 사용자에게 보고합니다. 현재 작업에서 upstream
    baseline commit이 승인된 경우에만 이 범위를 첫 번째 commit으로 기록합니다. 승인되지
    않았으면 로컬 정책을 섞지 않고 여기서 멈춥니다.
-7. 확정된 새 baseline 위에 로컬 정책을 다시 적용하고 매니페스트의 `-sonsu.<revision>`을 갱신합니다.
-8. 관련 아키텍처, 결정, 참조 문서를 현재 상태에 맞춥니다.
+7. 확정된 새 baseline 위에 현재 얇은 package boundary를 다시 적용하고 필요할 때 semantic version을
+   갱신합니다. 삭제된 package나 host-baseline 동작을 다시 포함하지 않습니다.
+8. 관련 architecture, decision, reference와 evaluation fixture를 현재 상태에 맞춥니다.
 9. 로컬 변경 diff와 검증 결과를 별도로 보고합니다. customization commit도 현재 작업에서
    별도로 승인된 경우에만 기록합니다.
 
@@ -34,7 +35,7 @@
 - 매니페스트가 가리키는 파일과 스킬 경로가 존재하는지 확인합니다.
 - 업스트림으로 분류한 파일의 내용과 실행 권한을 선택한 기준 commit과 비교합니다.
 - 로컬 커스텀 diff에 의도하지 않은 업스트림 변경이나 누락이 없는지 확인합니다.
-- 가능한 경우 Codex `plugin/read`로 플러그인 이름, 버전, source와 스킬 목록을 확인합니다.
+- 가능한 경우 Codex app-server와 OMP disposable marketplace로 plugin 이름, version과 skill registry를 확인합니다.
 - 전체 diff와 `git diff --check` 결과를 검토합니다.
 
 ## 실패와 복구
