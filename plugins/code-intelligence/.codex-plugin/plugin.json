@@ -1,0 +1,36 @@
+{
+  "name": "code-intelligence",
+  "version": "1.0.0",
+  "description": "신뢰된 단일 workspace에서 host-native LSP 또는 Codex-only pinned mcpls bridge로 semantic code intelligence를 제공한다.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "keywords": [
+    "lsp",
+    "code-intelligence",
+    "definition",
+    "references",
+    "rename"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./codex-mcp.json",
+  "interface": {
+    "displayName": "Code Intelligence",
+    "shortDescription": "Host-adaptive semantic LSP queries",
+    "longDescription": "Definition, references, hover/type, implementation, diagnostics, code action과 symbol rename처럼 text search로 대체할 수 없는 semantic 요청만 처리한다. OMP native lsp를 우선하고 Codex만 pinned mcpls bridge를 선언한다.",
+    "developerName": "sonsu-lee",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "이 symbol의 정의와 모든 reference를 semantic 도구로 찾아 줘.",
+      "이 위치의 inferred type과 implementation을 LSP로 확인해 줘."
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}

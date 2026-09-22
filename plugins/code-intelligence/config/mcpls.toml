@@ -1,0 +1,5 @@
+[mcp]
+tool_prefix = "lsp"
+
+[workspace]
+roots = []
