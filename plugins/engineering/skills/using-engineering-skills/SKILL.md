@@ -24,6 +24,9 @@ description: 개발 작업을 시작하거나 작업 성격이 바뀔 때 Engine
 | 완료 보고 | `engineering:verification-before-completion` |
 | 스킬 작성·수정 | `engineering:writing-skills` |
 
+Codex의 직접 호출 ID는 `engineering:<skill-name>`, OMP의 스킬 이름과 `skill://` ID는
+`<skill-name>`이다. 현재 host가 실제로 노출한 이름을 사용한다.
+
 일반 리뷰는 구현 계획·소스 수정으로 확장하지 않는다. 여러 단계의 변경은
 [품질 게이트](references/quality-gates.md)에 따라 위험을 분류한다. 기계적 변경은 결정론적 검사,
 동작 변경은 독립 리뷰, 고위험 계약은 별도 red-team을 추가한다. 파일 수나 계획 파일 존재로
@@ -46,8 +49,8 @@ PR 상태 조회·복구, 독립적인 심층 PR 리뷰, 일반 UI 설계·재�
 확정한 규칙의 타입·코드 구현은 Engineering, Git·티켓·PR 전달은 Workflow가 소유한다.
 다른 전문 플러그인은 해당 작업이 필요할 때만 호출한다.
 
-[실행 계약](references/agent-execution.md)은 위임·문맥·모델 선택을,
-[Codex 대응](references/codex-tools.md)은 현재 도구 사용을,
+[실행 계약](references/agent-execution.md)은 위임·문맥·모델 선택을 다룬다. 현재 host가 Codex면
+[Codex 대응](references/codex-tools.md), OMP면 [OMP 대응](references/omp-tools.md)을 적용한다.
 [관리형 게이트](references/evidence-gates.md)는 등록한 단계의 전이를 다룬다.
 주 조정자는 여러 단계의 진행을 [task-continuity](../task-continuity/SKILL.md)에 기록한다.
 

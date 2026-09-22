@@ -2,7 +2,7 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-A collection of Codex plugins for development, research, product planning, and writing.
+A collection of Codex and Oh My Pi plugins for development, research, product planning, and writing.
 Install the plugins you need, then work with your coding agent as usual.
 
 [Installation](#installation) · [Plugins](#plugins) · [Usage examples](#usage-examples) · [Documentation](docs/README.md)
@@ -35,6 +35,25 @@ Start a new Codex task after installation. To list the plugins in the marketplac
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+### Oh My Pi
+
+In Oh My Pi (OMP), register the OMP catalog and install each plugin at project or user scope:
+
+```sh
+omp plugin marketplace add sonsu-lee/sonsu-marketplace
+omp plugin install --scope project engineering@sonsu-marketplace
+```
+
+List the available plugins with:
+
+```sh
+omp plugin discover sonsu-marketplace
+```
+
+OMP loads the shared `skills/` tree from each plugin and exposes unprefixed skill names such as
+`review-quality`. Codex-specific hooks and app connections declared under `.codex-plugin` do not run
+in OMP; those automation surfaces still require Codex.
+
 ## Plugins
 
 | Plugin | Purpose | Installation name |
@@ -61,7 +80,7 @@ review results on existing PRs. See the
 
 ## Usage examples
 
-After installing the relevant plugin, try requests like these in Codex:
+After installing the relevant plugin, try requests like these in Codex or OMP:
 
 | Plugin | Example request |
 | --- | --- |
@@ -78,7 +97,7 @@ After installing the relevant plugin, try requests like these in Codex:
 | Operations UI | “Implement this order-operations screen from a Design Decision Contract and verify it with DQ gates and browser evidence.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
 
-Codex selects skills based on your request and the descriptions of installed skills.
+Codex and OMP select skills based on your request and the descriptions of installed skills.
 Memory Manager runs only when explicitly invoked with `$memory-manager`.
 
 Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
@@ -87,13 +106,20 @@ See each plugin's documentation for setup and tool requirements.
 
 ## Updates
 
-Fetch the latest snapshot of the registered Git marketplace:
+In Codex, fetch the latest snapshot of the registered Git marketplace:
 
 ```sh
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-After installing or updating plugins, start a new Codex task to load the latest skill list.
+In OMP, refresh the catalog and then upgrade an installed plugin:
+
+```sh
+omp plugin marketplace update sonsu-marketplace
+omp plugin upgrade --scope project engineering@sonsu-marketplace
+```
+
+Start a new Codex task after an update. In OMP, run `/reload-plugins` or restart the session to load the latest skills.
 
 If you installed `fluent-languages` from another marketplace or standalone copies of `prompt-builder`,
 `product-discovery`, or `to-prd`, remove those copies first to avoid duplicate skill names.
