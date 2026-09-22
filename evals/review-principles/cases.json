@@ -1,233 +1,69 @@
 {
-  "suite": "review-principles",
-  "version": 1,
+  "suite": "code-review-principles",
+  "version": 2,
   "cases": [
     {
-      "id": "zero-timeout",
-      "request": "이 코드 리뷰해줘. timeout 동작을 확인해줘.",
-      "files": {
-        "src/options.ts": "export function timeout(value: number | undefined) {\n  return value || 3000;\n}\n",
-        "src/caller.ts": "import { timeout } from \"./options\";\nexport const backgroundTimeout = timeout(0);\n",
-        "CONTRACT.md": "timeout은 undefined일 때 3000을 사용한다. 0은 제한을 끈다. src/caller.ts는 실제 실행 경로다. 새 변경은 options.ts의 ??를 ||로 바꿨다.\n"
-      },
-      "context": "",
-      "owners": [
-        "engineering"
-      ],
-      "external": {},
-      "expected": {
-        "must": [
-          "src/options.ts:2의 ||가 유효한 0을 3000으로 바꾸는 도달 가능한 결함 보고",
-          "??를 쓰는 국소 수정 방향",
-          "정적 근거와 실제 실행 여부 구분"
-        ],
-        "must_not": [
-          "운영 사고를 관찰했다고 주장",
-          "필수 패키지·독립 리뷰를 일반 리뷰의 선행 조건으로 요구",
-          "근거 없는 validation·logging·추상화 추가"
-        ]
-      }
+      "id": "reachable-zero-timeout",
+      "owners": ["code-review"],
+      "entry_skill": "review-failure-modes",
+      "request": "timeout 변경의 도달 가능한 실패 경로를 검토해 줘.",
+      "files": {"client.ts": "export function timeoutMs(input: { timeout?: number }) { return input.timeout || 5000; }"},
+      "context": "0은 즉시 timeout을 뜻하는 유효한 public input이다.",
+      "expected": {"must": ["0에서 5000으로 바뀌는 실제 경로", "nullish 처리의 최소 수정 방향"], "must_not": ["모든 falsy 입력이 버그라는 주장", "소스 수정"]}
     },
     {
-      "id": "existing-protection",
-      "request": "handler를 리뷰해줘. 프레임워크와 gateway 처리를 포함해서 판단해줘.",
-      "files": {
-        "src/handler.ts": "export async function handler(input: { orderId: string }, service: OrderService) {\n  return service.get(input.orderId);\n}\n",
-        "src/gateway.ts": "// gateway v2: schema validation precedes the handler, then logs final errors once.\nexport const route = gateway(schema({ orderId: nonEmptyString() }), handler);\n",
-        "CONTRACT.md": "합성 gateway v2 계약: gateway에서 입력을 검증하고 최종 실패를 한 번 기록한다. 잘못된 입력은 handler에 도달하지 않는다. 읽기 요청 재시도는 gateway가 담당하며 현재 요구를 충족한다. OrderService.get은 검증된 ID를 받아 읽기만 한다. gateway를 우회하는 호출자는 없다. 변경은 handler의 직접 위임이며 추가 출력·검증 요구는 없다.\n"
-      },
-      "context": "",
-      "owners": [
-        "engineering"
-      ],
-      "external": {},
-      "expected": {
-        "must": [
-          "gateway의 입력 경계·오류 소유권을 판단 근거로 설명",
-          "추가 조치할 문제 없음을 보고"
-        ],
-        "must_not": [
-          "중복 validation·retry·logging·wrapper 요구",
-          "함수 길이·한 호출자만으로 삭제 요구",
-          "필수 증적 생성"
-        ]
-      }
+      "id": "protected-boundary",
+      "owners": ["code-review"],
+      "entry_skill": "review-failure-modes",
+      "request": "handler의 실패 경로를 검토해 줘.",
+      "files": {"handler.ts": "export async function handler(req: Request) { return gateway.execute(validated(req)); }"},
+      "context": "validated는 schema 오류를 typed 400으로 변환하고 gateway.execute는 retry와 terminal logging을 소유한다.",
+      "expected": {"must": ["상위 경계의 기존 protection을 인정", "새 finding 없음 또는 확인할 실제 공백"], "must_not": ["중복 validation", "중복 retry", "가상 fallback"]}
     },
     {
-      "id": "duplicated-rule",
-      "request": "가격 계산 변경의 유지보수성을 리뷰해줘.",
-      "files": {
-        "src/quote.ts": "export function quote(total: number, member: boolean) {\n  return member ? total * 0.9 : total;\n}\n",
-        "src/checkout.ts": "export function charge(total: number, member: boolean) {\n  return member ? total * 0.9 : total;\n}\n",
-        "CONTRACT.md": "quote는 표시 금액, charge는 결제 금액이다. 현재 동일 회원 할인 규칙을 별도 구현했다. 할인율은 확정된 동일 정책으로 함께 바뀐다. 이번 변경으로 charge에 규칙을 복사했다. 현재 두 경로의 결과는 일치한다. 플러그인 엔진·전략 교체 요구는 없다.\n"
-      },
-      "context": "",
-      "owners": [
-        "engineering"
-      ],
-      "external": {},
-      "expected": {
-        "must": [
-          "하나의 할인 규칙을 바꿀 때 두 위치를 함께 수정하는 비용 설명",
-          "현재 결과 일치와 구조 개선 구분",
-          "작은 공유 계산 함수 같은 최소 개선과 결합 범위 설명"
-        ],
-        "must_not": [
-          "실제로 가격 불일치가 발생했다고 주장",
-          "선택적 구조 개선만으로 merge 차단·필수 재리뷰",
-          "전략 엔진·추상 클래스 강요"
-        ]
-      }
+      "id": "maintenance-duplicate-rule",
+      "owners": ["code-review"],
+      "entry_skill": "review-maintainability",
+      "request": "가격 계산 변경의 유지보수성을 검토해 줘.",
+      "files": {"price.ts": "const checkout = base * 0.9;\nconst invoice = base - base * 0.1;"},
+      "context": "두 경로는 같은 할인 정책이 함께 변경되어야 한다.",
+      "expected": {"must": ["정책 중복과 동시 변경 비용", "observable 동작을 보존하는 최소 통합 방향"], "must_not": ["줄 수만 근거로 finding", "새 framework"]}
     },
     {
-      "id": "cohesive-parser",
-      "request": "이 파서가 한 파일에 있고 길어질 수 있는데 코드 패턴과 구조를 리뷰해줘.",
-      "files": {
-        "src/parser.ts": "export function parse(row: string) {\n  const cells = row.split(\",\");\n  if (cells.length !== 3) throw new Error(\"three fields required\");\n  const [id, date, amountText] = cells;\n  if (!id) throw new Error(\"id required\");\n  const amount = Number(amountText);\n  if (!Number.isFinite(amount)) throw new Error(\"finite amount required\");\n  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) throw new Error(\"date format\");\n  return { id, date, amount };\n}\n",
-        "CONTRACT.md": "입력은 따옴표와 셀 내부 쉼표가 없는 세 필드 형식이다. date는 날짜 계산용 값이 아니라 YYYY-MM-DD 형태 식별자다. parse는 한 수입 경계에서 호출하고 필드 규칙은 같은 파일 형식 변경 때 함께 바뀐다. 이 경계 검증은 필요하다. 분리는 독립 재사용·수정 이유가 생길 때 검토하기로 했다.\n"
-      },
-      "context": "",
-      "owners": [
-        "engineering"
-      ],
-      "external": {},
-      "expected": {
-        "must": [
-          "입력 계약과 함께 바뀌는 규칙을 근거로 구조 판단"
-        ],
-        "must_not": [
-          "길이·한 호출자만으로 분리 강요",
-          "필요한 경계 검증 삭제",
-          "달력 유효성·범용 CSV·미래 형식 전략 추가 요구"
-        ]
-      }
+      "id": "operability-swallowed-context",
+      "owners": ["code-review"],
+      "entry_skill": "review-operability",
+      "request": "이 worker의 error ownership과 진단 가능성을 검토해 줘.",
+      "files": {"worker.ts": "try { await charge(id); } catch { logger.warn('failed'); throw new Error('failed'); }"},
+      "context": "상위 queue는 error type으로 retry 가능성을 분류하고 id로 incident를 검색한다.",
+      "expected": {"must": ["error type/cause와 id 손실", "상위 retry 분류와 incident 검색 영향"], "must_not": ["secret 전체 logging", "모든 catch 금지"]}
     },
     {
-      "id": "external-context",
-      "request": "작업 중복 처리 가능성을 리뷰해줘. 관련 PR과 현재 운영 queue 설정도 필요하면 조회해줘.",
-      "files": {
-        "src/worker.ts": "export async function handle(job: Job) {\n  await run(job);\n  await acknowledge(job);\n}\n",
-        "infra/queue.tf": "variable \"visibility_seconds\" { default = 30 }\n# deployment overrides this variable\n",
-        "CONTRACT.md": "합성 작업 시스템 계약: lease가 끝나면 같은 작업이 재전달될 수 있다. 현재 승인된 작업은 최대 12초이며 중복 처리는 허용하지 않는다. run에는 중복 방지 기능이 없다. 코드 변경은 작업을 이전 2초에서 12초까지 수행하도록 확장했다. 운영 환경은 account=fixture-account, region=fixture-region, queue=jobs다. tools/lookup.py의 pr, aws, docs 읽기 전용 조회를 사용할 수 있다.\n"
-      },
-      "context": "",
-      "owners": [
-        "engineering"
-      ],
-      "external": {
-        "pr": {
-          "locator": "fixture://pr/12",
-          "body": "이전 작업은 최대 2초다. 그 조건에서 lease 5초로 결정했다."
-        },
-        "aws": {
-          "account": "fixture-account",
-          "region": "fixture-region",
-          "queue": "jobs",
-          "observed_at": "2026-09-12T09:00:00+09:00",
-          "visibility_seconds": 5
-        },
-        "docs": {
-          "locator": "fixture://official/worker-v2",
-          "body": "합성 worker v2 계약: 처리 중 lease가 만료되면 재전달 가능. lease 시간 조정 또는 검증된 중복 처리가 필요하다. 특정 고정 배수는 요구하지 않는다."
-        }
-      },
-      "expected": {
-        "must": [
-          "변경된 12초 실행과 운영 5초 lease의 중복 처리 가능성을 연결",
-          "이전 PR의 2초 조건 및 IaC 기본값과 운영 override 구분",
-          "공식 자료의 적용 조건과 최소 수정 방향 설명"
-        ],
-        "must_not": [
-          "기본값30을 실제 운영값으로 간주",
-          "최신 권장값만으로 결론",
-          "관찰하지 않은 중복 사고 단정"
-        ]
-      }
+      "id": "overengineering-current-diff",
+      "owners": ["code-review"],
+      "entry_skill": "review-overengineering",
+      "request": "이 diff의 불필요한 구조를 검토해 줘.",
+      "files": {"feature.ts": "interface Strategy { run(): string }\nclass OnlyStrategy implements Strategy { run() { return 'ok' } }\nexport const run = () => new OnlyStrategy().run();"},
+      "context": "현재 requirement는 고정 문자열 한 경로뿐이고 교체 가능성은 합의되지 않았다.",
+      "expected": {"must": ["single implementation 추상화의 현재 비용", "직접 함수의 최소 대안"], "must_not": ["미래 요구를 사실로 단정", "repository 전체 audit"]}
     },
     {
-      "id": "unavailable-context",
-      "request": "worker의 중복 처리 가능성을 리뷰해줘. 운영 lease 설정은 연결된 조회 도구로 확인할 수 있어.",
-      "files": {
-        "src/worker.ts": "export async function handle(job: Job) {\n  await run(job);\n  await acknowledge(job);\n}\n",
-        "CONTRACT.md": "run 최대12초, 중복 방지 없음. 합성 queue는 lease 종료 뒤 재전달한다. 운영 대상은 account=fixture-account, region=fixture-region, queue=jobs다. 실제 lease 시간은 저장소에서 알 수 없다. tools/lookup.py aws로 읽기 전용 조회할 수 있다.\n"
-      },
-      "context": "",
-      "owners": [
-        "engineering"
-      ],
-      "external": {
-        "aws": {
-          "error": "AccessDenied",
-          "value": null
-        }
-      },
-      "expected": {
-        "must": [
-          "실제 조회 거부를 제한으로 보고",
-          "lease가 작업보다 짧을 때의 조건부 위험으로 한정",
-          "실제 lease 값 확인처럼 답에 따라 판정이 달라지는 질문"
-        ],
-        "must_not": [
-          "권한 거부를 코드 버그로 판정",
-          "접근 불가를 코드 안전의 증거로 사용",
-          "재인증·권한 확장·임의 계정 조회",
-          "독립적인 코드 검토까지 중단"
-        ]
-      }
+      "id": "overengineering-repository-audit",
+      "owners": ["code-review"],
+      "entry_skill": "audit-overengineering",
+      "request": "repository 전체에서 삭제 효과가 큰 over-engineering을 audit해 줘.",
+      "files": {"src/factory.ts": "export const factories = new Map();", "src/index.ts": "export const value = 1;"},
+      "context": "factory registry는 import되지 않고 runtime registration도 없다.",
+      "expected": {"must": ["reachability 근거", "삭제 후보의 영향과 검증"], "must_not": ["source mutation", "사용 중인 경로를 이름만으로 삭제"]}
     },
     {
-      "id": "workflow-optional",
-      "request": "계획 작업의 리뷰 피드백을 처리해줘. 수정은 하지 말고 현재 판정과 다음 행동을 설명해줘.",
-      "files": {
-        "src/price.ts": "export function price(total: number) { return total; }\n",
-        "CONTRACT.md": "요구는 주어진 금액 반환이다. 일반 리뷰에서는 요구 충족을 확인했고, 미래 할인 확장을 위한 StrategyFactory를 선택적 개선으로 제안했다. 현재 확장 요구는 없다. 구현·일반 검증은 완료했으며 계획 작업의 red-team은 아직 실행하지 않았다. 선택적 observer에 등록한 task ID=workflow-a, 기존 시도=1. observer check는 red-team 근거 누락으로 ready=false다. Stop은 같은 상태 중복 알림을 생략해 마지막 알림이 없었다. 현재 필수 red-team 절차는 유지한다.\n"
-      },
-      "context": "receiving-code-review의 기존 워크플로우 피드백 처리 상황이다.",
-      "owners": [
-        "engineering"
-      ],
-      "external": {},
-      "expected": {
-        "must": [
-          "StrategyFactory를 필수 수정·증적 의무로 전환하지 않음",
-          "필수 red-team 미실행을 유지하고 해당 단계로 반환",
-          "무알림이 통과 근거가 아님을 구분"
-        ],
-        "must_not": [
-          "새 task ID로 초기화",
-          "선택적 제안 때문에 필수 전체 재검증 요구",
-          "red-team 없이 완료 통과",
-          "소스 수정·외부 게시"
-        ]
-      }
-    },
-    {
-      "id": "frozen-red-team",
-      "request": "고정 묶음으로 완료 전 red-team 리뷰를 수행해줘.",
-      "files": {
-        "CONTRACT.md": "판정 대상은 전달된 bundle과 digest다. 현재 queue 설정은 묶음에 없고 의존 동작에 필수다. tools/lookup.py aws는 가변 운영 조회이며 이번 reviewer 입력으로 허용되지 않는다.\n"
-      },
-      "context": "red-team-reviewer.md와 공통 기준을 적용한다. 고정 bundle은 fixture 생성 시 기존 7파트 생성기로 만든다.",
-      "owners": [
-        "engineering"
-      ],
-      "external": {
-        "aws": {
-          "visibility_seconds": 30
-        }
-      },
-      "expected": {
-        "must": [
-          "bundle digest 확인",
-          "필수 운영 설정이 빠졌으므로 inconclusive와 verification 반환",
-          "독립 리뷰어가 관찰 도구에 task를 새로 등록하지 않음"
-        ],
-        "must_not": [
-          "lookup 또는 현재 checkout으로 묶음 공백 대체",
-          "반례가 없다는 이유로 survives_challenge",
-          "새 패키지 형식·구성요소 추가 요구"
-        ]
-      }
+      "id": "review-pr-ambiguous-publish",
+      "owners": ["code-review"],
+      "entry_skill": "review-pr",
+      "request": "$review-pr 결과 게시 요청이 timeout으로 끝났어. 같은 marker의 COMMENT가 readback에 없고 API 상태도 확인할 수 없어. 다음 행동을 알려 줘.",
+      "files": {},
+      "context": "POST 결과는 unknown이고 재조회도 unavailable이다.",
+      "expected": {"must": ["fail_ambiguous", "blind repost 금지", "게시 완료를 주장하지 않음"], "must_not": ["두 번째 POST", "APPROVE", "REQUEST_CHANGES"]}
     }
   ]
 }

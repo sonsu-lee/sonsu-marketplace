@@ -1,4 +1,5 @@
-"""Codex and OMP marketplace packaging contracts."""
+"""Static contracts for the thin Codex and OMP capability-pack catalogs."""
+
 import json
 from pathlib import Path
 import re
@@ -6,117 +7,166 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-CATALOG = ROOT / ".agents/plugins/marketplace.json"
+CODEX_CATALOG = ROOT / ".agents/plugins/marketplace.json"
 OMP_CATALOG = ROOT / ".omp-plugin/marketplace.json"
+VERSION = "1.0.0"
+EXPECTED = {
+    "code-review": {
+        "review-pr", "review-failure-modes", "review-maintainability",
+        "review-operability", "review-overengineering", "audit-overengineering",
+    },
+    "code-intelligence": {"semantic-code-intelligence"},
+    "workflow": {"inspect-prs", "repair-pr", "to-ticket", "ticket-lifecycle", "to-pr"},
+    "developer-writing": {"write-developer-blog"},
+    "prompting": {"prompt-builder"},
+    "product": {
+        "product-discovery", "synthesize-product-evidence", "product-domain-discovery",
+        "design-product-test", "assess-product-test", "to-prd",
+    },
+    "figma-workflow": {"figma-product-design", "figma-prototype-flow", "figma-design-audit"},
+    "interface-design": {"design-interface", "redesign-interface"},
+    "operations-ui": {
+        "design-operations-ui", "redesign-operations-ui", "audit-operations-ui",
+        "figma-operations-flow",
+    },
+    "design-patterns": {"select-design-patterns", "review-pattern-usage"},
+}
+REMOVED = {
+    "engineering", "research", "fluent-languages", "memory-manager", "writing",
+}
 
-def read_skill_name(path):
-    lines = path.read_text(encoding="utf-8").splitlines()
-    if not lines or lines[0] != "---":
+
+def load(path: Path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def frontmatter(path: Path):
+    text = path.read_text(encoding="utf-8")
+    if not text.startswith("---\n"):
         raise AssertionError(f"{path} has no frontmatter")
-    for line in lines[1:]:
-        if line == "---":
-            break
-        key, separator, value = line.partition(":")
-        if key == "name" and separator:
-            return value.strip().strip("\"'")
-    raise AssertionError(f"{path} has no skill name")
+    block = text.split("---\n", 2)[1]
+    result = {}
+    for line in block.splitlines():
+        if ":" in line:
+            key, value = line.split(":", 1)
+            result[key.strip()] = value.strip().strip("\"'")
+    return result
 
 
-def omp_skills():
-    catalog = json.loads(OMP_CATALOG.read_text(encoding="utf-8"))
-    plugin_root = (ROOT / catalog["metadata"]["pluginRoot"]).resolve()
-    for entry in catalog["plugins"]:
-        package_root = (plugin_root / entry["source"]).resolve()
-        for skill_path in sorted((package_root / "skills").glob("*/SKILL.md")):
-            yield entry["name"], skill_path, read_skill_name(skill_path)
+class ThinCatalogContractTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.codex = load(CODEX_CATALOG)
+        cls.omp = load(OMP_CATALOG)
+        cls.codex_entries = {entry["name"]: entry for entry in cls.codex["plugins"]}
+        cls.omp_entries = {entry["name"]: entry for entry in cls.omp["plugins"]}
 
+    def test_exact_plugin_inventory_and_order(self):
+        expected = list(EXPECTED)
+        self.assertEqual([entry["name"] for entry in self.codex["plugins"]], expected)
+        self.assertEqual([entry["name"] for entry in self.omp["plugins"]], expected)
+        self.assertEqual(len(expected), 10)
+        self.assertTrue(REMOVED.isdisjoint(self.codex_entries))
 
-class CodexPackagingTests(unittest.TestCase):
-    def test_catalog_entries_reference_matching_plugin_manifests(self):
-        catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
-        names = set()
-
-        for entry in catalog["plugins"]:
-            with self.subTest(plugin=entry["name"]):
-                self.assertNotIn(entry["name"], names)
-                names.add(entry["name"])
-                self.assertEqual(entry["source"]["source"], "local")
-                self.assertEqual(entry["source"]["path"], f"./plugins/{entry['name']}")
-
-                manifest_path = ROOT / "plugins" / entry["name"] / ".codex-plugin/plugin.json"
-                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-                self.assertEqual(manifest["name"], entry["name"])
-
-    def test_omp_catalog_projects_codex_plugin_identity(self):
-        codex_catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
-        omp_catalog = json.loads(OMP_CATALOG.read_text(encoding="utf-8"))
-        codex_names = {entry["name"] for entry in codex_catalog["plugins"]}
-        omp_entries = {entry["name"]: entry for entry in omp_catalog["plugins"]}
-
-        self.assertEqual(omp_catalog["owner"]["name"], "sonsu-lee")
-        self.assertEqual(omp_catalog["metadata"]["pluginRoot"], "./plugins")
-        self.assertEqual(set(omp_entries), codex_names)
-
-        for name, entry in omp_entries.items():
+    def test_catalog_identity_path_and_version_parity(self):
+        plugin_root = (ROOT / self.omp["metadata"]["pluginRoot"]).resolve()
+        for name in EXPECTED:
             with self.subTest(plugin=name):
-                manifest = json.loads(
-                    (ROOT / "plugins" / name / ".codex-plugin/plugin.json").read_text(
-                        encoding="utf-8"
-                    )
-                )
-                self.assertEqual(entry["source"], f"./{name}")
-                self.assertEqual(entry["version"], manifest["version"])
+                codex_entry = self.codex_entries[name]
+                omp_entry = self.omp_entries[name]
+                package = ROOT / "plugins" / name
+                manifest = load(package / ".codex-plugin/plugin.json")
+                self.assertEqual(codex_entry["source"], {
+                    "source": "local", "path": f"./plugins/{name}",
+                })
+                self.assertEqual(omp_entry["source"], f"./{name}")
+                self.assertEqual((plugin_root / omp_entry["source"]).resolve(), package.resolve())
+                self.assertEqual(manifest["name"], name)
+                self.assertEqual(manifest["version"], VERSION)
+                self.assertEqual(omp_entry["version"], VERSION)
+                self.assertEqual(codex_entry["policy"]["installation"], "AVAILABLE")
 
-    def test_omp_skill_names_are_unique(self):
+    def test_exact_31_globally_unique_skill_names(self):
         owners = {}
+        for plugin, expected_skills in EXPECTED.items():
+            package = ROOT / "plugins" / plugin
+            paths = sorted((package / "skills").glob("*/SKILL.md"))
+            actual = set()
+            for path in paths:
+                metadata = frontmatter(path)
+                name = metadata.get("name")
+                self.assertEqual(name, path.parent.name, path)
+                self.assertNotIn(name, owners, f"{name}: {owners.get(name)} and {path}")
+                owners[name] = plugin
+                actual.add(name)
+            self.assertEqual(actual, expected_skills, plugin)
+        self.assertEqual(len(owners), 31)
 
-        for plugin, skill_path, skill_name in omp_skills():
-            with self.subTest(plugin=plugin, skill=skill_name):
-                self.assertNotIn(
-                    skill_name,
-                    owners,
-                    f"OMP skill {skill_name!r} conflicts between "
-                    f"{owners.get(skill_name)} and {skill_path}",
-                )
-                owners[skill_name] = skill_path
-
-    def test_runtime_skill_references_resolve_for_omp(self):
-        skill_names = {skill_name for _, _, skill_name in omp_skills()}
-        plugin_names = {
-            entry["name"]
-            for entry in json.loads(OMP_CATALOG.read_text(encoding="utf-8"))["plugins"]
-        }
-        reference = re.compile(
-            r"`(?P<plugin>" + "|".join(re.escape(name) for name in sorted(plugin_names)) +
-            r"):(?P<skill>[a-z][a-z0-9-]*)`"
-        )
-
-        for _, skill_path, _ in omp_skills():
-            text = skill_path.read_text(encoding="utf-8")
-            for match in reference.finditer(text):
-                paragraph_start = text.rfind("\n\n", 0, match.start()) + 2
-                paragraph_end = text.find("\n\n", match.end())
-                paragraph = text[paragraph_start:paragraph_end if paragraph_end >= 0 else None]
-                skill_name = match.group("skill")
-                with self.subTest(path=skill_path, reference=match.group(0)):
-                    self.assertIn(skill_name, skill_names)
-                    self.assertIn(f"`skill://{skill_name}`", paragraph)
-
-    def test_declared_package_paths_stay_inside_each_plugin(self):
-        catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
-
-        for entry in catalog["plugins"]:
-            package_root = (ROOT / "plugins" / entry["name"]).resolve()
-            manifest = json.loads(
-                (package_root / ".codex-plugin/plugin.json").read_text(encoding="utf-8")
-            )
-            for field in ("skills", "hooks", "apps"):
-                if field not in manifest:
+    def test_manifest_targets_exist_and_stay_inside_package(self):
+        for plugin in EXPECTED:
+            package = (ROOT / "plugins" / plugin).resolve()
+            manifest = load(package / ".codex-plugin/plugin.json")
+            for key in ("skills", "apps", "mcpServers"):
+                value = manifest.get(key)
+                if value is None:
                     continue
-                with self.subTest(plugin=entry["name"], field=field):
-                    target = (package_root / manifest[field]).resolve()
-                    self.assertTrue(target.is_relative_to(package_root))
-                    self.assertTrue(target.exists())
+                values = value if isinstance(value, list) else [value]
+                for relative in values:
+                    target = (package / relative).resolve()
+                    self.assertTrue(target.is_relative_to(package), (plugin, key, relative))
+                    self.assertTrue(target.exists(), (plugin, key, relative))
+
+    def test_no_marketplace_owned_hooks_or_removed_packages(self):
+        for plugin in EXPECTED:
+            package = ROOT / "plugins" / plugin
+            manifest = load(package / ".codex-plugin/plugin.json")
+            self.assertNotIn("hooks", manifest, plugin)
+            self.assertFalse((package / "hooks").exists(), plugin)
+            self.assertFalse((package / "skills" / "task-continuity").exists(), plugin)
+        for name in REMOVED:
+            self.assertFalse((ROOT / "plugins" / name).exists(), name)
+
+    def test_review_pr_is_explicit_only(self):
+        metadata = frontmatter(ROOT / "plugins/code-review/skills/review-pr/SKILL.md")
+        self.assertEqual(metadata.get("allow_implicit_invocation"), "false")
+
+    def test_host_specific_connector_metadata(self):
+        manifests = {
+            name: load(ROOT / "plugins" / name / ".codex-plugin/plugin.json")
+            for name in EXPECTED
+        }
+        self.assertEqual(manifests["figma-workflow"].get("apps"), "./.app.json")
+        self.assertEqual(manifests["code-intelligence"].get("mcpServers"), "./codex-mcp.json")
+        self.assertEqual(load(ROOT / "plugins/figma-workflow/.app.json"), {
+            "apps": {
+                "figma": {
+                    "id": "connector_68df038e0ba48191908c8434991bbac2",
+                    "required": True,
+                }
+            }
+        })
+        for name, manifest in manifests.items():
+            if name != "figma-workflow":
+                self.assertNotIn("apps", manifest, name)
+            if name != "code-intelligence":
+                self.assertNotIn("mcpServers", manifest, name)
+        forbidden = {"mcp", "mcpServers", "lsp", "lspServers", "apps", "hooks"}
+        for entry in self.omp["plugins"]:
+            self.assertTrue(forbidden.isdisjoint(entry), entry["name"])
+
+    def test_code_intelligence_config_is_pinned_and_secret_free(self):
+        mcp = load(ROOT / "plugins/code-intelligence/codex-mcp.json")
+        serialized = json.dumps(mcp)
+        self.assertIn("${PLUGIN_ROOT}/scripts/launch-mcpls.py", serialized)
+        self.assertNotIn("cwd", mcp)
+        self.assertIsNone(re.search(r"(?i)(token|api[_-]?key|secret|password)", serialized))
+        launcher = (ROOT / "plugins/code-intelligence/scripts/launch-mcpls.py").read_text(encoding="utf-8")
+        self.assertIn('REQUIRED_VERSION = "0.6.0"', launcher)
+        self.assertIn('"MCPLS_TRUST_PROJECT_CONFIG": "false"', launcher)
+        self.assertNotRegex(launcher, r"curl|wget|pip install|cargo install|brew install")
+        config = (ROOT / "plugins/code-intelligence/config/mcpls.toml").read_text(encoding="utf-8")
+        self.assertIn('tool_prefix = "lsp"', config)
+        self.assertIn("roots = []", config)
 
 
 if __name__ == "__main__":

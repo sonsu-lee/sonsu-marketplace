@@ -1,7 +1,7 @@
 # JavaScript·TypeScript 리뷰 판단 평가
 
-이 fixture는 Engineering의 공통
-[`JavaScript·TypeScript 개인 리뷰 체크리스트`](../../plugins/engineering/references/javascript-typescript-review.md)가
+이 fixture는 Code Review의
+[`JavaScript·TypeScript 개인 리뷰 체크리스트`](../../plugins/code-review/references/javascript-typescript-review.md)가
 실제 코드 문맥에서 올바른 finding과 no-finding을 구분하는지 평가합니다.
 
 ## 평가 범위
@@ -14,7 +14,7 @@
 - 무조건적인 hardening이나 잘못된 단순화를 막는 `must_not`
 
 평가 모델에는 `id`와 `expected`를 숨기고 `request`, `contract`, `code`, `context`만 제공합니다.
-Engineering의 요청에 맞는 스킬과 공통 reference를 읽게 한 뒤 결과를 `expected`와
+Code Review의 요청에 맞는 focused skill과 공통 reference를 읽게 한 뒤 결과를 `expected`와
 대조합니다. 단어 포함 여부만으로 통과시키지 않고 trigger, 실제 영향, 경계 소유자와 최소 수정이
 현재 코드 흐름에 맞는지 확인합니다.
 

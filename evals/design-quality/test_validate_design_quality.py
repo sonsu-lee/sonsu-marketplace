@@ -528,15 +528,16 @@ class DesignQualityValidatorTests(unittest.TestCase):
         result = self.run_validator("report", report, contract)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("DQ2", result.stdout)
-        self.assertIn("minimum independent score", result.stdout)
+        self.assertIn("minimum evaluator score", result.stdout)
 
-    def test_author_only_rubric_cannot_pass(self) -> None:
+    def test_one_author_evaluator_can_pass(self) -> None:
         contract = valid_contract()
         report = valid_report(contract)
-        report["evaluator_runs"] = [evaluator("author", "author"), evaluator("author-2", "author")]
+        report["evaluator_runs"] = [
+            evaluator("author", "author", contract_digest=report["contract_digest"])
+        ]
         result = self.run_validator("report", report, contract)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("independent evaluators", result.stdout)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_unknown_evaluator_gate_is_a_validation_error_not_a_crash(self) -> None:
         contract = valid_contract()
@@ -978,7 +979,7 @@ class DesignQualityValidatorTests(unittest.TestCase):
         result = self.run_validator("report", report, contract)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_failed_subjective_gate_still_requires_two_independent_scores(self) -> None:
+    def test_failed_subjective_gate_still_requires_one_evaluator_score(self) -> None:
         contract = valid_contract()
         report = valid_report(contract)
         report["gates"][1]["status"] = "failed"
@@ -987,7 +988,7 @@ class DesignQualityValidatorTests(unittest.TestCase):
             del run["scores"]["DQ1"]
         result = self.run_validator("report", report, contract)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("failed requires 2 independent evaluators", result.stdout)
+        self.assertIn("failed requires at least one evaluator run", result.stdout)
 
     def test_color_only_representation_is_rejected(self) -> None:
         contract = valid_contract()

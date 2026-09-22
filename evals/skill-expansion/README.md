@@ -1,39 +1,23 @@
-# 독립 스킬 선택과 행동 평가
+# Retained capability behavior cases
 
-`cases.json`은 자동 선택·직접 호출·산출물 경계·PR 실패 처리·정보 자산·제품/티켓 질문을 다룬다.
-라우팅 시작 조건은 기존 `evals/skill-routing/cases.json`에도 연결한다. 신규 UI 사례는 이전 차량
-화면과 다른 콘텐츠 웹, 모바일 입력, 운영형 대량 처리와 지도/차트를 사용한다.
+[`cases.json`](cases.json)은 major cutover 뒤 남은 Workflow, Product, Interface Design, Operations UI,
+Figma Workflow와 explicit `review-pr`의 산출물 경계를 평가합니다. continuity, 일반 Engineering
+lifecycle, fixed model/reviewer policy와 retry-count 비교는 포함하지 않습니다.
 
-## 실행과 판정
+평가 모델에는 opaque case ID, `prompt`, `installed_plugins`에 해당하는 native skill registry와 그
+시점에 관찰 가능한 fixture만 제공합니다. `expected`와 과거 결과는 숨깁니다. 외부 PR/ticket/Figma와
+repository source를 실제 수정하지 않습니다.
 
-실행 모델에는 중립 ID, `prompt`, `installed_plugins`에 해당하는 현재 스킬 카탈로그, 그 시점에
-이미 관찰한 `fixture`만 제공한다. `expected`와 판정을 암시하는 원 case ID는 제공하지 않는다.
-선택한 스킬과 읽은 파일 경로, 다음 행동, 결과·완료 판정의 근거를 원시 trace에 남긴다.
-외부 PR·Figma·tracker를 실제 수정하지 않고 사용자 설치 상태도 바꾸지 않는다.
+확인할 계약:
 
-1. 형식·경로·Codex 패키징·생성 결과와 기존 Operations UI validator 회귀를 검사한다.
-2. 별도 임시 marketplace/CODEX_HOME의 native plugin/read → install → skills/list로 신규 이름·
-   description·enabled·errors를 확인한다. 사용자 HOME·설치·인증 파일을 수정하지 않는다.
-3. 이름 없는 요청과 이름 지정 요청을 별도로 평가한다. 본문을 강제 제공한 실행은 명시적
-   지침 적용이며, 카탈로그를 제공해 고르는 모의 평가는 실제 host 자동 선택과 구분한다.
-4. native 자동 선택은 로더가 제공한 카탈로그와 실제 SKILL.md 읽기 attribution을 확인한다.
-   다른 설치 스킬·프로젝트 지침이 섞였으면 그 조건을 기록하고 단독 설치 성공으로 표현하지 않는다.
-5. 행동 fixture는 현재 관찰에 대한 다음 행동·결과 판정을 확인한다. PR 리뷰어 결과 fixture는
-   통합 판단만 검증하고 실제 독립 리뷰어 실행을 증명하지 않는다.
-   PR 게시가 기본인 요청과 로컬 전용 요청, Codex 일시 오류 재시도·상한, 기존 댓글 중복,
-   head 변경과 게시 응답 불명은 각각 확인한다. 이 평가의 `fixture.writes: none`은 외부 쓰기를
-   막는 테스트 환경 조건이며 제품의 게시 기본값을 바꾸지 않는다. 모의 게시 계획과 실제 GitHub
-   review ID·댓글 readback은 별도 증거다. 워크트리는 실제 경로·HEAD·clean 상태·세션 cwd로 확인한다.
-6. UI 시각 품질은 스킬로 새 산출물을 만들고 실제 화면·내부 자산을 확인한다. 명세·계획만
-   반환한 결과는 판단 절차 평가이며 렌더링·동작·기기 검증을 통과한 것이 아니다.
+- Workflow: inspect/repair/create/lifecycle을 구분하고 target·permission·readback을 유지합니다.
+- Product: discovery/evidence/domain/test/assessment/PRD를 구분하고 `to-prd`가 issue를 만들지 않습니다.
+- UI: 일반 interface와 operations UI, proposal/redesign/audit 산출물 scope를 구분합니다.
+- Figma: current host가 노출한 official capability만 사용하고 없으면 성공을 추정하지 않습니다.
+- `review-pr`: explicit invocation에서만 선택하고 source를 수정하지 않으며 marker/readback이 있는
+  COMMENT 하나만 게시합니다. 일반 review는 host-native path입니다.
 
-## 증거 수준
-
-각 case는 `pass / fail / not_run / inconclusive`와 근거를 기록한다. 직접 호출 성공을 자동 선택
-성공으로, native 발견을 행동 성공으로, 모델의 설명을 UI 품질·runtime 증거로 대체하지 않는다.
-시각 평가에는 입력·명세·산출물·환경·실제 관찰을 연결한다. 스킬 작성에 사용한 이전 화면·대화
-문맥을 독립 검증 입력으로 재사용하지 않는다.
-
-운영형 웹 구현은 공통 계약의 DQ0–DQ7과 Operations runtime evidence로 검증한다. proposal/Figma-only는
-자신의 scope gate만 판정하며 실행 증거가 없는 DQ7을 임의로 통과시키지 않는다. 네이티브 플랫폼의 실행 검사는
-실제 기기/에뮬레이터 증거가 없으면 `not_run`이다.
+Static registration, native loader discovery, model selection, behavior와 external mutation은 별도 증거입니다.
+결과는 `pass | fail | blocked | not_run | inconclusive`로 기록하고 실행하지 않은 scope gate를 통과로
+바꾸지 않습니다. 공통 DQ contract의 author/evaluator 관계와 minimum score 규칙은
+[`../design-quality/`](../design-quality/)에서 별도 검증합니다.
