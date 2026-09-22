@@ -8,24 +8,24 @@ description: 개발 작업을 시작하거나 작업 성격이 바뀔 때 Engine
 요청의 목적, 승인 범위, 현재 계약과 실패 영향을 확인한다. 구체적인 작업을 위임받았으면 그
 작업의 brief와 해당 스킬부터 수행한다. 일반 코드 리뷰도 Engineering의 책임이다.
 
-| 요청 | 진입점 |
-| --- | --- |
-| 코드·diff·commit·branch 일반 리뷰 | `engineering:review-quality` |
-| 불필요한 복잡성·유지보수·실패 경로·운영성 중 특정 관점 리뷰 | 해당 `review-*` 스킬 |
-| 독립된 PR 심층·다중 리뷰 | `engineering:review-pr` |
-| 개발 단계의 독립 리뷰 또는 PR 이외의 명시적 독립 리뷰 | `engineering:requesting-code-review` |
-| 도메인 계약을 타입·상태·경계에 반영 | `engineering:domain-shaped-code` |
-| 현재 코드를 단순화 | `engineering:simplify-code` |
-| 범위·요구·설계 결정 | `engineering:brainstorming` |
-| 여러 작업의 의존성과 검증 계획 | `engineering:writing-plans` |
-| 승인된 작업 실행·재개 | `engineering:executing-plans` |
-| 원인이 불명확한 오류 | `engineering:systematic-debugging` |
-| 리뷰 피드백 검증 | `engineering:receiving-code-review` |
-| 완료 보고 | `engineering:verification-before-completion` |
-| 스킬 작성·수정 | `engineering:writing-skills` |
+| 요청 | Codex ID | OMP ID |
+| --- | --- | --- |
+| 코드·diff·commit·branch 일반 리뷰 | `engineering:review-quality` | `skill://review-quality` |
+| 불필요한 복잡성·유지보수·실패 경로·운영성 중 특정 관점 리뷰 | `engineering:review-*` | `skill://review-*` |
+| 독립된 PR 심층·다중 리뷰 | `engineering:review-pr` | `skill://review-pr` |
+| 개발 단계의 독립 리뷰 또는 PR 이외의 명시적 독립 리뷰 | `engineering:requesting-code-review` | `skill://requesting-code-review` |
+| 도메인 계약을 타입·상태·경계에 반영 | `engineering:domain-shaped-code` | `skill://domain-shaped-code` |
+| 현재 코드를 단순화 | `engineering:simplify-code` | `skill://simplify-code` |
+| 범위·요구·설계 결정 | `engineering:brainstorming` | `skill://brainstorming` |
+| 여러 작업의 의존성과 검증 계획 | `engineering:writing-plans` | `skill://writing-plans` |
+| 승인된 작업 실행·재개 | `engineering:executing-plans` | `skill://executing-plans` |
+| 원인이 불명확한 오류 | `engineering:systematic-debugging` | `skill://systematic-debugging` |
+| 리뷰 피드백 검증 | `engineering:receiving-code-review` | `skill://receiving-code-review` |
+| 완료 보고 | `engineering:verification-before-completion` | `skill://verification-before-completion` |
+| 스킬 작성·수정 | `engineering:writing-skills` | `skill://writing-skills` |
 
-Codex의 직접 호출 ID는 `engineering:<skill-name>`, OMP의 스킬 이름과 `skill://` ID는
-`<skill-name>`이다. 현재 host가 실제로 노출한 이름을 사용한다.
+현재 host가 실제로 노출한 ID를 사용한다. Codex는 플러그인 prefix를 포함하고 OMP는
+prefix 없는 `skill://` ID를 사용한다.
 
 일반 리뷰는 구현 계획·소스 수정으로 확장하지 않는다. 여러 단계의 변경은
 [품질 게이트](references/quality-gates.md)에 따라 위험을 분류한다. 기계적 변경은 결정론적 검사,

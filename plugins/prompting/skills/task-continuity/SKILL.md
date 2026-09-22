@@ -1,5 +1,5 @@
 ---
-name: task-continuity
+name: prompting-task-continuity
 description: "프롬프트 작성·수정·검증이 여러 단계로 이어지거나, 컴팩션·세션 재개 후 현재 프롬프트 계약을 복구할 때 사용한다."
 ---
 

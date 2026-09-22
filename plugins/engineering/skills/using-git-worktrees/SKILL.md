@@ -63,8 +63,8 @@ git worktree add "$TASK_WORKTREE_PATH" -b "$BRANCH_NAME"
 
 변경에 적합한 기준 검사를 실행한다. 동작 변경은 관련 테스트·빌드, 문서·메타데이터는 링크·구문·경로·실제 소비 명령 등으로 현재 상태를 확인한다. 작업과 무관한 전체 검사 모음을 자동으로 요구하지 않는다.
 
-검사가 실패하면 기존 실패와 환경 오류를 구분해 기록한다. 현재 작업의 결과를 판정할 수 있는지 확인하고 원인 불명은 `engineering:systematic-debugging`으로 보낸다. 실패에 의존하지 않는 승인 작업은 계속하며, 사용자 결정이나 실제 환경 변경이 필요할 때 그 조건을 알린다.
+검사가 실패하면 기존 실패와 환경 오류를 구분해 기록한다. 현재 작업의 결과를 판정할 수 있는지 확인하고 원인 불명은 Codex의 `engineering:systematic-debugging` 또는 OMP의 `skill://systematic-debugging`으로 보낸다. 실패에 의존하지 않는 승인 작업은 계속하며, 사용자 결정이나 실제 환경 변경이 필요할 때 그 조건을 알린다.
 
 ## 완료 근거
 
-작업 공간 절대 경로, 브랜치·detached 상태, 기존 변경 보존 여부, 실제 실행한 환경 준비·기준 검사와 결과를 보고한다. 미실행 검사는 `not_run`으로 구분한다. 생성했다는 사실만으로 테스트 통과를 주장하지 않는다. 정리할 때는 기록한 소유 범위와 `engineering:finishing-a-development-branch`의 조건을 따른다.
+작업 공간 절대 경로, 브랜치·detached 상태, 기존 변경 보존 여부, 실제 실행한 환경 준비·기준 검사와 결과를 보고한다. 미실행 검사는 `not_run`으로 구분한다. 생성했다는 사실만으로 테스트 통과를 주장하지 않는다. 정리할 때는 기록한 소유 범위와 Codex의 `engineering:finishing-a-development-branch` 또는 OMP의 `skill://finishing-a-development-branch` 조건을 따른다.

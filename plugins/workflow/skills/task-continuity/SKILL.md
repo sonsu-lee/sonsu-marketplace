@@ -1,5 +1,5 @@
 ---
-name: task-continuity
+name: workflow-task-continuity
 description: "Git·티켓·PR 작업에 여러 단계 또는 외부 쓰기가 있거나, 컴팩션·세션 재개 후 해당 작업의 반영 여부가 불명확할 때 사용한다."
 ---
 

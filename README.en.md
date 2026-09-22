@@ -92,13 +92,13 @@ After installing the relevant plugin, try requests like these in Codex or OMP:
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
 | Figma Workflow | “Review the Auto Layout and prototype connections in this Figma screen.” |
-| Memory Manager | “$memory-manager Review the Codex memories for this project.” |
+| Memory Manager | Codex: “`$memory-manager` Review the Codex memories for this project.” / OMP: “`/skill:memory-manager` Review the Codex memories for this project.” |
 | Interface Design | “Design a mobile signup flow and improve the chart presentation.” |
 | Operations UI | “Implement this order-operations screen from a Design Decision Contract and verify it with DQ gates and browser evidence.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
 
 Codex and OMP select skills based on your request and the descriptions of installed skills.
-Memory Manager runs only when explicitly invoked with `$memory-manager`.
+Memory Manager runs only when explicitly invoked with `$memory-manager` in Codex or `/skill:memory-manager` in OMP.
 
 Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
 Figma Workflow requires the official Figma MCP connection and the tool's prerequisite skills for canvas operations.

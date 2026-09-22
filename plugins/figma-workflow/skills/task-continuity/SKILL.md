@@ -1,5 +1,5 @@
 ---
-name: task-continuity
+name: figma-workflow-task-continuity
 description: "Figma 화면·프로토타입·감사가 여러 단계로 이어지거나, 컴팩션·세션 재개 후 수정 대상과 검증 상태를 복구할 때 사용한다."
 ---
 

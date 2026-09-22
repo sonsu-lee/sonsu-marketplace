@@ -2404,7 +2404,7 @@
       "must_not_select": [
         "engineering:brainstorming",
         "engineering:writing-plans",
-        "engineering:task-continuity"
+        "engineering:engineering-task-continuity"
       ]
     },
     {
@@ -2418,7 +2418,7 @@
         "engineering:brainstorming",
         "engineering:writing-plans",
         "engineering:using-git-worktrees",
-        "engineering:task-continuity"
+        "engineering:engineering-task-continuity"
       ]
     },
     {
@@ -2612,7 +2612,7 @@
       "must_not_select": [
         "engineering:brainstorming",
         "engineering:writing-plans",
-        "engineering:task-continuity"
+        "engineering:engineering-task-continuity"
       ],
       "must_not_install_plugins": true
     },
@@ -2644,7 +2644,7 @@
         "writing:writing",
         "engineering:brainstorming",
         "engineering:writing-plans",
-        "engineering:task-continuity"
+        "engineering:engineering-task-continuity"
       ],
       "must_not_install_plugins": true
     },

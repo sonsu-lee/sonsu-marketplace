@@ -1,5 +1,5 @@
 ---
-name: task-continuity
+name: engineering-task-continuity
 description: "구현·디버깅·계획 실행 또는 코드 품질 검토·단순화가 여러 단계로 이어져 진행 기록이 필요하거나, 컴팩션·세션 재개 후 해당 Engineering 작업을 복구할 때 사용한다."
 ---
 

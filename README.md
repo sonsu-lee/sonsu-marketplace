@@ -91,13 +91,13 @@ Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR�
 | Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
 | Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
 | Figma Workflow | “이 Figma 화면의 Auto Layout과 프로토타입 연결을 검토해 줘.” |
-| Memory Manager | “$memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘.” |
+| Memory Manager | Codex: “`$memory-manager` 현재 프로젝트의 Codex 메모리를 점검해 줘.” / OMP: “`/skill:memory-manager` 현재 프로젝트의 Codex 메모리를 점검해 줘.” |
 | Interface Design | “새 모바일 가입 흐름을 디자인해 줘. 이 차트의 정보 표현도 개선해 줘.” |
 | Operations UI | “이 주문 운영 화면을 Design Decision Contract부터 구현하고 DQ 게이트와 브라우저 증거로 검증해 줘.” |
 | Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
 
 Codex와 OMP는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
-Memory Manager는 `$memory-manager`로 명시적으로 호출할 때만 작동합니다.
+Memory Manager는 Codex의 `$memory-manager` 또는 OMP의 `/skill:memory-manager`로 명시적으로 호출할 때만 작동합니다.
 
 Research의 Exa·Perplexity 연동은 선택 사항이며, 사용 가능한 web·browser·connector와 로컬 자료로도 조사할 수 있습니다.
 Figma Workflow의 캔버스 작업에는 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
