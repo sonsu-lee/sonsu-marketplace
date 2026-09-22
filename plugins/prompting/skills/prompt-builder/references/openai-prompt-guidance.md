@@ -1,6 +1,6 @@
 # OpenAI 프롬프트 지침
 
-지정된 OpenAI 모델, product surface 또는 API 설정이 프롬프트 작성 방식에 영향을 줄 때만 이 파일을 읽는다. 공통 구조는 아래에, 날짜·출처가 있는 모델별 선택은 공유 프로필에 둔다. 사용자가 최신 또는 현재 권고를 요청하면 모델별 주장을 하기 전에 현재 OpenAI 공식 문서를 확인한다.
+지정된 OpenAI 모델, product surface 또는 API 설정이 프롬프트 작성 방식에 영향을 줄 때만 이 파일을 읽는다. 사용자가 최신 또는 현재 권고를 요청하면 모델별 주장을 하기 전에 현재 OpenAI 공식 문서를 확인한다.
 
 ## 공통 구조
 
@@ -50,11 +50,10 @@ API integration이 schema를 강제할 수 있다면 JSON schema를 산문으로
 
 ## 모델별 적용
 
-[공유 모델 프로필](../../../references/model-profiles.md)은 현재 Astra/Sol/Terra/Luna의 기본
-운영 선택과 최소 프롬프트 차이를 제공한다. 프롬프트가 필요한 작업에서 해당 차이만 읽고
-현재 host/공통 계약에 이미 있는 지시는 반복하지 않는다. 이 자료의 native effort 표를
-Responses/Chat Completions API 파라미터로 그대로 옮기지 않는다. API 지원값은 지정 모델의
-현재 공식 문서에서 확인한다.
+특정 모델의 capability, reasoning effort, verbosity 또는 API parameter가 결과를 바꾸면 현재
+OpenAI 공식 문서에서 지원 여부와 정확한 필드 위치를 확인한다. host의 model 선택과 reasoning
+설정을 plugin이 고정하거나 바꾸지 않는다. native host 설정을 Responses/Chat Completions API
+parameter로 그대로 옮기지 않는다.
 
 이 marketplace의 최적화 대상은 GPT/Codex다. 사용자 입력에 다른 모델이 있으면 범위를
 밝히고 모델 중립 초안을 만들 수 있으나 지원하지 않는 vendor 전용 설정을 생성하지 않는다.

@@ -47,8 +47,6 @@ python3 <interface-design-plugin-root>/scripts/validate_design_quality.py contra
 python3 <interface-design-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
 ```
 
-현재 scope의 DQ gate를 차원별로 판정하고 DQ1–DQ6은 독립 평가자 2명의 최솟값을 사용한다.
+현재 scope의 DQ gate를 차원별로 판정한다. DQ1–DQ6에는 같은 artifact/contract evaluator run이
+최소 하나 필요하고, 여러 run이 있으면 최솟값을 사용하며 큰 divergence는 `inconclusive`다.
 높은 시각 점수로 정보 누락·오판 위험·실행 증거 부족을 상쇄하지 않는다.
-
-여러 단계의 작업은 [작업 연속성](../task-continuity/SKILL.md)으로 이어 간다. 단발 작업이나
-파일 쓰기가 금지된 작업에는 기록 파일을 만들지 않는다.

@@ -10,7 +10,7 @@ merge base부터 current head까지의 commit과 전체 diff를 읽고 staged·u
 
 번들 작성 지침에 전달할 실제 변경, 설계 근거와 rollout·migration·호환성·rollback 제약을 확보한다. 제목·본문이 최종 head와 같은 변경을 설명하는지 확인한다.
 
-Writing·Fluent 적용은 [공통 결합 기준](../../../references/writing-composition.md)을 따른다. 표현을 고친 뒤에도 고정 양식·코드·식별자·링크·의무 수준과 보호할 연결 문법을 다시 대조한다.
+표현을 다듬은 뒤에도 고정 양식·코드·식별자·링크·의무 수준과 provider가 해석하는 연결 문법을 다시 대조한다.
 
 ## 근거의 범위를 정확히 표현한다
 

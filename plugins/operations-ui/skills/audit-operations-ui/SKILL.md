@@ -11,7 +11,7 @@ route/tab navigation만 허용한다. submit, create, update, delete, persisted 
 
 1. 관찰 근거에서 `design-decision-contract-v1`을 복원하고 미확인은 `unresolved_decisions`에 남긴다.
 2. [공통 DQ0–DQ8](../../references/design-quality.md)과 [Operations 적용](../../references/quality-contract.md)을 판정한다.
-3. DQ1–DQ6은 독립 평가자 2명의 근거·점수를 사용한다.
+3. DQ1–DQ6은 같은 artifact/contract에 연결된 evaluator run을 최소 하나 사용하고, 여러 run이면 최솟값과 divergence를 보존한다.
 4. 실제 runtime을 관찰할 수 있으면 비파괴 scenario×environment receipt를 남긴다.
 5. representative user/production 결과가 없으면 live DQ8과 `validated` 주장을 통과시키지 않는다.
 

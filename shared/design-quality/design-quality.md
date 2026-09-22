@@ -70,7 +70,7 @@ JSON에는 파일 경로·SHA-256 digest·package 버전·실행 시각·명령�
 
 ## 차원별 합격
 
-필수 DQ gate는 각각 통과해야 한다. DQ1–DQ6의 주관적 rubric은 작성자가 아닌 독립 평가자 2명이 0–4점으로 평가하고, 두 점수의 최솟값이 3 이상이어야 한다. 점수 차이가 1보다 크면 평균하지 않고 `inconclusive`로 돌려 판정을 조정한다. hard check 실패와 열린 critical finding은 높은 점수로 상쇄할 수 없다.
+필수 DQ gate는 각각 통과해야 한다. DQ1–DQ6의 `passed`, `failed`, `inconclusive`에는 같은 artifact revision과 contract digest에 연결된 evaluator run이 최소 1개 필요하다. `relationship: author | independent`는 evidence metadata이며 별도 reviewer spawn을 강제하지 않는다. 여러 run이 있으면 점수 최솟값이 3 이상이어야 하고 점수 차이가 1보다 크면 평균하지 않고 `inconclusive`로 판정한다. hard check 실패와 열린 critical finding은 높은 점수로 상쇄할 수 없다.
 
 | 점수 | 관찰 가능한 기준 |
 | --- | --- |

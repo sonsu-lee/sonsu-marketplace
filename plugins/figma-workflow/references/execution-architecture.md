@@ -11,12 +11,11 @@
 | Desktop companion | allowlisted deterministic transformation/audit | open-ended design judgment, agent write |
 
 skill은 session model이나 reasoning effort를 조용히 바꾸지 않는다. 판단형 canvas 작업의 agent writer는
-official Figma MCP 하나이며, concurrent write는 [capability and evidence](capability-and-evidence.md)의 conflict
-domain rule을 따른다. `use_figma`를 호출할 때마다 `figma:figma-use`를 먼저 invoke하고 tool call의
-`skillNames`에 `figma-use`를 넣는다. composed screen/view는 `figma:figma-use`와
-`figma:figma-generate-design`, component/library는 `figma:figma-use`와
-`figma:figma-generate-library`를 함께 invoke한다. motion 등 추가 official prerequisite는 current installed
-contract가 요구할 때 함께 적용한다. Desktop companion은 사용자가 직접 실행하는 별도 tool이다.
+current host가 실제 노출한 Figma provider 하나이며, concurrent write는
+[capability and evidence](capability-and-evidence.md)의 conflict domain rule을 따른다. provider가
+실제로 노출한 prerequisite만 현재 schema대로 적용한다. Codex 전용 `figma:figma-use`는 노출된
+경우에만 사용하고 OMP에서는 현재 Figma MCP/plugin capability를 사용한다. capability가 없으면
+API를 추정하거나 다른 writer를 만들지 않는다. Desktop companion은 사용자가 직접 실행하는 별도 tool이다.
 
 local companion은 반복 빈도가 있고, input·target·unchanged area·output을 결정적으로 검증할 수 있으며,
 preview와 bounded failure/readback이 가능한 작업에만 후보가 된다. open-ended layout, UX judgment, visual direction,

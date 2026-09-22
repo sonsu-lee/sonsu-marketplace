@@ -2,20 +2,20 @@
 
 ## Capability preflight
 
-mutation 전에 current provider tool, required prerequisite skill, target document, authenticated identity,
-permission과 requested scope를 확인한다. plugin 설치는 tool, editable file, Desktop application 또는 full
-seat의 존재를 증명하지 않는다.
+mutation 전에 current provider tool, target document, authenticated identity, permission, requested scope와
+provider가 실제 노출한 prerequisite를 확인한다. plugin 설치는 tool, editable file, Desktop application
+또는 full seat의 존재를 증명하지 않는다.
 
 `structure_read`, `screenshot`, `reaction_write`, `reaction_readback`, `prototype_playback`, `font_load`,
-`asset_import`, `export`를 각각 `supported`, `unsupported`, `unavailable`로 기록한다. `use_figma`를 실제
-호출하는 모든 mutation과 unique read에는 먼저 `figma:figma-use`를 invoke하고, 해당 tool call의
-`skillNames`에 `figma-use`를 포함한다. 이 prerequisite 또는 capability가 설치·노출되지 않으면 tool/API를
-추정하거나 우회하지 않고 `blocked`, `not_run` 또는 `inconclusive`로 보고한다.
+`asset_import`, `export`를 각각 `supported`, `unsupported`, `unavailable`로 기록한다. Codex 전용
+`figma:figma-use` ID는 현재 host가 실제 노출한 경우에만 적용한다. OMP에서는 현재 노출된 Figma
+MCP/plugin capability와 그 prerequisite를 사용한다. 어느 host에서도 실제 Figma read/write capability가
+없으면 tool/API를 추정하거나 다른 writer를 만들지 않고 `blocked` 또는 `not_run`으로 끝낸다.
 
-판단형 Figma canvas read/write는 registered official Figma MCP가 유일한 agent writer다. explicit target의
-bounded code도 그 MCP 안에서만 허용한다. [deterministic execution](deterministic-execution.md)에 적힌
-Desktop companion은 사용자가 수동 실행하는 allowlisted JSON 도구이며 raw MCP, local bridge 또는 second
-writer가 아니다.
+판단형 Figma canvas read/write는 current host가 노출한 Figma provider 하나만 사용한다. explicit
+target의 bounded code도 그 provider schema 안에서만 허용한다. [deterministic execution](deterministic-execution.md)의
+Desktop companion은 사용자가 수동 실행하는 allowlisted JSON 도구이며 raw MCP, local bridge 또는
+second writer가 아니다.
 
 ## Authorization boundary
 

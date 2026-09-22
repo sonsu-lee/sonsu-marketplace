@@ -12,26 +12,24 @@ Figma Design이 최종 제품 화면의 source of truth일 때 native frame, Aut
 다른 플러그인 설치나 전체 개발 절차를 선행 조건으로 요구하지 않는다. 명세를 중복 탐색하거나
 제안/Figma-only 요청에 코드 구현을 추가하지 않는다.
 
-## 작업 연속성
-
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
 
 ## 시작과 실행 선택
 
 1. [tool routing](../../references/tool-routing.md)으로 최종 artifact가 Figma Design인지 확인한다. 제품 화면, 상태, overlay와 interaction 동선은 Figma 안에서 완결한다. FigJam은 탐색·워크숍, draw.io는 AWS·시스템 구조도에만 사용한다.
-2. [capability and evidence](../../references/capability-and-evidence.md)를 읽어 target, edit permission, connected Figma capability와 provider가 요구하는 prerequisite skill을 확인한다. 환경에 해당 prerequisite가 설치되어 있다면 현재 계약을 먼저 따르며, 없는 tool/API 이름을 추정하지 않는다.
-3. 실행 방식은 [deterministic execution](../../references/deterministic-execution.md)의 분류를 따른다. 판단을 요하는 canvas read/write는 registered official Figma MCP가 유일한 agent writer다. `use_figma`를 호출할 때마다 먼저 `figma:figma-use`를 invoke하고 tool call의 `skillNames`에 `figma-use`를 포함한다. 직접 MCP 작업 또는 explicit target을 가진 bounded code 모두 이 경로 안에서만 수행한다.
+2. [capability and evidence](../../references/capability-and-evidence.md)를 읽어 target, edit permission,
+   current host가 실제 노출한 Figma capability와 provider prerequisite를 확인한다. Codex 전용
+   `figma:figma-use`는 실제 노출된 경우에만 적용하고 OMP에서는 현재 Figma MCP/plugin capability를 사용한다.
+3. 실행 방식은 [deterministic execution](../../references/deterministic-execution.md)의 분류를 따른다.
+   판단형 canvas read/write는 현재 host가 노출한 Figma provider가 유일한 agent writer다.
 4. 기존 page, selection, nearby screens, components, variables, styles와 Code Connect 정보를 읽는다. 기존 system을 읽지 않은 채 primitives부터 만들지 않는다.
 5. [공통 디자인 품질 계약](../../references/design-quality.md)에 따라 `artifact_scope: figma`, 사용자·
    맥락·핵심 질문·오판 비용, 정보·표현·환경·metric을 잠근다. `extensions.figma`에는 target,
    필요한 capability, component strategy, resize와 prototype scenario를 기록한다.
 
-composed screen/view는 `figma:figma-use`와 `figma:figma-generate-design`을 함께 invoke한 뒤 `use_figma`를 호출한다. 개별 component·library authoring은 `figma:figma-use`와 `figma:figma-generate-library`를 함께 invoke한다. motion 등 추가 official prerequisite가 현재 설치된 contract에 적용되면 그것도 함께 따른다. 실제 canvas I/O는 현재 연결된 official Figma MCP schema가 정한 경로만 사용하며, 이 skill은 native craft와 evidence 계약을 보완한다. design-to-code는 `figma:figma-design-to-code`의 범위다.
-
-필수 prerequisite 또는 capability가 설치·노출되지 않으면 screen/layout specification만 제공하고 mutation을 `blocked`, `not_run` 또는 `inconclusive`로 보고한다. tool/API를 추정하거나 raw MCP 설치, agent-callable local bridge 또는 두 번째 agent writer를 제안하지 않는다.
+provider가 요구하는 prerequisite가 현재 host에 실제 노출돼 있으면 해당 계약을 적용한다. 실제 canvas
+I/O는 현재 노출된 schema만 사용한다. Figma read/write capability가 없으면 screen/layout specification만
+제공하고 mutation을 `blocked` 또는 `not_run`으로 보고한다. tool/API를 추정하거나 raw MCP 설치,
+agent-callable local bridge 또는 두 번째 agent writer를 제안하지 않는다.
 
 ## 생성과 수정
 
@@ -51,8 +49,8 @@ composed screen/view는 `figma:figma-use`와 `figma:figma-generate-design`을 �
 
 결과에는 변경한 frame, 재사용한 component·variable·asset, accessible icon name/size, interaction handoff와 각 evidence 상태를 기록한다. write가 성공해도 screenshot·structure·reaction readback 중 필요한 근거가 없으면 해당 claim은 `inconclusive` 또는 `not_run`이다. 실제 Desktop companion 실행과 live Figma 실행을 이 문서 작업에서 했다고 주장하지 않는다.
 
-Figma 범위는 DQ0–DQ7을 요구한다. DQ1–DQ6은 작성자가 아닌 독립 평가자 2명이 같은 revision을
-평가하며 최솟값 3 미만이나 1보다 큰 점수 차이를 평균으로 숨기지 않는다.
+Figma 범위는 DQ0–DQ7을 요구한다. DQ1–DQ6에는 같은 artifact revision과 contract digest에 연결된
+evaluator run이 최소 하나 필요하다. 여러 run이면 최솟값과 divergence를 보존한다.
 
 ```bash
 python3 <figma-workflow-plugin-root>/scripts/validate_design_quality.py contract <contract.json>

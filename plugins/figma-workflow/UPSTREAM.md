@@ -2,7 +2,7 @@
 
 ## Status
 
-- Plugin version: `0.3.0`
+- Plugin version: `1.0.0`
 - Source model: locally authored, multi-source guidance
 - External files copied: none
 - License: not declared; decide before public distribution

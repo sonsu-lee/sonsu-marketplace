@@ -7,12 +7,6 @@ description: Codex, ChatGPT 또는 OpenAI API 모델에서 바로 사용할 수 
 
 사용자가 의도한 결과와 제약을 보존하는 가장 작은 프롬프트를 작성한다.
 
-## 작업 연속성
-
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
 
 ## 산출물을 정한다
 
@@ -21,8 +15,8 @@ description: Codex, ChatGPT 또는 OpenAI API 모델에서 바로 사용할 수 
 - 빠진 선택이 산출물을 실질적으로 바꿀 때만 하나의 집중된 질문을 한다. 질문에 의존하는 부분만 보류하고 독립적으로 완성할 수 있는 프롬프트는 계속 작성한다. 아래 출력 계약은 실제로 반환하는 산출물에 적용한다. 그 외에는 안전한 기본값을 추론하고, 사용자가 알아야 할 때에만 그 가정을 밝힌다.
 - 사용자가 OpenAI 모델을 지정하거나, 모델별 최적화를 요청하거나, API에서의 배치 위치 또는 parameter가 필요하면 [OpenAI 프롬프트 지침](references/openai-prompt-guidance.md)을 읽는다. 최신 또는 현재 권고를 요청하면 이 참고 문서의 snapshot만 신뢰하지 말고 OpenAI 공식 문서를 사용한다.
 
-모델 선택·Astra 차이는 [공유 프로필](../../references/model-profiles.md)을 필요할 때 참조한다.
-Engineering의 매 작업 실행에 이 스킬을 필수 호출하지 않는다.
+특정 현재 OpenAI 모델 동작이나 API parameter를 요청하면 official documentation을 다시 확인하고,
+snapshot의 모델 이름이나 host 설정을 현재 사실로 가정하지 않는다.
 
 ## 프롬프트를 작성한다
 

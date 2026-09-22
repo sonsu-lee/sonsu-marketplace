@@ -17,10 +17,11 @@ Operations UI에서는 다음 근거를 특히 요구한다.
 | DQ7 | proposal/Figma/runtime에 맞는 provenance와 scenario×environment 증거 |
 | DQ8 | 사전 등록 지표와 low/medium/high 위험에 맞는 사용자 증거 |
 
-DQ1–DQ6은 독립 평가자 2명이 같은 revision과 contract digest를 평가한다. `passed`, `failed`,
-`inconclusive` 판정 모두 두 평가가 필요하다. gate 점수는 두 점수의 최솟값이고 3 이상이
-합격선이다. 점수 차이가 1보다 크면 `inconclusive`다. critical finding, hard check,
-낮은 차원 점수는 다른 점수로 상쇄하지 않는다.
+DQ1–DQ6의 `passed`, `failed`, `inconclusive`에는 같은 revision과 contract digest에 연결된
+evaluator run이 최소 하나 필요하다. `relationship: author | independent`는 evidence metadata이며
+independent reviewer spawn을 강제하지 않는다. 여러 run이 있으면 gate 점수는 최솟값이고 3 이상이
+합격선이다. 점수 차이가 1보다 크면 `inconclusive`다. critical finding, hard check와 낮은 차원
+점수는 다른 점수로 상쇄하지 않는다.
 
 Operations report의 `extensions.operations.design_system_mapping`은 `system_id`, `token_source`,
 contract `representation_ids`, semantic role→token ID와 근거를 가진다. 모든 적용 가능한

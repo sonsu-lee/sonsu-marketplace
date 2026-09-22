@@ -28,4 +28,3 @@ pending, skipped/neutral을 성공으로 합치지 않는다. `CLEAN`이나 `UNS
 
 조회 중 head가 바뀌면 항목을 새 head 기준으로 갱신하거나 혼합 관찰임을 표시한다. GitHub의
 여러 API를 읽는 것이 원자적 snapshot은 아니다. 실패한 조회를 빈 결과로 보고하지 않는다.
-여러 단계 조회는 [작업 연속성](../task-continuity/SKILL.md)에 이어서 기록하며 쓰기 금지면 생략한다.

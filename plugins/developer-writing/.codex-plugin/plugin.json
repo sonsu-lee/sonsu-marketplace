@@ -1,0 +1,33 @@
+{
+  "name": "developer-writing",
+  "version": "1.0.0",
+  "description": "자료·코드·검증 결과와 저자 경험을 구분해 개발자 블로그, 기술 아티클, TIL과 디버깅 회고를 작성합니다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT",
+  "keywords": [
+    "developer-writing",
+    "developer-blog",
+    "technical-article",
+    "til",
+    "debugging-retrospective"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Developer Writing",
+    "shortDescription": "근거 기반 개발자 블로그 글쓰기",
+    "longDescription": "독자 문제와 핵심 답을 먼저 고정하고 저자 경험, 코드, 외부 출처와 직접 검증 결과를 구분해 개발자 블로그를 기획·작성·수정·감사합니다. 일반 문서 작성과 언어 교정은 host가 담당합니다.",
+    "developerName": "sonsu",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "이 디버깅 경험을 근거가 분명한 개발자 블로그 초안으로 써 줘.",
+      "이 기술 선택 글의 흐름과 근거를 감사해 줘."
+    ]
+  }
+}

@@ -1,6 +1,4 @@
 .DS_Store
-.engineering/
-
 # Local secrets
 .env
 .env.*

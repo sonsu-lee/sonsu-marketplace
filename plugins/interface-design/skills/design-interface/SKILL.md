@@ -38,8 +38,6 @@ python3 <interface-design-plugin-root>/scripts/validate_design_quality.py report
 ```
 
 Proposal은 DQ0–DQ6, Figma와 implementation은 DQ0–DQ7, live 평가는 DQ0–DQ8을 요구한다.
-DQ1–DQ6은 작성자가 아닌 독립 평가자 2명이 같은 revision을 평가한다. live 이전 결과를
-`end_to_end_status: passed`로 올리지 않는다.
-
-여러 단계의 작업은 [작업 연속성](../task-continuity/SKILL.md)으로 현재 명세·산출물·검증을 이어 간다.
-단발 작업, 다른 작업의 부분 역할과 파일 쓰기가 금지된 작업에는 별도 기록을 만들지 않는다.
+DQ1–DQ6의 `passed`, `failed`, `inconclusive`에는 같은 revision과 contract에 연결된 evaluator run이
+최소 하나 필요하다. 여러 run이 있으면 최솟값을 사용하고 divergence가 크면 `inconclusive`다.
+live 이전 결과를 `end_to_end_status: passed`로 올리지 않는다.

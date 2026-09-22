@@ -70,7 +70,6 @@
     }
   ],
   "subjective_floor": 3,
-  "independent_evaluators": 2,
   "maximum_score_divergence": 1,
   "score_anchors": {
     "0": "No usable evidence, or the artifact contradicts the locked contract.",

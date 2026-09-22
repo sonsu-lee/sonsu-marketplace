@@ -7,24 +7,25 @@ description: Figma Design에서 버튼 navigation, modal·drawer·popover, compo
 
 Figma Design이 제품 interaction의 source of truth일 때 actual control과 native reaction을 연결한다. Executable reaction, 사람이 읽는 annotation, named state topology는 서로 대체하지 않는 세 evidence layer다.
 
-## 작업 연속성
-
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
 
 ## 시작과 실행 선택
 
 1. [tool routing](../../references/tool-routing.md)으로 실제 제품 interaction인지 확인한다. overlay, back/dismiss, error/recovery와 state edge case는 Figma prototype 안에서 정의한다. FigJam과 draw.io diagram은 이를 대체하지 않는다.
-2. [capability and evidence](../../references/capability-and-evidence.md)를 읽어 target, permission과 `reaction_write`, `reaction_readback`, `prototype_playback` capability를 각각 기록한다. `use_figma`가 필요한 reaction read/write 전에는 `figma:figma-use`를 invoke하고 해당 tool call의 `skillNames`에 `figma-use`를 포함한다. motion 등 추가 official prerequisite가 현재 설치된 contract에 적용되면 그것도 함께 따른다.
-3. 판단형 reaction read/write는 registered official Figma MCP를 유일한 agent writer로 사용한다. direct official MCP와 explicit target을 좁힌 bounded code 모두 official MCP 경로 안에 한정한다. raw MCP, local bridge, second writer 또는 추정한 API 이름을 사용하지 않는다.
+2. [capability and evidence](../../references/capability-and-evidence.md)를 읽어 target, permission과
+   `reaction_write`, `reaction_readback`, `prototype_playback` capability를 각각 기록한다. current
+   host가 실제 노출한 provider prerequisite가 있으면 적용한다. Codex 전용 `figma:figma-use`는
+   실제 노출된 경우에만 사용하고 OMP에서는 현재 Figma MCP/plugin capability를 사용한다.
+3. 판단형 reaction read/write는 현재 host가 노출한 Figma provider를 유일한 agent writer로 사용한다.
 4. existing starting point, screen·component states, reactions, variables와 annotations를 읽어 현재 graph를 만든다. Selection이나 node ID가 stale하면 write 전에 정확한 target을 다시 정한다.
 5. 기존 Design Decision Contract가 있으면 같은 revision을 사용하고, 없으면
    [공통 디자인 품질 계약](../../references/design-quality.md)으로 사용자 과업·오판 비용·상태·환경과
    prototype scenario를 잠근다. reaction을 보기 좋게 연결하는 것보다 observable success와 recovery를 우선한다.
 
-`figma:figma-use` 또는 필요한 capability가 설치·노출되지 않으면 interaction specification을 제공하고 mutation과 playback을 `blocked`, `not_run` 또는 `inconclusive`로 보고한다. tool/API를 추정하거나 우회하지 않는다. companion은 prototype graph를 write하는 도구가 아니다. 수동 companion의 `audit-prototype-links`는 selection 기반의 결정적 integrity evidence만 제공하며 자세한 계약은 [deterministic execution](../../references/deterministic-execution.md)과 [companion README](../../figma-plugin/README.md)를 따른다.
+Figma read/write capability가 없으면 interaction specification을 제공하고 mutation과 playback을
+`blocked` 또는 `not_run`으로 보고한다. tool/API를 추정하거나 우회하지 않는다. companion은 prototype
+graph writer가 아니다. 수동 companion의 `audit-prototype-links`는 selection 기반의 결정적 integrity
+evidence만 제공하며 자세한 계약은 [deterministic execution](../../references/deterministic-execution.md)과
+[companion README](../../figma-plugin/README.md)를 따른다.
 
 ## Interaction 계약
 
@@ -38,8 +39,8 @@ readback capability가 있으면 reaction을 다시 읽어 trigger, action, dest
 
 결과에는 starting point, 검증한 path, unresolved branch, annotation coverage와 evidence 상태를 기록한다. reaction write는 성공했지만 destination readback이 실패하거나 지원되지 않으면 해당 path는 `inconclusive`다. write와 readback이 성공해도 playback이 unsupported이면 playback은 `not_run`, 전체 clickable 결과는 `inconclusive`다. live MCP·Desktop 실행을 하지 않은 경우 passed라고 주장하지 않는다.
 
-prototype을 포함한 Figma 산출물은 DQ0–DQ7 report로 판정한다. DQ1–DQ6은 독립 평가자 2명이
-평가하고 DQ7은 screenshot, native reaction readback과 요청된 playback의 상태를 분리한다.
+prototype을 포함한 Figma 산출물은 DQ0–DQ7 report로 판정한다. DQ1–DQ6에는 같은 artifact/contract
+evaluator run이 최소 하나 필요하고 DQ7은 screenshot, native reaction readback과 playback 상태를 분리한다.
 
 ## 예시
 

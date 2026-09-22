@@ -1,7 +1,7 @@
 {
   "name": "product",
-  "version": "0.2.5",
-  "description": "제품 기회를 탐색하고, 근거를 종합하고, 제품 도메인을 모델링하고, 검증을 설계·판정하며, 승인된 결정을 PRD로 변환합니다.",
+  "version": "1.0.0",
+  "description": "제품 탐색, 근거 종합, 제품 도메인 발견, 검증 설계·판정과 PRD 작성을 독립 capability로 제공합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
@@ -26,10 +26,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "여러 제품 기회를 발산하되 검증된 결론처럼 다루지 마.",
+      "사용자와 기대 결과를 확인해 제품 기회를 탐색해 줘.",
       "이 인터뷰를 추적 가능한 theme, 모순과 미해결 질문으로 종합해 줘.",
-      "빠진 결정을 지어내지 말고 승인된 탐색 결과를 PRD로 만들어 줘."
+      "빠진 결정을 지어내지 말고 승인된 탐색 결과를 PRD 문서로 만들어 줘."
     ]
-  },
-  "hooks": "./hooks/hooks.json"
+  }
 }

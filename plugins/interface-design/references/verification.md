@@ -11,9 +11,10 @@
 6. DQ7에서 proposal/Figma/code에 맞는 provenance, structure/readback/runtime evidence를 연결한다.
 7. DQ8에서 사전 등록 outcome metric과 low/medium/high 위험에 맞는 사용자 증거를 확인한다.
 
-DQ1–DQ6은 작성자가 아닌 독립 평가자 2명이 0–4점으로 판정한다. 두 점수의 최솟값이 3
-이상이어야 하고 차이가 1보다 크면 `inconclusive`다. open critical finding과 hard check 실패는
-다른 점수로 상쇄할 수 없다.
+DQ1–DQ6의 판정에는 같은 artifact revision과 contract digest에 연결된 evaluator run이 최소 하나
+필요하다. relationship은 evidence metadata이며 independent reviewer spawn을 강제하지 않는다. 여러
+run이 있으면 최솟값이 3 이상이어야 하고 점수 차이가 1보다 크면 `inconclusive`다. open critical
+finding과 hard check 실패는 다른 점수로 상쇄할 수 없다.
 
 제안은 실제 시각적 제안과 명세의 일치, Figma는 screenshot·native structure·binding·resize와
 요청된 reaction/playback, 코드는 실제 실행 환경의 렌더링·조작·검사 결과를 각각 증명한다.

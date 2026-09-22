@@ -7,18 +7,20 @@ description: 기존 Figma file, page, frame 또는 selection의 Auto Layout, res
 
 현재 Figma artifact를 source of truth로 읽고 구조, 재사용, 상호작용과 handoff의 실제 evidence를 검토한다. 감사 요청은 mutation 권한이 아니다.
 
-## 작업 연속성
-
-현재 메인 controller가 여러 단계의 작업을 소유하거나 외부 쓰기를 수행할 때에는 같은 플러그인의
-[task-continuity](../task-continuity/SKILL.md)를 적용해 시작·중요한 진행 변화·외부 쓰기 전후를 기록한다.
-컴팩션·재개 후에는 그 기록과 현재 근거를 대조한다. 짧은 단발 작업, 위임된 subagent와 fresh reviewer는
-별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 변경하지 않는다.
 
 ## 대상과 evidence
 
-[tool routing](../../references/tool-routing.md), [capability and evidence](../../references/capability-and-evidence.md)를 읽는다. 정확한 file/page/frame이 주어지지 않았으면 현재 selection을 사용할 수 있는지 확인하고, 안전한 단일 target이 없을 때만 하나를 요청한다. 읽기 전용이라도 `use_figma`를 실제 호출한다면 먼저 `figma:figma-use`를 invoke하고 tool call의 `skillNames`에 `figma-use`를 포함한다. 설치·노출되지 않았으면 tool/API를 가정하지 않고 `blocked`, `not_run` 또는 `inconclusive`로 보고한다.
+[tool routing](../../references/tool-routing.md), [capability and evidence](../../references/capability-and-evidence.md)를
+읽는다. 정확한 file/page/frame이 없으면 current selection에서 안전한 단일 target을 확인한다. current
+host가 실제 노출한 provider prerequisite가 있으면 적용한다. Codex 전용 `figma:figma-use`는 실제
+노출된 경우에만 사용하고 OMP에서는 현재 Figma MCP/plugin capability를 사용한다. Figma read
+capability가 없으면 API를 추정하지 않고 `blocked` 또는 `not_run`으로 끝낸다.
 
-감사는 official Figma MCP의 read capability로 수행하고 write API를 호출하지 않는다. 수동 Desktop companion은 current selection을 대상으로 `inspect-selection`, `audit-auto-layout`, `audit-prototype-links`의 결정적 JSON evidence를 제공할 수 있지만, 미적·UX 판단이나 general canvas read/write 대체물이 아니다. schema, preview 결과와 failure 경계는 [deterministic execution](../../references/deterministic-execution.md) 및 [companion README](../../figma-plugin/README.md)를 따른다.
+감사는 현재 host가 노출한 Figma provider의 read capability로 수행하고 write API를 호출하지 않는다.
+수동 Desktop companion은 current selection의 결정적 JSON evidence만 제공하며 미적·UX 판단이나
+general canvas read/write 대체물이 아니다. schema와 failure 경계는
+[deterministic execution](../../references/deterministic-execution.md)과
+[companion README](../../figma-plugin/README.md)를 따른다.
 
 Screenshot과 metadata, hierarchy, components, variables, icon provenance, reactions와 annotations를 필요한 범위에서 읽는다. Screenshot에서 보이지 않는 구조를 추정해 확정하지 않는다.
 
@@ -47,8 +49,8 @@ finding마다 target, 관찰 evidence, 사용자 영향, 확실성, 최소 수�
 
 수정 요청으로 범위가 바뀌면 감사를 종료한다. 화면 구조 수정은 `figma-product-design`, prototype connection 수정은 `figma-prototype-flow`의 mutation workflow로 다시 시작한다.
 
-감사 결과는 DQ0–DQ7 report로 남긴다. DQ1–DQ6의 합격에는 독립 평가자 2명이 필요하며 실제로
-수행하지 않은 resize/playback은 `not_run`이다.
+감사 결과는 DQ0–DQ7 report로 남긴다. DQ1–DQ6에는 같은 artifact/contract evaluator run이
+최소 하나 필요하며 실제로 수행하지 않은 resize/playback은 `not_run`이다.
 
 ```bash
 python3 <figma-workflow-plugin-root>/scripts/validate_design_quality.py contract <contract.json>

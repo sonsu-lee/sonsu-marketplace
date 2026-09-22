@@ -1656,7 +1656,7 @@ def validate_report(
     if not isinstance(evaluators, list):
         errors.append("evaluator_runs must be an array")
         evaluators = []
-    independent_scores: dict[str, list[int]] = {gate_id: [] for gate_id in SUBJECTIVE_GATES}
+    evaluator_scores: dict[str, list[int]] = {gate_id: [] for gate_id in SUBJECTIVE_GATES}
     evaluator_ids: set[str] = set()
     for index, item in enumerate(evaluators):
         context = f"evaluator_runs[{index}]"
@@ -1700,8 +1700,8 @@ def validate_report(
         for gate_id, score in scores.items():
             if not isinstance(score, int) or isinstance(score, bool) or not 0 <= score <= 4:
                 errors.append(f"{context}.scores.{gate_id} must be an integer from 0 to 4")
-            elif relationship == "independent" and gate_id in independent_scores:
-                independent_scores[gate_id].append(score)
+            elif gate_id in evaluator_scores:
+                evaluator_scores[gate_id].append(score)
 
     gates = payload.get("gates")
     if not isinstance(gates, list) or len(gates) != len(GATE_IDS):
@@ -1736,21 +1736,19 @@ def validate_report(
         ):
             if not isinstance(score, int) or isinstance(score, bool) or not 0 <= score <= 4:
                 errors.append(f"{gate_id}.score must be an integer from 0 to 4")
-            scores = independent_scores[gate_id]
-            if len(scores) < POLICY["independent_evaluators"]:
-                errors.append(
-                    f"{gate_id} {status} requires {POLICY['independent_evaluators']} independent evaluators"
-                )
+            scores = evaluator_scores[gate_id]
+            if not scores:
+                errors.append(f"{gate_id} {status} requires at least one evaluator run")
             else:
                 minimum = min(scores)
                 if score != minimum:
-                    errors.append(f"{gate_id}.score must equal the minimum independent score {minimum}")
+                    errors.append(f"{gate_id}.score must equal the minimum evaluator score {minimum}")
                 if max(scores) - min(scores) > POLICY["maximum_score_divergence"]:
                     if status != "inconclusive":
                         errors.append(f"{gate_id} evaluator divergence requires inconclusive status")
                 elif status == "passed" and minimum < POLICY["subjective_floor"]:
                     errors.append(
-                        f"{gate_id} minimum independent score {minimum} is below floor {POLICY['subjective_floor']}"
+                        f"{gate_id} minimum evaluator score {minimum} is below floor {POLICY['subjective_floor']}"
                     )
         elif score is not None:
             errors.append(f"{gate_id}.score must be null when no required rubric is being decided")

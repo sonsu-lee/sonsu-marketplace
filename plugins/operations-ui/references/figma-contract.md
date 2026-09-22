@@ -1,8 +1,9 @@
 # Optional Figma contract
 
-Figma는 사용자가 명시한 경우에만 적용한다. 현재 official Figma skill/tool의 prerequisite와 실제
-write capability를 먼저 확인한다. capability가 없으면 필수 Figma 산출물은 `blocked`, 선택 작업은
-`not_run`으로 남기고 독립 범위만 계속한다.
+Figma는 사용자가 명시한 경우에만 적용한다. current host가 실제 노출한 Figma MCP/plugin capability,
+provider prerequisite와 write permission을 먼저 확인한다. Codex 전용 skill ID는 실제 노출된 경우에만
+적용한다. capability가 없으면 필수 Figma 산출물은 `blocked`, 선택 작업은 `not_run`으로 남기고
+API나 다른 writer를 추정하지 않는다.
 
 - contract의 scenario ID를 frame, state, component/variant, 요청된 reaction에 연결한다.
 - content와 resize intent에 따라 Auto Layout, wrap 또는 grid를 선택한다.

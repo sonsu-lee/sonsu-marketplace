@@ -7,10 +7,6 @@ description: 현재 Git branch를 새 GitHub Pull Request 초안이나 게시 pa
 
 현재 branch의 실제 변경을 검토 가능한 새 GitHub Pull Request로 표현한다. 티켓 연결은 PR metadata를 우선하고, 화면 변경에는 필요한 시각 증거와 게시 가능한 미디어 계획을 포함한다.
 
-## 작업 연속성
-
-여러 단계의 작업이나 외부 쓰기를 맡은 메인 controller는 [task-continuity](../task-continuity/SKILL.md)로 진행과 근거를 기록한다. 컴팩션·재개 후에는 실제 상태와 대조한다. 짧은 단발 작업과 위임된 작업자는 별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 수정하지 않는다.
-
 ## 책임 경계를 지킨다
 
 이 스킬은 새 PR의 초안과 게시를 담당한다. branch·worktree·commit 생성, branch rename, commit rewrite, rebase·squash, force push, merge와 기존 PR 수정은 담당하지 않는다. 다만 현재 publish 흐름에서 방금 만든 GitHub Draft PR에 검토한 미디어를 첨부하고, 필수 첨부를 모두 검증한 뒤 사용자가 명시한 ready 상태로 전환할 수 있다. 코드 구현, 일반적인 작업 완료, 티켓 작성, code review 또는 push 요청만으로 자동 실행하지 않는다.
@@ -35,7 +31,7 @@ GitHub Draft 상태와 다르다.
 
 [PR 템플릿 규칙](references/pr-template.md)으로 적용 양식과 언어를 결정하고, [PR 품질 기준](references/pr-quality-bar.md)에 따라 전체 diff와 현재 검증 근거로 제목·본문을 작성한다. commit 제목이나 `--fill` 결과만으로 변경 내용을 추론하지 않는다.
 
-본문은 이 플러그인의 [PR 작성 지침](references/pr-writing.md)에 따라 구성한다. 선택적 Writing·Fluent 적용은 [작성 지침 함께 적용하기](../../references/writing-composition.md)를 따른다. 적용 양식과 확인 상태, 출력 언어, 실제 근거·편집 범위와 보호할 연결 문법을 함께 전달한다. 임시 초안은 양식 확정이나 게시 조건 충족을 뜻하지 않는다.
+본문은 이 플러그인의 [PR 작성 지침](references/pr-writing.md)에 따라 구성한다. 이 지침과 [PR 품질 기준](references/pr-quality-bar.md)이 PR 문구의 정본이다. 적용 양식과 확인 상태, 출력 언어, 실제 근거·편집 범위와 보호할 연결 문법을 보존한다. 임시 초안은 양식 확정이나 게시 조건 충족을 뜻하지 않는다.
 
 ## 티켓을 연결한다
 
