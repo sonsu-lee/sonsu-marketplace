@@ -39,17 +39,21 @@ Figma에서는 실제 component·variable 이름/ID와 연결한다. 제품 파�
 
 생성·수정 후 최종 전달할 파일에 공통 명령을 실행한다. Python 3.9+, Node.js 18+, npm과
 POSIX 환경이 필요하다. 최초 실행은 npm registry 접근이 필요할 수 있다.
-호출 디렉터리의 npm 설정을 사용하므로 프로젝트의 registry·proxy·cache 설정이 필요하면
-해당 프로젝트 루트에서 실행한다.
+호출 디렉터리에서 npm이 해석한 registry·proxy·cache·offline·TLS 설정만 전달하고,
+빈 임시 프로젝트에 패키지를 설치한다. 설치 script는 실행하지 않으며 프로젝트의 로컬·workspace
+패키지와 기존 npx 실행 디렉터리를 사용하지 않는다. 프로젝트 설정이 필요하면 해당 프로젝트 루트에서 실행한다.
+인증은 npm의 사용자 설정에 둔다.
 
 ```bash
 python3 <plugin-root>/scripts/validate_design_quality.py design-md <DESIGN.md>
 ```
 
-이 명령은 고정한 `@google/design.md@0.4.0`의 공식 linter API를 사용한다. YAML 파서나 token
-schema를 별도로 구현하지 않는다. 버전·실행·판정은 공통 도구가 소유하며 플러그인별 npx 명령이나
-경고 판정 규칙을 추가하지 않는다. 도구가 출력한 JSON을 현재 산출물의 검증 근거로 보존한다.
+이 명령은 고정한 `@google/design.md@0.4.0`의 공식 linter API와 같은 설치의 파서 의존성을
+사용한다. YAML 파서나 token schema를 별도로 구현하지 않는다. 버전·실행·판정은 공통 도구가
+소유하며 플러그인별 설치 명령이나 경고 판정 규칙을 추가하지 않는다. 도구가 출력한 JSON을
+현재 산출물의 검증 근거로 보존한다.
 JSON에는 파일 경로·SHA-256 digest·package 버전·실행 시각·명령·상태·진단이 포함된다.
+파일을 읽었다면 UTF-8 디코딩에 실패해도 원본 bytes의 digest를 보존한다.
 파일이 바뀌면 다시 실행한다.
 
 | 종료 코드 / 상태 | 처리 |

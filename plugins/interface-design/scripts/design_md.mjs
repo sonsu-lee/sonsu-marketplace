@@ -1,54 +1,93 @@
 // Internal adapter for the pinned @google/design.md linter; no YAML/schema fork.
-import { readFileSync, realpathSync } from 'node:fs';
-import { delimiter, dirname, join, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 
 const expectedVersion = process.argv[2];
 const formatRules = new Set(['section-order', 'unknown-key', 'token-like-ignored']);
 const reference = /^\{([a-zA-Z0-9._-]+)\}$/;
 
-function resolveToken(symbols, path) {
-  const visited = new Set();
-  while (symbols.has(path) && !visited.has(path)) {
-    visited.add(path);
-    const value = symbols.get(path);
-    const target = typeof value === 'string' && reference.exec(value);
-    if (!target) return value;
-    path = target[1];
-  }
-  return undefined;
+function resolveToken(symbols, path, visited = new Set()) {
+  if (!symbols.has(path) || visited.has(path)) return undefined;
+  return resolveValue(symbols, symbols.get(path), new Set([...visited, path]));
 }
 
-function hasValue(value) {
+function resolveValue(symbols, value, visited) {
+  const target = typeof value === 'string' && reference.exec(value);
+  if (target) return resolveToken(symbols, target[1], visited);
+  if (value === null || typeof value !== 'object') return value;
+  if (visited.has(value)) return undefined;
+  const descendants = new Set([...visited, value]);
+  const resolved = Array.isArray(value) ? [] : {};
+  for (const [key, item] of Object.entries(value)) {
+    resolved[key] = resolveValue(symbols, item, descendants);
+    if (resolved[key] === undefined) return undefined;
+  }
+  return resolved;
+}
+
+function hasValue(value, visited = new Set()) {
   if (typeof value === 'string') return Boolean(value.trim());
   if (typeof value === 'number') return Number.isFinite(value);
+  if (value === null || typeof value !== 'object' || visited.has(value)) return false;
+  const descendants = new Set([...visited, value]);
   // Resolved typography may contain only its type tag for an empty YAML map.
-  return value !== null && typeof value === 'object' && typeof value.type === 'string'
-    && Object.entries(value).some(([key, item]) => key !== 'type' && hasValue(item));
+  return Object.entries(value).some(([key, item]) => key !== 'type' && hasValue(item, descendants));
 }
 
 async function loadLinter() {
-  // npm exec exposes the selected package's bin directory through PATH, but does
-  // not add its modules to this adapter's import search path.
-  for (const directory of (process.env.PATH ?? '').split(delimiter).filter(Boolean)) {
-    let binary;
-    try {
-      binary = realpathSync(join(directory, 'designmd'));
-    } catch {
-      continue;
-    }
-    const root = resolve(dirname(binary), '..');
-    const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
-    if (pkg.name !== '@google/design.md' || pkg.version !== expectedVersion) {
-      throw new Error(`Expected @google/design.md@${expectedVersion}, got ${pkg.name}@${pkg.version}`);
-    }
-    const entry = pkg.exports['./linter'].import;
-    return (await import(pathToFileURL(resolve(root, entry)).href)).lint;
+  // Python supplies only the package freshly installed in its isolated project.
+  const root = process.argv[3];
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  if (pkg.name !== '@google/design.md' || pkg.version !== expectedVersion) {
+    throw new Error(`Expected @google/design.md@${expectedVersion}, got ${pkg.name}@${pkg.version}`);
   }
-  throw new Error('npm exec did not expose the pinned designmd binary');
+  const entry = pkg.exports['./linter'].import;
+  const require = createRequire(join(root, 'package.json'));
+  const dependency = name => import(pathToFileURL(require.resolve(name)).href);
+  const [{ lint }, { parse: parseYaml }, { unified }, { default: remarkParse },
+    { default: remarkFrontmatter }] = await Promise.all([
+    import(pathToFileURL(resolve(root, entry)).href), dependency('yaml'),
+    dependency('unified'), dependency('remark-parse'), dependency('remark-frontmatter'),
+  ]);
+  // Use the same parser dependencies and YAML nodes as upstream. Its public
+  // model drops typography dimension references, so retain raw token leaves
+  // solely for reference validation; schema and lint rules stay upstream.
+  const parseMarkdown = unified().use(remarkParse).use(remarkFrontmatter, ['yaml']);
+  return { lint, readRawTokens: content => readRawTokens(content, parseMarkdown, parseYaml) };
 }
 
-function validate(content, lint) {
+function readRawTokens(content, parseMarkdown, parseYaml) {
+  const tokens = new Map();
+  const cyclicPaths = [];
+  const groups = new Set(['colors', 'typography', 'rounded', 'spacing', 'components']);
+  function add(value, path, visited = new Set()) {
+    tokens.set(path, value);
+    if (value === null || typeof value !== 'object') return;
+    if (visited.has(value)) {
+      cyclicPaths.push(path);
+      return;
+    }
+    const descendants = new Set([...visited, value]);
+    for (const [key, item] of Object.entries(value)) add(item, `${path}.${key}`, descendants);
+  }
+  function visit(node) {
+    if (node.type === 'yaml' || (node.type === 'code' && ['yaml', 'yml'].includes(node.lang))) {
+      const block = parseYaml(node.value);
+      if (block && typeof block === 'object') {
+        for (const [group, values] of Object.entries(block)) {
+          if (groups.has(group)) add(values, group);
+        }
+      }
+    }
+    for (const child of node.children ?? []) visit(child);
+  }
+  visit(parseMarkdown.parse(content));
+  return { tokens, cyclicPaths };
+}
+
+function validate(content, { lint, readRawTokens }) {
   const findings = [];
   const fail = (rule, message) => findings.push({ severity: 'error', rule, message });
   const lines = content.replace(/^\uFEFF/, '').split(/\r?\n/);
@@ -60,11 +99,14 @@ function validate(content, lint) {
 
   let report;
   let frontmatter;
+  let rawTokens;
+  let cyclicPaths;
   try {
     // Check mandatory values in frontmatter itself; fenced examples in the body
     // must not supply a missing name or a missing design system.
     frontmatter = lint(lines.slice(0, end + 1).join('\n') + '\n');
     report = lint(content);
+    ({ tokens: rawTokens, cyclicPaths } = readRawTokens(content));
   } catch (error) {
     fail('parse', String(error.message ?? error));
     return { status: 'failed', findings };
@@ -77,15 +119,20 @@ function validate(content, lint) {
   const tokenCount = [...system.symbolTable.keys()]
     .filter(path => hasValue(resolveToken(system.symbolTable, path))).length
     + [...system.components.values()].filter(component =>
-      [...component.properties.values()].some(hasValue)).length;
+      [...component.properties.values()].some(value => hasValue(value))).length;
   if (tokenCount === 0) {
     fail('tokens', 'Frontmatter must define at least one recognized design token.');
   }
-  // In 0.4.0 the upstream broken-ref rule only checks component references.
-  // Its model also leaves unresolved primitive references in symbolTable.
-  for (const [path, value] of report.designSystem.symbolTable) {
+  // Keep upstream's symbol names while restoring composite reference leaves
+  // that 0.4.0 drops from its model. Metadata and unknown groups are excluded.
+  const symbols = new Map([...report.designSystem.symbolTable].map(([path, value]) =>
+    [path, rawTokens.has(path) ? rawTokens.get(path) : value]));
+  for (const path of cyclicPaths) {
+    fail('broken-ref', `Circular YAML alias at ${path}.`);
+  }
+  for (const [path, value] of rawTokens) {
     if (typeof value === 'string' && reference.test(value)
-        && resolveToken(report.designSystem.symbolTable, path) === undefined) {
+        && resolveToken(symbols, reference.exec(value)[1]) === undefined) {
       fail('broken-ref', `Unresolved or circular token reference at ${path}: ${value}`);
     }
   }

@@ -7,9 +7,11 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import re
 import subprocess
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -2140,6 +2142,11 @@ def validate_report(
 
 DESIGN_MD_VERSION = "0.4.0"
 DESIGN_MD_EXIT_CODES = {"passed": 0, "failed": 1, "blocked": 2, "needs_review": 3}
+DESIGN_MD_NPM_CONFIG = {
+    "registry", "@google:registry", "proxy", "https-proxy", "noproxy",
+    "cache", "offline", "prefer-offline", "prefer-online", "strict-ssl", "cafile",
+    "ca", "cert", "key",
+}
 
 
 def check_design_md(path: Path) -> int:
@@ -2159,22 +2166,55 @@ def check_design_md(path: Path) -> int:
 
     try:
         content = path.read_bytes()
+        receipt["digest"] = "sha256:" + hashlib.sha256(content).hexdigest()
         text = content.decode("utf-8")
     except (OSError, UnicodeError, ValueError) as exc:
         return finish("failed", "input", str(exc))
-    receipt["digest"] = "sha256:" + hashlib.sha256(content).hexdigest()
     command = [
-        "npx", "--yes", f"--package=@google/design.md@{DESIGN_MD_VERSION}",
-        "--", "node", str(Path(__file__).resolve().with_name("design_md.mjs")),
+        "node", str(Path(__file__).resolve().with_name("design_md.mjs")),
         DESIGN_MD_VERSION,
     ]
     receipt["command"] = command
     try:
-        # Preserve the caller's npm project config. The adapter verifies the
-        # loaded package version; stdin carries the exact input snapshot.
-        run = subprocess.run(command, input=text, text=True, encoding="utf-8",
-                             capture_output=True, timeout=120)
-    except (OSError, subprocess.TimeoutExpired, UnicodeError) as exc:
+        # Read effective network/cache settings without executing project code.
+        # Do not forward project options that select packages or execute scripts.
+        config_run = subprocess.run(["npm", "config", "list", "--json"],
+                                    text=True, encoding="utf-8", capture_output=True, timeout=30)
+        if config_run.returncode:
+            return finish("blocked", "runtime", "Could not read npm configuration.")
+        config = json.loads(config_run.stdout)
+        if not isinstance(config, dict):
+            raise ValueError("Invalid npm configuration JSON.")
+        env = {key: value for key, value in os.environ.items()
+               if not key.lower().startswith("npm_config_")}
+        for key, value in os.environ.items():
+            if key.lower() in {"npm_config_userconfig", "npm_config_globalconfig"}:
+                env[key] = str(Path(value).expanduser().resolve())
+        array_config = []
+        for key in DESIGN_MD_NPM_CONFIG:
+            value = config.get(key)
+            if isinstance(value, (str, int, bool)):
+                env["npm_config_" + key] = str(value).lower() if isinstance(value, bool) else str(value)
+            elif isinstance(value, list) and all(isinstance(item, str) for item in value):
+                array_config.extend(f"{key}[]={json.dumps(item)}\n" for item in value)
+        # Install into a fresh project instead of reusing local/workspace modules
+        # or an unpacked npx cache. npm may reuse its verified download cache.
+        with tempfile.TemporaryDirectory(prefix="design-md-") as tmp:
+            (Path(tmp) / "package.json").write_text('{"private":true}', encoding="utf-8")
+            (Path(tmp) / ".npmrc").write_text("".join(array_config), encoding="utf-8")
+            install_command = [
+                "npm", "install", f"--prefix={tmp}", "--ignore-scripts", "--no-audit",
+                "--no-fund", "--package-lock=false", f"@google/design.md@{DESIGN_MD_VERSION}",
+            ]
+            receipt["install_command"] = install_command
+            install = subprocess.run(install_command, cwd=tmp, env=env, text=True,
+                                     encoding="utf-8", capture_output=True, timeout=120)
+            if install.returncode:
+                return finish("blocked", "runtime", "Could not install the pinned linter: " + install.stderr[-2000:])
+            command.append(str(Path(tmp) / "node_modules/@google/design.md"))
+            run = subprocess.run(command, cwd=tmp, env=env, input=text, text=True,
+                                 encoding="utf-8", capture_output=True, timeout=120)
+    except (OSError, subprocess.TimeoutExpired, UnicodeError, ValueError) as exc:
         return finish("blocked", "runtime", str(exc))
     receipt["engine_exit_code"] = run.returncode
     try:
