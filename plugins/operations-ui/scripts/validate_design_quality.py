@@ -7,8 +7,11 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import re
+import subprocess
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -2137,9 +2140,102 @@ def validate_report(
     return errors
 
 
+DESIGN_MD_VERSION = "0.4.0"
+DESIGN_MD_EXIT_CODES = {"passed": 0, "failed": 1, "blocked": 2, "needs_review": 3}
+DESIGN_MD_NPM_CONFIG = {
+    "registry", "@google:registry", "proxy", "https-proxy", "noproxy",
+    "cache", "offline", "prefer-offline", "prefer-online", "strict-ssl", "cafile",
+    "ca", "cert", "key",
+}
+
+
+def check_design_md(path: Path) -> int:
+    """Use the official parser/linter and emit a receipt for the exact input bytes."""
+    receipt: dict[str, Any] = {
+        "file": str(path.absolute()),
+        "package": f"@google/design.md@{DESIGN_MD_VERSION}",
+        "checked_at": datetime.now().astimezone().isoformat(),
+    }
+
+    def finish(status: str, rule: str, message: str) -> int:
+        receipt.update(status=status, findings=[{
+            "severity": "error", "rule": rule, "message": message,
+        }])
+        print(json.dumps(receipt, ensure_ascii=False))
+        return DESIGN_MD_EXIT_CODES[status]
+
+    try:
+        content = path.read_bytes()
+        receipt["digest"] = "sha256:" + hashlib.sha256(content).hexdigest()
+        text = content.decode("utf-8")
+    except (OSError, UnicodeError, ValueError) as exc:
+        return finish("failed", "input", str(exc))
+    command = [
+        "node", str(Path(__file__).resolve().with_name("design_md.mjs")),
+        DESIGN_MD_VERSION,
+    ]
+    receipt["command"] = command
+    try:
+        # Read effective network/cache settings without executing project code.
+        # Do not forward project options that select packages or execute scripts.
+        config_run = subprocess.run(["npm", "config", "list", "--json"],
+                                    text=True, encoding="utf-8", capture_output=True, timeout=30)
+        if config_run.returncode:
+            return finish("blocked", "runtime", "Could not read npm configuration.")
+        config = json.loads(config_run.stdout)
+        if not isinstance(config, dict):
+            raise ValueError("Invalid npm configuration JSON.")
+        env = {key: value for key, value in os.environ.items()
+               if not key.lower().startswith("npm_config_")}
+        for key, value in os.environ.items():
+            if key.lower() in {"npm_config_userconfig", "npm_config_globalconfig"}:
+                env[key] = str(Path(value).expanduser().resolve())
+        array_config = []
+        for key in DESIGN_MD_NPM_CONFIG:
+            value = config.get(key)
+            if isinstance(value, (str, int, bool)):
+                env["npm_config_" + key] = str(value).lower() if isinstance(value, bool) else str(value)
+            elif isinstance(value, list) and all(isinstance(item, str) for item in value):
+                array_config.extend(f"{key}[]={json.dumps(item)}\n" for item in value)
+        # Install into a fresh project instead of reusing local/workspace modules
+        # or an unpacked npx cache. npm may reuse its verified download cache.
+        with tempfile.TemporaryDirectory(prefix="design-md-") as tmp:
+            (Path(tmp) / "package.json").write_text('{"private":true}', encoding="utf-8")
+            (Path(tmp) / ".npmrc").write_text("".join(array_config), encoding="utf-8")
+            install_command = [
+                "npm", "install", f"--prefix={tmp}", "--ignore-scripts", "--no-audit",
+                "--no-fund", "--package-lock=false", f"@google/design.md@{DESIGN_MD_VERSION}",
+            ]
+            receipt["install_command"] = install_command
+            install = subprocess.run(install_command, cwd=tmp, env=env, text=True,
+                                     encoding="utf-8", capture_output=True, timeout=120)
+            if install.returncode:
+                return finish("blocked", "runtime", "Could not install the pinned linter: " + install.stderr[-2000:])
+            command.append(str(Path(tmp) / "node_modules/@google/design.md"))
+            run = subprocess.run(command, cwd=tmp, env=env, input=text, text=True,
+                                 encoding="utf-8", capture_output=True, timeout=120)
+    except (OSError, subprocess.TimeoutExpired, UnicodeError, ValueError) as exc:
+        return finish("blocked", "runtime", str(exc))
+    receipt["engine_exit_code"] = run.returncode
+    try:
+        result = json.loads(run.stdout)
+        status = result["status"]
+        if (not isinstance(result, dict) or status not in DESIGN_MD_EXIT_CODES
+                or run.returncode != DESIGN_MD_EXIT_CODES[status]
+                or not isinstance(result.get("findings"), list)):
+            raise ValueError("invalid adapter result")
+    except (ValueError, TypeError, KeyError):
+        return finish("blocked", "runtime", "Invalid or missing linter JSON: " + run.stderr[-2000:])
+    receipt.update(result)
+    print(json.dumps(receipt, ensure_ascii=False))
+    return DESIGN_MD_EXIT_CODES[status]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
+    design_md = subparsers.add_parser("design-md", help="lint DESIGN.md with the pinned official engine")
+    design_md.add_argument("file", type=Path)
     contract = subparsers.add_parser("contract")
     contract.add_argument("contract", type=Path)
     report = subparsers.add_parser("report")
@@ -2150,6 +2246,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if args.command == "design-md":
+        raise SystemExit(check_design_md(args.file))
     load_errors: list[str] = []
     if args.command == "contract":
         payload = load_json(args.contract, load_errors)

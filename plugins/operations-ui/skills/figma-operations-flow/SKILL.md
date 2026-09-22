@@ -5,8 +5,8 @@ description: 사용자가 Figma를 명시한 운영형 B2B 화면·상태·overl
 
 # Figma Operations Flow
 
-[Figma 계약](../../references/figma-contract.md)과 현재 official Figma skill의 prerequisite를 먼저
-읽는다. `artifact_scope: figma`인 Design Decision Contract를 작성해 사용자 과업·정보·상태·환경과
+[공통 디자인 품질 계약](../../references/design-quality.md), [Figma 계약](../../references/figma-contract.md)과
+현재 official Figma skill의 prerequisite를 먼저 읽는다. `artifact_scope: figma`인 Design Decision Contract를 작성해 사용자 과업·정보·상태·환경과
 native frame/component/variable/reaction을 같은 scenario ID로 연결한다.
 
 - 제품 library의 component와 semantic variable을 우선 사용한다.

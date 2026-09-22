@@ -12,7 +12,62 @@
 3. 정보마다 표현 종류, semantic role, 선택 이유와 `non_color_signals`를 기록한다. 색상만으로 상태나 위험을 전달하지 않는다.
 4. 대상 locale, writing mode, viewport, input method와 accessibility profile을 environment로 선언한다.
 5. 적용 가능한 상태와 복구·안전 동작을 정한 뒤, `outcome_plan`에 scenario·metric·참가자 기준·목표 인원·protocol을 결과 관찰 전에 고정한다.
-6. 현재 산출물 범위의 DQ gate를 평가하고, 뒤 단계는 `not_run`으로 남긴다.
+6. 아래 DESIGN.md 공통 절차와 현재 산출물 범위의 DQ gate를 평가하고, 뒤 단계는 `not_run`으로 남긴다.
+
+## DESIGN.md 공통 절차
+
+이 계약을 사용하는 모든 스킬은 아래 작업 유형에 따라 같은 절차와 검증 명령을 사용한다.
+
+| 작업 | 적용 |
+| --- | --- |
+| 신규 설계·재설계·Figma 화면 제작 | 기존 DESIGN.md를 읽고 요청 범위의 시각 규칙을 작성·갱신한 뒤 검증한다. |
+| 읽기 전용 감사 | 기존 파일을 검증하고 부재·오류를 finding으로 보고한다. 파일은 수정하지 않는다. |
+| prototype 연결만 변경 | 기존 문서를 참조한다. 새 visual state나 token을 만들면 작성·검증 절차를 적용한다. |
+
+기존 제품의 token·component가 정본이면 값과 사용 규칙을 보존하고 문서에 출처·대응을 남긴다.
+Figma에서는 실제 component·variable 이름/ID와 연결한다. 제품 파일 수정이 승인된 범위에서
+기존 경로를 갱신하며, 파일이 없으면 대상 앱/workspace 루트에 만든다. 제품 파일 수정 범위
+밖의 제안·Figma 작업은 필요한 신규 문서나 변경안을 쓰기가 허용된 산출물 디렉터리에 둔다.
+대상 앱과 파일 경로를 먼저 고정한다. 쓰기 권한이 없어도 기존 파일의 읽기 전용 검증은 가능하며,
+작성·수정의 `blocked` 상태와 이미 실행한 검증 결과를 구분한다.
+
+문서는 [Google Labs DESIGN.md](https://github.com/google-labs-code/design.md)의 token schema와
+본문 섹션 순서·공식 별칭을 따른다. 사용 이유와 적용 규칙을 본문에 적고 적용하지 않는 부분은
+이유와 함께 생략한다. token group의 의도적 생략에는 공식 `omitted`를 사용한다. 이 플러그인은
+공식 규격의 선택적 frontmatter보다 엄격하게 **YAML frontmatter의 비어 있지 않은 `name`과
+실제 사용하는 token**을 요구한다. 형식을 맞추려고 기존 디자인 값을 바꾸거나 경고를 숨기려고
+필요한 token을 생략하지 않는다.
+
+생성·수정 후 최종 전달할 파일에 공통 명령을 실행한다. Python 3.9+, Node.js 18+, npm과
+POSIX 환경이 필요하다. 최초 실행은 npm registry 접근이 필요할 수 있다.
+호출 디렉터리에서 npm이 해석한 registry·proxy·cache·offline·TLS 설정만 전달하고,
+빈 임시 프로젝트에 패키지를 설치한다. 설치 script는 실행하지 않으며 프로젝트의 로컬·workspace
+패키지와 기존 npx 실행 디렉터리를 사용하지 않는다. 프로젝트 설정이 필요하면 해당 프로젝트 루트에서 실행한다.
+인증은 npm의 사용자 설정에 둔다.
+
+```bash
+python3 <plugin-root>/scripts/validate_design_quality.py design-md <DESIGN.md>
+```
+
+이 명령은 고정한 `@google/design.md@0.4.0`의 공식 linter API와 같은 설치의 파서 의존성을
+사용한다. YAML 파서나 token schema를 별도로 구현하지 않는다. 버전·실행·판정은 공통 도구가
+소유하며 플러그인별 설치 명령이나 경고 판정 규칙을 추가하지 않는다. 도구가 출력한 JSON을
+현재 산출물의 검증 근거로 보존한다.
+JSON에는 파일 경로·SHA-256 digest·package 버전·실행 시각·명령·상태·진단이 포함된다.
+파일을 읽었다면 UTF-8 디코딩에 실패해도 원본 bytes의 digest를 보존한다.
+파일이 바뀌면 다시 실행한다.
+
+| 종료 코드 / 상태 | 처리 |
+| --- | --- |
+| `0` / `passed` | 자동 형식 검사 통과. 실제 사용 token의 범위와 화면 품질은 별도로 확인한다. |
+| `1` / `failed` | 입력·YAML·필수 항목·참조·섹션 순서·잘못된 key 등 형식 오류를 수정하고 재실행한다. |
+| `2` / `blocked` | 도구·설치·시간 초과·출력 오류를 해결한다. 통과로 처리하지 않는다. |
+| `3` / `needs_review` | 대비 등 남은 경고의 적용 여부를 실제 화면 근거로 판단한다. 미달이면 수정·재실행하고, 적용되지 않으면 이유와 근거를 별도 기록한다. 자동 검사 상태를 `passed`로 바꾸지 않는다. |
+
+실행하지 않은 검사는 `not_run`이다. 형식 오류나 미해결 경고가 있으면 해당 디자인 검증 완료를
+주장하지 않는다. CI에서도 같은 명령의 종료 코드를 사용한다. 이 검사는 DQ0–DQ8, 실제 화면의
+모든 상태·대비·사용성, Figma binding·readback을 대신하지 않는다. 기존 `contract`·`report`
+명령의 DQ JSON 검증도 별도로 수행한다.
 
 ## 차원별 합격
 
