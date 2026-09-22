@@ -41,15 +41,18 @@ CLI는 `--host codex|omp|both`, `--mode ownership|behavior`, `--cases`, 반복 �
 각 run은 새 HOME/CODEX_HOME을 만들고 기존 `auth.json`이 있으면 read-only copy만 사용합니다. local
 marketplace의 exact 10개 pack을 설치한 뒤 `codex exec --ephemeral --ignore-user-config --sandbox read-only
 --json`으로 실행합니다. nonsemantic case는 mcpls를 disabled로 고정합니다. semantic case는 mcpls만
-활성화하고 `lsp_definition`, `lsp_references`만 allowlist합니다. registry prerequisite가 맞지 않으면
-model을 호출하지 않고 case를 `blocked`로 기록합니다.
+활성화하고 실제 mcpls 0.6.0 이름인 `lsp_get_definition`, `lsp_get_references`만 allowlist합니다.
+registry prerequisite가 맞지 않으면 model을 호출하지 않고 case를 `blocked`로 기록합니다.
 
 ### OMP isolation
 
 OMP는 disposable HOME에서 repository의 10개 `--plugin-dir`를 직접 로드하고 exact 31개 bare skill
 name을 `--skills`로 제한합니다. `--no-rules --no-session --approval-mode always-ask --mode json -p`와
-case별 최소 tool allowlist를 사용합니다. provider credential 환경 변수는 제거합니다. semantic case는
-OMP native `lsp`만 사용하고 plugin의 Codex MCP metadata를 등록하지 않습니다.
+case별 최소 tool allowlist를 사용합니다. provider credential 환경 변수는 제거합니다. model behavior를
+실행할 때는 `PI_CODING_AGENT_DIR`이 명시적으로 지정한 disposable source profile의 `agent.db`와
+선택적인 config/model/LSP 파일만 임시 경로로 복사합니다. 값이 없거나 profile이 불완전하면 case는
+구조화된 `blocked`로 남습니다. semantic case는 OMP native `lsp`만 사용하고 plugin의 Codex MCP
+metadata를 등록하지 않습니다.
 
 ## 판정
 

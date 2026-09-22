@@ -36,9 +36,16 @@ SCHEMA = {
 }
 
 
-def command_version(command: str) -> str:
-    completed = subprocess.run([command, "--version"], text=True, capture_output=True)
+def command_version(command: str) -> str | None:
+    try:
+        completed = subprocess.run([command, "--version"], text=True, capture_output=True)
+    except FileNotFoundError:
+        return None
     return (completed.stdout or completed.stderr).strip()
+
+
+def selected_cli_versions(hosts: Iterable[str]) -> dict[str, str | None]:
+    return {host: command_version(host) for host in hosts}
 
 
 def run(command: list[str], *, cwd: Path, env: dict[str, str], timeout: int = 600) -> dict[str, Any]:
@@ -179,12 +186,32 @@ def prepare_codex(work: Path) -> tuple[dict[str, str], list[dict[str, Any]], str
     return env, records, None
 
 
-def prepare_omp(work: Path) -> dict[str, str]:
+def prepare_omp(work: Path) -> tuple[dict[str, str], str | None]:
     home = work / "omp-home"
     home.mkdir()
     env = scrub(os.environ)
     env["HOME"] = str(home)
-    return env
+    source_value = os.environ.get("PI_CODING_AGENT_DIR")
+    if not source_value:
+        return env, (
+            "OMP disposable credentials missing: set PI_CODING_AGENT_DIR to an explicit "
+            "disposable source profile"
+        )
+    source = Path(source_value).expanduser().resolve()
+    if not source.is_dir():
+        return env, f"OMP disposable profile is not a directory: {source}"
+    if not (source / "agent.db").is_file():
+        return env, f"OMP disposable profile has no agent.db: {source}"
+    destination = work / "omp-agent"
+    destination.mkdir()
+    for name in ("agent.db", "models.db", "config.yml", "lsp.json"):
+        candidate = source / name
+        if candidate.is_file():
+            target = destination / name
+            shutil.copy2(candidate, target)
+            target.chmod(0o600)
+    env["PI_CODING_AGENT_DIR"] = str(destination)
+    return env, None
 
 
 def codex_case(case: dict[str, Any], work: Path, env: dict[str, str], skills: list[str]) -> dict[str, Any]:
@@ -206,7 +233,7 @@ def codex_case(case: dict[str, Any], work: Path, env: dict[str, str], skills: li
     if case.get("semantic") and not case.get("disable_semantic_prerequisite"):
         command += [
             "-c", "mcp_servers.mcpls.enabled=true",
-            "-c", 'mcp_servers.mcpls.enabled_tools=["lsp_definition","lsp_references"]',
+            "-c", 'mcp_servers.mcpls.enabled_tools=["lsp_get_definition","lsp_get_references"]',
         ]
     else:
         command += ["-c", "mcp_servers.mcpls.enabled=false"]
@@ -282,7 +309,10 @@ def assess(case: dict[str, Any], execution: dict[str, Any]) -> dict[str, Any]:
     forbidden = set(case.get("must_not_select", []))
     if selected & forbidden:
         return {"status": "fail", "reason": f"forbidden selection: {sorted(selected & forbidden)}"}
-    expected_status = case.get("expected_status")
+    expected_status = case.get(
+        "expected_status",
+        "passed" if case.get("mode") == "ownership" else None,
+    )
     if expected_status and contract.get("status") != expected_status:
         if contract.get("status") == "blocked":
             return {"status": "blocked", "reason": contract.get("summary", "semantic prerequisite blocked")}
@@ -319,13 +349,21 @@ def main() -> int:
     codex_env = None
     codex_blocker = None
     if "codex" in hosts:
-        codex_env, records, codex_blocker = prepare_codex(work)
-        setup_records["codex"] = records
-    omp_env = prepare_omp(work) if "omp" in hosts else None
-    omp_blocker = (
-        "OMP provider credentials are intentionally removed from the disposable profile"
-        if "omp" in hosts else None
-    )
+        if shutil.which("codex") is None:
+            codex_env = scrub(os.environ)
+            codex_blocker = "Codex CLI is missing from PATH"
+            setup_records["codex"] = []
+        else:
+            codex_env, records, codex_blocker = prepare_codex(work)
+            setup_records["codex"] = records
+    omp_env = None
+    omp_blocker = None
+    if "omp" in hosts:
+        if shutil.which("omp") is None:
+            omp_env = scrub(os.environ)
+            omp_blocker = "OMP CLI is missing from PATH"
+        else:
+            omp_env, omp_blocker = prepare_omp(work)
     try:
         jobs = [(host, case) for host in hosts for case in cases]
 
@@ -345,9 +383,10 @@ def main() -> int:
         overall = "passed" if statuses and all(status == "passed" for status in statuses) else (
             "blocked" if any(status == "blocked" for status in statuses) and not any(status == "fail" for status in statuses) else "failed"
         )
+        cli_versions = selected_cli_versions(hosts)
         evidence = {
             "status": overall, "host": args.host, "mode": args.mode,
-            "cli_versions": {"codex": command_version("codex"), "omp": command_version("omp")},
+            "cli_versions": cli_versions,
             "setup": setup_records, "results": results,
         }
         (args.output / "summary.json").write_text(json.dumps(evidence, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

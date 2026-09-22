@@ -21,6 +21,9 @@ Codex manifest만 non-autodiscovered `codex-mcp.json`을 참조한다. launcher�
 `mcpls.toml`을 신뢰하지 않는다. `[workspace] roots=[]`는 process 시작 cwd 하나를 canonical root로
 사용하며 하위 project marker routing은 mcpls built-in heuristics가 담당한다.
 
+Codex read-only semantic allowlist의 실제 mcpls 0.6.0 tool name은 `lsp_get_definition`과
+`lsp_get_references`다. prefix를 생략하거나 `lsp_definition`/`lsp_references`로 축약하지 않는다.
+
 OMP catalog에는 `mcpServers`, `lspServers`와 package `.lsp.json`이 없다. native `lsp`가 있으면
 공통 skill은 항상 그것을 우선한다. workspace를 바꾼 뒤에는 MCP reconnect 또는 session restart가
 필요하다. canonical session cwd 밖 target, 밖으로 향하는 symlink와 복수 외부 root는 tool 호출 전

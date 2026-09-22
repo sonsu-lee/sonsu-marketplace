@@ -158,7 +158,10 @@ while True:
     if method == 'initialize':
         result = {'protocolVersion': message.get('params', {}).get('protocolVersion', '2025-06-18'), 'capabilities': {'tools': {}}, 'serverInfo': {'name': 'mcpls', 'version': '0.6.0'}}
     elif method == 'tools/list':
-        result = {'tools': [{'name': 'lsp_definition', 'description': 'probe semantic definition tool', 'inputSchema': {'type': 'object', 'properties': {}}}]}
+        result = {'tools': [
+            {'name': 'lsp_get_definition', 'description': 'probe semantic definition tool', 'inputSchema': {'type': 'object', 'properties': {}}},
+            {'name': 'lsp_get_references', 'description': 'probe semantic references tool', 'inputSchema': {'type': 'object', 'properties': {}}},
+        ]}
     elif method in {'resources/list', 'prompts/list'}:
         result = {method.split('/')[0]: []}
     else:
@@ -199,9 +202,6 @@ def codex_probe(work: Path) -> dict[str, Any]:
         [
             "codex", "app-server", "--stdio",
             "-c", "shell_environment_policy.inherit=all",
-            "-c", 'mcp_servers.mcpls.command="python3"',
-            "-c", f"mcp_servers.mcpls.args=[{json.dumps(str(ROOT / 'plugins/code-intelligence/scripts/launch-mcpls.py'))}]",
-            "-c", f"mcp_servers.mcpls.env.PATH={json.dumps(env['PATH'])}",
         ],
         cwd=ROOT,
         env=env,
@@ -253,13 +253,45 @@ def codex_probe(work: Path) -> dict[str, Any]:
         if intelligence.get("mcpServers") != ["mcpls"]:
             raise ProbeFailure(f"Codex mcpls declaration missing: {intelligence.get('mcpServers')}")
         mcp_status = client.request("mcpServerStatus/list", {"detail": "full"}, timeout=30)
-        fake_events = []
-        if fake_log.exists():
-            fake_events = [json.loads(line) for line in fake_log.read_text(encoding="utf-8").splitlines()]
-        mcpls_status = [item for item in mcp_status.get("data", []) if item.get("name") == "mcpls"]
-        mcp_text = json.dumps(mcpls_status)
-        if "lsp_definition" not in mcp_text:
-            raise ProbeFailure(f"Codex did not initialize/list fake mcpls tools: {mcpls_status}")
+        all_mcp_status = mcp_status.get("data", [])
+        mcpls_status = [
+            item for item in all_mcp_status
+            if item.get("name") == "mcpls"
+            and item.get("pluginId") == "code-intelligence@sonsu-marketplace"
+        ]
+        if len(mcpls_status) != 1:
+            raise ProbeFailure(f"plugin-owned Codex mcpls status missing or ambiguous: {all_mcp_status}")
+
+        mcp_config = json.loads(
+            (ROOT / "plugins/code-intelligence/codex-mcp.json").read_text(encoding="utf-8")
+        )["mcpServers"]["mcpls"]
+        expected_args = ["${PLUGIN_ROOT}/scripts/launch-mcpls.py"]
+        if mcp_config.get("command") != "python3" or mcp_config.get("args") != expected_args:
+            raise ProbeFailure(f"unexpected plugin-owned mcpls command wiring: {mcp_config}")
+
+        launcher = RpcClient(
+            ["python3", str(ROOT / "plugins/code-intelligence/scripts/launch-mcpls.py")],
+            cwd=ROOT,
+            env=env,
+        )
+        try:
+            launcher_initialize = launcher.request("initialize", {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {"name": "sonsu-launcher-probe", "version": "1.0.0"},
+            })
+            launcher_tools = launcher.request("tools/list", {})
+        finally:
+            launcher_stderr = launcher.close()
+            (work / "mcpls-launcher.stderr").write_text(launcher_stderr, encoding="utf-8")
+        tool_names = {tool["name"] for tool in launcher_tools.get("tools", [])}
+        expected_tools = {"lsp_get_definition", "lsp_get_references"}
+        if not expected_tools.issubset(tool_names):
+            raise ProbeFailure(f"launcher did not expose expected mcpls tools: {launcher_tools}")
+        fake_events = [
+            json.loads(line)
+            for line in fake_log.read_text(encoding="utf-8").splitlines()
+        ] if fake_log.exists() else []
         if not {"initialize", "tools/list"}.issubset({event.get("method") for event in fake_events}):
             raise ProbeFailure(f"fake mcpls did not observe initialize and tools/list: {fake_events}")
         figma_declared = bool(figma.get("apps") or figma.get("appTemplates"))
@@ -271,7 +303,8 @@ def codex_probe(work: Path) -> dict[str, Any]:
             "hooks": hook_bucket["hooks"], "figma_apps": figma.get("apps"),
             "figma_app_templates": figma.get("appTemplates"),
             "code_intelligence_mcp_servers": intelligence.get("mcpServers"),
-            "mcp_status": mcpls_status, "fake_mcpls_events": fake_events,
+            "mcp_status": mcpls_status, "launcher_initialize": launcher_initialize,
+            "launcher_tools": launcher_tools, "fake_mcpls_events": fake_events,
             "notification_methods": sorted({item.get("method") for item in client.notifications if item.get("method")}),
         }
     finally:

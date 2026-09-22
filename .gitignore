@@ -1,4 +1,6 @@
 .DS_Store
+# Legacy local artifacts retained during clean cutover
+.engineering/
 # Local secrets
 .env
 .env.*

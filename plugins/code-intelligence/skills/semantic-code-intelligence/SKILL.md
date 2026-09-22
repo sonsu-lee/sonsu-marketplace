@@ -43,7 +43,7 @@ file language, tool/client 상태와 필요한 executable/config prerequisite를
 기본은 read-only semantic query다.
 
 - definition → native `lsp` definition 또는 exposed `lsp_get_definition`
-- references → references; declaration 포함 여부를 결과에서 구분
+- references → native `lsp` references 또는 exposed `lsp_get_references`; declaration 포함 여부를 결과에서 구분
 - hover/type → hover 또는 type definition
 - implementation → implementation
 - diagnostics → 현재 document/workspace diagnostics

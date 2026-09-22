@@ -126,6 +126,10 @@ class ThinCatalogContractTests(unittest.TestCase):
         for name in REMOVED:
             self.assertFalse((ROOT / "plugins" / name).exists(), name)
 
+    def test_legacy_engineering_artifacts_remain_ignored(self):
+        ignore_rules = (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
+        self.assertIn(".engineering/", ignore_rules)
+
     def test_review_pr_is_explicit_only(self):
         metadata = frontmatter(ROOT / "plugins/code-review/skills/review-pr/SKILL.md")
         self.assertEqual(metadata.get("allow_implicit_invocation"), "false")
@@ -156,8 +160,15 @@ class ThinCatalogContractTests(unittest.TestCase):
 
     def test_code_intelligence_config_is_pinned_and_secret_free(self):
         mcp = load(ROOT / "plugins/code-intelligence/codex-mcp.json")
+        self.assertEqual(mcp, {
+            "mcpServers": {
+                "mcpls": {
+                    "command": "python3",
+                    "args": ["${PLUGIN_ROOT}/scripts/launch-mcpls.py"],
+                }
+            }
+        })
         serialized = json.dumps(mcp)
-        self.assertIn("${PLUGIN_ROOT}/scripts/launch-mcpls.py", serialized)
         self.assertNotIn("cwd", mcp)
         self.assertIsNone(re.search(r"(?i)(token|api[_-]?key|secret|password)", serialized))
         launcher = (ROOT / "plugins/code-intelligence/scripts/launch-mcpls.py").read_text(encoding="utf-8")
