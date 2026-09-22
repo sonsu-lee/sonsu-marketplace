@@ -7,10 +7,13 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 import json
 import os
+import re
+import select
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 import tempfile
 from typing import Any, Iterable
 
@@ -117,6 +120,13 @@ def inventory() -> list[str]:
         raise RuntimeError(f"expected 31 unique skills, got {len(names)}/{len(set(names))}")
     return names
 
+def namespaced_inventory() -> set[str]:
+    return {
+        f"{plugin}:{skill.parent.name}"
+        for plugin in PLUGIN_NAMES
+        for skill in (ROOT / "plugins" / plugin / "skills").glob("*/SKILL.md")
+    }
+
 
 def make_fixture(directory: Path) -> Path:
     root = directory / "semantic-fixture"
@@ -133,25 +143,41 @@ def make_fixture(directory: Path) -> Path:
     return root
 
 
-def prompt_for(case: dict[str, Any], skills: list[str]) -> str:
+def prompt_for(case: dict[str, Any], native_catalog: list[dict[str, str]] | None = None) -> str:
     mode_instruction = (
-        "This is ownership classification only: identify the minimal skill owner, do not execute the request, "
-        "inspect prerequisites, or add semantic-code-intelligence unless the request directly asks for definition, "
-        "references, type, implementation, or rename. Return status passed. "
+        "This is ownership classification only: identify the minimal skill owner, load that skill from native "
+        "discovery, do not execute the request, inspect prerequisites, or add semantic-code-intelligence unless "
+        "the request directly asks for definition, references, type, implementation, or rename. Return status "
+        "passed. "
         if case["mode"] == "ownership"
         else ""
     )
+    semantic_instruction = (
+        "For a semantic success request, invoke the native definition and references actions directly and base "
+        "the answer on their returned locations. Reading or searching source text is not a substitute. "
+        if case.get("semantic") and not case.get("disable_semantic_prerequisite")
+        else ""
+    )
+    discovery = ""
+    if native_catalog is not None:
+        discovery = (
+            "\nNative discovery catalog:\n"
+            + json.dumps(native_catalog, ensure_ascii=False, separators=(",", ":"))
+        )
     return (
-        "You are running a read-only routing smoke. Do not edit files, use remote mutations, install anything, "
-        "or invent tool results. The launcher has installed and enabled every listed skill in the native registry. "
+        case["prompt"]
+        + discovery
+        + "\n\n<routing-probe>\n"
+        + "You are running a read-only routing smoke. Do not edit files, use remote mutations, install anything, "
+        "or invent tool results. Use the skills exposed by current native discovery. "
         + mode_instruction
-        + "Use current native skill discovery. Select only marketplace skills directly needed for the user request; "
-        "general host behavior means an empty list. If a directly requested semantic prerequisite is unavailable, "
-        "keep the semantic skill selected, set status to blocked, and do not use text search as a substitute. "
-        "Return only this exact JSON shape with no extra fields: "
-        '{"selected_skills":["bare-skill-name"],"status":"passed|blocked|not_run|inconclusive","summary":"observable result or blocker"}. '
-        "Bare skill names available: " + ", ".join(skills)
-        + "\n\nUser request:\n" + case["prompt"]
+        + semantic_instruction
+        + "Select only marketplace skills directly needed for the user request; general host behavior means an "
+        "empty list. If a directly requested semantic prerequisite is unavailable, keep the semantic skill "
+        "selected, set status to blocked, and do not use text search as a substitute. Return only this exact JSON "
+        "shape with no extra fields: "
+        '{"selected_skills":["bare-skill-name"],"status":"passed|blocked|not_run|inconclusive","summary":"observable result or blocker"}.'
+        + "\n</routing-probe>"
     )
 
 
@@ -167,6 +193,70 @@ def copy_codex_auth(home: Path) -> tuple[bool, str | None]:
     return True, None
 
 
+def codex_registry_skills(env: dict[str, str]) -> tuple[list[dict[str, str]], list[Any]]:
+    plugin_key = 'plugins."code-intelligence@sonsu-marketplace".mcp_servers.mcpls'
+    process = subprocess.Popen(
+        [
+            "codex", "app-server", "--stdio",
+            "-c", f"{plugin_key}.enabled=false",
+        ],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        bufsize=1,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    def request(request_id: int, method: str, params: dict[str, Any]) -> Any:
+        assert process.stdin is not None
+        assert process.stdout is not None
+        process.stdin.write(json.dumps({
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "method": method,
+            "params": params,
+        }) + "\n")
+        process.stdin.flush()
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            ready, _, _ = select.select([process.stdout], [], [], 0.2)
+            if not ready:
+                if process.poll() is not None:
+                    break
+                continue
+            message = json.loads(process.stdout.readline())
+            if message.get("id") != request_id:
+                continue
+            if "error" in message:
+                raise RuntimeError(f"{method}: {message['error']}")
+            return message["result"]
+        raise RuntimeError(f"timeout waiting for Codex {method}")
+
+    try:
+        request(1, "initialize", {
+            "clientInfo": {"name": "sonsu-routing-smoke", "version": "1.0.0"},
+            "capabilities": {"experimentalApi": True},
+        })
+        response = request(2, "skills/list", {"cwds": [str(ROOT)], "forceReload": True})
+        bucket = response["data"][0]
+        catalog = [
+            {"name": skill["name"], "description": skill.get("description", "")}
+            for skill in bucket["skills"]
+            if (skill.get("pluginId") or "").endswith("@sonsu-marketplace")
+        ]
+        return catalog, bucket.get("errors", [])
+    finally:
+        if process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait(timeout=5)
+
+
 def prepare_codex(work: Path) -> tuple[dict[str, str], list[dict[str, Any]], str | None]:
     home = work / "codex-home"
     home.mkdir()
@@ -174,7 +264,7 @@ def prepare_codex(work: Path) -> tuple[dict[str, str], list[dict[str, Any]], str
     env = scrub(os.environ)
     env["HOME"] = str(home)
     env["CODEX_HOME"] = str(home / ".codex")
-    records = []
+    records: list[dict[str, Any]] = []
     if not ok:
         return env, records, blocker
     records.append(run(["codex", "plugin", "marketplace", "add", str(ROOT)], cwd=ROOT, env=env, timeout=60))
@@ -183,6 +273,22 @@ def prepare_codex(work: Path) -> tuple[dict[str, str], list[dict[str, Any]], str
     failures = [record for record in records if record["returncode"] != 0]
     if failures:
         return env, records, failures[0]["stderr"] or failures[0]["stdout"]
+    try:
+        catalog, errors = codex_registry_skills(env)
+    except (OSError, RuntimeError, KeyError, TypeError, json.JSONDecodeError) as error:
+        return env, records, f"Codex native skill registry failed: {error}"
+    loaded = {skill["name"] for skill in catalog}
+    expected = namespaced_inventory()
+    records.append({
+        "registry_skills": sorted(loaded),
+        "registry_catalog": catalog,
+        "registry_errors": errors,
+    })
+    if errors or loaded != expected:
+        return env, records, (
+            f"Codex native skill registry mismatch: "
+            f"missing={sorted(expected - loaded)} extra={sorted(loaded - expected)} errors={errors}"
+        )
     return env, records, None
 
 
@@ -214,7 +320,12 @@ def prepare_omp(work: Path) -> tuple[dict[str, str], str | None]:
     return env, None
 
 
-def codex_case(case: dict[str, Any], work: Path, env: dict[str, str], skills: list[str]) -> dict[str, Any]:
+def codex_case(
+    case: dict[str, Any],
+    work: Path,
+    env: dict[str, str],
+    native_catalog: list[dict[str, str]],
+) -> dict[str, Any]:
     case_dir = work / "codex" / case["id"]
     case_dir.mkdir(parents=True)
     schema_path = case_dir / "schema.json"
@@ -222,22 +333,19 @@ def codex_case(case: dict[str, Any], work: Path, env: dict[str, str], skills: li
     schema_path.write_text(json.dumps(SCHEMA), encoding="utf-8")
     cwd = make_fixture(case_dir) if case.get("semantic") else ROOT
     command = [
-        "codex", "exec", "--ephemeral", "--ignore-user-config", "--ignore-rules",
+        "codex", "exec", "--ephemeral", "--ignore-rules",
         "--sandbox", "read-only", "--json", "--output-schema", str(schema_path),
         "--output-last-message", str(final_path), "--cd", str(cwd),
     ]
-    command += [
-        "-c", 'mcp_servers.mcpls.command="python3"',
-        "-c", f"mcp_servers.mcpls.args=[{json.dumps(str(ROOT / 'plugins/code-intelligence/scripts/launch-mcpls.py'))}]",
-    ]
+    plugin_key = 'plugins."code-intelligence@sonsu-marketplace".mcp_servers.mcpls'
     if case.get("semantic") and not case.get("disable_semantic_prerequisite"):
         command += [
-            "-c", "mcp_servers.mcpls.enabled=true",
-            "-c", 'mcp_servers.mcpls.enabled_tools=["lsp_get_definition","lsp_get_references"]',
+            "-c", f"{plugin_key}.enabled=true",
+            "-c", f'{plugin_key}.enabled_tools=["lsp_get_definition","lsp_get_references"]',
         ]
     else:
-        command += ["-c", "mcp_servers.mcpls.enabled=false"]
-    command.append(prompt_for(case, skills))
+        command += ["-c", f"{plugin_key}.enabled=false"]
+    command.append(prompt_for(case, native_catalog))
     record = run(command, cwd=cwd, env=env)
     events = parse_json_lines(record["stdout"])
     contract = None
@@ -269,7 +377,7 @@ def omp_case(case: dict[str, Any], work: Path, env: dict[str, str], skills: list
         command += ["--tools", "read,lsp"]
     else:
         command += ["--tools", "read", "--no-lsp"]
-    command += ["-p", prompt_for(case, skills)]
+    command += ["-p", prompt_for(case)]
     record = run(command, cwd=cwd, env=env)
     events = parse_json_lines(record["stdout"])
     contract = find_contract(events)
@@ -296,13 +404,96 @@ def semantic_blocker(host: str, case: dict[str, Any]) -> str | None:
     return None
 
 
+def response_contract_error(contract: Any) -> str | None:
+    if not isinstance(contract, dict):
+        return "no valid response contract"
+    required = set(SCHEMA["required"])
+    if set(contract) != required:
+        return f"response fields {sorted(contract)}, expected {sorted(required)}"
+    selected = contract["selected_skills"]
+    if not isinstance(selected, list) or not all(isinstance(name, str) for name in selected):
+        return "selected_skills must be an array of strings"
+    if len(selected) != len(set(selected)):
+        return "selected_skills must not contain duplicates"
+    if contract["status"] not in SCHEMA["properties"]["status"]["enum"]:
+        return f"unsupported response status: {contract['status']!r}"
+    if not isinstance(contract["summary"], str):
+        return "summary must be a string"
+    return None
+
+
+def semantic_tool_results(events: list[Any]) -> dict[str, list[Any]]:
+    results: dict[str, list[Any]] = {"definition": [], "references": []}
+    suffixes = {
+        "definition": "lsp_get_definition",
+        "references": "lsp_get_references",
+    }
+    for event in events:
+        if not isinstance(event, dict):
+            continue
+        if event.get("type") == "tool_execution_end":
+            result = event.get("result")
+            if not isinstance(result, dict) or result.get("isError") is True:
+                continue
+            details = result.get("details")
+            if not isinstance(details, dict) or details.get("success") is False:
+                continue
+            action = details.get("action")
+            if action not in results:
+                request = details.get("request")
+                action = request.get("action") if isinstance(request, dict) else None
+            if event.get("toolName") == "lsp" and action in results:
+                results[action].append(result)
+        elif event.get("type") == "item.completed":
+            item = event.get("item")
+            if not isinstance(item, dict) or item.get("status") == "failed":
+                continue
+            tool_name = item.get("tool") or item.get("tool_name") or item.get("name")
+            if not isinstance(tool_name, str):
+                continue
+            for action, suffix in suffixes.items():
+                if tool_name.endswith(suffix):
+                    result = item.get("result", item.get("output"))
+                    if result is not None:
+                        results[action].append(result)
+    return results
+
+
+def result_contains_location(result: Any, marker: str) -> bool:
+    path, line_text = marker.rsplit(":", 1)
+    line = int(line_text)
+    text = json.dumps(result, ensure_ascii=False).replace("\\\\", "/")
+    if path not in text:
+        return False
+    displayed = re.compile(rf"{re.escape(path)}(?:#L|:L|#|:){line}\b")
+    zero_based = re.compile(rf'"(?:line|startLine)"\s*:\s*{line - 1}\b')
+    one_based = re.compile(rf'"(?:line|startLine)"\s*:\s*{line}\b')
+    return bool(displayed.search(text) or zero_based.search(text) or one_based.search(text))
+
+
+def semantic_trace_error(case: dict[str, Any], execution: dict[str, Any]) -> str | None:
+    expected = case.get("expected_semantic_trace")
+    if not expected:
+        return None
+    results = semantic_tool_results(execution.get("events", []))
+    for action, locations in expected.items():
+        action_results = results.get(action, [])
+        if not action_results:
+            return f"semantic trace missing {action} tool result"
+        for location in locations:
+            if not any(result_contains_location(result, location) for result in action_results):
+                return f"semantic {action} result missing {location}"
+    return None
+
+
 def assess(case: dict[str, Any], execution: dict[str, Any]) -> dict[str, Any]:
     if execution["returncode"] != 0:
-        return {"status": "blocked", "reason": execution["stderr"] or "native CLI failed"}
+        return {"status": "fail", "reason": execution["stderr"] or "native CLI failed"}
     contract = execution.get("contract")
-    if not isinstance(contract, dict):
-        return {"status": "fail", "reason": "no valid response contract"}
-    selected = set(contract.get("selected_skills", []))
+    contract_error = response_contract_error(contract)
+    if contract_error:
+        return {"status": "fail", "reason": contract_error}
+    selected = set(contract["selected_skills"])
     expected = set(case.get("expected_skills", []))
     if selected != expected:
         return {"status": "fail", "reason": f"selected {sorted(selected)}, expected {sorted(expected)}"}
@@ -313,14 +504,16 @@ def assess(case: dict[str, Any], execution: dict[str, Any]) -> dict[str, Any]:
         "expected_status",
         "passed" if case.get("mode") == "ownership" else None,
     )
-    if expected_status and contract.get("status") != expected_status:
-        if contract.get("status") == "blocked":
-            return {"status": "blocked", "reason": contract.get("summary", "semantic prerequisite blocked")}
-        return {"status": "fail", "reason": f"status {contract.get('status')}, expected {expected_status}"}
-    summary = contract.get("summary", "")
-    missing = [value for value in case.get("must_contain", []) if value not in summary]
+    if expected_status and contract["status"] != expected_status:
+        if contract["status"] == "blocked":
+            return {"status": "blocked", "reason": contract["summary"]}
+        return {"status": "fail", "reason": f"status {contract['status']}, expected {expected_status}"}
+    missing = [value for value in case.get("must_contain", []) if value not in contract["summary"]]
     if missing:
         return {"status": "fail", "reason": f"summary missing {missing}"}
+    trace_error = semantic_trace_error(case, execution)
+    if trace_error:
+        return {"status": "fail", "reason": trace_error}
     return {"status": "passed", "reason": "selection and behavior contract matched"}
 
 
@@ -348,6 +541,8 @@ def main() -> int:
     setup_records: dict[str, Any] = {}
     codex_env = None
     codex_blocker = None
+    codex_setup_failure = None
+    codex_catalog: list[dict[str, str]] = []
     if "codex" in hosts:
         if shutil.which("codex") is None:
             codex_env = scrub(os.environ)
@@ -356,6 +551,11 @@ def main() -> int:
         else:
             codex_env, records, codex_blocker = prepare_codex(work)
             setup_records["codex"] = records
+            if records and "registry_catalog" in records[-1]:
+                codex_catalog = records[-1]["registry_catalog"]
+            if codex_blocker is not None and records:
+                codex_setup_failure = codex_blocker
+                codex_blocker = None
     omp_env = None
     omp_blocker = None
     if "omp" in hosts:
@@ -370,10 +570,16 @@ def main() -> int:
         def execute(item: tuple[str, dict[str, Any]]) -> dict[str, Any]:
             host, case = item
             blocker = codex_blocker if host == "codex" else omp_blocker
+            if host == "codex" and codex_setup_failure:
+                return {
+                    "host": host,
+                    "case": case["id"],
+                    "assessment": {"status": "fail", "reason": codex_setup_failure},
+                }
             blocker = blocker or semantic_blocker(host, case)
             if blocker:
                 return {"host": host, "case": case["id"], "assessment": {"status": "blocked", "reason": blocker}}
-            execution = codex_case(case, work, codex_env, skills) if host == "codex" else omp_case(case, work, omp_env, skills)
+            execution = codex_case(case, work, codex_env, codex_catalog) if host == "codex" else omp_case(case, work, omp_env, skills)
             execution["assessment"] = assess(case, execution)
             return execution
 
