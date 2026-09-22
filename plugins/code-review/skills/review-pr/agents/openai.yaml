@@ -1,0 +1,6 @@
+interface:
+  display_name: "Review PR"
+  short_description: "직접 호출한 PR을 세 독립 reviewer로 검토해 한 COMMENT를 게시합니다"
+  default_prompt: "$review-pr 이 PR의 고정 diff를 정확히 세 명의 fresh reviewer로 검토하고 검증·중복 제거한 COMMENT 하나를 게시해 줘."
+policy:
+  allow_implicit_invocation: false

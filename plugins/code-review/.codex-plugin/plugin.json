@@ -1,0 +1,38 @@
+{
+  "name": "code-review",
+  "version": "1.0.0",
+  "description": "읽기 전용 focused review와 명시적으로 호출하는 독립 PR review workflow를 제공한다.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT AND Apache-2.0",
+  "keywords": [
+    "code-review",
+    "failure-modes",
+    "maintainability",
+    "operability",
+    "overengineering",
+    "pull-request"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Code Review",
+    "shortDescription": "Focused code review와 explicit PR review",
+    "longDescription": "실패 모드, 유지보수성, 운용 가능성, 과도한 설계 관점의 읽기 전용 focused review와 $review-pr 또는 OMP /skill:review-pr로 직접 호출하는 3-reviewer PR review만 제공한다. 일반 구현 lifecycle과 일반 코드 리뷰 routing은 host가 담당한다.",
+    "developerName": "sonsu-lee",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "$review-failure-modes 이 변경의 도달 가능한 실패 경로를 검토해 줘.",
+      "$review-maintainability 이 코드의 유지보수 비용을 검토해 줘.",
+      "$review-pr 이 PR을 정확히 세 명의 독립 리뷰어로 검토하고 통합 COMMENT를 게시해 줘."
+    ],
+    "brandColor": "#F59E0B",
+    "screenshots": []
+  }
+}
