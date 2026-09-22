@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 import subprocess
 from pathlib import Path
 import tempfile
+import sys
 import unittest
 from unittest import mock
 
@@ -181,6 +183,84 @@ class NativeSmokeContractTest(unittest.TestCase):
 
     def test_missing_cli_version_is_structured_as_none(self) -> None:
         self.assertIsNone(MODULE.command_version("sonsu-cli-that-does-not-exist"))
+
+    def test_cli_version_timeout_is_structured(self) -> None:
+        timeout = subprocess.TimeoutExpired(["codex", "--version"], 10)
+        with mock.patch.object(MODULE.subprocess, "run", side_effect=timeout):
+            version = MODULE.command_version("codex")
+
+        self.assertEqual(
+            version,
+            f"{MODULE.VERSION_TIMEOUT_PREFIX} after {MODULE.VERSION_TIMEOUT_SECONDS}s",
+        )
+
+    def test_semantic_fixture_records_explicit_workspace_trust(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = MODULE.make_fixture(Path(directory))
+            trust = json.loads(
+                (root / ".sonsu-routing-trust.json").read_text(encoding="utf-8")
+            )
+
+        self.assertTrue(trust["explicit_user_approval"])
+        self.assertFalse(trust["build_script"])
+        self.assertEqual(trust["authorized_actions"], ["definition", "references"])
+        self.assertIn(
+            "I explicitly confirm",
+            MODULE.prompt_for({"mode": "behavior", "semantic": True, "prompt": "locate symbol"}),
+        )
+
+    def test_setup_io_failure_writes_summary_and_cleans_work(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cases = root / "cases.json"
+            output = root / "output"
+            work = root / "work"
+            work.mkdir()
+            cases.write_text(
+                json.dumps({
+                    "cases": [{
+                        "id": "ownership",
+                        "mode": "ownership",
+                        "prompt": "review this",
+                        "expected_skills": [],
+                    }]
+                }),
+                encoding="utf-8",
+            )
+            argv = [
+                "native_smoke.py",
+                "--host", "omp",
+                "--mode", "ownership",
+                "--cases", str(cases),
+                "--output", str(output),
+            ]
+            with (
+                mock.patch.object(sys, "argv", argv),
+                mock.patch.object(MODULE.tempfile, "mkdtemp", return_value=str(work)),
+                mock.patch.object(MODULE.shutil, "which", return_value="/usr/bin/omp"),
+                mock.patch.object(
+                    MODULE,
+                    "prepare_omp",
+                    side_effect=OSError("unreadable profile"),
+                ),
+                mock.patch.object(
+                    MODULE,
+                    "selected_cli_versions",
+                    return_value={"omp": "omp 1.0"},
+                ),
+            ):
+                return_code = MODULE.main()
+
+            summary = json.loads(
+                (output / "summary.json").read_text(encoding="utf-8")
+            )
+            work_cleaned = not work.exists()
+
+        self.assertEqual(return_code, 1)
+        self.assertEqual(summary["status"], "failed")
+        self.assertIn("OMP setup failed", summary["results"][0]["assessment"]["reason"])
+        self.assertTrue(work_cleaned)
+
 
     def test_omp_profile_is_blocked_when_not_explicitly_supplied(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

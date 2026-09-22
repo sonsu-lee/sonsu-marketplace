@@ -36,13 +36,22 @@ SCHEMA = {
     "required": ["selected_skills", "status", "summary"],
     "additionalProperties": False,
 }
+VERSION_TIMEOUT_SECONDS = 10
+VERSION_TIMEOUT_PREFIX = "version probe timed out"
 
 
 def command_version(command: str) -> str | None:
     try:
-        completed = subprocess.run([command, "--version"], text=True, capture_output=True)
+        completed = subprocess.run(
+            [command, "--version"],
+            text=True,
+            capture_output=True,
+            timeout=VERSION_TIMEOUT_SECONDS,
+        )
     except FileNotFoundError:
         return None
+    except subprocess.TimeoutExpired:
+        return f"{VERSION_TIMEOUT_PREFIX} after {VERSION_TIMEOUT_SECONDS}s"
     return (completed.stdout or completed.stderr).strip()
 
 
@@ -166,8 +175,30 @@ def make_fixture(directory: Path) -> Path:
         "pub fn target_value() -> u32 { 42 }\n\npub fn first_reference() -> u32 { target_value() }\n\npub fn second_reference() -> u32 { target_value() + 1 }\n",
         encoding="utf-8",
     )
+    trust_record = {
+        "canonical_workspace": str(root.resolve()),
+        "generated_by": "sonsu-marketplace native routing smoke",
+        "reviewed_files": ["Cargo.toml", "src/lib.rs"],
+        "dependencies": [],
+        "build_script": False,
+        "proc_macros": False,
+        "compiler_plugins": False,
+        "authorized_actions": ["definition", "references"],
+        "language_server": "rust-analyzer",
+        "explicit_user_approval": True,
+    }
+    (root / ".sonsu-routing-trust.json").write_text(
+        json.dumps(trust_record, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     subprocess.run(["git", "init", "-q"], cwd=root, check=True)
     return root
+
+def fixture_trust(cwd: Path) -> dict[str, Any] | None:
+    path = cwd / ".sonsu-routing-trust.json"
+    if not path.is_file():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def prompt_for(case: dict[str, Any], native_catalog: list[dict[str, str]] | None = None) -> str:
@@ -180,8 +211,12 @@ def prompt_for(case: dict[str, Any], native_catalog: list[dict[str, str]] | None
         else ""
     )
     semantic_instruction = (
-        "For a semantic success request, invoke the native definition and references actions directly and base "
-        "the answer on their returned locations. Reading or searching source text is not a substitute. "
+        "For a semantic success request, first read .sonsu-routing-trust.json. I explicitly confirm that the "
+        "harness generated this canonical temporary workspace from only the reviewed files recorded there, with "
+        "no dependencies, build script, proc macros, or compiler plugins, and I authorize rust-analyzer read-only "
+        "definition and references actions within that workspace. If the trust record is absent or disagrees, "
+        "return blocked. Otherwise invoke the native definition and references actions directly and base the "
+        "answer on their returned locations. Reading or searching source text is not a substitute. "
         if case.get("semantic") and not case.get("disable_semantic_prerequisite")
         else ""
     )
@@ -358,6 +393,7 @@ def codex_case(
         "returncode": record["returncode"], "stderr": record["stderr"],
         "events": events, "contract": contract,
         "observed_models": sorted(recursively_find_models(events)),
+        "workspace_trust": fixture_trust(cwd),
     }
 
 
@@ -385,6 +421,7 @@ def omp_case(case: dict[str, Any], work: Path, env: dict[str, str], skills: list
         "returncode": record["returncode"], "stderr": record["stderr"],
         "events": events, "contract": contract,
         "observed_models": sorted(recursively_find_models(events)),
+        "workspace_trust": fixture_trust(cwd),
     }
 
 
@@ -398,8 +435,9 @@ def semantic_blocker(host: str, case: dict[str, Any]) -> str | None:
         mcpls = shutil.which("mcpls")
         if not mcpls:
             return "mcpls 0.6.0 is missing from PATH"
-        if command_version(mcpls) != "mcpls 0.6.0":
-            return f"expected mcpls 0.6.0, observed {command_version(mcpls)!r}"
+        observed = command_version(mcpls)
+        if observed != "mcpls 0.6.0":
+            return f"expected mcpls 0.6.0, observed {observed!r}"
     return None
 
 
@@ -583,70 +621,133 @@ def main() -> int:
             parser.error(f"case(s) absent from selected mode: {', '.join(sorted(missing))}")
     skills = inventory()
     hosts = ["codex", "omp"] if args.host == "both" else [args.host]
-    work = Path(tempfile.mkdtemp(prefix="sonsu-native-smoke-"))
-    results = []
+    work: Path | None = None
+    results: list[dict[str, Any]] = []
     setup_records: dict[str, Any] = {}
-    codex_env = None
-    codex_blocker = None
-    codex_setup_failure = None
-    codex_catalog: list[dict[str, str]] = []
-    if "codex" in hosts:
-        if shutil.which("codex") is None:
-            codex_env = scrub(os.environ)
-            codex_blocker = "Codex CLI is missing from PATH"
-            setup_records["codex"] = []
-        else:
-            codex_env, records, codex_blocker = prepare_codex(work)
-            setup_records["codex"] = records
-            if records and "registry_catalog" in records[-1]:
-                codex_catalog = records[-1]["registry_catalog"]
-            if codex_blocker is not None and records:
-                codex_setup_failure = codex_blocker
-                codex_blocker = None
-    omp_env = None
-    omp_blocker = None
-    if "omp" in hosts:
-        if shutil.which("omp") is None:
-            omp_env = scrub(os.environ)
-            omp_blocker = "OMP CLI is missing from PATH"
-        else:
-            omp_env, omp_blocker = prepare_omp(work)
+    evidence: dict[str, Any] = {
+        "status": "failed",
+        "host": args.host,
+        "mode": args.mode,
+        "cli_versions": {},
+        "setup": setup_records,
+        "results": results,
+    }
+    return_code = 1
     try:
+        work = Path(tempfile.mkdtemp(prefix="sonsu-native-smoke-"))
+        codex_env = None
+        codex_blocker = None
+        codex_setup_failure = None
+        codex_catalog: list[dict[str, str]] = []
+        if "codex" in hosts:
+            if shutil.which("codex") is None:
+                codex_env = scrub(os.environ)
+                codex_blocker = "Codex CLI is missing from PATH"
+                setup_records["codex"] = []
+            else:
+                try:
+                    codex_env, records, codex_blocker = prepare_codex(work)
+                    setup_records["codex"] = records
+                    if records and "registry_catalog" in records[-1]:
+                        codex_catalog = records[-1]["registry_catalog"]
+                    if codex_blocker is not None and records:
+                        codex_setup_failure = codex_blocker
+                        codex_blocker = None
+                except OSError as error:
+                    codex_env = scrub(os.environ)
+                    codex_setup_failure = f"Codex setup failed: {error}"
+                    setup_records["codex"] = []
+
+        omp_env = None
+        omp_blocker = None
+        omp_setup_failure = None
+        if "omp" in hosts:
+            if shutil.which("omp") is None:
+                omp_env = scrub(os.environ)
+                omp_blocker = "OMP CLI is missing from PATH"
+                setup_records["omp"] = []
+            else:
+                try:
+                    omp_env, omp_blocker = prepare_omp(work)
+                    setup_records["omp"] = []
+                except OSError as error:
+                    omp_env = scrub(os.environ)
+                    omp_setup_failure = f"OMP setup failed: {error}"
+                    setup_records["omp"] = []
+
         jobs = [(host, case) for host in hosts for case in cases]
 
         def execute(item: tuple[str, dict[str, Any]]) -> dict[str, Any]:
             host, case = item
-            blocker = codex_blocker if host == "codex" else omp_blocker
-            if host == "codex" and codex_setup_failure:
+            setup_failure = (
+                codex_setup_failure if host == "codex" else omp_setup_failure
+            )
+            if setup_failure:
                 return {
                     "host": host,
                     "case": case["id"],
-                    "assessment": {"status": "fail", "reason": codex_setup_failure},
+                    "assessment": {"status": "fail", "reason": setup_failure},
                 }
+            blocker = codex_blocker if host == "codex" else omp_blocker
             blocker = blocker or semantic_blocker(host, case)
             if blocker:
-                return {"host": host, "case": case["id"], "assessment": {"status": "blocked", "reason": blocker}}
-            execution = codex_case(case, work, codex_env, codex_catalog) if host == "codex" else omp_case(case, work, omp_env, skills)
+                return {
+                    "host": host,
+                    "case": case["id"],
+                    "assessment": {"status": "blocked", "reason": blocker},
+                }
+            execution = (
+                codex_case(case, work, codex_env, codex_catalog)
+                if host == "codex"
+                else omp_case(case, work, omp_env, skills)
+            )
             execution["assessment"] = assess(case, execution)
             return execution
 
         with ThreadPoolExecutor(max_workers=min(4, max(1, len(jobs)))) as executor:
             results.extend(executor.map(execute, jobs))
         statuses = [item["assessment"]["status"] for item in results]
-        overall = "passed" if statuses and all(status == "passed" for status in statuses) else (
-            "blocked" if any(status == "blocked" for status in statuses) and not any(status == "fail" for status in statuses) else "failed"
+        overall = (
+            "passed"
+            if statuses and all(status == "passed" for status in statuses)
+            else (
+                "blocked"
+                if any(status == "blocked" for status in statuses)
+                and not any(status == "fail" for status in statuses)
+                else "failed"
+            )
         )
         cli_versions = selected_cli_versions(hosts)
-        evidence = {
-            "status": overall, "host": args.host, "mode": args.mode,
-            "cli_versions": cli_versions,
-            "setup": setup_records, "results": results,
+        version_failures = {
+            host: version
+            for host, version in cli_versions.items()
+            if isinstance(version, str) and version.startswith(VERSION_TIMEOUT_PREFIX)
         }
-        (args.output / "summary.json").write_text(json.dumps(evidence, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print(json.dumps({"status": overall, "cases": len(results), "evidence": str(args.output / 'summary.json')}, ensure_ascii=False))
-        return 0 if overall == "passed" else (2 if overall == "blocked" else 1)
+        if version_failures:
+            overall = "failed"
+        evidence.update({
+            "status": overall,
+            "cli_versions": cli_versions,
+            "version_failures": version_failures,
+        })
+        return_code = 0 if overall == "passed" else (2 if overall == "blocked" else 1)
+    except (OSError, subprocess.SubprocessError, KeyError, TypeError, ValueError) as error:
+        evidence["error"] = f"{type(error).__name__}: {error}"
     finally:
-        shutil.rmtree(work, ignore_errors=True)
+        try:
+            (args.output / "summary.json").write_text(
+                json.dumps(evidence, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+        finally:
+            if work is not None:
+                shutil.rmtree(work, ignore_errors=True)
+    print(json.dumps({
+        "status": evidence["status"],
+        "cases": len(results),
+        "evidence": str(args.output / "summary.json"),
+    }, ensure_ascii=False))
+    return return_code
 
 
 if __name__ == "__main__":

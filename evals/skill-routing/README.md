@@ -52,18 +52,23 @@ marketplace 계약과 다르면 model을 호출하지 않고 case를 `fail`로 �
 ### OMP isolation
 
 OMP는 disposable HOME에서 repository의 10개 `--plugin-dir`를 직접 로드하고 exact 31개 bare skill
-name을 `--skills`로 제한합니다. `--no-rules --no-session --approval-mode always-ask --mode json -p`와
-case별 최소 tool allowlist를 사용합니다. provider credential 환경 변수는 제거합니다. model behavior를
-실행할 때는 `PI_CODING_AGENT_DIR`이 명시적으로 지정한 disposable source profile의 `agent.db`와
-선택적인 config/model/LSP 파일만 임시 경로로 복사합니다. 값이 없거나 profile이 불완전하면 case는
-구조화된 `blocked`로 남습니다. semantic case는 OMP native `lsp`만 사용하고 plugin의 Codex MCP
-metadata를 등록하지 않습니다.
+name을 `--skills`로 제한합니다. 별도 compatibility probe는 설치 후 OMP ACP session의
+`available_commands_update`를 읽어 31개 `skill:*` command가 native registry에 실제 등록됐는지
+확인합니다. `--no-rules --no-session --approval-mode always-ask --mode json -p`와 case별 최소 tool
+allowlist를 사용합니다. provider credential 환경 변수는 제거합니다. model behavior를 실행할 때는
+`PI_CODING_AGENT_DIR`이 명시적으로 지정한 disposable source profile의 `agent.db`와 선택적인
+config/model/LSP 파일만 임시 경로로 복사합니다. 값이 없거나 profile이 불완전하면 case는 구조화된
+`blocked`로 남습니다. semantic case는 OMP native `lsp`만 사용하고 plugin의 Codex MCP metadata를
+등록하지 않습니다. Harness가 생성한 semantic fixture는 reviewed file과 실행 가능 요소 부재를
+`.sonsu-routing-trust.json`에 기록하며, prompt의 명시적 사용자 승인 범위는 해당 canonical
+workspace의 read-only definition/reference 호출로 제한됩니다.
 
 ## 판정
 
 `pass`, `fail`, `blocked`, `not_run`, `inconclusive`를 구분합니다. native registry 발견, model selection,
 tool behavior와 external mutation은 서로 다른 증거입니다. 응답 field type/enum을 host와 무관하게
-검증하며 case 실행 뒤 CLI nonzero exit는 환경 blocker가 아닌 `fail`입니다. semantic success는
-definition과 references tool result에 fixture의 기대 위치가 모두 있어야 통과합니다. auth, exact
-`mcpls 0.6.0` 또는 `rust-analyzer`가 없으면 model 실행 전 blocker로 evidence에 기록합니다. 원격
-ticket/PR, Figma canvas와 repository file은 이 smoke에서 수정하지 않습니다.
+검증하며 case 실행 뒤 CLI nonzero exit는 환경 blocker가 아닌 `fail`입니다. setup I/O 실패와 CLI
+version probe timeout도 `summary.json`의 구조화된 failure로 남고 임시 workspace는 항상 정리됩니다.
+semantic success는 definition과 references tool result에 fixture의 기대 위치가 모두 있어야 통과합니다.
+auth, exact `mcpls 0.6.0` 또는 `rust-analyzer`가 없으면 model 실행 전 blocker로 evidence에 기록합니다.
+원격 ticket/PR, Figma canvas와 repository file은 이 smoke에서 수정하지 않습니다.

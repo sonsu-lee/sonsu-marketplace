@@ -14,7 +14,7 @@ import sys
 import threading
 import tempfile
 import time
-from typing import Any
+from typing import Any, Callable
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -160,6 +160,34 @@ class RpcClient:
             self.notifications.append(message)
         stderr = "".join(self.stderr_chunks)
         raise ProbeFailure(f"timeout waiting for {method}; stderr={stderr}")
+
+    def wait_for_notification(
+        self,
+        predicate: Callable[[dict[str, Any]], bool],
+        timeout: float = 20,
+    ) -> dict[str, Any]:
+        for notification in self.notifications:
+            if predicate(notification):
+                return notification
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            remaining = deadline - time.monotonic()
+            try:
+                message = self.messages.get(timeout=min(0.2, remaining))
+            except queue.Empty:
+                if self.process.poll() is not None:
+                    break
+                continue
+            if message is None:
+                break
+            if isinstance(message, Exception):
+                raise ProbeFailure(f"invalid JSON notification: {message}")
+            self.notifications.append(message)
+            if predicate(message):
+                return message
+        stderr = "".join(self.stderr_chunks)
+        raise ProbeFailure(f"timeout waiting for notification; stderr={stderr}")
+
 
     def close(self) -> str:
         if self.process.poll() is None:
@@ -409,6 +437,47 @@ def codex_probe(work: Path) -> dict[str, Any]:
         (work / "codex-app-server.stderr").write_text(stderr, encoding="utf-8")
 
 
+def omp_registry_skills(env: dict[str, str]) -> tuple[set[str], list[dict[str, Any]]]:
+    client = RpcClient(["omp", "acp"], cwd=ROOT, env=env)
+    try:
+        client.request(
+            "initialize",
+            {
+                "protocolVersion": 1,
+                "clientCapabilities": {
+                    "fs": {"readTextFile": True, "writeTextFile": False},
+                    "terminal": False,
+                },
+                "clientInfo": {"name": "sonsu-native-probe", "version": "1.0.0"},
+            },
+            timeout=30,
+        )
+        client.request(
+            "session/new",
+            {"cwd": str(ROOT.resolve()), "mcpServers": []},
+            timeout=30,
+        )
+        notification = client.wait_for_notification(
+            lambda message: (
+                message.get("method") == "session/update"
+                and message.get("params", {}).get("update", {}).get("sessionUpdate")
+                == "available_commands_update"
+            ),
+            timeout=30,
+        )
+        commands = notification["params"]["update"]["availableCommands"]
+        names = {
+            command["name"].removeprefix("skill:")
+            for command in commands
+            if isinstance(command, dict)
+            and isinstance(command.get("name"), str)
+            and command["name"].startswith("skill:")
+        }
+        return names, client.notifications
+    finally:
+        client.close()
+
+
 def omp_probe(work: Path) -> dict[str, Any]:
     home = work / "omp-home"
     home.mkdir()
@@ -440,7 +509,18 @@ def omp_probe(work: Path) -> dict[str, Any]:
             skill_names.add(skill.parent.name)
     expected_bare = {name.split(":", 1)[1] for name in EXPECTED_SKILLS}
     if skill_names != expected_bare:
-        raise ProbeFailure(f"OMP skill mismatch: missing={sorted(expected_bare-skill_names)} extra={sorted(skill_names-expected_bare)}")
+        raise ProbeFailure(
+            f"OMP packaged skill mismatch: missing={sorted(expected_bare-skill_names)} "
+            f"extra={sorted(skill_names-expected_bare)}"
+        )
+    registry_names, registry_notifications = omp_registry_skills(env)
+    registered_marketplace = registry_names & skill_names
+    if registered_marketplace != expected_bare:
+        raise ProbeFailure(
+            f"OMP native skill registry mismatch: "
+            f"missing={sorted(expected_bare-registered_marketplace)} "
+            f"extra={sorted(registered_marketplace-expected_bare)}"
+        )
     assert code_intelligence_root is not None
     manifest = json.loads((code_intelligence_root / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
     catalog_entry = next(item for item in json.loads((ROOT / ".omp-plugin/marketplace.json").read_text())["plugins"] if item["name"] == "code-intelligence")
@@ -451,7 +531,14 @@ def omp_probe(work: Path) -> dict[str, Any]:
         raise ProbeFailure("OMP native lsp capability not advertised")
     return {
         "status": "passed", "discovered_plugins": discovered,
-        "installed_plugins": installed_names, "skill_names": sorted(skill_names),
+        "installed_plugins": installed_names,
+        "packaged_skill_names": sorted(skill_names),
+        "registered_skill_names": sorted(registered_marketplace),
+        "registry_notification_methods": sorted({
+            notification.get("method")
+            for notification in registry_notifications
+            if isinstance(notification.get("method"), str)
+        }),
         "code_intelligence_catalog": catalog_entry,
         "codex_manifest_mcp_ignored_by_catalog": manifest.get("mcpServers") == "./codex-mcp.json",
         "native_lsp_advertised": True, "commands": records,

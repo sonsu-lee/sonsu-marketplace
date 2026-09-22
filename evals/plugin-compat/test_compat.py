@@ -233,6 +233,73 @@ class NativeProbeIsolationTests(unittest.TestCase):
             stderr = client.close()
         self.assertEqual(len(stderr), 200000)
 
+    def test_rpc_client_waits_for_notification_after_response(self):
+        server = (
+            "import json, sys, time\n"
+            "request = json.loads(sys.stdin.readline())\n"
+            "print(json.dumps({'jsonrpc': '2.0', 'id': request['id'], "
+            "'result': {'ok': True}}), flush=True)\n"
+            "time.sleep(0.05)\n"
+            "print(json.dumps({'jsonrpc': '2.0', 'method': 'session/update', "
+            "'params': {'ready': True}}), flush=True)\n"
+        )
+        client = NATIVE_PROBE.RpcClient(
+            [sys.executable, "-c", server],
+            cwd=ROOT,
+            env=os.environ.copy(),
+        )
+        try:
+            self.assertEqual(client.request("probe", {}, timeout=2), {"ok": True})
+            notification = client.wait_for_notification(
+                lambda message: message.get("method") == "session/update",
+                timeout=2,
+            )
+        finally:
+            client.close()
+
+        self.assertTrue(notification["params"]["ready"])
+
+    def test_omp_registry_uses_acp_available_commands(self):
+        expected = {name.split(":", 1)[1] for name in NATIVE_PROBE.EXPECTED_SKILLS}
+        available = [
+            {"name": "model"},
+            *({"name": f"skill:{name}"} for name in sorted(expected)),
+        ]
+
+        class FakeClient:
+            def __init__(self, *args, **kwargs):
+                self.notifications = []
+                self.requests = []
+
+            def request(self, method, params, timeout):
+                self.requests.append((method, params))
+                return {"sessionId": "test"} if method == "session/new" else {}
+
+            def wait_for_notification(self, predicate, timeout):
+                message = {
+                    "jsonrpc": "2.0",
+                    "method": "session/update",
+                    "params": {
+                        "update": {
+                            "sessionUpdate": "available_commands_update",
+                            "availableCommands": available,
+                        }
+                    },
+                }
+                assert predicate(message)
+                self.notifications.append(message)
+                return message
+
+            def close(self):
+                return ""
+
+        with mock.patch.object(NATIVE_PROBE, "RpcClient", FakeClient):
+            names, notifications = NATIVE_PROBE.omp_registry_skills({})
+
+        self.assertEqual(names, expected)
+        self.assertEqual(notifications[0]["method"], "session/update")
+
+
     def test_marketplace_skills_allow_missing_plugin_id(self):
         with tempfile.TemporaryDirectory() as directory:
             codex_home = Path(directory) / "codex-home"
