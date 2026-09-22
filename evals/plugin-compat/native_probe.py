@@ -7,10 +7,11 @@ import argparse
 import json
 import os
 from pathlib import Path
-import select
+import queue
 import shutil
 import subprocess
 import sys
+import threading
 import tempfile
 import time
 from typing import Any
@@ -67,6 +68,7 @@ def scrubbed_env(home: Path) -> dict[str, str]:
     env = os.environ.copy()
     for name in SECRET_NAMES:
         env.pop(name, None)
+    env.pop("PI_CODING_AGENT_DIR", None)
     env["HOME"] = str(home)
     return env
 
@@ -79,26 +81,42 @@ class RpcClient:
         )
         self.next_id = 1
         self.notifications: list[dict[str, Any]] = []
+        self.messages: queue.Queue[dict[str, Any] | Exception | None] = queue.Queue()
+        self.reader = threading.Thread(target=self._read_stdout, daemon=True)
+        self.reader.start()
+
+    def _read_stdout(self) -> None:
+        assert self.process.stdout is not None
+        try:
+            for line in self.process.stdout:
+                try:
+                    self.messages.put(json.loads(line))
+                except json.JSONDecodeError as error:
+                    self.messages.put(error)
+                    return
+        finally:
+            self.messages.put(None)
 
     def request(self, method: str, params: dict[str, Any], timeout: float = 20) -> dict[str, Any]:
         request_id = self.next_id
         self.next_id += 1
         assert self.process.stdin is not None
-        assert self.process.stdout is not None
         payload = {"jsonrpc": "2.0", "id": request_id, "method": method, "params": params}
         self.process.stdin.write(json.dumps(payload) + "\n")
         self.process.stdin.flush()
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
-            ready, _, _ = select.select([self.process.stdout], [], [], 0.2)
-            if not ready:
+            remaining = deadline - time.monotonic()
+            try:
+                message = self.messages.get(timeout=min(0.2, remaining))
+            except queue.Empty:
                 if self.process.poll() is not None:
                     break
                 continue
-            line = self.process.stdout.readline()
-            if not line:
+            if message is None:
                 break
-            message = json.loads(line)
+            if isinstance(message, Exception):
+                raise ProbeFailure(f"{method}: invalid JSON response: {message}")
             if message.get("id") == request_id:
                 if "error" in message:
                     raise ProbeFailure(f"{method}: {message['error']}")
@@ -117,8 +135,15 @@ class RpcClient:
             except subprocess.TimeoutExpired:
                 self.process.kill()
                 self.process.wait(timeout=5)
+        self.reader.join(timeout=1)
+        assert self.process.stdin is not None
+        assert self.process.stdout is not None
         assert self.process.stderr is not None
-        return self.process.stderr.read()
+        stderr = self.process.stderr.read()
+        self.process.stdin.close()
+        self.process.stdout.close()
+        self.process.stderr.close()
+        return stderr
 
 
 def make_fake_mcpls(directory: Path, log_path: Path) -> Path:

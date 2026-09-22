@@ -1,9 +1,13 @@
 """Static contracts for the thin Codex and OMP capability-pack catalogs."""
 
+import importlib.util
 import json
+import os
 from pathlib import Path
 import re
+import sys
 import unittest
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,6 +38,12 @@ EXPECTED = {
 REMOVED = {
     "engineering", "research", "fluent-languages", "memory-manager", "writing",
 }
+
+NATIVE_PROBE_PATH = ROOT / "evals/plugin-compat/native_probe.py"
+NATIVE_PROBE_SPEC = importlib.util.spec_from_file_location("native_probe", NATIVE_PROBE_PATH)
+assert NATIVE_PROBE_SPEC and NATIVE_PROBE_SPEC.loader
+NATIVE_PROBE = importlib.util.module_from_spec(NATIVE_PROBE_SPEC)
+NATIVE_PROBE_SPEC.loader.exec_module(NATIVE_PROBE)
 
 
 def load(path: Path):
@@ -178,6 +188,45 @@ class ThinCatalogContractTests(unittest.TestCase):
         config = (ROOT / "plugins/code-intelligence/config/mcpls.toml").read_text(encoding="utf-8")
         self.assertIn('tool_prefix = "lsp"', config)
         self.assertIn("roots = []", config)
+
+
+class NativeProbeIsolationTests(unittest.TestCase):
+    def test_scrubbed_environment_drops_external_omp_profile(self):
+        with mock.patch.dict(
+            os.environ,
+            {
+                "PI_CODING_AGENT_DIR": "/real/user/profile",
+                "OPENAI_API_KEY": "must-not-survive",
+            },
+            clear=False,
+        ):
+            env = NATIVE_PROBE.scrubbed_env(Path("/tmp/disposable-home"))
+
+        self.assertNotIn("PI_CODING_AGENT_DIR", env)
+        self.assertNotIn("OPENAI_API_KEY", env)
+        self.assertEqual(env["HOME"], "/tmp/disposable-home")
+
+    def test_rpc_client_reads_buffered_notification_and_response(self):
+        server = (
+            "import json, sys\n"
+            "request = json.loads(sys.stdin.readline())\n"
+            "print(json.dumps({'jsonrpc': '2.0', 'method': 'ready'}))\n"
+            "print(json.dumps({'jsonrpc': '2.0', 'id': request['id'], "
+            "'result': {'ok': True}}), flush=True)\n"
+        )
+        client = NATIVE_PROBE.RpcClient(
+            [sys.executable, "-c", server],
+            cwd=ROOT,
+            env=os.environ.copy(),
+        )
+        try:
+            self.assertEqual(client.request("probe", {}, timeout=2), {"ok": True})
+            self.assertEqual(
+                [message.get("method") for message in client.notifications],
+                ["ready"],
+            )
+        finally:
+            client.close()
 
 
 if __name__ == "__main__":

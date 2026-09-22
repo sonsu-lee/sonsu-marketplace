@@ -5,15 +5,14 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+import importlib.util
 import json
 import os
 import re
-import select
 from pathlib import Path
 import shutil
 import subprocess
 import sys
-import time
 import tempfile
 from typing import Any, Iterable
 
@@ -128,6 +127,16 @@ def namespaced_inventory() -> set[str]:
     }
 
 
+def load_native_probe() -> Any:
+    path = ROOT / "evals/plugin-compat/native_probe.py"
+    spec = importlib.util.spec_from_file_location("sonsu_native_probe", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load native probe from {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def make_fixture(directory: Path) -> Path:
     root = directory / "semantic-fixture"
     (root / "src").mkdir(parents=True)
@@ -194,52 +203,26 @@ def copy_codex_auth(home: Path) -> tuple[bool, str | None]:
 
 
 def codex_registry_skills(env: dict[str, str]) -> tuple[list[dict[str, str]], list[Any]]:
+    native_probe = load_native_probe()
     plugin_key = 'plugins."code-intelligence@sonsu-marketplace".mcp_servers.mcpls'
-    process = subprocess.Popen(
+    client = native_probe.RpcClient(
         [
             "codex", "app-server", "--stdio",
             "-c", f"{plugin_key}.enabled=false",
         ],
         cwd=ROOT,
         env=env,
-        text=True,
-        bufsize=1,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
     )
-
-    def request(request_id: int, method: str, params: dict[str, Any]) -> Any:
-        assert process.stdin is not None
-        assert process.stdout is not None
-        process.stdin.write(json.dumps({
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "method": method,
-            "params": params,
-        }) + "\n")
-        process.stdin.flush()
-        deadline = time.monotonic() + 30
-        while time.monotonic() < deadline:
-            ready, _, _ = select.select([process.stdout], [], [], 0.2)
-            if not ready:
-                if process.poll() is not None:
-                    break
-                continue
-            message = json.loads(process.stdout.readline())
-            if message.get("id") != request_id:
-                continue
-            if "error" in message:
-                raise RuntimeError(f"{method}: {message['error']}")
-            return message["result"]
-        raise RuntimeError(f"timeout waiting for Codex {method}")
-
     try:
-        request(1, "initialize", {
+        client.request("initialize", {
             "clientInfo": {"name": "sonsu-routing-smoke", "version": "1.0.0"},
             "capabilities": {"experimentalApi": True},
-        })
-        response = request(2, "skills/list", {"cwds": [str(ROOT)], "forceReload": True})
+        }, timeout=30)
+        response = client.request(
+            "skills/list",
+            {"cwds": [str(ROOT)], "forceReload": True},
+            timeout=30,
+        )
         bucket = response["data"][0]
         catalog = [
             {"name": skill["name"], "description": skill.get("description", "")}
@@ -248,13 +231,7 @@ def codex_registry_skills(env: dict[str, str]) -> tuple[list[dict[str, str]], li
         ]
         return catalog, bucket.get("errors", [])
     finally:
-        if process.poll() is None:
-            process.terminate()
-            try:
-                process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait(timeout=5)
+        client.close()
 
 
 def prepare_codex(work: Path) -> tuple[dict[str, str], list[dict[str, Any]], str | None]:
@@ -467,8 +444,7 @@ def result_contains_location(result: Any, marker: str) -> bool:
         return False
     displayed = re.compile(rf"{re.escape(path)}(?:#L|:L|#|:){line}\b")
     zero_based = re.compile(rf'"(?:line|startLine)"\s*:\s*{line - 1}\b')
-    one_based = re.compile(rf'"(?:line|startLine)"\s*:\s*{line}\b')
-    return bool(displayed.search(text) or zero_based.search(text) or one_based.search(text))
+    return bool(displayed.search(text) or zero_based.search(text))
 
 
 def semantic_trace_error(case: dict[str, Any], execution: dict[str, Any]) -> str | None:

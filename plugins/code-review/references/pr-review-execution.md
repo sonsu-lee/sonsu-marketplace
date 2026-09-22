@@ -31,13 +31,14 @@ transient로 승격하지 않는다. non-transient 실패 또는 재시도 소�
 ## 통합 COMMENT의 idempotency
 
 coordinator는 원인 기준으로 검증·중복 제거한 body와 inline comment를 만든다. 게시 전 PR state와
-head SHA, 기존 review/comment 전체를 다시 읽는다. marker는
-`<!-- sonsu-review-pr:<run-id>:<head-sha> -->`이며 author, commit과 canonical payload를 함께
-동일성 기준으로 사용한다.
+base/head SHA, 기존 review/comment 전체를 다시 읽는다. locked base/head 중 하나라도 현재 값과
+다르면 게시하지 않는다. marker는 `<!-- sonsu-review-pr:<run-id>:<head-sha> -->`이며 author,
+commit과 canonical payload를 함께 동일성 기준으로 사용한다.
 
 [`../skills/review-pr/scripts/review_protocol.py`](../skills/review-pr/scripts/review_protocol.py)에
-locked/current SHA, reviewer status·attempt count, publish attempt와 readback completeness·marker·
-author·commit·payload 일치 여부를 전달한다. `post_once`일 때만 최초 POST를 수행한다.
+locked/current base SHA와 head SHA, reviewer status·attempt count, publish attempt와 readback
+completeness·marker·author·commit·payload 일치 여부를 전달한다. `post_once`일 때만 최초 POST를
+수행한다.
 
 POST 응답이 불명확하면 review와 inline comment를 끝까지 readback한다. complete readback에서 marker,
 author, commit과 payload가 모두 일치하면 기존 POST 성공으로 확정한다. 하나라도 다르거나 readback이
@@ -46,6 +47,6 @@ idempotency key가 없는 한 GET 결과가 없다는 사실도 최초 POST 실�
 
 ## 결과와 cleanup
 
-locked/current SHA, 세 reviewer 상태, retry, finding과 inconclusive, marker, POST/readback 결과,
-review URL 또는 중단 action을 보고한다. reviewer 종료 뒤 plugin-owned clean checkout만 제거한다.
-dirty 또는 종료 불명 checkout은 보존해 상태와 경로를 알린다.
+locked/current base SHA와 head SHA, 세 reviewer 상태, retry, finding과 inconclusive, marker,
+POST/readback 결과, review URL 또는 중단 action을 보고한다. reviewer 종료 뒤 plugin-owned clean
+checkout만 제거한다. dirty 또는 종료 불명 checkout은 보존해 상태와 경로를 알린다.

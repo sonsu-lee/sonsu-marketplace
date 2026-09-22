@@ -71,8 +71,9 @@ loop를 만들지 않는다.
 ## 4. 단 한 번 게시한다
 
 게시 직전에 PR state, current base/head SHA, 기존 review와 inline comment 전체를 다시 읽는다.
-locked head와 current head가 다르거나 PR이 open이 아니면 고정 SHA의 결과만 로컬로 보고하고 현재
-PR 완료 review를 게시하지 않는다. reviewer 하나라도 완료 실패면 부분 review를 게시하지 않는다.
+locked base/head 중 하나라도 current base/head와 다르거나 PR이 open이 아니면 고정 artifact의 결과만
+로컬로 보고하고 현재 PR 완료 review를 게시하지 않는다. reviewer 하나라도 완료 실패면 부분 review를
+게시하지 않는다.
 
 이번 실행의 stable random `run-id`와 locked head로 다음 marker를 본문에 포함한다.
 

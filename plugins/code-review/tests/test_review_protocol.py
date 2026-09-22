@@ -21,6 +21,8 @@ SPEC.loader.exec_module(MODULE)
 class ReviewProtocolTest(unittest.TestCase):
     def state(self) -> dict:
         return {
+            "locked_base_sha": "base123",
+            "current_base_sha": "base123",
             "locked_sha": "abc123",
             "current_sha": "abc123",
             "reviewers": [
@@ -84,10 +86,12 @@ class ReviewProtocolTest(unittest.TestCase):
         self.assert_action(state, "abort_reviewer_failed")
 
     def test_abort_stale_before_waiting_or_posting(self) -> None:
-        state = self.state()
-        state["current_sha"] = "def456"
-        state["reviewers"][0]["status"] = "running"
-        self.assert_action(state, "abort_stale")
+        for field in ("current_sha", "current_base_sha"):
+            with self.subTest(field=field):
+                state = self.state()
+                state[field] = "def456"
+                state["reviewers"][0]["status"] = "running"
+                self.assert_action(state, "abort_stale")
 
     def test_reject_duplicate_reviewer_identity_or_checkout(self) -> None:
         for field in ("id", "checkout_receipt"):

@@ -105,6 +105,15 @@ class NativeSmokeContractTest(unittest.TestCase):
         ]
         self.assertEqual(MODULE.assess(case, execution)["status"], "passed")
 
+    def test_structured_semantic_locations_use_zero_based_lsp_lines(self) -> None:
+        location = {
+            "uri": "file:///tmp/fixture/src/lib.rs",
+            "range": {"start": {"line": 2, "character": 0}},
+        }
+        self.assertTrue(MODULE.result_contains_location(location, "src/lib.rs:3"))
+        location["range"]["start"]["line"] = 3
+        self.assertFalse(MODULE.result_contains_location(location, "src/lib.rs:3"))
+
     def test_codex_case_loads_disposable_plugin_config(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             work = Path(directory)
