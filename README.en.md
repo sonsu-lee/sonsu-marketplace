@@ -2,14 +2,12 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-A collection of Codex and Oh My Pi plugins for development, research, product planning, and writing.
+A collection of Codex plugins for development, research, product planning, and writing.
 Install the plugins you need, then work with your coding agent as usual.
 
 [Installation](#installation) · [Plugins](#plugins) · [Usage examples](#usage-examples) · [Documentation](docs/README.md)
 
 ## Installation
-
-### Codex
 
 Register the marketplace using a Codex CLI version that supports `codex plugin`.
 
@@ -34,25 +32,6 @@ Start a new Codex task after installation. To list the plugins in the marketplac
 ```sh
 codex plugin list --marketplace sonsu-marketplace
 ```
-
-### Oh My Pi
-
-In Oh My Pi (OMP), register the OMP catalog and install each plugin at project or user scope:
-
-```sh
-omp plugin marketplace add sonsu-lee/sonsu-marketplace
-omp plugin install --scope project engineering@sonsu-marketplace
-```
-
-List the available plugins with:
-
-```sh
-omp plugin discover sonsu-marketplace
-```
-
-OMP loads the shared `skills/` tree from each plugin and exposes unprefixed skill names such as
-`review`. Codex-specific hooks and app connections declared under `.codex-plugin` do not run
-in OMP; those automation surfaces still require Codex.
 
 ## Plugins
 
@@ -80,7 +59,7 @@ review results on existing PRs. See the
 
 ## Usage examples
 
-After installing the relevant plugin, try requests like these in Codex or OMP:
+After installing the relevant plugin, try requests like these in Codex:
 
 | Plugin | Example request |
 | --- | --- |
@@ -92,13 +71,13 @@ After installing the relevant plugin, try requests like these in Codex or OMP:
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
 | Figma Workflow | “Review the Auto Layout and prototype connections in this Figma screen.” |
-| Memory Manager | Codex: “`$memory-manager` Review the Codex memories for this project.” / OMP: “`/skill:memory-manager` Review the Codex memories for this project.” |
+| Memory Manager | “`$memory-manager` Review the Codex memories for this project.” |
 | Interface Design | “Design a mobile signup flow and improve the chart presentation.” |
 | Operations UI | “Implement this order-operations screen from a Design Decision Contract and verify it with DQ gates and browser evidence.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
 
-Codex and OMP select skills based on your request and the descriptions of installed skills.
-Memory Manager runs only when explicitly invoked with `$memory-manager` in Codex or `/skill:memory-manager` in OMP.
+Codex selects skills based on your request and the descriptions of installed skills.
+Memory Manager runs only when explicitly invoked with `$memory-manager`.
 
 Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
 Figma Workflow requires the official Figma MCP connection and the tool's prerequisite skills for canvas operations.
@@ -112,14 +91,7 @@ In Codex, fetch the latest snapshot of the registered Git marketplace:
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-In OMP, refresh the catalog and then upgrade an installed plugin:
-
-```sh
-omp plugin marketplace update sonsu-marketplace
-omp plugin upgrade --scope project engineering@sonsu-marketplace
-```
-
-Start a new Codex task after an update. In OMP, run `/reload-plugins` or restart the session to load the latest skills.
+Start a new Codex task after an update to load the latest skills.
 
 If you installed `fluent-languages` from another marketplace or standalone copies of `prompt-builder`,
 `product-discovery`, or `to-prd`, remove those copies first to avoid duplicate skill names.

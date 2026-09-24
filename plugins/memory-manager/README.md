@@ -8,23 +8,15 @@
 이 플러그인이 포함된 marketplace snapshot을 등록한 뒤 설치합니다.
 
 ```sh
-# Codex
 codex plugin add memory-manager@sonsu-marketplace
-
-# OMP
-omp plugin install --scope project memory-manager@sonsu-marketplace
 ```
 
-Codex에서는 `$memory-manager`, OMP에서는 `/skill:memory-manager`로 명시적으로 호출합니다.
+`$memory-manager`로 명시적으로 호출합니다.
 
 실행 예시:
 
 ```text
-# Codex
 $memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘. 파일은 바꾸지 마.
-
-# OMP
-/skill:memory-manager 현재 프로젝트의 Codex 메모리에서 확인된 중복과 오래된 명령을 정리해 줘.
 ```
 
 인자 없이 호출하면 현재 프로젝트의 메모리를 점검합니다. 대상이 여러 개면 대상만 확인합니다.

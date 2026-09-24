@@ -11,7 +11,7 @@
 | 공개 `SKILL.md`의 frontmatter `name`과 디렉터리 이름 | 53개 모두 일치 |
 | 활성 Markdown 상대 문서 링크 | 깨진 링크 0개 |
 | `render-agent-policy.py --check`, `render-continuity.py --check`, `render-design-quality.py --check` | 모두 통과 |
-| `evals/plugin-compat` | 6개 통과 |
+| `evals/plugin-compat` | Codex 패키징 3개 통과 |
 | `plugins/engineering/tests` | 89개 통과, 2개 skip |
 | `evals/task-continuity` | 21개 통과. 이전 공개 디렉터리 이름으로 저장된 활성 기록도 읽고 현재 이름으로 갱신 가능. native probe는 설치 사본의 reference를 확인 |
 | Engineering 패키징·identity shell 검사 | 5개 스크립트 통과 |

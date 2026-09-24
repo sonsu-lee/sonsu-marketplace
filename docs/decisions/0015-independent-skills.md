@@ -12,7 +12,7 @@
 
 ## 결정
 
-12개 플러그인을 유지한다. 공개 스킬은 단독 요청으로 완결할 결과를 맡고, 공통 실행 절차와
+12개 플러그인을 유지하고 배포 대상은 Codex로 한정한다. 공개 스킬은 단독 요청으로 완결할 결과를 맡고, 공통 실행 절차와
 검증 기준은 해당 플러그인의 `references/`에 둔다. 다른 플러그인의 설치나 선행 호출은 요구하지
 않는다. 호출명 변경과 삭제된 진입점의 현재 위치는 [스킬 라우팅](../architecture/skill-routing.md)에
 명시한다. 옛 공개 호출명의 별칭은 제공하지 않는다.
@@ -37,5 +37,5 @@ Interface Design→Figma Workflow, Engineering→Workflow 연계는 요청한 �
 
 frontmatter·경로·생성 결과와 단독·조합 설치의 native 발견을 검사한다. 실제 자동 선택과 결과
 품질은 형식 검사와 다른 근거로 보고한다. 이번 전환의 관찰과 미실행 범위는
-[검증 기록](../../evals/skill-routing/RESTRUCTURE-VERIFICATION.md)에 있다. OMP 전용 실행 방식의
-재설계와 검토 인원수의 정량적 재조정은 이 결정의 범위가 아니다.
+[검증 기록](../../evals/skill-routing/RESTRUCTURE-VERIFICATION.md)에 있다. 검토 인원수의
+정량적 재조정은 이 결정의 범위가 아니다.

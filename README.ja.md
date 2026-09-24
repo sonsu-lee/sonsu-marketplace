@@ -2,14 +2,12 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-開発、リサーチ、プロダクト企画、文章作成に使えるCodex・Oh My Piプラグイン集です。
+開発、リサーチ、プロダクト企画、文章作成に使えるCodexプラグイン集です。
 必要なプラグインを選んでインストールし、利用中のコーディングエージェントに作業を依頼してください。
 
 [インストール](#インストール) · [プラグイン](#プラグイン) · [使用例](#使用例) · [ドキュメント](docs/README.md)
 
 ## インストール
-
-### Codex
 
 `codex plugin` コマンドに対応したCodex CLIで、マーケットプレイスを登録します。
 
@@ -34,25 +32,6 @@ codex plugin add workflow@sonsu-marketplace
 ```sh
 codex plugin list --marketplace sonsu-marketplace
 ```
-
-### Oh My Pi
-
-Oh My Pi（OMP）では、OMP用カタログを登録し、必要なプラグインをprojectまたはuser scopeにインストールします。
-
-```sh
-omp plugin marketplace add sonsu-lee/sonsu-marketplace
-omp plugin install --scope project engineering@sonsu-marketplace
-```
-
-登録されたプラグインは次のコマンドで確認できます。
-
-```sh
-omp plugin discover sonsu-marketplace
-```
-
-OMPは各プラグインの共通`skills/`ツリーを読み込み、`review`のようにprefixのないスキル名を
-公開します。`.codex-plugin`で宣言されたCodex専用hookとapp接続はOMPでは実行されないため、
-その自動化にはCodexが必要です。
 
 ## プラグイン
 
@@ -79,7 +58,7 @@ Workflowはチケット・PRの新規作成に使うテンプレートと公開�
 
 ## 使用例
 
-対応するプラグインをインストールしたら、CodexまたはOMPに次のように依頼できます。
+対応するプラグインをインストールしたら、Codexに次のように依頼できます。
 
 | プラグイン | 依頼の例 |
 | --- | --- |
@@ -91,13 +70,13 @@ Workflowはチケット・PRの新規作成に使うテンプレートと公開�
 | Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
 | Figma Workflow | 「このFigma画面のAuto Layoutとプロトタイプの接続をレビューして。」 |
-| Memory Manager | Codex: 「`$memory-manager` このプロジェクトのCodexメモリを点検して。」 / OMP: 「`/skill:memory-manager` このプロジェクトのCodexメモリを点検して。」 |
+| Memory Manager | 「`$memory-manager` このプロジェクトのCodexメモリを点検して。」 |
 | Interface Design | 「モバイルの登録フローを設計して。このグラフの情報表現も改善して。」 |
 | Operations UI | 「この受注運用画面をDesign Decision Contractから実装し、DQゲートとブラウザーの証跡で検証して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
 
-CodexとOMPは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
-Memory Managerは、Codexでは`$memory-manager`、OMPでは`/skill:memory-manager`で明示的に呼び出したときだけ動作します。
+Codexは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
+Memory Managerは、`$memory-manager`で明示的に呼び出したときだけ動作します。
 
 ResearchのExa・Perplexity連携は任意です。利用可能なWebツール、ブラウザー、コネクター、ローカル資料でも調査できます。
 Figma Workflowでキャンバスを操作するには、公式Figma MCP接続と、そのツールで必須とされるスキルが必要です。
@@ -111,14 +90,7 @@ Codexでは、登録済みのGitマーケットプレイスから最新のスナ
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-OMPでは、カタログを更新してからインストール済みプラグインをアップグレードします。
-
-```sh
-omp plugin marketplace update sonsu-marketplace
-omp plugin upgrade --scope project engineering@sonsu-marketplace
-```
-
-Codexでは新しいタスクを開始し、OMPでは`/reload-plugins`を実行するかセッションを再起動して、最新のスキル一覧を読み込んでください。
+更新後は新しいCodexタスクを開始し、最新のスキル一覧を読み込んでください。
 
 別のマーケットプレイスから `fluent-languages` をインストールしている場合や、
 `prompt-builder`、`product-discovery`、`to-prd` を単体でインストールしている場合は、同名スキルの重複を避けるため、既存のコピーを先に削除してください。

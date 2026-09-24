@@ -2,14 +2,12 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex·Oh My Pi 플러그인 모음입니다.
+개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex 플러그인 모음입니다.
 필요한 플러그인만 골라 설치하고, 사용하는 코딩 에이전트에 평소처럼 작업을 요청하세요.
 
 [설치](#설치) · [플러그인](#플러그인) · [사용 예시](#사용-예시) · [문서](docs/README.md)
 
 ## 설치
-
-### Codex
 
 `codex plugin` 명령을 지원하는 Codex CLI에서 마켓플레이스를 등록합니다.
 
@@ -34,25 +32,6 @@ codex plugin add workflow@sonsu-marketplace
 ```sh
 codex plugin list --marketplace sonsu-marketplace
 ```
-
-### Oh My Pi
-
-Oh My Pi(OMP)에서는 OMP용 카탈로그를 등록한 뒤 필요한 플러그인을 project 또는 user scope에 설치합니다.
-
-```sh
-omp plugin marketplace add sonsu-lee/sonsu-marketplace
-omp plugin install --scope project engineering@sonsu-marketplace
-```
-
-등록된 플러그인은 다음 명령으로 확인할 수 있습니다.
-
-```sh
-omp plugin discover sonsu-marketplace
-```
-
-OMP는 각 플러그인의 공통 `skills/` 트리를 로드하고 `review`처럼 prefix 없는 스킬 이름을
-노출합니다. `.codex-plugin`에 선언된 Codex 전용 hook과 app 연결은 OMP에서 실행되지 않으므로
-해당 자동화에는 Codex가 필요합니다.
 
 ## 플러그인
 
@@ -79,7 +58,7 @@ Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR�
 
 ## 사용 예시
 
-관련 플러그인을 설치한 뒤 Codex 또는 OMP에 다음과 같이 요청할 수 있습니다.
+관련 플러그인을 설치한 뒤 Codex에 다음과 같이 요청할 수 있습니다.
 
 | 플러그인 | 요청 예시 |
 | --- | --- |
@@ -91,13 +70,13 @@ Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR�
 | Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
 | Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
 | Figma Workflow | “이 Figma 화면의 Auto Layout과 프로토타입 연결을 검토해 줘.” |
-| Memory Manager | Codex: “`$memory-manager` 현재 프로젝트의 Codex 메모리를 점검해 줘.” / OMP: “`/skill:memory-manager` 현재 프로젝트의 Codex 메모리를 점검해 줘.” |
+| Memory Manager | “`$memory-manager` 현재 프로젝트의 Codex 메모리를 점검해 줘.” |
 | Interface Design | “새 모바일 가입 흐름을 디자인해 줘. 이 차트의 정보 표현도 개선해 줘.” |
 | Operations UI | “이 주문 운영 화면을 Design Decision Contract부터 구현하고 DQ 게이트와 브라우저 증거로 검증해 줘.” |
 | Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
 
-Codex와 OMP는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
-Memory Manager는 Codex의 `$memory-manager` 또는 OMP의 `/skill:memory-manager`로 명시적으로 호출할 때만 작동합니다.
+Codex는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
+Memory Manager는 `$memory-manager`로 명시적으로 호출할 때만 작동합니다.
 
 Research의 Exa·Perplexity 연동은 선택 사항이며, 사용 가능한 web·browser·connector와 로컬 자료로도 조사할 수 있습니다.
 Figma Workflow의 캔버스 작업에는 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
@@ -111,14 +90,7 @@ Codex에서는 등록된 Git 마켓플레이스의 최신 snapshot을 가져옵�
 codex plugin marketplace upgrade sonsu-marketplace
 ```
 
-OMP에서는 카탈로그를 갱신한 뒤 설치한 플러그인을 업그레이드합니다.
-
-```sh
-omp plugin marketplace update sonsu-marketplace
-omp plugin upgrade --scope project engineering@sonsu-marketplace
-```
-
-Codex는 새 작업을 시작하고, OMP는 `/reload-plugins`를 실행하거나 세션을 다시 시작해 최신 스킬 목록을 불러오세요.
+업데이트 후 새 Codex 작업을 시작해 최신 스킬 목록을 불러오세요.
 
 다른 마켓플레이스의 `fluent-languages`나 standalone `prompt-builder`, `product-discovery`, `to-prd`를
 설치했다면 같은 이름의 스킬이 중복되지 않도록 기존 복사본을 먼저 제거하세요.
