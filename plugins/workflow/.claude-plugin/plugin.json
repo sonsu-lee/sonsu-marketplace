@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "workflow",
+  "displayName": "Workflow",
+  "version": "0.11.1",
+  "description": "Git·티켓·PR 작성과 PR 상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
+  "author": {
+    "name": "sonsu"
+  }
+}

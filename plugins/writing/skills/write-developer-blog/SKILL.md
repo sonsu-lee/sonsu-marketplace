@@ -86,7 +86,7 @@ local inspection, 기존 test·build와 local browser 확인으로 판정할 수
 그대로 본문 형식으로 강요하지 않는다. 설명이 필요할 때만 초안 뒤에 `observed`,
 `source-confirmed`, `inference`, `unknown`, `not_run`을 구분한 근거와 미확인 사항을 둔다.
 
-외부 다중 출처 조사가 결과를 좌우하면 사용할 수 있는 Codex의 `research:research` 또는 OMP의
+외부 다중 출처 조사가 결과를 좌우하면 사용할 수 있는 Codex·Claude의 `research:research` 또는 OMP의
 `skill://research`를, 출력 언어의 표현을 다듬을 때는 해당 Fluent 스킬을 선택적으로 함께 적용한다. 어느 플러그인도 설치된 것으로
 가정하지 않는다. 여러 차례 이어지는 장문·여러 파일 작성만
 [작업 연속성](../task-continuity/SKILL.md)에 기록한다.

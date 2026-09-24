@@ -1,7 +1,7 @@
 # 플러그인 생명주기
 
 - Status: Current
-- Last reviewed: 2026-09-22
+- Last reviewed: 2026-09-24
 
 ## 흐름
 
@@ -12,6 +12,7 @@
   → 원본 동일성 검증
   → 별도 기준 commit
   → Codex 정본 manifest와 Codex·OMP marketplace 등록
+  → Claude catalog와 manifest 생성
   → 각 host의 package 검증과 실제 로딩 검증
   → 로컬 정책 변경
   → 로컬 변경 commit
@@ -37,18 +38,21 @@ Engineering은 [독립 플러그인 결정](../decisions/0009-maintain-engineeri
 따라 독립 semantic version을 사용하며 upstream 동기화나 이전 호환 경로를 배포 계약으로 두지
 않습니다.
 
-## Codex 배포와 OMP projection
+## 세 호스트 배포
 
 `.agents/plugins/marketplace.json`과 각 `.codex-plugin/plugin.json`이 Codex 패키지의 정본입니다.
 `.omp-plugin/marketplace.json`은 같은 플러그인의 이름·버전·경로를 OMP 형식으로 투영합니다.
+`scripts/render-claude-compat.py`는 이를 대조해 Claude 카탈로그와 12개 매니페스트를 생성합니다.
+Claude는 plugin root의 `skills/`와 `hooks/hooks.json`을 표준 위치에서 읽습니다.
 OMP는 공통 `skills/` 트리를 로드하며 Codex 전용 hook과 app 연결은 실행하지 않습니다. 기존
 연구·라이선스·upstream 기록은 유지합니다. `shared/agent-policy`와 `shared/task-continuity`에서
 각 플러그인에 필요한 자료를 생성해 다른 패키지 설치 없이 실행되게 합니다.
 
 ## 검증
 
-생성기의 `--check`, Codex·OMP catalog와 스킬 경로·frontmatter 검증, 각 host의 실제 loader·행동 평가를
+생성기의 `--check`, 세 catalog와 스킬 경로·frontmatter 검증, 각 host의 실제 loader·행동 평가를
 구분합니다. 정적 JSON 통과만으로 실제 스킬 선택이나 host별 hook 실행을 주장하지 않습니다.
 미실행은 `not_run`, 원인 불명은 `inconclusive`로 기록합니다.
 [업데이트 런북](../runbooks/updating-upstream-plugin.md)과
-[ADR 0014](../decisions/0014-use-codex-managed-engineering.md)를 따릅니다.
+[ADR 0015](../decisions/0015-add-claude-code-distribution.md)의 세 호스트 배포 결정과
+[ADR 0014](../decisions/0014-use-codex-managed-engineering.md)의 품질 게이트를 따릅니다.

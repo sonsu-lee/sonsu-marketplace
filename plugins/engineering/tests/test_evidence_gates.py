@@ -73,6 +73,16 @@ class EvidenceGateTests(unittest.TestCase):
     def init(self, **kw):
         return self.call("init", "--task-id", "task-a", data=kw.get("config", self.config), env=kw.get("env"))
 
+    def test_nested_hosts_require_explicit_session_id(self):
+        env = dict(self.env, CODEX_THREAD_ID="outer-codex", CLAUDE_CODE_SESSION_ID="inner-claude")
+        result = self.init(env=env)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("ambiguous host session", result.stderr)
+        self.ok(self.call("init", "--task-id", "task-a", "--session-id", "inner-claude",
+                          data=self.config, env=env))
+        state = json.loads(self.state_path.read_text())
+        self.assertEqual(state["sessions"], ["inner-claude"])
+
     def test_preconfigured_readonly_exclude_allows_init(self):
         exclude = self.work / ".git/info/exclude"
         original = b"# local rules\n/.engineering/gates/\n"
@@ -610,13 +620,13 @@ class EvidenceGateTests(unittest.TestCase):
         self.assertEqual(self.hook().stdout, "")
         self.assertEqual(self.status()["checks"]["unit"]["attempts"], 0)
 
-    def test_generated_stop_command_runs_with_codex_plugin_root(self):
+    def test_generated_stop_command_runs_with_each_host_plugin_root(self):
         self.ok(self.init())
         hooks = json.loads((ROOT / "plugins/engineering/hooks/hooks.json").read_text())["hooks"]
         self.assertIn("Stop", hooks, "Engineering must package the observation hook")
         command = hooks["Stop"][0]["hooks"][0]["command"]
         event = {"hook_event_name": "Stop", "session_id": "session-a", "cwd": str(self.work)}
-        for variable in ("PLUGIN_ROOT",):
+        for variable in ("PLUGIN_ROOT", "CLAUDE_PLUGIN_ROOT"):
             env = self.env.copy()
             env.pop("PLUGIN_ROOT", None)
             env.pop("CLAUDE_PLUGIN_ROOT", None)

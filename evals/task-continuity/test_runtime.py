@@ -69,21 +69,21 @@ class RuntimeTests(unittest.TestCase):
         event.update(changes)
         return self.run_cli("hook", plugin=plugin, data=event)
 
-    def test_generated_hook_resolves_codex_plugin_root(self):
+    def test_generated_hook_resolves_each_host_plugin_root(self):
         hook_file = ROOT / "plugins/engineering/hooks/hooks.json"
         command = json.loads(hook_file.read_text())["hooks"]["SessionStart"][0]["hooks"][0]["command"]
         event = {"hook_event_name": "SessionStart", "source": "compact",
                  "session_id": "session-a", "cwd": str(self.work), "permission_mode": "default"}
         plugin_root = ROOT / "plugins/engineering"
 
-        self.assertNotIn("CLAUDE_PLUGIN_ROOT", command)
-        env = self.env.copy()
-        env.pop("PLUGIN_ROOT", None)
-        env.pop("CLAUDE_PLUGIN_ROOT", None)
-        env["PLUGIN_ROOT"] = str(plugin_root)
-        result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
-                                capture_output=True, cwd=self.work, env=env, timeout=15)
-        self.assertEqual(result.returncode, 0, result.stderr)
+        for variable in ("PLUGIN_ROOT", "CLAUDE_PLUGIN_ROOT"):
+            env = self.env.copy()
+            env.pop("PLUGIN_ROOT", None)
+            env.pop("CLAUDE_PLUGIN_ROOT", None)
+            env[variable] = str(plugin_root)
+            result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
+                                    capture_output=True, cwd=self.work, env=env, timeout=15)
+            self.assertEqual(result.returncode, 0, result.stderr)
 
     def git(self, *args, cwd=None):
         return subprocess.run(["git", *args], cwd=cwd or self.work, env=self.env,
@@ -102,14 +102,51 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(json.loads(read.stdout), saved)
         self.assertEqual(self.path().read_bytes(), raw)
 
-    def test_missing_codex_thread_id_requires_an_explicit_session(self):
+    def test_claude_session_id_is_used_when_codex_id_is_missing(self):
         env = self.env.copy()
         env.pop("CODEX_THREAD_ID")
         env["CLAUDE_CODE_SESSION_ID"] = "claude-session"
         result = self.write(env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.path(session="claude-session").exists())
+
+    def test_nested_hosts_require_explicit_session_id(self):
+        env = self.env.copy()
+        env["CODEX_THREAD_ID"] = "outer-codex"
+        env["CLAUDE_CODE_SESSION_ID"] = "inner-claude"
+        result = self.write(env=env)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("missing or invalid current identity", result.stderr)
-        self.assertFalse(self.path(session="claude-session").exists())
+        self.assertIn("ambiguous host session", result.stderr)
+        result = self.run_cli("write", "--mode", "write", "--task-id", "task-a", "--skill", "example-work",
+                              "--expected-revision", "0", "--session-id", "inner-claude",
+                              data=SUMMARY, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.path(session="inner-claude").exists())
+        self.assertFalse(self.path(session="outer-codex").exists())
+
+    def test_claude_resume_environment_file_corrects_stale_id_without_record(self):
+        env_file = self.base / "claude-env"
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env.update(CLAUDE_PLUGIN_ROOT=str(ROOT / "plugins/engineering"), CLAUDE_ENV_FILE=str(env_file),
+                   CLAUDE_CODE_SESSION_ID="startup-session")
+        event = {"hook_event_name": "SessionStart", "source": "resume", "session_id": "resumed-session",
+                 "cwd": str(self.work)}
+        result = self.run_cli("hook", data=event, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("SONSU_CLAUDE_SESSION_ID='resumed-session'", env_file.read_text())
+        env["SONSU_CLAUDE_SESSION_ID"] = "resumed-session"
+        result = self.write(env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.path(session="resumed-session").exists())
+
+    def test_resume_hook_provides_authoritative_session_id(self):
+        self.assertEqual(self.write().returncode, 0)
+        result = self.hook(source="resume")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertIn('"session_id": "session-a"', output["hookSpecificOutput"]["additionalContext"])
 
     def test_explicit_session_overrides_codex_default(self):
         env = self.env.copy()

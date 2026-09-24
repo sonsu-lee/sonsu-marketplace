@@ -78,7 +78,7 @@ description: API 변경을 검토할 때 입력·응답·오류와 기존 호출
 `assets/`는 양식과 자원에 사용할 수 있으며 디렉터리는 필요할 때 만든다.
 
 - 작성 원칙을 비교할 때 [Anthropic 연구 참고](anthropic-best-practices.md)를 읽을 수 있다.
-  이 자료는 비교 근거이며 Claude runtime 설정·호출 형식을 Codex 배포에 적용하지 않는다.
+  이 자료는 비교 근거이며 호스트별 runtime 설정·호출 형식은 각 호스트의 현재 계약을 따른다.
 - 호출 조건·권한·작업 순서의 실제 적용을 평가할 때 [동작 평가 방법](testing-skills-with-subagents.md)을 읽는다.
 - 호출 지침의 대조 사례가 필요하면 [적용 조건 평가 예시](examples/skill-routing-evaluation.md)를 읽는다.
 - 기존 DOT 흐름을 사람이 확인해야 하면 `render-graphs.js <skill-directory>`로 SVG를 만든다.

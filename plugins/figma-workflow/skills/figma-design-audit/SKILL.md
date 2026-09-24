@@ -16,7 +16,7 @@ description: 기존 Figma file, page, frame 또는 selection의 Auto Layout, res
 
 ## 대상과 evidence
 
-[tool routing](../../references/tool-routing.md), [capability and evidence](../../references/capability-and-evidence.md)를 읽는다. 정확한 file/page/frame이 주어지지 않았으면 현재 selection을 사용할 수 있는지 확인하고, 안전한 단일 target이 없을 때만 하나를 요청한다. 읽기 전용이라도 `use_figma`를 실제 호출한다면 먼저 `figma:figma-use`를 invoke하고 tool call의 `skillNames`에 `figma-use`를 포함한다. 설치·노출되지 않았으면 tool/API를 가정하지 않고 `blocked`, `not_run` 또는 `inconclusive`로 보고한다.
+[tool routing](../../references/tool-routing.md), [capability and evidence](../../references/capability-and-evidence.md)를 읽는다. 정확한 file/page/frame이 주어지지 않았으면 현재 selection을 사용할 수 있는지 확인하고, 안전한 단일 target이 없을 때만 하나를 요청한다. 읽기 전용 도구 호출에도 호스트별 공식 Figma prerequisite를 적용한다. 설치·노출되지 않았으면 tool/API를 가정하지 않고 `blocked`, `not_run` 또는 `inconclusive`로 보고한다.
 
 감사는 official Figma MCP의 read capability로 수행하고 write API를 호출하지 않는다. 수동 Desktop companion은 current selection을 대상으로 `inspect-selection`, `audit-auto-layout`, `audit-prototype-links`의 결정적 JSON evidence를 제공할 수 있지만, 미적·UX 판단이나 general canvas read/write 대체물이 아니다. schema, preview 결과와 failure 경계는 [deterministic execution](../../references/deterministic-execution.md) 및 [companion README](../../figma-plugin/README.md)를 따른다.
 

@@ -1,13 +1,18 @@
-"""Codex and OMP marketplace packaging contracts."""
+"""Codex, OMP, and Claude Code marketplace packaging contracts."""
+import importlib.util
 import json
 from pathlib import Path
 import re
+import subprocess
+import sys
+import tempfile
 import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / ".agents/plugins/marketplace.json"
 OMP_CATALOG = ROOT / ".omp-plugin/marketplace.json"
+CLAUDE_CATALOG = ROOT / ".claude-plugin/marketplace.json"
 
 def read_skill_name(path):
     lines = path.read_text(encoding="utf-8").splitlines()
@@ -117,6 +122,56 @@ class CodexPackagingTests(unittest.TestCase):
                     target = (package_root / manifest[field]).resolve()
                     self.assertTrue(target.is_relative_to(package_root))
                     self.assertTrue(target.exists())
+
+    def test_claude_catalog_and_manifests_match_codex_and_omp(self):
+        codex = json.loads(CATALOG.read_text(encoding="utf-8"))
+        omp = json.loads(OMP_CATALOG.read_text(encoding="utf-8"))
+        claude = json.loads(CLAUDE_CATALOG.read_text(encoding="utf-8"))
+        self.assertEqual(len(codex["plugins"]), 12)
+        self.assertEqual(claude["name"], codex["name"])
+        self.assertEqual(claude["name"], omp["name"])
+        self.assertEqual(
+            [entry["name"] for entry in claude["plugins"]],
+            [entry["name"] for entry in codex["plugins"]],
+        )
+        omp_entries = {entry["name"]: entry for entry in omp["plugins"]}
+        for entry in claude["plugins"]:
+            name = entry["name"]
+            with self.subTest(plugin=name):
+                self.assertEqual(entry["source"], f"./plugins/{name}")
+                manifest = json.loads((ROOT / "plugins" / name / ".claude-plugin/plugin.json").read_text())
+                codex_manifest = json.loads((ROOT / "plugins" / name / ".codex-plugin/plugin.json").read_text())
+                self.assertEqual(manifest["name"], name)
+                self.assertEqual(manifest["version"], entry["version"])
+                self.assertEqual(entry["version"], codex_manifest["version"])
+                self.assertEqual(entry["version"], omp_entries[name]["version"])
+                self.assertTrue((ROOT / "plugins" / name / "skills").is_dir())
+
+    def test_claude_renderer_detects_stale_and_invalid_source(self):
+        renderer = ROOT / "scripts/render-claude-compat.py"
+        result = subprocess.run([sys.executable, str(renderer), "--check"], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+        spec = importlib.util.spec_from_file_location("render_claude_compat", renderer)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / ".agents/plugins").mkdir(parents=True)
+            (root / ".omp-plugin").mkdir()
+            (root / "plugins/engineering/.codex-plugin").mkdir(parents=True)
+            (root / ".agents/plugins/marketplace.json").write_text(json.dumps({
+                "name": "test", "plugins": [{"name": "engineering", "source": {"source": "local", "path": "../escape"}}],
+            }))
+            (root / ".omp-plugin/marketplace.json").write_text(json.dumps({
+                "name": "test", "metadata": {"pluginRoot": "./plugins"},
+                "plugins": [{"name": "engineering", "source": "./engineering", "version": "1.0.0"}],
+            }))
+            (root / "plugins/engineering/.codex-plugin/plugin.json").write_text(json.dumps({
+                "name": "engineering", "version": "1.0.0",
+            }))
+            with self.assertRaisesRegex(ValueError, "invalid local plugin path"):
+                module.rendered_outputs(root)
 
 
 if __name__ == "__main__":

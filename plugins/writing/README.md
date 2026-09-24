@@ -1,7 +1,7 @@
 # Writing
 
 독자와 목적에 맞춰 업무 문서와 개발자 블로그의 내용을 선별하고, 문서 배치와 글의 흐름을
-다듬는 Codex 플러그인이다. 업무 문서는 기존 문서를 우선 갱신하고, 개발자 블로그는 저자의
+다듬는 Codex·Claude Code·OMP 플러그인이다. 업무 문서는 기존 문서를 우선 갱신하고, 개발자 블로그는 저자의
 경험·코드·출처·검증 결과를 구분해 구성한다.
 
 [마켓플레이스를 등록](../../README.md#설치)한 뒤 설치한다.
@@ -60,11 +60,11 @@ README는 용도·주요 기능·첫 사용·중요한 제약·탐색 경로가 
 
 ## 컴팩션 후 작업 재개
 
-Codex의 [`writing:writing-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://writing-task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계의 작성·편집에서 원문·초안,
+Codex·Claude의 [`writing:writing-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://writing-task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계의 작성·편집에서 원문·초안,
 편집 범위와 완료 구간을 `.sonsu/continuity/`에 기록하고 같은 session의 재개 후 실제 상태와 대조한다.
 다른 작업의 출력 문체만 적용하거나 짧은 문장을 수정할 때는 기록하지 않는다.
 
-포함된 `SessionStart` hook은 활성 기록이 있을 때 스킬·기록 경로만 전달한다. 설치 후 CLI의
-`/hooks`에서 정의를 검토하고 신뢰해야 실행된다. hook을 사용할 수 없으면 위 스킬로 수동
-재개한다. helper는 Python 3.9+와 POSIX 환경을 사용한다.
+포함된 `SessionStart` hook은 활성 기록이 있을 때 스킬·기록 경로를 전달한다. Codex에서는
+`/hooks`에서 정의를 검토하고 신뢰한다. Claude에서는 활성 플러그인의 hook이 자동 병합되며
+`/hooks`는 읽기 전용 확인 메뉴다. hook을 사용할 수 없으면 위 스킬로 수동 재개한다. helper는 Python 3.9+와 POSIX 환경을 사용한다.
 [운영 계약](../../docs/reference/task-continuity.md)과 [검증 범위](../../evals/task-continuity/README.md)를 참고한다.

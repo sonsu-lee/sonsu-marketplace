@@ -23,8 +23,18 @@ codex plugin list --marketplace sonsu-marketplace
 OMP에서는 로컬 OMP 카탈로그를 등록합니다.
 
 ```sh
-omp plugin marketplace add .
+omp plugin marketplace add ./.
 omp plugin discover sonsu-marketplace
+```
+
+Claude Code에서는 루트의 Claude 카탈로그를 등록합니다. 사용자 설정을 건드리지 않는 검증은
+임시 `CLAUDE_CONFIG_DIR`에서 수행합니다.
+
+```sh
+export CLAUDE_CONFIG_DIR="$(mktemp -d)"
+claude plugin marketplace add ./
+claude plugin install engineering@sonsu-marketplace
+claude plugin details engineering@sonsu-marketplace
 ```
 
 GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용하므로 한 환경에서는 한 가지
@@ -46,7 +56,7 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
 
 - 추가할 플러그인의 이름, 출처와 라이선스를 확인합니다.
 - 외부 플러그인이면 가져올 정확한 tag 또는 commit을 선택합니다.
-- 기존 `plugins/`, `.agents/plugins/marketplace.json`과 `.omp-plugin/marketplace.json`에서 같은 이름이 없는지 확인합니다.
+- 기존 `plugins/`, `.agents/plugins/marketplace.json`, `.omp-plugin/marketplace.json`에서 같은 이름이 없는지 확인합니다.
 
 ### 절차
 
@@ -55,7 +65,7 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
    해당 경로를 가리키게 합니다.
 3. 외부 플러그인은 원본 파일과 실행 권한을 검증하고 `UPSTREAM.md`에 출처, 기준 commit,
    버전, 라이선스와 포함 범위를 기록합니다.
-4. `.agents/plugins/marketplace.json`과 `.omp-plugin/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
+4. `.agents/plugins/marketplace.json`과 `.omp-plugin/marketplace.json`의 `plugins` 배열 끝에 등록하고 `python3 scripts/render-claude-compat.py`를 실행합니다.
 
 ```json
 {
@@ -84,21 +94,25 @@ OMP 카탈로그에는 Codex 매니페스트와 같은 이름·버전, OMP plugi
 }
 ```
 
-폴더명, 플러그인 매니페스트와 두 마켓플레이스 항목의 `name`은 같아야 합니다.
+폴더명, 플러그인 매니페스트와 세 마켓플레이스 항목의 `name`은 같아야 합니다.
 Codex `source.path`는 저장소 루트 기준이며, OMP `source`는
 `.omp-plugin/marketplace.json`의 `metadata.pluginRoot` 기준입니다.
 `.agents/plugins/marketplace.json`과 plugin별 `.codex-plugin/plugin.json`이 Codex 패키지의
 정본이고, `.omp-plugin/marketplace.json`은 이름·버전·경로의 OMP projection입니다.
+`.claude-plugin/marketplace.json`과 각 `.claude-plugin/plugin.json`은 생성 결과입니다. Claude의
+`source`는 저장소 루트 기준 `./plugins/<name>`이며 `skills/`와 `hooks/hooks.json`은 표준 위치에서
+발견되므로 매니페스트에 중복 등록하지 않습니다. 배포 시 버전을 올리고 세 카탈로그를 동기화합니다.
 
 ## 검증
 
 저장소 루트에서 다음 정적 검사를 실행합니다.
 
 ```sh
-find .agents .omp-plugin plugins evals -name '*.json' -print0 \
+find .agents .omp-plugin .claude-plugin plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
 python3 scripts/render-agent-policy.py --check
 python3 scripts/render-continuity.py --check
+python3 scripts/render-claude-compat.py --check
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
 python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v
@@ -110,9 +124,13 @@ git diff --check
 ```sh
 python3 -m json.tool .agents/plugins/marketplace.json
 python3 -m json.tool .omp-plugin/marketplace.json
+python3 -m json.tool .claude-plugin/marketplace.json
 python3 -m json.tool plugins/<plugin-name>/.codex-plugin/plugin.json
+claude plugin validate --strict .
+claude plugin validate --strict plugins/<plugin-name>
 ```
 
-JSON 문법과 참조 경로를 확인한 뒤 가능한 경우 Codex와 OMP의 실제 플러그인 읽기 경로에서
-이름, 버전과 구성 요소 목록을 확인합니다. 정적 검증을 실제 로딩 성공으로 간주하지 않습니다.
+JSON 문법과 참조 경로를 확인한 뒤 세 호스트의 실제 플러그인 읽기 경로에서
+이름, 버전과 구성 요소 목록을 확인합니다. Claude는 분리된 `CLAUDE_CONFIG_DIR`에서 등록·설치·스킬 발견을
+검증합니다. 정적 검증을 실제 로딩 성공으로 간주하지 않습니다.
 API 키와 토큰은 저장하지 않으며 필요한 환경 변수 이름만 `.env.example`에 기록합니다.

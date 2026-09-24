@@ -1,6 +1,6 @@
 # Figma Workflow
 
-Figma Design에서 제품 화면, responsive Auto Layout, component·variant·variable, exact icon과 clickable prototype을 생성·수정·감사할 때 native 구조와 evidence 기준을 제공하는 Codex plugin입니다. 판단이 필요한 canvas read/write의 agent writer는 현재 host에 실제로 등록된 official Figma MCP connection 하나입니다.
+Figma Design에서 제품 화면, responsive Auto Layout, component·variant·variable, exact icon과 clickable prototype을 생성·수정·감사할 때 native 구조와 evidence 기준을 제공하는 Codex·Claude Code·OMP plugin입니다. 판단이 필요한 canvas read/write의 agent writer는 현재 host에 실제로 등록된 official Figma MCP connection 하나입니다.
 
 Figma 화면도 `사용자·맥락 → 판단/과업 → 정보 → 표현 → 상태/interaction → 증거`의 공통 Design
 Decision Contract를 사용합니다. Figma scope는 DQ0–DQ7을 요구하며 DQ1–DQ6은 독립 평가자 2명의
@@ -28,9 +28,9 @@ access가 생겼다고 간주하지 않습니다.
 - AWS, network, UML, ERD와 system architecture는 draw.io에서 native `.drawio`로 만듭니다.
 - 판단형 Figma canvas read/write는 registered official Figma MCP만 수행합니다. raw MCP 설치, agent-callable local bridge, second writer는 제공하거나 제안하지 않습니다.
 
-`use_figma`를 실제 호출할 때마다 먼저 `figma:figma-use`를 invoke하고 해당 tool call의 `skillNames`에 `figma-use`를 포함합니다. composed screen/view는 `figma:figma-use`와 `figma:figma-generate-design`, component/library는 `figma:figma-use`와 `figma:figma-generate-library`를 함께 invoke합니다. motion 등 추가 official prerequisite는 current installed contract가 요구할 때 함께 적용합니다. 읽기 전용 audit도 `use_figma`를 호출하면 같은 규칙을 따릅니다. prerequisite 또는 capability가 설치·노출되지 않으면 tool/API를 가정하거나 우회하지 않고 `blocked`, `not_run` 또는 `inconclusive`로 보고합니다.
+Codex에서는 `use_figma` 호출 전 `figma:figma-use`를 invoke하고 `skillNames`에 `figma-use`를 포함합니다. Claude Code에서는 공식 `figma@claude-plugins-official`을 사용자가 설치·인증하고 실제 노출된 스킬과 MCP schema를 확인합니다. [공식 연결 안내](https://help.figma.com/hc/en-us/articles/39888612464151-Claude-Code-and-Figma-Set-up-the-MCP-server)를 따르되 이 플러그인이 설치·인증을 자동 변경하지 않습니다. prerequisite 또는 capability가 없으면 canvas 작업을 `blocked`, live 검증을 `not_run`으로 보고합니다. 자세한 호출 경로는 [capability and evidence](references/capability-and-evidence.md)에 있습니다.
 
-화면과 composed view에는 `figma-product-design`, prototype reaction에는 `figma-prototype-flow`, 읽기 전용 검토에는 `figma-design-audit`을 사용합니다. component/library authoring은 `figma:figma-generate-library`, design-to-code는 `figma:figma-design-to-code`의 범위입니다.
+화면과 composed view에는 `figma-product-design`, prototype reaction에는 `figma-prototype-flow`, 읽기 전용 검토에는 `figma-design-audit`을 사용합니다. component/library authoring과 design-to-code는 현재 호스트의 공식 Figma 경로를 따릅니다.
 
 ## Deterministic Desktop companion
 
@@ -56,13 +56,13 @@ python3 scripts/validate_design_quality.py report <report.json> <contract.json>
 
 ## 컴팩션 후 작업 재개
 
-Codex의 [`figma-workflow:figma-workflow-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://figma-workflow-task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계로 이어지는 작업의 계약·진행·근거 위치를
+Codex·Claude의 [`figma-workflow:figma-workflow-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://figma-workflow-task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계로 이어지는 작업의 계약·진행·근거 위치를
 작업 폴더의 `.sonsu/continuity/`에 짧게 기록하고 같은 session의 컴팩션·재개 후 실제 상태와 대조합니다.
 짧은 단발 작업에는 기록하지 않으며, 파일 쓰기 금지와 기존 승인 범위를 유지합니다.
 
-포함된 `SessionStart` hook은 활성 기록이 있을 때 스킬·기록 경로만 전달합니다. 설치 후 CLI의
-`/hooks`에서 현재 hook 정의를 검토하고 신뢰해야 실행됩니다. hook을 사용할 수 없으면 위 스킬을
-직접 호출해 수동으로 재개할 수 있습니다. helper는 Python 3.9+와 POSIX(macOS/Linux) 환경을 사용합니다.
+포함된 `SessionStart` hook은 활성 기록이 있을 때 스킬·기록 경로를 전달합니다. Codex에서는
+`/hooks`에서 정의를 검토하고 신뢰합니다. Claude에서는 활성 플러그인의 hook이 자동 병합되며
+`/hooks`는 읽기 전용 확인 메뉴입니다. hook을 사용할 수 없으면 위 스킬을 직접 호출해 수동 재개합니다. helper는 Python 3.9+와 POSIX(macOS/Linux) 환경을 사용합니다.
 [기록 형식·운영 계약](../../docs/reference/task-continuity.md)과
 [검증 범위](../../evals/task-continuity/README.md)를 참고하세요.
 

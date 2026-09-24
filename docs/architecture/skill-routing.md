@@ -32,7 +32,7 @@ Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering
 Engineering, Workflow, Research, Prompting, Product, Interface Design, Figma Workflow, Operations UI, Design Patterns, Memory Manager, Writing과 Fluent Languages는
 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
-Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
+현재 호스트가 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
 선택합니다.
 
 | 직접 목적 | 담당 |
@@ -58,9 +58,9 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 반복 문제와 설계 forces에 맞는 named pattern 선택 | `design-patterns:select-design-patterns` |
 | 명시적으로 요청한 기존 pattern 적용·오용의 읽기 전용 검토 | `design-patterns:review-pattern-usage` |
-| 명시적 호출에 따른 Codex 메모리 점검과 정리 | `memory-manager:memory-manager` |
+| 명시적 호출에 따른 Codex·Claude 메모리 점검과 정리 | `memory-manager:memory-manager` |
 | 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
-| Codex·ChatGPT·OpenAI API용 프롬프트 생성·재작성·최적화 | `prompting:prompt-builder` |
+| Codex·Claude Code·ChatGPT·OpenAI API용 프롬프트 생성·재작성·최적화 | `prompting:prompt-builder` |
 | 제품 문제·기회·가치 제안과 해법 후보 발산 | `product:product-brainstorming` |
 | 제품 사용자·문제·기대 결과·범위와 미해결 결정 구체화 | `product:product-discovery` |
 | 인터뷰·설문·피드백·이슈·지표의 traceable synthesis | `product:synthesize-product-evidence` |
@@ -76,7 +76,8 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 기존 운영 화면과 증거의 읽기 전용 품질 감사 | `operations-ui:audit-operations-ui` |
 | 명시적으로 요청된 Figma 운영 화면을 Design Decision Contract와 구현 handoff에 연결 | `operations-ui:figma-operations-flow` |
 
-Memory Manager는 Codex의 `policy.allow_implicit_invocation: false`로 명시적 호출만 허용합니다.
+Memory Manager는 Codex의 `policy.allow_implicit_invocation: false`, Claude의
+`disable-model-invocation: true`로 명시적 호출만 허용합니다.
 `$memory-manager`를 직접 요청할 때 실행하며 일반 작업에서 자동 선택하지 않습니다.
 점검 요청은 읽기 전용이고 정리 요청은 대상 호스트가 허용하는 직접 편집 또는 수정 노트
 방식으로 수행합니다. 수정 노트 생성과 원본 메모리 반영은 별도 결과로 보고합니다.
@@ -155,7 +156,7 @@ Codex용 작업 프롬프트를 작성하더라도 그 요청 자체가 구현�
 자연어 요구사항을 Prompting으로 먼저 재작성해야 한다고 가정하지 않습니다. 사용자가 프롬프트
 산출물과 구현을 모두 요청했을 때만 직접 목적에 따라 runtime에서 조합합니다.
 
-Prompting만 설치된 환경에서도 Codex, ChatGPT와 OpenAI API용 프롬프트를 독립적으로 작성할 수
+Prompting만 설치된 환경에서도 Codex, Claude Code, ChatGPT와 OpenAI API용 프롬프트를 독립적으로 작성할 수
 있어야 합니다. 특정 OpenAI 모델이나 제품 surface가 결과에 영향을 주면 포함된 snapshot을
 참고하고, 최신 또는 현재 권고를 요청받으면 OpenAI 공식 문서를 다시 확인합니다.
 
@@ -245,15 +246,15 @@ Figma 제품 화면에서는 Auto Layout, component, variable와 exact asset을 
 클릭 동선은 실제 reaction, 사람이 읽는 annotation과 named state topology를 구분하고 실제 prototype
 playback으로 검증합니다. 정적 arrow나 annotation만으로 clickable interaction을 통과시키지 않습니다.
 
-Figma canvas의 판단형 read/write는 registered official Figma MCP가 유일한 agent writer입니다. 실제
-`use_figma` 호출은 먼저 `figma:figma-use`를 invoke하고 해당 tool call의 `skillNames`에 `figma-use`를
-포함합니다. 화면·composed view에는 `figma:figma-generate-design`, component·library에는
-`figma:figma-generate-library`, design-to-code에는 `figma:figma-design-to-code`를 current official
-contract에 따라 조합합니다. prerequisite나 capability가 없으면 API를 추정하거나 우회하지 않고
+Figma canvas의 판단형 read/write는 registered official Figma MCP가 유일한 agent writer입니다.
+Codex는 `figma:figma-use`와 해당 tool call의 `skillNames` 계약을 따릅니다. Claude는 공식
+`figma@claude-plugins-official`의 실제 스킬·MCP schema를 확인하며 Codex 전용 인자를 가정하지 않습니다.
+자세한 경로는 [Figma capability 계약](../../plugins/figma-workflow/references/capability-and-evidence.md)에 있습니다.
+prerequisite나 capability가 없으면 API를 추정하거나 우회하지 않고
 `blocked`, `inconclusive` 또는 `not_run`을 보고합니다.
 
 [Figma Workflow Companion](../../plugins/figma-workflow/figma-plugin/README.md)은 사용자가 Figma Desktop에서
-직접 실행하는 수동 companion입니다. Codex writer나 agent-callable bridge가 아니며, 반복적이고 결과가
+직접 실행하는 수동 companion입니다. agent writer나 agent-callable bridge가 아니며, 반복적이고 결과가
 명확한 allowlisted JSON 작업만 처리합니다. mutation은 explicit node ID, expected state, same-plan preview
 receipt, apply 직전 re-read와 readback을 요구합니다. official MCP 안의 bounded code는 current tool
 contract가 허용하는 범위에서만 사용하고, companion의 manual operation과 섞지 않습니다.

@@ -1,7 +1,7 @@
 {
   "name": "fluent-languages",
-  "version": "0.1.0-beta.11",
-  "description": "Codex에서 한국어·일본어·영어를 자연스럽게 작성하는 표현 지침을 제공한다.",
+  "version": "0.1.0-beta.12",
+  "description": "한국어·일본어·영어를 자연스럽게 작성하는 표현 지침을 제공합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"

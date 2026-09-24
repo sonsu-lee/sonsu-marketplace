@@ -1,11 +1,11 @@
 # 마켓플레이스 아키텍처
 
 - Status: Current
-- Last reviewed: 2026-09-22
+- Last reviewed: 2026-09-24
 
 ## 목적
 
-Sonsu Marketplace는 개인적으로 사용하는 Codex·Oh My Pi(OMP) 플러그인을 한 저장소에서 등록하고,
+Sonsu Marketplace는 개인적으로 사용하는 Codex·Claude Code·Oh My Pi(OMP) 플러그인을 한 저장소에서 등록하고,
 업스트림 출처와 로컬 정책 변경을 추적하기 위한 마켓플레이스입니다.
 
 ## 구성 요소
@@ -14,7 +14,9 @@ Sonsu Marketplace는 개인적으로 사용하는 Codex·Oh My Pi(OMP) 플러그
 | --- | --- |
 | `.agents/plugins/marketplace.json` | 마켓플레이스 식별자와 제공할 플러그인을 등록 |
 | `.omp-plugin/marketplace.json` | OMP가 설치할 플러그인의 이름·버전·경로를 등록 |
+| `.claude-plugin/marketplace.json` | 생성된 Claude Code 카탈로그 |
 | `plugins/<name>/.codex-plugin/plugin.json` | 개별 플러그인의 메타데이터와 구성 요소 진입점 정의 |
+| `plugins/<name>/.claude-plugin/plugin.json` | 생성된 Claude Code 플러그인 메타데이터 |
 | `plugins/<name>/skills/` | 플러그인이 제공하는 스킬 보관 |
 | `plugins/<name>/UPSTREAM.md` | 업스트림 기준 commit, 포함 범위와 로컬 차이 기록 |
 | `scripts/` | 공유 정책·연속성 참조 생성 등 저장소 유지보수 도구 |
@@ -34,10 +36,17 @@ OMP: 저장소 루트
   → .omp-plugin/marketplace.json
   → metadata.pluginRoot + source
   → plugins/<name>/skills/
+
+Claude Code: 저장소 루트
+  → .claude-plugin/marketplace.json
+  → source: ./plugins/<name>
+  → plugins/<name>/.claude-plugin/plugin.json
+  → plugins/<name>/skills/와 hooks/hooks.json
 ```
 
 Codex는 패키지의 스킬·hook·script와 `.codex-plugin`에 선언된 구성 요소를 읽습니다. OMP는 같은
-플러그인의 공통 `skills/` 트리를 읽지만 Codex 전용 hook과 app 연결은 실행하지 않습니다. 구성과
+플러그인의 공통 `skills/` 트리를 읽지만 Codex 전용 hook과 app 연결은 실행하지 않습니다. Claude는
+공통 스킬과 표준 위치의 hook을 읽으며 Codex `apps`를 소비하지 않습니다. 구성과
 검증 절차는 [플러그인 개발 가이드](../guides/adding-a-plugin.md)에 있습니다.
 
 마켓플레이스 등록은 저장소의 파일을 변경하거나 커밋하는 작업과 별개입니다. Codex나 OMP에

@@ -23,13 +23,13 @@ Figma Design이 최종 제품 화면의 source of truth일 때 native frame, Aut
 
 1. [tool routing](../../references/tool-routing.md)으로 최종 artifact가 Figma Design인지 확인한다. 제품 화면, 상태, overlay와 interaction 동선은 Figma 안에서 완결한다. FigJam은 탐색·워크숍, draw.io는 AWS·시스템 구조도에만 사용한다.
 2. [capability and evidence](../../references/capability-and-evidence.md)를 읽어 target, edit permission, connected Figma capability와 provider가 요구하는 prerequisite skill을 확인한다. 환경에 해당 prerequisite가 설치되어 있다면 현재 계약을 먼저 따르며, 없는 tool/API 이름을 추정하지 않는다.
-3. 실행 방식은 [deterministic execution](../../references/deterministic-execution.md)의 분류를 따른다. 판단을 요하는 canvas read/write는 registered official Figma MCP가 유일한 agent writer다. `use_figma`를 호출할 때마다 먼저 `figma:figma-use`를 invoke하고 tool call의 `skillNames`에 `figma-use`를 포함한다. 직접 MCP 작업 또는 explicit target을 가진 bounded code 모두 이 경로 안에서만 수행한다.
+3. 실행 방식은 [deterministic execution](../../references/deterministic-execution.md)의 분류를 따른다. 판단을 요하는 canvas read/write는 registered official Figma MCP가 유일한 agent writer다. 도구 호출 전 [호스트별 Figma 경로](../../references/capability-and-evidence.md)를 적용한다. 직접 MCP 작업 또는 explicit target을 가진 bounded code 모두 이 경로 안에서만 수행한다.
 4. 기존 page, selection, nearby screens, components, variables, styles와 Code Connect 정보를 읽는다. 기존 system을 읽지 않은 채 primitives부터 만들지 않는다.
 5. [공통 디자인 품질 계약](../../references/design-quality.md)에 따라 `artifact_scope: figma`, 사용자·
    맥락·핵심 질문·오판 비용, 정보·표현·환경·metric을 잠근다. `extensions.figma`에는 target,
    필요한 capability, component strategy, resize와 prototype scenario를 기록한다.
 
-composed screen/view는 `figma:figma-use`와 `figma:figma-generate-design`을 함께 invoke한 뒤 `use_figma`를 호출한다. 개별 component·library authoring은 `figma:figma-use`와 `figma:figma-generate-library`를 함께 invoke한다. motion 등 추가 official prerequisite가 현재 설치된 contract에 적용되면 그것도 함께 따른다. 실제 canvas I/O는 현재 연결된 official Figma MCP schema가 정한 경로만 사용하며, 이 skill은 native craft와 evidence 계약을 보완한다. design-to-code는 `figma:figma-design-to-code`의 범위다.
+화면·component·library 작업의 공식 prerequisite는 현재 호스트와 설치된 Figma 플러그인의 계약을 따른다. motion 등 추가 prerequisite도 현재 설치된 contract가 요구할 때 함께 적용한다. 실제 canvas I/O는 현재 연결된 official Figma MCP schema가 정한 경로만 사용하며, 이 skill은 native craft와 evidence 계약을 보완한다. design-to-code는 현재 호스트의 공식 Figma 경로에 맡긴다.
 
 필수 prerequisite 또는 capability가 설치·노출되지 않으면 screen/layout specification만 제공하고 mutation을 `blocked`, `not_run` 또는 `inconclusive`로 보고한다. tool/API를 추정하거나 raw MCP 설치, agent-callable local bridge 또는 두 번째 agent writer를 제안하지 않는다.
 

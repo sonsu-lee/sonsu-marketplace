@@ -188,6 +188,17 @@ def profiles():
     return G.read_json(package / 'references/model-profiles.json')['roles']
 
 
+def default_profile(role, host=None):
+    packaged = profiles()[role]
+    claude = os.environ.get('CLAUDE_CODE_SESSION_ID')
+    codex = os.environ.get('CODEX_THREAD_ID')
+    need(host is not None or not (claude and codex),
+         'ambiguous review host; pass --host codex or --host claude-code')
+    if host == 'claude-code' or (host is None and claude):
+        return {'model': 'inherit', 'effort': 'inherit', 'count': packaged['count']}, 'Claude Code host defaults'
+    return packaged, 'packaged model-profiles.json'
+
+
 def policy_digest():
     package = Path(__file__).resolve().parents[1]
     return G.digest(G.encode({'policies': {name: G.file_digest(package / 'references' / (name + '.md')) for name in POLICIES}, 'profiles': G.file_digest(package / 'references/model-profiles.json'), 'governance': {name: G.file_digest(package / name) for name in GOVERNANCE}}))
@@ -384,7 +395,7 @@ def save(root, state):
 
 def initialize(root, args, config):
     validate(config, root)
-    session = G.identifier(args.session_id or os.environ.get('CODEX_THREAD_ID'))
+    session = G.session_identity(args.session_id)
     with G.lock(root):
         path = G.task_path(root, args.task_id)
         pointer = G.session_path(root, session)
@@ -831,9 +842,10 @@ def prepare_frozen(root, state, args, body, u, data, b, rows, scope, normal, pri
     name = prefix + '-input.md'
     role = 'red_team' if args.gate == 'red-team' else ('focused_review' if scope == 'focused' else 'general_review')
     overrides = u.get('review_profiles', {})
-    profile = profile_validate(overrides.get(role, profiles()[role]))
+    default, default_source = default_profile(role, getattr(args, 'host', None))
+    profile = profile_validate(overrides.get(role, default))
     requested = {'model': profile['model'], 'effort': profile['effort'], 'reviewers': profile['count']}
-    profile_source = overrides['source'] if role in overrides else 'packaged model-profiles.json'
+    profile_source = overrides['source'] if role in overrides else default_source
     row = {'attempt': len(rows) + 1, 'unit': args.unit, 'gate': args.gate, 'scope': scope,
            'prior_round': prior, 'impact_assessment': body.get('impact_assessment'), 'normal_review': normal,
            'binding': b, 'requested': requested, 'profile_source': profile_source, 'raw': [], 'outcome': 'pending',
@@ -906,7 +918,8 @@ def adjudicate(root, state, args, body):
     need(review_current(root, state, row, binding(root, state, u)), 'review reservation stale')
     need(len(row['raw']) == row['requested']['reviewers'], 'missing reviewer evidence')
     need(all(r['execution'] == 'complete' and r['verdict'] in ('passed', 'failed') for r in row['raw']), 'incomplete or inconclusive reviewer blocks adjudication')
-    need(all(r['observed'][k] in ('unknown', row['requested'][k]) for r in row['raw'] for k in ('model', 'effort')), 'observed reviewer configuration mismatches request')
+    need(all(row['requested'][k] == 'inherit' or r['observed'][k] in ('unknown', row['requested'][k])
+             for r in row['raw'] for k in ('model', 'effort')), 'observed reviewer configuration mismatches request')
     if args.gate == 'red-team':
         need(all(r['challenge_verdict'] in ('survives_challenge', 'invalidated') for r in row['raw']), 'inconclusive or blocked challenge prevents adjudication')
     findings = {r['reviewer_id'] + ':' + f['id']: f for r in row['raw'] for f in r['findings']}

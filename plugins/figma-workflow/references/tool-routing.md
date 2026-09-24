@@ -9,8 +9,8 @@
 | 버튼 navigation, modal·drawer·popover, state flow | Figma Design | `figma-prototype-flow`, native reactions | static arrow만으로 클릭 가능하다고 주장하기 |
 | 초기 journey 탐색과 workshop | FigJam | 현재 환경의 official FigJam capability | 제품 prototype의 정본으로 쓰기 |
 | AWS, network, UML, ERD, service/data flow | draw.io | architecture icon library와 native `.drawio` | Figma product frame으로 구조도 대체하기 |
-| component/library authoring | Figma Design | `figma:figma-generate-library` | 화면 작업 중 무단 library API 변경 |
-| Figma-to-code | Figma Design | `figma:figma-design-to-code` | 화면 설계 skill이 code implementation을 대신하기 |
+| component/library authoring | Figma Design | 현재 호스트의 공식 Figma library skill·MCP | 화면 작업 중 무단 library API 변경 |
+| Figma-to-code | Figma Design | 현재 호스트의 공식 Figma design-to-code 경로 | 화면 설계 skill이 code implementation을 대신하기 |
 | 반복적인 exact rename, icon swap, selection audit | 수동 Desktop companion | versioned allowlist JSON | companion을 agent writer나 general canvas editor로 쓰기 |
 
 Figma 제품 화면과 prototype은 Figma 안에서 완결한다. FigJam board와 draw.io diagram은 각각 탐색과

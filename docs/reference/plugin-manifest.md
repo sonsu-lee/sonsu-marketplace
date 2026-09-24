@@ -1,17 +1,22 @@
 # 플러그인 매니페스트 참조
 
-이 문서는 Sonsu Marketplace에서 사용하는 Codex 로컬 규칙을 설명합니다. 전체 Codex 형식의
-대체 문서가 아니며, 새 필드를 추가할 때에는 현재 공식 문서와 실제 로더 결과를 확인합니다.
+이 문서는 Sonsu Marketplace의 세 호스트 매니페스트 관계를 설명합니다. 새 필드를 추가할 때에는
+현재 공식 문서와 실제 로더 결과를 확인합니다.
 
 ## 파일 위치
 
 ```text
 .agents/plugins/marketplace.json                 # 정본 marketplace catalog
 plugins/<plugin-name>/.codex-plugin/plugin.json  # 정본 plugin manifest
+.omp-plugin/marketplace.json                     # OMP catalog
+.claude-plugin/marketplace.json                  # 생성된 Claude catalog
+plugins/<plugin-name>/.claude-plugin/plugin.json # 생성된 Claude manifest
 ```
 
 Codex 형식을 저장소의 정본으로 유지합니다. `interface`, `apps`, `hooks`는 각 필드를 지원하는
 Codex 로더에서만 실제 소비 결과를 확인합니다.
+`scripts/render-claude-compat.py`가 Codex 카탈로그·매니페스트를 읽고 OMP의 이름·버전·경로를
+대조한 다음 Claude 파일을 만듭니다. `--check`는 생성 결과의 drift를 실패로 보고합니다.
 
 ## 현재 사용하는 필드
 
@@ -50,11 +55,18 @@ upstream 기준선이나 이전 호환 경로를 매니페스트 계약으로 �
 정적 validator와 Codex 실제 런타임이 지원하는 필드가 다를 수 있습니다. `profiles.json`에 등록된 플러그인은
 `hooks: "./hooks/hooks.json"`으로 작업 연속성 hook을 포함합니다. `plugin/read`, `skills/list`와
 `hooks/list`로 패키지·스킬·event·matcher를 확인하고, 실제 실행은 별도로 관찰합니다.
-설치만으로 hook이 신뢰되지는 않으며 현재 정의를 사용자가 검토해야 합니다. 정확한 동작과
+Codex에서는 설치만으로 hook이 신뢰되지는 않으며 현재 정의를 사용자가 검토해야 합니다. Claude는
+활성 플러그인의 hook을 자동 병합하며 `/hooks`는 읽기 전용 확인 메뉴입니다. 정확한 동작과
 수동 복구는 [작업 연속성 계약](task-continuity.md)을 따릅니다.
 
 Catalog의 각 local `source.path`는 해당 `plugins/<plugin-name>` 디렉터리를 가리켜야 합니다.
 Codex의 실제 `plugin/read`, `skills/list`, `hooks/list` 검증은 정적 JSON 검사와 별개의 관찰 결과로 기록합니다.
+
+Claude 카탈로그의 각 항목은 `source: "./plugins/<name>"`을 사용합니다. Claude 매니페스트는
+이름·버전·설명 등 호환 메타데이터만 담습니다. `skills/`와 `hooks/hooks.json`은 Claude의 표준
+위치에서 발견되므로 명시 필드를 다시 넣지 않습니다. `claude plugin validate --strict .`와
+각 플러그인 검증, 분리된 설정 디렉터리의 실제 설치·발견을 각각 확인합니다. Claude용 Figma
+연결은 공식 Figma 플러그인을 사용하며 Codex `apps` 선언을 복사하지 않습니다.
 
 ## Figma Workflow connector와 companion 경계
 

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "interface-design",
+  "displayName": "Interface Design",
+  "version": "0.2.1",
+  "description": "웹·모바일 UI를 사용자 판단 계약과 DQ0–DQ8 품질 게이트로 설계·재설계하고 검증합니다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  }
+}

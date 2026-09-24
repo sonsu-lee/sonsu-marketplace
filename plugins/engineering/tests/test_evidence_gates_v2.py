@@ -35,6 +35,7 @@ class ManagedGates(unittest.TestCase):
             target.write_text('Active governance fixture: ' + name)
         self.script = self.package / 'scripts/evidence-gates.py'
         self.config = {'schema_version': 2, 'contracts': ['contract.md'], 'units': [self.unit('design')]}
+        self.extra_env = {}
         self.report = self.base / 'report.md'
         self.report.write_text('Concrete review evidence.')
 
@@ -45,10 +46,12 @@ class ManagedGates(unittest.TestCase):
                 'review': review}
 
     def call(self, command, *args, data=None):
+        environment = dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1')
+        environment.pop('CLAUDE_CODE_SESSION_ID', None)
+        environment.update(self.extra_env)
         return subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), command,
                                '--task-id', 'task', *args], input='' if data is None else json.dumps(data),
-                              text=True, capture_output=True, env=dict(os.environ, CODEX_THREAD_ID='controller',
-                              PYTHONDONTWRITEBYTECODE='1'), timeout=15)
+                              text=True, capture_output=True, env=environment, timeout=15)
 
     def ok(self, command, *args, data=None):
         result = self.call(command, *args, data=data)
@@ -100,8 +103,10 @@ class ManagedGates(unittest.TestCase):
         (self.root / 'design.md').write_text('new design')
         self.assertNotEqual(self.call('complete-unit', '--unit', 'design', '--request-id', 'c').returncode, 0)
 
-    def prepare(self, gate='final-review', data=None):
-        return self.ok('prepare-review', '--unit', 'design', '--gate', gate, '--package', str(self.report), data=data)
+    def prepare(self, gate='final-review', data=None, host=None):
+        host_args = ['--host', host] if host else []
+        return self.ok('prepare-review', '--unit', 'design', '--gate', gate, '--package', str(self.report),
+                       *host_args, data=data)
 
     def record(self, attempt, reviewer, findings=None, gate='final-review', complete=True):
         raw = {'run_id': reviewer + '-run', 'execution': 'complete' if complete else 'incomplete',
@@ -132,6 +137,53 @@ class ManagedGates(unittest.TestCase):
         self.assertEqual(status['review_rounds'], 1)
         self.assertEqual(status['reviewer_invocations'], 5)
         self.assertNotEqual(self.call('complete-unit', '--unit', 'design', '--request-id', 'c').returncode, 0)
+
+    def test_claude_defaults_inherit_host_model_and_session(self):
+        self.extra_env = {'CODEX_THREAD_ID': 'outer-codex', 'CLAUDE_CODE_SESSION_ID': 'inner-claude'}
+        self.config['units'][0]['review'] = 'independent'
+        self.ok('init', '--session-id', 'inner-claude', data=self.config)
+        state = json.loads((self.root / '.engineering/gates/tasks/task/state.json').read_text())
+        self.assertEqual(state['sessions'], ['inner-claude'])
+        self.checked()
+        result = self.call('prepare-review', '--unit', 'design', '--gate', 'final-review',
+                           '--package', str(self.report))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('ambiguous review host', result.stderr)
+        prepared = self.prepare(host='claude-code')
+        self.assertEqual(prepared['requested'], {'model': 'inherit', 'effort': 'inherit', 'reviewers': 5})
+        self.assertEqual(prepared['profile_source'], 'Claude Code host defaults')
+        for n in range(4):
+            self.assertEqual(self.record(1, 'claude-' + str(n)).returncode, 0)
+        raw = {'run_id': 'claude-observed-run', 'execution': 'complete', 'verdict': 'passed',
+               'findings': [], 'observed': {'model': 'claude-current', 'effort': 'high'}}
+        self.ok('record-review', '--unit', 'design', '--gate', 'final-review', '--attempt', '1',
+                '--reviewer-id', 'claude-observed', '--report', str(self.report), data=raw)
+        outcome = self.ok('adjudicate', '--unit', 'design', '--gate', 'final-review', '--attempt', '1',
+                          data={'decisions': []})
+        self.assertEqual(outcome['outcome'], 'passed')
+
+    def test_nested_codex_explicit_host_keeps_codex_profile(self):
+        self.extra_env = {'CLAUDE_CODE_SESSION_ID': 'outer-claude', 'CODEX_THREAD_ID': 'inner-codex'}
+        self.config['units'][0]['review'] = 'independent'
+        self.ok('init', '--session-id', 'inner-codex', data=self.config)
+        self.checked()
+        prepared = self.prepare(host='codex')
+        self.assertEqual(prepared['requested'], {'model': 'gpt-5.6-luna', 'effort': 'xhigh', 'reviewers': 5})
+        self.assertEqual(prepared['profile_source'], 'packaged model-profiles.json')
+
+    def test_claude_stop_hook_only_observes_v2_state(self):
+        self.extra_env = {'CLAUDE_CODE_SESSION_ID': 'claude-session'}
+        self.extra_env['CODEX_THREAD_ID'] = ''
+        self.init()
+        event = {'hook_event_name': 'Stop', 'session_id': 'claude-session', 'cwd': str(self.root)}
+        result = subprocess.run([sys.executable, str(self.script), 'hook'], input=json.dumps(event),
+                                text=True, capture_output=True,
+                                env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'), timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('Engineering 관찰', result.stdout)
+        observation = self.root / '.engineering/gates/tasks/task/observation.json'
+        self.assertTrue(observation.is_file())
+        self.assertFalse(json.loads(observation.read_text())['ready'])
 
     def review_pass(self, attempt=1, gate='final-review', count=5):
         for n in range(count):

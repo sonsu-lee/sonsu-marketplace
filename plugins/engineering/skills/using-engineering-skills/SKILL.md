@@ -8,24 +8,24 @@ description: 개발 작업을 시작하거나 작업 성격이 바뀔 때 Engine
 요청의 목적, 승인 범위, 현재 계약과 실패 영향을 확인한다. 구체적인 작업을 위임받았으면 그
 작업의 brief와 해당 스킬부터 수행한다. 일반 코드 리뷰도 Engineering의 책임이다.
 
-| 요청 | Codex ID | OMP ID |
-| --- | --- | --- |
-| 코드·diff·commit·branch 일반 리뷰 | `engineering:review-quality` | `skill://review-quality` |
-| 불필요한 복잡성·유지보수·실패 경로·운영성 중 특정 관점 리뷰 | `engineering:review-*` | `skill://review-*` |
-| 독립된 PR 심층·다중 리뷰 | `engineering:review-pr` | `skill://review-pr` |
-| 개발 단계의 독립 리뷰 또는 PR 이외의 명시적 독립 리뷰 | `engineering:requesting-code-review` | `skill://requesting-code-review` |
-| 도메인 계약을 타입·상태·경계에 반영 | `engineering:domain-shaped-code` | `skill://domain-shaped-code` |
-| 현재 코드를 단순화 | `engineering:simplify-code` | `skill://simplify-code` |
-| 범위·요구·설계 결정 | `engineering:brainstorming` | `skill://brainstorming` |
-| 여러 작업의 의존성과 검증 계획 | `engineering:writing-plans` | `skill://writing-plans` |
-| 승인된 작업 실행·재개 | `engineering:executing-plans` | `skill://executing-plans` |
-| 원인이 불명확한 오류 | `engineering:systematic-debugging` | `skill://systematic-debugging` |
-| 리뷰 피드백 검증 | `engineering:receiving-code-review` | `skill://receiving-code-review` |
-| 완료 보고 | `engineering:verification-before-completion` | `skill://verification-before-completion` |
-| 스킬 작성·수정 | `engineering:writing-skills` | `skill://writing-skills` |
+| 요청 | Codex ID | Claude Code ID | OMP ID |
+| --- | --- | --- | --- |
+| 코드·diff·commit·branch 일반 리뷰 | `engineering:review-quality` | `/engineering:review-quality` | `skill://review-quality` |
+| 불필요한 복잡성·유지보수·실패 경로·운영성 중 특정 관점 리뷰 | `engineering:review-*` | `/engineering:review-*` | `skill://review-*` |
+| 독립된 PR 심층·다중 리뷰 | `engineering:review-pr` | `/engineering:review-pr` | `skill://review-pr` |
+| 개발 단계의 독립 리뷰 또는 PR 이외의 명시적 독립 리뷰 | `engineering:requesting-code-review` | `/engineering:requesting-code-review` | `skill://requesting-code-review` |
+| 도메인 계약을 타입·상태·경계에 반영 | `engineering:domain-shaped-code` | `/engineering:domain-shaped-code` | `skill://domain-shaped-code` |
+| 현재 코드를 단순화 | `engineering:simplify-code` | `/engineering:simplify-code` | `skill://simplify-code` |
+| 범위·요구·설계 결정 | `engineering:brainstorming` | `/engineering:brainstorming` | `skill://brainstorming` |
+| 여러 작업의 의존성과 검증 계획 | `engineering:writing-plans` | `/engineering:writing-plans` | `skill://writing-plans` |
+| 승인된 작업 실행·재개 | `engineering:executing-plans` | `/engineering:executing-plans` | `skill://executing-plans` |
+| 원인이 불명확한 오류 | `engineering:systematic-debugging` | `/engineering:systematic-debugging` | `skill://systematic-debugging` |
+| 리뷰 피드백 검증 | `engineering:receiving-code-review` | `/engineering:receiving-code-review` | `skill://receiving-code-review` |
+| 완료 보고 | `engineering:verification-before-completion` | `/engineering:verification-before-completion` | `skill://verification-before-completion` |
+| 스킬 작성·수정 | `engineering:writing-skills` | `/engineering:writing-skills` | `skill://writing-skills` |
 
-현재 host가 실제로 노출한 ID를 사용한다. Codex는 플러그인 prefix를 포함하고 OMP는
-prefix 없는 `skill://` ID를 사용한다.
+현재 host가 실제로 노출한 ID를 사용한다. Codex와 Claude Code는 플러그인 prefix를 포함하고
+OMP는 prefix 없는 `skill://` ID를 사용한다.
 
 일반 리뷰는 구현 계획·소스 수정으로 확장하지 않는다. 여러 단계의 변경은
 [품질 게이트](references/quality-gates.md)에 따라 위험을 분류한다. 기계적 변경은 결정론적 검사,
@@ -50,7 +50,8 @@ PR 상태 조회·복구, 독립적인 심층 PR 리뷰, 일반 UI 설계·재�
 다른 전문 플러그인은 해당 작업이 필요할 때만 호출한다.
 
 [실행 계약](references/agent-execution.md)은 위임·문맥·모델 선택을 다룬다. 현재 host가 Codex면
-[Codex 대응](references/codex-tools.md), OMP면 [OMP 대응](references/omp-tools.md)을 적용한다.
+[Codex 대응](references/codex-tools.md), Claude Code면 [Claude Code 대응](references/claude-code-tools.md),
+OMP면 [OMP 대응](references/omp-tools.md)을 적용한다.
 [관리형 게이트](references/evidence-gates.md)는 등록한 단계의 전이를 다룬다.
 주 조정자는 여러 단계의 진행을 [task-continuity](../task-continuity/SKILL.md)에 기록한다.
 

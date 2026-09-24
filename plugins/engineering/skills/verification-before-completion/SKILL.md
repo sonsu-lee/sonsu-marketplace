@@ -55,7 +55,8 @@ description: 작업 완료, 결함 수정 또는 검사 통과를 보고하기 �
 - 필수 미해결 위험을 수용하려면 지명된 사람의 현재 리비전에 대한 명시적인 `accepted_risk`가
   필요하다. 위험 수용은 검사 통과와 구분해 보고한다.
 
-`red-team` 정책의 작업만 일반 리뷰 뒤 별도 Astra high red-team을 수행한다. 일반 전체
-리뷰는 Luna xhigh 5개, 국소 재검토는 이전 전체 근거와 Luna xhigh 1개를 연결한다.
+`red-team` 정책의 작업만 일반 리뷰 뒤 별도 새 문맥 1개의 red-team을 수행한다. 일반 전체
+리뷰는 새 문맥 5개, 국소 재검토는 이전 전체 근거와 새 문맥 1개를 연결한다. 모델 선택은
+[품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)의 호스트별 프로필을 따른다.
 필수 `invalidated`, `inconclusive`, `blocked`, `not_run`은 완료 근거가 아니다. 등록한 작업은
 `complete-unit`/`close` 결과와 현재 유효성을 확인한다. Stop 알림 부재는 통과가 아니다.

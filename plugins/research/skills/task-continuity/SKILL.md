@@ -18,8 +18,12 @@ description: "여러 출처의 조사·주장 감사가 여러 단계로 이어�
 [저장 도구](../../scripts/task-continuity.py)는 Python 3.9+와 POSIX 환경의 표준 라이브러리를
 사용한다. 현재 읽은 스킬의 실제 설치 위치에서 도구의 절대 경로를 구하고 `--help`로 옵션을 확인한다.
 
-1. 세션은 명시한 `--session-id`를 우선하고, 생략하면 `CODEX_THREAD_ID`를 사용한다. ID를 알 수
-   없으면 기존 산출물로 수동 복구한다. 다른 세션이나 최신 디렉터리에서 ID를 추정하지 않는다.
+1. 세션은 명시한 `--session-id`를 우선하고, 한 호스트 ID만 있으면 해당 환경 변수를 사용한다.
+   `CODEX_THREAD_ID`와 `CLAUDE_CODE_SESSION_ID`가 다르면 현재 호스트 ID를 명시한다.
+   Claude의 `--continue` 또는 ID 없는 `--resume`에서는 환경 변수와
+   실제 재개 ID가 다를 수 있다. hook이 `CLAUDE_ENV_FILE`에 기록한 `SONSU_CLAUDE_SESSION_ID`가
+   있으면 이를 사용하고, hook이 전달한 `session_id`를 명시할 수도 있다.
+   ID를 알 수 없으면 기존 산출물로 수동 복구하며 다른 세션이나 최신 디렉터리에서 추정하지 않는다.
 2. 작업 루트는 현재 Git worktree, Git 밖에서는 `--cwd`의 실제 경로다. 기록 위치는
    `<root>/.sonsu/continuity/<session-id>/research.json`이다.
 3. `read`로 기록과 revision을 읽는다. 최초 `write`의 `--expected-revision`은 0이며,
@@ -67,6 +71,8 @@ description: "여러 출처의 조사·주장 감사가 여러 단계로 이어�
 
 ## 재개 알림
 
-`SessionStart` hook은 `compact|resume`에서 활성 기록과 이 스킬의 위치를 알려 준다.
-지원되지 않거나 신뢰 설정 때문에 실행되지 않으면 이 스킬의 `read` 단계부터 직접 수행한다.
-hook 신뢰는 사용자가 호스트에서 관리한다. 마지막 기록 이후의 상태는 현재 산출물로 확인한다.
+`SessionStart` hook은 `compact|resume`에서 Claude의 host 환경 파일에 정확한 세션 ID를 기록하고,
+활성 기록이 있을 때 그 ID와 이 스킬의 위치를 알려 준다.
+지원되지 않거나 호스트 설정 때문에 실행되지 않으면 이 스킬의 `read` 단계부터 직접 수행한다.
+Codex의 hook 신뢰와 Claude의 workspace trust는 각 호스트가 관리한다. 마지막 기록 이후의 상태는
+현재 산출물로 확인한다.

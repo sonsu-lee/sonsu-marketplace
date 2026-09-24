@@ -1,6 +1,6 @@
 # Fluent Languages
 
-한국어·일본어·영어를 자연스럽게 작성하고 코드·사실·조건을 보존하는 독립 Codex 플러그인이다.
+한국어·일본어·영어를 자연스럽게 작성하고 코드·사실·조건을 보존하는 독립 Codex·Claude Code·OMP 플러그인이다.
 지침은 한국어로 관리하며, 출력 언어는 사용자의 요청을 따른다.
 
 ```sh
@@ -43,7 +43,7 @@ AI 탐지 점수를 품질 기준으로 사용하지 않는다.
 
 ## 컴팩션 후 작업 재개
 
-Codex의 [`fluent-languages:fluent-languages-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://fluent-languages-task-continuity`](skills/task-continuity/SKILL.md)는 장문·여러 문서 편집의
+Codex·Claude의 [`fluent-languages:fluent-languages-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://fluent-languages-task-continuity`](skills/task-continuity/SKILL.md)는 장문·여러 문서 편집의
 원문·초안·완료 구간을 `.sonsu/continuity/`에 기록한다. 다른 작업의 표현만 도울 때는
 주 작업 담당자의 기록을 따르며 짧은 단발 작업에는 기록하지 않는다.
 

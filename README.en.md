@@ -2,7 +2,7 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-A collection of Codex and Oh My Pi plugins for development, research, product planning, and writing.
+A collection of Codex, Claude Code, and Oh My Pi plugins for development, research, product planning, and writing.
 Install the plugins you need, then work with your coding agent as usual.
 
 [Installation](#installation) · [Plugins](#plugins) · [Usage examples](#usage-examples) · [Documentation](docs/README.md)
@@ -35,6 +35,20 @@ Start a new Codex task after installation. To list the plugins in the marketplac
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+### Claude Code
+
+Register the marketplace and install the plugins you need:
+
+```sh
+claude plugin marketplace add sonsu-lee/sonsu-marketplace
+claude plugin install engineering@sonsu-marketplace
+claude plugin list
+```
+
+Invoke skills such as `/engineering:review-quality`. Invoke Memory Manager explicitly with
+`/memory-manager:memory-manager`. Figma canvas work requires a separate official
+`figma@claude-plugins-official` connection and permission. The root `CLAUDE.md` imports `AGENTS.md`.
+
 ### Oh My Pi
 
 In Oh My Pi (OMP), register the OMP catalog and install each plugin at project or user scope:
@@ -51,8 +65,7 @@ omp plugin discover sonsu-marketplace
 ```
 
 OMP loads the shared `skills/` tree from each plugin and exposes unprefixed skill names such as
-`review-quality`. Codex-specific hooks and app connections declared under `.codex-plugin` do not run
-in OMP; those automation surfaces still require Codex.
+`review-quality`. OMP does not run `.codex-plugin` hooks and app connections or Claude's `hooks/hooks.json`.
 
 ## Plugins
 
@@ -63,7 +76,7 @@ in OMP; those automation surfaces still require Codex.
 | [Fluent Languages](plugins/fluent-languages/) | Write natural Korean, Japanese, and English while preserving technical content | `fluent-languages` |
 | [Writing](plugins/writing/) | Select information, choose where it belongs, and organize writing for the reader and purpose | `writing` |
 | [Research](plugins/research/README.md) | Research multiple sources, verify facts, and write answers supported by evidence | `research` |
-| [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, and the OpenAI API | `prompting` |
+| [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, Claude Code, ChatGPT, and the OpenAI API | `prompting` |
 | [Product](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | `product` |
 | [Figma Workflow](plugins/figma-workflow/README.md) | Create Figma product screens and clickable prototypes, and review design quality | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | Review and curate coding-agent memories on explicit invocation | `memory-manager` |
@@ -80,7 +93,7 @@ review results on existing PRs. See the
 
 ## Usage examples
 
-After installing the relevant plugin, try requests like these in Codex or OMP:
+After installing the relevant plugin, try requests like these in Codex, Claude Code, or OMP:
 
 | Plugin | Example request |
 | --- | --- |
@@ -92,13 +105,13 @@ After installing the relevant plugin, try requests like these in Codex or OMP:
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
 | Figma Workflow | “Review the Auto Layout and prototype connections in this Figma screen.” |
-| Memory Manager | Codex: “`$memory-manager` Review the Codex memories for this project.” / OMP: “`/skill:memory-manager` Review the Codex memories for this project.” |
+| Memory Manager | Codex: “`$memory-manager` Review this project's memories.” / Claude: “`/memory-manager:memory-manager` Review this project's auto memory.” / OMP: “`/skill:memory-manager` Review this project's Codex memories.” |
 | Interface Design | “Design a mobile signup flow and improve the chart presentation.” |
 | Operations UI | “Implement this order-operations screen from a Design Decision Contract and verify it with DQ gates and browser evidence.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
 
-Codex and OMP select skills based on your request and the descriptions of installed skills.
-Memory Manager runs only when explicitly invoked with `$memory-manager` in Codex or `/skill:memory-manager` in OMP.
+All three hosts select skills based on your request and the descriptions of installed skills.
+Memory Manager runs only when explicitly invoked with `$memory-manager` in Codex, `/memory-manager:memory-manager` in Claude, or `/skill:memory-manager` in OMP.
 
 Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
 Figma Workflow requires the official Figma MCP connection and the tool's prerequisite skills for canvas operations.
@@ -110,6 +123,13 @@ In Codex, fetch the latest snapshot of the registered Git marketplace:
 
 ```sh
 codex plugin marketplace upgrade sonsu-marketplace
+```
+
+In Claude Code, update the catalog and installed plugin, then start a new session:
+
+```sh
+claude plugin marketplace update sonsu-marketplace
+claude plugin update engineering@sonsu-marketplace
 ```
 
 In OMP, refresh the catalog and then upgrade an installed plugin:

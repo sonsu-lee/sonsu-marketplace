@@ -39,7 +39,10 @@ Python 표준 라이브러리·Git·POSIX를 사용하며 모델 실행·의미 
 }
 ```
 
-`init --task-id <stable-id> --session-id <native-session>`의 stdin에 전달한다. 새 작업은 v2를
+`init --task-id <stable-id> --session-id <native-session>`의 stdin에 전달한다. Claude의
+`--continue` 또는 ID 없는 `--resume`에서 환경 변수 ID와 native hook ID가 다르면 hook의
+`session_id` 또는 hook이 후속 Bash에 기록한 `SONSU_CLAUDE_SESSION_ID`를 명시한다. 두 호스트 ID가
+동시에 있으면 현재 호스트의 ID를 선택한다. 정확한 ID를 알 수 없으면 다른 세션으로 게이트를 등록하지 않는다. 새 작업은 v2를
 명시한다. `stage`는 design/plan/implementation/integration, 정책은 checks/independent/red-team이다.
 `checks` 정책에는 검사가 하나 이상 필요하다. `independent`·`red-team`에서 적용할 명령이
 없으면 `checks:[]`와 `checks_reason`을 기록할 수 있으며 필수 리뷰는 그대로 수행한다.
@@ -50,7 +53,11 @@ Python 표준 라이브러리·Git·POSIX를 사용하며 모델 실행·의미 
 submodule은 현재 지원하지 않는다. 직접 구현은 controller root를 쓸 수 있다. 같은 DAG의 source
 unit은 workspace를 분리하고 한 checkout의 순차 소스 변경은 하나의 unit으로 묶는다.
 
-역할 기본값은 패키지의 `references/model-profiles.json`에서 읽는다. 사용자 명시 override가
+Codex 역할 기본값은 패키지의 `references/model-profiles.json`에서 읽는다. Claude Code에서는
+`prepare-review --host claude-code`에서 `requested.model`과 `requested.effort`를 `inherit`로 기록하고 실행 인자에서 override를 생략한다.
+관측한 모델·effort는 실제 값 또는 `unknown`으로 기록하며 독립 리뷰 수는 그대로 유지한다.
+Codex와 Claude의 세션 환경 변수가 모두 있으면 `prepare-review --host codex|claude-code`를 명시한다.
+사용자 명시 override가
 있으면 unit의 `review_profiles`에 `source`와 해당 general_review/focused_review/red_team의
 `{model,effort,count}`를 기록한다. source는 실제 지시 근거이며 설정을 임의로 완화하는 수단이 아니다.
 
@@ -127,7 +134,7 @@ unresolved_prior_findings도 보존한다. 오래된 prior_round 선택으로 �
 누락된 해결 근거는 통과를 막는다. 계약/의존 변화는 집중 재사용으로 덮지 않는다.
 전체 재개방과 집중 검토를 합해 같은 gate 최대 5라운드이며 호출 수는 따로 집계한다.
 
-고위험은 일반 리뷰 뒤 `--gate red-team`으로 별도 Astra high 실행을 등록한다. 내용은 목표·
+고위험은 일반 리뷰 뒤 `--gate red-team`으로 별도 새 문맥 1개의 실행을 등록한다. 내용은 목표·
 계약·계획·전체 변경·검사·관찰/제약·반례 이력까지 고정해야 한다. 일반 리뷰 결과를 red-team
 실행으로 대신 등록하지 않는다. red-team 원결과는 challenge_verdict를 별도 기록한다.
 root의 검증 뒤 challenge 판정도 원결과와 구분해 보존한다.

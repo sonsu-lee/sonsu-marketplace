@@ -53,14 +53,14 @@ Workflow가 맡으며, 각 플러그인은 단독으로 쓰거나 필요한 지�
 | 동료에게 보낼 요청·보고·인계 | [메시지의 요청과 맥락](references/messages.md) |
 
 티켓·PR은 전달받은 항목 안에서 설명을 구성한다. 구체적인 기본 양식·필수 항목·양식 조회와
-게시 절차는 Codex의 `workflow:to-ticket`·`workflow:to-pr` 또는 OMP의
+게시 절차는 Codex·Claude의 `workflow:to-ticket`·`workflow:to-pr` 또는 OMP의
 `skill://to-ticket`·`skill://to-pr`가 맡는다. 양식이 전달되지 않았으면 주어진 사실로 임시
 초안을 작성하고, 저장소나 팀의 유효한 양식인지 확인하는 일은 해당 절차에 남긴다.
 
 현재 사용할 수 있는 Fluent 지침 중 **요청된 출력 언어**에 맞는 지침을 함께 적용한다.
 프롬프트 언어와 구분하고, 여러 언어는 각 부분에 맞춰 선택한다.
 
-| 출력 언어 | Codex ID | OMP ID |
+| 출력 언어 | Codex·Claude Code ID | OMP ID |
 | --- | --- | --- |
 | 한국어 | `fluent-languages:fluent-korean` | `skill://fluent-korean` |
 | 일본어 | `fluent-languages:fluent-japanese` | `skill://fluent-japanese` |

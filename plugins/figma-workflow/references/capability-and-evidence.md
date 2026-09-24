@@ -7,10 +7,18 @@ permission과 requested scope를 확인한다. plugin 설치는 tool, editable f
 seat의 존재를 증명하지 않는다.
 
 `structure_read`, `screenshot`, `reaction_write`, `reaction_readback`, `prototype_playback`, `font_load`,
-`asset_import`, `export`를 각각 `supported`, `unsupported`, `unavailable`로 기록한다. `use_figma`를 실제
-호출하는 모든 mutation과 unique read에는 먼저 `figma:figma-use`를 invoke하고, 해당 tool call의
-`skillNames`에 `figma-use`를 포함한다. 이 prerequisite 또는 capability가 설치·노출되지 않으면 tool/API를
-추정하거나 우회하지 않고 `blocked`, `not_run` 또는 `inconclusive`로 보고한다.
+`asset_import`, `export`를 각각 `supported`, `unsupported`, `unavailable`로 기록한다. 실제 tool
+호출 전에는 아래 호스트 경로를 선택하고, 현재 설치된 공식 Figma 플러그인의 prerequisite와 MCP schema를
+확인한다. prerequisite 또는 capability가 설치·노출되지 않으면 tool/API를 추정하거나 우회하지 않고
+`blocked`, `not_run` 또는 `inconclusive`로 보고한다.
+
+| 호스트 | 공식 Figma 경로 |
+| --- | --- |
+| Codex | `figma:figma-use`를 먼저 invoke하고 `use_figma` 호출마다 `skillNames`에 `figma-use`를 포함한다. 화면은 `figma:figma-generate-design`, library는 `figma:figma-generate-library`도 따른다. |
+| Claude Code | 공식 `figma@claude-plugins-official` 플러그인의 설치·인증 상태와 노출된 스킬·MCP 도구를 확인한다. 제공되는 prerequisite를 먼저 호출하고 실제 schema의 인자만 사용한다. Codex 전용 `skillNames` 인자를 가정하지 않는다. |
+| OMP | 연결된 공식 Figma capability와 prerequisite가 실제로 노출된 경우에만 그 호스트의 계약을 따른다. |
+
+Claude Code 사용자는 [공식 설치·연결 안내](https://help.figma.com/hc/en-us/articles/39888612464151-Claude-Code-and-Figma-Set-up-the-MCP-server)에 따라 직접 설치하고 인증한다. 이 플러그인은 설치나 인증을 자동 변경하지 않는다.
 
 판단형 Figma canvas read/write는 registered official Figma MCP가 유일한 agent writer다. explicit target의
 bounded code도 그 MCP 안에서만 허용한다. [deterministic execution](deterministic-execution.md)에 적힌

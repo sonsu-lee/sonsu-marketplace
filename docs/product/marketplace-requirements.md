@@ -1,17 +1,18 @@
 # 마켓플레이스 요구사항
 
 - Status: Current
-- Last reviewed: 2026-09-03
+- Last reviewed: 2026-09-24
 
 ## 목표
 
-개인적으로 사용할 Codex 플러그인을 발견, 설치하고 업데이트할 수 있는 로컬 마켓플레이스를
+개인적으로 사용할 Codex·Claude Code·OMP 플러그인을 발견, 설치하고 업데이트할 수 있는 로컬 마켓플레이스를
 Git으로 관리합니다. 외부 플러그인의 원본 기준선과 개인용 정책 변경을 모두 추적할 수 있어야
 합니다.
 
 ## 요구사항
 
-- 마켓플레이스는 저장소 루트에서 Codex에 등록할 수 있어야 합니다.
+- 마켓플레이스는 저장소 루트에서 세 호스트에 등록할 수 있어야 합니다. 12개 플러그인의 이름·버전·경로는 일치해야 합니다.
+- Claude 카탈로그와 매니페스트는 Codex 정본에서 생성하고 drift를 검사해야 합니다.
 - 각 플러그인은 독립된 디렉터리와 유효한 `.codex-plugin/plugin.json`을 가져야 합니다.
 - 각 플러그인의 핵심 기능은 다른 마켓플레이스 플러그인의 설치나 선행 실행 없이 동작해야 합니다.
 - 외부 플러그인은 저장소, 기준 commit, 라이선스와 포함 범위를 기록해야 합니다.
@@ -19,14 +20,14 @@ Git으로 관리합니다. 외부 플러그인의 원본 기준선과 개인용 
 - 기존 linked worktree에서는 새 worktree를 중복 생성하지 않아야 합니다.
 - 새 장기 문서를 만들기 전에 기존 문서를 조사해야 합니다.
 - 문서 작성과 Git commit은 사용자의 권한 범위를 분리해야 합니다.
-- 검증은 변경 성격에 비례해야 하며 실제 Codex 로딩이 중요한 경우 정적 검사만으로 대체하지 않습니다.
+- 검증은 변경 성격에 비례해야 하며 실제 호스트 로딩이 중요한 경우 정적 검사만으로 대체하지 않습니다.
 - 외부 design provider를 사용하는 스킬은 현재 tool capability와 permission을 확인하고 screenshot,
   구조 readback과 실행 가능한 interaction evidence를 서로 대신하지 않아야 합니다.
 - Figma Design의 제품 화면·prototype, FigJam의 협업 board, draw.io의 system diagram은 최종 artifact의
   source of truth를 기준으로 구분하고 지원되지 않는 기능을 다른 도구로 조용히 전환하거나 성공으로
   보고하지 않아야 합니다.
-- Figma canvas agent mutation은 registered official Figma MCP가 단독으로 수행하며, `use_figma` 호출은
-  `figma:figma-use` prerequisite와 현재 capability를 확인해야 합니다. 같은 page subtree, component set,
+- Figma canvas agent mutation은 registered official Figma MCP가 단독으로 수행하며, 호출은
+  호스트별 공식 prerequisite와 현재 capability를 확인해야 합니다. 같은 page subtree, component set,
   variable collection, prototype graph와 editor state의 write는 충돌 도메인별로 직렬화하고 적용 직전
   target을 다시 읽어야 합니다.
 - 수동 Figma Desktop companion은 versioned allowlist JSON, explicit node ID, expected state, same-plan
@@ -46,5 +47,5 @@ Git으로 관리합니다. 외부 플러그인의 원본 기준선과 개인용 
 
 ## 완료 기준
 
-등록된 플러그인의 출처와 로컬 차이를 저장소에서 찾을 수 있고, 로컬 마켓플레이스를 Codex가
+등록된 플러그인의 출처와 로컬 차이를 저장소에서 찾을 수 있고, 로컬 마켓플레이스를 세 호스트가
 실제로 읽을 수 있으며, 관련 문서와 Git 이력이 현재 정책을 정확히 설명해야 합니다.

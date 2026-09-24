@@ -1,6 +1,6 @@
 # Prompting
 
-Codex, ChatGPT와 OpenAI API에서 바로 사용할 수 있는 간결한 프롬프트를 작성하는 개인용
+Codex, Claude Code, ChatGPT와 OpenAI API에서 바로 사용할 수 있는 간결한 프롬프트를 작성하는 개인용
 플러그인입니다.
 
 ## 포함된 스킬
@@ -18,6 +18,8 @@ Codex, ChatGPT와 OpenAI API에서 바로 사용할 수 있는 간결한 프롬�
 `2026-08-29` snapshot이며, 최신 또는 현재 권고를 요청받으면 snapshot만 신뢰하지 않고 OpenAI
 공식 문서를 다시 확인합니다.
 
+Claude Code 대상은 [Claude 프롬프트 지침](skills/prompt-builder/references/claude-code-prompt-guidance.md)을 적용하고 현재 도구와 권한을 확인합니다.
+
 ## 설치
 
 마켓플레이스를 등록한 뒤 다음 명령으로 설치합니다.
@@ -31,12 +33,12 @@ codex plugin add prompting@sonsu-marketplace
 
 ## 컴팩션 후 작업 재개
 
-Codex의 [`prompting:prompting-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://prompting-task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계로 이어지는 작업의 계약·진행·근거 위치를
+Codex·Claude의 [`prompting:prompting-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://prompting-task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계로 이어지는 작업의 계약·진행·근거 위치를
 작업 폴더의 `.sonsu/continuity/`에 짧게 기록하고 같은 session의 컴팩션·재개 후 실제 상태와 대조합니다.
 짧은 단발 작업에는 기록하지 않으며, 파일 쓰기 금지와 기존 승인 범위를 유지합니다.
 
-포함된 `SessionStart` hook은 활성 기록이 있을 때 스킬·기록 경로만 전달합니다. 설치 후 CLI의
-`/hooks`에서 현재 hook 정의를 검토하고 신뢰해야 실행됩니다. hook을 사용할 수 없으면 위 스킬을
-직접 호출해 수동으로 재개할 수 있습니다. helper는 Python 3.9+와 POSIX(macOS/Linux) 환경을 사용합니다.
+포함된 `SessionStart` hook은 활성 기록이 있을 때 스킬·기록 경로를 전달합니다. Codex에서는
+`/hooks`에서 정의를 검토하고 신뢰합니다. Claude에서는 활성 플러그인의 hook이 자동 병합되며
+`/hooks`는 읽기 전용 확인 메뉴입니다. hook을 사용할 수 없으면 위 스킬을 직접 호출해 수동 재개합니다. helper는 Python 3.9+와 POSIX(macOS/Linux) 환경을 사용합니다.
 [기록 형식·운영 계약](../../docs/reference/task-continuity.md)과
 [검증 범위](../../evals/task-continuity/README.md)를 참고하세요.

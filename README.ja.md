@@ -2,7 +2,7 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-開発、リサーチ、プロダクト企画、文章作成に使えるCodex・Oh My Piプラグイン集です。
+開発、リサーチ、プロダクト企画、文章作成に使えるCodex・Claude Code・Oh My Piプラグイン集です。
 必要なプラグインを選んでインストールし、利用中のコーディングエージェントに作業を依頼してください。
 
 [インストール](#インストール) · [プラグイン](#プラグイン) · [使用例](#使用例) · [ドキュメント](docs/README.md)
@@ -35,6 +35,20 @@ codex plugin add workflow@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+### Claude Code
+
+マーケットプレイスを登録し、必要なプラグインをインストールします。
+
+```sh
+claude plugin marketplace add sonsu-lee/sonsu-marketplace
+claude plugin install engineering@sonsu-marketplace
+claude plugin list
+```
+
+スキルは`/engineering:review-quality`のように呼び出せます。Memory Managerは
+`/memory-manager:memory-manager`で明示的に呼び出してください。Figma canvasの操作には
+公式`figma@claude-plugins-official`の接続と権限が別途必要です。ルートの`CLAUDE.md`は`AGENTS.md`を読み込みます。
+
 ### Oh My Pi
 
 Oh My Pi（OMP）では、OMP用カタログを登録し、必要なプラグインをprojectまたはuser scopeにインストールします。
@@ -51,8 +65,7 @@ omp plugin discover sonsu-marketplace
 ```
 
 OMPは各プラグインの共通`skills/`ツリーを読み込み、`review-quality`のようにprefixのないスキル名を
-公開します。`.codex-plugin`で宣言されたCodex専用hookとapp接続はOMPでは実行されないため、
-その自動化にはCodexが必要です。
+公開します。OMPでは`.codex-plugin`のhook・app接続やClaudeの`hooks/hooks.json`は実行されません。
 
 ## プラグイン
 
@@ -63,7 +76,7 @@ OMPは各プラグインの共通`skills/`ツリーを読み込み、`review-qua
 | [Fluent Languages](plugins/fluent-languages/) | 技術的な内容を保った自然な韓国語・日本語・英語の文章作成 | `fluent-languages` |
 | [Writing](plugins/writing/) | 読み手と目的に合わせた情報の選別、記載先の判断、文章の構成 | `writing` |
 | [Research](plugins/research/README.md) | 複数の情報源の調査、事実確認、根拠に基づく回答の作成 | `research` |
-| [Prompting](plugins/prompting/README.md) | Codex・ChatGPT・OpenAI API向けプロンプトの作成・改善 | `prompting` |
+| [Prompting](plugins/prompting/README.md) | Codex・Claude Code・ChatGPT・OpenAI API向けプロンプトの作成・改善 | `prompting` |
 | [Product](plugins/product/README.md) | プロダクトのアイデア探索、ユーザーに関する根拠の整理、仮説検証、PRD作成 | `product` |
 | [Figma Workflow](plugins/figma-workflow/README.md) | Figmaでのプロダクト画面・クリック可能なプロトタイプの作成とデザイン品質のレビュー | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | 明示的に呼び出してコーディングエージェントのメモリを点検・整理 | `memory-manager` |
@@ -79,7 +92,7 @@ Workflowはチケット・PRの新規作成に使うテンプレートと公開�
 
 ## 使用例
 
-対応するプラグインをインストールしたら、CodexまたはOMPに次のように依頼できます。
+対応するプラグインをインストールしたら、Codex、Claude CodeまたはOMPに次のように依頼できます。
 
 | プラグイン | 依頼の例 |
 | --- | --- |
@@ -91,13 +104,13 @@ Workflowはチケット・PRの新規作成に使うテンプレートと公開�
 | Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
 | Figma Workflow | 「このFigma画面のAuto Layoutとプロトタイプの接続をレビューして。」 |
-| Memory Manager | Codex: 「`$memory-manager` このプロジェクトのCodexメモリを点検して。」 / OMP: 「`/skill:memory-manager` このプロジェクトのCodexメモリを点検して。」 |
+| Memory Manager | Codex: 「`$memory-manager` メモリを点検して。」 / Claude: 「`/memory-manager:memory-manager` auto memoryを点検して。」 / OMP: 「`/skill:memory-manager` Codexメモリを点検して。」 |
 | Interface Design | 「モバイルの登録フローを設計して。このグラフの情報表現も改善して。」 |
 | Operations UI | 「この受注運用画面をDesign Decision Contractから実装し、DQゲートとブラウザーの証跡で検証して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
 
-CodexとOMPは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
-Memory Managerは、Codexでは`$memory-manager`、OMPでは`/skill:memory-manager`で明示的に呼び出したときだけ動作します。
+3つのホストは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
+Memory Managerは、Codexでは`$memory-manager`、Claude Codeでは`/memory-manager:memory-manager`、OMPでは`/skill:memory-manager`で明示的に呼び出したときだけ動作します。
 
 ResearchのExa・Perplexity連携は任意です。利用可能なWebツール、ブラウザー、コネクター、ローカル資料でも調査できます。
 Figma Workflowでキャンバスを操作するには、公式Figma MCP接続と、そのツールで必須とされるスキルが必要です。
@@ -109,6 +122,13 @@ Codexでは、登録済みのGitマーケットプレイスから最新のスナ
 
 ```sh
 codex plugin marketplace upgrade sonsu-marketplace
+```
+
+Claude Codeではカタログとプラグインを更新し、新しいセッションを開始します。
+
+```sh
+claude plugin marketplace update sonsu-marketplace
+claude plugin update engineering@sonsu-marketplace
 ```
 
 OMPでは、カタログを更新してからインストール済みプラグインをアップグレードします。
