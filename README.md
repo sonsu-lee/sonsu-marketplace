@@ -2,12 +2,14 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex 플러그인 모음입니다.
+개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex·Claude Code 플러그인 모음입니다.
 필요한 플러그인만 골라 설치하고, 사용하는 코딩 에이전트에 평소처럼 작업을 요청하세요.
 
 [설치](#설치) · [플러그인](#플러그인) · [사용 예시](#사용-예시) · [문서](docs/README.md)
 
 ## 설치
+
+### Codex
 
 `codex plugin` 명령을 지원하는 Codex CLI에서 마켓플레이스를 등록합니다.
 
@@ -33,6 +35,21 @@ codex plugin add workflow@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+### Claude Code
+
+Claude Code CLI에서는 마켓플레이스를 등록한 다음 필요한 플러그인을 설치합니다.
+
+```sh
+claude plugin marketplace add sonsu-lee/sonsu-marketplace
+claude plugin install engineering@sonsu-marketplace
+claude plugin list
+```
+
+현재 체크아웃을 시험할 때에는 첫 명령에 저장소의 **절대 경로**를 전달합니다.
+스킬은 `/engineering:review`처럼 호출합니다. 설치·업데이트 후 새 세션에서 확인하세요.
+Codex connector와 Claude Code MCP 연결은 별도로 설정하며, Figma 작업에는 현재 호스트의
+공식 Figma 도구 연결이 필요합니다.
+
 ## 플러그인
 
 | 플러그인 | 용도 | 설치 이름 |
@@ -42,7 +59,7 @@ codex plugin list --marketplace sonsu-marketplace
 | [Fluent Languages](plugins/fluent-languages) | 기술 내용을 보존하는 자연스러운 한국어·일본어·영어 작성 | `fluent-languages` |
 | [Writing](plugins/writing) | 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성 | `writing` |
 | [Research](plugins/research/README.md) | 여러 출처 조사, 사실 검증과 근거를 갖춘 답변 작성 | `research` |
-| [Prompting](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API용 프롬프트 작성과 개선 | `prompting` |
+| [Prompting](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API·Claude Code·Anthropic API용 프롬프트 작성과 개선 | `prompting` |
 | [Product](plugins/product/README.md) | 제품 아이디어 탐색, 사용자 근거 정리, 가설 검증과 PRD 작성 | `product` |
 | [Figma Workflow](plugins/figma-workflow/README.md) | Figma 제품 화면, 클릭 가능한 프로토타입과 디자인 품질 검토 | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | 명시적으로 호출하는 코딩 에이전트 메모리 점검과 정리 | `memory-manager` |
@@ -58,7 +75,7 @@ Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR�
 
 ## 사용 예시
 
-관련 플러그인을 설치한 뒤 Codex에 다음과 같이 요청할 수 있습니다.
+관련 플러그인을 설치한 뒤 Codex 또는 Claude Code에 다음과 같이 요청할 수 있습니다.
 
 | 플러그인 | 요청 예시 |
 | --- | --- |
@@ -75,8 +92,9 @@ Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR�
 | Operations UI | “이 주문 운영 화면을 Design Decision Contract부터 구현하고 DQ 게이트와 브라우저 증거로 검증해 줘.” |
 | Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
 
-Codex는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
-Memory Manager는 `$memory-manager`로 명시적으로 호출할 때만 작동합니다.
+호스트는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
+Memory Manager는 Codex의 `$memory-manager`, Claude Code의 `/memory-manager:memory-manager`로
+명시적으로 호출할 때만 작동합니다.
 
 Research의 Exa·Perplexity 연동은 선택 사항이며, 사용 가능한 web·browser·connector와 로컬 자료로도 조사할 수 있습니다.
 Figma Workflow의 캔버스 작업에는 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
@@ -91,6 +109,13 @@ codex plugin marketplace upgrade sonsu-marketplace
 ```
 
 업데이트 후 새 Codex 작업을 시작해 최신 스킬 목록을 불러오세요.
+
+Claude Code에서는 다음 명령으로 catalog와 설치한 플러그인을 갱신하고 새 세션을 시작합니다.
+
+```sh
+claude plugin marketplace update sonsu-marketplace
+claude plugin update engineering@sonsu-marketplace
+```
 
 다른 마켓플레이스의 `fluent-languages`나 standalone `prompt-builder`, `product-discovery`, `to-prd`를
 설치했다면 같은 이름의 스킬이 중복되지 않도록 기존 복사본을 먼저 제거하세요.

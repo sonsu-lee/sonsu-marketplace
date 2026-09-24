@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "Git·티켓·PR 작성과 PR 상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
   "author": {
     "name": "sonsu"

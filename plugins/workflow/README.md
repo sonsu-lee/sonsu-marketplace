@@ -1,6 +1,6 @@
 # Workflow
 
-Git·티켓·PR 작업을 위한 독립 Codex 플러그인입니다.
+Git·티켓·PR 작업을 위한 독립 Codex·Claude Code 플러그인입니다.
 
 ```sh
 codex plugin add workflow@sonsu-marketplace

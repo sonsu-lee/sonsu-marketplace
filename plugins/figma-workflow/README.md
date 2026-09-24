@@ -1,6 +1,6 @@
 # Figma Workflow
 
-Figma Design에서 제품 화면, responsive Auto Layout, component·variant·variable, exact icon과 clickable prototype을 생성·수정·감사할 때 native 구조와 evidence 기준을 제공하는 Codex plugin입니다. 판단이 필요한 canvas read/write의 agent writer는 현재 host에 실제로 등록된 official Figma MCP connection 하나입니다.
+Figma Design에서 제품 화면, responsive Auto Layout, component·variant·variable, exact icon과 clickable prototype을 생성·수정·감사할 때 native 구조와 evidence 기준을 제공하는 Codex·Claude Code plugin입니다. 판단이 필요한 canvas read/write의 agent writer는 현재 host에 실제로 등록된 official Figma MCP connection 하나입니다.
 
 Figma 화면도 `사용자·맥락 → 판단/과업 → 정보 → 표현 → 상태/interaction → 증거`의 공통 Design
 Decision Contract를 사용합니다. Figma scope는 DQ0–DQ7을 요구하며 DQ1–DQ6은 독립 평가자 2명의

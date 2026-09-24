@@ -30,7 +30,7 @@ commit·push·merge 또는 `APPROVE`·`REQUEST_CHANGES` 제출 권한으로 확�
    경로·HEAD·초기 clean 확인에 실패하면 올바른 workdir로 지정해 다시 확인한다. 해결할 수 없으면
    해당 리뷰어를 `blocked`/`not_run`으로 남기고 그 결과를 완료된 워크트리 리뷰로 합치지 않는다.
    원래 checkout에서 reset·checkout·stash로 사용자 변경을 옮기지 않는다.
-3. root가 별도 새 세션으로 리뷰어 전원을 생성한다. `fork_turns=none` 등 새 문맥 옵션을 사용하고,
+3. root가 별도 새 세션으로 리뷰어 전원을 생성한다. Codex의 `fork_turns=none` 또는 Claude Code의 독립 subagent 세션처럼 호스트가 지원하는 새 문맥 옵션을 사용하고,
    같은 고정 입력·전체 diff·관련 소스·공통 기준을 전달한다. 이전/다른 리뷰어의 결과를 공유하지 않는다.
    세션 ID·워크트리 경로·base/head·요청 설정·관측 설정을 연결해 기록한다. 자동 메모리 주입을
    제어할 수 없으면 한계를 보고한다. Git worktree는 파일 작업 공간의 분리이며 보안 sandbox는 아니다.
@@ -40,10 +40,10 @@ commit·push·merge 또는 `APPROVE`·`REQUEST_CHANGES` 제출 권한으로 확�
 5. 워크트리를 만들 수 없으면 원인·실행 한계를 보고한다. 사용자가 허용한 snapshot/inline 대체만
    사용하고 그것을 워크트리 실행으로 기록하지 않는다. 모든 파일 쓰기 금지 시 워크트리도 만들지 않는다.
 
-## Codex 일시 실행 오류
+## 일시 실행 오류
 
-`Selected model is at capacity. Please try a different model.` 오류는
-원인 미상의 Codex 측 일시 실행 오류로 기록한다. 이 문자열만으로 모델 미지원, 계정 한도,
+Codex의 `Selected model is at capacity. Please try a different model.` 오류는
+원인 미상의 일시 실행 오류로 기록한다. Claude Code에서도 일시 용량 오류는 실제 반환된 오류를 근거로 분류한다. 오류 문자열만으로 모델 미지원, 계정 한도,
 로컬 슬롯·깊이 제한, 실제 서버 전체 장애를 확정하거나 사용자에게 모델 변경을 먼저 요구하지 않는다.
 
 이 오류로 실패한 실행만 같은 모델·추론·고정 입력으로 짧게 간격을 두어 재시도한다. 기본은 최초 시도 뒤

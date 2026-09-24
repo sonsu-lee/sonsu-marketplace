@@ -43,9 +43,16 @@ Engineering은 [독립 플러그인 결정](../decisions/0009-maintain-engineeri
 기존 연구·라이선스·upstream 기록은 유지합니다. `shared/agent-policy`와 `shared/task-continuity`에서
 각 플러그인에 필요한 자료를 생성해 다른 패키지 설치 없이 실행되게 합니다.
 
+## Claude Code 배포
+
+Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-compat.py`로
+`.claude-plugin/marketplace.json` 및 각 패키지 manifest를 생성합니다. 스킬·hook·script는
+같은 패키지 파일을 사용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
+Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
+
 ## 검증
 
-생성기의 `--check`, Codex catalog와 스킬 경로·frontmatter 검증, 실제 loader·행동 평가를
+생성기의 `--check`, 양쪽 catalog와 스킬 경로·frontmatter 검증, 실제 loader·행동 평가를
 구분합니다. 정적 JSON 통과만으로 실제 스킬 선택이나 host별 hook 실행을 주장하지 않습니다.
 미실행은 `not_run`, 원인 불명은 `inconclusive`로 기록합니다.
 [업데이트 런북](../runbooks/updating-upstream-plugin.md)과

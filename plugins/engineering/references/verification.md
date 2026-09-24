@@ -50,7 +50,7 @@
 - 필수 미해결 위험을 수용하려면 지명된 사람의 현재 리비전에 대한 명시적인 `accepted_risk`가
   필요하다. 위험 수용은 검사 통과와 구분해 보고한다.
 
-`red-team` 정책의 작업만 일반 리뷰 뒤 별도 Astra high red-team을 수행한다. 일반 전체
-리뷰는 Luna xhigh 5개, 국소 재검토는 이전 전체 근거와 Luna xhigh 1개를 연결한다.
+`red-team` 정책의 작업만 일반 리뷰 뒤 호스트의 별도 `red_team` 프로필로 검토한다. 일반 전체
+리뷰는 `general_review` 5개, 국소 재검토는 이전 전체 근거와 `focused_review` 1개를 연결한다.
 필수 `invalidated`, `inconclusive`, `blocked`, `not_run`은 완료 근거가 아니다. 등록한 작업은
 `complete-unit`/`close` 결과와 현재 유효성을 확인한다. Stop 알림 부재는 통과가 아니다.

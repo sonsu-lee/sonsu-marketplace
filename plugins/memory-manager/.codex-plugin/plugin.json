@@ -1,7 +1,7 @@
 {
   "name": "memory-manager",
-  "version": "0.1.2",
-  "description": "명시적으로 호출해 Codex의 저장된 메모리를 점검하고 정리합니다.",
+  "version": "0.1.3",
+  "description": "명시적으로 호출해 Codex 또는 Claude Code의 저장된 메모리를 점검하고 정리합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"

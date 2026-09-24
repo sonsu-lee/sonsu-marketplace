@@ -2,12 +2,14 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-A collection of Codex plugins for development, research, product planning, and writing.
+A collection of Codex and Claude Code plugins for development, research, product planning, and writing.
 Install the plugins you need, then work with your coding agent as usual.
 
 [Installation](#installation) · [Plugins](#plugins) · [Usage examples](#usage-examples) · [Documentation](docs/README.md)
 
 ## Installation
+
+### Codex
 
 Register the marketplace using a Codex CLI version that supports `codex plugin`.
 
@@ -33,6 +35,20 @@ Start a new Codex task after installation. To list the plugins in the marketplac
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+### Claude Code
+
+Register the marketplace and install the plugins you need:
+
+```sh
+claude plugin marketplace add sonsu-lee/sonsu-marketplace
+claude plugin install engineering@sonsu-marketplace
+claude plugin list
+```
+
+For a local checkout, pass its absolute path to `claude plugin marketplace add`. Invoke skills
+as `/engineering:review`. Start a new session after installation or update. Codex connectors and
+Claude Code MCP connections require separate configuration.
+
 ## Plugins
 
 | Plugin | Purpose | Installation name |
@@ -42,7 +58,7 @@ codex plugin list --marketplace sonsu-marketplace
 | [Fluent Languages](plugins/fluent-languages) | Write natural Korean, Japanese, and English while preserving technical content | `fluent-languages` |
 | [Writing](plugins/writing) | Select information, choose where it belongs, and organize writing for the reader and purpose | `writing` |
 | [Research](plugins/research/README.md) | Research multiple sources, verify facts, and write answers supported by evidence | `research` |
-| [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, and the OpenAI API | `prompting` |
+| [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, OpenAI API, Claude Code, and Anthropic API | `prompting` |
 | [Product](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | `product` |
 | [Figma Workflow](plugins/figma-workflow/README.md) | Create Figma product screens and clickable prototypes, and review design quality | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | Review and curate coding-agent memories on explicit invocation | `memory-manager` |
@@ -76,8 +92,9 @@ After installing the relevant plugin, try requests like these in Codex:
 | Operations UI | “Implement this order-operations screen from a Design Decision Contract and verify it with DQ gates and browser evidence.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
 
-Codex selects skills based on your request and the descriptions of installed skills.
-Memory Manager runs only when explicitly invoked with `$memory-manager`.
+The host selects skills based on your request and the descriptions of installed skills.
+Memory Manager runs only when explicitly invoked with `$memory-manager` in Codex or
+`/memory-manager:memory-manager` in Claude Code.
 
 Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
 Figma Workflow requires the official Figma MCP connection and the tool's prerequisite skills for canvas operations.
@@ -92,6 +109,13 @@ codex plugin marketplace upgrade sonsu-marketplace
 ```
 
 Start a new Codex task after an update to load the latest skills.
+
+In Claude Code, update the marketplace and each installed plugin, then start a new session:
+
+```sh
+claude plugin marketplace update sonsu-marketplace
+claude plugin update engineering@sonsu-marketplace
+```
 
 If you installed `fluent-languages` from another marketplace or standalone copies of `prompt-builder`,
 `product-discovery`, or `to-prd`, remove those copies first to avoid duplicate skill names.

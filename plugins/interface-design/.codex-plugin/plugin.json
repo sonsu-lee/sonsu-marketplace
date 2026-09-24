@@ -1,6 +1,6 @@
 {
   "name": "interface-design",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "웹·모바일 UI를 사용자 판단 계약과 DQ0–DQ8 품질 게이트로 설계·재설계하고 검증합니다.",
   "author": {
     "name": "sonsu",

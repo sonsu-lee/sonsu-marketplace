@@ -127,7 +127,7 @@ unresolved_prior_findings도 보존한다. 오래된 prior_round 선택으로 �
 누락된 해결 근거는 통과를 막는다. 계약/의존 변화는 집중 재사용으로 덮지 않는다.
 전체 재개방과 집중 검토를 합해 같은 gate 최대 5라운드이며 호출 수는 따로 집계한다.
 
-고위험은 일반 리뷰 뒤 `--gate red-team`으로 별도 Astra high 실행을 등록한다. 내용은 목표·
+고위험은 일반 리뷰 뒤 `--gate red-team`으로 호스트의 별도 `red_team` 프로필 실행을 등록한다. 내용은 목표·
 계약·계획·전체 변경·검사·관찰/제약·반례 이력까지 고정해야 한다. 일반 리뷰 결과를 red-team
 실행으로 대신 등록하지 않는다. red-team 원결과는 challenge_verdict를 별도 기록한다.
 root의 검증 뒤 challenge 판정도 원결과와 구분해 보존한다.

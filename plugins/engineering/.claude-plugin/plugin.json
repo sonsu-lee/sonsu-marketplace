@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "engineering",
+  "displayName": "Engineering",
+  "version": "3.0.1",
+  "description": "설계·구현·디버깅·검증과 도메인 구조, 단순성, 유지보수성, 실패 모드 및 운용 가능성 리뷰와 독립 심층 PR 리뷰를 함께 제공한다.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT AND Apache-2.0",
+  "keywords": [
+    "engineering",
+    "brainstorming",
+    "skills",
+    "planning",
+    "tdd",
+    "debugging",
+    "code-review",
+    "code-quality",
+    "maintainability",
+    "verification"
+  ]
+}

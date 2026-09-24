@@ -31,6 +31,8 @@ class RuntimeTests(unittest.TestCase):
         self.work.mkdir()
         self.env = dict(os.environ, CODEX_THREAD_ID="session-a", PYTHONDONTWRITEBYTECODE="1")
         self.env.pop("CLAUDE_CODE_SESSION_ID", None)
+        self.env.pop("SONSU_CLAUDE_SESSION_ID", None)
+        self.env.pop("CLAUDE_PLUGIN_ROOT", None)
         for key in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"):
             self.env.pop(key, None)
         self.packages = {}
@@ -41,6 +43,8 @@ class RuntimeTests(unittest.TestCase):
             (package / "scripts").mkdir(parents=True)
             (package / ".codex-plugin").mkdir()
             (package / ".codex-plugin/plugin.json").write_text(json.dumps({"name": plugin}))
+            (package / ".claude-plugin").mkdir()
+            (package / ".claude-plugin/plugin.json").write_text(json.dumps({"name": plugin}))
             (package / "references").mkdir()
             (package / "references/continuity.md").write_text("# Recovery reference\n")
             for skill in ("example-work",):
@@ -78,7 +82,7 @@ class RuntimeTests(unittest.TestCase):
                  "session_id": "session-a", "cwd": str(self.work), "permission_mode": "default"}
         plugin_root = ROOT / "plugins/engineering"
 
-        self.assertNotIn("CLAUDE_PLUGIN_ROOT", command)
+        self.assertIn("CLAUDE_PLUGIN_ROOT", command)
         env = self.env.copy()
         env.pop("PLUGIN_ROOT", None)
         env.pop("CLAUDE_PLUGIN_ROOT", None)
@@ -125,14 +129,26 @@ class RuntimeTests(unittest.TestCase):
                 self.assertEqual(migrated.returncode, 0, migrated.stderr)
                 self.assertEqual(json.loads(path.read_text())["active_skill"], "example-work")
 
-    def test_missing_codex_thread_id_requires_an_explicit_session(self):
+    def test_claude_session_id_can_replace_codex_thread_id(self):
         env = self.env.copy()
         env.pop("CODEX_THREAD_ID")
         env["CLAUDE_CODE_SESSION_ID"] = "claude-session"
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
         result = self.write(env=env)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("missing or invalid current identity", result.stderr)
-        self.assertFalse(self.path(session="claude-session").exists())
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.path(session="claude-session").exists())
+
+    def test_claude_hook_exports_session_for_resume_commands(self):
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
+        env_file = self.base / "claude-env"
+        env["CLAUDE_ENV_FILE"] = str(env_file)
+        event = {"hook_event_name": "SessionStart", "source": "resume",
+                 "session_id": "claude-resume", "cwd": str(self.work)}
+        result = self.run_cli("hook", data=event, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='claude-resume'\n")
 
     def test_explicit_session_overrides_codex_default(self):
         env = self.env.copy()

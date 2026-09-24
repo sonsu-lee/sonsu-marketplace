@@ -8,10 +8,18 @@
 ```text
 .agents/plugins/marketplace.json                 # 정본 marketplace catalog
 plugins/<plugin-name>/.codex-plugin/plugin.json  # 정본 plugin manifest
+.claude-plugin/marketplace.json                # 생성된 Claude Code catalog
+plugins/<plugin-name>/.claude-plugin/plugin.json # 생성된 Claude Code manifest
 ```
 
 Codex 형식을 저장소의 정본으로 유지합니다. `interface`, `apps`, `hooks`는 각 필드를 지원하는
 Codex 로더에서만 실제 소비 결과를 확인합니다.
+
+Claude Code 배포 파일은 `python3 scripts/render-claude-compat.py`로 생성합니다. Claude
+manifest는 이름·버전·설명 등 공통 metadata만 투영합니다. 패키지 루트의 `skills/`와
+`hooks/hooks.json`은 Claude Code 로더가 발견하며, Codex의 `.app.json` connector는 이
+manifest에 포함하지 않습니다. `claude plugin validate . --strict`와 실제 설치·호출을 별개로
+확인합니다.
 
 ## 현재 사용하는 필드
 

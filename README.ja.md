@@ -2,12 +2,14 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-開発、リサーチ、プロダクト企画、文章作成に使えるCodexプラグイン集です。
+開発、リサーチ、プロダクト企画、文章作成に使えるCodex・Claude Codeプラグイン集です。
 必要なプラグインを選んでインストールし、利用中のコーディングエージェントに作業を依頼してください。
 
 [インストール](#インストール) · [プラグイン](#プラグイン) · [使用例](#使用例) · [ドキュメント](docs/README.md)
 
 ## インストール
+
+### Codex
 
 `codex plugin` コマンドに対応したCodex CLIで、マーケットプレイスを登録します。
 
@@ -33,6 +35,20 @@ codex plugin add workflow@sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+### Claude Code
+
+マーケットプレイスを登録し、必要なプラグインをインストールします。
+
+```sh
+claude plugin marketplace add sonsu-lee/sonsu-marketplace
+claude plugin install engineering@sonsu-marketplace
+claude plugin list
+```
+
+ローカルのチェックアウトを試す場合は、最初のコマンドにリポジトリの絶対パスを渡します。
+スキルは `/engineering:review` のように呼び出します。インストール・更新後は新しい
+セッションで確認してください。CodexのコネクターとClaude CodeのMCP接続は別途設定します。
+
 ## プラグイン
 
 | プラグイン | 用途 | インストール名 |
@@ -42,7 +58,7 @@ codex plugin list --marketplace sonsu-marketplace
 | [Fluent Languages](plugins/fluent-languages) | 技術的な内容を保った自然な韓国語・日本語・英語の文章作成 | `fluent-languages` |
 | [Writing](plugins/writing) | 読み手と目的に合わせた情報の選別、記載先の判断、文章の構成 | `writing` |
 | [Research](plugins/research/README.md) | 複数の情報源の調査、事実確認、根拠に基づく回答の作成 | `research` |
-| [Prompting](plugins/prompting/README.md) | Codex・ChatGPT・OpenAI API向けプロンプトの作成・改善 | `prompting` |
+| [Prompting](plugins/prompting/README.md) | Codex・ChatGPT・OpenAI API・Claude Code・Anthropic API向けプロンプトの作成・改善 | `prompting` |
 | [Product](plugins/product/README.md) | プロダクトのアイデア探索、ユーザーに関する根拠の整理、仮説検証、PRD作成 | `product` |
 | [Figma Workflow](plugins/figma-workflow/README.md) | Figmaでのプロダクト画面・クリック可能なプロトタイプの作成とデザイン品質のレビュー | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | 明示的に呼び出してコーディングエージェントのメモリを点検・整理 | `memory-manager` |
@@ -75,8 +91,9 @@ Workflowはチケット・PRの新規作成に使うテンプレートと公開�
 | Operations UI | 「この受注運用画面をDesign Decision Contractから実装し、DQゲートとブラウザーの証跡で検証して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
 
-Codexは、依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
-Memory Managerは、`$memory-manager`で明示的に呼び出したときだけ動作します。
+ホストは依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
+Memory ManagerはCodexの`$memory-manager`またはClaude Codeの`/memory-manager:memory-manager`で
+明示的に呼び出したときだけ動作します。
 
 ResearchのExa・Perplexity連携は任意です。利用可能なWebツール、ブラウザー、コネクター、ローカル資料でも調査できます。
 Figma Workflowでキャンバスを操作するには、公式Figma MCP接続と、そのツールで必須とされるスキルが必要です。
@@ -91,6 +108,13 @@ codex plugin marketplace upgrade sonsu-marketplace
 ```
 
 更新後は新しいCodexタスクを開始し、最新のスキル一覧を読み込んでください。
+
+Claude Codeではマーケットプレイスとインストール済みプラグインを更新し、新しいセッションを開始します。
+
+```sh
+claude plugin marketplace update sonsu-marketplace
+claude plugin update engineering@sonsu-marketplace
+```
 
 別のマーケットプレイスから `fluent-languages` をインストールしている場合や、
 `prompt-builder`、`product-discovery`、`to-prd` を単体でインストールしている場合は、同名スキルの重複を避けるため、既存のコピーを先に削除してください。

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "figma-workflow",
+  "displayName": "Figma Workflow",
+  "version": "0.4.1",
+  "description": "Figma 제품 화면을 사용자 판단 계약과 DQ0–DQ7, native structure·interaction 증거로 제작하고 검토합니다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "keywords": [
+    "design",
+    "figma",
+    "auto-layout",
+    "prototype",
+    "design-system",
+    "handoff"
+  ]
+}

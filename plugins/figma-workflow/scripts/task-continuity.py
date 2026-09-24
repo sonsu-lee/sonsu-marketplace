@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local task checkpoints and read-only Codex SessionStart recovery.
+"""Local task checkpoints and read-only checkpoint recovery on SessionStart.
 
 Canonical source. Package copies are maintained by scripts/render-continuity.py.
 Python 3.9+ on POSIX; no third-party packages, network or model calls.
@@ -30,6 +30,30 @@ def identifier(value):
     if not isinstance(value, str) or not ID.fullmatch(value):
         raise ContinuityError("missing or invalid current identity")
     return value
+
+
+def default_session_id():
+    claude = os.environ.get("SONSU_CLAUDE_SESSION_ID") or os.environ.get("CLAUDE_CODE_SESSION_ID")
+    codex = os.environ.get("CODEX_THREAD_ID")
+    if claude and codex and claude != codex:
+        raise ContinuityError("ambiguous host session; pass --session-id")
+    return claude or codex
+
+
+def persist_claude_session(session):
+    destination = os.environ.get("CLAUDE_ENV_FILE")
+    if not destination or not os.environ.get("CLAUDE_PLUGIN_ROOT"):
+        return
+    path = Path(destination)
+    if not path.is_absolute() or path.is_symlink():
+        raise ContinuityError("invalid Claude environment file")
+    fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise ContinuityError("Claude environment file is not regular")
+        os.write(fd, ("export SONSU_CLAUDE_SESSION_ID='" + session + "'\n").encode())
+    finally:
+        os.close(fd)
 
 
 def json_bytes(value):
@@ -145,7 +169,9 @@ def exclude_scratch(root):
 
 def package():
     root = Path(__file__).resolve().parents[1]
-    manifest = decode((root / ".codex-plugin/plugin.json").read_bytes())
+    manifest_path = root / (".claude-plugin/plugin.json" if os.environ.get("CLAUDE_PLUGIN_ROOT")
+                            else ".codex-plugin/plugin.json")
+    manifest = decode(manifest_path.read_bytes())
     return root, identifier(manifest["name"])
 
 
@@ -280,6 +306,7 @@ def hook():
     if event.get("agent_id") is not None or event.get("parent_session_id") is not None:
         return None
     package_root, plugin, root, _, session, path = context(event["cwd"], event["session_id"])
+    persist_claude_session(session)
     record = record_read(path, root, session, plugin, package_root)
     if not record or record["status"] != "active":
         return None
@@ -294,12 +321,12 @@ def hook():
 def parser():
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
-    sub.add_parser("hook", help="read native SessionStart event on stdin; never write")
+    sub.add_parser("hook", help="read native SessionStart event; never change checkpoint")
     for command in ("read", "write", "close"):
         q = sub.add_parser(command)
         q.add_argument("--cwd", default=os.getcwd())
-        q.add_argument("--session-id", default=os.environ.get("CODEX_THREAD_ID"),
-                       help="exact current session; defaults to CODEX_THREAD_ID")
+        q.add_argument("--session-id", default=None,
+                       help="exact current session; defaults to the unambiguous host session ID")
         if command != "read":
             q.add_argument("--mode", choices=("read-only", "plan", "write"), default="read-only")
             q.add_argument("--task-id", required=True)
@@ -317,9 +344,10 @@ def main():
         if args.command == "hook":
             result = hook()
         elif args.command == "read":
-            package_root, plugin, root, _, session, path = context(args.cwd, args.session_id)
+            package_root, plugin, root, _, session, path = context(args.cwd, args.session_id or default_session_id())
             result = record_read(path, root, session, plugin, package_root)
         else:
+            args.session_id = args.session_id or default_session_id()
             result = mutate(args)
         if result is not None:
             print(json.dumps(result, ensure_ascii=True, allow_nan=False))

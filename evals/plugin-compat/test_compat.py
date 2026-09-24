@@ -1,4 +1,4 @@
-"""Codex marketplace packaging contracts."""
+"""Codex and Claude Code marketplace packaging contracts."""
 import json
 from pathlib import Path
 import unittest
@@ -22,6 +22,23 @@ def read_skill_name(path):
 
 
 class CodexPackagingTests(unittest.TestCase):
+    def test_claude_catalog_matches_codex_and_generated_manifests(self):
+        codex = json.loads(CATALOG.read_text(encoding="utf-8"))
+        claude = json.loads((ROOT / ".claude-plugin/marketplace.json").read_text(encoding="utf-8"))
+        self.assertEqual(claude["name"], codex["name"])
+        self.assertEqual([entry["name"] for entry in claude["plugins"]],
+                         [entry["name"] for entry in codex["plugins"]])
+        for entry in claude["plugins"]:
+            with self.subTest(plugin=entry["name"]):
+                self.assertEqual(entry["source"], f"./plugins/{entry['name']}")
+                package = ROOT / "plugins" / entry["name"]
+                source = json.loads((package / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
+                generated = json.loads((package / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
+                self.assertEqual(generated["name"], source["name"])
+                self.assertEqual(generated["version"], source["version"])
+                self.assertEqual(entry["version"], source["version"])
+                self.assertTrue((package / "skills").is_dir())
+
     def test_public_skill_names_match_directories(self):
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
         for entry in catalog["plugins"]:

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "prompting",
+  "displayName": "Prompting",
+  "version": "0.4.1",
+  "description": "Codex, ChatGPT, OpenAI API와 Claude Code·Anthropic API 모델에서 바로 사용할 수 있는 간결한 프롬프트를 작성합니다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "keywords": [
+    "prompting",
+    "prompt-builder",
+    "codex",
+    "chatgpt",
+    "openai-api"
+  ]
+}

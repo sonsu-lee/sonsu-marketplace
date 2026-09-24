@@ -29,7 +29,8 @@ class ManagedGates(unittest.TestCase):
         for name in ('code-quality', 'review-criteria', 'javascript-typescript-review'):
             (policies / (name + '.md')).write_text('policy one')
         (policies / 'model-profiles.json').write_text(json.dumps({'roles': {'general_review': {'model': 'gpt-5.6-luna', 'effort': 'xhigh', 'count': 5}, 'focused_review': {'model': 'gpt-5.6-luna', 'effort': 'xhigh', 'count': 1}, 'red_team': {'model': 'gpt-6-astra', 'effort': 'high', 'count': 1}}}))
-        for name in ('references/quality-gates.md', 'references/agent-execution.md', 'references/model-profiles.md', 'references/review/code-reviewer.md', 'references/review/red-team-reviewer.md', 'skills/review/SKILL.md', 'references/independent-review.md', 'skills/review-failure-modes/SKILL.md', 'skills/review-maintainability/SKILL.md', 'skills/review-operability/SKILL.md', 'skills/review-overengineering/SKILL.md'):
+        (policies / 'claude-model-profiles.json').write_text(json.dumps({'roles': {'general_review': {'model': 'claude-sonnet-5', 'effort': 'inherit', 'count': 5}, 'focused_review': {'model': 'claude-sonnet-5', 'effort': 'inherit', 'count': 1}, 'red_team': {'model': 'claude-opus-5-5', 'effort': 'inherit', 'count': 1}}}))
+        for name in ('references/quality-gates.md', 'references/agent-execution.md', 'references/model-profiles.md', 'references/claude-model-profiles.md', 'references/claude-code-tools.md', 'references/review/code-reviewer.md', 'references/review/red-team-reviewer.md', 'skills/review/SKILL.md', 'references/independent-review.md', 'skills/review-failure-modes/SKILL.md', 'skills/review-maintainability/SKILL.md', 'skills/review-operability/SKILL.md', 'skills/review-overengineering/SKILL.md'):
             target = self.package / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text('Active governance fixture: ' + name)
@@ -132,6 +133,23 @@ class ManagedGates(unittest.TestCase):
         self.assertEqual(status['review_rounds'], 1)
         self.assertEqual(status['reviewer_invocations'], 5)
         self.assertNotEqual(self.call('complete-unit', '--unit', 'design', '--request-id', 'c').returncode, 0)
+
+    def test_claude_host_uses_its_profile_and_inherited_effort(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.ok('init', '--host', 'claude-code', '--session-id', 'claude-controller', data=self.config)
+        state = json.loads((self.root / '.engineering/gates/tasks/task/state.json').read_text())
+        self.assertEqual(state['host'], 'claude-code')
+        self.checked()
+        prepared = self.prepare()
+        self.assertEqual(prepared['requested'], {'model': 'claude-sonnet-5', 'effort': 'inherit', 'reviewers': 5})
+        for n in range(5):
+            reviewer = 'claude-review-' + str(n)
+            body = {'run_id': reviewer + '-run', 'execution': 'complete', 'verdict': 'passed',
+                    'findings': [], 'observed': {'model': 'claude-sonnet-5', 'effort': 'high'}}
+            self.ok('record-review', '--unit', 'design', '--gate', 'final-review', '--attempt', '1',
+                    '--reviewer-id', reviewer, '--report', str(self.report), data=body)
+        result = self.ok('adjudicate', '--unit', 'design', '--gate', 'final-review', '--attempt', '1', data={'decisions': []})
+        self.assertEqual(result['outcome'], 'passed')
 
     def review_pass(self, attempt=1, gate='final-review', count=5):
         for n in range(count):
