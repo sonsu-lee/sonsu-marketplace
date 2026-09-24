@@ -25,7 +25,7 @@ OS replace 실패를 주입하는 검사 외에는 도구 결과를 mock하지 �
 과거 Fluent의 스킬 선택·로딩·decision 결과를 Writing의 검증으로 재표기하지 않습니다.
 
 `cases.json`의 `input`만 모델에 제공하고, `expected`와 판정을 암시하는 설명은 evaluator가
-보관합니다. 후보에는 해당 플러그인의 전체 task-continuity 스킬을 읽게 하고 다음 행동·순서·쓰기
+보관합니다. 현재 후보에는 해당 플러그인의 `references/continuity.md`를 읽게 하고 다음 행동·순서·쓰기
 조건을 반환하게 합니다. baseline은 새 지침 없이 같은 관찰을 제공합니다. 실제 외부 쓰기는 없습니다.
 
 판정은 JSON keyword 일치가 아니라 제안한 행동을 읽어 수행합니다. E는 Task2/reopened와 3/5를
@@ -46,7 +46,7 @@ python3 -B evals/task-continuity/native_probe.py --output /absolute/new-evidence
 
 새 evidence 디렉터리만 허용합니다. 각 구성은 별도 CODEX_HOME과 workspace를 사용합니다.
 현재 `profiles.json`의 모든 플러그인에 대해 단독 설치와 전체 설치에서 `plugin/read`·`plugin/install`·`skills/list`·`hooks/list`를 실제로
-호출하고 namespace를 포함한 스킬 이름, hook event·matcher와 최초 untrusted 상태를 검사합니다.
+호출하고 공개 연속성 스킬이 노출되지 않는지, 설치된 참고 자료와 hook event·matcher 및 최초 untrusted 상태를 검사합니다.
 사용자의 인증·설정을 복사하거나 신뢰 상태를 바꾸지 않습니다. native event와 결과는 해당 evidence
 디렉터리에 남깁니다. 기존 user-level standalone skill이 로더에 보일 수 있어 검사는 fixture
 플러그인의 정확한 namespace만 대상으로 합니다.

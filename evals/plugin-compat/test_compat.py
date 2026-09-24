@@ -32,6 +32,14 @@ def omp_skills():
 
 
 class CodexPackagingTests(unittest.TestCase):
+    def test_public_skill_names_match_directories(self):
+        catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
+        for entry in catalog["plugins"]:
+            root = ROOT / "plugins" / entry["name"] / "skills"
+            for skill_path in sorted(root.glob("*/SKILL.md")):
+                with self.subTest(plugin=entry["name"], skill=skill_path.parent.name):
+                    self.assertEqual(read_skill_name(skill_path), skill_path.parent.name)
+
     def test_catalog_entries_reference_matching_plugin_manifests(self):
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
         names = set()

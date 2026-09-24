@@ -163,7 +163,7 @@ def _load_plan(output: Path) -> tuple[dict[str, Any], dict[str, Any], Mapping[st
 def _reviewer_prompt(case: Mapping[str, Any]) -> str:
     return case["prompt"] + """
 
-You are one delegated fresh reviewer, not the coordinating root. Read the local review-quality skill,
+You are one delegated fresh reviewer, not the coordinating root. Read the local review skill,
 its common criteria, and the fixed fixture. Review the artifact directly and return your own findings.
 Do not create, message, or wait for other agents. Do not use prior reviewer results. Do not edit files.
 Report exact path:line, reachable trigger, impact, smallest fix, checks actually run, and unknowns."""

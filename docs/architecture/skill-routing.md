@@ -2,23 +2,23 @@
 
 ## 컴팩션과 작업 연속성
 
-작업 연속성을 제공하는 플러그인은 각각 자기 namespace의 `task-continuity`를 제공합니다. 현재 메인 controller가
+작업 연속성을 제공하는 플러그인은 각각 `references/continuity.md`를 포함합니다. 현재 메인 controller가
 여러 단계의 작업을 소유하거나 외부 쓰기 결과를 이어서 확인해야 할 때 기존 작업 스킬에서
-같은 플러그인의 연속성 스킬을 사용합니다. 다른 플러그인의 연속성 스킬을 필수 호출하지 않습니다.
+같은 플러그인의 참고 자료를 읽습니다. 별도의 공개 연속성 스킬은 선택하지 않습니다.
 짧은 단발 산출물과 다른 작업의 출력 문체만 담당하는 Fluent Languages에는 별도 기록이 없습니다.
 
 `SessionStart(compact|resume)` hook은 현재 session/worktree의 활성 checkpoint가 있을 때만
-자기 스킬과 기록 경로를 전달합니다. 모델은 최신 사용자 지시·원장·실제 대상을 대조한 뒤 현재
+자기 참고 자료와 기록 경로를 전달합니다. 모델은 최신 사용자 지시·원장·실제 대상을 대조한 뒤 현재
 작업 스킬로 돌아갑니다. hook은 중앙 router나 새 권한·정본이 아니며 종료 기록과 다른 session을
 자동 선택하지 않습니다. fresh reviewer와 subagent는 controller의 checkpoint를 자동 상속하지 않습니다.
 저장·예산·권한·외부 작업 중복 방지 규칙은 [작업 연속성 계약](../reference/task-continuity.md)에 있습니다.
 
-Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering/skills/using-engineering-skills/references/evidence-gates.md)는
+Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering/references/evidence-gates.md)는
 등록한 계획 기반 task의 검사·리뷰 근거를 연결합니다. `Stop`은 현재 근거의 누락·stale 상태만
 관찰하며, 스킬 라우팅·실행 권한·다른 플러그인의 상태를 결정하지 않습니다.
 
 - Status: Current
-- Last reviewed: 2026-09-15
+- Last reviewed: 2026-09-25
 
 ## 자동 트리거와 직접 호출
 
@@ -26,6 +26,27 @@ Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering
 우선합니다. 사용자가 스킬 이름을 알아야만 실행되는 방식으로 만들지 않습니다. 선택 자체는
 수정·게시 권한이 아니며 실제 요청과 기존 승인을 따릅니다. 별도의 만능 router는 없습니다.
 혼합 요청은 주 작업 담당 하나가 명세·결과를 소유하고 필요한 전문 지침을 조합합니다.
+
+## 이전 호출명에서 이동
+
+옛 호출명은 공개 스킬 별칭으로 남기지 않았습니다. 직접 호출과 저장된 평가 입력은 아래 현재
+이름을 사용합니다. 기존 활성 연속성 기록에 저장된 옛 이름만 읽기 호환을 유지합니다.
+
+| 이전 Engineering 호출명 | 현재 위치 |
+| --- | --- |
+| `review-quality` | `review` |
+| `systematic-debugging` | `debug` |
+| `writing-plans` | `plan` |
+| `executing-plans` | `execute-plan` |
+| `receiving-code-review` | `address-review` |
+| `using-git-worktrees` | `worktree` |
+| `finishing-a-development-branch` | `finish-branch` |
+| `writing-skills` | `write-skill` |
+| `using-engineering-skills`, `requesting-code-review`, `verification-before-completion`, `dispatching-parallel-agents`, `subagent-driven-development` | README 라우팅과 `references/`의 공통 절차 |
+
+Workflow의 `git-workflow`는 `branch`, `commit`, `push`, `review-commit`으로 나뉘었습니다.
+9개 플러그인의 공개 `task-continuity`는 각 플러그인의 `references/continuity.md`로 이동했습니다.
+작업의 최종 산출물에 여러 단계가 필요할 때만 현재 스킬을 순서대로 선택합니다.
 
 ## 플러그인 경계
 
@@ -45,9 +66,8 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | reader load와 유지보수성 검토 | `engineering:review-maintainability` |
 | 도달 가능한 실패 경로 검토 | `engineering:review-failure-modes` |
 | error ownership, logging과 운용 가능성 검토 | `engineering:review-operability` |
-| 코드·diff의 일반 직접 리뷰 또는 여러 품질 관점의 리뷰 | `engineering:review-quality` (Luna xhigh 5개 기본) |
-| Engineering 절차의 검토·명시적 독립 리뷰 | `engineering:requesting-code-review` 워크플로우 분기 |
-| branch, staging, commit, 일반 push와 Git 변경 검토 | `workflow:git-workflow` |
+| 코드·diff의 일반 직접 리뷰 또는 개발 단계의 독립 전체 리뷰 | `engineering:review` (Luna xhigh 5개 기본) |
+| branch 이름·생성, staging·commit, 일반 push, Git commit 검토 | 각각 `workflow:branch`, `workflow:commit`, `workflow:push`, `workflow:review-commit` |
 | ticket·issue·backlog 접수·초안·게시 또는 기존 제목·본문 보강 | `workflow:to-ticket` |
 | 기존 ticket의 작업 시작·review·완료 상태, 담당자와 native relation 변경 | `workflow:ticket-lifecycle` |
 | PR 상태·CI·리뷰·미해결 대화 조회 | `workflow:inspect-prs` |
@@ -96,7 +116,7 @@ Codex 일시 오류 재시도, 기존 댓글 중복과 게시 결과 재조회�
 
 직접적인 산출물과 관점 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
 요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
-요청은 `engineering:finishing-a-development-branch`의 범위입니다.
+요청은 `engineering:finish-branch`의 범위입니다.
 
 ```text
 구현하고 PR 초안까지 준비
@@ -116,8 +136,8 @@ branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 �
 확장하지 않습니다. root가 작업자 할당을 소유하고 worker는 추가 할당을 root로 요청합니다.
 
 정확한 역할 모델·추론 수준은 [공유 프로필](../../plugins/engineering/references/model-profiles.md),
-실행은 [공통 수명주기](../../plugins/engineering/skills/executing-plans/SKILL.md),
-현재 근거와 진행 조건은 [관리형 게이트](../../plugins/engineering/skills/using-engineering-skills/references/evidence-gates.md)를
+실행은 [공통 수명주기](../../plugins/engineering/skills/execute-plan/SKILL.md),
+현재 근거와 진행 조건은 [관리형 게이트](../../plugins/engineering/references/evidence-gates.md)를
 따릅니다. 이 링크는 저장소 문서의 탐색이며 전문 플러그인이 Engineering 설치를 요구하는 계약이 아닙니다.
 
 기계적 작업은 결정론적 검사, 동작 변경은 independent, 고위험 경계는 별도 red-team을 선택합니다.
@@ -162,8 +182,9 @@ Prompting만 설치된 환경에서도 Codex, ChatGPT와 OpenAI API용 프롬프
 ## 코드 품질과 리뷰
 
 일반 리뷰, 도메인 타입·상태, 단순화, 유지보수·실패·운영성은 Engineering 내부의 전문 스킬입니다.
-일반 리뷰는 `review-quality`, 특정 관점은 해당 focused 스킬, 개발 단계·PR 이외의 독립 실행은
-`requesting-code-review`, 독립 PR 심층·다중 리뷰는 `review-pr`가 맡습니다.
+일반 리뷰와 개발 단계의 독립 전체 리뷰는 `review`, 특정 관점은 해당 focused 스킬,
+독립 PR 심층·다중 리뷰는 `review-pr`가 맡습니다. 리뷰 패키징과 결과 수집은
+[독립 리뷰 실행 절차](../../plugins/engineering/references/independent-review.md)를 공유합니다.
 판단 기준은 패키지의 공통 references를 재사용합니다.
 
 root는 일반 리뷰에 같은 고정 입력·기준을 받은 Luna xhigh 5개를 할당합니다. 각 지적을 실제
@@ -272,7 +293,7 @@ Workflow는 ticket 접수·작성·내용 수정, 기존 ticket의 lifecycle 변
 | ticket 접수·초안·생성 | `workflow:to-ticket` | 적용 양식으로 제목·본문과 생성 필드를 준비하고 허가된 게시·첨부 결과를 검증 |
 | 기존 title·body 보강 | `workflow:to-ticket` | canonical 원문을 읽고 요청한 내용만 수정·재조회; 기존 결정·기록과 요청 밖 field 보존 |
 | 작업 시작·상태 변경 | `workflow:ticket-lifecycle` | canonical ticket의 현재 상태를 읽고 허용된 transition, 담당자와 native relation을 변경 |
-| branch 생성 | `workflow:git-workflow` | Git branch만 관리하고 ticket mutation은 runtime에서 `ticket-lifecycle`과 조합 |
+| branch 생성 | `workflow:branch` | Git branch만 관리하고 ticket mutation은 runtime에서 `ticket-lifecycle`과 조합 |
 | PR 초안·게시 | `workflow:to-pr` | canonical ticket의 연결 의도와 provider 문법을 PR에 표현하고 status effect를 검증 |
 | PR·merge·release event | tracker의 native integration | 구성된 workflow automation을 적용하고, Workflow skill은 직접 중복 전이하지 않음 |
 
@@ -370,7 +391,7 @@ started이면 idempotent하게 유지하고, completed·canceled ticket은 명�
 `ENG-123 작업 시작해`처럼 canonical ticket과 작업 시작을 함께 지정한 요청은 해당 ticket의
 `start` mutation을 포함합니다. ticket을 지정하지 않은 일반 코드 수정, branch 이름에 우연히
 포함된 ID 또는 provider를 확정할 수 없는 ID만으로는 원격 ticket을 바꾸지 않습니다. ticket 작업과
-branch 생성이 함께 요청되면 `ticket-lifecycle`과 `git-workflow`을 runtime에서 각각 선택하며 어느
+branch 생성이 함께 요청되면 `ticket-lifecycle`과 `branch`를 runtime에서 각각 선택하며 어느
 한 스킬도 다른 스킬의 설치나 선행 실행을 필수로 가정하지 않습니다.
 
 ### PR은 연결하고 native automation을 우선한다

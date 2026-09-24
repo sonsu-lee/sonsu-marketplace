@@ -51,4 +51,5 @@ OMP는 공통 `skills/` 트리를 로드하며 Codex 전용 hook과 app 연결�
 구분합니다. 정적 JSON 통과만으로 실제 스킬 선택이나 host별 hook 실행을 주장하지 않습니다.
 미실행은 `not_run`, 원인 불명은 `inconclusive`로 기록합니다.
 [업데이트 런북](../runbooks/updating-upstream-plugin.md)과
-[ADR 0014](../decisions/0014-use-codex-managed-engineering.md)를 따릅니다.
+[ADR 0015](../decisions/0015-independent-skills.md)를 따릅니다. 이전 Engineering 게이트 결정은
+[ADR 0014](../decisions/0014-use-codex-managed-engineering.md)에 역사적 근거로 보존합니다.

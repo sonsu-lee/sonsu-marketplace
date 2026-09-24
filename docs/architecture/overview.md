@@ -68,5 +68,5 @@ Figma canvas의 agent mutation은 registered official Figma MCP가 단독으로 
 ## 문서 경계
 
 현재 구조는 이 디렉터리에서 갱신하고, 선택의 이유와 대안은
-[`decisions/`](../decisions/)에 보존합니다. 구현 계획은 장기간 유지할 아키텍처 지식과
+[`decisions/`](../decisions)에 보존합니다. 구현 계획은 장기간 유지할 아키텍처 지식과
 구분하며 기본적으로 `docs/` 밖에서 관리합니다.

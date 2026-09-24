@@ -1,6 +1,6 @@
 # 0012 Use Role Routing and Execution Evidence
 
-> 역사적 결정입니다. Quality Engineering 경계·Fast Path·모델/수정자 기본값의 현재 정책은 [ADR 0014](0014-use-codex-managed-engineering.md)가 대체합니다.
+> 역사적 결정입니다. Quality Engineering 경계·Fast Path·모델/수정자 기본값의 현재 정책은 [ADR 0015](0015-independent-skills.md)를 따릅니다.
 
 
 - Status: Accepted
@@ -83,7 +83,7 @@ decision probe와 독립 문서 리뷰는 지침의 일관성을 확인할 수 �
    가장 어려운 작업은 Astra medium을 직접 선택하고 깊은 분석·경계 검증이 필요하면 high를 씁니다.
    Sol을 정상 후보로 두되 어떤 모델도 필수 중간 승격 단계로 만들지 않습니다. 모델과 추론도는
    별도로 선택하며 사용자 지정과 실제 allowlist를 우선합니다. 단가만으로 최저비용을 주장하지 않습니다.
-2. [공통 실행 계약](../../plugins/engineering/skills/using-engineering-skills/references/agent-execution.md)을
+2. [공통 실행 계약](../../plugins/engineering/references/agent-execution.md)을
    기존 brief/ledger/report에 연결합니다. requested/observed model·effort, task/gate ID, 정확한
    revision, session lineage, 환경·scratch와 소비·남은 예산을 구분합니다. 관측 불가와 fallback을
    적용 성공으로 바꾸지 않으며 사용자 설정을 자동으로 덮어쓰지 않습니다.

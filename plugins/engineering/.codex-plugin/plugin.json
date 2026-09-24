@@ -1,6 +1,6 @@
 {
   "name": "engineering",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "설계·구현·디버깅·검증과 도메인 구조, 단순성, 유지보수성, 실패 모드 및 운용 가능성 리뷰와 독립 심층 PR 리뷰를 함께 제공한다.",
   "author": {
     "name": "sonsu-lee",
@@ -10,7 +10,6 @@
   "keywords": [
     "engineering",
     "brainstorming",
-    "subagent-driven-development",
     "skills",
     "planning",
     "tdd",
@@ -34,7 +33,6 @@
       "Write"
     ],
     "defaultPrompt": [
-      "구현하고 싶은 아이디어가 있어. 요구사항부터 구체화해 줘.",
       "이 프로젝트에 새 기능을 추가해 줘.",
       "이 diff를 여러 새 검토자에게 같은 기준으로 품질 리뷰해 줘.",
       "이 PR을 병렬로 리뷰하고 확인된 지적을 중복 없이 PR에 남겨 줘."

@@ -12,56 +12,56 @@
     {
       "name": "engineering",
       "description": "설계·구현·디버깅·검증과 코드 품질 리뷰",
-      "version": "2.2.0",
+      "version": "3.0.0",
       "source": "./engineering",
       "category": "development"
     },
     {
       "name": "workflow",
       "description": "Git·티켓·PR 작성과 PR 상태 조회·복구",
-      "version": "0.11.0",
+      "version": "0.12.0",
       "source": "./workflow",
       "category": "development"
     },
     {
       "name": "fluent-languages",
       "description": "기술 내용을 보존하는 자연스러운 한국어·일본어·영어 작성",
-      "version": "0.1.0-beta.11",
+      "version": "0.2.0-beta.1",
       "source": "./fluent-languages",
       "category": "productivity"
     },
     {
       "name": "writing",
       "description": "독자·목적·근거에 맞는 문서와 개발자 글쓰기",
-      "version": "0.2.0-beta.6",
+      "version": "0.3.0-beta.1",
       "source": "./writing",
       "category": "productivity"
     },
     {
       "name": "research",
       "description": "근거 중심의 다중 출처 조사와 사실 검증",
-      "version": "0.7.0-sonsu.7",
+      "version": "0.7.0-sonsu.8",
       "source": "./research",
       "category": "productivity"
     },
     {
       "name": "prompting",
       "description": "Codex, ChatGPT와 OpenAI API용 프롬프트 작성",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "source": "./prompting",
       "category": "productivity"
     },
     {
       "name": "product",
       "description": "제품 탐색, 근거 종합, 검증과 PRD 작성",
-      "version": "0.2.5",
+      "version": "0.3.0",
       "source": "./product",
       "category": "productivity"
     },
     {
       "name": "figma-workflow",
       "description": "Figma 제품 화면·프로토타입 제작과 품질 검토",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "source": "./figma-workflow",
       "category": "productivity"
     },
@@ -75,7 +75,7 @@
     {
       "name": "interface-design",
       "description": "웹·모바일 UI 설계·재설계와 품질 검증",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "source": "./interface-design",
       "category": "development"
     },

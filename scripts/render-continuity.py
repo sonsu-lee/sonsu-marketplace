@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render self-contained continuity skills/helpers/hooks; --check never writes."""
+"""Render self-contained continuity references/helpers/hooks; --check never writes."""
 import argparse
 import json
 from pathlib import Path
@@ -10,16 +10,16 @@ SOURCE = ROOT / "shared/task-continuity"
 
 def outputs():
     profiles = json.loads((SOURCE / "profiles.json").read_text())
-    template = (SOURCE / "SKILL.md.tmpl").read_text()
+    template = (SOURCE / "continuity.md.tmpl").read_text()
     helper = (SOURCE / "task_continuity.py").read_bytes()
     for plugin, profile in profiles.items():
         root = ROOT / "plugins" / plugin
-        skill = template
+        reference = template
         for key, value in {"DESCRIPTION": json.dumps(profile["trigger"], ensure_ascii=False),
                            "LABEL": profile["label"], "PLUGIN": plugin,
                            "EXAMPLE_SKILL": profile["example_skill"], "DETAILS": profile["details"]}.items():
-            skill = skill.replace("@@" + key + "@@", value)
-        yield root / "skills/task-continuity/SKILL.md", skill.encode()
+            reference = reference.replace("@@" + key + "@@", value)
+        yield root / "references/continuity.md", reference.encode()
         yield root / "scripts/task-continuity.py", helper
         hooks = {"hooks": {"SessionStart": [{"matcher": "^(compact|resume)$", "hooks": [{
             "type": "command",

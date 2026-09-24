@@ -16,7 +16,7 @@ description: 신규 운영형 B2B, admin, back-office 또는 data-work 화면을
 3. 과업마다 must-know 정보, 표현 이유, 실제 상태, 환경과 outcome metric을 연결한다.
 4. requirement↔scenario, action·permission·risk·state coverage를 완성하고 계약을 검증한다.
 5. [디자인 원칙](../../references/design.md)에 따라 제품 token/component에 매핑해 요청 산출물을 만든다.
-6. 현재 범위의 DQ gate를 평가한다. DQ1–DQ6은 작성자가 아닌 독립 평가자 2명이 판정한다.
+6. 평가 가능한 화면 산출물을 만든 경우 현재 범위의 DQ gate를 평가한다. DQ1–DQ6은 작성자가 아닌 독립 평가자 2명이 판정한다. 탐색·문구 수정·디자인 없는 코드 작업에는 적용하지 않는다.
 7. implementation/live이면 실제 앱에서 scenario×environment [browser receipt](../../references/evidence-contract.md)를 수집한다.
 8. live이면 사전 등록 metric과 위험도에 맞는 사용자 증거로 DQ8을 평가한다.
 

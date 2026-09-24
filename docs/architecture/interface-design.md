@@ -20,7 +20,7 @@ flowchart TB
 ```
 
 실선은 선택, 점선은 요청에 따른 조합입니다. 다른 플러그인 설치를 요구하는 import 관계가 아닙니다.
-일반 리뷰는 `review-quality`, 명시적인 심층·다중 PR 리뷰는 `review-pr`입니다. PR URL만으로
+일반 리뷰는 `review`, 명시적인 심층·다중 PR 리뷰는 `review-pr`입니다. PR URL만으로
 심층 검토하지 않습니다. 일반 UI는 Interface Design, 운영 업무는 Operations UI, Figma 파일
 자체의 구조 편집은 Figma Workflow가 중심이며 혼합 요청의 명세·결과 담당은 하나로 둡니다.
 

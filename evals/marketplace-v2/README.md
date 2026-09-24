@@ -32,7 +32,7 @@ reviewer를 delegated role로 직접 실행하고, 고정 `gpt-6-astra/high` adj
 | `sol-max-1` | `gpt-5.6-sol` / `max` | 1 |
 
 그 밖의 routing·workflow 사례는 한 번씩 실행한다. 일반 리뷰는
-`engineering:review-quality`와 기본 5개 fresh Luna `xhigh`, 한 lens만 지정한 리뷰는 단일 집중
+`engineering:review`와 기본 5개 fresh Luna `xhigh`, 한 lens만 지정한 리뷰는 단일 집중
 reviewer를 Luna `xhigh`로 fresh delegation, 작은 기계 작업은 불필요한 전체 DAG 없이 결정론적 검사, 동작 구현은 필요한 구현·검증·
 리뷰 gate를 기대한다. provider cleanup은 failure-mode review로 보내고, 현재 코드가 historical
 snapshot을 자동으로 무효화하지 않는지도 확인한다.
@@ -87,7 +87,7 @@ python3 -B evals/marketplace-v2/runner.py adjudication-template \
 ```
 
 `adjudication.json`은
-[`testing-skills-with-subagents.md`](../../plugins/engineering/skills/writing-skills/testing-skills-with-subagents.md)의
+[`testing-skills-with-subagents.md`](../../plugins/engineering/skills/write-skill/testing-skills-with-subagents.md)의
 정본 절차에 따라 각 run의 `final.md`, delegated child 원결과와 `trace.jsonl`을 각각 읽고 채운다.
 Child 결과만으로 parent의 최종 의미 판정을 대신하지 않고, 생성·수집·통합 단계를 별도로 판정한다.
 `validated_defects`, `critical_misses`,

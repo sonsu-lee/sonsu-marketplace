@@ -8,13 +8,13 @@
 
 | 질문 | 위치 | 변경 방식 |
 | --- | --- | --- |
-| 시스템은 현재 어떻게 구성되어 있는가? | [`architecture/`](architecture/) | 현재 상태에 맞춰 갱신 |
-| 왜 이 선택을 했고 어떤 대안을 포기했는가? | [`decisions/`](decisions/) | 기존 기록을 보존하고 새 결정으로 대체 |
-| 무엇을 만들며 성공 조건은 무엇인가? | [`product/`](product/) | 제품 범위가 바뀔 때 갱신 |
-| 특정 목표를 어떻게 달성하는가? | [`guides/`](guides/) | 절차가 바뀔 때 갱신 |
-| 정확한 형식, 필드와 계약은 무엇인가? | [`reference/`](reference/) | 구현과 일치하도록 갱신 |
-| 반복 작업을 어떻게 실행, 검증하고 복구하는가? | [`runbooks/`](runbooks/) | 실제 실행 가능성을 유지 |
-| 조사 코퍼스와 분석 방법은 무엇인가? | [`research/`](research/) | 원자료 상태와 검증 수준을 분리해 갱신 |
+| 시스템은 현재 어떻게 구성되어 있는가? | [`architecture/`](architecture) | 현재 상태에 맞춰 갱신 |
+| 왜 이 선택을 했고 어떤 대안을 포기했는가? | [`decisions/`](decisions) | 기존 기록을 보존하고 새 결정으로 대체 |
+| 무엇을 만들며 성공 조건은 무엇인가? | [`product/`](product) | 제품 범위가 바뀔 때 갱신 |
+| 특정 목표를 어떻게 달성하는가? | [`guides/`](guides) | 절차가 바뀔 때 갱신 |
+| 정확한 형식, 필드와 계약은 무엇인가? | [`reference/`](reference) | 구현과 일치하도록 갱신 |
+| 반복 작업을 어떻게 실행, 검증하고 복구하는가? | [`runbooks/`](runbooks) | 실제 실행 가능성을 유지 |
+| 조사 코퍼스와 분석 방법은 무엇인가? | [`research/`](research) | 원자료 상태와 검증 수준을 분리해 갱신 |
 
 이후에도 찾아볼 정보인지 먼저 판단한 뒤 `README.md`, `CONTEXT.md`, `docs/**`, 기존 이슈와
 티켓에서 해당 주제를 담당하는 위치를 확인합니다. 이미 문서 목적·경로·갱신 범위를 정했다면
@@ -77,7 +77,8 @@
 - [Figma Workflow 플러그인 결정](decisions/0010-add-figma-workflow-plugin.md)
 - [이전 Engineering Fast Path와 plan-backed red-team 결정](decisions/0011-use-fast-path-and-plan-red-team-gates.md)
 - [Design Patterns 독립 플러그인 결정](decisions/0013-add-design-patterns-plugin.md)
-- [현재 Codex 전용 Engineering과 관리형 게이트 결정](decisions/0014-use-codex-managed-engineering.md)
+- [이전 Codex 전용 Engineering과 관리형 게이트 결정](decisions/0014-use-codex-managed-engineering.md)
+- [현재 독립 스킬 중심 플러그인 경계 결정](decisions/0015-independent-skills.md)
 - [마켓플레이스 요구사항](product/marketplace-requirements.md)
 - [플러그인 개발·수정·추가 가이드](guides/adding-a-plugin.md)
 - [플러그인 매니페스트 참조](reference/plugin-manifest.md)

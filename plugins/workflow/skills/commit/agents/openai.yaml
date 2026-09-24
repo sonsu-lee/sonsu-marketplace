@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Commit"
+  short_description: "요청한 변경으로 원자적인 커밋을 만듭니다"
+  default_prompt: "$commit으로 현재 변경을 검토하고 커밋해 줘."

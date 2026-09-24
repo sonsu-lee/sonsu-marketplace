@@ -28,14 +28,14 @@ class EvidenceGateTests(unittest.TestCase):
         (self.package / "scripts").mkdir(parents=True)
         self.script = self.package / "scripts/evidence-gates.py"
         shutil.copyfile(SCRIPT, self.script)
-        policy = self.package / "skills/using-engineering-skills/references/quality-gates.md"
+        policy = self.package / "references/quality-gates.md"
         policy.parent.mkdir(parents=True)
         policy.write_text("Verification, final review, and a fresh red-team are required.\n")
         self.policy = policy
         for name in ("code-reviewer.md", "red-team-reviewer.md"):
-            target = self.package / "skills/requesting-code-review" / name
+            target = self.package / "references/review" / name
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(ROOT / "plugins/engineering/skills/requesting-code-review" / name, target)
+            shutil.copyfile(ROOT / "plugins/engineering/references/review" / name, target)
         for name in ("code-quality.md", "review-criteria.md", "javascript-typescript-review.md"):
             target = self.package / "references" / name
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -137,7 +137,7 @@ class EvidenceGateTests(unittest.TestCase):
         self.ok(self.run_check())
         alias = self.base / "temp-alias"
         alias.symlink_to(self.base, target_is_directory=True)
-        helper = ROOT / "plugins/engineering/skills/requesting-code-review/scripts/review-package"
+        helper = ROOT / "plugins/engineering/scripts/review-package"
         result = subprocess.run(["bash", str(helper), "working-tree"], cwd=self.work,
                                 env=dict(self.env, TMPDIR=str(alias)), text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -208,7 +208,7 @@ class EvidenceGateTests(unittest.TestCase):
         self.review()
         alias = self.base / "temp-alias"
         alias.symlink_to(self.base, target_is_directory=True)
-        helper = ROOT / "plugins/engineering/skills/requesting-code-review/scripts/red-team-package"
+        helper = ROOT / "plugins/engineering/scripts/red-team-package"
         result = subprocess.run(["bash", str(helper), *([str(self.bundle)] * 7)],
                                 env=dict(self.env, TMPDIR=str(alias)), capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -250,7 +250,7 @@ class EvidenceGateTests(unittest.TestCase):
         self.review()
         self.review("red-team")
         for name in ("code-reviewer.md", "red-team-reviewer.md"):
-            policy = self.package / "skills/requesting-code-review" / name
+            policy = self.package / "references/review" / name
             before = policy.read_bytes()
             policy.write_bytes(before + b"\nNew mandatory rule.\n")
             self.assertFalse(self.status()["ready"])

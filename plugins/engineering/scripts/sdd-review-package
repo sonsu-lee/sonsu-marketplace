@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Preserve the SDD call signature and workspace ownership while delegating
+# package construction to the canonical binary-safe review-package helper.
+set -euo pipefail
+
+if [ $# -lt 3 ] || [ $# -gt 4 ]; then
+  echo "usage: review-package PLAN_FILE BASE HEAD [OUTFILE]" >&2
+  exit 2
+fi
+
+plan=$1
+base=$2
+head=$3
+[ -f "$plan" ] || { echo "no such plan file: $plan" >&2; exit 2; }
+
+script_dir=$(cd "$(dirname "$0")" && pwd -P)
+repo_root=$(git rev-parse --show-toplevel)
+repo_root=$(cd "$repo_root" && pwd -P)
+canonical="$script_dir/review-package"
+[ -x "$canonical" ] || { echo "canonical review-package is not executable: $canonical" >&2; exit 2; }
+
+git -C "$repo_root" rev-parse --verify --quiet "${base}^{commit}" >/dev/null || {
+  echo "bad BASE: $base" >&2
+  exit 2
+}
+git -C "$repo_root" rev-parse --verify --quiet "${head}^{commit}" >/dev/null || {
+  echo "bad HEAD: $head" >&2
+  exit 2
+}
+
+if [ $# -eq 4 ]; then
+  out=$4
+else
+  workspace=$("$script_dir/sdd-workspace" "$plan")
+  base_short=$(git -C "$repo_root" rev-parse --short "$base")
+  head_short=$(git -C "$repo_root" rev-parse --short "$head")
+  package_dir=$(mktemp -d "$workspace/review-${base_short}..${head_short}.XXXXXX")
+  out="$package_dir/package.diff"
+fi
+
+"$canonical" range "$base" "$head" "$out"

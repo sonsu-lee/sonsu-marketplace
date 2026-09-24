@@ -3,14 +3,11 @@
   "profiles": {
     "engineering": {
       "required_skills": [
-        "using-engineering-skills",
-        "review-quality",
+        "review",
         "review-failure-modes",
         "review-maintainability",
-        "requesting-code-review",
         "test-driven-development",
-        "executing-plans",
-        "verification-before-completion"
+        "execute-plan"
       ]
     }
   },
@@ -34,7 +31,7 @@
       "benchmark": true,
       "prompt": "CHANGE.md에 적힌 현재 변경 전체를 일반 코드 리뷰해줘. 관련 호출자, 테스트, 계약과 문서를 읽고, 파일은 수정하지 마. finding은 정확한 path:line, 발생 조건, 영향, 최소 수정 방향으로 보고하고 실행하지 않은 검증은 구분해줘.",
       "expected": {
-        "skill_route": "engineering:review-quality",
+        "skill_route": "engineering:review",
         "defects": {
           "external-payload-cast": "src/webhook.ts의 unknown payload가 runtime validation 없이 TrustedWebhook으로 단언되어 잘못된 kind와 빈 accountId가 실제 경계 안으로 들어온다.",
           "provider-session-leak": "src/provider.ts는 provider.execute가 throw하면 provider.close에 도달하지 않아 session을 누수한다."
@@ -63,7 +60,7 @@
       "benchmark": false,
       "prompt": "CHANGE.md의 변경을 일반 코드 리뷰해줘. 수정은 하지 마.",
       "expected": {
-        "skill_route": "engineering:review-quality",
+        "skill_route": "engineering:review",
         "review_mode": "five-fresh-reviewers",
         "reviewer_count": 5,
         "reviewer_model": "gpt-5.6-luna",

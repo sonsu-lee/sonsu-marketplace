@@ -154,7 +154,7 @@
       ],
       "prompt": "https://github.com/example/project/pull/12 리뷰해 줘.",
       "expected": {
-        "select": "engineering:review-quality",
+        "select": "engineering:review",
         "must_not_select": [
           "engineering:review-pr"
         ],
@@ -491,7 +491,7 @@
       ],
       "prompt": "PR #12를 로컬에서만 리뷰해 줘. GitHub에는 게시하지 마.",
       "expected": {
-        "select": "engineering:review-quality",
+        "select": "engineering:review",
         "reviewers": 5,
         "separate_worktrees": true,
         "must_not_post": true
@@ -544,7 +544,7 @@
       ],
       "prompt": "PR #12를 리뷰해 줘. 전체 검토 후 확인한 지적 한 건은 이 PR의 기존 미해결 인라인 댓글과 원인·대상·근거가 같아. base/head는 그대로야.",
       "expected": {
-        "select": "engineering:review-quality",
+        "select": "engineering:review",
         "new_duplicate_inline_comments": 0,
         "link_existing_comment_in_summary": true,
         "publication": "COMMENT with readback"

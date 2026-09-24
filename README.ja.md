@@ -50,7 +50,7 @@ omp plugin install --scope project engineering@sonsu-marketplace
 omp plugin discover sonsu-marketplace
 ```
 
-OMPは各プラグインの共通`skills/`ツリーを読み込み、`review-quality`のようにprefixのないスキル名を
+OMPは各プラグインの共通`skills/`ツリーを読み込み、`review`のようにprefixのないスキル名を
 公開します。`.codex-plugin`で宣言されたCodex専用hookとapp接続はOMPでは実行されないため、
 その自動化にはCodexが必要です。
 
@@ -59,9 +59,9 @@ OMPは各プラグインの共通`skills/`ツリーを読み込み、`review-qua
 | プラグイン | 用途 | インストール名 |
 | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | ソフトウェア変更の設計・実装・検証、簡素化、品質レビュー | `engineering` |
-| [Workflow](plugins/workflow/) | Gitのブランチ・コミット・プッシュ、チケット、GitHub PRの作成・管理 | `workflow` |
-| [Fluent Languages](plugins/fluent-languages/) | 技術的な内容を保った自然な韓国語・日本語・英語の文章作成 | `fluent-languages` |
-| [Writing](plugins/writing/) | 読み手と目的に合わせた情報の選別、記載先の判断、文章の構成 | `writing` |
+| [Workflow](plugins/workflow) | Gitのブランチ・コミット・プッシュ、チケット、GitHub PRの作成・管理 | `workflow` |
+| [Fluent Languages](plugins/fluent-languages) | 技術的な内容を保った自然な韓国語・日本語・英語の文章作成 | `fluent-languages` |
+| [Writing](plugins/writing) | 読み手と目的に合わせた情報の選別、記載先の判断、文章の構成 | `writing` |
 | [Research](plugins/research/README.md) | 複数の情報源の調査、事実確認、根拠に基づく回答の作成 | `research` |
 | [Prompting](plugins/prompting/README.md) | Codex・ChatGPT・OpenAI API向けプロンプトの作成・改善 | `prompting` |
 | [Product](plugins/product/README.md) | プロダクトのアイデア探索、ユーザーに関する根拠の整理、仮説検証、PRD作成 | `product` |
@@ -130,7 +130,7 @@ Codexでは新しいタスクを開始し、OMPでは`/reload-plugins`を実行�
 
 - [アーキテクチャ概要](docs/architecture/overview.md) — リポジトリ構成と読み込みの境界
 - [アップストリーム更新ランブック](docs/runbooks/updating-upstream-plugin.md) — 元のソースとローカル変更を分けて更新する手順
-- [評価ツール](evals/) — 言語出力、スキルルーティング、プラグイン品質の検証
+- [評価ツール](evals) — 言語出力、スキルルーティング、プラグイン品質の検証
 - [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues) — バグ報告・改善提案
 
 ## ライセンスと出典

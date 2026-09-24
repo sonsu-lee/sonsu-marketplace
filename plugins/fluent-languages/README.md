@@ -43,11 +43,11 @@ AI 탐지 점수를 품질 기준으로 사용하지 않는다.
 
 ## 컴팩션 후 작업 재개
 
-Codex의 [`fluent-languages:fluent-languages-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://fluent-languages-task-continuity`](skills/task-continuity/SKILL.md)는 장문·여러 문서 편집의
+[작업 연속성 참고 자료](references/continuity.md)는 장문·여러 문서 편집의
 원문·초안·완료 구간을 `.sonsu/continuity/`에 기록한다. 다른 작업의 표현만 도울 때는
 주 작업 담당자의 기록을 따르며 짧은 단발 작업에는 기록하지 않는다.
 
 `SessionStart` hook은 활성 기록이 있을 때 경로를 전달한다. hook의 신뢰 여부는 호스트에서
-관리하며, 사용할 수 없으면 작업 연속성 스킬로 수동 복구한다. helper는 Python 3.9+와 POSIX를
+관리하며, 사용할 수 없으면 작업 연속성 참고 자료로 수동 복구한다. helper는 Python 3.9+와 POSIX를
 사용한다. 이 작업 재개 도구는 언어 표현 규칙을 공유하거나 주입하는 코어가 아니다.
 [운영 계약](../../docs/reference/task-continuity.md)과 [검증 범위](../../evals/task-continuity/README.md)를 참고한다.

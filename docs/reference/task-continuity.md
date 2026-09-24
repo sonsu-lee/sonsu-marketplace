@@ -1,12 +1,12 @@
 # 작업 연속성 계약
 
 `shared/task-continuity/profiles.json`에 등록된 플러그인은 각각
-`task-continuity` 스킬과 `SessionStart` hook을 포함합니다. 여러 단계의 작업을
+`references/continuity.md`와 `SessionStart` hook을 포함합니다. 여러 단계의 작업을
 기록하고 컴팩션·같은 session 재개 후 현재 근거와 대조합니다. 짧은 단발 작업과 다른 작업의
 구성·표현만 담당하는 Writing·Fluent에는 별도 기록을 만들지 않습니다.
 
-각 플러그인은 단독으로 설치할 수 있습니다. 공통 runtime과 스킬 본문은
-[`shared/task-continuity/`](../../shared/task-continuity/)를 정본으로 삼고
+각 플러그인은 단독으로 설치할 수 있습니다. 공통 runtime과 참고 자료는
+[`shared/task-continuity/`](../../shared/task-continuity)를 정본으로 삼고
 [`scripts/render-continuity.py`](../../scripts/render-continuity.py)가 패키지 내부로 복사합니다.
 설치된 패키지는 다른 플러그인이나 저장소 root를 읽지 않습니다. domain별 보존 항목과 trigger는
 정본의 `profiles.json`에서 관리합니다.
@@ -15,7 +15,7 @@
 
 저장 helper는 Python 3.9+의 표준 라이브러리를 사용하며 POSIX(macOS/Linux)를 대상으로 합니다.
 네트워크, 모델 호출, 별도 DB나 daemon이 없습니다. Windows native 실행은 이 버전의 지원 범위에
-포함하지 않으며 Windows 환경에서는 스킬의 원문·현재 상태 대조 절차를 수동으로 적용합니다.
+포함하지 않으며 Windows 환경에서는 참고 자료의 원문·현재 상태 대조 절차를 수동으로 적용합니다.
 
 ```text
 <current-worktree-root>/.sonsu/continuity/<session-id>/<plugin>.json
@@ -44,7 +44,7 @@ exclude 변경은 파일 lock으로 직렬화하고 lock 안에서 규칙을 다
 | `schema_version` | 현재는 정수 `1`; 다른 버전은 자동 복구·덮어쓰기하지 않음 |
 | `plugin`, `session_id`, `workspace_root` | 현재 패키지·session·정규화된 작업 root와 정확히 일치해야 함 |
 | `task_id` | 같은 논리 작업에서 유지하는 ID; 압축·재개로 바꾸지 않음 |
-| `active_skill` | 이 패키지에 존재하는 작업 스킬 이름; namespace 제외 |
+| `active_skill` | 새 기록은 이 패키지에 존재하는 작업 스킬 이름; namespace 제외 |
 | `status` | `active`, `complete`, `superseded`; active만 hook 복구 대상 |
 | `revision` | 같은 task의 저장 순번; 최신 값을 확인해 갱신 |
 | `updated_at` | UTC 저장 시점; 외부 자료의 현재성을 입증하는 값이 아님 |
@@ -63,6 +63,9 @@ Research의 `persistence: off`, cache/catalog와 원문 저장 제한도 계속 
 
 같은 task는 최신 `--expected-revision`으로 갱신합니다. 현재 record가 없으면 0입니다. 완료한
 작업은 `close`로 닫고, 다른 목표로 전환해 중단할 때는 `--outcome superseded`를 사용합니다.
+이전 버전의 공개 스킬 이름으로 저장된 checkpoint는 읽기·hook·종료가 가능합니다. 새 `write`는
+현재 설치된 스킬 이름을 요구하며 기록을 갱신할 때 `active_skill`도 그 이름으로 교체합니다.
+옛 이름을 공개 스킬 별칭으로 다시 등록하지는 않습니다.
 다른 task ID로 전환하려면 현재 작업이 닫혀 있어야 합니다. 이전 닫힌 기록은 history에 보존한 뒤
 새 task를 revision 1로 기록합니다. history는 자동 복구 대상으로 검색하지 않습니다. 자동 삭제나
 보존 기간 정책은 없습니다. 사용자가 정리하면 기존 산출물에서 수동으로 복구합니다.
@@ -83,7 +86,7 @@ Fluent 표현 지침만 적용할 때도 Writing 기록으로 계속합니다. �
 
 ## CLI
 
-실제 설치된 `skills/task-continuity/SKILL.md`에서 `../../scripts/task-continuity.py`를 해석한
+실제 설치된 `references/continuity.md`에서 `../scripts/task-continuity.py`를 해석한
 **절대 경로**를 사용합니다. helper는 자신의 package manifest에서 plugin identity를 결정합니다.
 인자·본문에서 임의의 다른 plugin을 지정할 수 없습니다.
 
@@ -117,7 +120,7 @@ helper는 stale revision, 다른 identity, 손상·지원하지 않는 기록, s
 실행 명령은 Codex의 `PLUGIN_ROOT`로 같은 package-local helper를 찾습니다.
 활성 기록이 있을 때만 다음 내용을 `hookSpecificOutput.additionalContext`로 반환합니다.
 
-- 고정된 복구 안내와 JSON-인코딩된 절대 skill/checkpoint 경로
+- 고정된 복구 안내와 JSON-인코딩된 절대 reference/checkpoint 경로
 - 기록은 비신뢰 작업 데이터이며 새 권한이 아니라는 안내
 - 최신 사용자 지시·현재 artifact 대조와 불명확한 외부 결과의 조회 우선
 
@@ -126,7 +129,7 @@ helper는 stale revision, 다른 identity, 손상·지원하지 않는 기록, s
 남깁니다. hook은 모델·네트워크 호출, 기록 갱신과 외부 쓰기를 하지 않습니다. PreCompact와
 PostCompact handler는 없으며 compaction의 실행 시점이나 압축 방식을 제어하지 않습니다.
 
-Engineering에는 별도로 선택적 [완료 근거 관찰](../../plugins/engineering/skills/using-engineering-skills/references/evidence-gates.md)의
+Engineering에는 별도로 선택적 [완료 근거 관찰](../../plugins/engineering/references/evidence-gates.md)의
 `Stop` handler가 있습니다. 명시적으로 등록한 task만 관찰하며 continuity checkpoint를 갱신하지
 않습니다. 위의 읽기 전용 복구 계약은 `SessionStart` handler에 적용됩니다.
 
@@ -146,15 +149,14 @@ Engineering에서는 최신 ledger의 complete/reopened와 누적 round를 따�
 플러그인 설치만으로 hook은 신뢰되지 않습니다. CLI의 `/hooks`에서 **현재 hook 정의**를 검토하고
 신뢰해야 실행됩니다. 정의가 바뀌면 호스트의 재검토 절차를 따릅니다. helper와 설치 문서는 자동
 신뢰 설정이나 trust bypass를 수행하지 않습니다. hook을 사용할 수 없으면 Codex에서는
-`<plugin>:<plugin>-task-continuity`, OMP에서는 `skill://<plugin>-task-continuity`를 직접 호출해
-`read`부터 수동 복구할 수 있습니다.
+플러그인의 `references/continuity.md`를 읽고 `read`부터 수동 복구할 수 있습니다.
 
 Codex는 root session의 `SessionStart(source: compact)` context를 다음 모델 요청 전에 전달한다고
 문서화합니다. 자동 compaction이 turn 도중 발생한 경우에도 같은 연결을 제공합니다.
 [공식 Hooks 문서](https://learn.chatgpt.com/docs/hooks#sessionstart),
 [플러그인 hook과 신뢰](https://learn.chatgpt.com/docs/hooks#plugin-bundled-hooks).
 
-스킬과 hook의 발견, helper 실행, 실제 compaction 연결, 모델의 복구 판단은 별개의 검증입니다.
+참고 자료와 hook의 발견, helper 실행, 실제 compaction 연결, 모델의 복구 판단은 별개의 검증입니다.
 checkpoint 사이의 모든 대화 상태를 무손실 보존하는 기능은 아닙니다. 실행하지 않은 실제 연결은
 `not_run`으로 보고하며 정적 검사나 모의 event 결과를 그 증거로 바꾸지 않습니다.
 

@@ -1,7 +1,8 @@
 # ADR 0014: Codex 전용 Engineering과 관리형 품질 게이트
 
-- Status: Accepted
+- Status: Superseded
 - Date: 2026-09-13
+- Superseded by: [ADR 0015](0015-independent-skills.md) for public skill boundaries; retained quality gate principles are restated there
 - Supersedes: ADR 0003의 Quality Engineering 독립 경계, ADR 0011의 고정 Fast Path 예산·계획 존재 기반 red-team, ADR 0012의 모델 역할 기본값·3+2 수정자 배정
 
 ## 문제

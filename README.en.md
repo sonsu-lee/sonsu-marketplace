@@ -51,7 +51,7 @@ omp plugin discover sonsu-marketplace
 ```
 
 OMP loads the shared `skills/` tree from each plugin and exposes unprefixed skill names such as
-`review-quality`. Codex-specific hooks and app connections declared under `.codex-plugin` do not run
+`review`. Codex-specific hooks and app connections declared under `.codex-plugin` do not run
 in OMP; those automation surfaces still require Codex.
 
 ## Plugins
@@ -59,9 +59,9 @@ in OMP; those automation surfaces still require Codex.
 | Plugin | Purpose | Installation name |
 | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | Design, implement, verify, simplify, and review software changes | `engineering` |
-| [Workflow](plugins/workflow/) | Work with Git branches, commits, pushes, tickets, and GitHub PRs | `workflow` |
-| [Fluent Languages](plugins/fluent-languages/) | Write natural Korean, Japanese, and English while preserving technical content | `fluent-languages` |
-| [Writing](plugins/writing/) | Select information, choose where it belongs, and organize writing for the reader and purpose | `writing` |
+| [Workflow](plugins/workflow) | Work with Git branches, commits, pushes, tickets, and GitHub PRs | `workflow` |
+| [Fluent Languages](plugins/fluent-languages) | Write natural Korean, Japanese, and English while preserving technical content | `fluent-languages` |
+| [Writing](plugins/writing) | Select information, choose where it belongs, and organize writing for the reader and purpose | `writing` |
 | [Research](plugins/research/README.md) | Research multiple sources, verify facts, and write answers supported by evidence | `research` |
 | [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, and the OpenAI API | `prompting` |
 | [Product](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | `product` |
@@ -131,7 +131,7 @@ plugins, and validation. The detailed guides below are maintained in Korean.
 
 - [Architecture overview](docs/architecture/overview.md) — Repository structure and loading boundaries
 - [Upstream update runbook](docs/runbooks/updating-upstream-plugin.md) — Update upstream content while keeping local changes separate
-- [Evaluation tools](evals/) — Validate language output, skill routing, and plugin quality
+- [Evaluation tools](evals) — Validate language output, skill routing, and plugin quality
 - [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues) — Bug reports and improvement suggestions
 
 ## Licenses and sources

@@ -50,7 +50,7 @@ prompt를 사용했고 command runtime은 포함하지 않았습니다.
 
 `skills/domain-shaped-code/references/comments.md`,
 `references/javascript-typescript-review.md`와
-`skills/review-quality/SKILL.md`는 로컬에서 새로 작성했으며 특정 upstream 파일을 복사하지
+`skills/review/SKILL.md`는 로컬에서 새로 작성했으며 특정 upstream 파일을 복사하지
 않았습니다.
 
 ## 적용한 변환

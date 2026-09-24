@@ -53,7 +53,7 @@ overlay합니다. overlay는 원본 이름·family·level·출처를 바꿀 수 
 근거로는 부족합니다.
 
 성숙도는 `indexed`, `normalized`, `decision-ready`, `contextual`, `superseded` 순서입니다.
-상세 계약은 [`references/`](references/)에 있고 출처·포함 범위·라이선스 주의사항은
+상세 계약은 [`references/`](references)에 있고 출처·포함 범위·라이선스 주의사항은
 [`UPSTREAM.md`](UPSTREAM.md)에 있습니다.
 
 ## 검증
@@ -69,4 +69,4 @@ python3 /path/to/skill-creator/scripts/quick_validate.py plugins/design-patterns
 family snapshot digest, source manifest 매핑과 digest, 계열 prefix를 포함한 ID, 끊어진 관계,
 관계가 없는 cross-family 동일 이름, 계열별 정확히 3개인 추천 항목과 직접 선언된 의사결정 정보,
 출처 URL 정책을 검사합니다. 모델의 실제 라우팅과 판단 품질은
-[`evals/design-patterns/`](../../evals/design-patterns/) 시나리오로 별도 평가해야 합니다.
+[`evals/design-patterns/`](../../evals/design-patterns) 시나리오로 별도 평가해야 합니다.

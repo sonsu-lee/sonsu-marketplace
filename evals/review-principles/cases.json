@@ -182,7 +182,7 @@
         "src/price.ts": "export function price(total: number) { return total; }\n",
         "CONTRACT.md": "요구는 주어진 금액 반환이다. 일반 리뷰에서는 요구 충족을 확인했고, 미래 할인 확장을 위한 StrategyFactory를 선택적 개선으로 제안했다. 현재 확장 요구는 없다. 구현·일반 검증은 완료했으며 계획 작업의 red-team은 아직 실행하지 않았다. 선택적 observer에 등록한 task ID=workflow-a, 기존 시도=1. observer check는 red-team 근거 누락으로 ready=false다. Stop은 같은 상태 중복 알림을 생략해 마지막 알림이 없었다. 현재 필수 red-team 절차는 유지한다.\n"
       },
-      "context": "receiving-code-review의 기존 워크플로우 피드백 처리 상황이다.",
+      "context": "address-review의 기존 워크플로우 피드백 처리 상황이다.",
       "owners": [
         "engineering"
       ],

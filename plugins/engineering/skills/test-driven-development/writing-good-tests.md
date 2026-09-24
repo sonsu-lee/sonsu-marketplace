@@ -25,7 +25,7 @@ expect(buildSearchQuery({ tag: 'urgent' })).toBe('tag:"urgent"');
 
 스크립트·설정은 통제된 입력으로 실행해 출력·부수 효과·종료 코드를 확인한다. 경로·구문·생성
 동기화처럼 정적 계약은 정적 검사로 확인한다. 에이전트 지침의 중요한 동작 변화에는
-[writing-skills](../writing-skills/SKILL.md)에 따라 실제 소비 사례가 필요한지 판단한다.
+[write-skill](../write-skill/SKILL.md)에 따라 실제 소비 사례가 필요한지 판단한다.
 사람이 읽는 산문이나 구현을 그대로 반복하는 테스트에는 새 실행 테스트를 만들지 않는다.
 
 ## 자신의 경계 계약을 검사한다

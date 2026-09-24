@@ -69,6 +69,17 @@ class Server:
         self.err.close()
 
 
+def installed_reference(home, start_hook):
+    source = Path(start_hook["sourcePath"]).resolve(strict=True)
+    cache = (home / "plugins/cache").resolve(strict=True)
+    if not source.is_relative_to(cache) or source.parent.name != "hooks" or source.name != "hooks.json":
+        raise RuntimeError("hook source is outside the installed plugin cache")
+    reference = source.parent.parent / "references/continuity.md"
+    if not reference.is_file():
+        raise RuntimeError("installed plugin is missing its recovery reference")
+    return reference
+
+
 def probe(case_root, names):
     home = case_root / "codex-home"
     work = case_root / "workspace"
@@ -101,15 +112,16 @@ def probe(case_root, names):
         skills = server.call("skills/list", {"cwds": [str(work)], "forceReload": True})
         listed_hooks = [h for row in hooks["data"] for h in row["hooks"]]
         listed_skills = [s for row in skills["data"] for s in row["skills"] if s["name"].endswith("-task-continuity")]
-        expected_skills = sorted(name + ":" + name + "-task-continuity" for name in names)
-        if sorted(s["name"] for s in listed_skills) != expected_skills:
-            raise RuntimeError("native skill count does not match installed plugins")
+        if listed_skills:
+            raise RuntimeError("continuity reference is still exposed as a skill")
+        installed_references = {}
         for name in names:
             matched = [h for h in listed_hooks if h.get("pluginId") == name + "@continuity-fixture"]
             expected_events = ["sessionStart", "stop"] if name == "engineering" else ["sessionStart"]
             if sorted(h["eventName"] for h in matched) != expected_events:
                 raise RuntimeError("missing or mismatched native hook for " + name)
             start = next(h for h in matched if h["eventName"] == "sessionStart")
+            installed_references[name] = str(installed_reference(home, start))
             if start["matcher"] != "^(compact|resume)$":
                 raise RuntimeError("mismatched recovery matcher for " + name)
             if any(h["trustStatus"] != "untrusted" for h in matched):
@@ -117,6 +129,7 @@ def probe(case_root, names):
         if any(row.get("errors") for row in hooks["data"] + skills["data"]):
             raise RuntimeError("native discovery reported errors")
         result.update(discovery="observed", reads=reads, hooks=hooks, skills=skills,
+                      installed_references=installed_references,
                       limitation="Discovery is not execution. Isolated home has no user auth or trusted hooks; no model calls or trust bypass.")
     except (RuntimeError, TimeoutError, OSError) as error:
         result.update(discovery="inconclusive", error=str(error))
