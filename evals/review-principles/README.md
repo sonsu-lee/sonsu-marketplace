@@ -24,8 +24,8 @@ Engineering의 lifecycle 리뷰와 품질 리뷰가 실제 문제·조건부 위
 | `workflow-optional` | 선택적 구조 제안과 필수 red-team을 구분하고 Stop 무알림을 통과로 해석하지 않음 |
 | `frozen-red-team` | 고정 묶음의 공백을 가변 자료로 대체하지 않고 verification에 반환 |
 
-여덟 사례 모두 `owners`가 가리키는 Engineering에서 실행한다. 일반 품질 사례는 `review-quality`,
-집중 관점 사례는 해당 review skill, 피드백 사례는 `receiving-code-review`, red-team 사례는
+여덟 사례 모두 `owners`가 가리키는 Engineering에서 실행한다. 일반 품질 사례는 `review`,
+집중 관점 사례는 해당 review skill, 피드백 사례는 `address-review`, red-team 사례는
 공통 기준과 `red-team-reviewer.md`를 사용한다.
 red-team 입력은 기존 생성기로 일곱 구성요소를 고정하고 digest를 전달한다.
 
@@ -81,7 +81,7 @@ CLI trace에서 underlying 실제 모델·추론 수준은 별도 관측하지 �
 | 최종 native 6개 범위 | 기존 유효 결과 3개와 재실행 3개로 기대 선택·분기 확인 |
 
 실패한 workflow 응답은 독립 리뷰 기능·고정 입력이 없는 조건에서 보조 정적 검토를 공식
-`failed / With fixes`로 제시했다. `requesting-code-review`의 workflow 진입에서 제공된 역할·
+`failed / With fixes`로 제시했다. 당시 독립 리뷰 workflow 진입에서 제공된 역할·
 고정 입력을 확인하고, 공식 독립 리뷰의 미수행 상태와 보조 관찰을 구분하도록 보완했다.
 재실행은 `blocked`와 확인된 결함을 구분했고, 일반 직접 리뷰는 그대로 수행했다. 이 보완은
 워크플로우 진입에 한정되며 당시 공통 판단 기준·Quality Engineering·입력 코드는 같아 나머지 행동 근거를 재사용했다.

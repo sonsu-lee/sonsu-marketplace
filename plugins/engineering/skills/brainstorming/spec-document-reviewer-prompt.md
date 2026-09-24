@@ -30,4 +30,4 @@
 - [비차단 개선 제안]
 ```
 
-조정자는 [품질 게이트 계약](../using-engineering-skills/references/quality-gates.md)에 따라 `Status`와 필수 근거의 충족 여부를 게이트 상태로 기록한다. 검토자가 필수 근거 공백을 보고했다면 `Approved`만으로 통과를 만들지 않는다.
+조정자는 [품질 게이트 계약](../../references/quality-gates.md)에 따라 `Status`와 필수 근거의 충족 여부를 게이트 상태로 기록한다. 검토자가 필수 근거 공백을 보고했다면 `Approved`만으로 통과를 만들지 않는다.

@@ -37,5 +37,5 @@ python3 scripts/validate_design_quality.py report <report.json> <contract.json>
 
 [설계와 호출 구조](../../docs/architecture/interface-design.md),
 [평가 사례](../../evals/skill-expansion/README.md), [출처](UPSTREAM.md)를 참고하세요.
-여러 단계 작업은 포함된 `task-continuity`와 선택적 SessionStart hook으로 이어 갑니다.
+여러 단계 작업은 [연속성 참고 자료](references/continuity.md)와 선택적 SessionStart hook으로 이어 갑니다.
 helper는 Python 3.9+·POSIX 환경을 사용하며 hook을 사용할 수 없어도 직접 읽어 재개할 수 있습니다.

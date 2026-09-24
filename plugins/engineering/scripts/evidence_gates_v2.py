@@ -17,13 +17,13 @@ import tempfile
 
 G = None
 POLICIES = ('code-quality', 'review-criteria', 'javascript-typescript-review')
-GOVERNANCE = ('skills/using-engineering-skills/references/quality-gates.md',
-              'skills/using-engineering-skills/references/agent-execution.md',
+GOVERNANCE = ('references/quality-gates.md',
+              'references/agent-execution.md',
               'references/model-profiles.md',
-              'skills/requesting-code-review/code-reviewer.md',
-              'skills/requesting-code-review/red-team-reviewer.md',
-              'skills/review-quality/SKILL.md',
-              'skills/requesting-code-review/SKILL.md',
+              'references/review/code-reviewer.md',
+              'references/review/red-team-reviewer.md',
+              'skills/review/SKILL.md',
+              'references/independent-review.md',
               'skills/review-failure-modes/SKILL.md',
               'skills/review-maintainability/SKILL.md',
               'skills/review-operability/SKILL.md',

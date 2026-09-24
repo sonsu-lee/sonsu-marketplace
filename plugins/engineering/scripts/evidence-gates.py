@@ -185,12 +185,12 @@ def snapshot(root, config):
             require(path.is_file(), "submodules and directory artifacts are not supported")
             entries.append([name, bool(path.stat().st_mode & stat.S_IXUSR), digest(path.read_bytes())])
     package = Path(__file__).resolve().parents[1]
-    policies = ("skills/using-engineering-skills/references/quality-gates.md",
+    policies = ("references/quality-gates.md",
                 "references/code-quality.md",
                 "references/review-criteria.md",
                 "references/javascript-typescript-review.md",
-                "skills/requesting-code-review/code-reviewer.md",
-                "skills/requesting-code-review/red-team-reviewer.md")
+                "references/review/code-reviewer.md",
+                "references/review/red-team-reviewer.md")
     return digest(encode({"files": entries, "config": config,
                           "index": digest(git(root, "ls-files", "--stage", "-v", "-z")),
                           "staged_diff": digest(git(root, "diff", "--cached", "--raw", "--no-renames",

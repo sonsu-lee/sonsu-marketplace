@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Push"
+  short_description: "확인된 ref로 일반 push합니다"
+  default_prompt: "$push로 현재 커밋을 확인된 upstream에 push해 줘."

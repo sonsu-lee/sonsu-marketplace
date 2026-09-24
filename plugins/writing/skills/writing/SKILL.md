@@ -53,18 +53,17 @@ Workflow가 맡으며, 각 플러그인은 단독으로 쓰거나 필요한 지�
 | 동료에게 보낼 요청·보고·인계 | [메시지의 요청과 맥락](references/messages.md) |
 
 티켓·PR은 전달받은 항목 안에서 설명을 구성한다. 구체적인 기본 양식·필수 항목·양식 조회와
-게시 절차는 Codex의 `workflow:to-ticket`·`workflow:to-pr` 또는 OMP의
-`skill://to-ticket`·`skill://to-pr`가 맡는다. 양식이 전달되지 않았으면 주어진 사실로 임시
+게시 절차는 `workflow:to-ticket`·`workflow:to-pr`가 맡는다. 양식이 전달되지 않았으면 주어진 사실로 임시
 초안을 작성하고, 저장소나 팀의 유효한 양식인지 확인하는 일은 해당 절차에 남긴다.
 
 현재 사용할 수 있는 Fluent 지침 중 **요청된 출력 언어**에 맞는 지침을 함께 적용한다.
 프롬프트 언어와 구분하고, 여러 언어는 각 부분에 맞춰 선택한다.
 
-| 출력 언어 | Codex ID | OMP ID |
-| --- | --- | --- |
-| 한국어 | `fluent-languages:fluent-korean` | `skill://fluent-korean` |
-| 일본어 | `fluent-languages:fluent-japanese` | `skill://fluent-japanese` |
-| 영어 | `fluent-languages:fluent-english` | `skill://fluent-english` |
+| 출력 언어 | 스킬 ID |
+| --- | --- |
+| 한국어 | `fluent-languages:fluent-korean` |
+| 일본어 | `fluent-languages:fluent-japanese` |
+| 영어 | `fluent-languages:fluent-english` |
 
 이미 적용 중인 지침에 필요한 지침만 보태고, 독자·목적·선별한 사실·출력 언어·편집 범위와 정해진 구성을
 공유해 같은 초안에 반영한다. 다른 플러그인이 없으면 Writing의 구성·보존 지침으로 작성한다.
@@ -82,5 +81,5 @@ Workflow가 맡으며, 각 플러그인은 단독으로 쓰거나 필요한 지�
 완료되는 것은 아니다. 설명이나 비교를 요청받지 않았다면 요청한 글을 반환한다.
 
 장문·여러 문서의 작성과 편집을 여러 단계로 맡은 주 작업 조정자는 파일 쓰기가 허용된 경우
-[작업 연속성](../task-continuity/SKILL.md) 지침으로 원문·초안·처리 구간을 기록한다.
+[작업 연속성](../../references/continuity.md) 지침으로 원문·초안·처리 구간을 기록한다.
 다른 작업의 출력 문체만 담당할 때는 별도 기록을 만들지 않는다.

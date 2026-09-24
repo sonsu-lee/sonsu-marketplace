@@ -20,13 +20,6 @@ codex plugin marketplace add .
 codex plugin list --marketplace sonsu-marketplace
 ```
 
-OMP에서는 로컬 OMP 카탈로그를 등록합니다.
-
-```sh
-omp plugin marketplace add .
-omp plugin discover sonsu-marketplace
-```
-
 GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용하므로 한 환경에서는 한 가지
 방식으로 등록합니다. 실제 등록·설치 검증에는 기존 사용자 설정과 분리된 환경을 사용하세요.
 플러그인 설치와 설치 후 스킬 목록을 다시 불러오는 방법은 [루트 README](../../README.md#설치)에 있습니다.
@@ -37,7 +30,7 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
    외부 원본이 포함되어 있으면 `UPSTREAM.md`에서 원본과 로컬 변경의 경계를 확인합니다.
 2. 수정 대상의 정본을 갱신합니다. Fluent Languages는 각 `skills/fluent-<language>/SKILL.md`와
    해당 스킬의 참고 자료를 직접 편집합니다. 언어 사이에 공통 원본을 주입하지 않습니다.
-3. 변경한 동작에 맞는 평가를 [evals/](../../evals/)에서 선택하고 아래 검증을 실행합니다.
+3. 변경한 동작에 맞는 평가를 [evals/](../../evals)에서 선택하고 아래 검증을 실행합니다.
    사용법·계약·개발 절차가 달라졌다면 [문서 배치 기준](../README.md)에 따라 담당 문서를 갱신합니다.
 
 ## 새 플러그인 추가
@@ -46,7 +39,7 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
 
 - 추가할 플러그인의 이름, 출처와 라이선스를 확인합니다.
 - 외부 플러그인이면 가져올 정확한 tag 또는 commit을 선택합니다.
-- 기존 `plugins/`, `.agents/plugins/marketplace.json`과 `.omp-plugin/marketplace.json`에서 같은 이름이 없는지 확인합니다.
+- 기존 `plugins/`와 `.agents/plugins/marketplace.json`에서 같은 이름이 없는지 확인합니다.
 
 ### 절차
 
@@ -55,7 +48,7 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
    해당 경로를 가리키게 합니다.
 3. 외부 플러그인은 원본 파일과 실행 권한을 검증하고 `UPSTREAM.md`에 출처, 기준 commit,
    버전, 라이선스와 포함 범위를 기록합니다.
-4. `.agents/plugins/marketplace.json`과 `.omp-plugin/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
+4. `.agents/plugins/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
 
 ```json
 {
@@ -72,30 +65,16 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
 }
 ```
 
-OMP 카탈로그에는 Codex 매니페스트와 같은 이름·버전, OMP plugin root 기준 경로를 기록합니다.
-
-```json
-{
-  "name": "my-plugin",
-  "description": "플러그인의 책임",
-  "version": "1.0.0",
-  "source": "./my-plugin",
-  "category": "productivity"
-}
-```
-
-폴더명, 플러그인 매니페스트와 두 마켓플레이스 항목의 `name`은 같아야 합니다.
-Codex `source.path`는 저장소 루트 기준이며, OMP `source`는
-`.omp-plugin/marketplace.json`의 `metadata.pluginRoot` 기준입니다.
-`.agents/plugins/marketplace.json`과 plugin별 `.codex-plugin/plugin.json`이 Codex 패키지의
-정본이고, `.omp-plugin/marketplace.json`은 이름·버전·경로의 OMP projection입니다.
+폴더명, 플러그인 매니페스트와 마켓플레이스 항목의 `name`은 같아야 합니다.
+`source.path`는 저장소 루트 기준입니다.
+`.agents/plugins/marketplace.json`과 plugin별 `.codex-plugin/plugin.json`이 패키지의 정본입니다.
 
 ## 검증
 
 저장소 루트에서 다음 정적 검사를 실행합니다.
 
 ```sh
-find .agents .omp-plugin plugins evals -name '*.json' -print0 \
+find .agents plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
 python3 scripts/render-agent-policy.py --check
 python3 scripts/render-continuity.py --check
@@ -109,10 +88,9 @@ git diff --check
 
 ```sh
 python3 -m json.tool .agents/plugins/marketplace.json
-python3 -m json.tool .omp-plugin/marketplace.json
 python3 -m json.tool plugins/<plugin-name>/.codex-plugin/plugin.json
 ```
 
-JSON 문법과 참조 경로를 확인한 뒤 가능한 경우 Codex와 OMP의 실제 플러그인 읽기 경로에서
+JSON 문법과 참조 경로를 확인한 뒤 가능한 경우 Codex의 실제 플러그인 읽기 경로에서
 이름, 버전과 구성 요소 목록을 확인합니다. 정적 검증을 실제 로딩 성공으로 간주하지 않습니다.
 API 키와 토큰은 저장하지 않으며 필요한 환경 변수 이름만 `.env.example`에 기록합니다.

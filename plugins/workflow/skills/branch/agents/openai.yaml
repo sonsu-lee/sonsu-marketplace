@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Branch"
+  short_description: "브랜치 이름을 제안하거나 생성합니다"
+  default_prompt: "$branch로 이 변경의 브랜치 이름을 제안해 줘."

@@ -16,7 +16,7 @@ description: 기존 운영형 B2B, admin, back-office 또는 data-work 화면을
 4. inventory를 정확히 한 change contract에 연결하고 requirement↔scenario와 공통 scenario를 검증한다.
 5. 사용자·맥락·primary question·오판 비용·정보·표현·환경·지표를 포함한 v2 계약을 잠근다.
 6. 제품 디자인 시스템을 재사용해 변경하고 preserve/change scenario를 모두 재검증한다.
-7. 현재 scope의 DQ gate와 Operations runtime evidence를 평가한다.
+7. 평가 가능한 재설계 산출물이 있으면 현재 scope의 DQ gate와 Operations runtime evidence를 평가한다. 탐색 대화와 화면을 바꾸지 않는 문구 수정에는 DQ 보고서를 요구하지 않는다.
 
 ```bash
 python3 <plugin-root>/scripts/validate_contracts.py screen-contract <contract.json>

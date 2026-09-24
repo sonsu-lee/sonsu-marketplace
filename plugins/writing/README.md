@@ -49,7 +49,7 @@ README는 용도·주요 기능·첫 사용·중요한 제약·탐색 경로가 
 
 ## 검증과 출처
 
-[장르별 참조](skills/writing/references/)는 조직·저자의 원문 지침과 로컬 예시를 구분한다.
+[장르별 참조](skills/writing/references)는 조직·저자의 원문 지침과 로컬 예시를 구분한다.
 원문은 저자·조직이 권장하는 사례이며 보편적인 정답이나 생산성 실험의 결과가 아니다.
 언어별 원문·출처 기록은 Fluent, 티켓·PR 원문 사례는 Workflow에서 관리한다.
 
@@ -60,11 +60,11 @@ README는 용도·주요 기능·첫 사용·중요한 제약·탐색 경로가 
 
 ## 컴팩션 후 작업 재개
 
-Codex의 [`writing:writing-task-continuity`](skills/task-continuity/SKILL.md) 또는 OMP의 [`skill://writing-task-continuity`](skills/task-continuity/SKILL.md)는 여러 단계의 작성·편집에서 원문·초안,
+[작업 연속성 참고 자료](references/continuity.md)는 여러 단계의 작성·편집에서 원문·초안,
 편집 범위와 완료 구간을 `.sonsu/continuity/`에 기록하고 같은 session의 재개 후 실제 상태와 대조한다.
 다른 작업의 출력 문체만 적용하거나 짧은 문장을 수정할 때는 기록하지 않는다.
 
-포함된 `SessionStart` hook은 활성 기록이 있을 때 스킬·기록 경로만 전달한다. 설치 후 CLI의
+포함된 `SessionStart` hook은 활성 기록이 있을 때 참고 자료·기록 경로만 전달한다. 설치 후 CLI의
 `/hooks`에서 정의를 검토하고 신뢰해야 실행된다. hook을 사용할 수 없으면 위 스킬로 수동
 재개한다. helper는 Python 3.9+와 POSIX 환경을 사용한다.
 [운영 계약](../../docs/reference/task-continuity.md)과 [검증 범위](../../evals/task-continuity/README.md)를 참고한다.

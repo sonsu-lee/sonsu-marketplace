@@ -14,6 +14,7 @@
       },
       "expected": {
         "policy": "checks",
+        "fresh_reviewer_count": 0,
         "required_evidence": [
           "declared consumer checks on the current artifact"
         ],
@@ -37,6 +38,7 @@
       },
       "expected": {
         "policy": "independent",
+        "fresh_reviewer_count": 5,
         "required_evidence": [
           "relevant checks",
           "Luna xhigh 5 independent fresh-context reviews",
@@ -110,6 +112,7 @@
         "impact": "bounded with supporting checks"
       },
       "expected": {
+        "fresh_reviewer_count": 1,
         "required_evidence": [
           "prior whole-review scope",
           "current delta and impact rationale",
@@ -132,6 +135,7 @@
         "impact": "unknown"
       },
       "expected": {
+        "fresh_reviewer_count": 5,
         "required_evidence": [
           "reopened current workspace snapshot",
           "Luna xhigh 5 fresh-context independent reviews"

@@ -47,8 +47,9 @@ python3 <interface-design-plugin-root>/scripts/validate_design_quality.py contra
 python3 <interface-design-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
 ```
 
-현재 scope의 DQ gate를 차원별로 판정하고 DQ1–DQ6은 독립 평가자 2명의 최솟값을 사용한다.
+평가 가능한 재설계 산출물이 있으면 현재 scope의 DQ gate를 차원별로 판정하고 DQ1–DQ6은
+독립 평가자 2명의 최솟값을 사용한다. 탐색 대화와 화면을 바꾸지 않는 문구 수정에는 적용하지 않는다.
 높은 시각 점수로 정보 누락·오판 위험·실행 증거 부족을 상쇄하지 않는다.
 
-여러 단계의 작업은 [작업 연속성](../task-continuity/SKILL.md)으로 이어 간다. 단발 작업이나
+여러 단계의 작업은 [작업 연속성](../../references/continuity.md)으로 이어 간다. 단발 작업이나
 파일 쓰기가 금지된 작업에는 기록 파일을 만들지 않는다.

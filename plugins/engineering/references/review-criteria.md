@@ -35,7 +35,7 @@ repository 감사와 개발 workflow의 독립 리뷰가 같은 의미 기준을
 조회해 기존 `verification-report` 또는 `observed-outcomes-and-constraints`에 내용을 넣고 고정한다.
 red-team의 자료 공백은 검증 담당자에게 반환한다.
 
-root 조정자의 일반 `review-quality`는 같은 불변 artifact와 이 기준을 받은 새 `gpt-5.6-luna` xhigh 검토자 5명을
+root 조정자의 일반 `review`는 같은 불변 artifact와 이 기준을 받은 새 `gpt-5.6-luna` xhigh 검토자 5명을
 기본값으로 사용한다. 각 검토자는 전체 변경에서 관련 문제를 독립적으로 찾으며 lens를 미리
 할당하거나 finding 수를 강제하지 않는다. 집중 review skill은 기본적으로 같은 조건의 새 검토자
 1명을 사용한다. root는 호출 수·요청 설정·실제 관측 설정(없으면 unknown)을 구분해 남기고, 실행하지 못한

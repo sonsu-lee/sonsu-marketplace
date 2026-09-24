@@ -38,7 +38,7 @@ runtime compliance, 모델 성능·비용 또는 현재 Engineering 문서의 �
 ### 2026-09-11 승인 경계 decision probe (prior baseline)
 
 `approval-boundary-*` 8개 scenario에 대해 변경 전 `91b4a0e`와 수정 중 snapshot의
-`brainstorming`, `writing-plans`, `executing-plans`, `agent-execution`을 fresh agent에게 읽게 했습니다.
+`brainstorming`, `plan`, `execute-plan`, `agent-execution`을 fresh agent에게 읽게 했습니다.
 양쪽 모두 Sol medium을 요청했고 scenario와 판단 질문을 고정했습니다. 각 snapshot당 1응답으로
 8개 case를 판단했으며, native 실제 model/effort는 관측하지 못했습니다.
 

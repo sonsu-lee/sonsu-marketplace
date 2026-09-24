@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root=$(git rev-parse --show-toplevel)
-sdd_workspace="$repo_root/plugins/engineering/skills/subagent-driven-development/scripts/sdd-workspace"
+sdd_workspace="$repo_root/plugins/engineering/scripts/sdd-workspace"
 start_server="$repo_root/plugins/engineering/skills/brainstorming/scripts/start-server.sh"
 stop_server="$repo_root/plugins/engineering/skills/brainstorming/scripts/stop-server.sh"
 fixture_dir=$(mktemp -d)
@@ -58,7 +58,8 @@ if git -C "$repo_root" grep -Ini \
   -e 'telemetry' \
   -- 'plugins/engineering/scripts' \
      'plugins/engineering/skills/brainstorming/scripts' \
-     'plugins/engineering/skills/subagent-driven-development/scripts'; then
+     'plugins/engineering/references/delegation' \
+     'plugins/engineering/scripts'; then
   echo 'Engineering implementation still contains a telemetry branch' >&2
   exit 1
 fi

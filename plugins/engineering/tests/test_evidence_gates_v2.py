@@ -29,7 +29,7 @@ class ManagedGates(unittest.TestCase):
         for name in ('code-quality', 'review-criteria', 'javascript-typescript-review'):
             (policies / (name + '.md')).write_text('policy one')
         (policies / 'model-profiles.json').write_text(json.dumps({'roles': {'general_review': {'model': 'gpt-5.6-luna', 'effort': 'xhigh', 'count': 5}, 'focused_review': {'model': 'gpt-5.6-luna', 'effort': 'xhigh', 'count': 1}, 'red_team': {'model': 'gpt-6-astra', 'effort': 'high', 'count': 1}}}))
-        for name in ('skills/using-engineering-skills/references/quality-gates.md', 'skills/using-engineering-skills/references/agent-execution.md', 'references/model-profiles.md', 'skills/requesting-code-review/code-reviewer.md', 'skills/requesting-code-review/red-team-reviewer.md', 'skills/review-quality/SKILL.md', 'skills/requesting-code-review/SKILL.md', 'skills/review-failure-modes/SKILL.md', 'skills/review-maintainability/SKILL.md', 'skills/review-operability/SKILL.md', 'skills/review-overengineering/SKILL.md'):
+        for name in ('references/quality-gates.md', 'references/agent-execution.md', 'references/model-profiles.md', 'references/review/code-reviewer.md', 'references/review/red-team-reviewer.md', 'skills/review/SKILL.md', 'references/independent-review.md', 'skills/review-failure-modes/SKILL.md', 'skills/review-maintainability/SKILL.md', 'skills/review-operability/SKILL.md', 'skills/review-overengineering/SKILL.md'):
             target = self.package / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text('Active governance fixture: ' + name)
@@ -356,7 +356,7 @@ class ManagedGates(unittest.TestCase):
         self.init()
         self.checked()
         self.complete()
-        for name in ('skills/requesting-code-review/code-reviewer.md', 'skills/requesting-code-review/red-team-reviewer.md', 'skills/using-engineering-skills/references/quality-gates.md', 'skills/using-engineering-skills/references/agent-execution.md', 'references/model-profiles.md'):
+        for name in ('references/review/code-reviewer.md', 'references/review/red-team-reviewer.md', 'references/quality-gates.md', 'references/agent-execution.md', 'references/model-profiles.md'):
             path = self.package / name
             original = path.read_text()
             path.write_text(original + ' Changed review requirement.')
@@ -805,7 +805,7 @@ class ManagedGates(unittest.TestCase):
         self.init()
         self.checked()
         self.complete()
-        for name in ('skills/review-quality/SKILL.md', 'skills/requesting-code-review/SKILL.md', 'skills/review-failure-modes/SKILL.md', 'skills/review-maintainability/SKILL.md', 'skills/review-operability/SKILL.md', 'skills/review-overengineering/SKILL.md'):
+        for name in ('skills/review/SKILL.md', 'references/independent-review.md', 'skills/review-failure-modes/SKILL.md', 'skills/review-maintainability/SKILL.md', 'skills/review-operability/SKILL.md', 'skills/review-overengineering/SKILL.md'):
             path = self.package / name
             original = path.read_text()
             path.write_text(original + ' Updated active review procedure.')

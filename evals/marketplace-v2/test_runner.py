@@ -44,23 +44,23 @@ class MarketplaceV2RunnerTests(unittest.TestCase):
         self.assertIn("prompt", public)
 
     def test_preflight_accepts_only_bare_or_matching_profile_skill_names(self):
-        required = ["review-quality", "test-driven-development"]
+        required = ["review", "test-driven-development"]
         self.assertEqual(runner._missing_required_skills(
-            "engineering", required, ["review-quality", "test-driven-development"]
+            "engineering", required, ["review", "test-driven-development"]
         ), [])
         self.assertEqual(runner._missing_required_skills(
-            "engineering", required, ["engineering:review-quality", "engineering:test-driven-development"]
+            "engineering", required, ["engineering:review", "engineering:test-driven-development"]
         ), [])
         self.assertEqual(runner._missing_required_skills(
-            "engineering", required, ["unrelated:review-quality", "engineering:test-driven-development"]
-        ), ["review-quality"])
+            "engineering", required, ["unrelated:review", "engineering:test-driven-development"]
+        ), ["review"])
 
     def test_trace_observation_does_not_invent_model_or_effort(self):
         events = [
             {"type": "thread.started", "thread_id": "thread-1"},
             {"type": "item.completed", "item": {
                 "type": "command_execution",
-                "command": "sed -n '1,80p' .agents/skills/review-quality/SKILL.md",
+                "command": "sed -n '1,80p' .agents/skills/review/SKILL.md",
             }},
             {"type": "item.completed", "item": {
                 "type": "collab_tool_call", "tool": "spawn_agent",
@@ -82,7 +82,7 @@ class MarketplaceV2RunnerTests(unittest.TestCase):
         self.assertEqual(observed["completed_agent_ids"], ["agent-1"])
         self.assertEqual(observed["matching_completed_agent_ids"], ["agent-1"])
         self.assertEqual(observed["matching_completed_agent_ids_with_message"], ["agent-1"])
-        self.assertEqual(observed["skill_reads"], ["review-quality"])
+        self.assertEqual(observed["skill_reads"], ["review"])
         self.assertEqual(observed["observed_model"], "unknown")
         self.assertEqual(observed["observed_effort"], "unknown")
         collaboration = runner._trace_observations([

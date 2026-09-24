@@ -9,7 +9,7 @@ description: 버그 보고, 기능 요청, 요구사항, 결정이나 계획을 
 
 ## 작업 연속성
 
-여러 단계의 작업이나 외부 쓰기를 맡은 메인 controller는 같은 플러그인의 [task-continuity](../task-continuity/SKILL.md)로 진행과 근거를 기록한다. 컴팩션·재개 후에는 실제 상태와 대조한다. 짧은 단발 작업과 위임된 작업자는 별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 수정하지 않는다.
+여러 단계의 작업이나 외부 쓰기를 맡은 메인 controller는 같은 플러그인의 [연속성 참고 자료](../../references/continuity.md)로 진행과 근거를 기록한다. 컴팩션·재개 후에는 실제 상태와 대조한다. 짧은 단발 작업과 위임된 작업자는 별도 기록을 만들지 않으며, 파일 쓰기가 금지되면 checkpoint와 Git exclude도 수정하지 않는다.
 
 ## 요청과 권한을 확인한다
 

@@ -8,7 +8,7 @@
 ## 사전 확인
 
 1. 작업 디렉터리, branch, `HEAD`, staged·unstaged·untracked 파일을 확인합니다.
-2. 기존 linked worktree이면 재사용하고, 일반 checkout이면 `using-git-worktrees` 정책을 따릅니다.
+2. 기존 linked worktree이면 재사용하고, 일반 checkout이면 `worktree` 정책을 따릅니다.
 3. 현재 `UPSTREAM.md`의 저장소, 기준 commit, 버전과 포함 범위를 읽습니다.
 4. 현재 로컬 커스텀 diff와 관련 결정 문서를 확인합니다.
 5. commit, push와 PR 권한이 각각 어디까지 승인되었는지 확인합니다.

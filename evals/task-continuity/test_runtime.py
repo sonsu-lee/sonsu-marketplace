@@ -41,7 +41,9 @@ class RuntimeTests(unittest.TestCase):
             (package / "scripts").mkdir(parents=True)
             (package / ".codex-plugin").mkdir()
             (package / ".codex-plugin/plugin.json").write_text(json.dumps({"name": plugin}))
-            for skill in ("task-continuity", "example-work"):
+            (package / "references").mkdir()
+            (package / "references/continuity.md").write_text("# Recovery reference\n")
+            for skill in ("example-work",):
                 d = package / "skills" / skill
                 d.mkdir(parents=True)
                 (d / "SKILL.md").write_text("---\nname: " + skill + "\n---\n")
@@ -101,6 +103,27 @@ class RuntimeTests(unittest.TestCase):
         read = self.run_cli("read")
         self.assertEqual(json.loads(read.stdout), saved)
         self.assertEqual(self.path().read_bytes(), raw)
+
+    def test_retired_public_skill_checkpoint_can_resume_without_reexposing_skill(self):
+        retired = {"engineering": "executing-plans", "workflow": "git-workflow"}
+        for plugin in PLUGINS:
+            with self.subTest(plugin=plugin):
+                self.assertEqual(self.write(plugin=plugin).returncode, 0)
+                path = self.path(plugin=plugin)
+                saved = json.loads(path.read_text())
+                saved["active_skill"] = retired.get(plugin, "task-continuity")
+                path.write_text(json.dumps(saved))
+                read = self.run_cli("read", plugin=plugin)
+                self.assertEqual(read.returncode, 0, read.stderr)
+                self.assertEqual(json.loads(read.stdout)["active_skill"], saved["active_skill"])
+                self.assertIn("continuity.md", self.hook(plugin=plugin).stdout)
+                rejected = self.run_cli("write", "--mode", "write", "--task-id", "task-a",
+                                        "--skill", saved["active_skill"], "--expected-revision", "1",
+                                        data=SUMMARY, plugin=plugin)
+                self.assertNotEqual(rejected.returncode, 0)
+                migrated = self.write(revision=1, plugin=plugin)
+                self.assertEqual(migrated.returncode, 0, migrated.stderr)
+                self.assertEqual(json.loads(path.read_text())["active_skill"], "example-work")
 
     def test_missing_codex_thread_id_requires_an_explicit_session(self):
         env = self.env.copy()
@@ -182,7 +205,7 @@ class RuntimeTests(unittest.TestCase):
             out = json.loads(r.stdout)["hookSpecificOutput"]
             self.assertEqual(out["hookEventName"], "SessionStart")
             self.assertIn(str(self.path()), out["additionalContext"])
-            self.assertIn(str(self.packages["engineering"].parents[1] / "skills/task-continuity/SKILL.md"), out["additionalContext"])
+            self.assertIn(str(self.packages["engineering"].parents[1] / "references/continuity.md"), out["additionalContext"])
             self.assertNotIn(poison["extra"], r.stdout)
             self.assertNotIn(SUMMARY["goal"], r.stdout)
         self.assertEqual(before, {p: p.stat().st_mtime_ns for p in self.work.rglob("*")})
