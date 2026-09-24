@@ -33,7 +33,7 @@ def identifier(value):
 
 
 def default_session_id():
-    claude = os.environ.get("SONSU_CLAUDE_SESSION_ID") or os.environ.get("CLAUDE_CODE_SESSION_ID")
+    claude = os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("SONSU_CLAUDE_SESSION_ID")
     codex = os.environ.get("CODEX_THREAD_ID")
     if claude and codex and claude != codex:
         raise ContinuityError("ambiguous host session; pass --session-id")

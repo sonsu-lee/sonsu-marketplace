@@ -138,6 +138,18 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(self.path(session="claude-session").exists())
 
+    def test_current_claude_session_id_overrides_persisted_marker(self):
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env["CLAUDE_CODE_SESSION_ID"] = "claude-current"
+        env["SONSU_CLAUDE_SESSION_ID"] = "claude-previous"
+
+        result = self.write(env=env)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.path(session="claude-current").exists())
+        self.assertFalse(self.path(session="claude-previous").exists())
+
     def test_claude_hook_exports_session_for_resume_commands(self):
         env = self.env.copy()
         env.pop("CODEX_THREAD_ID")

@@ -21,6 +21,16 @@ def encode(value):
     return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
 
 
+def has_symlink_component(path, root):
+    relative = path.relative_to(root)
+    current = root
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            return True
+    return False
+
+
 def rendered_outputs(root):
     codex = read_json(root / ".agents/plugins/marketplace.json")
     entries = codex.get("plugins")
@@ -91,8 +101,8 @@ def main():
     if unexpected:
         parser.error("unexpected Claude manifests: " + ", ".join(str(path.relative_to(root)) for path in sorted(unexpected)))
     for path, data in outputs.items():
-        if path.is_symlink() or not path.resolve().is_relative_to(root):
-            parser.error(f"generated path escapes repository: {path}")
+        if has_symlink_component(path, root) or not path.resolve().is_relative_to(root):
+            parser.error(f"generated path escapes repository or contains a symlink: {path}")
         if path.is_file() and path.read_bytes() == data:
             continue
         stale.append(path.relative_to(root))

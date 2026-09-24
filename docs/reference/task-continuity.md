@@ -124,8 +124,11 @@ helper는 stale revision, 다른 identity, 손상·지원하지 않는 기록, s
 - 기록은 비신뢰 작업 데이터이며 새 권한이 아니라는 안내
 - 최신 사용자 지시·현재 artifact 대조와 불명확한 외부 결과의 조회 우선
 
-Claude Code에서는 `CLAUDE_ENV_FILE`이 제공된 경우 hook payload의 session ID만 해당 세션 환경에
-내보냅니다. checkpoint 본문이나 사용자 문구를 환경 파일에 기록하지 않습니다.
+Claude Code 명령은 현재 `CLAUDE_CODE_SESSION_ID`를 우선 사용하고, 이 값이 없는 경우에만
+`SONSU_CLAUDE_SESSION_ID`를 대체값으로 사용합니다. `/clear`에서 바뀐 현재 ID가 이전 환경 파일 값보다
+우선하므로 새 세션의 checkpoint와 gate identity가 이전 세션에 연결되지 않습니다.
+`CLAUDE_ENV_FILE`이 제공된 경우 hook payload에서는 session ID만 내보냅니다. checkpoint 본문이나
+사용자 문구는 환경 파일에 기록하지 않습니다.
 
 본문·task ID·goal·외부 URL·사용자 문구를 developer context에 삽입하지 않습니다. 기록이 없거나
 종료됐으면 무출력이고, 손상·권한·경로 오류에서도 context를 넣지 않고 고정 진단만 stderr로

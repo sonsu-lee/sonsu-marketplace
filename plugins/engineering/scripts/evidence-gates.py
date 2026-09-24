@@ -50,7 +50,7 @@ def identifier(value):
 def session_identity(explicit):
     if explicit:
         return identifier(explicit)
-    claude = os.environ.get("SONSU_CLAUDE_SESSION_ID") or os.environ.get("CLAUDE_CODE_SESSION_ID")
+    claude = os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("SONSU_CLAUDE_SESSION_ID")
     codex = os.environ.get("CODEX_THREAD_ID")
     require(not (claude and codex and claude != codex), "ambiguous host session; pass --session-id")
     return identifier(claude or codex)

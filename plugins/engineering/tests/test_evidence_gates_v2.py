@@ -45,11 +45,13 @@ class ManagedGates(unittest.TestCase):
                 'checks': [{'id': 'verify', 'argv': [sys.executable, '-c', 'print("checked")']}],
                 'review': review}
 
-    def call(self, command, *args, data=None):
+    def call(self, command, *args, data=None, env=None):
+        call_env = dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1')
+        if env is not None:
+            call_env.update(env)
         return subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), command,
                                '--task-id', 'task', *args], input='' if data is None else json.dumps(data),
-                              text=True, capture_output=True, env=dict(os.environ, CODEX_THREAD_ID='controller',
-                              PYTHONDONTWRITEBYTECODE='1'), timeout=15)
+                              text=True, capture_output=True, env=call_env, timeout=15)
 
     def ok(self, command, *args, data=None):
         result = self.call(command, *args, data=data)
@@ -150,6 +152,17 @@ class ManagedGates(unittest.TestCase):
                     '--reviewer-id', reviewer, '--report', str(self.report), data=body)
         result = self.ok('adjudicate', '--unit', 'design', '--gate', 'final-review', '--attempt', '1', data={'decisions': []})
         self.assertEqual(result['outcome'], 'passed')
+
+    def test_current_claude_session_id_overrides_persisted_marker(self):
+        env = {'CODEX_THREAD_ID': '', 'CLAUDE_CODE_SESSION_ID': 'claude-current',
+               'SONSU_CLAUDE_SESSION_ID': 'claude-previous'}
+
+        result = self.call('init', data=self.config, env=env)
+
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        state = json.loads((self.root / '.engineering/gates/tasks/task/state.json').read_text())
+        self.assertEqual(state['host'], 'claude-code')
+        self.assertEqual(state['sessions'], ['claude-current'])
 
     def review_pass(self, attempt=1, gate='final-review', count=5):
         for n in range(count):

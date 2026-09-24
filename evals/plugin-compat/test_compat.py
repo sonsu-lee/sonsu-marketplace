@@ -1,6 +1,9 @@
 """Codex and Claude Code marketplace packaging contracts."""
 import json
 from pathlib import Path
+import subprocess
+import sys
+import tempfile
 import unittest
 
 
@@ -77,6 +80,30 @@ class CodexPackagingTests(unittest.TestCase):
                     target = (package_root / manifest[field]).resolve()
                     self.assertTrue(target.is_relative_to(package_root))
                     self.assertTrue(target.exists())
+
+    def test_output_parent_symlink_cannot_overwrite_codex_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".agents/plugins").mkdir(parents=True)
+            plugin = root / "plugins/demo"
+            (plugin / ".codex-plugin").mkdir(parents=True)
+            (plugin / ".claude-plugin").symlink_to(".codex-plugin", target_is_directory=True)
+            (root / ".agents/plugins/marketplace.json").write_text(json.dumps({
+                "name": "fixture-marketplace",
+                "plugins": [{"name": "demo", "source": {"source": "local", "path": "./plugins/demo"}}],
+            }))
+            codex_manifest = plugin / ".codex-plugin/plugin.json"
+            codex_manifest.write_text(json.dumps({"name": "demo", "version": "1.0.0"}))
+            original = codex_manifest.read_bytes()
+
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/render-claude-compat.py"), "--root", str(root)],
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(codex_manifest.read_bytes(), original)
 
 
 if __name__ == "__main__":
