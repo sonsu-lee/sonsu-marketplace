@@ -17,8 +17,8 @@ description: GitHub PR의 충돌을 해결하거나 리뷰 지적·실패한 CI�
 3. repo 지침, 현재 HEAD/branch, staged/unstaged/untracked와 진행 중 Git operation을 읽는다.
    관계없는 변경을 stash/reset/restore하지 않는다. 다른 PR branch나 충돌 작업은 소유한 격리
    worktree에서 수행하고 baseline·원격 ref를 기록한다. 격리에 새 로컬 브랜치가 필요하면 확인된
-   PR head ref를 보존하고, Codex에서 실행 중이라는 이유만으로 `codex/` 또는 `codex-` 접두사를
-   붙이지 않는다. 필요한 객체만 확인된 remote에서 fetch한다.
+   PR head ref를 보존하고 [공통 이름 규칙](../../references/branch-naming.md)을 읽는다. 필요한
+   객체만 확인된 remote에서 fetch한다.
 4. fork PR은 base 저장소와 실제 push 대상 head 저장소·ref를 구분한다. 정확한 head를 확보할 수
    없으면 수정하지 않는다. 사용자의 기존 작업 공간에서 무조건 `gh pr checkout`하지 않는다.
 
