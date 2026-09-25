@@ -84,7 +84,7 @@ class RuntimeTests(unittest.TestCase):
         plugin_root = ROOT / "plugins/engineering"
 
         self.assertIn("CLAUDE_PLUGIN_ROOT", command)
-        self.assertEqual(session_start["matcher"], "^(startup|compact|resume)$")
+        self.assertEqual(session_start["matcher"], "^(startup|clear|compact|resume)$")
         for root_variable in ("PLUGIN_ROOT", "CLAUDE_PLUGIN_ROOT"):
             with self.subTest(root_variable=root_variable):
                 env = self.env.copy()
@@ -188,6 +188,24 @@ class RuntimeTests(unittest.TestCase):
         write = self.write(env=env)
         self.assertEqual(write.returncode, 0, write.stderr)
         self.assertTrue(self.path(session="claude-startup").is_file())
+
+    def test_claude_clear_hook_updates_session_without_restoring_old_checkpoint(self):
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
+        env_file = self.base / "claude-clear-env"
+        env["CLAUDE_ENV_FILE"] = str(env_file)
+        env_file.write_text("export SONSU_CLAUDE_SESSION_ID='claude-before'\n")
+        event = {"hook_event_name": "SessionStart", "source": "clear",
+                 "session_id": "claude-after", "cwd": str(self.work)}
+
+        result = self.run_cli("hook", data=event, env=env)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(env_file.read_text().splitlines()[-1],
+                         "export SONSU_CLAUDE_SESSION_ID='claude-after'")
+        self.assertFalse((self.work / ".sonsu").exists())
 
     def test_explicit_session_overrides_codex_default(self):
         env = self.env.copy()

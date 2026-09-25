@@ -294,6 +294,25 @@ class ManagedGates(unittest.TestCase):
             path.write_text(original)
             self.assertTrue(self.ok('status')['ready'], name)
 
+    def test_project_agent_override_invalidates_document_review(self):
+        self.config['units'][0]['review'] = 'independent'
+        agent = self.root / '.claude/agents/reviews/general_review.md'
+        agent.parent.mkdir(parents=True)
+        agent.write_text('---\nname: general_review\n---\noriginal')
+        self.ok('init', '--host', 'claude-code', '--session-id', 'claude-controller', data=self.config)
+        self.checked()
+        self.prepare()
+        self.review_pass()
+        self.complete()
+        self.assertTrue(self.ok('status')['ready'])
+
+        agent.write_text('---\nname: general_review\n---\nchanged')
+        self.assertEqual(self.ok('status')['units']['design']['status'], 'stale')
+        agent.write_text('---\nname: general_review\n---\noriginal')
+        self.assertTrue(self.ok('status')['ready'])
+        agent.unlink()
+        self.assertEqual(self.ok('status')['units']['design']['status'], 'stale')
+
     def test_claude_red_team_agent_definition_change_invalidates_completion(self):
         self.config['units'][0]['review'] = 'red-team'
         self.ok('init', '--host', 'claude-code', '--session-id', 'claude-controller', data=self.config)

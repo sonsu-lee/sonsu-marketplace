@@ -190,7 +190,7 @@ def profiles(host):
     return G.read_json(package / 'references' / filename)['roles']
 
 
-def policy_digest(host, review):
+def policy_digest(host, review, root, artifact_root):
     package = Path(__file__).resolve().parents[1]
     model_reference = 'references/claude-model-profiles.md' if host == 'claude-code' else 'references/model-profiles.md'
     governance = tuple(model_reference if name == 'references/model-profiles.md' else name for name in GOVERNANCE)
@@ -202,13 +202,25 @@ def policy_digest(host, review):
         agents = ('general_review', 'focused_review')
         if review == 'red-team':
             agents += ('red_team',)
-    return G.digest(G.encode({'policies': {name: G.file_digest(package / 'references' / (name + '.md')) for name in POLICIES}, 'profiles': G.file_digest(package / 'references' / profile_file), 'governance': {name: G.file_digest(package / name) for name in governance}, 'agents': {name: G.file_digest(package / 'agents' / (name + '.md')) for name in agents}}))
+    project_agents = {}
+    if agents:
+        # The controller and an isolated artifact workspace can both supply
+        # project agents. Bind both scopes, including new or removed overrides.
+        for workspace in {root, artifact_root}:
+            directory = workspace / '.claude/agents'
+            G.safe_path(directory)
+            if directory.exists():
+                need(directory.is_dir(), 'project agents path must be a directory')
+                project_agents[str(workspace)] = {
+                    str(path.relative_to(directory)): G.file_digest(path)
+                    for path in sorted(directory.rglob('*.md'))}
+    return G.digest(G.encode({'policies': {name: G.file_digest(package / 'references' / (name + '.md')) for name in POLICIES}, 'profiles': G.file_digest(package / 'references' / profile_file), 'governance': {name: G.file_digest(package / name) for name in governance}, 'agents': {name: G.file_digest(package / 'agents' / (name + '.md')) for name in agents}, 'project_agents': project_agents}))
 
 
 def context(root, state, u):
     host = state.get('host', 'codex')
     return {'contract': G.digest(G.encode({p: G.file_digest(root / p) for p in state['config']['contracts']})),
-            'policy': policy_digest(host, u['review']), 'definition': G.digest(G.encode(u)),
+            'policy': policy_digest(host, u['review'], root, cwd(root, u)), 'definition': G.digest(G.encode(u)),
             'runtime': G.digest(Path(__file__).read_bytes() + Path(G.__file__).read_bytes()),
             'dependencies': {n: G.digest(G.encode(unit(state, n)['completions'][-1]))
                              if unit(state, n)['completions'] else None for n in u['needs']}}

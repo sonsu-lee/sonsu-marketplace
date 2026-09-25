@@ -74,12 +74,22 @@ def outputs():
         yield ROOT / f"plugins/{plugin}/references/delivery-authority.md", authority
 
 
+def generated_agents():
+    for plugin in ("engineering", "prompting"):
+        yield from (ROOT / "plugins" / plugin / "agents").glob("*.md")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
+    rendered = dict(outputs())
     stale = []
-    for path, data in outputs():
+    for path in sorted(set(generated_agents()) - set(rendered)):
+        stale.append(str(path.relative_to(ROOT)))
+        if not args.check:
+            path.unlink()
+    for path, data in rendered.items():
         if path.exists() and path.read_bytes() == data:
             continue
         stale.append(str(path.relative_to(ROOT)))

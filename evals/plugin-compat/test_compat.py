@@ -1,10 +1,15 @@
 """Codex and Claude Code marketplace packaging contracts."""
 import json
+import contextlib
+import importlib.util
+import io
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -126,6 +131,33 @@ class CodexPackagingTests(unittest.TestCase):
 
             self.assertNotEqual(result.returncode, 0, result.stdout)
             self.assertEqual(codex_manifest.read_bytes(), original)
+
+    def test_removed_claude_role_fails_check_and_is_removed_by_render(self):
+        spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
+        renderer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(renderer)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "shared/agent-policy"
+            shutil.copytree(ROOT / "shared/agent-policy", source)
+            with mock.patch.object(renderer, "ROOT", root), mock.patch.object(renderer, "SOURCE", source):
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(renderer.main(), 0)
+                profile_file = source / "claude-profiles.json"
+                profiles = json.loads(profile_file.read_text())
+                profiles["roles"].pop("red_team")
+                profile_file.write_text(json.dumps(profiles))
+                removed = [root / "plugins" / plugin / "agents/red_team.md"
+                           for plugin in ("engineering", "prompting")]
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--check"]), contextlib.redirect_stdout(io.StringIO()) as output:
+                    self.assertEqual(renderer.main(), 1)
+                for plugin in ("engineering", "prompting"):
+                    self.assertIn(f"stale: plugins/{plugin}/agents/red_team.md", output.getvalue())
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(renderer.main(), 0)
+                self.assertTrue(all(not path.exists() for path in removed))
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--check"]), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(renderer.main(), 0)
 
 
 if __name__ == "__main__":

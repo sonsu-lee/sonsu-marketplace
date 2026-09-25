@@ -21,7 +21,7 @@ def outputs():
             reference = reference.replace("@@" + key + "@@", value)
         yield root / "references/continuity.md", reference.encode()
         yield root / "scripts/task-continuity.py", helper
-        hooks = {"hooks": {"SessionStart": [{"matcher": "^(startup|compact|resume)$", "hooks": [{
+        hooks = {"hooks": {"SessionStart": [{"matcher": "^(startup|clear|compact|resume)$", "hooks": [{
             "type": "command",
             "command": ('plugin_root="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}" && '
                         'test -n "$plugin_root" && '
