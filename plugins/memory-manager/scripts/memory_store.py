@@ -24,8 +24,9 @@ ID_RE = re.compile(r"[0-9a-f]{32}\Z")
 PROJECT_RE = re.compile(r"[0-9a-f]{20}\Z")
 SECRET_RE = re.compile(
     r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----|"
-    r"\b(?:api[_-]?key|access[_-]?token|password|secret|client[_-]?secret|"
-    r"aws[_-]?secret[_-]?access[_-]?key|private[_-]?key)(?:\\?[\"'])?\s*[:=]\s*\S+|"
+    r"\b(?:[a-z0-9]+[_-])*(?:api[_-]?key|access[_-]?token|password|secret|token|"
+    r"client[_-]?secret|aws[_-]?secret[_-]?access[_-]?key|private[_-]?key)"
+    r"(?:\\*[\"'])?\s*[:=]\s*\S+|"
     r"\bauthorization\s*:\s*(?:bearer|basic)\s+\S+|"
     r"\b(?:sk-|ghp_|github_pat_)[A-Za-z0-9_-]{20,}|"
     r"\bAKIA[0-9A-Z]{16}\b", re.I
@@ -402,6 +403,8 @@ def search(root, key, scope, query):
     tokens = re.findall(r"\w+", query, re.UNICODE)[:12]
     if not tokens or not root.exists():
         return {"results": []}
+    patterns = [re.compile(r"(?<![a-z0-9])" + re.escape(token.casefold()) + r"(?![a-z0-9])")
+                for token in tokens]
     degraded = False
     try:
         checked_path(root, root / "index.sqlite3")
@@ -427,7 +430,7 @@ def search(root, key, scope, query):
                 try:
                     note = read_note(root, scope, key, note_id)
                     haystack = (note["title"] + " " + note["body"]).casefold()
-                    if note["status"] == "active" and any(token.casefold() in haystack for token in tokens):
+                    if note["status"] == "active" and any(pattern.search(haystack) for pattern in patterns):
                         results.append({"id": note_id, "title": note["title"], "sources": note["sources"]})
                     else:
                         stale_row = True
@@ -442,12 +445,11 @@ def search(root, key, scope, query):
             with locked(root):
                 if not refresh_index(root):
                     break
-    words = [item.casefold() for item in tokens]
     ranked = []
     for note, _ in active_notes(root):
         if note["scope"] == scope and note.get("project", "") == (key if scope == "project" else ""):
             haystack = (note["title"] + " " + note["body"]).casefold()
-            score = sum(haystack.count(word) for word in words)
+            score = sum(len(pattern.findall(haystack)) for pattern in patterns)
             if score:
                 ranked.append((score, note))
     ranked.sort(key=lambda item: (-item[0], item[1]["id"]))

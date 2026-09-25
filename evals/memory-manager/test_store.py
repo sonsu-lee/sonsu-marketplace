@@ -110,6 +110,29 @@ class StoreTests(unittest.TestCase):
         found = module.search(self.store, module.project_key(self.project), "project", "common")
         self.assertEqual({item["id"] for item in found["results"]}, {item["id"] for item in retained})
 
+    def test_stale_index_fallback_preserves_whole_word_matches(self):
+        exact = [self.put(title="cat", body="cat") for _ in range(6)]
+        for _ in range(5):
+            self.put(title="concatenate", body="concatenate concatenate concatenate")
+        connection = sqlite3.connect(self.store / "index.sqlite3")
+        try:
+            top_id = connection.execute(
+                "SELECT id FROM memories WHERE memories MATCH 'cat' ORDER BY bm25(memories) LIMIT 1"
+            ).fetchone()[0]
+        finally:
+            connection.close()
+        deleted = next(item for item in exact if item["id"] == top_id)
+
+        spec = importlib.util.spec_from_file_location("memory_store_stale_match_test", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with mock.patch.object(module, "refresh_index", return_value=False):
+            module.change_status(self.store, module.project_key(self.project), "project",
+                                 deleted["id"], deleted["sha256"], "forget")
+        found = module.search(self.store, module.project_key(self.project), "project", "cat")
+        self.assertEqual({item["id"] for item in found["results"]},
+                         {item["id"] for item in exact if item["id"] != deleted["id"]})
+
     def test_external_markdown_edit_refreshes_search_index(self):
         added = self.put()
         path = Path(added["path"])
@@ -172,6 +195,9 @@ class StoreTests(unittest.TestCase):
 
     def test_common_credentials_are_rejected_in_notes_and_candidates(self):
         for secret in ("AWS_SECRET_ACCESS_KEY=abcdef0123456789",
+                       "OPENAI_API_KEY=fixture-secret-123",
+                       "ANTHROPIC_API_KEY=fixture-secret-123",
+                       "GITHUB_TOKEN=fixture-secret-123",
                        "Authorization: Bearer abcdef0123456789",
                        "-----BEGIN PGP PRIVATE KEY BLOCK-----"):
             with self.subTest(secret=secret[:15]):
@@ -180,15 +206,18 @@ class StoreTests(unittest.TestCase):
                                                         "sources": ["user:request"]}, expect=2)
                 self.assertEqual(result["error"], "sensitive_content")
         self.run_store("capture", "on")
-        event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
-                 "prompt": "기억해 줘: Authorization: Bearer abcdef0123456789"}
-        self.assertEqual(self.run_store("hook", payload=event)["status"], "sensitive_content")
+        for secret in ("Authorization: Bearer abcdef0123456789",
+                       "OPENAI_API_KEY=fixture-secret-123", "GITHUB_TOKEN=fixture-secret-123"):
+            event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
+                     "prompt": "기억해 줘: " + secret}
+            self.assertEqual(self.run_store("hook", payload=event)["status"], "sensitive_content")
         self.assertEqual(self.run_store("pending")["results"], [])
 
     def test_quoted_json_secret_is_rejected_in_notes_and_candidates(self):
         self.run_store("capture", "on")
         for phrase in ('설정은 {"password": "fixture-value"}',
-                       r'설정은 {\"password\":\"fixture-value\"}'):
+                       r'설정은 {\"password\":\"fixture-value\"}',
+                       r'설정은 {\\"password\\": "fixture-value"}'):
             with self.subTest(phrase=phrase):
                 result = self.run_store("put", payload={"decision": "ADD", "scope": "project",
                                                         "title": "설정", "body": phrase,
