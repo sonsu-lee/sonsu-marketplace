@@ -13,7 +13,7 @@ GitHub PR payload를 작성하거나 새 PR을 게시할 때 읽는다.
 
 필요한 객체가 로컬에 없더라도 사용자 요청 없이 fetch하거나 checkout을 바꾸지 않는다. 미커밋 변경은 원격 PR diff에 들어가지 않으므로 별도로 보고한다.
 
-detached HEAD, head와 base가 같은 상태 또는 비어 있는 PR commit range에서는 새 PR을 만들지 않는다. 정확한 현재 상태와 필요한 별도 Git workflow를 보고한다.
+detached HEAD, head와 base가 같은 상태 또는 비어 있는 PR commit range에서는 새 PR을 만들지 않는다. 정확한 현재 상태와 필요한 별도 Git workflow를 보고한다. PR을 위해 새 브랜치가 필요하더라도 이 스킬에서 생성·rename하지 않는다. 이름을 제안할 때는 [공통 이름 규칙](../../../references/branch-naming.md)을 읽는다.
 
 ## payload를 준비한다
 
