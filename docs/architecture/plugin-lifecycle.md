@@ -46,8 +46,9 @@ Engineering은 [독립 플러그인 결정](../decisions/0009-maintain-engineeri
 ## Claude Code 배포
 
 Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-compat.py`로
-`.claude-plugin/marketplace.json` 및 각 패키지 manifest를 생성합니다. 스킬·hook·script는
-같은 패키지 파일을 사용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
+`.claude-plugin/marketplace.json` 및 각 패키지 manifest를 생성합니다. 대부분의 스킬·hook·script는
+같은 패키지 파일을 사용합니다. `memory-manager`는 Claude의 수동 호출 제한을 유지하기 위해
+스킬과 참고 파일을 별도 Claude 패키지에 생성합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
 Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 
 ## 검증

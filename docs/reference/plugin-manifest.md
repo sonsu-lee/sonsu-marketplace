@@ -10,6 +10,7 @@
 plugins/<plugin-name>/.codex-plugin/plugin.json  # 정본 plugin manifest
 .claude-plugin/marketplace.json                # 생성된 Claude Code catalog
 plugins/<plugin-name>/.claude-plugin/plugin.json # 생성된 Claude Code manifest
+plugins/memory-manager-claude/                 # memory-manager 전용 Claude Code 생성 패키지
 ```
 
 Codex 형식을 저장소의 정본으로 유지합니다. `interface`, `apps`, `hooks`는 각 필드를 지원하는
@@ -20,6 +21,7 @@ manifest는 이름·버전·설명 등 공통 metadata만 투영합니다. 패�
 `hooks/hooks.json`은 Claude Code 로더가 발견하며, Codex의 `.app.json` connector는 이
 manifest에 포함하지 않습니다. `claude plugin validate . --strict`와 실제 설치·호출을 별개로
 확인합니다.
+`memory-manager`는 호스트별 호출 제한이 달라 Claude Code catalog가 별도 생성 패키지를 가리킵니다.
 
 ## 현재 사용하는 필드
 

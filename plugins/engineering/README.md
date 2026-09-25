@@ -1,7 +1,7 @@
 # Engineering
 
 Codex와 Claude Code에서 설계·구현·디버깅·코드 품질·독립 리뷰를 수행하는 플러그인입니다. Quality Engineering의
-8개 품질 스킬을 통합하고 PR 리뷰의 워크트리 실행·결과 게시를 제공하는 3.0.1이며, 일반 코드 리뷰도 `engineering:review`로 진입합니다.
+8개 품질 스킬을 통합하고 PR 리뷰의 워크트리 실행·결과 게시를 제공하는 3.0.2이며, 일반 코드 리뷰도 `engineering:review`로 진입합니다.
 기존 `quality-engineering:` 별칭과 별도 패키지는 제공하지 않습니다.
 
 ## 실행 경계
@@ -25,7 +25,7 @@ root가 위험과 작업 경계를 판단하고 필요한 수만큼 작업자를
 | 직접/위임 실행 | `execute-plan` |
 | 원인 진단 | `debug` |
 | 일반 코드 리뷰 | `review` |
-| PR 심층·다중 리뷰 | `review-pr` (호스트의 일반 리뷰 5명 + 별도 red-team 1명) |
+| PR 심층·다중 리뷰 | `review-pr` (호스트의 일반 리뷰 5명 + 상위 검토자 1명) |
 | 개발 단계의 독립 리뷰 | `review` |
 | 도메인을 타입·상태에 반영 | `domain-shaped-code` |
 | 현재 코드 단순화 | `simplify-code` |
@@ -47,7 +47,7 @@ root가 위험과 작업 경계를 판단하고 필요한 수만큼 작업자를
 PR URL이나 번호를 대상으로 한 일반 리뷰 요청은 `review`가 담당합니다. 명시적인 PR 심층·다중 리뷰는
 `review-pr`가 담당합니다. 두 경로 모두 같은 전체 diff를 별도 세션·워크트리에서 병렬 검토하고
 중복 제거한 결과를 PR의 `COMMENT` 리뷰로 게시·재조회합니다. 일반 리뷰는 호스트의 `general_review` 5명,
-심층 리뷰는 `general_review` 5명 + `red_team` 1명이 기본입니다. 직접 스킬 지정과 모델·인원 지정,
+심층 리뷰는 `general_review` 5명 + `senior_review` 1명이 기본입니다. 직접 스킬 지정과 모델·인원 지정,
 로컬 전용·게시 금지 요청은 우선합니다. 개발 완료 게이트·소스 수정·merge는 포함하지 않습니다.
 
 `Selected model is at capacity`는 원인 미상의 Codex 일시 실행 오류로 기록하고 같은 설정으로
@@ -60,7 +60,8 @@ SHA 변경·불명확한 게시 응답·기존 댓글 중복 처리와 실행 �
 [품질 게이트](references/quality-gates.md)는 위험·측정·반환을,
 [실행 계약](references/agent-execution.md)은 작업자·문맥·통합을,
 [Codex 모델 프로필](references/model-profiles.md)과 [Claude Code 모델 프로필](references/claude-model-profiles.md)은
-호스트별 모델·effort 요청값을 정의합니다. 이 기본 정책에서 Claude Code의 하위 에이전트 effort는 메인 세션에서 상속됩니다.
+호스트별 모델·effort 요청값을 정의합니다. Claude Code의 기본 역할 agent는 Sonnet `high`, Opus `medium`을 명시합니다.
+effort를 명시하지 않은 지원 모델의 하위 에이전트만 메인 세션의 `/effort`를 상속합니다.
 모델 표는 운영 기본값이며 사용자 지정을 우선합니다. 프로필 출처·날짜·평가 상태를 보존합니다.
 
 [관리형 게이트 CLI](references/evidence-gates.md)는 등록한 DAG의

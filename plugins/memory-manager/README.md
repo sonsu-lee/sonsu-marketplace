@@ -23,8 +23,10 @@ $memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘. 파일�
 점검은 읽기 전용이며, 정리를 요청한 범위에서는 확인된 변경을 진행합니다. 이미 승인한 범위의
 수정을 다시 승인받는 고정 단계는 없습니다.
 
-Codex의 `agents/openai.yaml`은 `policy.allow_implicit_invocation: false`, Claude Code 스킬은
-`disable-model-invocation: true`로 암묵적 호출을 비활성화합니다. 자동 수집, 세션 종료 hook,
+Codex의 `agents/openai.yaml`은 `policy.allow_implicit_invocation: false`를 사용합니다.
+Claude Code 배포 패키지 `plugins/memory-manager-claude/`에는 이 스킬과 참고 파일의 생성본을 두고
+스킬에만 `disable-model-invocation: true`를 설정합니다. 두 호스트 모두 암묵적 호출을 비활성화합니다.
+자동 수집, 세션 종료 hook,
 예약 실행과 외부 메모리 서비스는 포함하지 않습니다.
 다른 플러그인이나 MCP 연결 없이 동작하며 별도 helper runtime도 필요하지 않습니다.
 

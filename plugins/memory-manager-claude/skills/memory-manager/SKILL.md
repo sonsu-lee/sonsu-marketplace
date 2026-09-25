@@ -1,6 +1,7 @@
 ---
 name: memory-manager
 description: 사용자가 이 스킬을 명시적으로 호출해 Codex 또는 Claude Code의 저장된 메모리를 점검하거나 정리하려 할 때 사용한다. 중복, 오래된 사실, 상충하는 기억과 프로젝트 간 규칙 혼입이 대상이다. 일반 파일 정리, 메모리 기능 설명, 새 메모리 저장 요청만으로는 사용하지 않는다.
+disable-model-invocation: true
 ---
 
 # Memory Manager

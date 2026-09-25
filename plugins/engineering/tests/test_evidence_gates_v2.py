@@ -34,6 +34,10 @@ class ManagedGates(unittest.TestCase):
             target = self.package / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text('Active governance fixture: ' + name)
+        agents = self.package / 'agents'
+        agents.mkdir()
+        for name in ('general_review', 'focused_review', 'red_team'):
+            (agents / (name + '.md')).write_text('Claude agent definition: ' + name)
         self.script = self.package / 'scripts/evidence-gates.py'
         self.config = {'schema_version': 2, 'contracts': ['contract.md'], 'units': [self.unit('design')]}
         self.report = self.base / 'report.md'
@@ -273,6 +277,36 @@ class ManagedGates(unittest.TestCase):
         self.assertEqual(self.complete(), receipt)
         (self.package / 'references/code-quality.md').write_text('policy changed')
         self.assertFalse(self.ok('status')['ready'])
+
+    def test_claude_agent_definition_change_invalidates_completion(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.ok('init', '--host', 'claude-code', '--session-id', 'claude-controller', data=self.config)
+        self.checked()
+        self.prepare()
+        self.review_pass()
+        self.complete()
+        self.assertTrue(self.ok('status')['ready'])
+        for name in ('general_review', 'focused_review'):
+            path = self.package / 'agents' / (name + '.md')
+            original = path.read_text()
+            path.write_text(original + ' changed')
+            self.assertEqual(self.ok('status')['units']['design']['status'], 'stale', name)
+            path.write_text(original)
+            self.assertTrue(self.ok('status')['ready'], name)
+
+    def test_claude_red_team_agent_definition_change_invalidates_completion(self):
+        self.config['units'][0]['review'] = 'red-team'
+        self.ok('init', '--host', 'claude-code', '--session-id', 'claude-controller', data=self.config)
+        self.checked()
+        self.prepare()
+        self.review_pass()
+        self.prepare('red-team')
+        self.review_pass(1, 'red-team', 1)
+        self.complete()
+        self.assertTrue(self.ok('status')['ready'])
+        path = self.package / 'agents/red_team.md'
+        path.write_text(path.read_text() + ' changed')
+        self.assertEqual(self.ok('status')['units']['design']['status'], 'stale')
 
     def test_accepted_risk_remains_distinct_through_dependencies(self):
         self.config['units'].append(self.unit('plan', ['design']))

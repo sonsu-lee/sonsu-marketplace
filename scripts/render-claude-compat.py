@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
 PLUGIN_SCHEMA = "https://json.schemastore.org/claude-code-plugin-manifest.json"
 MANIFEST_FIELDS = ("version", "description", "author", "homepage", "repository", "license", "keywords")
+CLAUDE_PACKAGE_OVERRIDES = {"memory-manager": "memory-manager-claude"}
 
 
 def read_json(path):
@@ -46,10 +47,12 @@ def rendered_outputs(root):
             raise ValueError(f"invalid or duplicate plugin name: {name!r}")
         names.add(name)
         source = entry.get("source")
-        source_path = f"./plugins/{name}"
-        if source != {"source": "local", "path": source_path}:
+        codex_source_path = f"./plugins/{name}"
+        if source != {"source": "local", "path": codex_source_path}:
             raise ValueError(f"{name}: invalid local plugin path")
         plugin_root = root / "plugins" / name
+        claude_root = root / "plugins" / CLAUDE_PACKAGE_OVERRIDES.get(name, name)
+        source_path = f"./plugins/{claude_root.name}"
         if plugin_root.is_symlink() or not plugin_root.is_dir() or not plugin_root.resolve().is_relative_to(root.resolve()):
             raise ValueError(f"{name}: plugin root is missing or escapes the repository")
         codex_manifest_path = plugin_root / ".codex-plugin/plugin.json"
@@ -68,7 +71,17 @@ def rendered_outputs(root):
         for field in MANIFEST_FIELDS:
             if field in codex_manifest:
                 manifest[field] = codex_manifest[field]
-        outputs[plugin_root / ".claude-plugin/plugin.json"] = encode(manifest)
+        outputs[claude_root / ".claude-plugin/plugin.json"] = encode(manifest)
+        if name == "memory-manager":
+            skill_root = plugin_root / "skills" / name
+            skill = (skill_root / "SKILL.md").read_text(encoding="utf-8")
+            frontmatter_end = skill.find("\n---\n", 4)
+            if not skill.startswith("---\n") or frontmatter_end == -1 or "disable-model-invocation" in skill[4:frontmatter_end]:
+                raise ValueError("memory-manager: invalid Codex skill frontmatter")
+            claude_skill_root = claude_root / "skills" / name
+            outputs[claude_skill_root / "SKILL.md"] = (skill[:frontmatter_end] + "\ndisable-model-invocation: true" + skill[frontmatter_end:]).encode("utf-8")
+            for reference in sorted((skill_root / "references").glob("*.md")):
+                outputs[claude_skill_root / "references" / reference.name] = reference.read_bytes()
         claude_entries.append({
             "name": name,
             "source": source_path,

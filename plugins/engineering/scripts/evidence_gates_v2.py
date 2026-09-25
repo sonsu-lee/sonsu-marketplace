@@ -190,20 +190,25 @@ def profiles(host):
     return G.read_json(package / 'references' / filename)['roles']
 
 
-def policy_digest(host):
+def policy_digest(host, review):
     package = Path(__file__).resolve().parents[1]
     model_reference = 'references/claude-model-profiles.md' if host == 'claude-code' else 'references/model-profiles.md'
     governance = tuple(model_reference if name == 'references/model-profiles.md' else name for name in GOVERNANCE)
     if host == 'claude-code':
         governance += ('references/claude-code-tools.md',)
     profile_file = 'claude-model-profiles.json' if host == 'claude-code' else 'model-profiles.json'
-    return G.digest(G.encode({'policies': {name: G.file_digest(package / 'references' / (name + '.md')) for name in POLICIES}, 'profiles': G.file_digest(package / 'references' / profile_file), 'governance': {name: G.file_digest(package / name) for name in governance}}))
+    agents = ()
+    if host == 'claude-code' and review != 'checks':
+        agents = ('general_review', 'focused_review')
+        if review == 'red-team':
+            agents += ('red_team',)
+    return G.digest(G.encode({'policies': {name: G.file_digest(package / 'references' / (name + '.md')) for name in POLICIES}, 'profiles': G.file_digest(package / 'references' / profile_file), 'governance': {name: G.file_digest(package / name) for name in governance}, 'agents': {name: G.file_digest(package / 'agents' / (name + '.md')) for name in agents}}))
 
 
 def context(root, state, u):
     host = state.get('host', 'codex')
     return {'contract': G.digest(G.encode({p: G.file_digest(root / p) for p in state['config']['contracts']})),
-            'policy': policy_digest(host), 'definition': G.digest(G.encode(u)),
+            'policy': policy_digest(host, u['review']), 'definition': G.digest(G.encode(u)),
             'runtime': G.digest(Path(__file__).read_bytes() + Path(G.__file__).read_bytes()),
             'dependencies': {n: G.digest(G.encode(unit(state, n)['completions'][-1]))
                              if unit(state, n)['completions'] else None for n in u['needs']}}

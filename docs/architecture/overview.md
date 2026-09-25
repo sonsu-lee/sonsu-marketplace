@@ -35,7 +35,8 @@ Claude Code: 저장소 루트
   → skills, hooks와 지원되는 구성 요소
 ```
 
-두 호스트는 패키지의 공통 스킬·hook·script를 각자 로더로 읽습니다. Claude manifest는
+두 호스트는 대부분의 패키지에서 공통 스킬·hook·script를 각자 로더로 읽습니다.
+`memory-manager`의 Claude Code source는 생성된 `plugins/memory-manager-claude/`입니다. Claude manifest는
 `scripts/render-claude-compat.py`로 생성하며 Codex 전용 connector 선언은 이식하지 않습니다. 구성과
 검증 절차는 [플러그인 개발 가이드](../guides/adding-a-plugin.md)에 있습니다.
 

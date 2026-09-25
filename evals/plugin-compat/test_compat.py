@@ -33,14 +33,22 @@ class CodexPackagingTests(unittest.TestCase):
                          [entry["name"] for entry in codex["plugins"]])
         for entry in claude["plugins"]:
             with self.subTest(plugin=entry["name"]):
-                self.assertEqual(entry["source"], f"./plugins/{entry['name']}")
-                package = ROOT / "plugins" / entry["name"]
-                source = json.loads((package / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
+                expected = "memory-manager-claude" if entry["name"] == "memory-manager" else entry["name"]
+                self.assertEqual(entry["source"], f"./plugins/{expected}")
+                package = ROOT / "plugins" / expected
+                source = json.loads((ROOT / "plugins" / entry["name"] / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
                 generated = json.loads((package / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
                 self.assertEqual(generated["name"], source["name"])
                 self.assertEqual(generated["version"], source["version"])
                 self.assertEqual(entry["version"], source["version"])
                 self.assertTrue((package / "skills").is_dir())
+
+    def test_memory_manager_host_specific_invocation_policy(self):
+        codex = (ROOT / "plugins/memory-manager/skills/memory-manager/SKILL.md").read_text(encoding="utf-8")
+        claude = (ROOT / "plugins/memory-manager-claude/skills/memory-manager/SKILL.md").read_text(encoding="utf-8")
+        self.assertNotIn("disable-model-invocation:", codex)
+        self.assertEqual(claude, codex.replace("\n---\n", "\ndisable-model-invocation: true\n---\n", 1))
+        self.assertEqual(read_skill_name(ROOT / "plugins/memory-manager-claude/skills/memory-manager/SKILL.md"), "memory-manager")
 
     def test_public_skill_names_match_directories(self):
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))

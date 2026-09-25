@@ -1,6 +1,6 @@
 {
   "name": "engineering",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "설계·구현·디버깅·검증과 도메인 구조, 단순성, 유지보수성, 실패 모드 및 운용 가능성 리뷰와 독립 심층 PR 리뷰를 함께 제공한다.",
   "author": {
     "name": "sonsu-lee",
