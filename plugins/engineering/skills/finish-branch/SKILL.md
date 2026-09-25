@@ -61,7 +61,7 @@ git -C "$BASE_CHECKOUT" merge "$FEATURE_BRANCH"
 
 ### 푸시와 PR
 
-승인된 원격 저장소·브랜치로 일반 푸시한다. 분리된 HEAD는 사용자가 승인한 브랜치 이름을 사용한다.
+승인된 원격 저장소·브랜치로 일반 푸시한다. 분리된 HEAD에서 PR용 새 원격 브랜치 이름을 정할 때에는 사용자 지정과 확인된 저장소·실행 환경 규칙을 따른다. 별도 요구가 없으면 `<type>/<short-kebab-description>` 형식을 사용하고, Codex에서 실행 중이라는 이유나 기존 branch 이름만으로 `codex/` 또는 `codex-` 접두사를 붙이지 않는다. 분리된 HEAD는 사용자가 승인한 브랜치 이름을 사용한다.
 
 ```bash
 git push -u origin "$FEATURE_BRANCH"

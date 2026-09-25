@@ -17,11 +17,11 @@ description: 브랜치 이름을 제안·검토하거나 명시적으로 요청�
 다음 우선순위로 이름을 선택한다.
 
 1. 사용자가 지정한 정확한 이름
-2. repository의 문서·기존 branch·도구 설정에서 확인한 규칙
+2. repository 문서·도구 설정에서 확인한 규칙
 3. 실행 환경이 요구하는 prefix 규칙
 4. 별도 규칙이 없을 때 `<type>/<short-kebab-description>`
 
-실행 환경에 prefix가 필요하면 기본 형식 앞에 붙인다. 예를 들어 `codex/` prefix가 필요하면 `codex/feat/add-search-filter`처럼 구성한다. `type`은 실제 변경 목적에 맞는 `feat`, `fix`, `docs`, `refactor`, `test`, `chore` 중 하나를 우선하며 repository가 다른 taxonomy를 사용하면 이를 따른다.
+사용자나 확인된 규칙이 요구하지 않으면 `codex/`, `codex-`를 포함한 에이전트 이름 접두사를 붙이지 않는다. Codex에서 실행 중이라는 사실이나 기존 branch 이름만으로 접두사 규칙을 추론하지 않는다. 실행 환경이 접두사를 필수로 요구하면 그 요구사항을 확인하고 기본 형식 앞에 붙인다. `type`은 실제 변경 목적에 맞는 `feat`, `fix`, `docs`, `refactor`, `test`, `chore` 중 하나를 우선하며 repository가 다른 taxonomy를 사용하면 이를 따른다.
 
 이름은 현재 작업 범위만 표현한다. 존재하지 않는 티켓 ID, team key, 사용자명이나 변경 범위를 만들어 넣지 않는다.
 
@@ -29,7 +29,7 @@ description: 브랜치 이름을 제안·검토하거나 명시적으로 요청�
 
 branch 이름은 tracker 연결의 기본 채널로 사용하지 않는다.
 
-Linear 티켓 작업의 새 branch는 위의 prefix·type·작업 설명으로 구성하고 티켓 ID를 자동으로 넣지 않는다. repository의 ID 포함 관례나 integration이 제공하는 branch 이름도 Linear ID를 추가할 근거로 사용하지 않는다. 예를 들어 `ENG-123`의 검색 필터 작업은 `feat/add-search-filter` 또는 실행 환경에 맞는 `codex/feat/add-search-filter`로 표현하고, 티켓 연결은 PR metadata에서 처리한다. 사용자가 정확한 이름이나 ID 포함을 직접 지정한 경우에는 그 명시적 요청을 따른다.
+Linear 티켓 작업의 새 branch는 위의 이름 규칙에 따라 type·작업 설명으로 구성하고 티켓 ID를 자동으로 넣지 않는다. repository의 ID 포함 관례나 integration이 제공하는 branch 이름도 Linear ID를 추가할 근거로 사용하지 않는다. 예를 들어 `ENG-123`의 검색 필터 작업은 별도 접두사 요구가 없다면 `feat/add-search-filter`로 표현하고, 티켓 연결은 PR metadata에서 처리한다. 사용자가 정확한 이름이나 ID 포함을 직접 지정한 경우에는 그 명시적 요청을 따른다.
 
 Linear 이외의 tracker는 다음 중 하나가 확인된 경우에만 티켓 ID를 새 branch 이름에 포함한다.
 
