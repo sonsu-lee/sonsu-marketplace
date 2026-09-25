@@ -1,0 +1,31 @@
+flowchart TB
+  codex["Codex"] --> source["plugins/memory-manager: Codex 정본"]
+  source --> renderer["render-claude-compat.py"]
+  renderer -->|생성 및 오래된 파일 정리| compat["plugins/memory-manager-claude: 생성본"]
+  claude["Claude Code"] --> compat
+
+  source --> skills["네 스킬과 공통 저장 도구"]
+  compat --> skills
+  source --> hooks["UserPromptSubmit / Stop 훅"]
+  compat --> hooks
+
+  skills --> recall["memory-recall: 관련 범위 검색과 원문 확인"]
+  skills --> capture["memory-capture: 명시 요청 또는 선택한 후보 검증"]
+  skills --> maintain["memory-maintain: 요청 범위 점검과 변경"]
+  skills --> promote["memory-promote: 반복 사례에서 검토용 초안"]
+  hooks -->|프로젝트별 옵트인일 때만| staging["후보 수집"]
+  inbox["inbox/project-key: 확정 전 후보"]
+  inbox -->|사용자가 정확한 후보 선택| capture
+
+  recall -->|search / get| store["memory_store.py"]
+  capture -->|pending / put / dismiss| store
+  maintain -->|audit / archive / forget| store
+  promote -->|search / get, 설치 없음| store
+  promote --> draft["검토용 스킬 초안: 설치 없음"]
+  staging -->|hook| store
+
+  store --> notes["notes/user 및 notes/projects: Markdown 정본"]
+  store --> index["index.sqlite3: 재생성 가능한 검색 색인"]
+  store --> inbox
+  notes -->|색인 재생성의 유일한 출처| index
+  recall -->|변동 사실 확인| current["현재 코드와 문서"]

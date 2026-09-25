@@ -7,10 +7,16 @@ Codex와 Claude Code가 같은 기기에서 공유하는 **로컬 장기 메모�
 
 ## 구조
 
-![Memory Manager 전체 구조](assets/memory-architecture.drawio.png)
+![Memory Manager 전체 구조를 요약한 시각 자료](assets/memory-architecture.drawio.png)
 
-[편집 가능한 구조도](assets/memory-architecture.drawio) ·
-[편집 가능한 기억 처리도](assets/memory-lifecycle.drawio)
+이미지와 별도로, 노드·연결·분기 조건을 텍스트로 읽을 수 있는 Mermaid 구조도를 둡니다.
+AI가 구조를 확인할 때는 아래 `.mmd` 파일과 이 README의 흐름 설명을 먼저 읽고,
+실제 동작은 스킬과 스크립트에서 대조합니다. 이미지는 사람이 빠르게 훑어보는 시각 자료입니다.
+
+[전체 구조도 (Mermaid)](assets/memory-architecture.mmd) ·
+[기억 처리도 (Mermaid)](assets/memory-lifecycle.mmd) ·
+[기존 구조도 원본 (draw.io)](assets/memory-architecture.drawio) ·
+[기존 기억 처리도 원본 (draw.io)](assets/memory-lifecycle.drawio)
 
 `plugins/memory-manager/`가 Codex 패키지의 정본입니다. `scripts/render-claude-compat.py`가
 `plugins/memory-manager-claude/`에 Claude Code용 네 스킬, 저장 도구, 훅과 manifest를
@@ -33,7 +39,7 @@ Codex와 Claude Code가 같은 기기에서 공유하는 **로컬 장기 메모�
    독립된 반복 사례 둘 이상을 검토해 절차형 스킬 초안을 제시합니다. 검토 전 설치하거나
    자동 호출하지 않습니다.
 
-![기억 후보 처리와 판정](assets/memory-lifecycle.drawio.png)
+![기억 후보 처리와 판정을 요약한 시각 자료](assets/memory-lifecycle.drawio.png)
 
 Codex의 `memory-recall`은 관련 맥락에서, `memory-capture`는 명시적 기억 요청에서 선택될
 수 있습니다. `memory-maintain`과 `memory-promote`는 명시 호출 전용입니다. Claude Code
