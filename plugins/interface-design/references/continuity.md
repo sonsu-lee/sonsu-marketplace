@@ -15,8 +15,11 @@
 [저장 도구](../scripts/task-continuity.py)는 Python 3.9+와 POSIX 환경의 표준 라이브러리를
 사용한다. 현재 플러그인 설치 위치에서 도구의 절대 경로를 구하고 `--help`로 옵션을 확인한다.
 
-1. 세션은 명시한 `--session-id`를 우선하고, 생략하면 `CODEX_THREAD_ID`를 사용한다. ID를 알 수
-   없으면 기존 산출물로 수동 복구한다. 다른 세션이나 최신 디렉터리에서 ID를 추정하지 않는다.
+1. 세션은 명시한 `--session-id`를 우선한다. 생략하면 Claude Code는 현재
+   `CLAUDE_CODE_SESSION_ID`를 먼저 사용하고, 없을 때만 `SONSU_CLAUDE_SESSION_ID`를 대체값으로
+   사용한다. Codex는 `CODEX_THREAD_ID`를 사용한다. 서로 다른 호스트 ID가 동시에 있거나 현재 ID를
+   알 수 없으면 명시하거나 기존 산출물로 수동 복구한다. 다른 세션이나 최신 디렉터리에서 ID를
+   추정하지 않는다.
 2. 작업 루트는 현재 Git worktree, Git 밖에서는 `--cwd`의 실제 경로다. 기록 위치는
    `<root>/.sonsu/continuity/<session-id>/interface-design.json`이다.
 3. `read`로 기록과 revision을 읽는다. 최초 `write`의 `--expected-revision`은 0이며,
@@ -66,6 +69,7 @@
 
 ## 재개 알림
 
-`SessionStart` hook은 `compact|resume`에서 활성 기록과 이 참고 자료의 위치를 알려 준다.
+`SessionStart` hook은 `startup|clear`에서 세션 ID를 후속 Bash 명령용으로 저장하고, `compact|resume`에서
+활성 기록과 이 참고 자료의 위치를 알려 준다.
 지원되지 않거나 신뢰 설정 때문에 실행되지 않으면 이 자료의 `read` 단계부터 직접 수행한다.
 hook 신뢰는 사용자가 호스트에서 관리한다. 마지막 기록 이후의 상태는 현재 산출물로 확인한다.

@@ -2,11 +2,11 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "^(compact|resume)$",
+        "matcher": "^(startup|clear|compact|resume)$",
         "hooks": [
           {
             "type": "command",
-            "command": "plugin_root=\"${PLUGIN_ROOT:-}\" && test -n \"$plugin_root\" && python3 \"$plugin_root/scripts/task-continuity.py\" hook",
+            "command": "plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\" && test -n \"$plugin_root\" && python3 \"$plugin_root/scripts/task-continuity.py\" hook",
             "timeout": 5,
             "additionalContextLimit": 600
           }

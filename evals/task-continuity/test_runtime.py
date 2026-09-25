@@ -31,6 +31,8 @@ class RuntimeTests(unittest.TestCase):
         self.work.mkdir()
         self.env = dict(os.environ, CODEX_THREAD_ID="session-a", PYTHONDONTWRITEBYTECODE="1")
         self.env.pop("CLAUDE_CODE_SESSION_ID", None)
+        self.env.pop("SONSU_CLAUDE_SESSION_ID", None)
+        self.env.pop("CLAUDE_PLUGIN_ROOT", None)
         for key in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"):
             self.env.pop(key, None)
         self.packages = {}
@@ -41,6 +43,8 @@ class RuntimeTests(unittest.TestCase):
             (package / "scripts").mkdir(parents=True)
             (package / ".codex-plugin").mkdir()
             (package / ".codex-plugin/plugin.json").write_text(json.dumps({"name": plugin}))
+            (package / ".claude-plugin").mkdir()
+            (package / ".claude-plugin/plugin.json").write_text(json.dumps({"name": plugin}))
             (package / "references").mkdir()
             (package / "references/continuity.md").write_text("# Recovery reference\n")
             for skill in ("example-work",):
@@ -71,21 +75,25 @@ class RuntimeTests(unittest.TestCase):
         event.update(changes)
         return self.run_cli("hook", plugin=plugin, data=event)
 
-    def test_generated_hook_resolves_codex_plugin_root(self):
+    def test_generated_hook_resolves_both_plugin_roots(self):
         hook_file = ROOT / "plugins/engineering/hooks/hooks.json"
-        command = json.loads(hook_file.read_text())["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+        session_start = json.loads(hook_file.read_text())["hooks"]["SessionStart"][0]
+        command = session_start["hooks"][0]["command"]
         event = {"hook_event_name": "SessionStart", "source": "compact",
                  "session_id": "session-a", "cwd": str(self.work), "permission_mode": "default"}
         plugin_root = ROOT / "plugins/engineering"
 
-        self.assertNotIn("CLAUDE_PLUGIN_ROOT", command)
-        env = self.env.copy()
-        env.pop("PLUGIN_ROOT", None)
-        env.pop("CLAUDE_PLUGIN_ROOT", None)
-        env["PLUGIN_ROOT"] = str(plugin_root)
-        result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
-                                capture_output=True, cwd=self.work, env=env, timeout=15)
-        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("CLAUDE_PLUGIN_ROOT", command)
+        self.assertEqual(session_start["matcher"], "^(startup|clear|compact|resume)$")
+        for root_variable in ("PLUGIN_ROOT", "CLAUDE_PLUGIN_ROOT"):
+            with self.subTest(root_variable=root_variable):
+                env = self.env.copy()
+                env.pop("PLUGIN_ROOT", None)
+                env.pop("CLAUDE_PLUGIN_ROOT", None)
+                env[root_variable] = str(plugin_root)
+                result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
+                                        capture_output=True, cwd=self.work, env=env, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
 
     def git(self, *args, cwd=None):
         return subprocess.run(["git", *args], cwd=cwd or self.work, env=self.env,
@@ -125,14 +133,79 @@ class RuntimeTests(unittest.TestCase):
                 self.assertEqual(migrated.returncode, 0, migrated.stderr)
                 self.assertEqual(json.loads(path.read_text())["active_skill"], "example-work")
 
-    def test_missing_codex_thread_id_requires_an_explicit_session(self):
+    def test_claude_session_id_can_replace_codex_thread_id(self):
         env = self.env.copy()
         env.pop("CODEX_THREAD_ID")
         env["CLAUDE_CODE_SESSION_ID"] = "claude-session"
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
         result = self.write(env=env)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("missing or invalid current identity", result.stderr)
-        self.assertFalse(self.path(session="claude-session").exists())
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.path(session="claude-session").exists())
+
+    def test_current_claude_session_id_overrides_persisted_marker(self):
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env["CLAUDE_CODE_SESSION_ID"] = "claude-current"
+        env["SONSU_CLAUDE_SESSION_ID"] = "claude-previous"
+
+        result = self.write(env=env)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.path(session="claude-current").exists())
+        self.assertFalse(self.path(session="claude-previous").exists())
+
+    def test_claude_hook_exports_session_for_resume_commands(self):
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
+        env_file = self.base / "claude-env"
+        env["CLAUDE_ENV_FILE"] = str(env_file)
+        event = {"hook_event_name": "SessionStart", "source": "resume",
+                 "session_id": "claude-resume", "cwd": str(self.work)}
+        result = self.run_cli("hook", data=event, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='claude-resume'\n")
+
+    def test_claude_startup_hook_persists_session_for_followup_commands(self):
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
+        env_file = self.base / "claude-startup-env"
+        env["CLAUDE_ENV_FILE"] = str(env_file)
+        event = {"hook_event_name": "SessionStart", "source": "startup",
+                 "session_id": "claude-startup", "cwd": str(self.work)}
+
+        result = self.run_cli("hook", data=event, env=env)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='claude-startup'\n")
+        self.assertFalse((self.work / ".sonsu").exists())
+
+        sourced = subprocess.run(["/bin/sh", "-c", '. "$CLAUDE_ENV_FILE"; printf %s "$SONSU_CLAUDE_SESSION_ID"'],
+                                 text=True, capture_output=True, env=env, check=True)
+        env["SONSU_CLAUDE_SESSION_ID"] = sourced.stdout
+        write = self.write(env=env)
+        self.assertEqual(write.returncode, 0, write.stderr)
+        self.assertTrue(self.path(session="claude-startup").is_file())
+
+    def test_claude_clear_hook_updates_session_without_restoring_old_checkpoint(self):
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
+        env_file = self.base / "claude-clear-env"
+        env["CLAUDE_ENV_FILE"] = str(env_file)
+        env_file.write_text("export SONSU_CLAUDE_SESSION_ID='claude-before'\n")
+        event = {"hook_event_name": "SessionStart", "source": "clear",
+                 "session_id": "claude-after", "cwd": str(self.work)}
+
+        result = self.run_cli("hook", data=event, env=env)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(env_file.read_text().splitlines()[-1],
+                         "export SONSU_CLAUDE_SESSION_ID='claude-after'")
+        self.assertFalse((self.work / ".sonsu").exists())
 
     def test_explicit_session_overrides_codex_default(self):
         env = self.env.copy()

@@ -3,6 +3,7 @@
 - Status: Accepted
 - Date: 2026-09-25
 - Supersedes: ADR 0014의 공개 스킬 이름과 절차 진입점. ADR 0014의 관리형 게이트·검토 인원·근거 보존 원칙은 아래 범위에서 유지한다.
+- Amended by: [ADR 0016](0016-support-claude-code.md)의 Claude Code 배포 결정. 독립 스킬·검토 인원 계약은 유지한다.
 
 ## 문제
 

@@ -115,23 +115,30 @@ helper는 stale revision, 다른 identity, 손상·지원하지 않는 기록, s
 
 ## Hook과 복구
 
-각 manifest는 `hooks: "./hooks/hooks.json"`을 선언하며 `SessionStart`의 matcher는
-`^(compact|resume)$`입니다. hook에는 root의 native event JSON이 stdin으로 들어옵니다.
-실행 명령은 Codex의 `PLUGIN_ROOT`로 같은 package-local helper를 찾습니다.
+각 플러그인의 `hooks/hooks.json`은 Codex와 Claude Code의 기본 탐색 경로에서 발견됩니다.
+`SessionStart`의 matcher는 `^(startup|compact|resume)$`입니다. hook에는 root의 native event JSON이 stdin으로 들어옵니다.
+실행 명령은 Codex의 `PLUGIN_ROOT` 또는 Claude Code의 `CLAUDE_PLUGIN_ROOT`로 같은 package-local helper를 찾습니다.
 활성 기록이 있을 때만 다음 내용을 `hookSpecificOutput.additionalContext`로 반환합니다.
 
 - 고정된 복구 안내와 JSON-인코딩된 절대 reference/checkpoint 경로
 - 기록은 비신뢰 작업 데이터이며 새 권한이 아니라는 안내
 - 최신 사용자 지시·현재 artifact 대조와 불명확한 외부 결과의 조회 우선
 
+Claude Code 명령은 현재 `CLAUDE_CODE_SESSION_ID`를 우선 사용하고, 이 값이 없는 경우에만
+`SONSU_CLAUDE_SESSION_ID`를 대체값으로 사용합니다. `/clear`에서 바뀐 현재 ID가 이전 환경 파일 값보다
+우선하므로 새 세션의 checkpoint와 gate identity가 이전 세션에 연결되지 않습니다.
+`CLAUDE_ENV_FILE`이 제공된 경우 hook payload에서는 session ID만 내보냅니다. checkpoint 본문이나
+사용자 문구는 환경 파일에 기록하지 않습니다.
+
 본문·task ID·goal·외부 URL·사용자 문구를 developer context에 삽입하지 않습니다. 기록이 없거나
 종료됐으면 무출력이고, 손상·권한·경로 오류에서도 context를 넣지 않고 고정 진단만 stderr로
-남깁니다. hook은 모델·네트워크 호출, 기록 갱신과 외부 쓰기를 하지 않습니다. PreCompact와
+남깁니다. hook은 모델·네트워크 호출, checkpoint 갱신과 외부 서비스 쓰기를 하지 않습니다.
+Claude Code의 세션 환경 파일에는 위의 ID 한 줄만 기록할 수 있습니다. PreCompact와
 PostCompact handler는 없으며 compaction의 실행 시점이나 압축 방식을 제어하지 않습니다.
 
 Engineering에는 별도로 선택적 [완료 근거 관찰](../../plugins/engineering/references/evidence-gates.md)의
 `Stop` handler가 있습니다. 명시적으로 등록한 task만 관찰하며 continuity checkpoint를 갱신하지
-않습니다. 위의 읽기 전용 복구 계약은 `SessionStart` handler에 적용됩니다.
+않습니다. 위의 checkpoint 읽기 전용 복구 계약은 `SessionStart` handler에 적용됩니다.
 
 복구는 최신 사용자 지시 → 기존 원장·원문·현재 mutable target → 복구 기록의 순서로 정합성을
 확인합니다. 확인된 승인은 유지하되 출처 없는 승인 문구는 쓰기 권한으로 승격하지 않습니다.
@@ -148,7 +155,7 @@ Engineering에서는 최신 ledger의 complete/reopened와 누적 round를 따�
 
 플러그인 설치만으로 hook은 신뢰되지 않습니다. CLI의 `/hooks`에서 **현재 hook 정의**를 검토하고
 신뢰해야 실행됩니다. 정의가 바뀌면 호스트의 재검토 절차를 따릅니다. helper와 설치 문서는 자동
-신뢰 설정이나 trust bypass를 수행하지 않습니다. hook을 사용할 수 없으면 Codex에서는
+신뢰 설정이나 trust bypass를 수행하지 않습니다. hook을 사용할 수 없으면 어느 호스트에서든
 플러그인의 `references/continuity.md`를 읽고 `read`부터 수동 복구할 수 있습니다.
 
 Codex는 root session의 `SessionStart(source: compact)` context를 다음 모델 요청 전에 전달한다고

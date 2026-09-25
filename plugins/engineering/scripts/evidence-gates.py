@@ -47,6 +47,25 @@ def identifier(value):
     return value
 
 
+def session_identity(explicit):
+    if explicit:
+        return identifier(explicit)
+    claude = os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("SONSU_CLAUDE_SESSION_ID")
+    codex = os.environ.get("CODEX_THREAD_ID")
+    require(not (claude and codex and claude != codex), "ambiguous host session; pass --session-id")
+    return identifier(claude or codex)
+
+
+def host_identity(explicit):
+    if explicit:
+        return explicit
+    claude = (os.environ.get("CLAUDE_CODE_SESSION_ID") or
+              os.environ.get("SONSU_CLAUDE_SESSION_ID") or os.environ.get("CLAUDE_PLUGIN_ROOT"))
+    codex = os.environ.get("CODEX_THREAD_ID")
+    require(not (claude and codex), "ambiguous host; pass --host codex or --host claude-code")
+    return "claude-code" if claude else "codex"
+
+
 def encode(value):
     return (json.dumps(value, sort_keys=True, ensure_ascii=True, separators=(",", ":")) + "\n").encode()
 
@@ -325,7 +344,7 @@ def inspect(root, state):
 def initialize(root, args, supplied=None):
     config = config_validate(supplied if supplied is not None else parse_json(sys.stdin.buffer.read(MAX_JSON + 1)), root)
     snapshot(root, config)  # reject unreadable inputs before any persistent write
-    session = identifier(args.session_id or os.environ.get("CODEX_THREAD_ID"))
+    session = session_identity(args.session_id)
     path = task_path(root, args.task_id)
     pointer = session_path(root, session)
     with lock(root):
@@ -617,6 +636,7 @@ def parser():
             item.add_argument("--request-id", required=True)
         if command == "init":
             item.add_argument("--session-id")
+            item.add_argument("--host", choices=("codex", "claude-code"))
         elif command == "run":
             item.add_argument("--check", required=True)
             item.add_argument("--timeout", type=float, default=300)

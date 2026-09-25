@@ -1,13 +1,12 @@
 {
   "name": "interface-design",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "웹·모바일 UI를 사용자 판단 계약과 DQ0–DQ8 품질 게이트로 설계·재설계하고 검증합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
   },
   "skills": "./skills/",
-  "hooks": "./hooks/hooks.json",
   "interface": {
     "displayName": "Interface Design",
     "shortDescription": "일반 웹·앱 UI 설계와 재설계",

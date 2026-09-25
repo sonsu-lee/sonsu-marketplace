@@ -53,6 +53,10 @@ unit은 workspace를 분리하고 한 checkout의 순차 소스 변경은 하나
 역할 기본값은 패키지의 `references/model-profiles.json`에서 읽는다. 사용자 명시 override가
 있으면 unit의 `review_profiles`에 `source`와 해당 general_review/focused_review/red_team의
 `{model,effort,count}`를 기록한다. source는 실제 지시 근거이며 설정을 임의로 완화하는 수단이 아니다.
+Claude Code는 기본값에 해당하는 `engineering:<role>` native subagent를 호출한다. override한
+effort는 Agent 호출 인자로 적용되지 않으므로 요청값과 같은 frontmatter effort를 가진 native
+subagent definition을 선택하거나 제공한다. 모델까지 바뀌면 frontmatter의 model과 effort를 모두
+요청값에 맞춘다. profile 기록만으로 실제 실행 설정이 바뀌었다고 간주하지 않는다.
 
 설정을 보완할 때에는 같은 unit ID를 유지한 `revise` stdin에 전체 설정과
 `revision:{reason:"변경 이유",source:"기존 승인·현재 지시 근거"}`를 넣는다. 기존 check ID·소비 예산,
@@ -127,7 +131,7 @@ unresolved_prior_findings도 보존한다. 오래된 prior_round 선택으로 �
 누락된 해결 근거는 통과를 막는다. 계약/의존 변화는 집중 재사용으로 덮지 않는다.
 전체 재개방과 집중 검토를 합해 같은 gate 최대 5라운드이며 호출 수는 따로 집계한다.
 
-고위험은 일반 리뷰 뒤 `--gate red-team`으로 별도 Astra high 실행을 등록한다. 내용은 목표·
+고위험은 일반 리뷰 뒤 `--gate red-team`으로 호스트의 별도 `red_team` 프로필 실행을 등록한다. 내용은 목표·
 계약·계획·전체 변경·검사·관찰/제약·반례 이력까지 고정해야 한다. 일반 리뷰 결과를 red-team
 실행으로 대신 등록하지 않는다. red-team 원결과는 challenge_verdict를 별도 기록한다.
 root의 검증 뒤 challenge 판정도 원결과와 구분해 보존한다.

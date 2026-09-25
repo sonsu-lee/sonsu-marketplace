@@ -158,6 +158,7 @@ def load(root, task):
     state = G.read_json(G.task_path(root, task))
     need(state.get('schema_version') == 2 and state.get('workspace_root') == str(root) and
          state.get('task_id') == task, 'v2 task identity mismatch; legacy receipts cannot pass v2')
+    need(state.get('host', 'codex') in ('codex', 'claude-code'), 'invalid task host')
     validate(state['config'], root, check_inputs=False)
     return state
 
@@ -183,19 +184,43 @@ def profile_validate(profile):
     return profile
 
 
-def profiles():
+def profiles(host):
     package = Path(__file__).resolve().parents[1]
-    return G.read_json(package / 'references/model-profiles.json')['roles']
+    filename = 'claude-model-profiles.json' if host == 'claude-code' else 'model-profiles.json'
+    return G.read_json(package / 'references' / filename)['roles']
 
 
-def policy_digest():
+def policy_digest(host, review, root, artifact_root):
     package = Path(__file__).resolve().parents[1]
-    return G.digest(G.encode({'policies': {name: G.file_digest(package / 'references' / (name + '.md')) for name in POLICIES}, 'profiles': G.file_digest(package / 'references/model-profiles.json'), 'governance': {name: G.file_digest(package / name) for name in GOVERNANCE}}))
+    model_reference = 'references/claude-model-profiles.md' if host == 'claude-code' else 'references/model-profiles.md'
+    governance = tuple(model_reference if name == 'references/model-profiles.md' else name for name in GOVERNANCE)
+    if host == 'claude-code':
+        governance += ('references/claude-code-tools.md',)
+    profile_file = 'claude-model-profiles.json' if host == 'claude-code' else 'model-profiles.json'
+    agents = ()
+    if host == 'claude-code' and review != 'checks':
+        agents = ('general_review', 'focused_review')
+        if review == 'red-team':
+            agents += ('red_team',)
+    project_agents = {}
+    if agents:
+        # The controller and an isolated artifact workspace can both supply
+        # project agents. Bind both scopes, including new or removed overrides.
+        for workspace in {root, artifact_root}:
+            directory = workspace / '.claude/agents'
+            G.safe_path(directory)
+            if directory.exists():
+                need(directory.is_dir(), 'project agents path must be a directory')
+                project_agents[str(workspace)] = {
+                    str(path.relative_to(directory)): G.file_digest(path)
+                    for path in sorted(directory.rglob('*.md'))}
+    return G.digest(G.encode({'policies': {name: G.file_digest(package / 'references' / (name + '.md')) for name in POLICIES}, 'profiles': G.file_digest(package / 'references' / profile_file), 'governance': {name: G.file_digest(package / name) for name in governance}, 'agents': {name: G.file_digest(package / 'agents' / (name + '.md')) for name in agents}, 'project_agents': project_agents}))
 
 
 def context(root, state, u):
+    host = state.get('host', 'codex')
     return {'contract': G.digest(G.encode({p: G.file_digest(root / p) for p in state['config']['contracts']})),
-            'policy': policy_digest(), 'definition': G.digest(G.encode(u)),
+            'policy': policy_digest(host, u['review'], root, cwd(root, u)), 'definition': G.digest(G.encode(u)),
             'runtime': G.digest(Path(__file__).read_bytes() + Path(G.__file__).read_bytes()),
             'dependencies': {n: G.digest(G.encode(unit(state, n)['completions'][-1]))
                              if unit(state, n)['completions'] else None for n in u['needs']}}
@@ -384,7 +409,8 @@ def save(root, state):
 
 def initialize(root, args, config):
     validate(config, root)
-    session = G.identifier(args.session_id or os.environ.get('CODEX_THREAD_ID'))
+    session = G.session_identity(args.session_id)
+    host = G.host_identity(args.host)
     with G.lock(root):
         path = G.task_path(root, args.task_id)
         pointer = G.session_path(root, session)
@@ -394,6 +420,7 @@ def initialize(root, args, config):
                 need(G.read_json(G.task_path(root, other))['closed'], 'session already has active task')
         if path.exists():
             state = load(root, args.task_id)
+            need(state.get('host', 'codex') == host, 'task host changed; use the original host')
             need(state['config'] == config, 'configuration changed; use revise, budgets persist')
             need(session not in {r['reviewer_id'] for d in state['units'].values() for rs in d['reviews'].values()
                                  for row in rs for r in row['raw']}, 'controller conflicts with reviewer')
@@ -402,7 +429,7 @@ def initialize(root, args, config):
             state['closed'] = False
         else:
             state = {'schema_version': 2, 'task_id': args.task_id, 'workspace_root': str(root),
-                     'config': config, 'config_history': [], 'sessions': [session], 'closed': False,
+                     'host': host, 'config': config, 'config_history': [], 'sessions': [session], 'closed': False,
                      'requests': {}, 'units': {u['id']: {'owner': None, 'entries': [], 'completions': [],
                        'checks': {c['id']: [] for c in u['checks']}, 'reviews': {'final-review': [], 'red-team': []}}
                        for u in config['units']}}
@@ -831,9 +858,10 @@ def prepare_frozen(root, state, args, body, u, data, b, rows, scope, normal, pri
     name = prefix + '-input.md'
     role = 'red_team' if args.gate == 'red-team' else ('focused_review' if scope == 'focused' else 'general_review')
     overrides = u.get('review_profiles', {})
-    profile = profile_validate(overrides.get(role, profiles()[role]))
+    host = state.get('host', 'codex')
+    profile = profile_validate(overrides.get(role, profiles(host)[role]))
     requested = {'model': profile['model'], 'effort': profile['effort'], 'reviewers': profile['count']}
-    profile_source = overrides['source'] if role in overrides else 'packaged model-profiles.json'
+    profile_source = overrides['source'] if role in overrides else ('packaged claude-model-profiles.json' if host == 'claude-code' else 'packaged model-profiles.json')
     row = {'attempt': len(rows) + 1, 'unit': args.unit, 'gate': args.gate, 'scope': scope,
            'prior_round': prior, 'impact_assessment': body.get('impact_assessment'), 'normal_review': normal,
            'binding': b, 'requested': requested, 'profile_source': profile_source, 'raw': [], 'outcome': 'pending',
@@ -906,7 +934,8 @@ def adjudicate(root, state, args, body):
     need(review_current(root, state, row, binding(root, state, u)), 'review reservation stale')
     need(len(row['raw']) == row['requested']['reviewers'], 'missing reviewer evidence')
     need(all(r['execution'] == 'complete' and r['verdict'] in ('passed', 'failed') for r in row['raw']), 'incomplete or inconclusive reviewer blocks adjudication')
-    need(all(r['observed'][k] in ('unknown', row['requested'][k]) for r in row['raw'] for k in ('model', 'effort')), 'observed reviewer configuration mismatches request')
+    need(all(r['observed'][k] in ('unknown', row['requested'][k]) or (k == 'effort' and row['requested'][k] == 'inherit')
+             for r in row['raw'] for k in ('model', 'effort')), 'observed reviewer configuration mismatches request')
     if args.gate == 'red-team':
         need(all(r['challenge_verdict'] in ('survives_challenge', 'invalidated') for r in row['raw']), 'inconclusive or blocked challenge prevents adjudication')
     findings = {r['reviewer_id'] + ':' + f['id']: f for r in row['raw'] for f in r['findings']}

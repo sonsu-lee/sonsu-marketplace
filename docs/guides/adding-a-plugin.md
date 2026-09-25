@@ -20,6 +20,13 @@ codex plugin marketplace add .
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+Claude Code에서는 저장소의 절대 경로로 로컬 marketplace를 등록합니다.
+
+```sh
+claude plugin marketplace add "$(pwd -P)"
+claude plugin marketplace list
+```
+
 GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용하므로 한 환경에서는 한 가지
 방식으로 등록합니다. 실제 등록·설치 검증에는 기존 사용자 설정과 분리된 환경을 사용하세요.
 플러그인 설치와 설치 후 스킬 목록을 다시 불러오는 방법은 [루트 README](../../README.md#설치)에 있습니다.
@@ -49,6 +56,7 @@ GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용
 3. 외부 플러그인은 원본 파일과 실행 권한을 검증하고 `UPSTREAM.md`에 출처, 기준 commit,
    버전, 라이선스와 포함 범위를 기록합니다.
 4. `.agents/plugins/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
+5. `python3 scripts/render-claude-compat.py`로 Claude Code catalog와 plugin manifest를 생성합니다.
 
 ```json
 {
@@ -78,6 +86,8 @@ find .agents plugins evals -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
 python3 scripts/render-agent-policy.py --check
 python3 scripts/render-continuity.py --check
+python3 scripts/render-claude-compat.py --check
+claude plugin validate . --strict
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
 python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v

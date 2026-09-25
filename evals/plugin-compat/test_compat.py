@@ -1,7 +1,15 @@
-"""Codex marketplace packaging contracts."""
+"""Codex and Claude Code marketplace packaging contracts."""
 import json
+import contextlib
+import importlib.util
+import io
 from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
 import unittest
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,6 +30,45 @@ def read_skill_name(path):
 
 
 class CodexPackagingTests(unittest.TestCase):
+    def test_claude_catalog_matches_codex_and_generated_manifests(self):
+        codex = json.loads(CATALOG.read_text(encoding="utf-8"))
+        claude = json.loads((ROOT / ".claude-plugin/marketplace.json").read_text(encoding="utf-8"))
+        self.assertEqual(claude["name"], codex["name"])
+        self.assertEqual([entry["name"] for entry in claude["plugins"]],
+                         [entry["name"] for entry in codex["plugins"]])
+        for entry in claude["plugins"]:
+            with self.subTest(plugin=entry["name"]):
+                expected = "memory-manager-claude" if entry["name"] == "memory-manager" else entry["name"]
+                self.assertEqual(entry["source"], f"./plugins/{expected}")
+                package = ROOT / "plugins" / expected
+                source = json.loads((ROOT / "plugins" / entry["name"] / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
+                generated = json.loads((package / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
+                self.assertEqual(generated["name"], source["name"])
+                self.assertEqual(generated["version"], source["version"])
+                self.assertEqual(entry["version"], source["version"])
+                self.assertTrue((package / "skills").is_dir())
+
+    def test_memory_manager_host_specific_invocation_policy(self):
+        codex = (ROOT / "plugins/memory-manager/skills/memory-manager/SKILL.md").read_text(encoding="utf-8")
+        claude = (ROOT / "plugins/memory-manager-claude/skills/memory-manager/SKILL.md").read_text(encoding="utf-8")
+        self.assertNotIn("disable-model-invocation:", codex)
+        self.assertEqual(claude, codex.replace("\n---\n", "\ndisable-model-invocation: true\n---\n", 1))
+        self.assertEqual(read_skill_name(ROOT / "plugins/memory-manager-claude/skills/memory-manager/SKILL.md"), "memory-manager")
+
+    def test_hook_packages_use_default_discovery_path(self):
+        catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
+        for entry in catalog["plugins"]:
+            package = ROOT / "plugins" / entry["name"]
+            hook_file = package / "hooks/hooks.json"
+            if not hook_file.is_file():
+                continue
+            with self.subTest(plugin=entry["name"]):
+                codex = json.loads((package / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
+                claude = json.loads((package / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
+                self.assertNotIn("hooks", codex)
+                self.assertNotIn("hooks", claude)
+                self.assertIn("hooks", json.loads(hook_file.read_text(encoding="utf-8")))
+
     def test_public_skill_names_match_directories(self):
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
         for entry in catalog["plugins"]:
@@ -60,6 +107,57 @@ class CodexPackagingTests(unittest.TestCase):
                     target = (package_root / manifest[field]).resolve()
                     self.assertTrue(target.is_relative_to(package_root))
                     self.assertTrue(target.exists())
+
+    def test_output_parent_symlink_cannot_overwrite_codex_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".agents/plugins").mkdir(parents=True)
+            plugin = root / "plugins/demo"
+            (plugin / ".codex-plugin").mkdir(parents=True)
+            (plugin / ".claude-plugin").symlink_to(".codex-plugin", target_is_directory=True)
+            (root / ".agents/plugins/marketplace.json").write_text(json.dumps({
+                "name": "fixture-marketplace",
+                "plugins": [{"name": "demo", "source": {"source": "local", "path": "./plugins/demo"}}],
+            }))
+            codex_manifest = plugin / ".codex-plugin/plugin.json"
+            codex_manifest.write_text(json.dumps({"name": "demo", "version": "1.0.0"}))
+            original = codex_manifest.read_bytes()
+
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/render-claude-compat.py"), "--root", str(root)],
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(codex_manifest.read_bytes(), original)
+
+    def test_removed_claude_role_fails_check_and_is_removed_by_render(self):
+        spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
+        renderer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(renderer)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "shared/agent-policy"
+            shutil.copytree(ROOT / "shared/agent-policy", source)
+            with mock.patch.object(renderer, "ROOT", root), mock.patch.object(renderer, "SOURCE", source):
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(renderer.main(), 0)
+                profile_file = source / "claude-profiles.json"
+                profiles = json.loads(profile_file.read_text())
+                profiles["roles"].pop("red_team")
+                profile_file.write_text(json.dumps(profiles))
+                removed = [root / "plugins" / plugin / "agents/red_team.md"
+                           for plugin in ("engineering", "prompting")]
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--check"]), contextlib.redirect_stdout(io.StringIO()) as output:
+                    self.assertEqual(renderer.main(), 1)
+                for plugin in ("engineering", "prompting"):
+                    self.assertIn(f"stale: plugins/{plugin}/agents/red_team.md", output.getvalue())
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(renderer.main(), 0)
+                self.assertTrue(all(not path.exists() for path in removed))
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--check"]), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(renderer.main(), 0)
 
 
 if __name__ == "__main__":

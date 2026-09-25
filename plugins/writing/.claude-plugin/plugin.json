@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "writing",
+  "displayName": "Writing",
+  "version": "0.3.0-beta.3",
+  "description": "독자·목적·근거에 맞춰 업무 문서와 개발자 블로그의 정보를 선별하고, 문서 배치와 글의 흐름을 다듬는다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT",
+  "keywords": [
+    "writing",
+    "technical-writing",
+    "developer-blog",
+    "til",
+    "korean",
+    "japanese",
+    "english",
+    "tickets",
+    "pull-requests",
+    "skills"
+  ]
+}

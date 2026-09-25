@@ -1,6 +1,6 @@
 {
   "name": "figma-workflow",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "description": "Figma 제품 화면을 사용자 판단 계약과 DQ0–DQ7, native structure·interaction 증거로 제작하고 검토합니다.",
   "author": {
     "name": "sonsu",
@@ -32,6 +32,5 @@
       "이 Figma 화면의 design handoff 품질을 검증해 줘."
     ]
   },
-  "apps": "./.app.json",
-  "hooks": "./hooks/hooks.json"
+  "apps": "./.app.json"
 }

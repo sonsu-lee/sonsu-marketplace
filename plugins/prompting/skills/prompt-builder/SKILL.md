@@ -1,6 +1,6 @@
 ---
 name: prompt-builder
-description: Codex, ChatGPT 또는 OpenAI API 모델에서 바로 사용할 수 있는 프롬프트를 생성·재작성·최적화할 때 사용한다. 사용자가 프롬프트, 프롬프트 template, system·developer instruction 또는 특정 모델에 맞춘 프롬프트 조정을 요청할 때 호출한다. 프롬프트 산출물을 요구하지 않는 prompt engineering 개념 설명에는 사용하지 않는다.
+description: Codex, ChatGPT, OpenAI API 또는 Claude Code·Anthropic API 모델에서 바로 사용할 수 있는 프롬프트를 생성·재작성·최적화할 때 사용한다. 사용자가 프롬프트, 프롬프트 template, system·developer instruction 또는 특정 모델에 맞춘 프롬프트 조정을 요청할 때 호출한다. 프롬프트 산출물을 요구하지 않는 prompt engineering 개념 설명에는 사용하지 않는다.
 ---
 
 # prompt-builder: 프롬프트 작성
@@ -18,8 +18,10 @@ description: Codex, ChatGPT 또는 OpenAI API 모델에서 바로 사용할 수 
 - 사용자가 프롬프트 종류를 지정하지 않으면 현재 chat surface에서 한 번 사용할 user prompt 또는 task prompt를 만든다.
 - 빠진 선택이 산출물을 실질적으로 바꿀 때만 하나의 집중된 질문을 한다. 질문에 의존하는 부분만 보류하고 독립적으로 완성할 수 있는 프롬프트는 계속 작성한다. 아래 출력 계약은 실제로 반환하는 산출물에 적용한다. 그 외에는 안전한 기본값을 추론하고, 사용자가 알아야 할 때에만 그 가정을 밝힌다.
 - 사용자가 OpenAI 모델을 지정하거나, 모델별 최적화를 요청하거나, API에서의 배치 위치 또는 parameter가 필요하면 [OpenAI 프롬프트 지침](references/openai-prompt-guidance.md)을 읽는다. 최신 또는 현재 권고를 요청하면 이 참고 문서의 snapshot만 신뢰하지 말고 OpenAI 공식 문서를 사용한다.
+- 사용자가 Claude Code나 Anthropic 모델을 지정하면 [Claude 프롬프트 지침](references/claude-prompt-guidance.md)을 읽는다. 최신 권고가 중요하면 Anthropic 공식 문서를 다시 확인한다.
 
-모델 선택·Astra 차이는 [공유 프로필](../../references/model-profiles.md)을 필요할 때 참조한다.
+모델 선택은 대상에 따라 [Codex 프로필](../../references/model-profiles.md) 또는
+[Claude 프로필](../../references/claude-model-profiles.md)을 필요할 때 참조한다.
 Engineering의 매 작업 실행에 이 스킬을 필수 호출하지 않는다.
 
 ## 프롬프트를 작성한다

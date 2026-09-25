@@ -1,0 +1,94 @@
+{
+  "name": "sonsu-marketplace",
+  "owner": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "description": "Codex와 Claude Code에서 사용하는 Sonsu 플러그인 모음",
+  "plugins": [
+    {
+      "name": "engineering",
+      "source": "./plugins/engineering",
+      "description": "설계·구현·디버깅·검증과 도메인 구조, 단순성, 유지보수성, 실패 모드 및 운용 가능성 리뷰와 독립 심층 PR 리뷰를 함께 제공한다.",
+      "version": "3.0.3",
+      "category": "Developer Tools"
+    },
+    {
+      "name": "workflow",
+      "source": "./plugins/workflow",
+      "description": "Git·티켓·PR 작성과 PR 상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
+      "version": "0.12.2",
+      "category": "Developer Tools"
+    },
+    {
+      "name": "fluent-languages",
+      "source": "./plugins/fluent-languages",
+      "description": "한국어·일본어·영어를 자연스럽게 작성하는 표현 지침을 제공한다.",
+      "version": "0.2.0-beta.3",
+      "category": "Productivity"
+    },
+    {
+      "name": "writing",
+      "source": "./plugins/writing",
+      "description": "독자·목적·근거에 맞춰 업무 문서와 개발자 블로그의 정보를 선별하고, 문서 배치와 글의 흐름을 다듬는다.",
+      "version": "0.3.0-beta.3",
+      "category": "Productivity"
+    },
+    {
+      "name": "research",
+      "source": "./plugins/research",
+      "description": "근거 중심의 다중 출처 조사, 사실 검증, 문헌 검토와 코드 조사를 제공합니다.",
+      "version": "0.7.0-sonsu.10",
+      "category": "Productivity"
+    },
+    {
+      "name": "prompting",
+      "source": "./plugins/prompting",
+      "description": "Codex, ChatGPT, OpenAI API와 Claude Code·Anthropic API 모델에서 바로 사용할 수 있는 간결한 프롬프트를 작성합니다.",
+      "version": "0.4.2",
+      "category": "Productivity"
+    },
+    {
+      "name": "product",
+      "source": "./plugins/product",
+      "description": "제품 기회를 탐색하고, 근거를 종합하고, 제품 도메인을 모델링하고, 검증을 설계·판정하며, 승인된 결정을 PRD로 변환합니다.",
+      "version": "0.3.2",
+      "category": "Productivity"
+    },
+    {
+      "name": "figma-workflow",
+      "source": "./plugins/figma-workflow",
+      "description": "Figma 제품 화면을 사용자 판단 계약과 DQ0–DQ7, native structure·interaction 증거로 제작하고 검토합니다.",
+      "version": "0.4.2",
+      "category": "Productivity"
+    },
+    {
+      "name": "memory-manager",
+      "source": "./plugins/memory-manager-claude",
+      "description": "명시적으로 호출해 Codex 또는 Claude Code의 저장된 메모리를 점검하고 정리합니다.",
+      "version": "0.1.4",
+      "category": "Productivity"
+    },
+    {
+      "name": "operations-ui",
+      "source": "./plugins/operations-ui",
+      "description": "운영 업무 UI를 사용자 판단 계약과 DQ0–DQ8 품질 게이트로 설계·재설계하고 검증합니다.",
+      "version": "0.4.1",
+      "category": "Developer Tools"
+    },
+    {
+      "name": "design-patterns",
+      "source": "./plugins/design-patterns",
+      "description": "실제 설계 힘과 보장에 근거해 디자인 패턴을 선택하거나 기존 패턴 사용을 검토합니다.",
+      "version": "0.1.2",
+      "category": "Developer Tools"
+    },
+    {
+      "name": "interface-design",
+      "source": "./plugins/interface-design",
+      "description": "웹·모바일 UI를 사용자 판단 계약과 DQ0–DQ8 품질 게이트로 설계·재설계하고 검증합니다.",
+      "version": "0.3.2",
+      "category": "Developer Tools"
+    }
+  ]
+}

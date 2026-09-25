@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "version": "0.12.0",
+  "version": "0.12.2",
   "description": "Git·티켓·PR 작성과 PR 상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
   "author": {
     "name": "sonsu"
@@ -22,6 +22,5 @@
       "현재 브랜치를 리뷰 가능한 GitHub Pull Request로 준비해 줘.",
       "열린 PR의 CI와 리뷰 상태를 정리해 줘."
     ]
-  },
-  "hooks": "./hooks/hooks.json"
+  }
 }

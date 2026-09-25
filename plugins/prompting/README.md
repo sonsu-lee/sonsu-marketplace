@@ -1,6 +1,6 @@
 # Prompting
 
-Codex, ChatGPT와 OpenAI API에서 바로 사용할 수 있는 간결한 프롬프트를 작성하는 개인용
+Codex, ChatGPT, OpenAI API와 Claude Code·Anthropic API에서 바로 사용할 수 있는 간결한 프롬프트를 작성하는 개인용
 플러그인입니다.
 
 ## 포함된 스킬
@@ -17,6 +17,10 @@ Codex, ChatGPT와 OpenAI API에서 바로 사용할 수 있는 간결한 프롬�
 `skills/prompt-builder/references/openai-prompt-guidance.md`를 참고합니다. 이 문서는
 `2026-08-29` snapshot이며, 최신 또는 현재 권고를 요청받으면 snapshot만 신뢰하지 않고 OpenAI
 공식 문서를 다시 확인합니다.
+
+Claude Code나 Anthropic 모델을 대상으로 할 때에는
+`skills/prompt-builder/references/claude-prompt-guidance.md`를 참고하고, 현재 모델 지원·설정은
+공식 Anthropic 문서와 실행 환경에서 확인합니다.
 
 ## 설치
 
