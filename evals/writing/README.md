@@ -1,7 +1,7 @@
 # Writing·개발자 블로그·Fluent·Workflow 분리와 조합 검증
 
-Writing의 정보 선별·문서 배치·공통 구성과 개발자 블로그의 흐름·근거 구성, Fluent의
-한국어·일본어·영어 표현, Workflow의 티켓·PR 양식·운영을 각각 단독으로 사용하거나 함께 적용할
+Writing의 정보 선별·문서 배치·공통 구성과 개발자 블로그의 흐름·근거 구성, 외부 원본으로
+교체한 Fluent의 적용 범위, Workflow의 티켓·PR 양식·운영을 각각 단독으로 사용하거나 함께 적용할
 때의 범위를 검증한다. 원어민 선호나 일반적인 품질 개선을 입증하는 실험은 아니다. 과거 Fluent의
 고정 protocol·snapshot·결과도 새 조합의 근거로 재표기하지 않는다.
 
@@ -18,19 +18,21 @@ python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v
 git diff --check
 ```
 
-JSON·frontmatter와 세 패키지의 스킬/참조 상대 경로를 확인한다. Fluent는 언어별 독립 정본을 대조한다. 한국어 확장판의 효과는 [한국어 평가](../fluent-korean/README.md)에서 별도로 확인한다.
+JSON·frontmatter와 세 패키지의 스킬/참조 상대 경로를 확인한다. Fluent는 언어별 독립 정본을 대조한다. 이전 Fluent 사용자 지침의 평가 자료는 역사적 snapshot이며, 새 배포 스킬의 품질 결과로 사용하지 않는다.
 원어 용례·보호 문자열과 법적 고지는 기존 main의 바이트를 기준으로 보존 여부를 확인한다. Workflow의 티켓 3종 본문도 기존 main과 같아야 한다.
 PR 기본 양식과 `unverified` 시 기본형을 확정하지 않는 정책, marker·연결 문법은 별도로 검토한다.
-continuity 검사는 각각의 Fluent·Writing 기록을 실제 helper로 만들고 서로 대신 복구하지 않는지 확인한다.
+continuity 검사는 Writing 기록이 이전 Fluent 기록을 자동 복구하지 않는지 확인한다. 원본 Fluent 플러그인은 이 저장소의 continuity helper를 포함하지 않는다.
 
-Fluent는 언어별 SKILL을 직접 관리한다. 작업 재개용 공통 continuity 생성기는 유지하며 언어 표현 규칙을 생성하지 않는다.
+Fluent는 언어별 원본을 바탕으로 한 SKILL과 필요한 자료를 각 패키지에 보관한다. 공통 continuity 생성기는
+다른 등록 플러그인에만 적용되며 Fluent의 언어 표현 규칙을 생성하지 않는다.
 Writing에서 Workflow로 지침·양식을 복사하는 생성기는 없다.
 양식 수정은 Workflow에서, 언어 지침 수정은 Fluent에서 한다. 각 플러그인의 링크·경로와
 생성 결과 검사는 실제 모델의 지침 적용을 증명하지 않는다.
 
 ## 명시적 지침 적용 사례
 
-- [`cases.json`](cases.json): 19개. Writing 단독 16개, Fluent 단독 3개.
+- [`cases.json`](cases.json): 19개. 과거 Fluent 사례를 일부 재분류했으며, 새 배포 스킬의
+  모델 동작 판정은 다시 실행해야 한다.
 - [`workflow-cases.json`](workflow-cases.json): Workflow 단독 3개.
 - [`composition-cases.json`](composition-cases.json): 10개. Writing+Fluent 6개, Workflow+Fluent 2개,
   Workflow+Writing 1개, 세 플러그인 함께 1개.
@@ -45,7 +47,7 @@ opaque ID로 바꾼다. `installed_plugins`와 `entry_skill`은 명시적 적용
 
 | 사례 | 생성 후 확인할 계약 |
 | --- | --- |
-| ko-short | Fluent만으로 한 문장 수정만 반환하고 계획·설치·양식을 요구하지 않는다. |
+| ko-short | Writing만으로 한 문장 수정만 반환하고 계획·설치·양식을 요구하지 않는다. |
 | ko-rewrite | Writing이 자유 초안을 문단으로 재구성하고 두 번 발생·원인 미확인·다른 형식 미확인을 유지한다. |
 | ko-partial | 제목 3개와 요청 밖의 문구를 그대로 두고 현상 문장만 바꾼다. |
 | ko-bug | 주어진 사실로 문단 초안을 만들고 원인·방법·완료조건·저장소 양식을 확정하지 않는다. |
@@ -58,7 +60,7 @@ opaque ID로 바꾼다. `installed_plugins`와 `entry_skill`은 명시적 적용
 | workflow-ticket-only | 다른 플러그인 없이 자체 버그 기본형으로 알려진 사실만 쓴다. |
 | workflow-pr-unverified | 양식 미확인을 부재로 바꾸지 않으며 실제 UI·첨부 미확인을 유지한다. |
 | workflow-pr-fixed | 제공 양식·marker·Part of URL과 미확인 UI를 보존한다. |
-| writing-fluent-* | 대응하는 단독 사례의 의미·형식 계약을 유지하고 해당 출력 언어 지침을 한 번 적용한다. Fluent가 허용된 재구성을 이전 구조로 되돌리지 않는다. 한국어 요약의 생략 범위와 영어 자유 개요의 번호 제거도 확인한다. |
+| writing-fluent-* | 대응하는 단독 사례의 의미·형식 계약을 유지한다. 영어는 일상·기술 문장의 작성·윤문·검토에, 일본어는 작성·윤문과 문서 진단에 적용한다. 한국어는 기존 글의 AI 티·번역투 윤문 요청에만 적용한다. |
 | workflow-fluent-* | Writing 없이 Workflow 양식과 Fluent 표현을 함께 적용하고 고정 제목·연결 문법·미검증 상태를 보존한다. |
 | workflow-writing-unverified | Fluent 없이 구성 지침을 적용하고 Workflow의 양식 확정 경계를 유지한다. |
 | all-three-ja-fixed-pr | Workflow가 정한 양식 안에서 Writing·일본어 Fluent를 중복·순환 없이 적용한다. |
@@ -110,7 +112,7 @@ opaque ID로 바꾼다. `installed_plugins`와 `entry_skill`은 명시적 적용
 | ko-docs-explicit-inclusion | 사용자의 명시적 검증 항목·문장을 포함하고 실행에 필요한 사실을 보존한다. 변수명 변경 과정과 미정인 커밋 메시지는 자동으로 옮기지 않는다. |
 | ko-docs-small-project | 하나의 README에 용도·Python 조건·명령·결과·읽기 오류·입력 무변경을 담고 상세 문서를 추가하지 않는다. |
 | ko-docs-prior-decision | 전달된 유효한 문서 목적·경로·범위를 이어받아 옵션 참조만 갱신한다. 필요한 대상 파일 확인은 허용하되 문서 배치를 다시 묻거나 전체 문서 탐색을 되풀이하지 않는다. |
-| writing-fluent-ko-docs-mixed-change | 같은 입력의 Writing 단독 사례와 의미·범위·파일 배치 계약을 유지한다. Fluent가 표현을 다듬으면서 선별되지 않은 작업 메모를 README에 복원하지 않는다. |
+| writing-fluent-ko-docs-mixed-change | 같은 입력의 Writing 단독 사례와 의미·범위·파일 배치 계약을 유지한다. 일반 문서 갱신에는 한국어 Fluent를 자동 적용하지 않는다. |
 
 변경 전·후 지침의 비교에는 동일한 입력, 모델, 설정, 도구와 초기 파일을 사용하고 매번 새 문맥과
 임시 루트에서 시작한다. 초기·최종 파일 내용과 생성·수정·삭제 목록, 응답, 읽은 지침과 도구 이력을

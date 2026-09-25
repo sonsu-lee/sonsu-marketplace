@@ -1,8 +1,13 @@
+> 보관된 평가 설계와 결과는 2026-09-25 이전 자체 제작 Fluent 스킬의 snapshot이다. 현재 패키지는 외부 원본 스킬을 제공하며 아래 사례의 결과를 현행 품질 근거로 사용하지 않는다.
+
 # Fluent English 행동 평가
 
-Fluent는 현재도 독립 플러그인입니다. `0.1.0-beta.7`에서 공통 구성 책임을 Writing으로 분리하고
-명시된 편집 범위의 결합 규칙을 조정했습니다. 아래 과거 결과는 당시 snapshot에 대한 근거이며,
-현재 세 플러그인의 결합 행동은 [별도 평가](../writing/README.md)로 구분합니다.
+[독립 플러그인 평가 결과](results-2026-09-25-three-plugins.md)를 별도로 기록한다.
+[세 군 비교 평가](../fluent-comparison/results-2026-09-25.md)는 분리 전 버전과 스킬 없는 모델을 같은 입력에서 대조한다.
+
+Fluent English는 독립 플러그인입니다. 이전 `fluent-languages`의 `0.1.0-beta.7`에서 공통 구성 책임을
+Writing으로 분리하고 명시된 편집 범위의 결합 규칙을 조정했습니다. 아래 과거 결과는 당시 snapshot의
+근거이며, 현재 플러그인의 결합 행동은 [별도 평가](../writing/README.md)로 구분합니다.
 
 [`cases.json`](cases.json)은 `fluent-english`의 라우팅, 의미 보존과 영어 표현을 이후 실제
 모델로 확인하기 위한 고정 입력이다. 이 fixture는 특정 정답 문장을 요구하지 않고, 바뀌면
@@ -39,7 +44,7 @@ Generation prompt는 가능한 한 일반적인 산출물 요청으로 두고, �
 ```sh
 python3 -m json.tool evals/fluent-english/cases.json >/dev/null
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" \
-  plugins/fluent-languages/skills/fluent-english
+  plugins/fluent-english/skills/fluent-english
 ```
 
 실제 모델 smoke test를 수행한다면 먼저 `generation` case를 실행하고, `routing` case는 실제

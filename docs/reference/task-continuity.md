@@ -3,9 +3,9 @@
 `shared/task-continuity/profiles.json`에 등록된 플러그인은 각각
 `references/continuity.md`와 `SessionStart` hook을 포함합니다. 여러 단계의 작업을
 기록하고 컴팩션·같은 session 재개 후 현재 근거와 대조합니다. 짧은 단발 작업과 다른 작업의
-구성·표현만 담당하는 Writing·Fluent에는 별도 기록을 만들지 않습니다.
+구성·표현만 담당하는 Writing에는 별도 기록을 만들지 않습니다.
 
-각 플러그인은 단독으로 설치할 수 있습니다. 공통 runtime과 참고 자료는
+연속성 profile에 등록된 플러그인은 단독으로 설치할 수 있습니다. 공통 runtime과 참고 자료는
 [`shared/task-continuity/`](../../shared/task-continuity)를 정본으로 삼고
 [`scripts/render-continuity.py`](../../scripts/render-continuity.py)가 패키지 내부로 복사합니다.
 설치된 패키지는 다른 플러그인이나 저장소 root를 읽지 않습니다. domain별 보존 항목과 trigger는
@@ -70,19 +70,17 @@ Research의 `persistence: off`, cache/catalog와 원문 저장 제한도 계속 
 새 task를 revision 1로 기록합니다. history는 자동 복구 대상으로 검색하지 않습니다. 자동 삭제나
 보존 기간 정책은 없습니다. 사용자가 정리하면 기존 산출물에서 수동으로 복구합니다.
 
-## Writing·Fluent·Workflow의 기록 소유
+## Writing·Workflow의 기록 소유와 이전 Fluent 기록
 
-세 플러그인은 서로 다른 작업과 기록을 관리합니다. 기존 Fluent 설치·호출명과
-`<current-worktree-root>/.sonsu/continuity/<session-id>/fluent-languages.json`을 유지합니다.
-Writing은 같은 디렉터리의 `writing.json`, Workflow는 `workflow.json`을 사용합니다.
-기존 Fluent 기록을 Writing으로 이름 변경하거나 옮길 필요가 없습니다.
+Writing과 Workflow는 각자 담당한 작업의 기록을 관리합니다. Fluent 세 패키지는 원본 스킬을
+제공하며 이 저장소의 작업 연속성 helper·hook을 포함하지 않습니다. 장문 편집에서 Writing이
+주 작업을 맡았다면 Writing 기록을 사용합니다.
 
-주 작업을 맡은 controller만 자기 플러그인의 기록을 만듭니다. 티켓·PR 작업에서 Writing·Fluent가
-구성·표현만 돕는다면 별도 편집 작업이나 checkpoint를 만들지 않습니다. Writing이 맡은 장문 편집에서
-Fluent 표현 지침만 적용할 때도 Writing 기록으로 계속합니다. 각 helper는 다른 플러그인의 파일을
-자동 검색·복구하지 않고, 파일명만 바꿔도 record의 plugin identity가 다르면 거부합니다.
-실제로 담당 작업을 바꿀 때는 원문·현재 산출물·사용자 지시를 확인해 필요한 진행 사항을 명시적으로
-인계하며, 요약만으로 원문·권한·최신 상태를 추정하지 않습니다.
+이전 `fluent-languages.json`, `fluent-korean.json`, `fluent-english.json`,
+`fluent-japanese.json`은 자동 이전·삭제하지 않습니다. 진행 중인 글을 이어갈 때는 해당 기록을
+읽고 원문·현재 초안·완료 구간·최신 사용자 지시를 실제 파일과 대조합니다. 확인한 정보를
+현재 작업의 Writing 기록이나 작업 문맥에 수동으로 옮깁니다. 원문이 없으면 요약으로
+복원했다고 간주하지 않고 필요한 입력을 다시 확인합니다.
 
 ## CLI
 
@@ -115,8 +113,8 @@ helper는 stale revision, 다른 identity, 손상·지원하지 않는 기록, s
 
 ## Hook과 복구
 
-각 플러그인의 `hooks/hooks.json`은 Codex와 Claude Code의 기본 탐색 경로에서 발견됩니다.
-`SessionStart`의 matcher는 `^(startup|compact|resume)$`입니다. hook에는 root의 native event JSON이 stdin으로 들어옵니다.
+`profiles.json`에 등록된 플러그인의 `hooks/hooks.json`은 Codex와 Claude Code의 기본 탐색 경로에서 발견됩니다.
+`SessionStart`의 matcher는 `^(startup|clear|compact|resume)$`입니다. hook에는 root의 native event JSON이 stdin으로 들어옵니다.
 실행 명령은 Codex의 `PLUGIN_ROOT` 또는 Claude Code의 `CLAUDE_PLUGIN_ROOT`로 같은 package-local helper를 찾습니다.
 활성 기록이 있을 때만 다음 내용을 `hookSpecificOutput.additionalContext`로 반환합니다.
 

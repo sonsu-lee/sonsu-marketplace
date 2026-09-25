@@ -1,7 +1,7 @@
 # 스킬 라우팅 평가
 
-`cases.json`은 Engineering, Workflow, Research, Prompting, Product, Writing과 Fluent
-Languages를 함께 또는 각각 설치했을 때의 기대 라우팅을 정의합니다. 직접 산출물 요청,
+`cases.json`은 Engineering, Workflow, Research, Prompting, Product, Writing과 언어별 Fluent
+플러그인을 함께 또는 각각 설치했을 때의 기대 라우팅을 정의합니다. 직접 산출물 요청,
 비슷하지만 다른 요청, runtime 조합과 단독 설치 사례를 포함합니다.
 
 `workflow:to-pr` 사례는 선택된 스킬뿐 아니라 원격 변경이 없는 준비 모드인지, publish payload의
@@ -20,9 +20,13 @@ ticket을 각각 검증해야 합니다. `must_use_native_relation`은 provider�
 assignee에서 검증하고 다른 assignee를 유지해야 합니다. `all`은 사용자가 모든 담당자 해제를
 명시한 사례에서만 허용합니다.
 
-Writing은 공통 구성을, Fluent Languages는 출력 언어별 표현을 담당합니다. Workflow는 자체 양식과
-운영 절차에 두 지침을 선택적으로 적용합니다. 분리·조합 사례의 기대값은 실제 native 라우팅 결과와
+Writing은 공통 구성을 담당합니다. 영어 Fluent는 일상·기술 문장의 작성·윤문·검토에, 일본어 Fluent는 작성·윤문과 문서 진단에 적용합니다. 한국어 Fluent는
+기존 글의 AI 티·번역투 윤문이나 진단 요청에 적용합니다. Workflow는 자체 양식과
+운영 절차에 적합한 지침을 적용합니다. 분리·조합 사례의 기대값은 실제 native 라우팅 결과와
 구분하며, [명시적 지침 적용 검사](../writing/README.md)만으로 자동 선택을 통과했다고 하지 않습니다.
+일상 메시지와 기술 설명의 선택 경계를 각 언어별로 확인하는 사례도 포함합니다.
+일본어 기술 문서의 Markdown 구조만 바꾸는 요청은 Writing으로 보내고 Fluent를 선택하지 않는
+사례로 범위를 확인합니다.
 
 이 평가는 실제 skill selection 결과를 대상으로 합니다. JSON 파싱이나 description 문자열 비교는
 평가 실행을 대신하지 않습니다. 모델 기반 실행은 격리된 읽기 전용 fixture에서 수행하고 원격

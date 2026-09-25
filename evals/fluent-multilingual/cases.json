@@ -1,0 +1,196 @@
+{
+  "schema_version": "fluent-multilingual-focused-cases-v1",
+  "cases": [
+    {
+      "id": "ko-everyday-ai-edit",
+      "skill": "fluent-korean",
+      "prompt": "다음 기존 한국어 팀 메시지의 AI처럼 과장된 표현만 윤문해 주세요. 확인된 정보와 격식체를 유지하고 수정본만 출력하세요.",
+      "evidence": "원문: 검색 API 오류의 원인은 아직 확인되지 않았습니다. 재현 절차는 문서에 기록했습니다. 이는 우리에게 중요한 전환점입니다. 수정 일정은 아직 정하지 않았습니다.",
+      "expectations": {
+        "protected_literals": [
+          "검색 API"
+        ],
+        "must_preserve": [
+          "원인은 미확인",
+          "재현 절차를 기록함",
+          "수정 일정은 미정"
+        ],
+        "must_not_introduce": [
+          "원인 단정",
+          "수정 완료",
+          "수정 일정 약속",
+          "근거 없는 과장"
+        ]
+      },
+      "plugin": "fluent-korean"
+    },
+    {
+      "id": "ko-diagnose-only",
+      "skill": "fluent-korean",
+      "prompt": "다음 문장의 AI처럼 들리는 부분이 있는지만 진단해 주세요. 문장을 고치거나 AI 작성 여부를 판정하지 마세요.",
+      "evidence": "원문: 결론적으로, 이 변경은 매우 중요한 전환점입니다. 새 캐시는 30초 동안 항목을 보관합니다.",
+      "expectations": {
+        "protected_literals": [],
+        "must_preserve": [
+          "진단만 하고 원문은 수정하지 않는다",
+          "확인된 캐시 보관 시간과 불필요한 강조를 구분한다"
+        ],
+        "must_not_introduce": [
+          "AI 작성 확률이나 점수",
+          "실제 캐시 성능에 관한 추정"
+        ]
+      },
+      "plugin": "fluent-korean"
+    },
+    {
+      "id": "ko-voice-and-status",
+      "skill": "fluent-korean",
+      "prompt": "첫 문장만 자연스럽게 다듬어 주세요. 아래 평소 글은 격식의 참고 자료일 뿐, 그 사실을 결과에 더하지 마세요. 수정본만 출력하세요.",
+      "evidence": "평소 글: 확인한 결과를 먼저 공유합니다. 다음 일정은 아직 정하지 않았습니다.\n편집 대상: 검색 API의 응답이 빠르게 되어지도록 개선했습니다. 배포 일정은 아직 미정입니다.",
+      "expectations": {
+        "protected_literals": [
+          "검색 API",
+          "배포 일정은 아직 미정입니다."
+        ],
+        "must_preserve": [
+          "첫 문장만 자연스러운 격식체로 고친다",
+          "응답 개선과 배포 일정 미정 상태"
+        ],
+        "must_not_introduce": [
+          "배포 완료",
+          "일정 확정",
+          "평소 글의 사실 추가",
+          "편집 대상 둘째 문장 수정"
+        ]
+      },
+      "plugin": "fluent-korean"
+    },
+    {
+      "id": "en-new-writing",
+      "skill": "fluent-english",
+      "prompt": "Write a concise English status update for teammates using only the confirmed facts. Return the update only.",
+      "evidence": "Confirmed: The worker retries failed jobs once after 30 seconds. The change is in review. No production deployment has happened.",
+      "expectations": {
+        "protected_literals": [
+          "30 seconds"
+        ],
+        "must_preserve": [
+          "one retry after a failed job",
+          "change is in review",
+          "not deployed to production"
+        ],
+        "must_not_introduce": [
+          "multiple retries",
+          "completed deployment",
+          "invented performance gains"
+        ]
+      },
+      "plugin": "fluent-english"
+    },
+    {
+      "id": "en-voice-with-protected-terms",
+      "skill": "fluent-english",
+      "prompt": "Polish only the first sentence in English. Use the sample for voice, preserve the second sentence and the exact code term, and return the revised paragraph only.",
+      "evidence": "Voice sample: We checked the logs. The cause is still unclear.\nDraft: This groundbreaking optimization represents a pivotal moment for `cacheKey`. We have not deployed it.",
+      "expectations": {
+        "protected_literals": [
+          "`cacheKey`",
+          "We have not deployed it."
+        ],
+        "must_preserve": [
+          "the first sentence only is polished",
+          "no deployment has occurred"
+        ],
+        "must_not_introduce": [
+          "measured speedup",
+          "invented personal reaction",
+          "changed second sentence"
+        ]
+      },
+      "plugin": "fluent-english"
+    },
+    {
+      "id": "en-diagnose-keep-contrast",
+      "skill": "fluent-english",
+      "prompt": "Review the English prose for generic AI-writing patterns only. Do not rewrite it or guess who wrote it. State if the contrast should stay.",
+      "evidence": "The patch changes retry scheduling, not authentication. A failed job waits 30 seconds before the next attempt.",
+      "expectations": {
+        "protected_literals": [],
+        "must_preserve": [
+          "the contrast carries a factual distinction",
+          "the response diagnoses without rewriting"
+        ],
+        "must_not_introduce": [
+          "rewritten copy",
+          "AI authorship verdict",
+          "detector score"
+        ]
+      },
+      "plugin": "fluent-english"
+    },
+    {
+      "id": "ja-new-writing",
+      "skill": "fluent-japanese",
+      "prompt": "次の確認済み情報だけを使い、チーム向けに簡潔な日本語の進捗報告を作成してください。本文のみ返してください。",
+      "evidence": "確認済み: `処理状況`画面でアップロード済みPDFの処理状態を確認できる。公開日は未定。オフライン対応は確認されていない。",
+      "expectations": {
+        "protected_literals": [
+          "`処理状況`",
+          "PDF"
+        ],
+        "must_preserve": [
+          "アップロード済みPDFの処理状態を確認できる",
+          "公開日は未定"
+        ],
+        "must_not_introduce": [
+          "公開日の確約",
+          "オフライン対応の断定",
+          "架空の機能や保証"
+        ]
+      },
+      "plugin": "fluent-japanese"
+    },
+    {
+      "id": "ja-product-claim-boundary",
+      "skill": "fluent-japanese",
+      "prompt": "次の製品説明を自然な日本語に整えてください。確認されていない機能や保証は追加せず、UIラベルをそのまま残してください。修正文だけを返してください。",
+      "evidence": "資料: 利用者はアップロード済みのPDFと処理状態を一覧で確認できる。オフライン対応と保存期間は未確認。UIラベルは `処理状況`。\n原文: 革新的なダッシュボードがシームレスな確認体験を実現します。`処理状況`からPDFと処理状態を確認することができます。",
+      "expectations": {
+        "protected_literals": [
+          "PDF",
+          "`処理状況`"
+        ],
+        "must_preserve": [
+          "アップロード済みPDFと処理状態を一覧で確認できる",
+          "過大な宣伝表現は根拠の範囲で整える"
+        ],
+        "must_not_introduce": [
+          "オフライン対応の断定",
+          "保存期間の断定",
+          "セキュリティ保証",
+          "UIラベルの変更"
+        ]
+      },
+      "plugin": "fluent-japanese"
+    },
+    {
+      "id": "ja-diagnose-keep-register",
+      "skill": "fluent-japanese",
+      "prompt": "次の文の不自然な箇所だけを診断してください。書き換えず、AIが書いたかどうかの判定もしないでください。",
+      "evidence": "原文: 対象環境を確認してください。正しい環境であれば、`保存`を選択してください。",
+      "expectations": {
+        "protected_literals": [],
+        "must_preserve": [
+          "自然な手順文は維持する判断",
+          "文を書き換えずに診断する"
+        ],
+        "must_not_introduce": [
+          "修正文",
+          "AI作成の断定",
+          "根拠のないスコア"
+        ]
+      },
+      "plugin": "fluent-japanese"
+    }
+  ]
+}

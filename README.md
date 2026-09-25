@@ -56,7 +56,9 @@ Codex connector와 Claude Code MCP 연결은 별도로 설정하며, Figma 작�
 | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | 소프트웨어 변경 설계·구현·검증과 코드 단순화·품질 리뷰 | `engineering` |
 | [Workflow](plugins/workflow) | Git branch·commit·push, 티켓 작성·수정·상태 관리와 GitHub PR 작업 | `workflow` |
-| [Fluent Languages](plugins/fluent-languages) | 기술 내용을 보존하는 자연스러운 한국어·일본어·영어 작성 | `fluent-languages` |
+| [Fluent Korean](plugins/fluent-korean) | 기존 일상·기술 한국어의 AI 티·번역투 윤문 (`im-not-ai` 기반) | `fluent-korean` |
+| [Fluent English](plugins/fluent-english) | 일상·기술 영어 작성·윤문·검토 (`better-writing` 기반) | `fluent-english` |
+| [Fluent Japanese](plugins/fluent-japanese) | 일상·기술 일본어 작성·윤문·문서 진단 (`natural-japanese` 기반) | `fluent-japanese` |
 | [Writing](plugins/writing) | 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성 | `writing` |
 | [Research](plugins/research/README.md) | 여러 출처 조사, 사실 검증과 근거를 갖춘 답변 작성 | `research` |
 | [Prompting](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API·Claude Code·Anthropic API용 프롬프트 작성과 개선 | `prompting` |
@@ -69,7 +71,7 @@ Codex connector와 Claude Code MCP 연결은 별도로 설정하며, Figma 작�
 
 각 플러그인은 독립적으로 사용할 수 있습니다. 포함된 스킬과 상세 사용법은 위 링크에서 확인하세요.
 
-글을 작성할 때 Writing은 정보 선별·배치와 구성을, Fluent Languages는 언어별 표현을,
+글을 작성할 때 Writing은 정보 선별·배치와 구성을, 언어별 Fluent는 요청한 출력 언어의 표현을,
 Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR의 리뷰 결과 게시를 담당합니다. 함께 쓰는 방법은
 [스킬 라우팅 문서](docs/architecture/skill-routing.md)를 참고하세요.
 
@@ -81,7 +83,7 @@ Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR�
 | --- | --- |
 | Engineering | “이 버그를 수정해 검증하거나, 현재 diff의 불필요한 추상화와 도달 가능한 실패 경로를 리뷰해 줘.” |
 | Workflow | “현재 변경을 커밋하고 Draft PR을 만들어 줘.” |
-| Fluent Languages | “이 일본어 기술 설명을 의미와 코드 식별자를 유지하면서 자연스럽게 다듬어 줘.” |
+| Fluent Japanese | “이 일본어 기술 설명을 의미와 코드 식별자를 유지하면서 자연스럽게 다듬어 줘.” |
 | Writing | “이 자료에서 README에 필요한 내용을 골라 요약하고, 상세 내용은 기존 문서에 반영해 줘.” |
 | Research | “이 두 서비스의 요금과 제한 사항을 공식 자료로 비교해 줘.” |
 | Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
@@ -117,8 +119,21 @@ claude plugin marketplace update sonsu-marketplace
 claude plugin update engineering@sonsu-marketplace
 ```
 
-다른 마켓플레이스의 `fluent-languages`나 standalone `prompt-builder`, `product-discovery`, `to-prd`를
-설치했다면 같은 이름의 스킬이 중복되지 않도록 기존 복사본을 먼저 제거하세요.
+이전 `fluent-languages` 설치본이 있으면 언어 스킬의 적용 범위가 겹치므로 먼저 제거하고 필요한
+언어 플러그인을 설치하세요. 새 스킬 ID는 `fluent-korean:fluent-korean`,
+`fluent-english:fluent-english`, `fluent-japanese:fluent-japanese`입니다. 영어는 일상·기술 문장의 작성·윤문·검토에, 일본어는 작성·윤문과 문서 진단에 사용할 수 있습니다. 한국어는 기존 글의 AI 티·번역투 윤문에 적용합니다. 기존 작업 연속성 기록은 자동 이전되지 않으며
+[수동 복구 절차](docs/reference/task-continuity.md)에 따라 확인합니다.
+
+```sh
+codex plugin remove fluent-languages@sonsu-marketplace
+codex plugin add fluent-korean@sonsu-marketplace
+codex plugin add fluent-english@sonsu-marketplace
+codex plugin add fluent-japanese@sonsu-marketplace
+```
+
+Claude Code에서는 `claude plugin uninstall fluent-languages@sonsu-marketplace` 후 필요한 언어
+플러그인을 `claude plugin install <name>@sonsu-marketplace`로 설치합니다. 다른 마켓플레이스의
+동명 스킬이나 standalone `prompt-builder`, `product-discovery`, `to-prd`도 중복되지 않도록 확인하세요.
 
 ## 개발 및 기여
 

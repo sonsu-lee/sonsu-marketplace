@@ -1,0 +1,28 @@
+{
+  "name": "fluent-korean",
+  "version": "0.1.0-beta.1",
+  "description": "기존 한국어 글의 AI 티·번역투를 윤문·진단한다. 일상 메시지와 기술 문서의 설명문에도 적용할 수 있다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT",
+  "keywords": [
+    "korean",
+    "writing",
+    "localization",
+    "skills"
+  ],
+  "skills": "./codex/skills/",
+  "interface": {
+    "displayName": "Fluent Korean",
+    "shortDescription": "기존 한국어 글의 AI 티·번역투 윤문·진단",
+    "longDescription": "im-not-ai 기반. 기존 일상·기술 문장의 AI 티·번역투를 요청한 범위에서 윤문하거나 진단한다.",
+    "developerName": "sonsu",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "defaultPrompt": "이 기존 한국어 글에서 AI 티와 번역투만 찾아 의미와 기술 용어를 보존하며 윤문해 줘."
+  }
+}

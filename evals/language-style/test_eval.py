@@ -395,7 +395,7 @@ class ExecutionContractTests(unittest.TestCase):
         self.assertEqual(argv[-1], "-")
 
     def test_trace_contamination_checks_tool_payloads_not_messages(self):
-        path = "/tmp/fluent-languages/fluent-korean/SKILL.md"
+        path = "/tmp/fluent-korean/skills/fluent-korean/SKILL.md"
         message_only = [
             {"type": "item.completed", "item": {"type": "agent_message", "text": path}}
         ]

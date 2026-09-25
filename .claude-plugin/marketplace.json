@@ -21,10 +21,24 @@
       "category": "Developer Tools"
     },
     {
-      "name": "fluent-languages",
-      "source": "./plugins/fluent-languages",
-      "description": "한국어·일본어·영어를 자연스럽게 작성하는 표현 지침을 제공한다.",
-      "version": "0.2.0-beta.3",
+      "name": "fluent-korean",
+      "source": "./plugins/fluent-korean",
+      "description": "기존 한국어 글의 AI 티·번역투를 윤문·진단한다. 일상 메시지와 기술 문서의 설명문에도 적용할 수 있다.",
+      "version": "0.1.0-beta.1",
+      "category": "Productivity"
+    },
+    {
+      "name": "fluent-english",
+      "source": "./plugins/fluent-english",
+      "description": "영어 일상 메시지와 기술 문서를 독자·목적에 맞춰 작성·윤문·검토한다.",
+      "version": "0.1.0-beta.1",
+      "category": "Productivity"
+    },
+    {
+      "name": "fluent-japanese",
+      "source": "./plugins/fluent-japanese",
+      "description": "일본어 일상 메시지와 기술 문서의 설명문을 작성·윤문하고, 문서의 자연스러움을 진단한다. 기술 문서의 구성·Markdown 정리는 범위 밖이다.",
+      "version": "0.1.0-beta.1",
       "category": "Productivity"
     },
     {

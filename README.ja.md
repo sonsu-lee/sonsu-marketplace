@@ -55,7 +55,9 @@ claude plugin list
 | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | ソフトウェア変更の設計・実装・検証、簡素化、品質レビュー | `engineering` |
 | [Workflow](plugins/workflow) | Gitのブランチ・コミット・プッシュ、チケット、GitHub PRの作成・管理 | `workflow` |
-| [Fluent Languages](plugins/fluent-languages) | 技術的な内容を保った自然な韓国語・日本語・英語の文章作成 | `fluent-languages` |
+| [Fluent Korean](plugins/fluent-korean) | `im-not-ai` をもとに既存の日常・技術文のAI的表現・翻訳調を推敲 | `fluent-korean` |
+| [Fluent English](plugins/fluent-english) | `better-writing` をもとに日常・技術文の作成・推敲・レビュー | `fluent-english` |
+| [Fluent Japanese](plugins/fluent-japanese) | `natural-japanese` をもとに日常・技術文の作成・推敲と文書診断 | `fluent-japanese` |
 | [Writing](plugins/writing) | 読み手と目的に合わせた情報の選別、記載先の判断、文章の構成 | `writing` |
 | [Research](plugins/research/README.md) | 複数の情報源の調査、事実確認、根拠に基づく回答の作成 | `research` |
 | [Prompting](plugins/prompting/README.md) | Codex・ChatGPT・OpenAI API・Claude Code・Anthropic API向けプロンプトの作成・改善 | `prompting` |
@@ -68,7 +70,7 @@ claude plugin list
 
 各プラグインは独立して利用できます。含まれるスキルや詳しい使い方は、上のリンクから確認してください。
 
-Writingは情報の選別・記載先の判断と文章の構成、Fluent Languagesは各言語の表現、
+Writingは情報の選別・記載先の判断と文章の構成、各Fluentプラグインは対象言語の表現、
 Workflowはチケット・PRの新規作成に使うテンプレートと公開手順、Engineeringは既存PRへのレビュー結果の投稿を担当します。併用方法は
 [スキルルーティングのドキュメント](docs/architecture/skill-routing.md)を参照してください。
 
@@ -80,7 +82,7 @@ Workflowはチケット・PRの新規作成に使うテンプレートと公開�
 | --- | --- |
 | Engineering | 「このバグを修正して検証するか、現在のdiffに不要な抽象化や到達可能な障害経路がないかレビューして。」 |
 | Workflow | 「現在の変更をコミットして、Draft PRを作成して。」 |
-| Fluent Languages | 「この日本語の技術説明を、意味とコードの識別子を保ちながら自然な文章に整えて。」 |
+| Fluent Japanese | 「この日本語の技術説明を、意味とコードの識別子を保ちながら自然な文章に整えて。」 |
 | Writing | 「この資料からREADMEに必要な内容を選んで要約し、詳細は既存のドキュメントに反映して。」 |
 | Research | 「この2つのサービスの料金と制限を、公式資料に基づいて比較して。」 |
 | Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
@@ -116,8 +118,16 @@ claude plugin marketplace update sonsu-marketplace
 claude plugin update engineering@sonsu-marketplace
 ```
 
-別のマーケットプレイスから `fluent-languages` をインストールしている場合や、
-`prompt-builder`、`product-discovery`、`to-prd` を単体でインストールしている場合は、同名スキルの重複を避けるため、既存のコピーを先に削除してください。
+以前の `fluent-languages` がインストールされている場合は、言語指針の重複を避けるため、先に削除してから必要な言語プラグインをインストールしてください。新しいスキル ID は `fluent-korean:fluent-korean`、`fluent-english:fluent-english`、`fluent-japanese:fluent-japanese` です。英語は日常文と技術文の作成・推敲・レビューに、日本語は作成・推敲と文書診断に使えます。韓国語は既存文のAI的表現・翻訳調の推敲に使います。既存の作業継続記録は自動移行されません。[手動の復旧手順](docs/reference/task-continuity.md)を参照してください。
+
+```sh
+codex plugin remove fluent-languages@sonsu-marketplace
+codex plugin add fluent-korean@sonsu-marketplace
+codex plugin add fluent-english@sonsu-marketplace
+codex plugin add fluent-japanese@sonsu-marketplace
+```
+
+Claude Codeでは `claude plugin uninstall fluent-languages@sonsu-marketplace` の後に、必要な言語を `claude plugin install <name>@sonsu-marketplace` でインストールします。別のマーケットプレイスや、単体でインストールした `prompt-builder`、`product-discovery`、`to-prd` に同名スキルがないかも確認してください。
 
 ## 開発・貢献
 

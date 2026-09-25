@@ -14,7 +14,8 @@ import subprocess
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-PLUGINS = list(json.loads((ROOT / "shared/task-continuity/profiles.json").read_text()))
+PROFILES = json.loads((ROOT / "shared/task-continuity/profiles.json").read_text())
+PLUGINS = list(PROFILES)
 
 
 class Server:
@@ -111,9 +112,14 @@ def probe(case_root, names):
         hooks = server.call("hooks/list", {"cwds": [str(work)]})
         skills = server.call("skills/list", {"cwds": [str(work)], "forceReload": True})
         listed_hooks = [h for row in hooks["data"] for h in row["hooks"]]
-        listed_skills = [s for row in skills["data"] for s in row["skills"] if s["name"].endswith("-task-continuity")]
+        skill_names = {s["name"] for row in skills["data"] for s in row["skills"]}
+        listed_skills = [name for name in skill_names if name.endswith("-task-continuity")]
         if listed_skills:
             raise RuntimeError("continuity reference is still exposed as a skill")
+        for name in names:
+            expected_skill = name + ":" + PROFILES[name]["example_skill"]
+            if expected_skill not in skill_names:
+                raise RuntimeError("missing native skill " + expected_skill)
         installed_references = {}
         for name in names:
             matched = [h for h in listed_hooks if h.get("pluginId") == name + "@continuity-fixture"]
@@ -122,7 +128,7 @@ def probe(case_root, names):
                 raise RuntimeError("missing or mismatched native hook for " + name)
             start = next(h for h in matched if h["eventName"] == "sessionStart")
             installed_references[name] = str(installed_reference(home, start))
-            if start["matcher"] != "^(startup|compact|resume)$":
+            if start["matcher"] != "^(startup|clear|compact|resume)$":
                 raise RuntimeError("mismatched recovery matcher for " + name)
             if any(h["trustStatus"] != "untrusted" for h in matched):
                 raise RuntimeError("unexpected trust state in fresh isolated home")

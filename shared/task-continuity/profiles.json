@@ -41,12 +41,6 @@
     "details": "대상 모델과 사용 방식, 입력/출력 계약, 현재 프롬프트 위치·revision, 채택한 제약과 미검증 사항을 보존한다. 선택하지 않은 모델로 바꾸거나 요약만으로 literal·출력 형식을 재작성하지 않는다. 기존 프롬프트와 변경된 요구만 대조하고, 실행하지 않은 검증은 not_run으로 유지한다.",
     "example_skill": "prompt-builder"
   },
-  "fluent-languages": {
-    "label": "Fluent Languages",
-    "trigger": "장문·여러 문서의 언어 편집이 여러 단계로 이어지거나, 컴팩션·세션 재개 후 원문·초안·처리 구간을 복구할 때 사용한다.",
-    "details": "원문과 초안 위치·리비전, 완료 구간과 남은 수정, 요청 언어·문체·보호 문자열을 보존한다. 원문은 알려진 위치에서 확보하고 확보하지 못한 부분은 미확인으로 남긴다.",
-    "example_skill": "fluent-korean"
-  },
   "interface-design": {
     "label": "Interface Design",
     "trigger": "일반 UI 설계·재설계가 여러 단계로 이어지거나 컴팩션·재개 후 명세·산출물·검증 범위를 복구할 때 사용한다.",

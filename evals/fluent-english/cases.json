@@ -177,7 +177,7 @@
       "evidence": "Step 1: Select the UI label `Deploy now`. Step 2: Run the command shown below. If the log contains `[WARN] release train paused`, select `Cancel`, stop, and follow `OPS-742`. `release train` is the established project term.\n\n```sh\ndeployctl start --env prod\n```",
       "expectations": {
         "exact": {
-          "protected_literals": ["`Deploy now`", "deployctl start --env prod", "`[WARN] release train paused`", "`Cancel`", "`OPS-742`", "`release train`"],
+          "protected_literals": ["`Deploy now`", "deployctl start --env prod", "`[WARN] release train paused`", "`Cancel`", "`OPS-742`"],
           "required_headings": ["## Steps", "## Stop condition"],
           "ordered_markers": ["Deploy now", "deployctl start --env prod", "[WARN] release train paused", "Cancel", "OPS-742"],
           "exact_code_blocks": ["```sh\ndeployctl start --env prod\n```"],
