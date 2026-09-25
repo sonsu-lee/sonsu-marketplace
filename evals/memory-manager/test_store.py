@@ -88,6 +88,28 @@ class StoreTests(unittest.TestCase):
         result = self.run_store("search", "pnpm")
         self.assertEqual([x["id"] for x in result["results"]], [added["id"]])
 
+    def test_deleted_index_row_does_not_hide_a_valid_search_result(self):
+        notes = [self.put(title="common", body="common") for _ in range(6)]
+        connection = sqlite3.connect(self.store / "index.sqlite3")
+        try:
+            top_ids = [row[0] for row in connection.execute(
+                "SELECT id FROM memories WHERE memories MATCH 'common' ORDER BY bm25(memories) LIMIT 5")]
+        finally:
+            connection.close()
+        self.assertEqual(len(top_ids), 5)
+        deleted = next(item for item in notes if item["id"] == top_ids[0])
+        retained = [item for item in notes if item["id"] != deleted["id"]]
+
+        spec = importlib.util.spec_from_file_location("memory_store_stale_delete_test", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with mock.patch.object(module, "refresh_index", return_value=False):
+            result = module.change_status(self.store, module.project_key(self.project), "project",
+                                          deleted["id"], deleted["sha256"], "forget")
+        self.assertTrue(result["index_degraded"])
+        found = module.search(self.store, module.project_key(self.project), "project", "common")
+        self.assertEqual({item["id"] for item in found["results"]}, {item["id"] for item in retained})
+
     def test_external_markdown_edit_refreshes_search_index(self):
         added = self.put()
         path = Path(added["path"])
@@ -164,20 +186,23 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(self.run_store("pending")["results"], [])
 
     def test_quoted_json_secret_is_rejected_in_notes_and_candidates(self):
-        phrase = '설정은 {"password": "fixture-value"}'
-        result = self.run_store("put", payload={"decision": "ADD", "scope": "project",
-                                                "title": "설정", "body": phrase,
-                                                "sources": ["user:request"]}, expect=2)
-        self.assertEqual(result["error"], "sensitive_content")
         self.run_store("capture", "on")
-        event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
-                 "prompt": "기억해 줘: " + phrase}
-        self.assertEqual(self.run_store("hook", payload=event)["status"], "sensitive_content")
+        for phrase in ('설정은 {"password": "fixture-value"}',
+                       r'설정은 {\"password\":\"fixture-value\"}'):
+            with self.subTest(phrase=phrase):
+                result = self.run_store("put", payload={"decision": "ADD", "scope": "project",
+                                                        "title": "설정", "body": phrase,
+                                                        "sources": ["user:request"]}, expect=2)
+                self.assertEqual(result["error"], "sensitive_content")
+                event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
+                         "prompt": "기억해 줘: " + phrase}
+                self.assertEqual(self.run_store("hook", payload=event)["status"], "sensitive_content")
         self.assertEqual(self.run_store("pending")["results"], [])
 
-    def test_hook_ignores_explicit_korean_do_not_remember_requests(self):
+    def test_hook_ignores_explicit_do_not_remember_requests(self):
         self.run_store("capture", "on")
-        for phrase in ("이 내용은 기억하지 말아줘", "이 내용은 기억하지 말아 주세요"):
+        for phrase in ("이 내용은 기억하지 말아줘", "이 내용은 기억하지 말아 주세요",
+                       "don’t remember this", "never remember this"):
             with self.subTest(phrase=phrase):
                 event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
                          "prompt": phrase}

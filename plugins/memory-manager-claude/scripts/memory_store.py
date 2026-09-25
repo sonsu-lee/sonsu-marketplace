@@ -25,7 +25,7 @@ PROJECT_RE = re.compile(r"[0-9a-f]{20}\Z")
 SECRET_RE = re.compile(
     r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----|"
     r"\b(?:api[_-]?key|access[_-]?token|password|secret|client[_-]?secret|"
-    r"aws[_-]?secret[_-]?access[_-]?key|private[_-]?key)[\"']?\s*[:=]\s*\S+|"
+    r"aws[_-]?secret[_-]?access[_-]?key|private[_-]?key)(?:\\?[\"'])?\s*[:=]\s*\S+|"
     r"\bauthorization\s*:\s*(?:bearer|basic)\s+\S+|"
     r"\b(?:sk-|ghp_|github_pat_)[A-Za-z0-9_-]{20,}|"
     r"\bAKIA[0-9A-Z]{16}\b", re.I
@@ -33,7 +33,7 @@ SECRET_RE = re.compile(
 SIGNAL_RE = re.compile(r"기억해|기억해 줘|기억하|결정했|확정했|원인은|해결했|remember|decided|resolved|root cause", re.I)
 SKIP_RE = re.compile(
     r"기억(?:하지|해\s*주지)\s*(?:마|말|않)|저장하지\s*(?:마|말|않)|"
-    r"(?:do not|don't)\s+(?:remember|save|store)", re.I
+    r"(?:do not|don['’]t|never)\s+(?:remember|save|store)", re.I
 )
 
 
@@ -422,15 +422,18 @@ def search(root, key, scope, query):
             finally:
                 connection.close()
             results = []
+            stale_row = False
             for note_id, _ in rows:
                 try:
                     note = read_note(root, scope, key, note_id)
                     haystack = (note["title"] + " " + note["body"]).casefold()
                     if note["status"] == "active" and any(token.casefold() in haystack for token in tokens):
                         results.append({"id": note_id, "title": note["title"], "sources": note["sources"]})
+                    else:
+                        stale_row = True
                 except StoreError:
-                    continue
-            if results:
+                    stale_row = True
+            if results and not stale_row:
                 return {"results": results}
             break
         except sqlite3.DatabaseError:
