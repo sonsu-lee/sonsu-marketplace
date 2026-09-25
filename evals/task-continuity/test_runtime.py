@@ -313,31 +313,19 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(self.hook().stdout, "")
         self.assertEqual(list(outside.iterdir()), [])
 
-    def test_writing_and_fluent_records_keep_independent_identities(self):
+    def test_writing_does_not_read_legacy_fluent_record(self):
         self.assertEqual(self.write(plugin="writing").returncode, 0)
         current = self.path("writing")
         legacy = self.path("fluent-languages")
-        self.assertEqual(self.write(plugin="fluent-languages").returncode, 0)
-        self.assertEqual(self.run_cli("read", plugin="fluent-languages").returncode, 0)
+        legacy.write_bytes(current.read_bytes())
+        legacy_original = legacy.read_bytes()
         current.unlink()
-        original = legacy.read_bytes()
-
         read = self.run_cli("read", plugin="writing")
         self.assertEqual(read.returncode, 0, read.stderr)
         self.assertEqual(read.stdout, "")
-        hook = self.hook(plugin="writing")
-        self.assertEqual(hook.returncode, 0, hook.stderr)
-        self.assertEqual(hook.stdout, "")
-        self.assertFalse(current.exists())
-        self.assertEqual(legacy.read_bytes(), original)
-        self.assertEqual(self.write(plugin="writing").returncode, 0)
-        self.assertEqual(legacy.read_bytes(), original)
-
-        current.write_bytes(original)
-        self.assertNotEqual(self.run_cli("read", plugin="writing").returncode, 0)
         self.assertEqual(self.hook(plugin="writing").stdout, "")
-        self.assertNotEqual(self.write(plugin="writing", revision=1).returncode, 0)
-        self.assertEqual(current.read_bytes(), original)
+        self.assertFalse(current.exists())
+        self.assertEqual(legacy.read_bytes(), legacy_original)
 
     def test_preconfigured_readonly_exclude_allows_checkpoint(self):
         self.git("init", "-q")

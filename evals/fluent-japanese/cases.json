@@ -181,7 +181,7 @@
         "exact": {
           "protected_literals": ["deployctl status --env prod", "state=pending", "ack=ready", "deployctl retry --job JOB-417", "JOB-417", "exit code 75"],
           "required_headings": ["## 手順", "## 停止条件"],
-          "ordered_markers": ["deployctl status --env prod", "state=pending", "ack=ready", "deployctl retry --job JOB-417", "exit code 75"],
+          "ordered_markers": ["state=pending", "ack=ready", "exit code 75"],
           "exact_code_blocks": ["```sh\ndeployctl status --env prod\ndeployctl retry --job JOB-417\n```"],
           "literal_counts": {
             "```sh": 1

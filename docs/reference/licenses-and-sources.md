@@ -11,7 +11,7 @@
 - Operations UI는 외부 UI 코드나 asset을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 설계 참고 출처는 [UPSTREAM.md](../../plugins/operations-ui/UPSTREAM.md)에 기록합니다.
 - Design Patterns는 원천 카탈로그의 이름과 출처만 인덱싱하고 선택·검토 계약과 설명은 독자 작성했으며 현재 별도의 라이선스를 선언하지 않았습니다. 포함 범위와 원천별 조건은 [UPSTREAM.md](../../plugins/design-patterns/UPSTREAM.md)에 기록합니다.
 - Figma Workflow는 외부 파일을 복사하지 않은 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 검토한 출처와 비복사 원칙은 [UPSTREAM.md](../../plugins/figma-workflow/UPSTREAM.md)에 기록합니다.
-- Fluent Languages의 라이선스와 원본별 출처는 [LICENSE](../../plugins/fluent-languages/LICENSE), [UPSTREAM.md](../../plugins/fluent-languages/UPSTREAM.md)와 [THIRD_PARTY_NOTICES.md](../../plugins/fluent-languages/THIRD_PARTY_NOTICES.md)에 기록합니다.
+- Fluent의 라이선스와 원본별 출처는 [한국어](../../plugins/fluent-korean/UPSTREAM.md), [영어](../../plugins/fluent-english/UPSTREAM.md), [일본어](../../plugins/fluent-japanese/UPSTREAM.md) 패키지에 각각 기록합니다. 각 패키지의 `LICENSE`와 `THIRD_PARTY_NOTICES.md`도 함께 확인합니다.
 - Writing의 공통 구성·보존 지침과 출처는 [LICENSE](../../plugins/writing/LICENSE), [UPSTREAM.md](../../plugins/writing/UPSTREAM.md), [THIRD_PARTY_NOTICES.md](../../plugins/writing/THIRD_PARTY_NOTICES.md)에 기록합니다.
 - Research는 기준 원본에서 라이선스 파일을 확인하지 못했으며 사용 허가를 추정하지 않습니다. 기준 commit과 포함 범위는 [UPSTREAM.md](../../plugins/research/UPSTREAM.md)에 기록합니다.
 

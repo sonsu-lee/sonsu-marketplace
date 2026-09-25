@@ -7,13 +7,14 @@ Workflow는 티켓·PR의 적용 양식·필수 항목, 실제 사실·diff·검
 
 - `writing:writing`: 정보 선별·문서 배치와 문장·문단 구성. 실제 양식과 확인 상태, 사실·근거,
   출력 언어, 편집 범위와 보존할 제목·marker·연결 문법을 전달한다.
-- `fluent-languages:fluent-korean`, `fluent-languages:fluent-japanese`,
-  `fluent-languages:fluent-english`: 요청된 출력 언어에 맞는 표현. Writing이 없을 때에도
-  해당 언어 스킬이 있으면 사용할 수 있다.
+- `fluent-korean:fluent-korean`: 기존 한국어 일상·기술 문장의 AI 티·번역투 윤문이나 진단 요청에 사용한다.
+- `fluent-english:fluent-english`: 영어 일상·기술 문장을 작성·윤문·검토할 때 사용한다.
+- `fluent-japanese:fluent-japanese`: 일본어 일상·기술 문장을 작성·윤문할 때 사용한다.
+  문서 점수 진단은 원본 절차를 따르고 기술 문서의 장 구성·Markdown 정리는 맡기지 않는다.
 
-작성 담당자는 적용한 지침을 구분하고 각 지침을 한 번만 반영한다. Writing에서 이미 Fluent를
-적용했다면 다시 불러오지 않는다. 별도 agent나 완성본을 반복해서 고치는 pipeline이 아니라,
-같은 초안에 필요한 구성·표현 규칙을 함께 적용한다. 스킬이 없어도 자체 지침으로 계속하며
+작성 담당자는 적용한 지침을 구분하고 각 지침을 한 번만 반영한다. Writing에서 이미 언어 스킬을
+적용했다면 다시 불러오지 않는다. 설치된 Fluent 스킬이 정한 검토·파일 출력 절차를 따르되,
+Workflow가 정한 양식과 게시 조건을 보존한다. 스킬이 없어도 자체 지침으로 계속하며
 자동 설치·연결이나 설치를 위한 질문을 하지 않는다.
 
 사용자·프로젝트의 형식과 허용된 편집 범위, 사실·조건·의무 수준·코드·식별자·URL을 우선한다.

@@ -1,0 +1,28 @@
+{
+  "name": "fluent-english",
+  "version": "0.1.0-beta.1",
+  "description": "영어 일상 메시지와 기술 문서를 독자·목적에 맞춰 작성·윤문·검토한다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT",
+  "keywords": [
+    "english",
+    "writing",
+    "localization",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Fluent English",
+    "shortDescription": "영어 일상·기술 문장 작성·윤문·검토",
+    "longDescription": "better-writing을 바탕으로 일상·기술 문장의 구성과 표현을 검토한다.",
+    "developerName": "sonsu",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "defaultPrompt": "Draft, edit, or review this everyday or technical English prose for its audience and purpose."
+  }
+}

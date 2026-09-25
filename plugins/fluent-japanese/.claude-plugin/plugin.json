@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "fluent-japanese",
+  "displayName": "Fluent Japanese",
+  "version": "0.1.0-beta.1",
+  "description": "일본어 일상 메시지와 기술 문서의 설명문을 작성·윤문하고, 문서의 자연스러움을 진단한다. 기술 문서의 구성·Markdown 정리는 범위 밖이다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT",
+  "keywords": [
+    "japanese",
+    "writing",
+    "localization",
+    "skills"
+  ]
+}

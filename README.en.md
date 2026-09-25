@@ -55,7 +55,9 @@ Claude Code MCP connections require separate configuration.
 | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | Design, implement, verify, simplify, and review software changes | `engineering` |
 | [Workflow](plugins/workflow) | Work with Git branches, commits, pushes, tickets, and GitHub PRs | `workflow` |
-| [Fluent Languages](plugins/fluent-languages) | Write natural Korean, Japanese, and English while preserving technical content | `fluent-languages` |
+| [Fluent Korean](plugins/fluent-korean) | Edit AI-sounding everyday and technical Korean with `im-not-ai` as a source | `fluent-korean` |
+| [Fluent English](plugins/fluent-english) | Draft, edit, and review everyday and technical English with `better-writing` as a source | `fluent-english` |
+| [Fluent Japanese](plugins/fluent-japanese) | Draft and edit everyday and technical Japanese; score documents with `natural-japanese` as a source | `fluent-japanese` |
 | [Writing](plugins/writing) | Select information, choose where it belongs, and organize writing for the reader and purpose | `writing` |
 | [Research](plugins/research/README.md) | Research multiple sources, verify facts, and write answers supported by evidence | `research` |
 | [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, OpenAI API, Claude Code, and Anthropic API | `prompting` |
@@ -68,7 +70,7 @@ Claude Code MCP connections require separate configuration.
 
 Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
 
-Writing selects and places information and organizes the text, Fluent Languages handles language-specific
+Writing selects and places information and organizes the text, each Fluent plugin handles its language's
 expression, Workflow handles templates and publication for new tickets and PRs, and Engineering publishes
 review results on existing PRs. See the
 [skill routing documentation](docs/architecture/skill-routing.md) for how to use them together.
@@ -81,7 +83,7 @@ After installing the relevant plugin, try requests like these in Codex:
 | --- | --- |
 | Engineering | “Fix and verify this bug, or review the current diff for unnecessary abstractions and reachable failure paths.” |
 | Workflow | “Commit the current changes and create a Draft PR.” |
-| Fluent Languages | “Make this Japanese technical explanation read naturally while preserving its meaning and code identifiers.” |
+| Fluent Japanese | “Make this Japanese technical explanation read naturally while preserving its meaning and code identifiers.” |
 | Writing | “Select and summarize what the README needs from this material, and update the existing documents with the details.” |
 | Research | “Compare the pricing and limits of these two services using official sources.” |
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
@@ -117,8 +119,20 @@ claude plugin marketplace update sonsu-marketplace
 claude plugin update engineering@sonsu-marketplace
 ```
 
-If you installed `fluent-languages` from another marketplace or standalone copies of `prompt-builder`,
-`product-discovery`, or `to-prd`, remove those copies first to avoid duplicate skill names.
+If the previous `fluent-languages` plugin is installed, remove it before installing the language plugins
+to avoid overlapping language guidance. The new skill IDs are `fluent-korean:fluent-korean`,
+`fluent-english:fluent-english`, and `fluent-japanese:fluent-japanese`. English supports drafting, editing, and review; Japanese supports drafting, editing, and document scoring for everyday and technical prose. Korean targets AI-sounding or translationese passages in existing text. Existing continuity records are preserved; [recover ongoing work manually](docs/reference/task-continuity.md).
+
+```sh
+codex plugin remove fluent-languages@sonsu-marketplace
+codex plugin add fluent-korean@sonsu-marketplace
+codex plugin add fluent-english@sonsu-marketplace
+codex plugin add fluent-japanese@sonsu-marketplace
+```
+
+In Claude Code, run `claude plugin uninstall fluent-languages@sonsu-marketplace`, then install the
+languages you need with `claude plugin install <name>@sonsu-marketplace`. Also check for duplicate
+skills from other marketplaces or standalone copies of `prompt-builder`, `product-discovery`, or `to-prd`.
 
 ## Development and contributing
 
