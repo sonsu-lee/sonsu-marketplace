@@ -30,12 +30,16 @@ description: GitHub PR을 심층 검토하거나 여러 독립 리뷰어로 검�
 ## 독립 검토
 
 기본 구성은 Codex에서 `gpt-5.6-luna` / `xhigh` 5명과 `gpt-6-astra` / `xhigh` 1명,
-Claude Code에서 `claude-sonnet-5` 5명과 `claude-opus-5-5` 1명이다. Claude의 effort는
-메인 세션 설정을 상속한다.
+Claude Code에서 `engineering:general_review` 5명과 `engineering:senior_review` 1명이다.
+Claude agent 정의는 Sonnet 5 `high` 다섯 명과 Opus 5.5 `medium` 한 명을 요청한다.
 사용자가 인원·모델·추론 강도를 명시하면 지정한 항목을 우선하고 나머지는 기본 구성을 따른다.
 인원만 다르게 지정하면 상위 모델 1명과 나머지 일반 검토자로 구성한다. 1명이면 상위 모델이 맡는다.
-현재 호스트가 모델·추론 설정을 지원하는 범위를 확인하고 지원되는 값을 실제 호출 인자로 지정한다.
-명시적인 모델 미지원 등으로 지정한 구성을 사용할 수 없으면 해당 검토를 `blocked`/`not_run`으로 보고한다.
+현재 호스트가 모델·추론 설정을 지원하는 범위를 확인하고 지원되는 방식으로 적용한다. Codex는
+spawn 인자에 model과 reasoning effort를 지정한다. Claude Code는 모델을 Agent 호출에 지정할 수
+있지만 effort는 선택한 native subagent definition에 설정해야 한다. 모델과 effort 조합이 맞는
+정의가 없으면 해당 검토 전에 그 조합의 정의를 준비한다. 임의의 다른 effort를 실행하지 말고,
+구성을 만들거나 선택할 수 없으면 `blocked`/`not_run`으로 보고한다. 명시 모델이 미지원·대체된
+경우에도 실제 실행값을 확인하고 같은 상태로 처리한다.
 불투명한 `at capacity` 오류는 먼저 공통 계약의 호스트별 일시 오류 재시도를 적용한다. 다른 모델·강도나
 더 적은 인원으로 조용히 대체하지 않는다. 독립 실행을 root의 자체 리뷰로 대신하지 않는다.
 

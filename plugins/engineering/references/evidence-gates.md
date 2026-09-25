@@ -53,6 +53,10 @@ unit은 workspace를 분리하고 한 checkout의 순차 소스 변경은 하나
 역할 기본값은 패키지의 `references/model-profiles.json`에서 읽는다. 사용자 명시 override가
 있으면 unit의 `review_profiles`에 `source`와 해당 general_review/focused_review/red_team의
 `{model,effort,count}`를 기록한다. source는 실제 지시 근거이며 설정을 임의로 완화하는 수단이 아니다.
+Claude Code는 기본값에 해당하는 `engineering:<role>` native subagent를 호출한다. override한
+effort는 Agent 호출 인자로 적용되지 않으므로 요청값과 같은 frontmatter effort를 가진 native
+subagent definition을 선택하거나 제공한다. 모델까지 바뀌면 frontmatter의 model과 effort를 모두
+요청값에 맞춘다. profile 기록만으로 실제 실행 설정이 바뀌었다고 간주하지 않는다.
 
 설정을 보완할 때에는 같은 unit ID를 유지한 `revise` stdin에 전체 설정과
 `revision:{reason:"변경 이유",source:"기존 승인·현재 지시 근거"}`를 넣는다. 기존 check ID·소비 예산,

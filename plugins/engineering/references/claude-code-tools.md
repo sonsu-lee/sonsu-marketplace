@@ -6,13 +6,14 @@
 - 설치된 스킬은 `/plugin-name:skill-name`으로 호출한다. 파일과 Git 작업에는 현재 노출된
   native 도구를 사용하고, 플러그인 내부 파일은 `${CLAUDE_PLUGIN_ROOT}` 또는 현재 스킬의
   경로에서 찾는다.
-- 독립 검토에는 새 문맥의 native Agent를 사용한다. 역할 모델은
-  [Claude 프로필](claude-model-profiles.md)의 정확한 ID로 `model` 인자에 전달한다.
-  이 기본 정책에서 Claude subagent의 effort는 메인 세션에서 상속한다. Claude Code는
-  subagent 정의의 개별 `effort` override도 지원한다. 요청 모델과 관측 모델·effort,
-  생성 ID, 완료 이벤트와 결과를 구분해 기록한다. 호출에 모델을 지정할 수 없거나
-  모델이 거부되거나 대체되면 필수 검토를 `blocked`/`not_run`으로 둔다. 실행 모델은
-  `/tasks` 또는 CLI JSON의 `modelUsage` 등에서 확인한다.
+- 독립 검토와 역할별 작업에는 새 문맥의 native Agent를 사용한다. Engineering은
+  `engineering:<role>`, Prompting은 `prompting:<role>` subagent를 선택한다. 각 플러그인의
+  `agents/` 정의는 [공유 Claude 프로필](claude-model-profiles.md)에서 생성되며 정확한 모델 ID와
+  역할 effort를 frontmatter에 둔다. Haiku는 effort가 지원되지 않아 해당 frontmatter를 생략한다.
+  Agent 호출별 `model` override는 frontmatter보다 우선하지만, effort override는 native subagent
+  definition으로 설정한다. 요청 모델·effort, 관측 모델·effort, 생성 ID, 완료 이벤트와 결과를
+  구분해 기록한다. 호출 모델이 거부·대체되면 `/tasks` 또는 CLI JSON `modelUsage`로 확인하고
+  필수 검토를 `blocked`/`not_run`으로 둔다.
 - root가 리뷰어를 할당하고 결과를 수집한다. 병렬 writer는 별도 worktree를 쓰고
   reviewer의 원본 작업 공간은 읽기 전용으로 둔다. 현재 도구에 worktree 격리가 없으면
   공통 Git 절차를 적용한다.

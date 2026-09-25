@@ -16,11 +16,12 @@ Codex catalog와 plugin manifest를 정본으로 유지하고 Claude Code의 mar
 설정은 Claude Code로 복사하지 않으며 외부 MCP는 호스트에서 연결을 확인한다.
 
 Codex 모델 프로필과 Claude Code 모델 프로필을 분리한다. Claude 기본값은 Haiku 4.5,
-Sonnet 5, Opus 5.5의 정확한 모델 ID를 역할에 배치한다. Claude subagent의 effort는
-기본 정책에서 메인 세션으로부터 상속하고 관측값을 꾸며 내지 않는다. 호스트가 지원하는
-개별 effort override는 사용자 지정이 필요할 때 별도로 적용한다. 일반 전체 리뷰 5명,
-국소 리뷰 1명, 고위험 red-team 1명과 심층 PR 리뷰 5+1 계약은 유지한다. 사용자 지정이
-운영 기본값보다 우선한다.
+Sonnet 5, Opus 5.5의 정확한 모델 ID를 역할에 배치한다. 공유 역할 프로필에서
+Engineering·Prompting 플러그인의 native `agents/` frontmatter를 생성해 Claude Code가
+모델과 effort를 실제 subagent 구성으로 읽게 한다. Sonnet은 공식 모델 기본 effort `high`,
+Opus 5.5는 `medium`을 사용하며, effort를 지원하지 않는 Haiku에는 override를 만들지 않는다.
+일반 전체 리뷰 5명, 상위 리뷰 1명, 국소 리뷰 1명, 고위험 red-team 1명과 심층 PR 리뷰
+5+1 계약은 유지한다. 사용자 지정이 운영 기본값보다 우선한다.
 
 관리형 게이트는 `init --host`를 저장해 해당 호스트의 정책·프로필로 근거를 검증한다.
 작업 연속성은 Claude hook의 `session_id`를 사용하고 기존 Codex 세션과 섞지 않는다.

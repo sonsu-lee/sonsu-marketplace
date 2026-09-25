@@ -23,8 +23,11 @@ Code Mode가 있으면 독립 읽기·파싱·검사를 묶고 의존 작업·�
 - 소비 라운드/상한, 호출 수·시간·토큰(관측 가능한 것), 미해결 지적
 
 [Codex 모델 프로필](model-profiles.md) 또는 [Claude Code 모델 프로필](claude-model-profiles.md)의 기본값보다 사용자 지정이 우선한다.
-현재 root 모델을 바꾸지 않는다. 작업자를 선택할 때 model과 effort를 함께 전달하고 현재
-도구 스키마의 허용 조합·상속 동작을 확인한다. 프롬프트에 모델 이름만 적는 것은 설정이 아니다.
+현재 root 설정은 바꾸지 않는다. Codex worker에는 model과 reasoning effort를 실제 spawn 인자로
+전달한다. Claude Code worker는 생성된 `engineering:<role>` subagent를 선택해 그 frontmatter의
+model과 effort를 적용한다. `inherit` 역할은 effort를 생략한다. 모델이 effort를 지원하면 세션 설정을
+상속하며, Haiku처럼 지원하지 않으면 실제 effort는 적용되지 않는다.
+현재 도구 스키마의 허용 조합·상속 동작을 확인한다. 프롬프트에 모델 이름만 적는 것은 설정이 아니다.
 관측되지 않은 실행 설정을 요청값으로 채우지 않는다.
 
 ## 위임·통합
