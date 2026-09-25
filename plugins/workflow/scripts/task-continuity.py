@@ -300,10 +300,15 @@ def mutate(args):
 
 def hook():
     event = stdin_json()
-    if not isinstance(event, dict) or event.get("hook_event_name") != "SessionStart" or event.get("source") not in ("compact", "resume"):
+    if not isinstance(event, dict) or event.get("hook_event_name") != "SessionStart":
         return None
     # Only native root SessionStart events are registered; never SubagentStart.
     if event.get("agent_id") is not None or event.get("parent_session_id") is not None:
+        return None
+    if event.get("source") == "startup":
+        persist_claude_session(identifier(event.get("session_id")))
+        return None
+    if event.get("source") not in ("compact", "resume"):
         return None
     package_root, plugin, root, _, session, path = context(event["cwd"], event["session_id"])
     persist_claude_session(session)

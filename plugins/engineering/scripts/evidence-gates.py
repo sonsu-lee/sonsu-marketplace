@@ -59,7 +59,8 @@ def session_identity(explicit):
 def host_identity(explicit):
     if explicit:
         return explicit
-    claude = os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("CLAUDE_PLUGIN_ROOT")
+    claude = (os.environ.get("CLAUDE_CODE_SESSION_ID") or
+              os.environ.get("SONSU_CLAUDE_SESSION_ID") or os.environ.get("CLAUDE_PLUGIN_ROOT"))
     codex = os.environ.get("CODEX_THREAD_ID")
     require(not (claude and codex), "ambiguous host; pass --host codex or --host claude-code")
     return "claude-code" if claude else "codex"

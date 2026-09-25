@@ -77,12 +77,14 @@ class RuntimeTests(unittest.TestCase):
 
     def test_generated_hook_resolves_codex_plugin_root(self):
         hook_file = ROOT / "plugins/engineering/hooks/hooks.json"
-        command = json.loads(hook_file.read_text())["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+        session_start = json.loads(hook_file.read_text())["hooks"]["SessionStart"][0]
+        command = session_start["hooks"][0]["command"]
         event = {"hook_event_name": "SessionStart", "source": "compact",
                  "session_id": "session-a", "cwd": str(self.work), "permission_mode": "default"}
         plugin_root = ROOT / "plugins/engineering"
 
         self.assertIn("CLAUDE_PLUGIN_ROOT", command)
+        self.assertEqual(session_start["matcher"], "^(startup|compact|resume)$")
         env = self.env.copy()
         env.pop("PLUGIN_ROOT", None)
         env.pop("CLAUDE_PLUGIN_ROOT", None)
@@ -161,6 +163,29 @@ class RuntimeTests(unittest.TestCase):
         result = self.run_cli("hook", data=event, env=env)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='claude-resume'\n")
+
+    def test_claude_startup_hook_persists_session_for_followup_commands(self):
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
+        env_file = self.base / "claude-startup-env"
+        env["CLAUDE_ENV_FILE"] = str(env_file)
+        event = {"hook_event_name": "SessionStart", "source": "startup",
+                 "session_id": "claude-startup", "cwd": str(self.work)}
+
+        result = self.run_cli("hook", data=event, env=env)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='claude-startup'\n")
+        self.assertFalse((self.work / ".sonsu").exists())
+
+        sourced = subprocess.run(["/bin/sh", "-c", '. "$CLAUDE_ENV_FILE"; printf %s "$SONSU_CLAUDE_SESSION_ID"'],
+                                 text=True, capture_output=True, env=env, check=True)
+        env["SONSU_CLAUDE_SESSION_ID"] = sourced.stdout
+        write = self.write(env=env)
+        self.assertEqual(write.returncode, 0, write.stderr)
+        self.assertTrue(self.path(session="claude-startup").is_file())
 
     def test_explicit_session_overrides_codex_default(self):
         env = self.env.copy()

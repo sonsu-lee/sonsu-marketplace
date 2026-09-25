@@ -69,6 +69,7 @@ draft/publish, 정확한 repository·base·head·티켓·PR 식별자, 승인된
 
 ## 재개 알림
 
-`SessionStart` hook은 `compact|resume`에서 활성 기록과 이 참고 자료의 위치를 알려 준다.
+`SessionStart` hook은 `startup`에서 세션 ID를 후속 Bash 명령용으로 저장하고, `compact|resume`에서
+활성 기록과 이 참고 자료의 위치를 알려 준다.
 지원되지 않거나 신뢰 설정 때문에 실행되지 않으면 이 자료의 `read` 단계부터 직접 수행한다.
 hook 신뢰는 사용자가 호스트에서 관리한다. 마지막 기록 이후의 상태는 현재 산출물로 확인한다.

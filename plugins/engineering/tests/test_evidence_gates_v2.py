@@ -164,6 +164,16 @@ class ManagedGates(unittest.TestCase):
         self.assertEqual(state['host'], 'claude-code')
         self.assertEqual(state['sessions'], ['claude-current'])
 
+    def test_persisted_claude_session_id_identifies_claude_host(self):
+        env = {'CODEX_THREAD_ID': '', 'SONSU_CLAUDE_SESSION_ID': 'claude-persisted'}
+
+        result = self.call('init', data=self.config, env=env)
+
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        state = json.loads((self.root / '.engineering/gates/tasks/task/state.json').read_text())
+        self.assertEqual(state['host'], 'claude-code')
+        self.assertEqual(state['sessions'], ['claude-persisted'])
+
     def review_pass(self, attempt=1, gate='final-review', count=5):
         for n in range(count):
             result = self.record(attempt, gate + '-' + str(attempt) + '-' + str(n), gate=gate)
