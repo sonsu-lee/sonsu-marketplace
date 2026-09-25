@@ -27,6 +27,10 @@ SECRET_RE = re.compile(
     r"\b(?:[a-z0-9]+[_-])*(?:api[_-]?key|access[_-]?token|password|secret|token|"
     r"client[_-]?secret|aws[_-]?secret[_-]?access[_-]?key|private[_-]?key)"
     r"(?:\\*[\"'])?\s*[:=]\s*\S+|"
+    r"\b(?:password|passphrase|api[ _-]?key|access[ _-]?token|secret|token)"
+    r"\s+(?:is|was|are)\s+\S+|"
+    r"(?:비밀번호|암호|비밀[ _-]?키|API[ _-]?키|토큰)"
+    r"\s*(?:은|는|이|가|:|=)\s*\S+|"
     r"\bauthorization\s*:\s*(?:bearer|basic)\s+\S+|"
     r"\b(?:sk-|ghp_|github_pat_)[A-Za-z0-9_-]{20,}|"
     r"\bAKIA[0-9A-Z]{16}\b", re.I

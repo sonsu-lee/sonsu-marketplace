@@ -228,6 +228,20 @@ class StoreTests(unittest.TestCase):
                 self.assertEqual(self.run_store("hook", payload=event)["status"], "sensitive_content")
         self.assertEqual(self.run_store("pending")["results"], [])
 
+    def test_natural_language_credentials_are_rejected_in_notes_and_candidates(self):
+        self.run_store("capture", "on")
+        for phrase in ("DB 비밀번호는 fixture-secret-123",
+                       "password is fixture-secret-456"):
+            with self.subTest(phrase=phrase):
+                result = self.run_store("put", payload={"decision": "ADD", "scope": "project",
+                                                        "title": "설정", "body": phrase,
+                                                        "sources": ["user:request"]}, expect=2)
+                self.assertEqual(result["error"], "sensitive_content")
+                event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
+                         "prompt": "기억해 줘: " + phrase}
+                self.assertEqual(self.run_store("hook", payload=event)["status"], "sensitive_content")
+        self.assertEqual(self.run_store("pending")["results"], [])
+
     def test_hook_ignores_explicit_do_not_remember_requests(self):
         self.run_store("capture", "on")
         for phrase in ("이 내용은 기억하지 말아줘", "이 내용은 기억하지 말아 주세요",
