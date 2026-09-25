@@ -1,6 +1,6 @@
 {
   "name": "fluent-languages",
-  "version": "0.2.0-beta.2",
+  "version": "0.2.0-beta.3",
   "description": "한국어·일본어·영어를 자연스럽게 작성하는 표현 지침을 제공한다.",
   "author": {
     "name": "sonsu",
@@ -26,6 +26,5 @@
       "Write"
     ],
     "defaultPrompt": "요청한 출력 언어에 맞춰 자연스럽고 정확하게 설명해 줘."
-  },
-  "hooks": "./hooks/hooks.json"
+  }
 }

@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "product",
   "displayName": "Product",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "제품 기회를 탐색하고, 근거를 종합하고, 제품 도메인을 모델링하고, 검증을 설계·판정하며, 승인된 결정을 PRD로 변환합니다.",
   "author": {
     "name": "sonsu",

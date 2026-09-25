@@ -115,8 +115,8 @@ helper는 stale revision, 다른 identity, 손상·지원하지 않는 기록, s
 
 ## Hook과 복구
 
-각 manifest는 `hooks: "./hooks/hooks.json"`을 선언하며 `SessionStart`의 matcher는
-`^(compact|resume)$`입니다. hook에는 root의 native event JSON이 stdin으로 들어옵니다.
+각 플러그인의 `hooks/hooks.json`은 Codex와 Claude Code의 기본 탐색 경로에서 발견됩니다.
+`SessionStart`의 matcher는 `^(startup|compact|resume)$`입니다. hook에는 root의 native event JSON이 stdin으로 들어옵니다.
 실행 명령은 Codex의 `PLUGIN_ROOT` 또는 Claude Code의 `CLAUDE_PLUGIN_ROOT`로 같은 package-local helper를 찾습니다.
 활성 기록이 있을 때만 다음 내용을 `hookSpecificOutput.additionalContext`로 반환합니다.
 

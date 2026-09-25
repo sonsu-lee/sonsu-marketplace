@@ -1,7 +1,7 @@
 # Engineering
 
 Codex와 Claude Code에서 설계·구현·디버깅·코드 품질·독립 리뷰를 수행하는 플러그인입니다. Quality Engineering의
-8개 품질 스킬을 통합하고 PR 리뷰의 워크트리 실행·결과 게시를 제공하는 3.0.2이며, 일반 코드 리뷰도 `engineering:review`로 진입합니다.
+8개 품질 스킬을 통합하고 PR 리뷰의 워크트리 실행·결과 게시를 제공하는 3.0.3이며, 일반 코드 리뷰도 `engineering:review`로 진입합니다.
 기존 `quality-engineering:` 별칭과 별도 패키지는 제공하지 않습니다.
 
 ## 실행 경계

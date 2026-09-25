@@ -75,7 +75,7 @@ class RuntimeTests(unittest.TestCase):
         event.update(changes)
         return self.run_cli("hook", plugin=plugin, data=event)
 
-    def test_generated_hook_resolves_codex_plugin_root(self):
+    def test_generated_hook_resolves_both_plugin_roots(self):
         hook_file = ROOT / "plugins/engineering/hooks/hooks.json"
         session_start = json.loads(hook_file.read_text())["hooks"]["SessionStart"][0]
         command = session_start["hooks"][0]["command"]
@@ -85,13 +85,15 @@ class RuntimeTests(unittest.TestCase):
 
         self.assertIn("CLAUDE_PLUGIN_ROOT", command)
         self.assertEqual(session_start["matcher"], "^(startup|compact|resume)$")
-        env = self.env.copy()
-        env.pop("PLUGIN_ROOT", None)
-        env.pop("CLAUDE_PLUGIN_ROOT", None)
-        env["PLUGIN_ROOT"] = str(plugin_root)
-        result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
-                                capture_output=True, cwd=self.work, env=env, timeout=15)
-        self.assertEqual(result.returncode, 0, result.stderr)
+        for root_variable in ("PLUGIN_ROOT", "CLAUDE_PLUGIN_ROOT"):
+            with self.subTest(root_variable=root_variable):
+                env = self.env.copy()
+                env.pop("PLUGIN_ROOT", None)
+                env.pop("CLAUDE_PLUGIN_ROOT", None)
+                env[root_variable] = str(plugin_root)
+                result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
+                                        capture_output=True, cwd=self.work, env=env, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
 
     def git(self, *args, cwd=None):
         return subprocess.run(["git", *args], cwd=cwd or self.work, env=self.env,

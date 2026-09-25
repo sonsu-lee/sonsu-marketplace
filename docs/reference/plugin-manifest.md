@@ -13,8 +13,8 @@ plugins/<plugin-name>/.claude-plugin/plugin.json # 생성된 Claude Code manifes
 plugins/memory-manager-claude/                 # memory-manager 전용 Claude Code 생성 패키지
 ```
 
-Codex 형식을 저장소의 정본으로 유지합니다. `interface`, `apps`, `hooks`는 각 필드를 지원하는
-Codex 로더에서만 실제 소비 결과를 확인합니다.
+Codex 형식을 저장소의 정본으로 유지합니다. `interface`, `apps`는 각 필드를 지원하는
+Codex 로더에서 실제 소비 결과를 확인합니다. `hooks/hooks.json`은 두 호스트의 기본 탐색 경로입니다.
 
 Claude Code 배포 파일은 `python3 scripts/render-claude-compat.py`로 생성합니다. Claude
 manifest는 이름·버전·설명 등 공통 metadata만 투영합니다. 패키지 루트의 `skills/`와
@@ -34,7 +34,6 @@ manifest에 포함하지 않습니다. `claude plugin validate . --strict`와 �
 | `homepage`, `repository` | 현재 배포본의 공개 위치 | 유지되는 로컬 공개 위치가 없으면 생략하고 원본 링크는 `UPSTREAM.md`에 기록 |
 | `license` | 라이선스 식별자 | 포함한 라이선스 파일과 일치 |
 | `skills` | 스킬 디렉터리 | 매니페스트 기준 상대 경로 사용 |
-| `hooks` | hook 선언 | plugin-relative `./hooks/hooks.json`; 실제 로더 노출과 hook 실행·신뢰를 별도 검증 |
 | `interface` | Codex UI 메타데이터 | 표시 이름, 설명, 아이콘과 기능 범위 정의 |
 | `apps` | 등록된 Codex connector 선언 | plugin-relative `.app.json`만 가리키며, connector ID와 실제 노출은 Codex가 소유 |
 
@@ -57,8 +56,8 @@ upstream 기준선이나 이전 호환 경로를 매니페스트 계약으로 �
 }
 ```
 
-정적 validator와 Codex 실제 런타임이 지원하는 필드가 다를 수 있습니다. `profiles.json`에 등록된 플러그인은
-`hooks: "./hooks/hooks.json"`으로 작업 연속성 hook을 포함합니다. `plugin/read`, `skills/list`와
+`profiles.json`에 등록된 플러그인은 기본 `hooks/hooks.json` 경로로 작업 연속성 hook을 포함합니다.
+Codex에서는 manifest의 `hooks` 필드도 공식 지원하지만 기본 경로에 같은 파일이 있으므로 중복 선언하지 않습니다. `plugin/read`, `skills/list`와
 `hooks/list`로 패키지·스킬·event·matcher를 확인하고, 실제 실행은 별도로 관찰합니다.
 설치만으로 hook이 신뢰되지는 않으며 현재 정의를 사용자가 검토해야 합니다. 정확한 동작과
 수동 복구는 [작업 연속성 계약](task-continuity.md)을 따릅니다.

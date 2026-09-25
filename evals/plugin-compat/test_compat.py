@@ -50,6 +50,20 @@ class CodexPackagingTests(unittest.TestCase):
         self.assertEqual(claude, codex.replace("\n---\n", "\ndisable-model-invocation: true\n---\n", 1))
         self.assertEqual(read_skill_name(ROOT / "plugins/memory-manager-claude/skills/memory-manager/SKILL.md"), "memory-manager")
 
+    def test_hook_packages_use_default_discovery_path(self):
+        catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
+        for entry in catalog["plugins"]:
+            package = ROOT / "plugins" / entry["name"]
+            hook_file = package / "hooks/hooks.json"
+            if not hook_file.is_file():
+                continue
+            with self.subTest(plugin=entry["name"]):
+                codex = json.loads((package / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
+                claude = json.loads((package / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
+                self.assertNotIn("hooks", codex)
+                self.assertNotIn("hooks", claude)
+                self.assertIn("hooks", json.loads(hook_file.read_text(encoding="utf-8")))
+
     def test_public_skill_names_match_directories(self):
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
         for entry in catalog["plugins"]:

@@ -122,7 +122,7 @@ def probe(case_root, names):
                 raise RuntimeError("missing or mismatched native hook for " + name)
             start = next(h for h in matched if h["eventName"] == "sessionStart")
             installed_references[name] = str(installed_reference(home, start))
-            if start["matcher"] != "^(compact|resume)$":
+            if start["matcher"] != "^(startup|compact|resume)$":
                 raise RuntimeError("mismatched recovery matcher for " + name)
             if any(h["trustStatus"] != "untrusted" for h in matched):
                 raise RuntimeError("unexpected trust state in fresh isolated home")
