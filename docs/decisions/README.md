@@ -45,3 +45,4 @@ Considered, Consequences와 Revisit When을 포함합니다.
 - [ADR 0014: Codex 전용 Engineering과 관리형 품질 게이트](0014-use-codex-managed-engineering.md)
 - [ADR 0015: 독립 스킬 중심 플러그인 경계](0015-independent-skills.md)
 - [ADR 0016: Claude Code 마켓플레이스 배포와 호스트별 모델 프로필](0016-support-claude-code.md)
+- [ADR 0017: 두 호스트가 공유하는 로컬 Markdown 메모리](0017-use-shared-local-memory.md)

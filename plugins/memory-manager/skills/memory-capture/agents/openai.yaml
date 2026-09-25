@@ -1,0 +1,6 @@
+interface:
+  display_name: "Memory Capture"
+  short_description: "명시적 기억 요청과 대기 후보를 검증해 저장"
+  default_prompt: "$memory-capture 이 결정을 프로젝트 기억으로 저장해 줘."
+policy:
+  allow_implicit_invocation: true

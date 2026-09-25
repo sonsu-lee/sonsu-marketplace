@@ -1,8 +1,8 @@
 # Memory Manager 출처
 
 - 작성 방식: 독자 작성. 외부 스킬·스크립트·템플릿의 파일을 복사하거나 번역해 포함하지 않음.
-- 확인일: 2026-09-07
-- 배포 범위: Codex plugin manifest, 스킬 하나와 에이전트별 참고 지침. 별도 runtime dependency 없음.
+- 확인일: 2026-09-26
+- 배포 범위: Codex 정본과 생성된 Claude Code 패키지, 네 스킬, Python 3.9+ 표준 라이브러리 저장 도구와 옵트인 훅.
 - 라이선스: 이 플러그인에는 현재 별도 라이선스를 선언하지 않음.
 
 ## 설계 참고
@@ -20,6 +20,9 @@
 ## 공식 계약
 
 - [Codex skills](https://developers.openai.com/codex/skills/): 명시적 호출과 `allow_implicit_invocation`.
+- [OpenAI plugins](https://developers.openai.com/plugins/build/plugins): 패키지 훅 실행의 신뢰와 플러그인 경로.
+- [Claude Code plugins](https://code.claude.com/docs/en/plugins): 패키지의 스킬·훅 구성.
+- [Claude Code hooks](https://code.claude.com/docs/en/hooks): `UserPromptSubmit`과 `Stop` 이벤트.
+- [Codex memories](https://learn.chatgpt.com/docs/customization/memories): 기본 메모리와 플러그인 저장소의 구분.
 - [Claude Code memory](https://code.claude.com/docs/en/memory): auto memory 경로, worktree 공유와 인덱스 로딩.
-- Codex update note의 구체적인 경로·수정 권한은 실행 세션에 주어진 호스트 지침을 따릅니다.
-  특정 세션의 메모리 계약을 모든 Codex 버전의 공개 API로 일반화하지 않습니다.
+- 기존 호스트 메모리 경로·수정 권한을 이 플러그인의 공통 저장소 계약으로 일반화하지 않습니다.

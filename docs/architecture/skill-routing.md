@@ -78,7 +78,10 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 반복 문제와 설계 forces에 맞는 named pattern 선택 | `design-patterns:select-design-patterns` |
 | 명시적으로 요청한 기존 pattern 적용·오용의 읽기 전용 검토 | `design-patterns:review-pattern-usage` |
-| 명시적 호출에 따른 Codex·Claude Code 메모리 점검과 정리 | `memory-manager:memory-manager` |
+| 관련 과거 맥락 회상 | `memory-manager:memory-recall` |
+| 명시적 기억 요청 또는 선택한 후보의 검증·저장 | `memory-manager:memory-capture` |
+| 명시적으로 요청한 메모리 점검·정리 | `memory-manager:memory-maintain` |
+| 반복 사례의 검토용 스킬 초안 | `memory-manager:memory-promote` |
 | 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
 | Codex·ChatGPT·OpenAI API·Claude Code·Anthropic API용 프롬프트 생성·재작성·최적화 | `prompting:prompt-builder` |
 | 제품 문제·기회·가치 제안과 해법 후보 발산 | `product:product-brainstorming` |
@@ -96,11 +99,9 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 기존 운영 화면과 증거의 읽기 전용 품질 감사 | `operations-ui:audit-operations-ui` |
 | 명시적으로 요청된 Figma 운영 화면을 Design Decision Contract와 구현 handoff에 연결 | `operations-ui:figma-operations-flow` |
 
-Memory Manager는 Codex의 `policy.allow_implicit_invocation: false`와 Claude Code의
-`disable-model-invocation: true`로 명시적 호출만 허용합니다.
-`$memory-manager`를 직접 요청할 때 실행하며 일반 작업에서 자동 선택하지 않습니다.
-점검 요청은 읽기 전용이고 정리 요청은 대상 호스트가 허용하는 직접 편집 또는 수정 노트
-방식으로 수행합니다. 수정 노트 생성과 원본 메모리 반영은 별도 결과로 보고합니다.
+Memory Manager의 회상은 관련 맥락에만 적용합니다. 수집은 명시적 기억 의도와 검증된 후보에
+한정하고, 정리·스킬 승격은 명시 호출 전용입니다. 공통 Markdown 정본은 기존 호스트 메모리와
+별도입니다. 자동 후보 수집은 프로젝트별 옵트인이며 정본 쓰기는 `memory-capture`가 담당합니다.
 
 Operations UI는 WMS나 배송처럼 특정 산업명이 아니라 상태 판단, 반복 작업, 권한과 위험한
 행동, 고밀도 데이터가 중심인 화면에 적용합니다. marketing·editorial·brand page는 대상이

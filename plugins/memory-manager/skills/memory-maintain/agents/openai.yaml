@@ -1,0 +1,6 @@
+interface:
+  display_name: "Memory Maintain"
+  short_description: "공통 메모리 점검과 요청 범위의 정리"
+  default_prompt: "$memory-maintain 현재 프로젝트 메모리를 점검해 줘."
+policy:
+  allow_implicit_invocation: false

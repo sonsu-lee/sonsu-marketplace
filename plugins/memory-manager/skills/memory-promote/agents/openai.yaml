@@ -1,0 +1,6 @@
+interface:
+  display_name: "Memory Promote"
+  short_description: "반복 사례로 검토용 스킬 초안 작성"
+  default_prompt: "$memory-promote 반복된 절차를 스킬 초안으로 정리해 줘."
+policy:
+  allow_implicit_invocation: false

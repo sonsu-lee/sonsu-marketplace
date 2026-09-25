@@ -1,7 +1,7 @@
 {
   "name": "memory-manager",
-  "version": "0.1.4",
-  "description": "명시적으로 호출해 Codex 또는 Claude Code의 저장된 메모리를 점검하고 정리합니다.",
+  "version": "0.2.0",
+  "description": "Codex와 Claude Code가 공유하는 로컬 Markdown 메모리를 회상, 수집, 정리하고 절차 초안으로 승격합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
@@ -9,8 +9,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Memory Manager",
-    "shortDescription": "코딩 에이전트 메모리의 수동 점검과 정리",
-    "longDescription": "저장된 메모리의 중복, 충돌, 오래된 사실과 프로젝트 범위를 확인합니다. 현재 환경이 허용하는 직접 편집 또는 수정 노트 경로를 따르고 실제 반영 여부를 구분해 보고합니다.",
+    "shortDescription": "두 호스트가 공유하는 로컬 메모리",
+    "longDescription": "관련 기억을 회상하고 명시적 요청을 검증해 Markdown 정본에 저장합니다. 정리와 스킬 초안 승격을 지원하며 자동 후보 수집은 프로젝트별 옵트인입니다.",
     "developerName": "sonsu",
     "category": "Productivity",
     "capabilities": [
@@ -18,6 +18,6 @@
       "Read",
       "Write"
     ],
-    "defaultPrompt": "$memory-manager 현재 프로젝트의 Codex 메모리를 점검해 줘."
+    "defaultPrompt": "$memory-recall 현재 프로젝트에 관련된 기억을 확인해 줘."
   }
 }
