@@ -163,6 +163,27 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(self.run_store("hook", payload=event)["status"], "sensitive_content")
         self.assertEqual(self.run_store("pending")["results"], [])
 
+    def test_quoted_json_secret_is_rejected_in_notes_and_candidates(self):
+        phrase = '설정은 {"password": "fixture-value"}'
+        result = self.run_store("put", payload={"decision": "ADD", "scope": "project",
+                                                "title": "설정", "body": phrase,
+                                                "sources": ["user:request"]}, expect=2)
+        self.assertEqual(result["error"], "sensitive_content")
+        self.run_store("capture", "on")
+        event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
+                 "prompt": "기억해 줘: " + phrase}
+        self.assertEqual(self.run_store("hook", payload=event)["status"], "sensitive_content")
+        self.assertEqual(self.run_store("pending")["results"], [])
+
+    def test_hook_ignores_explicit_korean_do_not_remember_requests(self):
+        self.run_store("capture", "on")
+        for phrase in ("이 내용은 기억하지 말아줘", "이 내용은 기억하지 말아 주세요"):
+            with self.subTest(phrase=phrase):
+                event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
+                         "prompt": phrase}
+                self.assertEqual(self.run_store("hook", payload=event)["status"], "ignored")
+        self.assertEqual(self.run_store("pending")["results"], [])
+
     def test_ancestor_symlink_store_is_rejected(self):
         outside = self.base / "outside"
         outside.mkdir()
@@ -198,6 +219,21 @@ class StoreTests(unittest.TestCase):
         note = self.put()
         self.assertEqual(self.run_store("get", note["id"], cwd=linked)["id"], note["id"])
         self.assertEqual(self.run_store("search", "pnpm", cwd=self.other)["results"], [])
+
+    def test_relative_git_common_dir_identifies_the_same_project(self):
+        spec = importlib.util.spec_from_file_location("memory_store_git_test", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        common = self.base / "shared" / ".git"
+
+        def old_git(command, **_):
+            if "--path-format=absolute" in command:
+                return subprocess.CompletedProcess(command, 1, "", "unknown option")
+            relative = os.path.relpath(common, command[2])
+            return subprocess.CompletedProcess(command, 0, relative + "\n", "")
+
+        with mock.patch.object(module.subprocess, "run", side_effect=old_git):
+            self.assertEqual(module.project_key(self.project), module.project_key(self.other))
 
     def test_user_scope_is_shared_but_project_scope_is_not(self):
         note = self.run_store("put", payload={"decision": "ADD", "scope": "user", "title": "선호 언어",
@@ -384,6 +420,90 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(sorted(code for code, _ in results), [0, 2])
         self.assertEqual([value.get("error") for code, value in results if code == 2], ["conflict"])
         self.assertIn(self.run_store("get", original["id"])["body"], ("value 0", "value 1"))
+
+    def test_supersede_keeps_successor_if_old_status_write_fails_after_replace(self):
+        original = self.put(title="이전 결정", body="old decision")
+        spec = importlib.util.spec_from_file_location("memory_store_fsync_test", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        real_fsync = module.os.fsync
+        calls = 0
+
+        def fail_after_old_replace(fd):
+            nonlocal calls
+            calls += 1
+            if calls == 4:
+                raise OSError("directory fsync failed after replacement")
+            return real_fsync(fd)
+
+        with mock.patch.object(module.os, "fsync", side_effect=fail_after_old_replace):
+            with self.assertRaises(OSError):
+                module.put(self.store, module.project_key(self.project), {
+                    "decision": "SUPERSEDE", "scope": "project", "target_id": original["id"],
+                    "expected_sha256": original["sha256"], "title": "새 결정",
+                    "body": "new decision", "sources": ["user:request"],
+                })
+        notes = [note for note, _ in module.active_notes(self.store)]
+        self.assertEqual([note["title"] for note in notes], ["새 결정"])
+
+    def test_supersede_discards_successor_if_old_status_write_fails_before_replace(self):
+        original = self.put(title="이전 결정", body="old decision")
+        spec = importlib.util.spec_from_file_location("memory_store_rollback_test", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        real_atomic_write = module.atomic_write
+
+        def fail_before_old_replace(root, path, data):
+            if path.name == original["id"] + ".md":
+                raise OSError("old status was not replaced")
+            return real_atomic_write(root, path, data)
+
+        with mock.patch.object(module, "atomic_write", side_effect=fail_before_old_replace):
+            with self.assertRaises(OSError):
+                module.put(self.store, module.project_key(self.project), {
+                    "decision": "SUPERSEDE", "scope": "project", "target_id": original["id"],
+                    "expected_sha256": original["sha256"], "title": "새 결정",
+                    "body": "new decision", "sources": ["user:request"],
+                })
+        self.assertEqual([note["id"] for note, _ in module.active_notes(self.store)], [original["id"]])
+
+    def test_interrupted_supersede_does_not_revive_old_note(self):
+        spec = importlib.util.spec_from_file_location("memory_store_crash_test", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        key = module.project_key(self.project)
+        real_atomic_write = module.atomic_write
+
+        for action in ("archive", "forget", "supersede"):
+            with self.subTest(action=action), tempfile.TemporaryDirectory(dir=self.base) as location:
+                root = Path(location) / "store"
+                original = module.put(root, key, {"decision": "ADD", "scope": "project",
+                                                  "title": "이전 결정", "body": "old decision",
+                                                  "sources": ["user:request"]})
+
+                def stop_after_new_note(store_root, path, data):
+                    real_atomic_write(store_root, path, data)
+                    if path.name != original["id"] + ".md":
+                        raise SystemExit("interrupted before old status update")
+
+                with mock.patch.object(module, "atomic_write", side_effect=stop_after_new_note):
+                    with self.assertRaises(SystemExit):
+                        module.put(root, key, {"decision": "SUPERSEDE", "scope": "project",
+                                               "target_id": original["id"],
+                                               "expected_sha256": original["sha256"],
+                                               "title": "새 결정", "body": "new decision",
+                                               "sources": ["user:request"]})
+                successor = next(note for note, _ in module.iter_notes(root) if note["id"] != original["id"])
+                if action in ("archive", "forget"):
+                    module.change_status(root, key, "project", successor["id"], successor["sha256"], action)
+                    self.assertEqual(module.active_notes(root), [])
+                else:
+                    latest = module.put(root, key, {"decision": "SUPERSEDE", "scope": "project",
+                                                    "target_id": successor["id"],
+                                                    "expected_sha256": successor["sha256"],
+                                                    "title": "최신 결정", "body": "latest decision",
+                                                    "sources": ["user:request"]})
+                    self.assertEqual([note["id"] for note, _ in module.active_notes(root)], [latest["id"]])
 
 
 if __name__ == "__main__":

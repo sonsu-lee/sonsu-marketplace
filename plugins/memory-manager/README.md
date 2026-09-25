@@ -101,6 +101,9 @@ Codex와 Claude Code의 기본 메모리 및 Engineering의 작업 연속성 기
 - 색인 오류: `python3 "$PLUGIN_ROOT/scripts/memory_store.py" rebuild`로 Markdown에서
   재생성합니다. 정본 파일을 색인으로부터 복원하지 않습니다.
 - 동시 변경 `conflict`: 대상 기억을 다시 `get`하고 새 SHA를 기준으로 판단합니다.
+- `SUPERSEDE` 중 저장 오류: 기존 항목과 같은 범위의 `audit`/`get`으로 실제 후속 기록과
+  상태를 재조회합니다. 오류가 후속 기록의 교체 이후에 발생했을 수 있으므로 확인 전에 같은
+  내용을 다시 저장하지 않습니다.
 - 훅 오류: 원래 작업을 막지 않으며 훅은 짧은 진단을 stderr에 남깁니다. `capture show`로
   설정을, `pending`으로 실제 후보 기록을 확인합니다.
 - 손상된 Markdown·잘못된 범위·민감정보: 해당 항목을 자동 수정하거나 외부 경로를

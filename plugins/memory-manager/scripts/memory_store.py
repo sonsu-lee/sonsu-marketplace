@@ -25,13 +25,16 @@ PROJECT_RE = re.compile(r"[0-9a-f]{20}\Z")
 SECRET_RE = re.compile(
     r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----|"
     r"\b(?:api[_-]?key|access[_-]?token|password|secret|client[_-]?secret|"
-    r"aws[_-]?secret[_-]?access[_-]?key|private[_-]?key)\s*[:=]\s*\S+|"
+    r"aws[_-]?secret[_-]?access[_-]?key|private[_-]?key)[\"']?\s*[:=]\s*\S+|"
     r"\bauthorization\s*:\s*(?:bearer|basic)\s+\S+|"
     r"\b(?:sk-|ghp_|github_pat_)[A-Za-z0-9_-]{20,}|"
     r"\bAKIA[0-9A-Z]{16}\b", re.I
 )
 SIGNAL_RE = re.compile(r"기억해|기억해 줘|기억하|결정했|확정했|원인은|해결했|remember|decided|resolved|root cause", re.I)
-SKIP_RE = re.compile(r"기억하지\s*마|저장하지\s*마|do not remember|don't remember", re.I)
+SKIP_RE = re.compile(
+    r"기억(?:하지|해\s*주지)\s*(?:마|말|않)|저장하지\s*(?:마|말|않)|"
+    r"(?:do not|don't)\s+(?:remember|save|store)", re.I
+)
 
 
 class StoreError(Exception):
@@ -64,10 +67,11 @@ def project_key(cwd):
     if not location.is_dir():
         raise StoreError("invalid_project")
     result = subprocess.run(
-        ["git", "-C", str(location), "rev-parse", "--path-format=absolute", "--git-common-dir"],
+        ["git", "-C", str(location), "rev-parse", "--git-common-dir"],
         capture_output=True, text=True, check=False,
     )
-    identity = Path(result.stdout.strip()).resolve() if result.returncode == 0 else location
+    common_dir = result.stdout.strip()
+    identity = (location / common_dir).resolve() if result.returncode == 0 and common_dir else location
     return digest(str(identity).encode("utf-8"))[:20]
 
 
@@ -241,6 +245,22 @@ def active_notes(root):
             (note["scope"], note["project"], note["id"]) not in superseded]
 
 
+def finalize_superseded_parents(root, note):
+    """Finish an interrupted supersede before deactivating its successor."""
+    for old_id in note["supersedes"]:
+        try:
+            old = read_note(root, note["scope"], note["project"], old_id)
+        except StoreError as error:
+            if error.code == "not_found":
+                continue
+            raise
+        if old["status"] == "active":
+            meta = {k: v for k, v in old.items() if k not in ("body", "sha256")}
+            meta["status"] = "superseded"
+            atomic_write(root, note_path(root, old["scope"], old["project"], old_id),
+                         encode_note(meta, old["body"]))
+
+
 def rebuild_index(root):
     ensure_private_dir(root, root)
     fd, name = tempfile.mkstemp(prefix=".index-", suffix=".sqlite3", dir=root)
@@ -320,6 +340,8 @@ def put(root, key, request):
                 raise StoreError("conflict")
             if target["status"] != "active" or target["id"] not in {note["id"] for note, _ in active_notes(root)}:
                 raise StoreError("inactive_target")
+            if decision == "SUPERSEDE":
+                finalize_superseded_parents(root, target)
         timestamp = now()
         if decision == "UPDATE":
             meta = {k: v for k, v in target.items() if k not in ("body", "sha256")}
@@ -343,7 +365,13 @@ def put(root, key, request):
             try:
                 atomic_write(root, note_path(root, scope, key, target["id"]), encode_note(old_meta, target["body"]))
             except (OSError, StoreError):
-                path.unlink()
+                try:
+                    current = read_note(root, scope, key, target["id"])
+                except (OSError, StoreError):
+                    current = None
+                if current is not None and current["status"] == "active":
+                    checked_path(root, path)
+                    path.unlink()
                 raise
         indexed = refresh_index(root)
         saved = read_note(root, scope, key, meta["id"])
@@ -356,6 +384,7 @@ def change_status(root, key, scope, note_id, expected, action):
         note = read_note(root, scope, key, note_id)
         if note["sha256"] != expected:
             raise StoreError("conflict")
+        finalize_superseded_parents(root, note)
         path = note_path(root, scope, key, note_id)
         if action == "forget":
             checked_path(root, path)
