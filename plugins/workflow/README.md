@@ -18,7 +18,7 @@ codex plugin add workflow@sonsu-marketplace
 - `ticket-lifecycle`: 기존 티켓의 상태·담당자·관계 변경
 - `to-pr`: 새 PR 초안·게시와 티켓·시각 자료 연결
 
-티켓은 [양식 선택 기준](skills/to-ticket/references/ticket-selection.md)으로 사용자·팀 양식과 필수 필드를 확인하고, [티켓 작성 지침](skills/to-ticket/references/ticket-writing.md)으로 내용을 구성합니다. 기본 양식은 일반 작업·버그·조사 작업이며, 이미지·영상 게시는 프로바이더별 첨부 규칙으로 처리합니다.
+티켓은 [양식 선택 기준](skills/to-ticket/references/ticket-selection.md)으로 사용자·팀 양식과 필수 필드를 확인하고, [티켓 작성 지침](skills/to-ticket/references/ticket-writing.md)으로 내용을 구성합니다. 기본 양식은 일반 작업·버그·조사 작업입니다. 버그 기본형은 현상, 실행 환경, 재현 순서와 이미지·영상 등의 재현 자료를 구분하며, 미디어 게시는 프로바이더별 첨부 규칙으로 처리합니다.
 
 PR은 [PR 템플릿 규칙](skills/to-pr/references/pr-template.md)으로 적용 양식을 확인하고, [PR 작성 지침](skills/to-pr/references/pr-writing.md)으로 실제 변경을 설명합니다. Workflow는 diff·티켓·검증 근거 수집, 원격 양식 확인, 연결 문법과 게시·첨부·상태 결과 검증을 담당합니다. 임시로 작성한 본문은 적용 양식이나 게시 조건이 확정됐다는 뜻이 아닙니다.
 
