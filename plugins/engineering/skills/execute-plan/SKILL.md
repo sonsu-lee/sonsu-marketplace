@@ -23,8 +23,13 @@ description: 승인된 여러 단계의 작업을 직접 또는 하위 에이전
 2. root가 직접 수행하거나 [실행 계약](../../references/agent-execution.md)에
    따라 필요한 독립 작업자를 할당한다. 구현을 위임하면
    [위임 절차](../../references/subagent-development.md)를 읽는다. 병렬 writer는 별도 worktree를 사용한다.
-3. [공통 코드 품질](../../references/code-quality.md)을 구현자 brief에 포함한다. 테스트가
-   의미 있는 동작을 보호하면 [test-driven-development](../test-driven-development/SKILL.md)를 적용한다.
+3. [공통 코드 품질](../../references/code-quality.md)을 구현자 brief에 포함한다. 계획의
+   `verification_mode`와 근거를 구현자에게 전달하고 선언한 방식으로 검증한다. 계획 작업과
+   직접 변경 모두 동작 변경이나 자동 검사 추가·확장 대상에 `verification_mode`가 없다면
+   [test-driven-development](../test-driven-development/SKILL.md)의 선택 절차를 구현 또는 자동 검사
+   작성 전에 적용한다. `contract_unresolved`면 해당 흐름의 구현과 자동 검사 작성을 보류한다.
+   계획 작업은 선택한 방식과 근거를 영향받는 흐름과 작업에 먼저 기록한다. 선택을 바꿀 근거가
+   나와도 계획의 영향받는 흐름과 작업을 먼저 갱신한다.
 4. 선언한 검사를 실행한다. 필수 독립 리뷰는 [review](../review/SKILL.md)와
    [독립 리뷰 실행 절차](../../references/independent-review.md)로
    수행한다. 미완료·stale·필수 지적이 있으면 소유 단계로 반환한다.
