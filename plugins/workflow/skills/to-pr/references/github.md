@@ -1,19 +1,19 @@
 # GitHub PR 규칙
 
-GitHub PR payload를 작성하거나 새 PR을 게시할 때 읽는다.
+GitHub PR payload를 작성하거나 새 PR을 게시할 때 읽는다. 여러 PR의 주제·의존 관계와 native stack 게시에는 [stacked PR 규칙](stacked-prs.md)을 함께 적용한다.
 
 ## 저장소 상태를 확인한다
 
 - 정확한 `[HOST/]OWNER/REPOSITORY`, visibility와 인증 주체를 비밀값 없이 확인한다.
 - 사용자가 지정한 base를 우선하고, 없으면 branch의 `gh-merge-base` 설정과 저장소 default branch를 확인한다.
-- 현재 브랜치, upstream, remote ref와 head SHA를 확인한다.
-- base의 merge base부터 head까지 commit과 전체 diff를 읽는다.
+- 대상 브랜치, upstream, remote ref와 head SHA를 확인한다.
+- 단일 PR은 base의 merge base부터 head까지, stack은 각 층의 base부터 head까지 commit과 diff를 읽는다.
 - [PR 템플릿 규칙](pr-template.md)으로 적용할 양식과 `CONTRIBUTING`·기존 PR 관례를 확인한다.
-- 같은 head branch의 open·draft PR을 조회한다.
+- 대상 head branch마다 open·draft PR을 조회한다.
 
 필요한 객체가 로컬에 없더라도 사용자 요청 없이 fetch하거나 checkout을 바꾸지 않는다. 미커밋 변경은 원격 PR diff에 들어가지 않으므로 별도로 보고한다.
 
-detached HEAD, head와 base가 같은 상태 또는 비어 있는 PR commit range에서는 새 PR을 만들지 않는다. 정확한 현재 상태와 필요한 별도 Git workflow를 보고한다. PR을 위해 새 브랜치가 필요하더라도 이 스킬에서 생성·rename하지 않는다. 이름을 제안할 때는 [공통 이름 규칙](../../../references/branch-naming.md)을 읽는다.
+단일 PR 대상이 detached HEAD이거나, 어느 대상이든 head와 base가 같거나 PR commit range가 비어 있으면 그 PR을 만들지 않는다. stack의 모든 대상은 이름 있는 branch여야 한다. 정확한 현재 상태와 필요한 별도 Git workflow를 보고한다. PR을 위해 새 브랜치가 필요하더라도 이 스킬에서 생성·rename하지 않는다. 이름을 제안할 때는 [공통 이름 규칙](../../../references/branch-naming.md)을 읽는다.
 
 ## payload를 준비한다
 
@@ -27,7 +27,7 @@ CLI에서는 완성한 multiline body를 임시 파일에 기록하고 `gh pr cr
 
 ## publish 권한을 적용한다
 
-명시적인 새 PR publish 요청이 있고 current branch가 아직 승인된 기존 remote에 게시되지 않았다면 필요한 일반 push를 수행할 수 있다. 정확한 refspec을 사용하고 결과를 다시 읽는다.
+명시적인 새 PR publish 요청이 있고 대상 branch가 아직 승인된 기존 remote에 게시되지 않았다면 필요한 일반 push를 수행할 수 있다. 정확한 refspec을 사용하고 결과를 다시 읽는다.
 
 다음이 필요하면 중단한다.
 

@@ -4,7 +4,7 @@ PR 초안이나 게시 payload의 설명과 근거를 검토할 때 읽는다. �
 
 ## 실제 변경을 설명한다
 
-merge base부터 current head까지의 commit과 전체 diff를 읽고 staged·unstaged·untracked 변경과 구분한다. 관련 없는 commit이나 파일이 있으면 포함 범위를 임의로 정리하지 않고 보고한다.
+단일 PR은 merge base부터 current head까지, stack은 각 층의 base부터 head까지 commit과 diff를 읽고 staged·unstaged·untracked 변경과 구분한다. 관련 없는 commit이나 파일이 있으면 포함 범위를 임의로 정리하지 않고 보고한다. stack의 각 제목·본문은 해당 층의 변경과 검증만 설명한다.
 
 저장소의 semantic 제목 또는 Conventional Commit 관례를 확인하고 작성할 제목에 적용한다. 기존 commit이 관례를 어겨도 이 스킬에서 rewrite하지 않는다.
 
