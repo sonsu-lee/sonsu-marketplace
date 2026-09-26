@@ -12,6 +12,8 @@ NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
 PLUGIN_SCHEMA = "https://json.schemastore.org/claude-code-plugin-manifest.json"
 MANIFEST_FIELDS = ("version", "description", "author", "homepage", "repository", "license", "keywords")
 CLAUDE_PACKAGE_OVERRIDES = {"memory-manager": "memory-manager-claude"}
+MEMORY_SKILLS = ("memory-recall", "memory-capture", "memory-maintain", "memory-promote")
+CLAUDE_MANUAL_SKILLS = {"memory-maintain", "memory-promote"}
 
 
 def read_json(path):
@@ -73,15 +75,17 @@ def rendered_outputs(root):
                 manifest[field] = codex_manifest[field]
         outputs[claude_root / ".claude-plugin/plugin.json"] = encode(manifest)
         if name == "memory-manager":
-            skill_root = plugin_root / "skills" / name
-            skill = (skill_root / "SKILL.md").read_text(encoding="utf-8")
-            frontmatter_end = skill.find("\n---\n", 4)
-            if not skill.startswith("---\n") or frontmatter_end == -1 or "disable-model-invocation" in skill[4:frontmatter_end]:
-                raise ValueError("memory-manager: invalid Codex skill frontmatter")
-            claude_skill_root = claude_root / "skills" / name
-            outputs[claude_skill_root / "SKILL.md"] = (skill[:frontmatter_end] + "\ndisable-model-invocation: true" + skill[frontmatter_end:]).encode("utf-8")
-            for reference in sorted((skill_root / "references").glob("*.md")):
-                outputs[claude_skill_root / "references" / reference.name] = reference.read_bytes()
+            for skill_name in MEMORY_SKILLS:
+                skill_root = plugin_root / "skills" / skill_name
+                skill = (skill_root / "SKILL.md").read_text(encoding="utf-8")
+                frontmatter_end = skill.find("\n---\n", 4)
+                if not skill.startswith("---\n") or frontmatter_end == -1 or "disable-model-invocation" in skill[4:frontmatter_end]:
+                    raise ValueError(f"{skill_name}: invalid Codex skill frontmatter")
+                if skill_name in CLAUDE_MANUAL_SKILLS:
+                    skill = skill[:frontmatter_end] + "\ndisable-model-invocation: true" + skill[frontmatter_end:]
+                outputs[claude_root / "skills" / skill_name / "SKILL.md"] = skill.encode("utf-8")
+            for relative in ("scripts/memory_store.py", "hooks/capture.py", "hooks/hooks.json"):
+                outputs[claude_root / relative] = (plugin_root / relative).read_bytes()
         claude_entries.append({
             "name": name,
             "source": source_path,
@@ -113,6 +117,23 @@ def main():
     unexpected = set(root.glob("plugins/*/.claude-plugin/plugin.json")) - set(outputs)
     if unexpected:
         parser.error("unexpected Claude manifests: " + ", ".join(str(path.relative_to(root)) for path in sorted(unexpected)))
+    generated_root = root / "plugins/memory-manager-claude"
+    managed = set()
+    for directory in (generated_root / "skills", generated_root / "scripts", generated_root / "hooks"):
+        if directory.is_dir():
+            managed.update(path for path in directory.rglob("*")
+                           if (path.is_file() or path.is_symlink()) and
+                           "__pycache__" not in path.parts and path.suffix != ".pyc")
+    obsolete = sorted(managed - set(outputs))
+    if obsolete and not args.check:
+        for path in obsolete:
+            if has_symlink_component(path, root):
+                parser.error(f"generated path contains a symlink: {path}")
+            path.unlink()
+            print(f"removed: {path.relative_to(root)}")
+        for directory in sorted((p for p in generated_root.rglob("*") if p.is_dir()), reverse=True):
+            if not any(directory.iterdir()):
+                directory.rmdir()
     for path, data in outputs.items():
         if has_symlink_component(path, root) or not path.resolve().is_relative_to(root):
             parser.error(f"generated path escapes repository or contains a symlink: {path}")
@@ -124,7 +145,10 @@ def main():
             path.write_bytes(data)
     for path in stale:
         print(f"{'stale' if args.check else 'rendered'}: {path}")
-    return int(args.check and bool(stale))
+    for path in obsolete:
+        if args.check:
+            print(f"obsolete: {path.relative_to(root)}")
+    return int(args.check and bool(stale or obsolete))
 
 
 if __name__ == "__main__":

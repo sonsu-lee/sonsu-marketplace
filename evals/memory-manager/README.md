@@ -1,29 +1,23 @@
 # Memory Manager 평가
 
-[cases.json](cases.json)은 실제 사용자 메모리 없이 실행할 수 있는 세 가지 동작 시나리오입니다.
-스킬의 문구 일치가 아니라 파일 변경과 결과 보고를 확인합니다.
+`test_store.py`는 임시 저장 위치에서 저장·검색·옵트인 훅·프로젝트 격리·linked worktree·
+명시적 삭제·색인 재생성·symlink 거부를 확인합니다. 실제 사용자 메모리는 fixture로
+사용하지 않습니다.
 
-## 실행 방법
+```sh
+python3 -m unittest discover -s evals/memory-manager -p 'test_*.py'
+python3 scripts/render-claude-compat.py --check
+python3 -m unittest discover -s evals/plugin-compat -p 'test_*.py'
+claude plugin validate plugins/memory-manager-claude --strict
+```
 
-1. 각 case의 `files`를 서로 다른 임시 디렉터리 아래에 생성합니다. 상대 경로는 모두 해당
-   디렉터리 안에서 해석하고 실제 Codex home을 사용하지 않습니다.
-2. 실행 전 파일 목록과 bytes 또는 SHA-256을 보관합니다.
-3. 평가 agent에는 [스킬](../../plugins/memory-manager/skills/memory-manager/SKILL.md), 해당 case의
-   `request`, fixture root만 제공합니다. `expected`나 앞선 평가 결과는 전달하지 않습니다.
-   대상 fixture 밖의 쓰기·개인 메모리 접근·네트워크·Git 작업과 재위임을 허용하지 않습니다.
-4. 실행 후 원본 및 새 파일을 재조회하고 `expected`의 의미와 실제 변경을 대조합니다.
-   최종 답변만으로 통과시키지 않습니다. 백업이 필요한 case에서는 원본 사본의 bytes와
-   실행 기록의 백업→편집 순서도 확인합니다.
-5. 요청한 model/effort와 관측 가능한 실제 설정, 명령·파일 차이·출력, 실행 완료 여부 및 한계를
-   임시 평가 기록에 남깁니다. 실제 모델 설정을 확인할 수 없으면 `unknown`으로 둡니다.
+[cases.json](cases.json)은 실제 호스트의 스킬 선택·행동을 위한 별도 사례입니다. 각 사례에
+새 `SONSU_MEMORY_HOME`과 fixture 프로젝트를 제공하고 요청·관련 스킬만 에이전트에
+전달합니다. `files`를 먼저 만들고 `setup`으로 기억을 준비한 뒤 `{target_id}` 같은
+자리표시자를 실제 ID로 치환합니다. `expected`는 평가자에게만 줍니다. 실행 전후 저장소와 fixture 파일을
+재조회해 실제 호출·읽기·쓰기 여부를 기록합니다. 특히 관련 요청의 회상과 무관한
+요청의 미회상을 각각 평가합니다. 정적 frontmatter 통과를 행동 통과로 간주하지 않습니다.
 
-## 판정 범위
-
-- `codex-note-only`: 원본 보호, 한 개의 수정 노트, 프로젝트 범위, 반영 미확인 표시.
-- `codex-direct`: 실제 중복 병합·명령 갱신, 출처·예외 보존, 변경 전 복원 사본.
-- `review-untrusted-memory`: 읽기 전용, 저장된 명령의 비신뢰 처리, 불확실한 참조와 오래된 선호 보존.
-
-정적 frontmatter·manifest 검사와 native plugin/skill loading은 별도로 확인합니다.
-`allow_implicit_invocation: false`를 loader에서 읽었다는 사실은 실제 모델의 선택 행동을
-측정한 것과 다릅니다. 이 fixture 평가는 실제 Codex의 비동기 노트 반영을 검증하지 않습니다.
-스킬 없는 대조군 없이 성능 개선을 주장하지 않습니다.
+호스트가 실제 스킬을 발견하고 호출했는지, Codex 훅 정의가 신뢰되었는지, Claude Code
+훅이 실행되었는지는 각 호스트에서 별도로 관찰합니다. 실행하지 못한 항목은 `not_run`,
+원인을 특정할 수 없는 결과는 `inconclusive`로 보고합니다.

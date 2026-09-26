@@ -1,0 +1,23 @@
+flowchart TB
+  request["명시적 기억 요청"] --> verify{"장기 가치·출처·범위·비밀정보 확인"}
+  chosen["사용자가 선택한 대기 후보"] --> verify
+  verify -->|불충분하거나 민감함| defer["보류 또는 저장하지 않음"]
+  verify -->|확인됨| compare["같은 범위의 활성 기억 search / get"]
+  compare --> decide{"기존 기억과의 관계"}
+
+  decide -->|새 주장| add["ADD"]
+  decide -->|같은 주장 보완| update["UPDATE"]
+  decide -->|기존 주장 대체| supersede["SUPERSEDE"]
+  decide -->|새 정보 없음| noop["NOOP: 정본 쓰기 없음"]
+
+  add --> put["memory_store.py put"]
+  update -->|대상 ID와 현재 SHA| put
+  supersede -->|대상 ID와 현재 SHA| put
+  put --> canonical["Markdown 정본: 출처·검증 시각·상태·대체 관계"]
+  canonical --> index["SQLite FTS5 색인 갱신 시도"]
+  index --> readback["get으로 Markdown 저장 결과 재조회"]
+  readback --> done["결과 보고"]
+  noop --> done
+  defer --> done
+
+  done -->|후보 판정이 끝났다면| dismiss["대기 후보 dismiss"]

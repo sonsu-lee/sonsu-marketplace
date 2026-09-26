@@ -3,13 +3,16 @@ import json
 import contextlib
 import importlib.util
 import io
+import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 from unittest import mock
+import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -49,11 +52,61 @@ class CodexPackagingTests(unittest.TestCase):
                 self.assertTrue((package / "skills").is_dir())
 
     def test_memory_manager_host_specific_invocation_policy(self):
-        codex = (ROOT / "plugins/memory-manager/skills/memory-manager/SKILL.md").read_text(encoding="utf-8")
-        claude = (ROOT / "plugins/memory-manager-claude/skills/memory-manager/SKILL.md").read_text(encoding="utf-8")
-        self.assertNotIn("disable-model-invocation:", codex)
-        self.assertEqual(claude, codex.replace("\n---\n", "\ndisable-model-invocation: true\n---\n", 1))
-        self.assertEqual(read_skill_name(ROOT / "plugins/memory-manager-claude/skills/memory-manager/SKILL.md"), "memory-manager")
+        for name in ("memory-recall", "memory-capture", "memory-maintain", "memory-promote"):
+            with self.subTest(skill=name):
+                source = ROOT / "plugins/memory-manager/skills" / name / "SKILL.md"
+                generated = ROOT / "plugins/memory-manager-claude/skills" / name / "SKILL.md"
+                codex = source.read_text(encoding="utf-8")
+                claude = generated.read_text(encoding="utf-8")
+                self.assertNotIn("disable-model-invocation:", codex)
+                if name in ("memory-maintain", "memory-promote"):
+                    codex = codex.replace("\n---\n", "\ndisable-model-invocation: true\n---\n", 1)
+                self.assertEqual(claude, codex)
+                self.assertEqual(read_skill_name(generated), name)
+        self.assertFalse((ROOT / "plugins/memory-manager-claude/skills/memory-manager").exists())
+        for relative in ("scripts/memory_store.py", "hooks/capture.py", "hooks/hooks.json"):
+            self.assertEqual((ROOT / "plugins/memory-manager" / relative).read_bytes(),
+                             (ROOT / "plugins/memory-manager-claude" / relative).read_bytes())
+
+    def test_memory_manager_readme_links_diagrams_and_entrypoints(self):
+        package = ROOT / "plugins/memory-manager"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        for target in re.findall(r"!?\[[^]]+\]\(([^)]+)\)", readme):
+            if target.startswith(("http://", "https://")):
+                continue
+            with self.subTest(link=target):
+                self.assertTrue((package / target).is_file())
+        for name in ("memory-architecture", "memory-lifecycle"):
+            self.assertTrue((package / "assets" / (name + ".drawio.png")).read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
+            ET.parse(package / "assets" / (name + ".drawio"))
+        for name in ("README.md", "README.en.md", "README.ja.md"):
+            with self.subTest(readme=name):
+                text = (ROOT / name).read_text(encoding="utf-8")
+                self.assertIn("$memory-capture", text)
+                self.assertIn("/memory-manager:memory-capture", text)
+
+    def test_generated_claude_hook_stages_only_candidate(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            project = root / "project"
+            project.mkdir()
+            package = ROOT / "plugins/memory-manager-claude"
+            env = os.environ.copy()
+            env["SONSU_MEMORY_HOME"] = str(root / "memory")
+            store = package / "scripts/memory_store.py"
+            hook = package / "hooks/capture.py"
+            subprocess.run([sys.executable, str(store), "capture", "on", "--cwd", str(project)],
+                           check=True, env=env, capture_output=True)
+            event = {"hook_event_name": "UserPromptSubmit", "cwd": str(project),
+                     "prompt": "기억해 줘: 검증 후 저장할 후보"}
+            called = subprocess.run([sys.executable, "-B", str(hook)], input=json.dumps(event),
+                                    text=True, capture_output=True, env=env)
+            self.assertEqual(called.returncode, 0)
+            self.assertEqual(called.stdout, "")
+            pending = subprocess.run([sys.executable, str(store), "pending", "--cwd", str(project)],
+                                     check=True, env=env, capture_output=True, text=True)
+            self.assertEqual(len(json.loads(pending.stdout)["results"]), 1)
+            self.assertFalse((root / "memory/notes").exists())
 
     def test_hook_packages_use_default_discovery_path(self):
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
@@ -64,7 +117,8 @@ class CodexPackagingTests(unittest.TestCase):
                 continue
             with self.subTest(plugin=entry["name"]):
                 codex = json.loads((package / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
-                claude = json.loads((package / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
+                claude_package = ROOT / "plugins" / ("memory-manager-claude" if entry["name"] == "memory-manager" else entry["name"])
+                claude = json.loads((claude_package / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
                 self.assertNotIn("hooks", codex)
                 self.assertNotIn("hooks", claude)
                 self.assertIn("hooks", json.loads(hook_file.read_text(encoding="utf-8")))
@@ -131,6 +185,30 @@ class CodexPackagingTests(unittest.TestCase):
 
             self.assertNotEqual(result.returncode, 0, result.stdout)
             self.assertEqual(codex_manifest.read_bytes(), original)
+
+    def test_memory_manager_removed_generated_file_fails_check_and_is_removed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".agents/plugins").mkdir(parents=True)
+            (root / ".agents/plugins/marketplace.json").write_text(json.dumps({
+                "name": "fixture", "plugins": [{"name": "memory-manager",
+                "source": {"source": "local", "path": "./plugins/memory-manager"}}],
+            }))
+            shutil.copytree(ROOT / "plugins/memory-manager", root / "plugins/memory-manager")
+            command = [sys.executable, str(ROOT / "scripts/render-claude-compat.py"), "--root", str(root)]
+            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
+            cache = root / "plugins/memory-manager-claude/scripts/__pycache__"
+            cache.mkdir()
+            (cache / "memory_store.cpython-39.pyc").write_bytes(b"runtime cache")
+            self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
+            obsolete = root / "plugins/memory-manager-claude/skills/old-memory/SKILL.md"
+            obsolete.parent.mkdir()
+            obsolete.write_text("obsolete")
+            checked = subprocess.run(command + ["--check"], capture_output=True, text=True)
+            self.assertEqual(checked.returncode, 1)
+            self.assertIn("obsolete:", checked.stdout)
+            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
+            self.assertFalse(obsolete.exists())
 
     def test_removed_claude_role_fails_check_and_is_removed_by_render(self):
         spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
