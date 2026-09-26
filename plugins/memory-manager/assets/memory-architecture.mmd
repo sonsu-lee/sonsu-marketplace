@@ -18,8 +18,10 @@ flowchart TB
   inbox -->|사용자가 정확한 후보 선택| capture
 
   recall -->|search / get| store["memory_store.py"]
-  capture -->|pending / put / dismiss| store
-  maintain -->|audit / archive / forget| store
+  capture -->|pending / search / get / put / dismiss| store
+  maintain -->|audit / get / 확인 후 archive| store
+  maintain -->|확인된 변경: UPDATE / SUPERSEDE| capture
+  maintain -->|정확한 항목의 명시적 삭제 요청과 현재 SHA: forget| store
   promote -->|search / get, 설치 없음| store
   promote --> draft["검토용 스킬 초안: 설치 없음"]
   staging -->|hook| store
