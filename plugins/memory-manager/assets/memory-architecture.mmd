@@ -19,8 +19,9 @@ flowchart TB
 
   recall -->|search / get| store["memory_store.py"]
   capture -->|pending / search / get / put / dismiss| store
-  maintain -->|audit / get / 확인 후 archive| store
-  maintain -->|확인된 변경: UPDATE / SUPERSEDE| capture
+  maintain -->|audit / get, 점검 요청은 결과만 보고| store
+  maintain -->|정리 요청: 현재 SHA로 archive| store
+  maintain -->|정리 요청에서 확인된 변경: UPDATE / SUPERSEDE| capture
   maintain -->|정확한 항목의 명시적 삭제 요청과 현재 SHA: forget| store
   promote -->|search / get, 설치 없음| store
   promote --> draft["검토용 스킬 초안: 설치 없음"]
