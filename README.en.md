@@ -11,42 +11,78 @@ Install the plugins you need, then work with your coding agent as usual.
 
 ### Codex
 
-Register the marketplace using a Codex CLI version that supports `codex plugin`.
+Register the GitHub marketplace once using a Codex CLI version that supports `codex plugin`.
+Skip this step if it is already registered.
 
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
 ```
 
-Install a plugin that fits your work. For example, use Engineering for software development:
+Install only the plugins you need. For example, use Engineering for software development:
 
 ```sh
 codex plugin add engineering@sonsu-marketplace
 ```
 
-To install another plugin, use its installation name from the table below. For example, to install Workflow:
+For another plugin, use its installation name from the [table below](#plugins).
+To install all 12 plugins, run:
 
 ```sh
-codex plugin add workflow@sonsu-marketplace
+for plugin in \
+  engineering workflow fluent-korean fluent-english fluent-japanese \
+  writing research prompting product memory-manager design-patterns design
+do
+  codex plugin add "$plugin@sonsu-marketplace"
+done
 ```
 
-Start a new Codex task after installation. To list the plugins in the marketplace, run:
+Check the registered sources and each plugin's installation status, then start a new Codex task:
 
 ```sh
+codex plugin marketplace list
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+When you open this repository in the Codex desktop app, its local catalog at
+`.agents/plugins/marketplace.json` may also appear. It has the same name as the GitHub source;
+you do not need to register the local path again. If their plugin counts differ, check which
+version each source points to.
+
 ### Claude Code
 
-Register the marketplace and install the plugins you need:
+Register the GitHub marketplace once. Skip this step if it is already registered:
 
 ```sh
 claude plugin marketplace add sonsu-lee/sonsu-marketplace
+```
+
+Install only the plugins you need. For example, to install Engineering:
+
+```sh
 claude plugin install engineering@sonsu-marketplace
+```
+
+To install all 12 plugins from the [table below](#plugins), run:
+
+```sh
+for plugin in \
+  engineering workflow fluent-korean fluent-english fluent-japanese \
+  writing research prompting product memory-manager design-patterns design
+do
+  claude plugin install "$plugin@sonsu-marketplace"
+done
+```
+
+Check the registered marketplaces and installed plugins:
+
+```sh
+claude plugin marketplace list
 claude plugin list
 ```
 
-For a local checkout, pass its absolute path to `claude plugin marketplace add`. Invoke skills
-as `/engineering:review`. Start a new session after installation or update. Codex connectors and
+To test a local checkout, run `claude plugin marketplace add "$(pwd -P)"` from the repository
+root. Both sources use the name `sonsu-marketplace`, so choose the one you intend to use.
+Invoke skills as `/engineering:review`. Start a new session after installation or update. Codex connectors and
 Claude Code MCP connections require separate configuration.
 
 ## Plugins

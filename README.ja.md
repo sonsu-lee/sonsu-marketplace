@@ -11,41 +11,78 @@
 
 ### Codex
 
-`codex plugin` コマンドに対応したCodex CLIで、マーケットプレイスを登録します。
+`codex plugin` コマンドに対応したCodex CLIで、GitHubのマーケットプレイスを一度登録します。
+登録済みの場合は、この手順を省略してください。
 
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
 ```
 
-作業に必要なプラグインをインストールします。たとえば、ソフトウェア開発にはEngineeringを利用できます。
+必要なプラグインだけをインストールします。たとえば、ソフトウェア開発にはEngineeringを利用できます。
 
 ```sh
 codex plugin add engineering@sonsu-marketplace
 ```
 
-別のプラグインをインストールする場合は、下の表にあるインストール名に置き換えてください。Workflowの場合は次のとおりです。
+別のプラグインは、[下の表](#プラグイン)のインストール名に置き換えてください。
+12個すべてをインストールする場合は、次のコマンドを実行します。
 
 ```sh
-codex plugin add workflow@sonsu-marketplace
+for plugin in \
+  engineering workflow fluent-korean fluent-english fluent-japanese \
+  writing research prompting product memory-manager design-patterns design
+do
+  codex plugin add "$plugin@sonsu-marketplace"
+done
 ```
 
-インストール後は、新しいCodexタスクを開始してください。マーケットプレイスのプラグイン一覧は、次のコマンドで確認できます。
+登録済みソースと各プラグインのインストール状態を確認し、新しいCodexタスクを開始してください。
 
 ```sh
+codex plugin marketplace list
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+Codexデスクトップアプリでこのリポジトリを開くと、`.agents/plugins/marketplace.json`の
+ローカルカタログも表示される場合があります。GitHubの登録元と同じ名前でも、ローカルの
+パスを再登録する必要はありません。プラグイン数が異なる場合は、それぞれが参照する
+バージョンを確認してください。
+
 ### Claude Code
 
-マーケットプレイスを登録し、必要なプラグインをインストールします。
+GitHubのマーケットプレイスを一度登録します。登録済みの場合は省略してください。
 
 ```sh
 claude plugin marketplace add sonsu-lee/sonsu-marketplace
+```
+
+必要なプラグインだけをインストールします。たとえば、Engineeringをインストールする場合は次のとおりです。
+
+```sh
 claude plugin install engineering@sonsu-marketplace
+```
+
+[下の表](#プラグイン)の12個すべてをインストールする場合は、次のコマンドを実行します。
+
+```sh
+for plugin in \
+  engineering workflow fluent-korean fluent-english fluent-japanese \
+  writing research prompting product memory-manager design-patterns design
+do
+  claude plugin install "$plugin@sonsu-marketplace"
+done
+```
+
+登録済みのマーケットプレイスとインストール状態を確認してください。
+
+```sh
+claude plugin marketplace list
 claude plugin list
 ```
 
-ローカルのチェックアウトを試す場合は、最初のコマンドにリポジトリの絶対パスを渡します。
+ローカルのチェックアウトを試す場合は、リポジトリのルートで
+`claude plugin marketplace add "$(pwd -P)"`を実行します。どちらも`sonsu-marketplace`
+という名前なので、使用するソースを一つ選んでください。
 スキルは `/engineering:review` のように呼び出します。インストール・更新後は新しい
 セッションで確認してください。CodexのコネクターとClaude CodeのMCP接続は別途設定します。
 
