@@ -29,8 +29,9 @@ description: GitHub PR을 심층 검토하거나 여러 독립 리뷰어로 검�
 
 ## 독립 검토
 
-기본 구성은 Codex에서 `gpt-5.6-luna` / `xhigh` 5명과 `gpt-6-astra` / `xhigh` 1명,
-Claude Code에서 `engineering:general_review` 5명과 `engineering:senior_review` 1명이다.
+기본 구성은 Codex에서 [생성된 모델 프로필](../../references/model-profiles.md)의
+`general_review` 5명과 `senior_review` 1명, Claude Code에서
+`engineering:general_review` 5명과 `engineering:senior_review` 1명이다.
 Claude agent 정의는 Sonnet 5 `high` 다섯 명과 Opus 5.5 `medium` 한 명을 요청한다.
 사용자가 인원·모델·추론 강도를 명시하면 지정한 항목을 우선하고 나머지는 기본 구성을 따른다.
 인원만 다르게 지정하면 상위 모델 1명과 나머지 일반 검토자로 구성한다. 1명이면 상위 모델이 맡는다.

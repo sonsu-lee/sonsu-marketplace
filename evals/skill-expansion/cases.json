@@ -165,7 +165,7 @@
         "source_writes": "none",
         "reviewers": 5,
         "models": {
-          "gpt-5.6-luna": 5
+          "gpt-6-luna": 5
         },
         "reasoning_effort": "xhigh"
       }
@@ -181,7 +181,7 @@
         "select": "engineering:review-pr",
         "reviewers": 3,
         "models": {
-          "gpt-5.6-luna": 2,
+          "gpt-6-luna": 2,
           "gpt-6-astra": 1
         },
         "reasoning_effort": "xhigh",
@@ -223,7 +223,7 @@
         "select": "engineering:review-pr",
         "reviewers": 6,
         "models": {
-          "gpt-5.6-luna": 5,
+          "gpt-6-luna": 5,
           "gpt-6-astra": 1
         },
         "reasoning_effort": "xhigh",
@@ -433,7 +433,7 @@
       "expected": {
         "reviewers": 6,
         "models": {
-          "gpt-5.6-luna": 5,
+          "gpt-6-luna": 5,
           "gpt-6-astra": 1
         },
         "reasoning_effort": "xhigh",
@@ -478,7 +478,7 @@
         "select": "engineering:review-pr",
         "reviewers": 3,
         "models": {
-          "gpt-5.6-luna": 3
+          "gpt-6-luna": 3
         },
         "reasoning_effort": "high",
         "fresh_sessions": true
