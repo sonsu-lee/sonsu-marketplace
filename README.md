@@ -11,41 +11,78 @@
 
 ### Codex
 
-`codex plugin` 명령을 지원하는 Codex CLI에서 마켓플레이스를 등록합니다.
+`codex plugin` 명령을 지원하는 Codex CLI에서 GitHub 마켓플레이스를 한 번 등록합니다.
+이미 등록했다면 이 단계는 생략하세요.
 
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
 ```
 
-필요한 플러그인을 설치합니다. 예를 들어 개발 작업에는 Engineering을 사용할 수 있습니다.
+필요한 플러그인만 설치합니다. 예를 들어 개발 작업에는 Engineering을 사용할 수 있습니다.
 
 ```sh
 codex plugin add engineering@sonsu-marketplace
 ```
 
-다른 플러그인은 아래 표의 설치 이름으로 바꿔 설치하세요. Workflow의 설치 예시는 다음과 같습니다.
+다른 플러그인은 [아래 표](#플러그인)의 설치 이름으로 바꿔 설치하세요.
+12개를 모두 설치하려면 다음 명령을 실행합니다.
 
 ```sh
-codex plugin add workflow@sonsu-marketplace
+for plugin in \
+  engineering workflow fluent-korean fluent-english fluent-japanese \
+  writing research prompting product memory-manager design-patterns design
+do
+  codex plugin add "$plugin@sonsu-marketplace"
+done
 ```
 
-설치 후에는 새 Codex 작업을 시작하세요. 등록된 플러그인 목록은 다음 명령으로 확인할 수 있습니다.
+등록된 소스와 각 플러그인의 설치 상태를 확인한 뒤 새 Codex 작업을 시작하세요.
 
 ```sh
+codex plugin marketplace list
 codex plugin list --marketplace sonsu-marketplace
 ```
 
+Codex 데스크톱 앱에서 이 저장소를 열면 `.agents/plugins/marketplace.json`의 로컬 카탈로그도
+표시될 수 있습니다. 같은 이름의 Git 등록본이 있으면 로컬 플러그인 변경이 가려질 수 있으므로,
+두 항목이 보인다는 사실만으로 로컬 변경이 적용됐다고 판단하지 마세요. 현재 체크아웃은
+Git 등록본이 없는 환경에서 [로컬 등록 절차](docs/guides/adding-a-plugin.md#로컬-개발-환경)로 시험하세요.
+
 ### Claude Code
 
-Claude Code CLI에서는 마켓플레이스를 등록한 다음 필요한 플러그인을 설치합니다.
+Claude Code CLI에서는 GitHub 마켓플레이스를 한 번 등록합니다. 이미 등록했다면 생략하세요.
 
 ```sh
 claude plugin marketplace add sonsu-lee/sonsu-marketplace
+```
+
+필요한 플러그인만 설치합니다. 예를 들어 Engineering을 설치하려면 다음과 같이 실행합니다.
+
+```sh
 claude plugin install engineering@sonsu-marketplace
+```
+
+[아래 표](#플러그인)의 12개를 모두 설치하려면 다음 명령을 실행합니다.
+
+```sh
+for plugin in \
+  engineering workflow fluent-korean fluent-english fluent-japanese \
+  writing research prompting product memory-manager design-patterns design
+do
+  claude plugin install "$plugin@sonsu-marketplace"
+done
+```
+
+등록된 마켓플레이스와 설치 상태를 확인하세요.
+
+```sh
+claude plugin marketplace list
 claude plugin list
 ```
 
-현재 체크아웃을 시험할 때에는 첫 명령에 저장소의 **절대 경로**를 전달합니다.
+현재 체크아웃을 시험할 때에는 저장소 루트에서 `claude plugin marketplace add "$(pwd -P)"`로
+로컬 경로를 등록합니다. GitHub 소스와 이름이 `sonsu-marketplace`로 같으므로 사용할 소스
+하나를 선택하세요.
 스킬은 `/engineering:review`처럼 호출합니다. 설치·업데이트 후 새 세션에서 확인하세요.
 Codex connector와 Claude Code MCP 연결은 별도로 설정하며, Figma 작업에는 현재 호스트의
 공식 Figma 도구 연결이 필요합니다.
