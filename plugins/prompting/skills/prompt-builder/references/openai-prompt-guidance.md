@@ -50,7 +50,7 @@ API integration이 schema를 강제할 수 있다면 JSON schema를 산문으로
 
 ## 모델별 적용
 
-[공유 모델 프로필](../../../references/model-profiles.md)은 현재 Astra/Sol/Terra/Luna의 기본
+[공유 모델 프로필](../../../references/model-profiles.md)은 현재 Astra/Sol/Luna의 기본
 운영 선택과 최소 프롬프트 차이를 제공한다. 프롬프트가 필요한 작업에서 해당 차이만 읽고
 현재 host/공통 계약에 이미 있는 지시는 반복하지 않는다. 이 자료의 native effort 표를
 Responses/Chat Completions API 파라미터로 그대로 옮기지 않는다. API 지원값은 지정 모델의
