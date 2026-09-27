@@ -2083,7 +2083,9 @@
       },
       "expected_required_headings": [
         "현상",
-        "재현 정보"
+        "실행 환경",
+        "재현 순서",
+        "재현 자료"
       ],
       "must_include_reproduction_section": true,
       "must_preserve_actual_and_expected": true,
@@ -2105,7 +2107,9 @@
       "expected_template": "bug",
       "expected_required_headings": [
         "현상",
-        "재현 정보"
+        "실행 환경",
+        "재현 순서",
+        "재현 자료"
       ],
       "must_preserve_actual_and_expected": true,
       "must_preserve_request_response": true,
