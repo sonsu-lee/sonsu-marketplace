@@ -49,6 +49,10 @@ description: 사용자가 현재 diff, commit, branch 또는 지정한 코드 �
 
 가능성만 있는 미래 요구, 개인 취향과 대규모 rewrite는 보고하지 않는다.
 
+JavaScript·TypeScript의 타입 생성자 추상화를 검토할 때는
+[`../../references/javascript-typescript-review.md`](../../references/javascript-typescript-review.md)의
+HKT 판단 기준을 적용한다.
+
 ## 결과
 
 finding마다 priority, `path:line`, 불필요한 구조, 현재 필요하지 않다는 근거, 가장 작은 제거
