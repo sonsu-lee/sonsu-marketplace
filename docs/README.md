@@ -67,7 +67,7 @@
 - [마켓플레이스 아키텍처](architecture/overview.md)
 - [플러그인 생명주기](architecture/plugin-lifecycle.md)
 - [스킬 라우팅](architecture/skill-routing.md)
-- [Interface Design과 디자인 책임](architecture/interface-design.md)
+- [UI 디자인 작업 구조](architecture/interface-design.md)
 - [플러그인 독립성과 runtime 라우팅 결정](decisions/0003-keep-plugins-independent.md)
 - [Research 독립성과 선택적 provider 결정](decisions/0004-keep-research-independent.md)
 - [Prompting 독립 플러그인 결정](decisions/0006-keep-prompting-independent.md)
@@ -88,3 +88,5 @@
 - [업스트림 플러그인 업데이트 런북](runbooks/updating-upstream-plugin.md)
 - [Madia Designer 디자인 실무 관찰 방법](research/madia-design-practice-method.md)
 - [Madia Designer 공개 영상 카탈로그](research/madia-design-practice-catalog.md)
+
+현재 UI 디자인 패키지 결정은 [ADR 0018](decisions/0018-consolidate-ui-design.md)입니다.

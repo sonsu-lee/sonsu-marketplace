@@ -62,10 +62,8 @@ claude plugin list
 | [Research](plugins/research/README.md) | 複数の情報源の調査、事実確認、根拠に基づく回答の作成 | `research` |
 | [Prompting](plugins/prompting/README.md) | Codex・ChatGPT・OpenAI API・Claude Code・Anthropic API向けプロンプトの作成・改善 | `prompting` |
 | [Product](plugins/product/README.md) | プロダクトのアイデア探索、ユーザーに関する根拠の整理、仮説検証、PRD作成 | `product` |
-| [Figma Workflow](plugins/figma-workflow/README.md) | Figmaでのプロダクト画面・クリック可能なプロトタイプの作成とデザイン品質のレビュー | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | CodexとClaude Codeで共有するローカルメモリの想起・保存・整理 | `memory-manager` |
-| [Interface Design](plugins/interface-design/README.md) | Web・アプリ画面の設計・再設計と情報表現の検証 | `interface-design` |
-| [Operations UI](plugins/operations-ui/README.md) | 状態とデータを扱うB2B運用画面の設計・再設計・品質監査 | `operations-ui` |
+| [UI Design](plugins/interface-design/README.md) | 一般・運用UIの新規設計・再設計・監査をFigmaまたはコードで実施 | `interface-design` |
 | [Design Patterns](plugins/design-patterns/README.md) | 実際の設計上のforcesに基づくパターン選択と既存適用のレビュー | `design-patterns` |
 
 各プラグインは独立して利用できます。含まれるスキルや詳しい使い方は、上のリンクから確認してください。
@@ -87,10 +85,8 @@ Workflowはチケット・PRの新規作成に使うテンプレートと公開�
 | Research | 「この2つのサービスの料金と制限を、公式資料に基づいて比較して。」 |
 | Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
-| Figma Workflow | 「このFigma画面のAuto Layoutとプロトタイプの接続をレビューして。」 |
 | Memory Manager | 「`$memory-capture` この決定をプロジェクトのメモリに保存して。」 |
-| Interface Design | 「モバイルの登録フローを設計して。このグラフの情報表現も改善して。」 |
-| Operations UI | 「この受注運用画面をDesign Decision Contractから実装し、DQゲートとブラウザーの証跡で検証して。」 |
+| UI Design | 「登録フローをFigmaで設計して。運用画面はコードで直接再設計して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
 
 ホストは依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
@@ -99,7 +95,7 @@ Memory Managerの`$memory-recall`は関連する作業で選択され、明示�
 明示的に依頼します。Claude Codeでは`/memory-manager:memory-capture`のように呼び出します。
 
 ResearchのExa・Perplexity連携は任意です。利用可能なWebツール、ブラウザー、コネクター、ローカル資料でも調査できます。
-Figma Workflowでキャンバスを操作するには、公式Figma MCP接続と、そのツールで必須とされるスキルが必要です。
+UI DesignのFigmaキャンバスを操作するには、公式Figma MCP接続と、そのツールで必須とされるスキルが必要です。
 設定方法と必要なツールは、各プラグインのドキュメントを参照してください。
 
 ## アップデート

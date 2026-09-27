@@ -48,10 +48,9 @@
       "uniqueItems": true,
       "items": {
         "enum": [
-          "operations-ui:design-operations-ui",
-          "operations-ui:redesign-operations-ui",
-          "operations-ui:audit-operations-ui",
-          "operations-ui:figma-operations-flow"
+          "interface-design:design-interface",
+          "interface-design:redesign-interface",
+          "interface-design:audit-interface"
         ]
       }
     },

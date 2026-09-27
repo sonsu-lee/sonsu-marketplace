@@ -63,10 +63,8 @@ Codex connector와 Claude Code MCP 연결은 별도로 설정하며, Figma 작�
 | [Research](plugins/research/README.md) | 여러 출처 조사, 사실 검증과 근거를 갖춘 답변 작성 | `research` |
 | [Prompting](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API·Claude Code·Anthropic API용 프롬프트 작성과 개선 | `prompting` |
 | [Product](plugins/product/README.md) | 제품 아이디어 탐색, 사용자 근거 정리, 가설 검증과 PRD 작성 | `product` |
-| [Figma Workflow](plugins/figma-workflow/README.md) | Figma 제품 화면, 클릭 가능한 프로토타입과 디자인 품질 검토 | `figma-workflow` |
 | [Memory Manager](plugins/memory-manager/README.md) | Codex·Claude Code가 공유하는 로컬 메모리의 회상·수집·정리 | `memory-manager` |
-| [Interface Design](plugins/interface-design/README.md) | 일반 웹·앱 화면의 설계·재설계와 정보 자산 검증 | `interface-design` |
-| [Operations UI](plugins/operations-ui/README.md) | 상태·데이터 중심 운영형 B2B 화면의 설계, 재설계와 품질 감사 | `operations-ui` |
+| [UI Design](plugins/interface-design/README.md) | 일반·운영 UI의 신규 설계·재설계·감사와 Figma 또는 코드 경로 | `interface-design` |
 | [Design Patterns](plugins/design-patterns/README.md) | 실제 설계 forces에 맞는 패턴 선택과 기존 적용 검토 | `design-patterns` |
 
 각 플러그인은 독립적으로 사용할 수 있습니다. 포함된 스킬과 상세 사용법은 위 링크에서 확인하세요.
@@ -88,10 +86,8 @@ Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR�
 | Research | “이 두 서비스의 요금과 제한 사항을 공식 자료로 비교해 줘.” |
 | Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
 | Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
-| Figma Workflow | “이 Figma 화면의 Auto Layout과 프로토타입 연결을 검토해 줘.” |
 | Memory Manager | “`$memory-capture` 이 결정을 현재 프로젝트 기억으로 저장해 줘.” |
-| Interface Design | “새 모바일 가입 흐름을 디자인해 줘. 이 차트의 정보 표현도 개선해 줘.” |
-| Operations UI | “이 주문 운영 화면을 Design Decision Contract부터 구현하고 DQ 게이트와 브라우저 증거로 검증해 줘.” |
+| UI Design | “새 모바일 가입 흐름을 Figma에서 만들고, 이 운영 화면을 코드에서 재설계해 줘.” |
 | Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
 
 호스트는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
@@ -100,7 +96,7 @@ Memory Manager는 관련 작업에서 `$memory-recall`이 선택될 수 있고, 
 명시적으로 요청합니다. Claude Code 호출은 `/memory-manager:memory-capture`처럼 씁니다.
 
 Research의 Exa·Perplexity 연동은 선택 사항이며, 사용 가능한 web·browser·connector와 로컬 자료로도 조사할 수 있습니다.
-Figma Workflow의 캔버스 작업에는 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
+UI Design의 Figma 캔버스 작업에는 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
 설정과 도구 요구사항은 각 플러그인의 문서를 참고하세요.
 
 ## 업데이트

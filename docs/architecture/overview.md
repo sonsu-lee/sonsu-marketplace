@@ -50,11 +50,9 @@ delivery 산출물·PR 상태 조회·복구, Research는 외부 다중 출처 �
 출력 언어를 담당합니다. Writing은 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성을 담당합니다.
 Memory Manager는 명시적으로 호출하는 에이전트 메모리 점검·정리를
 담당하며 저장 방식과 수정 권한은 대상 호스트의 계약을 따릅니다. Product는 제품 기회·문제·근거·도메인 규칙·검증과 PRD 변환을,
-Figma Workflow는 Figma 제품 화면·prototype의 구조, interaction과 handoff 품질을 담당합니다.
-[Interface Design](interface-design.md)은 일반 웹·앱의 설계·재설계와 정보 자산의 의미를 담당합니다.
-Operations UI는 운영 업무 화면의 제안·Figma·구현을 산출물별로 설계하고 검증합니다.
-Figma Workflow는 Figma artifact를 소유합니다. Operations UI의 Design Decision Contract와 브라우저
-품질 게이트는 웹 구현에 적용하며, Figma 전용 요청은 요청한 디자인·프로토타입 결과로 완료합니다.
+[UI Design](interface-design.md)은 일반·운영 웹·앱 화면의 신규 설계·재설계·감사를 하나의 플러그인에서 담당합니다.
+Figma를 사용하는 경우 native 화면·prototype과 handoff 품질을 확인하고, 코드 이전에는 해당 결과의 명시적 허가를 받습니다.
+Figma가 정본이 아니면 기존 앱에 직접 구현합니다. 운영 업무 계약은 필요할 때 내부 참고 자료로 적용합니다.
 Design Patterns는 실제 설계 forces와 필요한 guarantee에 근거한 named pattern 선택과 기존 적용의
 읽기 전용 검토를 담당합니다. 전체 개발 lifecycle이나 broad code quality review는 소유하지 않습니다.
 Figma canvas의 agent mutation은 registered official Figma MCP가 단독으로 소유하고, companion은

@@ -1,14 +1,14 @@
 # Operations UI evaluation fixtures
 
-`cases.json`은 operations-ui의 skill routing, 산출물 범위, 모드와 증거 판정 계약을 나타낸다. 구조 계약은 `cases.schema.json`에 있으며 semantic validator는 알려진 skill, DQ 범위, 재설계 inventory와 runtime/user evidence 요구를 함께 검사한다.
+`cases.json`은 UI Design의 운영 업무 skill routing, 산출물 범위, 모드와 증거 판정 계약을 나타낸다. 구조 계약은 `cases.schema.json`에 있으며 semantic validator는 알려진 skill, DQ 범위, 재설계 inventory와 runtime/user evidence 요구를 함께 검사한다.
 
 검증 범위:
 
 - 신규 운영 화면과 기존 화면 재설계를 구분한다.
 - 읽기 전용 감사에서는 mutation을 금지한다.
 - WMS뿐 아니라 고객지원, 금융 운영, 콘텐츠 검수에도 같은 작업 구조를 적용한다.
-- 마케팅·에디토리얼 UI에는 operations-ui를 자동 선택하지 않는다.
-- Figma는 명시 요청에서만 선택하고 core dependency로 취급하지 않는다.
+- 마케팅·에디토리얼 UI에는 운영 확장을 자동 적용하지 않는다.
+- Figma 파일이 정본이거나 사용자가 Figma 제작을 요청할 때 Figma 경로를 선택한다.
 - implementation/live report는 browser evidence가 없으면 DQ7 통과를 금지한다.
 - proposal, Figma, implementation, live는 각각 DQ0–DQ6, DQ0–DQ7, DQ0–DQ7, DQ0–DQ8 범위를 사용한다.
 - 타입·입력 경계에서 배제한 상태의 분기를 만들지 않고, 선언한 실제 상태는 scenario coverage로 검증한다.

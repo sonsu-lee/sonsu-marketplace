@@ -17,3 +17,7 @@ W3C Writing Modes, Apple HIG, Nielsen heuristics/metrics와 Toss 공개 사례�
 기록했다. 수치·layout·색을 그대로 복제하지 않고 사용자·과업·정보·환경·결과 계약으로
 재구성했다. Madia Designer 공개 영상은 별도 관찰 코퍼스이며 아직 분석하지 않은 영상은 원칙
 근거로 사용하지 않는다.
+
+## 통합한 내부 자료
+
+운영 화면 자료의 출처는 [UPSTREAM-OPERATIONS.md](UPSTREAM-OPERATIONS.md), Figma 제작 자료의 출처는 [UPSTREAM-FIGMA.md](UPSTREAM-FIGMA.md)에 보존한다.

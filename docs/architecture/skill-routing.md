@@ -50,7 +50,7 @@ Workflow의 `git-workflow`는 `branch`, `commit`, `push`, `review-commit`으로 
 
 ## 플러그인 경계
 
-Engineering, Workflow, Research, Prompting, Product, Interface Design, Figma Workflow, Operations UI, Design Patterns, Memory Manager, Writing과 Fluent Languages는
+Engineering, Workflow, Research, Prompting, Product, UI Design, Design Patterns, Memory Manager, Writing과 Fluent Languages는
 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
 Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
@@ -73,8 +73,9 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | PR 상태·CI·리뷰·미해결 대화 조회 | `workflow:inspect-prs` |
 | 지정 PR의 충돌·리뷰 지적·CI 실패 처리 | `workflow:repair-pr` |
 | 독립된 PR 심층·다중 리뷰 또는 명시적 호출 | `engineering:review-pr` |
-| 일반 웹·앱의 새 화면·흐름 설계 | `interface-design:design-interface` |
-| 일반 웹·앱의 기존 화면 재설계 | `interface-design:redesign-interface` |
+| 일반·운영 UI의 새 화면·흐름 설계, Figma 또는 코드 | `interface-design:design-interface` |
+| 일반·운영 UI의 기존 화면·흐름 재설계, Figma 또는 코드 | `interface-design:redesign-interface` |
+| 기존 코드·화면·Figma의 읽기 전용 감사 | `interface-design:audit-interface` |
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 반복 문제와 설계 forces에 맞는 named pattern 선택 | `design-patterns:select-design-patterns` |
 | 명시적으로 요청한 기존 pattern 적용·오용의 읽기 전용 검토 | `design-patterns:review-pattern-usage` |
@@ -91,24 +92,17 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 제품 가설의 실행 전 검증 방법·계측·판정 기준 설계 | `product:design-product-test` |
 | 실행된 제품 검증을 사전 기준으로 판정 | `product:assess-product-test` |
 | 승인된 제품 합의를 PRD로 변환 | `product:to-prd` |
-| Figma 제품 화면 생성·수정과 responsive layout | `figma-workflow:figma-product-design` |
-| Figma의 실제 prototype connection, overlay와 상태 동선 | `figma-workflow:figma-prototype-flow` |
-| 기존 Figma artifact의 구조·interaction에 대한 읽기 전용 감사 | `figma-workflow:figma-design-audit` |
-| 신규 운영형 B2B·admin·back-office 화면의 제안·Figma·구현 | `operations-ui:design-operations-ui` |
-| 기존 운영 화면의 동작을 보존하거나 명시적으로 변경하는 재설계 | `operations-ui:redesign-operations-ui` |
-| 기존 운영 화면과 증거의 읽기 전용 품질 감사 | `operations-ui:audit-operations-ui` |
-| 명시적으로 요청된 Figma 운영 화면을 Design Decision Contract와 구현 handoff에 연결 | `operations-ui:figma-operations-flow` |
+
 
 Memory Manager의 회상은 관련 맥락에만 적용합니다. 수집은 명시적 기억 의도와 검증된 후보에
 한정하고, 정리·스킬 승격은 명시 호출 전용입니다. 공통 Markdown 정본은 기존 호스트 메모리와
 별도입니다. 자동 후보 수집은 프로젝트별 옵트인이며 정본 쓰기는 `memory-capture`가 담당합니다.
 
-Operations UI는 WMS나 배송처럼 특정 산업명이 아니라 상태 판단, 반복 작업, 권한과 위험한
-행동, 고밀도 데이터가 중심인 화면에 적용합니다. marketing·editorial·brand page는 대상이
-아닙니다. Figma 자체 화면·component·prototype 생성과 수정은 Figma Workflow가 담당하며,
-Operations UI의 Figma skill은 사용자가 명시했을 때 업무 명세를 native 산출물에 연결합니다.
-코드 구현도 요청한 경우에만 implementation 범위의 Design Decision Contract와 DQ7 브라우저 증거까지 이어갑니다.
-일반 UI의 과업·플랫폼·산출물 구조는 [Interface Design](interface-design.md)을 참고하세요.
+UI Design은 산업명이 아니라 사용자 과업과 작업 유형으로 공개 스킬을 고릅니다.
+반복 작업·권한·대량 처리·부분 실패가 중요하면 Operations 내부 계약을 적용합니다.
+Figma가 정본이면 native 화면·prototype을 완성하고 사용자에게 검토 가능한 결과를 제시합니다.
+그 결과를 코드로 옮기기 전에는 명시적 허가를 받습니다. Figma 없는 요청은 기존 앱에서
+직접 구현하고 실제 화면과 동작을 확인합니다. [UI 디자인 구조](interface-design.md)를 참고하세요.
 PR URL만으로 심층 리뷰를 시작하지 않고, 일반 리뷰와 명시적인 심층·다중 리뷰를 구분합니다.
 리뷰 의도는 요청과 기존 문맥에서 확인하며, 문맥 없는 URL 단독 입력에 리뷰·게시를 추가하지 않습니다.
 두 PR 리뷰 경로 모두 리뷰어별 별도 세션·워크트리에서 병렬 검토한 뒤 원인별로 중복을 제거해
@@ -251,16 +245,16 @@ Product만 설치된 환경에서도 현재 대화와 제공 자료를 바탕으
 합니다. 외부 근거나 구현이 함께 요청되면 Research 또는 Engineering을 runtime에서 조합하며
 manifest dependency를 추가하지 않습니다.
 
-## Figma Workflow 조합
+## UI Design의 Figma 경로
 
-Figma Workflow는 Figma 제품 화면의 native 구조, interaction과 handoff 품질을 담당합니다. final
+UI Design의 Figma 경로는 제품 화면의 native 구조, interaction과 handoff 품질을 담당합니다. final
 artifact가 무엇인지에 따라 Figma Design, FigJam과 draw.io의 책임을 다음처럼 구분합니다.
 
 | 최종 artifact 또는 목적 | 담당 |
 | --- | --- |
-| 제품 UI, reusable component와 responsive screen | Figma Design과 `figma-workflow:figma-product-design` |
-| 버튼 이동, overlay와 상태 분기를 포함한 clickable flow | Figma Design과 `figma-workflow:figma-prototype-flow` |
-| 기존 Figma file·page·frame·selection의 읽기 전용 품질 감사 | `figma-workflow:figma-design-audit` |
+| 제품 UI, reusable component와 responsive screen | Figma Design과 `interface-design:design-interface` 또는 `interface-design:redesign-interface` |
+| 버튼 이동, overlay와 상태 분기를 포함한 clickable flow | Figma Design과 `interface-design:design-interface` 또는 `interface-design:redesign-interface` |
+| 기존 Figma file·page·frame·selection의 읽기 전용 품질 감사 | `interface-design:audit-interface` |
 | 협업용 초기 user journey, workshop와 sticky-note board | 공식 FigJam skill |
 | AWS, network, system architecture, UML, ERD와 data flow | draw.io plugin |
 
@@ -275,7 +269,7 @@ Figma canvas의 판단형 read/write는 registered official Figma MCP가 유일�
 contract에 따라 조합합니다. prerequisite나 capability가 없으면 API를 추정하거나 우회하지 않고
 `blocked`, `inconclusive` 또는 `not_run`을 보고합니다.
 
-[Figma Workflow Companion](../../plugins/figma-workflow/figma-plugin/README.md)은 사용자가 Figma Desktop에서
+[UI Design Companion](../../plugins/interface-design/figma-plugin/README.md)은 사용자가 Figma Desktop에서
 직접 실행하는 수동 companion입니다. Codex writer나 agent-callable bridge가 아니며, 반복적이고 결과가
 명확한 allowlisted JSON 작업만 처리합니다. mutation은 explicit node ID, expected state, same-plan preview
 receipt, apply 직전 re-read와 readback을 요구합니다. official MCP 안의 bounded code는 current tool
@@ -526,8 +520,8 @@ Git·외부 전달은 [공유 권한](../../plugins/workflow/references/delivery
 ## 라우팅 평가
 
 경계 변경은 [repository-level routing cases](../../evals/skill-routing/cases.json)의 positive,
-near-miss, 조합, 단독 설치와 orthogonal 문체 사례로 검토합니다. Figma Workflow는 별도의
-[tool routing cases](../../evals/figma-workflow-routing/cases.json)와
+near-miss, 조합, 단독 설치와 orthogonal 문체 사례로 검토합니다. UI Design의 Figma 경로는 별도의
+[tool routing cases](../../evals/ui-design-figma-routing/cases.json)와
 [native quality contract cases](../../evals/figma-quality-contract/cases.json),
 [interaction contract cases](../../evals/figma-interaction-contract/cases.json)로 Figma, FigJam과
 draw.io 경계 및 결과 품질을 검토합니다. 이 파일들은 기대 동작을 정의하며 JSON 파싱만

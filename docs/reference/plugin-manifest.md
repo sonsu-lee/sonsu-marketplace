@@ -68,9 +68,9 @@ Codex에서는 manifest의 `hooks` 필드도 공식 지원하지만 기본 경�
 Catalog의 각 local `source.path`는 해당 `plugins/<plugin-name>` 디렉터리를 가리켜야 합니다.
 Codex의 실제 `plugin/read`, `skills/list`, `hooks/list` 검증은 정적 JSON 검사와 별개의 관찰 결과로 기록합니다.
 
-## Figma Workflow connector와 companion 경계
+## UI Design의 Figma connector와 companion 경계
 
-`plugins/figma-workflow/.codex-plugin/plugin.json`은 `apps: "./.app.json"`으로 등록된 official
+`plugins/interface-design/.codex-plugin/plugin.json`은 `apps: "./.app.json"`으로 등록된 official
 Figma connector를 참조합니다. `.app.json`의 실제 shape는 다음과 같습니다.
 
 ```json
@@ -82,7 +82,7 @@ Figma connector를 참조합니다. `.app.json`의 실제 shape는 다음과 같
 prerequisite를 먼저 적용하고, capability가 없으면 `blocked`, `inconclusive` 또는 `not_run`으로
 상태를 구분합니다.
 
-`plugins/figma-workflow/figma-plugin/manifest.json`은 Figma Desktop에서 사용자가 직접 import하는
+`plugins/interface-design/figma-plugin/manifest.json`은 Figma Desktop에서 사용자가 직접 import하는
 development companion manifest입니다. 이는 Codex plugin manifest나 agent-callable MCP bridge가 아니며,
 manual companion은 registered connector와 별개의 두 번째 writer가 아닙니다. companion은 versioned
 allowlist JSON만 받고 network access를 허용하지 않으며, mutation 전에 explicit target·preview receipt·

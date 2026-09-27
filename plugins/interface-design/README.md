@@ -1,41 +1,37 @@
-# Interface Design
+# UI Design
 
-웹·모바일 화면을 과업·정보 구조·시각 체계에서 설계하고 요청한 제안·Figma·구현을 완성하는
-독립 Codex·Claude Code 플러그인입니다. 자연어 요청으로 자동 선택하거나 이름으로 직접 호출합니다.
-
-모든 작업은 `사용자·맥락 → 판단/과업 → 필요한 정보 → 표현 → 상태/상호작용 → 관찰 결과`를
-연결하는 공통 Design Decision Contract를 사용합니다. 차원별 DQ0–DQ8과 독립 평가자 2명으로
-품질을 판정하며 평균 총점으로 낮은 차원이나 critical finding을 숨기지 않습니다.
+`interface-design`는 일반 웹·앱, 운영 화면과 Figma 제품 화면을 한 작업 흐름에서 설계·재설계·감사하는
+Codex·Claude Code 플러그인입니다. 공개 스킬은 작업 유형으로 고르고 Figma와 코드는 실행 경로로 선택합니다.
 
 ```sh
 codex plugin add interface-design@sonsu-marketplace
 ```
 
-| 스킬 | 요청 예시 |
+| 작업 | 스킬 |
 | --- | --- |
-| `design-interface` | 새 모바일 가입 흐름을 디자인해 줘. |
-| `redesign-interface` | 이 화면 구성을 개선하고 차트 내부 표현도 다시 설계해 줘. |
+| 새 화면·흐름 | `design-interface` |
+| 기존 화면·흐름 변경 | `redesign-interface` |
+| 수정 없는 코드·화면·Figma 감사 | `audit-interface` |
 
-직접 호출은 `$design-interface` 또는 `$redesign-interface`처럼 지정합니다. 이름 지정 자체는 수정·게시 권한이 아니며
-실제 요청과 호스트의 제한을 따릅니다.
+작업은 대상 제품, 기존 화면·디자인 시스템, 레퍼런스, 사용자 과업과 산출물부터 정합니다.
+반복 판단·권한·대량 처리·부분 실패가 핵심이면 [Operations 계약](references/operations/screen-contract.md)을
+조건부로 적용합니다. Figma가 정본이면 [Figma 실행 경로](references/figma/workflow.md)로 화면·상태·
+요청한 prototype을 만들고 readback합니다. Figma 결과를 코드로 옮기기 전에는 검토 가능한
+결과를 제시하고 그 revision에 대한 명시적 허가를 받습니다. Figma를 쓰지 않으면 기존 앱에서
+직접 구현하고 실제 화면과 동작을 확인합니다.
 
-웹·iOS·Android는 플랫폼 지침으로, 읽기·탐색·비교·반복 업무는 과업으로 구분합니다. 지도·차트·
-도식은 데이터의 의미와 표현을 나누어 제작하고 전체 화면과 내부 영역을 각각 검증합니다.
-사진·로고의 정체성과 실제 값·상태를 보존하며 예시 데이터를 실제 데이터로 보고하지 않습니다.
-
-운영 업무 전문 판단은 설치된 Operations UI와, Figma 제작은 Figma Workflow와 조합할 수 있습니다.
-다른 플러그인을 필수로 설치하지 않으며 단독으로 자기 범위를 수행합니다. 필수 제작 도구가
-없으면 명세와 미완료 산출물을 구분합니다. 새 앱 기반 생성·배포는 포함하지 않습니다.
-
-제안은 명세와 시각적 제안, Figma는 native 구조와 요청된 prototype, 구현은 기존 프로젝트의
-화면·대표 조작과 검증으로 완료합니다. 정적 이미지나 Figma를 실제 실행 검증으로 대신하지 않습니다.
+새 설계·재설계·Figma 화면은 대상 앱의 가장 가까운 `DESIGN.md`를 사용하고 Google 형식으로
+작성·검증합니다. 감사는 읽기 전용으로 검사합니다. 공통 Design Decision Contract와 DQ0–DQ8은
+[품질 계약](references/design-quality.md)을 따릅니다. Proposal은 DQ0–DQ6, Figma/implementation은
+DQ0–DQ7, live는 DQ0–DQ8을 요구하며, 미실행 단계의 통과를 주장하지 않습니다.
 
 ```bash
+python3 scripts/validate_design_quality.py design-md <DESIGN.md>
 python3 scripts/validate_design_quality.py contract <contract.json>
 python3 scripts/validate_design_quality.py report <report.json> <contract.json>
+python3 scripts/validate_operations_contracts.py evals ../../evals/operations-ui/cases.json
 ```
 
-[설계와 호출 구조](../../docs/architecture/interface-design.md),
-[평가 사례](../../evals/skill-expansion/README.md), [출처](UPSTREAM.md)를 참고하세요.
-여러 단계 작업은 [연속성 참고 자료](references/continuity.md)와 선택적 SessionStart hook으로 이어 갑니다.
-helper는 Python 3.9+·POSIX 환경을 사용하며 hook을 사용할 수 없어도 직접 읽어 재개할 수 있습니다.
+[작업 선택과 산출물](references/delivery.md), [설계 구조](../../docs/architecture/interface-design.md),
+[출처](UPSTREAM.md)를 참고하세요. Figma Desktop companion은 [수동 사용 설명](figma-plugin/README.md)을
+따릅니다. 여러 단계 작업은 [연속성 참고 자료](references/continuity.md)로 이어 갑니다.

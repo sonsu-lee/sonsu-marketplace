@@ -1,0 +1,6 @@
+interface:
+  display_name: "Audit Interface"
+  short_description: "기존 코드 또는 Figma UI를 수정 없이 감사합니다"
+  default_prompt: "$audit-interface 이 화면의 정보·상태·상호작용과 증거를 수정 없이 감사해 줘."
+policy:
+  allow_implicit_invocation: true

@@ -5,8 +5,6 @@
       "id": "web-new-auto",
       "installed_plugins": [
         "interface-design",
-        "operations-ui",
-        "figma-workflow",
         "engineering"
       ],
       "prompt": "독서 기록 웹의 새 책 상세 화면을 디자인해 줘. 제목, 저자, 긴 리뷰와 다음 책 탐색이 중요해.",
@@ -19,8 +17,6 @@
       "id": "mobile-proposal-auto",
       "installed_plugins": [
         "interface-design",
-        "operations-ui",
-        "figma-workflow",
         "engineering"
       ],
       "prompt": "모바일 앱의 가입 흐름을 제안해 줘. 이메일 입력과 인증 코드 화면이 필요하고 코드는 바꾸지 마.",
@@ -39,8 +35,6 @@
       "id": "redesign-auto",
       "installed_plugins": [
         "interface-design",
-        "operations-ui",
-        "figma-workflow",
         "engineering"
       ],
       "prompt": "이 개인 독서 앱 화면의 구성을 개선해 줘. 기존 읽기 상태와 평점은 유지해 줘.",
@@ -64,8 +58,6 @@
       "id": "redesign-direct-priority",
       "installed_plugins": [
         "interface-design",
-        "operations-ui",
-        "figma-workflow",
         "engineering"
       ],
       "prompt": "$redesign-interface 이 사내 주문 비교 화면의 시안을 재설계해 줘. 구현하지 마.",
@@ -79,13 +71,11 @@
       "id": "ops-proposal-auto",
       "installed_plugins": [
         "interface-design",
-        "operations-ui",
-        "figma-workflow",
         "engineering"
       ],
       "prompt": "운영자가 주문을 필터링하고 선택해 일괄 보류하는 화면을 제안해 줘. 구현은 하지 마.",
       "expected": {
-        "select": "operations-ui:design-operations-ui",
+        "select": "interface-design:design-interface",
         "artifact": "proposal",
         "must_not_require_runtime_gate": true,
         "must_consider": [
@@ -99,24 +89,22 @@
       "id": "figma-file-auto",
       "installed_plugins": [
         "interface-design",
-        "operations-ui",
-        "figma-workflow",
         "engineering"
       ],
       "prompt": "이 Figma 파일의 컴포넌트와 변수 연결을 정리하고 Auto Layout을 수정해 줘.",
       "expected": {
-        "select": "figma-workflow:figma-product-design",
+        "select": "interface-design:redesign-interface",
         "artifact": "figma"
       }
     },
     {
       "id": "figma-only-ops",
       "installed_plugins": [
-        "operations-ui"
+        "interface-design"
       ],
       "prompt": "운영 대시보드를 Figma에 만들고 상세 drawer prototype까지 연결해 줘. 제품 코드는 수정하지 마.",
       "expected": {
-        "select": "operations-ui:figma-operations-flow",
+        "select": "interface-design:design-interface",
         "artifact": "figma",
         "must_not_require_runtime_gate": true
       }
@@ -392,27 +380,23 @@
     {
       "id": "operations-direct-general-implementation",
       "installed_plugins": [
-        "operations-ui"
+        "interface-design"
       ],
-      "prompt": "$design-operations-ui 기존 독서 앱 프로젝트에 책 소개와 긴 리뷰를 읽는 새 상세 화면을 구현해 줘.",
+      "prompt": "$design-interface 기존 독서 앱 프로젝트에 책 소개와 긴 리뷰를 읽는 새 상세 화면을 구현해 줘.",
       "expected": {
-        "select": "operations-ui:design-operations-ui",
+        "select": "interface-design:design-interface",
         "artifact": "implementation",
-        "must_explain_scope_difference": true,
-        "must_not_stop_as_near_miss": true,
-        "must_not_require_plugin_install": true,
-        "must_not_claim_operations_gate_pass": true,
         "must_verify_actual_project": true
       }
     },
     {
       "id": "operations-direct-general-figma-and-implementation",
       "installed_plugins": [
-        "operations-ui"
+        "interface-design"
       ],
-      "prompt": "$design-operations-ui 기존 독서 앱의 책 소개와 긴 리뷰 상세 화면을 Figma로 만들고 기존 웹 프로젝트에도 구현해 줘.",
+      "prompt": "$design-interface 기존 독서 앱의 책 소개와 긴 리뷰 상세 화면을 Figma로 만들고 기존 웹 프로젝트에도 구현해 줘.",
       "expected": {
-        "select": "operations-ui:design-operations-ui",
+        "select": "interface-design:design-interface",
         "artifacts": [
           "figma",
           "implementation"
@@ -420,8 +404,8 @@
         "must_verify_native_figma": true,
         "must_verify_actual_project": true,
         "must_not_require_operations_contract": true,
-        "must_not_claim_operations_gate_pass": true,
-        "must_report_unavailable_artifacts_separately": true
+        "must_report_unavailable_artifacts_separately": true,
+        "must_require_approval_before_code": true
       }
     },
     {
