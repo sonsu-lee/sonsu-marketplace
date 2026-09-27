@@ -118,6 +118,9 @@ def main():
         parser.error("unexpected Claude manifests: " + ", ".join(str(path.relative_to(root)) for path in sorted(unexpected)))
     generated_root = root / "plugins/memory-manager/claude"
     managed = set()
+    generated_manifest = generated_root / ".claude-plugin/plugin.json"
+    if generated_manifest.is_file() or generated_manifest.is_symlink():
+        managed.add(generated_manifest)
     for directory in (generated_root / "skills", generated_root / "scripts", generated_root / "hooks"):
         if directory.is_dir():
             managed.update(path for path in directory.rglob("*")

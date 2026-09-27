@@ -215,6 +215,33 @@ class CodexPackagingTests(unittest.TestCase):
             self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
             self.assertFalse(obsolete.exists())
 
+    def test_removed_memory_manager_cleans_nested_claude_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            catalog_path = root / ".agents/plugins/marketplace.json"
+            catalog_path.parent.mkdir(parents=True)
+            memory_entry = {"name": "memory-manager", "source": {
+                "source": "local", "path": "./plugins/memory-manager"}}
+            demo_entry = {"name": "demo", "source": {"source": "local", "path": "./plugins/demo"}}
+            catalog_path.write_text(json.dumps({
+                "name": "fixture", "plugins": [memory_entry, demo_entry]}))
+            shutil.copytree(ROOT / "plugins/memory-manager", root / "plugins/memory-manager")
+            demo_manifest = root / "plugins/demo/.codex-plugin/plugin.json"
+            demo_manifest.parent.mkdir(parents=True)
+            demo_manifest.write_text(json.dumps({"name": "demo", "version": "1.0.0"}))
+            command = [sys.executable, str(ROOT / "scripts/render-claude-compat.py"), "--root", str(root)]
+            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
+            generated_manifest = root / "plugins/memory-manager/claude/.claude-plugin/plugin.json"
+            self.assertTrue(generated_manifest.is_file())
+
+            catalog_path.write_text(json.dumps({"name": "fixture", "plugins": [demo_entry]}))
+            checked = subprocess.run(command + ["--check"], capture_output=True, text=True)
+            self.assertEqual(checked.returncode, 1)
+            self.assertIn("obsolete: plugins/memory-manager/claude/.claude-plugin/plugin.json", checked.stdout)
+            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
+            self.assertFalse(generated_manifest.exists())
+            self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
+
     def test_removed_claude_role_fails_check_and_is_removed_by_render(self):
         spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
         renderer = importlib.util.module_from_spec(spec)
