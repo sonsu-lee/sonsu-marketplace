@@ -98,7 +98,7 @@ Draft PR을 만들기 전에 전체 manifest의 로컬 파일 identity를 비교
 5. 파일 하나를 추가할 때마다 실제 body를 다시 읽어 고유한 remote URL과 render 형태를 확인하고 `upload_status`를 갱신한다. 다음 파일은 확인이 끝난 뒤에만 처리한다.
 6. 저장소 template의 visual section이 본문 끝이 아니면 확인한 remote URL을 그 section에 배치한 완성 body를 `gh pr edit --body-file`로 다시 기록한다. body를 재조회하여 append된 중복 URL이 없고 각 attachment가 지정된 위치와 예상한 순서로 렌더링될 때만 `body_status: verified`로 둔다. 본문 끝이 visual section이면 append 결과의 순서와 render 형태를 확인하여 같은 상태로 둔다.
 7. 필수 항목이 모두 `upload_status: uploaded`, `body_status: verified`일 때만 다음 단계로 진행한다. 하나라도 `failed`, `not_attempted`, `missing`, `wrong_render`, `unknown` 또는 `inconclusive`이면 Draft 상태를 유지한다.
-8. 사용자가 ready PR을 명시한 경우에만 unresolved local path와 placeholder가 없고 이미지 alt text·marker 설명, 비디오의 caption·순서와 bare URL 단독 문단까지 확인한다. `gh pr ready` 직전에 PR을 다시 읽어 `isDraft: true`, 저장소, base, head와 `headRefOid`가 manifest에 고정한 값과 같은지 확인한다. `headRefOid`가 달라졌으면 시각 증거를 현재 변경의 증거로 사용하지 않고 Draft 상태를 유지한다. 모두 통과했을 때만 ready로 전환하고, 이후 `isDraft: false`와 같은 `headRefOid`를 다시 확인한다. 상태 미지정 또는 Draft 요청이면 전환하지 않는다.
+8. 사용자가 ready PR을 명시한 경우에만 unresolved local path와 placeholder가 없고 이미지 alt text·marker 설명, 비디오의 caption·순서와 bare URL 단독 문단까지 확인한다. native stack의 층이라면 [stack 연결 검증](stacked-prs.md#native-stack으로-게시하고-검증한다)까지 끝난 뒤 전환한다. `gh pr ready` 직전에 PR을 다시 읽어 `isDraft: true`, 저장소, base, head와 `headRefOid`가 manifest에 고정한 값과 같은지 확인한다. `headRefOid`가 달라졌으면 시각 증거를 현재 변경의 증거로 사용하지 않고 Draft 상태를 유지한다. 모두 통과했을 때만 ready로 전환하고, 이후 `isDraft: false`와 같은 `headRefOid`를 다시 확인한다. 상태 미지정 또는 Draft 요청이면 전환하지 않는다.
 
 예시는 한 번에 한 파일만 처리한다.
 
