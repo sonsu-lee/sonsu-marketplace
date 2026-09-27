@@ -11,7 +11,6 @@ ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
 PLUGIN_SCHEMA = "https://json.schemastore.org/claude-code-plugin-manifest.json"
 MANIFEST_FIELDS = ("version", "description", "author", "homepage", "repository", "license", "keywords")
-CLAUDE_PACKAGE_OVERRIDES = {"memory-manager": "memory-manager-claude"}
 MEMORY_SKILLS = ("memory-recall", "memory-capture", "memory-maintain", "memory-promote")
 CLAUDE_MANUAL_SKILLS = {"memory-maintain", "memory-promote"}
 
@@ -53,8 +52,8 @@ def rendered_outputs(root):
         if source != {"source": "local", "path": codex_source_path}:
             raise ValueError(f"{name}: invalid local plugin path")
         plugin_root = root / "plugins" / name
-        claude_root = root / "plugins" / CLAUDE_PACKAGE_OVERRIDES.get(name, name)
-        source_path = f"./plugins/{claude_root.name}"
+        claude_root = plugin_root / "claude" if name == "memory-manager" else plugin_root
+        source_path = f"./plugins/{name}/claude" if name == "memory-manager" else codex_source_path
         if plugin_root.is_symlink() or not plugin_root.is_dir() or not plugin_root.resolve().is_relative_to(root.resolve()):
             raise ValueError(f"{name}: plugin root is missing or escapes the repository")
         codex_manifest_path = plugin_root / ".codex-plugin/plugin.json"
@@ -73,7 +72,6 @@ def rendered_outputs(root):
         for field in MANIFEST_FIELDS:
             if field in codex_manifest:
                 manifest[field] = codex_manifest[field]
-        outputs[claude_root / ".claude-plugin/plugin.json"] = encode(manifest)
         if name == "memory-manager":
             for skill_name in MEMORY_SKILLS:
                 skill_root = plugin_root / "skills" / skill_name
@@ -86,6 +84,7 @@ def rendered_outputs(root):
                 outputs[claude_root / "skills" / skill_name / "SKILL.md"] = skill.encode("utf-8")
             for relative in ("scripts/memory_store.py", "hooks/capture.py", "hooks/hooks.json"):
                 outputs[claude_root / relative] = (plugin_root / relative).read_bytes()
+        outputs[claude_root / ".claude-plugin/plugin.json"] = encode(manifest)
         claude_entries.append({
             "name": name,
             "source": source_path,
@@ -117,7 +116,7 @@ def main():
     unexpected = set(root.glob("plugins/*/.claude-plugin/plugin.json")) - set(outputs)
     if unexpected:
         parser.error("unexpected Claude manifests: " + ", ".join(str(path.relative_to(root)) for path in sorted(unexpected)))
-    generated_root = root / "plugins/memory-manager-claude"
+    generated_root = root / "plugins/memory-manager/claude"
     managed = set()
     for directory in (generated_root / "skills", generated_root / "scripts", generated_root / "hooks"):
         if directory.is_dir():

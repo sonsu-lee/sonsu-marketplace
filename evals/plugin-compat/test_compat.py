@@ -41,7 +41,7 @@ class CodexPackagingTests(unittest.TestCase):
                          [entry["name"] for entry in codex["plugins"]])
         for entry in claude["plugins"]:
             with self.subTest(plugin=entry["name"]):
-                expected = "memory-manager-claude" if entry["name"] == "memory-manager" else entry["name"]
+                expected = entry["name"] + ("/claude" if entry["name"] == "memory-manager" else "")
                 self.assertEqual(entry["source"], f"./plugins/{expected}")
                 package = ROOT / "plugins" / expected
                 source = json.loads((ROOT / "plugins" / entry["name"] / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
@@ -55,7 +55,7 @@ class CodexPackagingTests(unittest.TestCase):
         for name in ("memory-recall", "memory-capture", "memory-maintain", "memory-promote"):
             with self.subTest(skill=name):
                 source = ROOT / "plugins/memory-manager/skills" / name / "SKILL.md"
-                generated = ROOT / "plugins/memory-manager-claude/skills" / name / "SKILL.md"
+                generated = ROOT / "plugins/memory-manager/claude/skills" / name / "SKILL.md"
                 codex = source.read_text(encoding="utf-8")
                 claude = generated.read_text(encoding="utf-8")
                 self.assertNotIn("disable-model-invocation:", codex)
@@ -63,10 +63,13 @@ class CodexPackagingTests(unittest.TestCase):
                     codex = codex.replace("\n---\n", "\ndisable-model-invocation: true\n---\n", 1)
                 self.assertEqual(claude, codex)
                 self.assertEqual(read_skill_name(generated), name)
-        self.assertFalse((ROOT / "plugins/memory-manager-claude/skills/memory-manager").exists())
+        self.assertFalse((ROOT / "plugins/memory-manager/claude/skills/memory-manager").exists())
+        self.assertFalse((ROOT / "plugins/memory-manager-claude").exists())
+        manifest = json.loads((ROOT / "plugins/memory-manager/.codex-plugin/plugin.json").read_text())
+        self.assertEqual(manifest["skills"], "./skills/")
         for relative in ("scripts/memory_store.py", "hooks/capture.py", "hooks/hooks.json"):
             self.assertEqual((ROOT / "plugins/memory-manager" / relative).read_bytes(),
-                             (ROOT / "plugins/memory-manager-claude" / relative).read_bytes())
+                             (ROOT / "plugins/memory-manager/claude" / relative).read_bytes())
 
     def test_memory_manager_readme_links_diagrams_and_entrypoints(self):
         package = ROOT / "plugins/memory-manager"
@@ -90,7 +93,7 @@ class CodexPackagingTests(unittest.TestCase):
             root = Path(directory).resolve()
             project = root / "project"
             project.mkdir()
-            package = ROOT / "plugins/memory-manager-claude"
+            package = ROOT / "plugins/memory-manager/claude"
             env = os.environ.copy()
             env["SONSU_MEMORY_HOME"] = str(root / "memory")
             store = package / "scripts/memory_store.py"
@@ -117,7 +120,7 @@ class CodexPackagingTests(unittest.TestCase):
                 continue
             with self.subTest(plugin=entry["name"]):
                 codex = json.loads((package / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
-                claude_package = ROOT / "plugins" / ("memory-manager-claude" if entry["name"] == "memory-manager" else entry["name"])
+                claude_package = package / "claude" if entry["name"] == "memory-manager" else package
                 claude = json.loads((claude_package / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
                 self.assertNotIn("hooks", codex)
                 self.assertNotIn("hooks", claude)
@@ -126,7 +129,9 @@ class CodexPackagingTests(unittest.TestCase):
     def test_public_skill_names_match_directories(self):
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
         for entry in catalog["plugins"]:
-            root = ROOT / "plugins" / entry["name"] / "skills"
+            package = ROOT / "plugins" / entry["name"]
+            manifest = json.loads((package / ".codex-plugin/plugin.json").read_text())
+            root = package / manifest["skills"]
             for skill_path in sorted(root.glob("*/SKILL.md")):
                 with self.subTest(plugin=entry["name"], skill=skill_path.parent.name):
                     self.assertEqual(read_skill_name(skill_path), skill_path.parent.name)
@@ -197,11 +202,11 @@ class CodexPackagingTests(unittest.TestCase):
             shutil.copytree(ROOT / "plugins/memory-manager", root / "plugins/memory-manager")
             command = [sys.executable, str(ROOT / "scripts/render-claude-compat.py"), "--root", str(root)]
             self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
-            cache = root / "plugins/memory-manager-claude/scripts/__pycache__"
+            cache = root / "plugins/memory-manager/claude/scripts/__pycache__"
             cache.mkdir()
             (cache / "memory_store.cpython-39.pyc").write_bytes(b"runtime cache")
             self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
-            obsolete = root / "plugins/memory-manager-claude/skills/old-memory/SKILL.md"
+            obsolete = root / "plugins/memory-manager/claude/skills/old-memory/SKILL.md"
             obsolete.parent.mkdir()
             obsolete.write_text("obsolete")
             checked = subprocess.run(command + ["--check"], capture_output=True, text=True)
