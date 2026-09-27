@@ -288,7 +288,7 @@ contract가 허용하는 범위에서만 사용하고, companion의 manual opera
 
 ## Ticket 작성·수정과 lifecycle
 
-Workflow는 ticket 접수·작성·내용 수정, 기존 ticket의 lifecycle 변경과 PR 연동을 서로 다른 책임으로 나눕니다.
+Workflow는 Linear와 GitHub Issues의 ticket 접수·작성·내용 수정, 기존 ticket의 lifecycle 변경과 PR 연동을 서로 다른 책임으로 나눕니다.
 
 | 이벤트 | 담당 | 책임 |
 | --- | --- | --- |
@@ -306,6 +306,7 @@ Workflow는 ticket 접수·작성·내용 수정, 기존 ticket의 lifecycle 변
 사용자·대상 공간의 양식을 우선하고, 없으면 일반 작업·버그·조사 작업 양식을 사용합니다.
 이 구분은 본문 작성 방식이며 tracker의 type·label·status가 아닙니다. 항목·순서·필수 여부는
 각 템플릿, 내용과 언어는 [작성 기준](../../plugins/workflow/skills/to-ticket/references/ticket-quality-bar.md)이 담당합니다.
+[티켓·PR 작성 설계](../reference/ticket-pr-writing.md)는 두 산출물의 역할과 내부 기본형을 설명합니다.
 
 첨부는 [미디어 규칙](../../plugins/workflow/skills/to-ticket/references/media-attachments.md)과
 프로바이더 문서로 처리합니다. 기존 본문의 부분 수정·동시 변경 보존·결과 재조회는
@@ -328,10 +329,10 @@ Fluent Languages 스킬이 있으면 함께 적용하되 설치를 가정하거�
 
 - type 또는 기존 분류 label
 - assignee, priority와 estimate
-- project, milestone, cycle, sprint, fix version과 due date
+- project, milestone, cycle과 due date
 - parent·sub-ticket hierarchy
 - blocked by, blocks, related와 duplicate relation
-- component와 대상 tracker의 필수·허용 custom field
+- 대상 tracker의 필수·허용 custom field
 - 명시되었거나 template·공간 정책으로 정해진 초기 status
 
 모든 선택 필드를 채우는 것이 목표는 아닙니다. 사용자 지정값, 유효한 template, 명시적인 공간
@@ -357,10 +358,6 @@ metadata와 relation을 적용한 뒤 원격 상태를 다시 읽습니다. 일�
   blocking을 생성 흐름에서 적용할 수 있습니다. priority와 estimate가 GitHub Project custom
   field라면 issue를 project item으로 추가한 뒤 실제 field ID와 option을 조회해 별도로 설정하며,
   project 권한을 자동으로 확대하지 않습니다. [GitHub CLI `gh issue create`](https://cli.github.com/manual/gh_issue_create)
-- Jira는 project와 work type별 create-field metadata가 허용하는 field만 사용합니다. 생성 후
-  status 변경은 일반 field edit이 아니라 현재 workflow가 허용하는 transition으로 처리하고,
-  issue link가 별도 interface이면 생성 직후 반환 key로 연결합니다.
-  [Jira Cloud issue API](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/)
 
 ### 작업 시작과 기존 ticket 변경을 분리한다
 
@@ -398,16 +395,18 @@ branch 생성이 함께 요청되면 `ticket-lifecycle`과 `branch`를 runtime�
 
 ### PR은 연결하고 native automation을 우선한다
 
-Linear 티켓의 새 branch에는 ID를 자동으로 넣지 않습니다. repository의 ID 관례나 integration의 추천
-branch도 예외가 아니며, 사용자가 정확한 이름이나 ID 포함을 직접 지정했을 때만 따릅니다. 기존 branch를
-자동 rename하지 않고 PR metadata를 연결 채널로 사용합니다.
+새 branch 이름은 사용자 지정, repository·team 규칙과 확인된 tracker 연동 형식을 따릅니다. 앞선
+규칙이 없고 활성 Linear 연동과 기준 티켓이 확인되면 설정된 형식이나 key를 포함한 fallback을 사용하며, GitHub Issues는 설명형 branch와
+PR 본문 연결을 기본으로 합니다. 기존 branch는 자동 rename하지 않습니다. 여러 PR의 부분 병합이
+티켓을 조기 완료시킬 자동화가 있으면 [작성 설계](../reference/ticket-pr-writing.md)의 비종결 연결·
+충돌 처리 규칙을 적용합니다.
 
 `to-pr`은 canonical ticket의 `complete`, `contribute`, `relate` 또는 `suppress` 의도를 provider의
-정확한 PR title·body·link 문법으로 표현합니다. Linear magic word, GitHub closing keyword와 Jira
-work item key는 서로 바꾸어 사용하지 않습니다. 같은 작업이 여러 tracker에 동기화되어 있으면
+정확한 PR title·body·link 문법으로 표현합니다. Linear magic word와 GitHub closing keyword는
+서로 바꾸어 사용하지 않습니다. 같은 작업이 두 tracker에 동기화되어 있으면
 확인된 canonical ticket 하나에만 completion 의도를 적용합니다.
 
-Linear와 Jira처럼 PR event 기반 status automation이 구성된 경우 Draft, PR open, review request,
+Linear에서 PR event 기반 status automation이 구성된 경우 Draft, PR open, review request,
 ready for merge, merge와 release event는 native integration이 담당합니다. `to-pr`은 같은 status를
 직접 중복 변경하지 않고 PR 게시 후 ticket을 다시 읽어 link와 실제 status effect를 확인합니다.
 automation이 없거나 해당 event에 적용되지 않는다는 점, 목표 transition, 권한과 현재 상태가 모두
@@ -422,11 +421,9 @@ merge만으로 completed 처리하지 않고 release automation이나 명시적�
 없이 완료되는 investigation, 문서와 운영 ticket은 `ticket-lifecycle`이 직접 완료 상태를 처리합니다.
 
 Linear는 PR drafted·opened·review requested·ready for merge·merged event별 status automation을
-지원합니다. Jira Cloud는 연결된 source control의 branch created, pull request created와 merged
-trigger를 지원합니다. GitHub Issue 자체의 state는 open·closed 중심이므로 Started·Review 같은
+지원합니다. GitHub Issue 자체의 state는 open·closed 중심이므로 Started·Review 같은
 상태는 실제 GitHub Project의 Status field나 repository automation이 있을 때만 변경합니다.
 [Linear GitHub integration](https://linear.app/docs/github),
-[Jira automation trigger](https://support.atlassian.com/cloud-automation/docs/jira-automation-triggers/),
 [GitHub Projects built-in automation](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-built-in-automations)
 
 ### 검증할 대표 경로
@@ -447,7 +444,6 @@ trigger를 지원합니다. GitHub Issue 자체의 state는 open·closed 중심�
   해제는 명시적인 요청에서만 수행하는가?
 - GitHub Project가 있을 때만 priority, estimate와 Status custom field를 실제 ID로 갱신하고,
   project 권한 부재를 issue 생성 성공으로 숨기지 않는가?
-- Jira는 허용된 transition만 사용하고 branch·PR automation이 이미 수행한 전이를 중복하지 않는가?
 - PR의 `complete`, `contribute`와 `relate` 의도가 merge 시 서로 다른 status effect를 유지하는가?
 - integration 적용 여부나 비동기 status effect를 확인할 수 없을 때 직접 전이를 만들지 않고
   정확히 `unknown`으로 보고하며, 확인된 fallback만 적용하는가?

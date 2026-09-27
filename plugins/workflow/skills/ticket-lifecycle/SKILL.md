@@ -1,6 +1,6 @@
 ---
 name: ticket-lifecycle
-description: 기존 Linear, GitHub Issues 또는 Jira 티켓의 상태·담당자·blocking·related·duplicate 관계를 시작, review, 완료, reopen, cancel, assign, unassign, block, unblock 요청에 따라 변경하거나 lifecycle 결과를 확인해야 할 때 사용한다. 티켓 생성·초안·제목·본문 수정, Git 작업 또는 PR 작성만 요청한 경우에는 사용하지 않는다.
+description: 기존 Linear 또는 GitHub Issues 티켓의 상태·담당자·blocking·related·duplicate 관계를 시작, review, 완료, reopen, cancel, assign, unassign, block, unblock 요청에 따라 변경하거나 lifecycle 결과를 확인해야 할 때 사용한다. 티켓 생성·초안·제목·본문 수정, Git 작업 또는 PR 작성만 요청한 경우에는 사용하지 않는다.
 ---
 
 # ticket-lifecycle: 상태·담당자·관계 변경
@@ -22,7 +22,7 @@ description: 기존 Linear, GitHub Issues 또는 Jira 티켓의 상태·담당�
 주 티켓과 relation target을 각각 다음 정보로 정규화한다.
 
 ```text
-provider: github | linear | jira
+provider: github | linear
 key, url, scope
 verified: true | false
 canonical: true | false
@@ -52,9 +52,9 @@ status intent는 최대 하나다. 대상과 변경 방향은 다음 기준으�
 
 - GitHub Issues: [GitHub lifecycle](references/github.md)
 - Linear: [Linear lifecycle](references/linear.md)
-- Jira: [Jira lifecycle](references/jira.md)
 
 status, transition, assignee, relation, automation과 권한을 읽는다. 이름과 ID를 추정하지 않는다. completed·canceled 티켓은 명시적인 `reopen` 없이 되돌리지 않는다.
+지원하지 않는 tracker의 lifecycle 변경은 수행하지 않고 범위를 알린다.
 
 내용 수정 성공을 전제로 인계받은 작업은 먼저 [수정 결과와 후속 lifecycle](../to-ticket/SKILL.md#수정-결과와-후속-lifecycle)의 선행 조건과 동일 canonical ticket의 검증 근거를 확인한다. 필요한 content field에 `unapplied`·`unknown` 또는 근거 누락이 있으면 후속 mutation을 보류한다. 독립 수행이 명시된 요청에만 별도 진행을 허용하며, 인계된 과거 status를 그대로 사용하지 않고 실행 시점의 현재 상태·권한을 읽는다.
 

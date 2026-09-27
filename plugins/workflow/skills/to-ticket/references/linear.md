@@ -35,7 +35,7 @@ Linear MCP의 현재 tool schema를 먼저 확인한다. Codex connector에서 �
 
 갱신 payload에는 식별자와 요청한 제목·description만 넣는다. state·assignee·label·parent·relation이나 생성 양식 기본값을 함께 보내지 않는다. 최신 원문·수정 시각을 쓰기 직전에 다시 확인하고, drift·conditional update·불명확한 응답은 공통 Revise 규칙으로 처리한다. 갱신 후 제목·전체 description을 읽어 요청 밖의 내용도 보존됐는지 확인한다.
 
-공식 interface와 개념 참고: [Linear MCP server](https://linear.app/docs/mcp), [Linear issue 생성 규칙](https://linear.app/docs/creating-issues), [Issue relation](https://linear.app/docs/issue-relations), [Issue labels](https://linear.app/docs/labels), [Issue templates](https://linear.app/docs/issue-templates), [Jira와의 issue type 차이](https://linear.app/docs/jira)
+공식 interface와 개념 참고: [Linear MCP server](https://linear.app/docs/mcp), [Linear issue 생성 규칙](https://linear.app/docs/creating-issues), [Issue relation](https://linear.app/docs/issue-relations), [Issue labels](https://linear.app/docs/labels), [Issue templates](https://linear.app/docs/issue-templates)
 
 ## 이미지와 동영상을 첨부한다
 
