@@ -33,7 +33,7 @@ GitHub Draft 상태와 다르다.
 
 [stacked PR 규칙](references/stacked-prs.md)으로 실제 변경의 주제와 의존 관계를 먼저 확인한다. 한 검토 단위면 단일 PR을 유지한다. 서로 독립적인 주제는 사용자가 stack을 요청했더라도 각각 trunk를 대상으로 하는 별도 PR로 만든다. 앞선 변경에 의존하는 주제만 아래 branch의 head를 base로 하는 stack으로 만든다. 파일 수나 commit 수만으로 나누지 않고, 각 PR의 동작과 필요한 검증이 함께 이해되는 경계로 나눈다.
 
-현재 branch에 여러 주제가 섞였거나 필요한 branch·commit이 아직 없으면 stack 계획과 필요한 Git 작업을 제시한다. 이 스킬에서 변경을 임의로 재배치하거나 새 branch를 만들지 않는다. 이미 준비된 branch chain 또는 사용자가 함께 허가한 별도 Git 작업의 결과가 있어야 게시한다.
+현재 branch에 여러 주제가 섞였거나 필요한 branch·commit이 아직 없으면 주제와 의존 관계에 맞는 PR 계획과 필요한 Git 작업을 제시한다. 독립 주제는 각각 trunk를 base로 하는 별도 PR을, 앞선 변경에 의존하는 주제만 stack을 계획한다. 이 스킬에서 변경을 임의로 재배치하거나 새 branch를 만들지 않는다. 필요한 branch·commit이 준비되거나 사용자가 별도 Git 작업을 함께 허가한 뒤에 게시한다.
 
 ## repository와 변경을 고정한다
 

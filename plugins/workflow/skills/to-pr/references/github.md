@@ -7,7 +7,7 @@ GitHub PR payload를 작성하거나 새 PR을 게시할 때 읽는다. 여러 P
 - 정확한 `[HOST/]OWNER/REPOSITORY`, visibility와 인증 주체를 비밀값 없이 확인한다.
 - 사용자가 지정한 base를 우선하고, 없으면 branch의 `gh-merge-base` 설정과 저장소 default branch를 확인한다.
 - 대상 브랜치, upstream, remote ref와 head SHA를 확인한다.
-- 단일 PR은 base의 merge base부터 head까지, stack은 각 층의 base부터 head까지 commit과 diff를 읽는다.
+- 단일 PR과 stack의 하단 PR은 base와 head의 merge base부터 head까지, stack의 위층은 확인한 선형 ancestry에 따라 바로 아래 branch의 head부터 위층 head까지 commit과 diff를 읽는다.
 - [PR 템플릿 규칙](pr-template.md)으로 적용할 양식과 `CONTRIBUTING`·기존 PR 관례를 확인한다.
 - 대상 head branch마다 open·draft PR을 조회한다.
 

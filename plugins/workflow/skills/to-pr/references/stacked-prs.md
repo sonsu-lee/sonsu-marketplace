@@ -17,7 +17,7 @@ GitHub Issues closing keyword는 non-default base의 자동 종료 근거로 사
 
 ## 게시 전 chain을 고정한다
 
-1. 같은 저장소에 속한 정확한 trunk, branch 순서, 각 `base..head`의 commit·diff와 선형 ancestry를 확인한다. 위 branch가 아래 branch의 변경을 포함하지 않거나 각 층에 다른 주제가 섞이면 게시를 멈추고 필요한 Git 작업을 보고한다. cross-fork stack은 만들지 않는다.
+1. 같은 저장소에 속한 정확한 trunk, branch 순서와 선형 ancestry를 확인한다. 하단 PR은 trunk와 head의 merge base부터 head까지, 위층은 바로 아래 branch의 head부터 위층 head까지 commit·diff를 확인한다. 위 branch가 아래 branch의 변경을 포함하지 않거나 각 층에 다른 주제가 섞이면 게시를 멈추고 필요한 Git 작업을 보고한다. cross-fork stack은 만들지 않는다.
 2. 각 branch의 원격 ref와 같은 head의 기존 PR을 조회한다. 이 절차는 **모든 층이 새 PR**일 때 사용한다. publish 시작 전에 존재하던 PR이 끼어 있으면 이 스킬에서 base나 stack membership을 수정하지 않고 현재 관계와 필요한 별도 작업을 보고한다.
 3. 각 층의 최종 제목·본문·양식·ticket reference·검증 상태·시각 자료를 준비한다. `target_pr_state`는 모든 층에 기본 Draft를 적용하고, 사용자가 stack 전체 또는 특정 층의 Ready를 명시한 경우에만 해당 층을 Ready로 정한다.
 4. 설치된 `gh stack link --help`, 인증 주체, 저장소·remote, GitHub stack 기능과 권한을 읽기 전용으로 확인한다. `GET /repos/{owner}/{repo}/stacks`는 조회 경로지만, 빈 목록만으로 생성 권한까지 단정하지 않는다. native stack을 사용할 수 없으면 일반 종속 PR로 조용히 대체하지 않는다.
@@ -31,8 +31,10 @@ GitHub Issues closing keyword는 non-default base의 자동 종료 근거로 사
 1. publish 직전에 각 층의 head SHA, 원격 ref, PR 부재, `target_pr_state`, payload와 필수 미디어 준비 상태를 다시 확인한다. 한 층이라도 필수 조건이 부족하면 stack 게시를 시작하지 않는다.
 2. 승인된 기존 remote에 각 branch를 정확한 refspec으로 일반 push하고 SHA를 재조회한다. push 결과가 불명확하면 원격 ref를 조회하며 같은 작업을 무작정 재시도하지 않는다.
 3. 아래 층부터 `gh pr create --head <branch> --base <trunk-or-lower-branch> --title <title> --body-file <file> --draft`로 새 Draft PR을 만든다. 미디어가 있으면 [첨부 절차](media-attachments.md#draft-pr을-먼저-만들고-한-파일씩-첨부한다)에 따라 그 층에 첨부하고 필수 자료를 검증한다. 명시된 Ready 전환은 stack 연결 뒤로 미룬다. 생성마다 URL과 원격 제목·본문·base·head·Draft 상태를 재조회한다.
-4. 모든 새 PR이 정확한 chain이면 `gh stack link --base <trunk> <bottom-pr-url> ... <top-pr-url>`로 native stack을 만든다. 인자에는 검증한 PR URL만 넣는다. 연결 실패나 응답 불명은 생성된 PR 목록과 base를 보존한 채 원격 stack membership을 먼저 조회한다. 새 PR 생성·link를 처음부터 반복하지 않는다.
-5. stack 조회와 각 PR 재조회에서 stack 번호·순서, trunk, 각 base·head SHA, 제목·본문·Draft 상태, 미디어와 ticket reference를 확인한다. 필수 첨부와 연결이 확인된 뒤 명시된 층만 Ready로 바꾸고 다시 읽는다. 생성은 성공했지만 native 연결이 실패했다면 층별 PR URL과 `stack_link: unapplied | unknown`을 보고한다. 연결 성공을 단순한 base chain만으로 주장하지 않는다.
+4. 모든 새 PR이 정확한 chain이면 `gh stack link --base <trunk> <bottom-pr-url> ... <top-pr-url>`로 native stack을 만든다. 인자에는 검증한 PR URL만 넣는다. 연결 실패나 응답 불명은 원격 stack membership과 각 PR의 base·head를 먼저 조회한다. 새 PR 생성·link를 처음부터 반복하지 않는다.
+5. stack 조회와 각 PR 재조회에서 stack 번호·순서, trunk, 각 base·head SHA, 제목·본문·Draft 상태, 미디어와 ticket reference를 확인한다. 필수 첨부와 정확한 연결이 확인된 뒤 명시된 층만 Ready로 바꾸고 다시 읽는다. 연결 결과는 기대 chain 전체가 확인되면 `applied`, 일부만 확인되면 `partial`, 어느 층에도 적용되지 않았다고 확인되면 `unapplied`, 조회로 판정할 수 없으면 `unknown`으로 보고한다. 연결 성공을 단순한 base chain만으로 주장하지 않는다.
+
+branch push, PR 생성, 미디어 첨부 또는 stack 연결 중 한 단계라도 실패하거나 결과가 불명확하면 후속 층의 게시·연결과 모든 Ready 전환을 멈춘다. 이미 수행한 층의 remote SHA, PR URL·base·head·Draft·본문·첨부와 stack membership을 재조회하고, 층별 `applied | partial | unapplied | unknown | not_attempted`를 구분해 보고한다. 확인된 미완료 단계만 이어서 처리하며 결과가 불명확한 원격 작업을 반복하지 않는다.
 
 기존 PR의 수정·재배치·merge, `gh stack rebase|push|submit --auto|modify|merge`는 이 절차의 부수 작업이 아니다. 특히 rebase·stack push에는 history rewrite와 `--force-with-lease`가 포함될 수 있으므로 별도 권한과 절차를 따른다.
 
