@@ -1,11 +1,14 @@
-# UI Design
+# Design
 
-`interface-design`는 일반 웹·앱, 운영 화면과 Figma 제품 화면을 한 작업 흐름에서 설계·재설계·감사하는
+`design`은 일반 웹·앱, 운영 화면과 Figma 제품 화면을 한 작업 흐름에서 설계·재설계·감사하는
 Codex·Claude Code 플러그인입니다. 공개 스킬은 작업 유형으로 고르고 Figma와 코드는 실행 경로로 선택합니다.
 
 ```sh
-codex plugin add interface-design@sonsu-marketplace
+codex plugin add design@sonsu-marketplace
 ```
+
+기존 `interface-design@sonsu-marketplace` 설치를 사용 중이라면 `design`을 설치한 뒤 기존 플러그인을
+제거합니다. 저장된 DQ contract/report의 `profile: "interface-design"`는 호환성 값이므로 변경하지 않습니다.
 
 | 작업 | 스킬 |
 | --- | --- |
@@ -32,6 +35,6 @@ python3 scripts/validate_design_quality.py report <report.json> <contract.json>
 python3 scripts/validate_operations_contracts.py evals ../../evals/operations-ui/cases.json
 ```
 
-[작업 선택과 산출물](references/delivery.md), [설계 구조](../../docs/architecture/interface-design.md),
+[작업 선택과 산출물](references/delivery.md), [설계 구조](../../docs/architecture/design.md),
 [출처](UPSTREAM.md)를 참고하세요. Figma Desktop companion은 [수동 사용 설명](figma-plugin/README.md)을
 따릅니다. 여러 단계 작업은 [연속성 참고 자료](references/continuity.md)로 이어 갑니다.

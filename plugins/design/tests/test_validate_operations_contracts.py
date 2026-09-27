@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-PLUGIN_ROOT = ROOT / "plugins" / "interface-design"
+PLUGIN_ROOT = ROOT / "plugins" / "design"
 VALIDATOR = PLUGIN_ROOT / "scripts" / "validate_operations_contracts.py"
 HELPERS_PATH = ROOT / "evals" / "design-quality" / "test_validate_design_quality.py"
 
@@ -34,7 +34,7 @@ def valid_evals() -> dict:
                 "id": "redesign-implementation",
                 "prompt": "Redesign and implement an existing queue console.",
                 "expected": {
-                    "select": ["interface-design:redesign-interface"],
+                    "select": ["design:redesign-interface"],
                     "must_not_select": [],
                     "profile": "operations-ui",
                     "artifact_scope": "implementation",
@@ -53,7 +53,7 @@ def valid_evals() -> dict:
                 "id": "read-only-audit",
                 "prompt": "Audit this live operations screen without changing it.",
                 "expected": {
-                    "select": ["interface-design:audit-interface"],
+                    "select": ["design:audit-interface"],
                     "must_not_select": [],
                     "profile": "operations-ui",
                     "artifact_scope": "live",

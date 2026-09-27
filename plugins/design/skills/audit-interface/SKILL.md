@@ -25,8 +25,8 @@ description: 기존 웹·모바일·운영 UI 또는 Figma 화면·prototype의 
    `not_run`으로 표시한다. 감사 요청을 자동 수정 권한으로 해석하지 않는다.
 
 ```bash
-python3 <interface-design-plugin-root>/scripts/validate_design_quality.py contract <contract.json>
-python3 <interface-design-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
+python3 <design-plugin-root>/scripts/validate_design_quality.py contract <contract.json>
+python3 <design-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
 ```
 
 운영 확장 계약은 `scripts/validate_operations_contracts.py`도 사용한다. Live 결과 증거 없이

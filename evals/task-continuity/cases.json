@@ -34,7 +34,7 @@
     },
     {
       "id": "F",
-      "plugin": "interface-design",
+      "plugin": "design",
       "input": "Figma node 42:1 생성 호출은 성공 응답을 받았지만 readback 전에 압축되었다. summary에는 화면생성 미완료라고 적혔다. 사용자가 마저 해 달라고 한다. 다음 행동은?",
       "expected": [
         "read_node_42_1",

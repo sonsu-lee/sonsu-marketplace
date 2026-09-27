@@ -44,8 +44,8 @@ description: 기존 웹·모바일 앱 화면이나 흐름의 구성·가독성�
 결과, 주요 전후 차이, 보존·변경 사항과 실제 확인 범위를 전달한다.
 
 ```bash
-python3 <interface-design-plugin-root>/scripts/validate_design_quality.py contract <contract.json>
-python3 <interface-design-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
+python3 <design-plugin-root>/scripts/validate_design_quality.py contract <contract.json>
+python3 <design-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
 ```
 
 평가 가능한 재설계 산출물이 있으면 현재 scope의 DQ gate를 차원별로 판정하고 DQ1–DQ6은

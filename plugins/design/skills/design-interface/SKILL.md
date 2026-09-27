@@ -33,8 +33,8 @@ description: 새 웹·모바일 앱 화면이나 사용자 흐름을 디자인�
 있는 단계로 돌아간다. 최종 결과, 중요한 결정, 확인한 범위와 미확인을 전달한다.
 
 ```bash
-python3 <interface-design-plugin-root>/scripts/validate_design_quality.py contract <contract.json>
-python3 <interface-design-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
+python3 <design-plugin-root>/scripts/validate_design_quality.py contract <contract.json>
+python3 <design-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
 ```
 
 평가 가능한 디자인 산출물을 만들었을 때 Proposal은 DQ0–DQ6, Figma와 implementation은 DQ0–DQ7,

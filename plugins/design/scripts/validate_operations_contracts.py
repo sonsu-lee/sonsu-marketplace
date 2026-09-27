@@ -15,9 +15,9 @@ import validate_design_quality as design_quality
 
 EVAL_SCHEMA_VERSION = "operations-ui-evals-v2"
 KNOWN_SKILL_IDS = {
-    "interface-design:design-interface",
-    "interface-design:redesign-interface",
-    "interface-design:audit-interface",
+    "design:design-interface",
+    "design:redesign-interface",
+    "design:audit-interface",
 }
 KNOWN_REQUIREMENTS = {
     "build-design-decision-contract",

@@ -137,10 +137,10 @@
       "category": "Developer Tools"
     },
     {
-      "name": "interface-design",
+      "name": "design",
       "source": {
         "source": "local",
-        "path": "./plugins/interface-design"
+        "path": "./plugins/design"
       },
       "policy": {
         "installation": "AVAILABLE",

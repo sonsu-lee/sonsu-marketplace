@@ -48,9 +48,9 @@
       "uniqueItems": true,
       "items": {
         "enum": [
-          "interface-design:design-interface",
-          "interface-design:redesign-interface",
-          "interface-design:audit-interface"
+          "design:design-interface",
+          "design:redesign-interface",
+          "design:audit-interface"
         ]
       }
     },

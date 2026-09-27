@@ -13,4 +13,4 @@
 - Writing의 공통 구성·보존 지침과 출처는 [LICENSE](../../plugins/writing/LICENSE), [UPSTREAM.md](../../plugins/writing/UPSTREAM.md), [THIRD_PARTY_NOTICES.md](../../plugins/writing/THIRD_PARTY_NOTICES.md)에 기록합니다.
 - Research는 기준 원본에서 라이선스 파일을 확인하지 못했으며 사용 허가를 추정하지 않습니다. 기준 commit과 포함 범위는 [UPSTREAM.md](../../plugins/research/UPSTREAM.md)에 기록합니다.
 
-- UI Design은 사용자 소유 디자인 실험과 외부 절차를 참고해 독자 작성했습니다. 별도 라이선스를 선언하지 않으며 채택·제외 범위는 [UPSTREAM.md](../../plugins/interface-design/UPSTREAM.md)에, 통합한 운영·Figma 자료의 출처는 [Operations](../../plugins/interface-design/UPSTREAM-OPERATIONS.md)와 [Figma](../../plugins/interface-design/UPSTREAM-FIGMA.md)에 기록합니다.
+- Design은 사용자 소유 디자인 실험과 외부 절차를 참고해 독자 작성했습니다. 별도 라이선스를 선언하지 않으며 채택·제외 범위는 [UPSTREAM.md](../../plugins/design/UPSTREAM.md)에, 통합한 운영·Figma 자료의 출처는 [Operations](../../plugins/design/UPSTREAM-OPERATIONS.md)와 [Figma](../../plugins/design/UPSTREAM-FIGMA.md)에 기록합니다.

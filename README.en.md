@@ -63,7 +63,7 @@ Claude Code MCP connections require separate configuration.
 | [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, OpenAI API, Claude Code, and Anthropic API | `prompting` |
 | [Product](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | `product` |
 | [Memory Manager](plugins/memory-manager/README.md) | Shared local memory for recall, capture, and maintenance in Codex and Claude Code | `memory-manager` |
-| [UI Design](plugins/interface-design/README.md) | Design, redesign, and audit general and operations interfaces through Figma or code | `interface-design` |
+| [Design](plugins/design/README.md) | Design, redesign, and audit general and operations interfaces through Figma or code | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | Select patterns from observed design forces and review existing usage | `design-patterns` |
 
 Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
@@ -87,7 +87,7 @@ After installing the relevant plugin, try requests like these in Codex:
 | Prompting | “Improve this prompt so I can use it directly in Codex.” |
 | Product | “Extract the user problems and supporting evidence from these interview notes.” |
 | Memory Manager | “`$memory-capture` Save this decision as a memory for this project.” |
-| UI Design | “Design a mobile signup flow in Figma, or redesign this operations screen directly in code.” |
+| Design | “Design a mobile signup flow in Figma, or redesign this operations screen directly in code.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
 
 The host selects skills based on your request and the descriptions of installed skills.
@@ -96,7 +96,7 @@ save requests. Invoke `$memory-maintain` or `$memory-promote` explicitly for cle
 Claude Code uses names such as `/memory-manager:memory-capture`.
 
 Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
-UI Design canvas work requires the official Figma MCP connection and the tool's prerequisite skills for canvas operations.
+Design canvas work requires the official Figma MCP connection and the tool's prerequisite skills for canvas operations.
 See each plugin's documentation for setup and tool requirements.
 
 ## Updates

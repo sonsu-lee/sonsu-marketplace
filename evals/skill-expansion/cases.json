@@ -4,24 +4,24 @@
     {
       "id": "web-new-auto",
       "installed_plugins": [
-        "interface-design",
+        "design",
         "engineering"
       ],
       "prompt": "독서 기록 웹의 새 책 상세 화면을 디자인해 줘. 제목, 저자, 긴 리뷰와 다음 책 탐색이 중요해.",
       "expected": {
-        "select": "interface-design:design-interface",
+        "select": "design:design-interface",
         "must_not_require_engineering": true
       }
     },
     {
       "id": "mobile-proposal-auto",
       "installed_plugins": [
-        "interface-design",
+        "design",
         "engineering"
       ],
       "prompt": "모바일 앱의 가입 흐름을 제안해 줘. 이메일 입력과 인증 코드 화면이 필요하고 코드는 바꾸지 마.",
       "expected": {
-        "select": "interface-design:design-interface",
+        "select": "design:design-interface",
         "artifact": "proposal",
         "must_not_require_runtime_gate": true,
         "must_consider": [
@@ -34,35 +34,35 @@
     {
       "id": "redesign-auto",
       "installed_plugins": [
-        "interface-design",
+        "design",
         "engineering"
       ],
       "prompt": "이 개인 독서 앱 화면의 구성을 개선해 줘. 기존 읽기 상태와 평점은 유지해 줘.",
       "expected": {
-        "select": "interface-design:redesign-interface",
+        "select": "design:redesign-interface",
         "must_preserve_meaning": true
       }
     },
     {
       "id": "design-direct",
       "installed_plugins": [
-        "interface-design"
+        "design"
       ],
       "prompt": "$design-interface 새 설정 화면의 시안을 만들어 줘.",
       "expected": {
-        "select": "interface-design:design-interface",
+        "select": "design:design-interface",
         "artifact": "proposal"
       }
     },
     {
       "id": "redesign-direct-priority",
       "installed_plugins": [
-        "interface-design",
+        "design",
         "engineering"
       ],
       "prompt": "$redesign-interface 이 사내 주문 비교 화면의 시안을 재설계해 줘. 구현하지 마.",
       "expected": {
-        "select": "interface-design:redesign-interface",
+        "select": "design:redesign-interface",
         "artifact": "proposal",
         "must_preserve_direct_selection": true
       }
@@ -70,12 +70,12 @@
     {
       "id": "ops-proposal-auto",
       "installed_plugins": [
-        "interface-design",
+        "design",
         "engineering"
       ],
       "prompt": "운영자가 주문을 필터링하고 선택해 일괄 보류하는 화면을 제안해 줘. 구현은 하지 마.",
       "expected": {
-        "select": "interface-design:design-interface",
+        "select": "design:design-interface",
         "artifact": "proposal",
         "must_not_require_runtime_gate": true,
         "must_consider": [
@@ -88,23 +88,23 @@
     {
       "id": "figma-file-auto",
       "installed_plugins": [
-        "interface-design",
+        "design",
         "engineering"
       ],
       "prompt": "이 Figma 파일의 컴포넌트와 변수 연결을 정리하고 Auto Layout을 수정해 줘.",
       "expected": {
-        "select": "interface-design:redesign-interface",
+        "select": "design:redesign-interface",
         "artifact": "figma"
       }
     },
     {
       "id": "figma-only-ops",
       "installed_plugins": [
-        "interface-design"
+        "design"
       ],
       "prompt": "운영 대시보드를 Figma에 만들고 상세 drawer prototype까지 연결해 줘. 제품 코드는 수정하지 마.",
       "expected": {
-        "select": "interface-design:design-interface",
+        "select": "design:design-interface",
         "artifact": "figma",
         "must_not_require_runtime_gate": true
       }
@@ -312,7 +312,7 @@
     {
       "id": "asset-reconstruction",
       "installed_plugins": [
-        "interface-design"
+        "design"
       ],
       "prompt": "$redesign-interface 지도와 차트의 재설계 명세·검증 방법을 정리해 줘. 이번에는 제안만 해 줘.",
       "expected": {
@@ -380,11 +380,11 @@
     {
       "id": "operations-direct-general-implementation",
       "installed_plugins": [
-        "interface-design"
+        "design"
       ],
       "prompt": "$design-interface 기존 독서 앱 프로젝트에 책 소개와 긴 리뷰를 읽는 새 상세 화면을 구현해 줘.",
       "expected": {
-        "select": "interface-design:design-interface",
+        "select": "design:design-interface",
         "artifact": "implementation",
         "must_verify_actual_project": true
       }
@@ -392,11 +392,11 @@
     {
       "id": "operations-direct-general-figma-and-implementation",
       "installed_plugins": [
-        "interface-design"
+        "design"
       ],
       "prompt": "$design-interface 기존 독서 앱의 책 소개와 긴 리뷰 상세 화면을 Figma로 만들고 기존 웹 프로젝트에도 구현해 줘.",
       "expected": {
-        "select": "interface-design:design-interface",
+        "select": "design:design-interface",
         "artifacts": [
           "figma",
           "implementation"

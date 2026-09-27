@@ -1,13 +1,13 @@
-# UI Design의 Figma 경로 라우팅 평가
+# Design의 Figma 경로 라우팅 평가
 
-`cases.json`은 UI Design과 공식 Figma·FigJam, draw.io가 함께 있거나 일부만 있는 환경에서
+`cases.json`은 Design과 공식 Figma·FigJam, draw.io가 함께 있거나 일부만 있는 환경에서
 요청의 최종 artifact에 맞는 스킬과 도구가 선택되는지 정의합니다.
 
 핵심 경계는 다음과 같습니다.
 
-- 제품 화면, native component·variable와 Auto Layout은 `interface-design:design-interface` 또는 `interface-design:redesign-interface`, actual
+- 제품 화면, native component·variable와 Auto Layout은 `design:design-interface` 또는 `design:redesign-interface`, actual
   reaction과 clickable interaction은 같은 스킬의 Figma prototype 경로가 Figma Design 안에서 다룹니다.
-- 기존 Figma artifact의 읽기 전용 구조·품질 검토는 `interface-design:audit-interface`가 담당합니다.
+- 기존 Figma artifact의 읽기 전용 구조·품질 검토는 `design:audit-interface`가 담당합니다.
 - Figma canvas의 agent writer는 registered official MCP 하나이며 실제 `use_figma`에는
   `figma:figma-use` prerequisite가 필요합니다.
 - 협업용 초기 journey와 workshop board는 FigJam, AWS·network·UML·ERD와 system architecture는 draw.io가

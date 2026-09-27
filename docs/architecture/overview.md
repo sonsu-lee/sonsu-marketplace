@@ -50,7 +50,7 @@ delivery 산출물·PR 상태 조회·복구, Research는 외부 다중 출처 �
 출력 언어를 담당합니다. Writing은 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성을 담당합니다.
 Memory Manager는 명시적으로 호출하는 에이전트 메모리 점검·정리를
 담당하며 저장 방식과 수정 권한은 대상 호스트의 계약을 따릅니다. Product는 제품 기회·문제·근거·도메인 규칙·검증과 PRD 변환을,
-[UI Design](interface-design.md)은 일반·운영 웹·앱 화면의 신규 설계·재설계·감사를 하나의 플러그인에서 담당합니다.
+[Design](design.md)은 일반·운영 웹·앱 화면의 신규 설계·재설계·감사를 하나의 플러그인에서 담당합니다.
 Figma를 사용하는 경우 native 화면·prototype과 handoff 품질을 확인하고, 코드 이전에는 해당 결과의 명시적 허가를 받습니다.
 Figma가 정본이 아니면 기존 앱에 직접 구현합니다. 운영 업무 계약은 필요할 때 내부 참고 자료로 적용합니다.
 Design Patterns는 실제 설계 forces와 필요한 guarantee에 근거한 named pattern 선택과 기존 적용의

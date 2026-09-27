@@ -1,4 +1,4 @@
-# UI Design 작업 연속성
+# Design 작업 연속성
 
 "UI 설계·재설계·감사가 Figma 또는 코드에서 여러 단계로 이어지거나 컴팩션·재개 후 명세·산출물·검증 범위를 복구할 때 사용한다."
 
@@ -21,7 +21,7 @@
    알 수 없으면 명시하거나 기존 산출물로 수동 복구한다. 다른 세션이나 최신 디렉터리에서 ID를
    추정하지 않는다.
 2. 작업 루트는 현재 Git worktree, Git 밖에서는 `--cwd`의 실제 경로다. 기록 위치는
-   `<root>/.sonsu/continuity/<session-id>/interface-design.json`이다.
+   `<root>/.sonsu/continuity/<session-id>/design.json`이다.
 3. `read`로 기록과 revision을 읽는다. 최초 `write`의 `--expected-revision`은 0이며,
    갱신·종료·새 작업 전환에는 방금 읽은 revision을 쓴다. 같은 작업의 `--task-id`는 재개 후에도 유지한다.
    이전 공개 스킬 이름이 `active_skill`에 남아 있어도 읽을 수 있다. 다음 `write`에는 현재 설치된

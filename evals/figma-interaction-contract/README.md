@@ -1,6 +1,6 @@
 # Figma interaction 계약 평가
 
-`cases.json`은 UI Design의 Figma prototype 경로가 설명용 화살표가 아니라 실제 Figma reaction과
+`cases.json`은 Design의 Figma prototype 경로가 설명용 화살표가 아니라 실제 Figma reaction과
 검증 가능한 상태 동선을 요구하는지, 그리고 canvas write와 수동 companion의 경계를 지키는지 평가하는
 behavior fixture입니다.
 

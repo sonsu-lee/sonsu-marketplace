@@ -84,10 +84,10 @@
       "category": "Developer Tools"
     },
     {
-      "name": "interface-design",
-      "source": "./plugins/interface-design",
+      "name": "design",
+      "source": "./plugins/design",
       "description": "웹·앱·운영 UI를 Figma 또는 코드에서 설계·재설계·감사하고 Google DESIGN.md와 DQ0–DQ8로 검증합니다.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "category": "Developer Tools"
     }
   ]

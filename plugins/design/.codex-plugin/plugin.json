@@ -1,6 +1,6 @@
 {
-  "name": "interface-design",
-  "version": "0.4.0",
+  "name": "design",
+  "version": "0.5.0",
   "description": "웹·앱·운영 UI를 Figma 또는 코드에서 설계·재설계·감사하고 Google DESIGN.md와 DQ0–DQ8로 검증합니다.",
   "author": {
     "name": "sonsu",
@@ -8,7 +8,7 @@
   },
   "skills": "./skills/",
   "interface": {
-    "displayName": "UI Design",
+    "displayName": "Design",
     "shortDescription": "일반·운영 UI의 Figma 또는 코드 설계와 감사",
     "longDescription": "신규 설계·재설계·감사를 선택하고, 운영 업무 계약과 Figma 제작 지침을 조건부로 적용합니다. Figma 화면을 코드로 옮기기 전에 명시적 허가를 받습니다.",
     "developerName": "sonsu",

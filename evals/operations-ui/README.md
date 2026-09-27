@@ -1,6 +1,6 @@
 # Operations UI evaluation fixtures
 
-`cases.json`은 UI Design의 운영 업무 skill routing, 산출물 범위, 모드와 증거 판정 계약을 나타낸다. 구조 계약은 `cases.schema.json`에 있으며 semantic validator는 알려진 skill, DQ 범위, 재설계 inventory와 runtime/user evidence 요구를 함께 검사한다.
+`cases.json`은 Design의 운영 업무 skill routing, 산출물 범위, 모드와 증거 판정 계약을 나타낸다. 구조 계약은 `cases.schema.json`에 있으며 semantic validator는 알려진 skill, DQ 범위, 재설계 inventory와 runtime/user evidence 요구를 함께 검사한다.
 
 검증 범위:
 

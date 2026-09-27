@@ -6,11 +6,11 @@
       "prompt": "고객지원 상담원이 SLA가 임박한 문의를 찾아 배정하고 해결하는 운영 화면을 처음부터 구현해 줘.",
       "expected": {
         "select": [
-          "interface-design:design-interface"
+          "design:design-interface"
         ],
         "must_not_select": [
-          "interface-design:redesign-interface",
-          "interface-design:audit-interface"
+          "design:redesign-interface",
+          "design:audit-interface"
         ],
         "profile": "operations-ui",
         "artifact_scope": "implementation",
@@ -32,11 +32,11 @@
       "prompt": "기존 출고관리 웹 화면을 실제 코드로 재설계하되 현재 상태, 권한, 필터와 작업을 빠뜨리지 말고 브라우저로 검증해 줘.",
       "expected": {
         "select": [
-          "interface-design:redesign-interface"
+          "design:redesign-interface"
         ],
         "must_not_select": [
-          "interface-design:design-interface",
-          "interface-design:audit-interface"
+          "design:design-interface",
+          "design:audit-interface"
         ],
         "profile": "operations-ui",
         "artifact_scope": "implementation",
@@ -60,11 +60,11 @@
       "prompt": "현재 관리자 화면을 수정하지 말고 실제 사용자 과업, 정보 구조, 상태, 키보드 접근성과 실행 결과를 감사해 줘.",
       "expected": {
         "select": [
-          "interface-design:audit-interface"
+          "design:audit-interface"
         ],
         "must_not_select": [
-          "interface-design:design-interface",
-          "interface-design:redesign-interface"
+          "design:design-interface",
+          "design:redesign-interface"
         ],
         "profile": "operations-ui",
         "artifact_scope": "live",
@@ -87,7 +87,7 @@
       "prompt": "기존 React 프로젝트에 주문 검수 화면을 바로 구현하고 실제 브라우저로 검증해 줘. Figma는 필요 없어.",
       "expected": {
         "select": [
-          "interface-design:design-interface"
+          "design:design-interface"
         ],
         "must_not_select": [],
         "profile": "operations-ui",
@@ -109,11 +109,11 @@
       "prompt": "이 운영 대시보드의 상태와 상세 drawer 동선을 Figma prototype으로 만들어 줘. 코드 구현은 하지 마.",
       "expected": {
         "select": [
-          "interface-design:design-interface"
+          "design:design-interface"
         ],
         "must_not_select": [
-          "interface-design:redesign-interface",
-          "interface-design:audit-interface"
+          "design:redesign-interface",
+          "design:audit-interface"
         ],
         "profile": "operations-ui",
         "artifact_scope": "figma",
@@ -135,7 +135,7 @@
       "prompt": "코드는 작성했지만 앱을 실행할 수 없으니 스크린샷 없이 디자인 완료 처리해 줘.",
       "expected": {
         "select": [
-          "interface-design:design-interface"
+          "design:design-interface"
         ],
         "must_not_select": [],
         "profile": "operations-ui",
@@ -157,10 +157,10 @@
       "prompt": "재무팀이 이상 거래를 필터링하고 검토 상태와 승인 권한을 확인하는 운영 queue의 설계안을 만들어 줘.",
       "expected": {
         "select": [
-          "interface-design:design-interface"
+          "design:design-interface"
         ],
         "must_not_select": [
-          "interface-design:audit-interface"
+          "design:audit-interface"
         ],
         "profile": "operations-ui",
         "artifact_scope": "proposal",
@@ -181,7 +181,7 @@
       "prompt": "상위 shell이 인증과 조회를 끝내고 검증된 non-empty 자료만 전달하는 운영 패널을 구현해 줘. 이 경계는 코드와 타입으로 확인할 수 있다.",
       "expected": {
         "select": [
-          "interface-design:design-interface"
+          "design:design-interface"
         ],
         "must_not_select": [],
         "profile": "operations-ui",
@@ -204,7 +204,7 @@
       "prompt": "레이아웃과 조회 구현은 승인됐고 별도 관리자 승인 action의 규칙만 미정이다. 독립 범위를 진행해 줘.",
       "expected": {
         "select": [
-          "interface-design:design-interface"
+          "design:design-interface"
         ],
         "must_not_select": [],
         "profile": "operations-ui",
@@ -227,7 +227,7 @@
       "prompt": "긴 일본어 고객명과 상품명이 들어오는 대량 주문 표를 좁은 화면에서도 작업 가능하게 재설계해 줘.",
       "expected": {
         "select": [
-          "interface-design:redesign-interface"
+          "design:redesign-interface"
         ],
         "must_not_select": [],
         "profile": "operations-ui",
