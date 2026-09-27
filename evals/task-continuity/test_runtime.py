@@ -75,6 +75,17 @@ class RuntimeTests(unittest.TestCase):
         event.update(changes)
         return self.run_cli("hook", plugin=plugin, data=event)
 
+    def legacy_design_record(self, source_plugin, source_skill):
+        self.assertEqual(self.write(plugin="design").returncode, 0)
+        current = self.path("design")
+        record = json.loads(current.read_text())
+        record["plugin"] = source_plugin
+        record["active_skill"] = source_skill
+        legacy = self.path(source_plugin)
+        legacy.write_text(json.dumps(record))
+        current.unlink()
+        return legacy, record
+
     def test_generated_hook_resolves_both_plugin_roots(self):
         hook_file = ROOT / "plugins/engineering/hooks/hooks.json"
         session_start = json.loads(hook_file.read_text())["hooks"]["SessionStart"][0]
@@ -326,6 +337,80 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(self.hook(plugin="writing").stdout, "")
         self.assertFalse(current.exists())
         self.assertEqual(legacy.read_bytes(), legacy_original)
+
+    def test_design_hook_discovers_old_active_checkpoint_without_writing(self):
+        for source_plugin, source_skill in (("interface-design", "redesign-interface"),
+                                             ("operations-ui", "figma-operations-flow"),
+                                             ("figma-workflow", "figma-prototype-flow")):
+            with self.subTest(source_plugin=source_plugin):
+                legacy, record = self.legacy_design_record(source_plugin, source_skill)
+                before = legacy.read_bytes()
+                result = self.hook(plugin="design")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn(str(legacy), result.stdout)
+                self.assertNotIn(record["summary"]["goal"], result.stdout)
+                self.assertEqual(legacy.read_bytes(), before)
+                self.assertFalse(self.path("design").exists())
+                read = self.run_cli("read", "--from-plugin", source_plugin, plugin="design")
+                self.assertEqual(read.returncode, 0, read.stderr)
+                self.assertEqual(json.loads(read.stdout), record)
+                legacy.unlink()
+
+    def test_design_migrate_preserves_old_checkpoint_and_state(self):
+        self.git("init", "-q")
+        for source_plugin, source_skill in (("interface-design", "redesign-interface"),
+                                             ("operations-ui", "figma-operations-flow"),
+                                             ("figma-workflow", "figma-product-design")):
+            with self.subTest(source_plugin=source_plugin):
+                legacy, old = self.legacy_design_record(source_plugin, source_skill)
+                before = legacy.read_bytes()
+                migrate = self.run_cli("migrate", "--mode", "write", "--from-plugin", source_plugin,
+                                       "--task-id", "task-a", "--skill", "example-work",
+                                       "--expected-revision", "1", plugin="design")
+                self.assertEqual(migrate.returncode, 0, migrate.stderr)
+                self.assertEqual(legacy.read_bytes(), before)
+                current = json.loads(self.path("design").read_text())
+                self.assertEqual(current["plugin"], "design")
+                self.assertEqual(current["active_skill"], "example-work")
+                self.assertEqual(current["revision"], 2)
+                self.assertEqual(current["task_id"], old["task_id"])
+                self.assertEqual(current["summary"], old["summary"])
+                self.assertIn(str(self.path("design")), self.hook(plugin="design").stdout)
+                self.assertEqual(self.write(revision=2, plugin="design").returncode, 0)
+                self.assertEqual(self.git("status", "--porcelain"), "")
+                self.path("design").unlink()
+                legacy.unlink()
+
+    def test_design_migrate_rejects_conflict_and_mismatched_legacy_record(self):
+        legacy, old = self.legacy_design_record("operations-ui", "design-operations-ui")
+        args = ("migrate", "--mode", "write", "--from-plugin", "operations-ui",
+                "--task-id", "task-a", "--skill", "example-work", "--expected-revision", "1")
+        for record in ({**old, "workspace_root": str(self.base)},
+                       {**old, "active_skill": "unknown-skill"}):
+            legacy.write_text(json.dumps(record))
+            self.assertNotEqual(self.run_cli(*args, plugin="design").returncode, 0)
+            self.assertFalse(self.path("design").exists())
+        legacy.write_text(json.dumps(old))
+        self.assertNotEqual(self.run_cli(*args[:-1], "0", plugin="design").returncode, 0)
+        self.assertFalse(self.path("design").exists())
+        self.assertEqual(self.write(plugin="design").returncode, 0)
+        current = self.path("design").read_bytes()
+        self.assertNotEqual(self.run_cli(*args, plugin="design").returncode, 0)
+        self.assertEqual(self.path("design").read_bytes(), current)
+
+    def test_design_migrate_requires_write_mode_and_one_active_source(self):
+        legacy, old = self.legacy_design_record("interface-design", "design-interface")
+        args = ("migrate", "--from-plugin", "interface-design", "--task-id", "task-a",
+                "--skill", "example-work", "--expected-revision", "1")
+        self.assertNotEqual(self.run_cli(*args, plugin="design").returncode, 0)
+        self.assertFalse(self.path("design").exists())
+        second = self.path("operations-ui")
+        second.write_text(json.dumps({**old, "plugin": "operations-ui",
+                                      "active_skill": "design-operations-ui"}))
+        self.assertNotEqual(self.run_cli(*args, "--mode", "write", plugin="design").returncode, 0)
+        self.assertFalse(self.path("design").exists())
+        self.assertTrue(legacy.exists())
+        self.assertTrue(second.exists())
 
     def test_preconfigured_readonly_exclude_allows_checkpoint(self):
         self.git("init", "-q")

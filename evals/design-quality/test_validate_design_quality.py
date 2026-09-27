@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-VALIDATOR = ROOT / "plugins" / "interface-design" / "scripts" / "validate_design_quality.py"
+VALIDATOR = ROOT / "plugins" / "design" / "scripts" / "validate_design_quality.py"
 GATE_CHECKS = {
     "DQ0": ["contract-completeness", "traceability", "pre-registered-metrics"],
     "DQ1": ["user-context-task", "decision-and-error-cost"],

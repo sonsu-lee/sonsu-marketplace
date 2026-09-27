@@ -357,7 +357,7 @@ class DesignMdIntegrationTests(DesignMdCommandTests):
         self.check_document(VALID.replace("#111111", "#eeeeee"), "needs_review", 3, "contrast-ratio")
 
     def test_each_generated_plugin_runs_in_isolation(self) -> None:
-        for plugin in ("interface-design", "operations-ui", "figma-workflow"):
+        for plugin in ("design",):
             with self.subTest(plugin=plugin), tempfile.TemporaryDirectory() as tmp:
                 source = ROOT / "plugins" / plugin
                 for directory in ("scripts", "assets"):

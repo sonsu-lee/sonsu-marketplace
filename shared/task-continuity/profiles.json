@@ -23,12 +23,6 @@
     "details": "합의한 문제·요구사항과 결정 근거, 가정·미결정 사항, 입력과 문서 revision, 사람의 승인 범위와 상태를 보존한다. 요약에서 승인을 추정하거나 새로운 제품 결정을 만들지 않는다. conditional/draft와 approved를 구분하고, 원문·사용자 결정이 달라지면 영향받는 요구사항을 다시 확인한다.",
     "example_skill": "to-prd"
   },
-  "figma-workflow": {
-    "label": "Figma Workflow",
-    "trigger": "Figma 화면·프로토타입·감사가 여러 단계로 이어지거나, 컴팩션·세션 재개 후 수정 대상과 검증 상태를 복구할 때 사용한다.",
-    "details": "file/page/node ID, 수정 범위, 마지막 readback과 preview receipt, 남은 interaction·resize·playback 검증을 보존한다. 생성 응답 후 중단되면 기존 ID부터 읽으며 같은 화면을 다시 만들지 않는다. 현재 selection을 이전 target의 대체 근거로 쓰지 않는다. official tool의 선행 스킬·단일 writer·apply-time readback 계약을 유지한다.",
-    "example_skill": "figma-product-design"
-  },
   "writing": {
     "label": "Writing",
     "trigger": "장문·여러 문서의 작성·편집이 여러 단계로 이어지거나, 컴팩션·세션 재개 후 원문·초안·처리 구간을 복구할 때 사용한다.",
@@ -41,10 +35,10 @@
     "details": "대상 모델과 사용 방식, 입력/출력 계약, 현재 프롬프트 위치·revision, 채택한 제약과 미검증 사항을 보존한다. 선택하지 않은 모델로 바꾸거나 요약만으로 literal·출력 형식을 재작성하지 않는다. 기존 프롬프트와 변경된 요구만 대조하고, 실행하지 않은 검증은 not_run으로 유지한다.",
     "example_skill": "prompt-builder"
   },
-  "interface-design": {
-    "label": "Interface Design",
-    "trigger": "일반 UI 설계·재설계가 여러 단계로 이어지거나 컴팩션·재개 후 명세·산출물·검증 범위를 복구할 때 사용한다.",
+  "design": {
+    "label": "Design",
+    "trigger": "UI 설계·재설계·감사가 Figma 또는 코드에서 여러 단계로 이어지거나 컴팩션·재개 후 명세·산출물·검증 범위를 복구할 때 사용한다.",
     "example_skill": "redesign-interface",
-    "details": "플랫폼·과업·산출물, 원본 의미와 보존/변경 결정, 디자인 명세 revision, 실제 화면·정보 자산·Figma node 또는 코드 경로, 마지막 검증과 미확인을 보존한다. 제안·Figma·구현의 완료 범위를 섞지 않고 현재 사용자 요청과 실제 산출물을 대조한다."
+    "details": "플랫폼·과업·산출물, 원본 의미와 보존/변경 결정, 디자인 명세 revision, 실제 화면·정보 자산·Figma file/page/node 또는 코드 경로, 마지막 readback·preview receipt·검증과 미확인을 보존한다. Figma 코드 이전의 명시적 허가 여부를 기록한다. 생성 응답 후 중단되면 기존 ID부터 읽으며 같은 화면을 다시 만들지 않는다. 제안·Figma·구현의 완료 범위를 섞지 않고 현재 사용자 요청과 실제 산출물을 대조한다."
   }
 }

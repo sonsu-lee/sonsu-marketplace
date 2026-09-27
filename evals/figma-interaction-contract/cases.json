@@ -22,7 +22,7 @@
     {
       "id": "agent-prototype-write-uses-official-single-writer",
       "scenario": "Codex가 기존 Figma checkout flow의 Pay reaction을 수정해야 한다.",
-      "expected": ["figma-workflow-prototype-skill", "figma-figma-use-prerequisite", "registered-official-figma-mcp", "serialize-shared-prototype-graph", "readback-after-write"],
+      "expected": ["design-figma-prototype-path", "figma-figma-use-prerequisite", "registered-official-figma-mcp", "serialize-shared-prototype-graph", "readback-after-write"],
       "must_not": ["raw-mcp-fallback", "agent-callable-companion", "second-canvas-writer"]
     },
     {
