@@ -13,9 +13,19 @@ git clone https://github.com/sonsu-lee/sonsu-marketplace.git
 cd sonsu-marketplace
 ```
 
-Codex 데스크톱 앱에서 이 저장소를 열면 `.agents/plugins/marketplace.json`을 로컬
-마켓플레이스로 발견합니다. `codex plugin marketplace add .`로 같은 경로를 다시 등록할
-필요는 없습니다. 플러그인 화면에서 로컬 경로와 목록을 확인하세요.
+Codex 데스크톱 앱은 이 저장소의 `.agents/plugins/marketplace.json`을 발견합니다.
+하지만 같은 이름의 Git 등록본이 있으면 로컬 플러그인 변경이 가려질 수 있습니다.
+Codex CLI에서 현재 체크아웃을 시험할 때는 Git 등록본이 없는 별도 설정에서 로컬 경로를
+명시적으로 등록합니다. 저장소 루트에서 다음 명령을 실행하세요.
+
+```sh
+codex_test_home="$(mktemp -d)"
+CODEX_HOME="$codex_test_home" codex plugin marketplace add .
+CODEX_HOME="$codex_test_home" codex plugin list --marketplace sonsu-marketplace
+```
+
+이후 플러그인 설치와 Codex CLI 실행에도 같은 `CODEX_HOME`을 전달하세요.
+데스크톱 앱에서 로컬 변경을 시험할 때에도 같은 이름의 Git 등록본이 없는 환경을 사용합니다.
 
 Claude Code에서는 저장소의 절대 경로로 로컬 marketplace를 등록합니다.
 
@@ -24,9 +34,8 @@ claude plugin marketplace add "$(pwd -P)"
 claude plugin marketplace list
 ```
 
-GitHub 소스를 전역 등록한 환경에서는 같은 이름의 로컬 항목도 보일 수 있습니다. 두 소스가
-가리키는 버전이 다르면 플러그인 목록도 달라질 수 있습니다. 실제 등록·설치 검증에는 기존
-사용자 설정과 분리된 환경을 사용하세요.
+GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용합니다. 실제 등록·설치
+검증은 기존 사용자 설정과 분리된 환경에서 진행하세요.
 플러그인 설치와 설치 후 스킬 목록을 다시 불러오는 방법은 [루트 README](../../README.md#설치)에 있습니다.
 
 ## 기존 플러그인 수정

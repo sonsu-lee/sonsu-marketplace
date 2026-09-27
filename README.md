@@ -44,8 +44,9 @@ codex plugin list --marketplace sonsu-marketplace
 ```
 
 Codex 데스크톱 앱에서 이 저장소를 열면 `.agents/plugins/marketplace.json`의 로컬 카탈로그도
-표시될 수 있습니다. GitHub 등록본과 이름이 같아 두 항목이 보이더라도 로컬 경로를 다시 등록할
-필요는 없습니다. 플러그인 수가 다르면 두 소스가 가리키는 버전을 확인하세요.
+표시될 수 있습니다. 같은 이름의 Git 등록본이 있으면 로컬 플러그인 변경이 가려질 수 있으므로,
+두 항목이 보인다는 사실만으로 로컬 변경이 적용됐다고 판단하지 마세요. 현재 체크아웃은
+Git 등록본이 없는 환경에서 [로컬 등록 절차](docs/guides/adding-a-plugin.md#로컬-개발-환경)로 시험하세요.
 
 ### Claude Code
 

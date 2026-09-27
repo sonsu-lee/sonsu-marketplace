@@ -44,9 +44,9 @@ codex plugin list --marketplace sonsu-marketplace
 ```
 
 When you open this repository in the Codex desktop app, its local catalog at
-`.agents/plugins/marketplace.json` may also appear. It has the same name as the GitHub source;
-you do not need to register the local path again. If their plugin counts differ, check which
-version each source points to.
+`.agents/plugins/marketplace.json` may also appear. A registered Git source with the same name
+can hide local plugin changes, so seeing both entries does not confirm that the local copy is
+loaded. Test the checkout without the Git source using the [local setup steps](docs/guides/adding-a-plugin.md#로컬-개발-환경).
 
 ### Claude Code
 
