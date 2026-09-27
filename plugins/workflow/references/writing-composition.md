@@ -18,5 +18,5 @@ Workflow가 정한 양식과 게시 조건을 보존한다. 스킬이 없어도 
 자동 설치·연결이나 설치를 위한 질문을 하지 않는다.
 
 사용자·프로젝트의 형식과 허용된 편집 범위, 사실·조건·의무 수준·코드·식별자·URL을 우선한다.
-작성 뒤 고정 양식·필수 필드·HTML marker와 `Fixes`, `Closes`, `Part of`, `Ignore`, ticket ID·Jira key를
+작성 뒤 고정 양식·필수 필드·HTML marker와 `Fixes`, `Closes`, `Part of`, `Ignore`, ticket ID를
 다시 대조한다. 임시 초안이나 표현 개선은 양식 확인·게시 조건·외부 작업 권한을 대신하지 않는다.

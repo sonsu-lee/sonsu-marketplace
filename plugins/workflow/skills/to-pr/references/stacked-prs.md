@@ -11,7 +11,7 @@
 
 각 층의 payload에는 `base`, `head`, 검토할 주제, 아래 PR에 대한 의존성, 해당 층의 diff·검증·티켓 intent를 기록한다. stack 전체의 목적은 짧게 연결하되, 모든 층에 동일한 전체 diff나 검증 결과를 복사하지 않는다. 사용자에게 보이는 변경과 시각 증거는 그 변경을 소유한 PR에 둔다.
 
-GitHub Issues closing keyword는 non-default base의 자동 종료 근거로 사용하지 않는다. stack 전체가 완료되어야 닫히는 티켓은 각 층에서 `Part of`처럼 completion을 만들지 않는 reference를 사용하고, 실제 merge 뒤 canonical ticket 상태를 별도로 확인한다. Linear·Jira도 [티켓 연결 규칙](ticket-linking.md)의 event별 automation을 따른다.
+GitHub Issues closing keyword는 non-default base의 자동 종료 근거로 사용하지 않는다. stack 전체가 완료되어야 닫히는 티켓은 각 층에서 `Part of`처럼 completion을 만들지 않는 reference를 사용하고, 실제 merge 뒤 canonical ticket 상태를 별도로 확인한다. Linear도 [티켓 연결 규칙](ticket-linking.md)의 event별 automation을 따른다.
 
 공식 참고: [GitHub stacked PR 개요](https://docs.github.com/en/pull-requests/get-started/about-stacked-prs), [GitHub stacked PR 요구사항](https://docs.github.com/en/pull-requests/reference/stacked-pull-requests)
 

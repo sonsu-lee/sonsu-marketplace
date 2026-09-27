@@ -16,19 +16,16 @@ description: 브랜치 이름을 제안·검토하거나 명시적으로 요청�
 
 [새 브랜치 이름 규칙](../../references/branch-naming.md)을 읽고 적용한다.
 
-## 티켓 ID를 후순위로 다룬다
+## 티켓 연동 형식을 확인한다
 
-branch 이름은 tracker 연결의 기본 채널로 사용하지 않는다.
+기준 티켓과 provider를 확인한 뒤 repository·team 규칙 및 활성 Linear 연동의 branch 형식을 읽는다. ID 문자열의 모양이나 연동 가능성만으로 기준 티켓을 추정하지 않는다. repository·team 규칙이 없으면 다음 기본값을 사용한다.
 
-Linear 티켓 작업의 새 branch는 위의 이름 규칙에 따라 type·작업 설명으로 구성하고 티켓 ID를 자동으로 넣지 않는다. repository의 ID 포함 관례나 integration이 제공하는 branch 이름도 Linear ID를 추가할 근거로 사용하지 않는다. 예를 들어 `ENG-123`의 검색 필터 작업은 별도 접두사 요구가 없다면 `feat/add-search-filter`로 표현하고, 티켓 연결은 PR metadata에서 처리한다. 사용자가 정확한 이름이나 ID 포함을 직접 지정한 경우에는 그 명시적 요청을 따른다.
+- Linear는 확인한 `Copy git branch name` 설정의 형식을 사용한다. 형식을 읽을 수 없지만 연동과 기준 티켓이 확인됐으면 `<type>/<KEY>-<short-kebab-description>`을 사용한다.
+- GitHub Issues는 일반 branch 이름의 번호만으로 PR 연결을 보장하지 않으므로 별도 규칙이 없으면 `<type>/<short-kebab-description>`을 사용한다. PR의 관계와 완료 의도는 PR metadata에서 처리한다.
 
-Linear 이외의 tracker는 다음 중 하나가 확인된 경우에만 티켓 ID를 새 branch 이름에 포함한다.
+한 티켓에 여러 PR이 있고 일부만 완료하는 branch라면 Linear의 자동 연결과 PR의 `Part of` 관계가 실제 비종결로 반영되는지 확인한다.
 
-- 사용자가 정확한 이름이나 ID 포함을 요청했다.
-- repository의 현재 branch 규칙이 이를 요구한다.
-- 검증된 tracker integration이 branch ID를 요구하고 더 낮은 결합도의 metadata로 목적을 달성할 수 없다.
-
-provider를 ID 문자열 모양만으로 추측하지 않는다. branch에 이미 ID가 있으면 보조 정보로만 취급하고 canonical ticket을 확인한다. ID가 없거나 다르다는 이유로 기존 branch를 자동 rename하지 않는다.
+branch에 이미 ID가 있으면 보조 정보로만 취급하고 canonical ticket을 확인한다. ID가 없거나 다르다는 이유로 기존 branch를 자동 rename하지 않는다.
 
 ## 생성 전에 확인한다
 

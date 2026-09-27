@@ -456,6 +456,13 @@
       "prompt": "Windows 11 Chrome에서 CSV를 다운로드하면 한글 이름이 깨진다는 고객 보고가 있어. 원인과 정확한 재현 절차는 아직 몰라. 버그 티켓 초안을 한국어로 작성해 줘.",
       "expected_template": "bug",
       "must_include_reproduction_section": true,
+      "expected_required_headings": [
+        "현상",
+        "재현 정보"
+      ],
+      "expected_omitted_headings": [
+        "참고"
+      ],
       "must_not_classify_readiness": true,
       "must_not_invent_cause_or_acceptance": true,
       "installed_plugins": [
@@ -470,7 +477,7 @@
       "must_not_select": [
         "workflow:ticket-lifecycle"
       ],
-      "must_report_unavailable_reproduction_media": true
+      "must_not_invent_reproduction_steps_or_media": true
     },
     {
       "id": "feature-request-before-adoption",
@@ -612,26 +619,6 @@
       "must_not_assume_plugin_dependency": true
     },
     {
-      "id": "jira-rich-text-revision-preserves-nodes",
-      "prompt": "Jira Acme site PAY-7의 설명에서 \"대기중\"만 \"검토중\"으로 바꿔서 반영해 줘. 첨부·링크는 유지해.",
-      "expected_action": "revise",
-      "expected_mode": "publish",
-      "fixture": {
-        "body_format": "ADF",
-        "read_tool": "plain-text-only; attachment and link nodes omitted",
-        "update_tool": "whole ADF replacement only"
-      },
-      "must_not_propose_mutation": true,
-      "must_report_format_preservation_limit": true,
-      "installed_plugins": [
-        "workflow"
-      ],
-      "expected_sequence": [
-        "workflow:to-ticket"
-      ],
-      "must_not_assume_plugin_dependency": true
-    },
-    {
       "id": "native-template-keeps-fixed-headings",
       "prompt": "이 CSV 버그를 팀 양식으로 초안 작성해 줘. Windows에서 한글 이름이 깨지고 UTF-8 CSV로 정상 표시되는 것이 기존 계약이야. 본문 설명은 한국어로 써 줘.",
       "fixture": {
@@ -692,7 +679,14 @@
       "id": "workflow-alone-does-not-install-fluent",
       "prompt": "고객이 CSV 한글 깨짐을 보고했어. 접수용 한국어 티켓 초안을 만들어 줘.",
       "expected_template": "bug",
-      "must_include_reproduction_section": true,
+      "expected_required_headings": [
+        "현상"
+      ],
+      "expected_omitted_headings": [
+        "재현 정보",
+        "참고"
+      ],
+      "must_not_add_empty_optional_sections": true,
       "must_not_classify_readiness": true,
       "must_not_assume_plugin_dependency": true,
       "must_not_install_plugin": true,
@@ -763,12 +757,12 @@
       ]
     },
     {
-      "id": "linear-branch-omits-id-despite-convention",
+      "id": "linear-branch-follows-repository-convention",
       "prompt": "Linear ENG-123의 검색 필터 작업용 branch 이름을 제안해 줘. 이 repo 관례와 integration 추천 이름에는 ENG-123이 들어 있어. codex/ prefix를 사용해.",
       "expected_sequence": [
         "workflow:branch"
       ],
-      "must_omit_linear_id_from_branch": true,
+      "must_include_linear_id_in_branch": true,
       "installed_plugins": [
         "workflow"
       ]
@@ -780,6 +774,40 @@
         "workflow:branch"
       ],
       "expected_branch_name": "codex/feat/ENG-123-search",
+      "installed_plugins": [
+        "workflow"
+      ]
+    },
+    {
+      "id": "linear-branch-uses-configured-integration-format",
+      "prompt": "이 repo에는 branch 이름 규칙이 없어. Linear GitHub 연동이 활성화된 ENG-123 검색 필터 작업의 branch 이름을 제안해 줘. Linear의 설정된 Copy git branch name 형식은 feat/ENG-123-search-filter야.",
+      "expected_sequence": [
+        "workflow:branch"
+      ],
+      "expected_branch_name": "feat/ENG-123-search-filter",
+      "installed_plugins": [
+        "workflow"
+      ]
+    },
+    {
+      "id": "linear-branch-uses-key-when-integration-format-unavailable",
+      "prompt": "이 repo에는 branch 규칙이 없어. Linear GitHub 연동과 기준 티켓 ENG-123은 확인됐지만 Copy git branch name 설정은 조회할 수 없어. 검색 필터 작업의 새 branch 이름을 제안해 줘.",
+      "expected_sequence": [
+        "workflow:branch"
+      ],
+      "must_include_linear_id_in_branch": true,
+      "installed_plugins": [
+        "workflow"
+      ]
+    },
+    {
+      "id": "github-issue-branch-does-not-assume-native-link",
+      "prompt": "이 repo에는 branch 규칙이 없어. GitHub Issue #123의 검색 오류 수정 branch 이름을 제안해 줘. 이슈 화면에서 연결 브랜치를 만든 것은 아니야.",
+      "expected_sequence": [
+        "workflow:branch"
+      ],
+      "must_use_descriptive_branch_without_issue_id": true,
+      "must_not_claim_native_issue_link": true,
       "installed_plugins": [
         "workflow"
       ]
@@ -924,7 +952,7 @@
         "workflow",
         "fluent-japanese"
       ],
-      "prompt": "合意済みの調査項目をJiraチケットの下書きにして、本文は日本語で書いてください。",
+      "prompt": "合意済みの調査項目をLinearのチケットの下書きにして、本文は日本語で書いてください。",
       "expected_sequence": [
         "workflow:to-ticket",
         "fluent-japanese:fluent-japanese"
@@ -1088,7 +1116,7 @@
       "installed_plugins": [
         "workflow"
       ],
-      "prompt": "Jira ACME-42를 연결해 현재 branch의 Ready PR을 만들어 줘. 이 repository에는 PR-created automation이 적용되지 않는 것이 확인됐고 현재 workflow의 To Review transition과 내 권한도 확인됐으니 티켓도 review 상태로 변경해 줘.",
+      "prompt": "Linear ENG-42를 Part of로 연결해 현재 branch의 Ready PR을 만들어 줘. 이 팀에는 PR drafted·opened·ready status automation이 적용되지 않는 것이 확인됐고 현재 workflow의 To Review transition과 내 권한도 확인됐으니 티켓도 review 상태로 변경해 줘.",
       "expected_sequence": [
         "workflow:to-pr",
         "workflow:ticket-lifecycle"
@@ -2082,12 +2110,10 @@
       },
       "expected_required_headings": [
         "현상",
-        "실행 환경",
-        "재현 순서",
-        "재현 자료"
+        "재현 정보"
       ],
       "expected_omitted_headings": [
-        "재현 정보"
+        "참고"
       ],
       "must_include_reproduction_section": true,
       "must_preserve_actual_and_expected": true,
@@ -2109,12 +2135,10 @@
       "expected_template": "bug",
       "expected_required_headings": [
         "현상",
-        "실행 환경",
-        "재현 순서",
-        "재현 자료"
+        "재현 정보"
       ],
       "expected_omitted_headings": [
-        "재현 정보"
+        "참고"
       ],
       "must_preserve_actual_and_expected": true,
       "must_preserve_request_response": true,
@@ -2136,7 +2160,7 @@
       "expected_template": "bug",
       "must_include_reproduction_section": true,
       "must_not_split_investigation": true,
-      "must_report_unavailable_reproduction_media": true,
+      "must_not_invent_reproduction_media": true,
       "must_not_repeat_expected_behavior": true
     },
     {
@@ -2291,6 +2315,104 @@
         "참고"
       ],
       "must_only_state_missing_media_in_body": true
+    },
+    {
+      "id": "pr-ui-vrt-artifact-avoids-duplicate-screenshot",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
+      "expected_mode": "draft",
+      "expected_remote_action": "none",
+      "prompt": "모바일 메뉴 위치를 바꾼 현재 branch의 PR 초안을 작성해 줘. 사용자나 repo가 스크린샷을 요구하지는 않아. 현재 head의 변경 화면과 baseline diff를 리뷰어가 GitHub Checks에서 열 수 있고, 그 결과가 바뀐 390px 상태를 포함해. 별도 스크린샷은 필요 없으면 생략해.",
+      "fixture": {
+        "repository_template": "absent",
+        "account_template": "absent",
+        "committed_diff_summary": "390px 화면에서 모바일 메뉴 트리거 위치를 상단으로 이동",
+        "visual_regression": "accessible current-head actual and diff artifacts cover the changed 390px state",
+        "related_ticket": "none"
+      },
+      "expected_required_headings": [
+        "배경",
+        "변경 사항"
+      ],
+      "expected_omitted_headings": [
+        "스크린샷 및 영상"
+      ],
+      "must_not_repeat_ci_checks": true
+    },
+    {
+      "id": "terraform-partial-pr-does-not-complete-ticket",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
+      "expected_mode": "draft",
+      "expected_remote_action": "none",
+      "prompt": "Linear ENG-123의 Terraform 변경을 두 PR로 순서대로 진행해. 현재 branch는 첫 번째 설정 변경이고 merge 후 apply 확인과 두 번째 PR이 남아 있어. 현재 변경만 설명하는 PR 초안을 작성해 줘. 티켓은 아직 완료시키지 마.",
+      "fixture": {
+        "repository_template": "absent",
+        "account_template": "absent",
+        "committed_diff_summary": "첫 단계의 Terraform 설정 변경",
+        "related_ticket": "https://linear.app/example/issue/ENG-123",
+        "remaining_work": "apply confirmation and second PR"
+      },
+      "expected_required_headings": [
+        "배경",
+        "변경 사항",
+        "관련 작업"
+      ],
+      "expected_ticket_intent": "contribute",
+      "must_use_nonclosing_ticket_reference": true,
+      "must_not_claim_ticket_complete": true,
+      "must_not_describe_future_pr_as_current_diff": true
+    },
+    {
+      "id": "github-partial-pr-checks-closing-commit",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
+      "expected_mode": "draft",
+      "expected_remote_action": "none",
+      "prompt": "GitHub Issue #123의 작업은 두 PR로 나눴어. 첫 PR은 아직 전체 결과를 완료하지 않아. 현재 branch에서 main을 대상으로 이 PR의 본문 초안을 작성해 줘. 포함된 commit message에는 Fixes #123이 있어.",
+      "fixture": {
+        "repository_template": "absent",
+        "account_template": "absent",
+        "base": "main",
+        "related_ticket": "https://github.com/acme/example/issues/123",
+        "commit_message": "Fixes #123"
+      },
+      "expected_ticket_intent": "contribute",
+      "must_report_conflict": true,
+      "must_not_claim_ticket_complete": true
+    },
+    {
+      "id": "linear-partial-pr-drafted-event-done-blocks-publish",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
+      "expected_mode": "publish",
+      "expected_remote_action": "none",
+      "prompt": "Linear ENG-123의 첫 부분 PR을 Draft로 올려줘. 두 번째 PR과 배포가 남아 있어. 현재 팀의 PR drafted 자동화가 이 이슈를 Done으로 옮기도록 설정돼 있어. Part of로 연결할 예정이야.",
+      "fixture": {
+        "related_ticket": "https://linear.app/example/issue/ENG-123",
+        "target_pr_state": "draft",
+        "drafted_automation": "moves issue to Done",
+        "remaining_work": "second PR and deployment"
+      },
+      "expected_ticket_intent": "contribute",
+      "must_report_conflict": true,
+      "must_not_claim_ticket_complete": true
     },
     {
       "id": "pr-partial-upload-keeps-draft-and-does-not-retry",

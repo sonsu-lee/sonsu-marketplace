@@ -16,9 +16,9 @@
 | --- | --- | --- |
 | Background | 필수 | 기존 상황·문제와 변경이 필요한 이유. 작은 변경은 한 문장으로 충분하다. |
 | Changes | 필수 | 실제 diff로 달라지는 동작·결과와 검토에 필요한 주요 변경·설계 이유. |
-| Related work | 선택 | 확인된 티켓·PR·문서의 관계와 canonical URL. |
-| Screenshots and videos | 조건부 필수 | UI 변경, 사용자 요청 또는 저장소 규칙이 요구할 때 자료와 설명을 쓴다. 자료가 없으면 미확보 사실을 짧게 남긴다. |
-| Notes | 선택 | 리뷰어에게 필요한 제약·주의사항·후속 작업, 수동 확인 결과나 CI가 다루지 않는 중요한 미검증 범위. |
+| Related work | 조건부 | 연결할 티켓·PR·문서가 확인됐을 때 관계와 canonical URL. |
+| Screenshots and videos | 조건부 | 사용자·저장소 규칙이 요구하거나 화면 자료가 리뷰에 필요할 때 자료와 설명. 해당 변화를 보여 주는 VRT 산출물을 리뷰어가 열어 볼 수 있으면 중복 첨부는 생략할 수 있다. |
+| Notes | 조건부 | 리뷰어에게 필요한 제약·주의사항·후속 작업, 실제로 시도한 수동 확인 결과나 CI가 다루지 않는 중요한 미검증 범위. |
 
 ```markdown
 ## <Background heading>
@@ -37,13 +37,13 @@
 - <Ticket, PR or document relationship and canonical URL>
 
 ## <Screenshots and videos heading>
-<!-- Conditionally required: include for UI changes or when requested by the user or repository rules. -->
+<!-- Conditional: include when requested or needed to review a visual change that is not already shown by accessible VRT evidence. -->
 
 <Marked images or videos with descriptions; if unavailable, only a brief missing-media status>
 <!-- Put capture, inspection and upload procedures in the response outside the PR body. -->
 
 ## <Notes heading>
-<!-- Optional: include reviewer-relevant constraints, caveats, follow-up work, manual observations,
+<!-- Conditional: include reviewer-relevant constraints, caveats, follow-up work, observed manual verification,
 or important unchecked behavior outside CI coverage. Omit the section when none applies.
 Report CI-covered checks and CI status outside the body. -->
 

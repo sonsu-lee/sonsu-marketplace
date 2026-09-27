@@ -84,6 +84,7 @@
 - [플러그인 매니페스트 참조](reference/plugin-manifest.md)
 - [플러그인별 라이선스와 출처](reference/licenses-and-sources.md)
 - [컴팩션 전후 작업 연속성 계약](reference/task-continuity.md)
+- [티켓·PR 작성 설계와 내부 기본형](reference/ticket-pr-writing.md)
 - [업스트림 플러그인 업데이트 런북](runbooks/updating-upstream-plugin.md)
 - [Madia Designer 디자인 실무 관찰 방법](research/madia-design-practice-method.md)
 - [Madia Designer 공개 영상 카탈로그](research/madia-design-practice-catalog.md)

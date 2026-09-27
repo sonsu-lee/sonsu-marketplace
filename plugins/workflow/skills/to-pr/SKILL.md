@@ -1,11 +1,11 @@
 ---
 name: to-pr
-description: 현재 Git 변경을 주제별 단일 PR 또는 준비된 GitHub stacked PR의 초안·게시 payload로 만들고, 티켓·시각 증거를 연결할 때 사용한다. branch·commit 생성, 기존 PR 수정, code review와 merge에는 사용하지 않는다.
+description: 현재 Git 변경을 주제별 단일 PR 또는 준비된 GitHub stacked PR의 초안·게시 payload로 만들 때 사용하며, 필요한 GitHub Issues·Linear 티켓과 시각 증거를 연결한다. branch·commit 생성, 기존 PR 수정, code review와 merge에는 사용하지 않는다.
 ---
 
 # to-pr: PR로 변환하기
 
-현재 Git 변경을 검토 가능한 주제별 PR로 표현한다. 서로 의존하는 여러 주제는 GitHub의 native stacked PR로 연결한다. 티켓 연결은 PR metadata를 우선하고, 화면 변경에는 필요한 시각 증거와 게시 가능한 미디어 계획을 포함한다.
+현재 Git 변경을 검토 가능한 주제별 PR로 표현한다. 서로 의존하는 여러 주제는 GitHub의 native stacked PR로 연결한다. 내부 기본형은 이 플러그인의 [PR 템플릿 규칙](references/pr-template.md)과 [PR 작성 지침](references/pr-writing.md)을 따른다. 화면 자료가 리뷰에 필요하면 게시 가능한 미디어 계획을 포함한다.
 
 ## 작업 연속성
 
@@ -31,7 +31,7 @@ GitHub Draft 상태와 다르다.
 
 ## PR 경계를 정한다
 
-[stacked PR 규칙](references/stacked-prs.md)으로 실제 변경의 주제와 의존 관계를 먼저 확인한다. 한 검토 단위면 단일 PR을 유지한다. 서로 독립적인 주제는 사용자가 stack을 요청했더라도 각각 trunk를 대상으로 하는 별도 PR로 만든다. 앞선 변경에 의존하는 주제만 아래 branch의 head를 base로 하는 stack으로 만든다. 파일 수나 commit 수만으로 나누지 않고, 각 PR의 동작과 필요한 검증이 함께 이해되는 경계로 나눈다.
+[stacked PR 규칙](references/stacked-prs.md)으로 실제 변경의 주제와 의존 관계를 먼저 확인한다. 한 검토 단위면 단일 PR을 유지한다. 서로 독립적인 주제는 사용자가 stack을 요청했더라도 각각 trunk를 대상으로 하는 별도 PR로 만든다. 앞선 변경에 의존하는 주제만 아래 branch의 head를 base로 하는 stack으로 만든다. 같은 티켓이거나 작업 순서가 있다는 이유만으로 stack을 만들지 않는다. 파일 수나 commit 수만으로 나누지 않고, 각 PR의 동작과 필요한 검증이 함께 이해되는 경계로 나눈다.
 
 현재 branch에 여러 주제가 섞였거나 필요한 branch·commit이 아직 없으면 주제와 의존 관계에 맞는 PR 계획과 필요한 Git 작업을 제시한다. 독립 주제는 각각 trunk를 base로 하는 별도 PR을, 앞선 변경에 의존하는 주제만 stack을 계획한다. 이 스킬에서 변경을 임의로 재배치하거나 새 branch를 만들지 않는다. 필요한 branch·commit이 준비되거나 사용자가 별도 Git 작업을 함께 허가한 뒤에 게시한다.
 
@@ -47,9 +47,9 @@ GitHub Draft 상태와 다르다.
 
 티켓 ID나 URL이 있거나 사용자가 연동을 요청하면 [티켓 연결 규칙](references/ticket-linking.md)을 읽는다.
 
-PR body의 공식 reference를 먼저 사용하고, provider가 필요로 할 때에만 PR title을 사용한다. 이미 존재하는 branch 이름의 ID는 가장 낮은 신뢰도의 hint로만 취급한다. branch에 ID가 없다는 이유로 PR을 막거나 branch를 만들고 rename하지 않는다.
+기준 티켓과 현재 연동을 확인해 provider가 해석하는 PR body·title 문법을 적용한다. 이미 존재하는 branch 이름의 ID는 가장 낮은 신뢰도의 hint로만 취급한다. branch에 ID가 없다는 이유로 PR을 막거나 branch를 만들고 rename하지 않는다.
 
-GitHub Issues, Linear와 Jira 중 provider를 문자열 모양만으로 추측하지 않는다. 같은 작업이 여러 tracker에 동기화되어 있으면 canonical ticket을 확인하여 의도하지 않은 중복 completion을 만들지 않는다.
+GitHub Issues와 Linear 중 provider를 문자열 모양만으로 추측하지 않는다. 같은 작업이 두 tracker에 동기화되어 있으면 canonical ticket을 확인하여 의도하지 않은 중복 completion을 만들지 않는다. 지원하지 않는 tracker의 연결이 필수인 요청은 연결 없는 PR로 바꿔 게시하지 않고 범위를 알린다.
 
 티켓 intent와 PR event의 status effect는 분리한다. 게시 전에 대상 저장소·team·site의 integration과 automation 정책을 확인하고, native automation이 해당 event를 처리하면 직접 같은 transition을 실행하지 않는다. Draft PR 생성은 review 시작으로 간주하지 않는다. merge도 release·deployment가 완료 조건인 티켓을 곧바로 완료시키지 않는다.
 
@@ -65,7 +65,7 @@ GitHub Issues, Linear와 Jira 중 provider를 문자열 모양만으로 추측�
 
 `publish` 직전에 저장소·인증 주체·base·head SHA·remote ref·기존 PR과 최종 payload를 다시 확인한다. 양식 출처, 언어, 티켓 연결, 검증 상태와 `target_pr_state`가 현재 변경·요청에 맞는지 대조한다. 미디어가 있으면 필수 자료의 준비·검사 결과도 확정한다.
 
-문장과 항목 배치를 다듬은 최종 제목·본문에서 `Fixes`·`Part of`·`Ignore`, Jira key와 HTML marker가 원래의 연결 의도·상태 효과·양식 계약을 유지하는지 다시 확인한다. 첨부 URL과 위치도 검증한 미디어 계획과 대조한다. 작성 결과만으로 새로운 연결·상태 변경 권한을 만들지 않는다.
+문장과 항목 배치를 다듬은 최종 제목·본문에서 `Fixes`·`Part of`·`Ignore`, ticket ID와 HTML marker가 원래의 연결 의도·상태 효과·양식 계약을 유지하는지 다시 확인한다. 첨부 URL과 위치도 검증한 미디어 계획과 대조한다. 작성 결과만으로 새로운 연결·상태 변경 권한을 만들지 않는다.
 
 단일 PR과 서로 독립적인 PR은 [GitHub 게시 절차](references/github.md#생성하고-검증한다)를 PR별로 따른다. 여러 PR의 native stack은 [stacked PR 게시 절차](references/stacked-prs.md#native-stack으로-게시하고-검증한다)를 따른다. 미디어가 있는 경우의 Draft 생성·파일별 첨부·상태 전환과 CLI를 사용할 수 없을 때의 대안은 GitHub 게시 절차가 연결하는 미디어 문서에서 처리한다.
 

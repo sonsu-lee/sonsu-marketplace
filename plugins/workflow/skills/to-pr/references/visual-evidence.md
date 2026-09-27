@@ -1,17 +1,17 @@
 # PR 시각 증거 규칙
 
-사용자가 screenshot을 요청했거나 변경이 사용자에게 보이는 화면에 영향을 줄 때 읽는다.
+사용자가 screenshot을 요청했거나 변경이 사용자에게 보이는 화면에 영향을 줄 때 필요성을 판단하기 위해 읽는다.
 
 ## 필요성을 판정한다
 
-다음 중 하나이면 시각 증거를 준비한다.
+다음 중 하나이면 PR에 보여 줄 시각 증거를 준비한다.
 
 - 사용자가 스크린샷 포함을 요청했다.
-- diff가 layout, style, theme, responsive behavior, interaction 또는 사용자에게 보이는 상태를 바꾼다.
 - PR template이나 contribution 지침이 요구한다.
-- accessibility나 visual regression 결과를 화면으로 설명해야 한다.
+- diff가 layout, style, theme, responsive behavior, interaction 또는 사용자에게 보이는 상태를 바꾸며, 리뷰어가 변경 화면이나 동작을 기존 증거만으로 판단하기 어렵다.
+- accessibility나 visual regression 결과의 실제 차이를 화면으로 설명해야 한다.
 
-backend-only, 내부 refactor, 문서, metadata와 사용자에게 보이는 출력이 없는 configuration 변경에는 기본적으로 만들지 않는다. 필요 없으면 `not_applicable`로 처리하고 빈 `Screenshots and videos` 섹션을 만들지 않는다.
+해당 변경의 실제 화면 또는 의미 있는 visual diff가 기존 VRT 결과로 생성되고 리뷰어가 열어 볼 수 있으면 중복 캡처를 요구하지 않는다. 단순 VRT 통과 상태만으로 화면 증거를 대체하지 않으며, 정적 VRT가 보여 주지 못하는 interaction·motion은 필요한 화면 또는 영상으로 설명한다. backend-only, 내부 refactor, 문서, metadata와 사용자에게 보이는 출력이 없는 configuration 변경에는 기본적으로 만들지 않는다. 필요 없으면 `not_applicable`로 처리하고 빈 `Screenshots and videos` 섹션을 만들지 않는다.
 
 ## capture 환경을 고정한다
 

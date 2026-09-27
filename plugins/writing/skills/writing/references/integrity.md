@@ -36,7 +36,7 @@ checklist·고정 문구는 양식이 허용하는 범위에서만 바꾸고, �
 
 ## 외부 동작을 담는 문법을 보존한다
 
-`Fixes`, `Closes`, `Part of`, `Ignore`와 ticket ID·Jira key·연결 URL, 자동화 marker는 상태 변경에
+`Fixes`, `Closes`, `Part of`, `Ignore`와 ticket ID·연결 URL, 자동화 marker는 상태 변경에
 영향을 줄 수 있으므로 지정된 관계·문법·위치를 그대로 유지한다. 변경하거나 추가할 필요가 있으면
 외부 작업 담당자가 연결 의도와 효과를 확인하게 한다.
 글을 고쳤다는 사실은 게시·전송·티켓 전이·Git 작업의 권한이 아니다.
