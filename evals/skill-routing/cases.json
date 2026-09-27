@@ -672,9 +672,8 @@
         "repository_template": "absent",
         "team_template": "access unavailable"
       },
-      "expected_template": "bug",
-      "must_include_reproduction_section": true,
-      "expected_template_source": "temporary-fallback",
+      "expected_template_source": "unverified",
+      "must_not_apply_bundled_template": true,
       "must_not_claim_template_absent": true,
       "installed_plugins": [
         "workflow"
@@ -2087,6 +2086,9 @@
         "재현 순서",
         "재현 자료"
       ],
+      "expected_omitted_headings": [
+        "재현 정보"
+      ],
       "must_include_reproduction_section": true,
       "must_preserve_actual_and_expected": true,
       "must_include_reproduction_media": true,
@@ -2110,6 +2112,9 @@
         "실행 환경",
         "재현 순서",
         "재현 자료"
+      ],
+      "expected_omitted_headings": [
+        "재현 정보"
       ],
       "must_preserve_actual_and_expected": true,
       "must_preserve_request_response": true,

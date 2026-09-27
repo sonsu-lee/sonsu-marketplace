@@ -77,13 +77,13 @@ native 자동 skill selection은 별개의 검증입니다. 모의 trace나 JSON
 `expected_template`은 적용할 양식을, `expected_structure`는 상하위 구성을 나타내며 native
 label·type·status 값이 아닙니다. 기본 양식은 변경·추가·정리 요청의 `default`, 잘못된 동작 수정의
 `bug`, 답변·판단 근거 마련의 `investigation`입니다. 버그 수정 과정에 원인 조사가 포함돼도 `bug`를 사용합니다.
-`must_include_reproduction_section`은 증상 설명에 재현 정보를 포함하는지,
+`must_include_reproduction_section`은 버그 초안에 별도의 재현 항목을 포함하는지,
 `must_not_classify_readiness`는 준비 상태 분류를 강제하지 않는지 확인합니다.
 `must_ask_for_problem_context`는 문제 자체를 특정할 수 없을 때 핵심 질문을 반환하는지 검사합니다.
 `must_preserve_preference_vs_agreement`와 `must_not_invent_implementation`은 선호·합의의 강도를
 보존하고 요청에 없는 구현을 만들지 않는지, `must_not_add_completion_checklist`와
-`must_not_add_empty_optional_sections`는 불필요한 항목을 붙이지 않는지 확인합니다. `expected_template_source`는 team과 temporary-fallback 등의
-출처 확인을 검사합니다. `must_preserve_*`는 실제 초안·수정 payload에서 해당 내용이 유지되는지,
+`must_not_add_empty_optional_sections`는 불필요한 항목을 붙이지 않는지 확인합니다. `expected_template_source`는 team과 unverified 등의
+출처 확인을 검사합니다. `must_not_apply_bundled_template`은 대상 버그 양식 조회가 `unverified`일 때 번들 양식을 선택하지 않는지 검사합니다. `must_preserve_*`는 실제 초안·수정 payload에서 해당 내용이 유지되는지,
 `expected_child_count`와 `must_map_parent_and_child_keys`는 사용자가 지정한 분해 경계와 게시 전
 부모·자식 참조를 실제 초안에서 확인합니다. `must_limit_update_to_content`는 식별자 이외의 변경 field가 요청한 제목·본문에 한정되는지 검사합니다.
 
