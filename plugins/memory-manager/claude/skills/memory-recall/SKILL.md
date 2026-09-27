@@ -11,8 +11,8 @@ description: 현재 작업에 과거의 프로젝트 결정, 검증된 절차, �
 이 스킬 디렉터리의 `../../scripts/memory_store.py`를 Python 3.9+로 실행한다. 예:
 
 ```sh
-python3 /path/to/plugin/skills/memory-recall/../../scripts/memory_store.py search '검색어' --scope project
-python3 /path/to/plugin/skills/memory-recall/../../scripts/memory_store.py get NOTE_ID --scope project
+python3 /path/to/plugin/scripts/memory_store.py search '검색어' --scope project
+python3 /path/to/plugin/scripts/memory_store.py get NOTE_ID --scope project
 ```
 
 1. 검색 결과에서 관련 항목만 `get`으로 원문까지 읽는다. `sources`, `verified_at`, `status`,

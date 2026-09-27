@@ -18,9 +18,10 @@ AI가 구조를 확인할 때는 아래 `.mmd` 파일과 이 README의 흐름 �
 [기존 구조도 원본 (draw.io)](assets/memory-architecture.drawio) ·
 [기존 기억 처리도 원본 (draw.io)](assets/memory-lifecycle.drawio)
 
-`plugins/memory-manager/`가 Codex 패키지의 정본입니다. `scripts/render-claude-compat.py`가
-`plugins/memory-manager-claude/`에 Claude Code용 네 스킬, 저장 도구, 훅과 manifest를
-생성합니다. 두 패키지는 같은 `SONSU_MEMORY_HOME`을 읽고 씁니다. 별도 MCP 서버, 외부
+`plugins/memory-manager/`가 정본이며 `skills/`, 저장 도구와 훅을 관리합니다.
+`scripts/render-claude-compat.py`가 내부 `claude/`에 Claude Code 배포본을 생성합니다.
+Claude Code의 스킬 호출 제한은 생성 시 적용하며 두 호스트가 같은
+`SONSU_MEMORY_HOME`을 읽고 씁니다. 별도 MCP 서버, 외부
 메모리 서비스, 외부 LLM 호출은 없습니다. Python 3.9+ 표준 라이브러리만 사용합니다.
 
 ## 네 흐름

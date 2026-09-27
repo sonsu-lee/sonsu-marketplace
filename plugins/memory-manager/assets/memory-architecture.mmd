@@ -1,7 +1,7 @@
 flowchart TB
-  codex["Codex"] --> source["plugins/memory-manager: Codex 정본"]
+  codex["Codex"] --> source["plugins/memory-manager: 정본"]
   source --> renderer["render-claude-compat.py"]
-  renderer -->|생성 및 오래된 파일 정리| compat["plugins/memory-manager-claude: 생성본"]
+  renderer -->|생성 및 오래된 파일 정리| compat["plugins/memory-manager/claude: 생성본"]
   claude["Claude Code"] --> compat
 
   source --> skills["네 스킬과 공통 저장 도구"]

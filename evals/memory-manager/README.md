@@ -8,7 +8,7 @@
 python3 -m unittest discover -s evals/memory-manager -p 'test_*.py'
 python3 scripts/render-claude-compat.py --check
 python3 -m unittest discover -s evals/plugin-compat -p 'test_*.py'
-claude plugin validate plugins/memory-manager-claude --strict
+claude plugin validate plugins/memory-manager/claude --strict
 ```
 
 [cases.json](cases.json)은 실제 호스트의 스킬 선택·행동을 위한 별도 사례입니다. 각 사례에

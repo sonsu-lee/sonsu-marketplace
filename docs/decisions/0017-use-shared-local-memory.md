@@ -2,6 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-09-26
+- Amended: 2026-09-27
 
 ## Context
 
@@ -18,7 +19,10 @@ Engineering 작업 연속성 기록은 소유권과 수명 주기가 다르다.
 Git linked worktree는 공통 Git 디렉터리로 같은 프로젝트를 식별한다. 파일 잠금,
 원자적 교체와 읽은 내용의 SHA 비교로 동시 변경을 다룬다.
 
-Codex 패키지가 소스이며 Claude Code 패키지는 생성한다. 자동 후보 수집은 프로젝트별
+`plugins/memory-manager/skills/`가 스킬 정본이며 같은 플러그인 폴더의 `claude/`에 Claude
+Code 배포본을 생성한다. 두 호스트가 기본 `skills/`를 검색하고 Claude Code의 호출 제한
+frontmatter를 Codex 정본에 둘 수 없으므로 배포 루트를 분리한다. 저장 도구와 훅도 정본에서
+생성한다. 자동 후보 수집은 프로젝트별
 옵트인이고 훅은 장기 기억을 확정하지 않는다. 기존 호스트 메모리는 사용자가 선택한
 항목만 읽기 전용으로 가져오기 후보로 삼는다. 실제 삭제는 명시적 요청에서만 수행한다.
 

@@ -36,8 +36,9 @@ Claude Code: 저장소 루트
 ```
 
 두 호스트는 대부분의 패키지에서 공통 스킬·hook·script를 각자 로더로 읽습니다.
-`memory-manager`의 Claude Code source는 생성된 `plugins/memory-manager-claude/`입니다. Claude manifest는
-`scripts/render-claude-compat.py`로 생성하며 Codex 전용 connector 선언은 이식하지 않습니다. 구성과
+`memory-manager`의 정본은 `plugins/memory-manager/`이며 Claude Code 배포본은 내부
+`plugins/memory-manager/claude/`에 생성합니다. 스킬·script·hook의 수정은 정본에서만 하고
+`scripts/render-claude-compat.py`로 배포본을 갱신합니다. Codex 전용 connector 선언은 이식하지 않습니다. 구성과
 검증 절차는 [플러그인 개발 가이드](../guides/adding-a-plugin.md)에 있습니다.
 
 마켓플레이스 등록은 저장소의 파일을 변경하거나 커밋하는 작업과 별개입니다. 호스트에
