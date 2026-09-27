@@ -82,11 +82,18 @@ Writing과 Workflow는 각자 담당한 작업의 기록을 관리합니다. Flu
 현재 작업의 Writing 기록이나 작업 문맥에 수동으로 옮깁니다. 원문이 없으면 요약으로
 복원했다고 간주하지 않고 필요한 입력을 다시 확인합니다.
 
+## Design으로 통합할 때
+
+`design`에 통합된 세 이전 플러그인의 활성 기록은 원본을 유지하며 명시적으로 이전합니다.
+정확한 조회·이전 명령과 충돌 처리 조건은 설치된 패키지에도 포함된
+[디자인 기록 이전 절차](../../plugins/design/references/migration.md)를 따릅니다.
+
 ## CLI
 
 실제 설치된 `references/continuity.md`에서 `../scripts/task-continuity.py`를 해석한
 **절대 경로**를 사용합니다. helper는 자신의 package manifest에서 plugin identity를 결정합니다.
-인자·본문에서 임의의 다른 plugin을 지정할 수 없습니다.
+일반 `read`·`write`·`close`에서는 임의의 다른 plugin을 지정할 수 없습니다. `design`의
+`read --from-plugin`·`migrate --from-plugin`만 위 세 이전 패키지의 고정된 기록을 다룹니다.
 
 ```sh
 python3 /absolute/plugin/scripts/task-continuity.py read

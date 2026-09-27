@@ -18,8 +18,8 @@ Figma를 사용하면 화면·상태·요청한 prototype을 먼저 Figma에서 
 대상 앱에서 직접 구현하고 실행 화면을 검증한다.
 
 기존 DQ0–DQ8 임계치와 저장된 contract/report의 `profile` 값은 이번 구조 변경에서 유지한다.
-기존 `interface-design` 설치는 `design` 설치 후 제거한다. `operations-ui`와 `figma-workflow`는
-더 이상 독립 설치 패키지로 배포하지 않는다. 저장된
+기존 `interface-design`, `operations-ui`, `figma-workflow` 설치는 `design` 설치 후 진행 중인
+작업 기록을 확인·이전하고 제거한다. 세 패키지는 더 이상 독립 설치 패키지로 배포하지 않는다. 저장된
 `profile` 문자열은 이전 계약과의 호환성 값이며 공개 스킬 라우팅의 이름은 아니다.
 
 ## 이유와 범위

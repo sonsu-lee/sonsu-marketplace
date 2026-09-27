@@ -7,8 +7,18 @@ Codex·Claude Code 플러그인입니다. 공개 스킬은 작업 유형으로 �
 codex plugin add design@sonsu-marketplace
 ```
 
-기존 `interface-design@sonsu-marketplace` 설치를 사용 중이라면 `design`을 설치한 뒤 기존 플러그인을
-제거합니다. 저장된 DQ contract/report의 `profile: "interface-design"`는 호환성 값이므로 변경하지 않습니다.
+기존 `interface-design`, `operations-ui`, `figma-workflow` 중 하나를 사용 중이라면
+`design@sonsu-marketplace`를 설치하고, 진행 중인 작업의 기록을
+[이전 절차](references/migration.md)를 통해 확인한 뒤
+설치되어 있던 이전 플러그인을 제거합니다. 저장된 DQ contract/report의
+`profile: "interface-design"`, `"operations-ui"`, `"figma-workflow"`는 호환성 값이므로 변경하지 않습니다.
+
+```sh
+# 기록 이전을 확인한 후, 설치되어 있는 이전 패키지만 제거
+codex plugin remove interface-design@sonsu-marketplace
+codex plugin remove operations-ui@sonsu-marketplace
+codex plugin remove figma-workflow@sonsu-marketplace
+```
 
 | 작업 | 스킬 |
 | --- | --- |

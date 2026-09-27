@@ -15,7 +15,7 @@
 | `plugins/engineering/tests` | 89개 통과, 2개 skip |
 | `evals/task-continuity` | 21개 통과. 이전 공개 디렉터리 이름으로 저장된 활성 기록도 읽고 현재 이름으로 갱신 가능. native probe는 설치 사본의 reference를 확인 |
 | Engineering 패키징·identity shell 검사 | 5개 스크립트 통과 |
-| `evals/design-quality`, `plugins/design/tests`, `plugins/design-patterns/tests` | 각각 160개 통과(30개 skip), 11개 통과, 38개 통과 |
+| `evals/design-quality`, `plugins/operations-ui/tests`, `plugins/design-patterns/tests` | 각각 160개 통과(30개 skip), 11개 통과, 38개 통과 |
 | `evals/marketplace-v2` | 43개 통과. 앱 번들에는 `cua_node/bin/npm`이 없어 기본 실행은 실패했고, 동일 Codex 바이너리와 로컬 Node/npm을 격리된 임시 경로에 배치해 실행 |
 
 ## Native 발견과 선택
