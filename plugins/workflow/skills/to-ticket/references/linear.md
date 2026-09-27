@@ -44,7 +44,7 @@ Linear MCP의 현재 tool schema를 먼저 확인한다. Codex connector에서 �
 1. `prepare_attachment_upload`에 `issue`, `filename`, `contentType`, 정확한 바이트 `size`를 전달한다.
 2. 반환된 `uploadRequest.url`로 파일 원본 바이트를 `PUT`한다. MCP 밖의 `curl --data-binary` 등 지원되는 전송 수단을 사용한다. 반환된 서명 헤더는 대소문자를 포함해 그대로 보내고 파일을 base64로 변환하지 않는다.
 3. PUT 성공을 확인한 뒤 `create_attachment_from_upload`에 동일 이슈와 반환된 `assetUrl`을 전달한다. 이 도구는 파일 전송이 아니라 첨부 연결을 담당한다.
-4. `assetUrl`을 description의 재현 자료 위치에 넣고 이슈·첨부·본문 표시를 다시 확인한다. 첨부 연결만으로 본문 안에 표시됐다고 판단하지 않는다.
+4. 최신 `description`의 선택한 양식 첨부 위치에 `assetUrl`의 표시 가능한 파일 참조와 설명을 넣는다. 기존 이슈의 부분 수정이면 현재 첨부 위치를 보존한다. 이슈·첨부·본문 표시를 다시 확인하며 첨부 연결만으로 본문 안에 표시됐다고 판단하지 않는다.
 
 현재 도구 설명의 서명 URL 유효 시간은 60초다. 실행 시 schema를 다시 확인하고, 여러 파일의 업로드 URL을 미리 일괄 발급하지 않는다. 헤더 누락·변경이나 만료로 PUT이 실패했다고 확인되면 원인을 해결한 뒤 다시 준비한다. 전송 여부가 불명확하면 재업로드하지 않고 공통 복구 규칙을 따른다.
 

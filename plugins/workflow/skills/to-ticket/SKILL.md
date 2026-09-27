@@ -26,7 +26,7 @@ description: 버그 보고, 기능 요청, 요구사항, 결정이나 계획을 
 
 ## 양식을 정하고 작성한다
 
-[양식과 범위](references/ticket-selection.md)에서 적용할 양식을 고르고, 선택한 양식과 [작성 기준](references/ticket-quality-bar.md)을 읽는다. 사용자·팀 양식이 없으면 요청 목적에 따라 일반 작업·버그·조사 작업 중 하나를 사용한다. 양식을 확인할 수 없는 상태와 양식이 없는 상태를 구분한다.
+[양식과 범위](references/ticket-selection.md)에서 사용자 지정 양식과 대상 저장소·팀·프로젝트의 적용 가능한 양식·필수 필드를 확인하고, 선택한 양식과 [작성 기준](references/ticket-quality-bar.md)을 읽는다. 버그는 적용할 대상 양식이 없다고 확인된 경우에만 번들 버그 양식을 사용한다. 양식을 확인할 수 없는 상태와 양식이 없는 상태를 구분한다.
 
 본문은 이 플러그인의 [티켓 작성 지침](references/ticket-writing.md)에 따라 구성한다. 선택적 Writing·Fluent 적용은 [작성 지침 함께 적용하기](../../references/writing-composition.md)를 따른다. 적용 양식과 확인 상태, 출력 언어, 실제 근거·편집 범위와 보호할 연결 문법을 함께 전달한다. 임시 초안은 양식 확정이나 게시 조건 충족을 뜻하지 않는다.
 
