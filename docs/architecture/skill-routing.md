@@ -141,6 +141,20 @@ branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 �
 파일 계획·커밋 승인은 위임의 선행 조건이 아닙니다. 모델보다 실제 도구·환경 가용성을 먼저
 확인하며 사용자 권한과 gate 통과를 구분합니다.
 
+이 저장소에서 Codex로 작업할 때 모델 프로필의 11개 역할은 프로젝트 `.codex/agents/`에
+정의합니다. Claude Code의 같은 11개 역할은 생성된 `engineering:<role>` agent로 제공합니다.
+역할 이름은 실행 유형을 구분하며 `localized_implementation`, `senior_review`,
+`complex_adjudication`은 각각 구현·전체 리뷰·지적 판정의 범위 또는 난도별 변형입니다.
+역할의 반복 가능한 책임과 읽기/쓰기 지침은 `scripts/render-agent-policy.py` 한 곳에서 정의하고
+두 호스트의 agent 파일을 생성합니다. Codex 파일은 이 저장소 작업용 설정이며 설치형
+Engineering 플러그인의 구성 요소가 아닙니다. 작업 수·대상 파일·의존성·검사는 위임할 때
+brief로 전달합니다. 현재 프로젝트·세션에서 역할이 발견·선택되지 않으면 역할 정의를
+읽어 해당 경계를 brief에 포함하고 모델 프로필을 호출 인자로 전달하며, native 역할 선택은
+미확인으로 남깁니다. 프로젝트가 trusted 상태가 아니어서 `.codex/` 설정이 로드되지 않는 경우도
+이 fallback을 사용합니다. 이때 역할 파일의 `sandbox_mode`는 적용되지 않으므로 실제 권한과 brief의
+읽기 전용 지침을 구분합니다. Claude Code의 읽기 전용 역할 문구도 agent 지침이며,
+실제 파일 권한은 실행 환경에서 확인합니다.
+
 공통 구성은 Writing, 언어 표현은 Fluent, 개발 단계와 코드 품질은 Engineering이 소유합니다.
 공유 원본에서 필요한 패키지 참조만 생성해 단독 설치를 유지합니다.
 

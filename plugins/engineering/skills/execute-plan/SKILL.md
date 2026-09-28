@@ -16,12 +16,16 @@ description: 승인된 여러 단계의 작업을 직접 또는 하위 에이전
 [품질 게이트](../../references/quality-gates.md)로 각 unit의 정책을 정하고
 [관리형 게이트](../../references/evidence-gates.md)에 등록한다.
 설계/계획은 고정 문서 패키지로, 구현/통합은 전체 workspace snapshot으로 식별한다.
+현재 `ready` 작업에서 독립 완료·검증 가능성과 쓰기 격리를 확인한다. 병렬 실행의 이득이
+있는 작업은 [병렬 위임 경계](../../references/delegation.md)에 따라 실행 묶음과 담당자를
+정하고, 직접 처리할 작업은 의존성·공유 자원·조정 비용 중 실제 이유를 남긴다.
 
 ## 실행·통합
 
 1. `ready`로 현재 선행 조건을 확인하고 `enter`로 작업 진입을 기록한다.
-2. root가 직접 수행하거나 [실행 계약](../../references/agent-execution.md)에
-   따라 필요한 독립 작업자를 할당한다. 구현을 위임하면
+2. 적격 실행 묶음은 root가 [실행 계약](../../references/agent-execution.md)에
+   따라 독립 작업자를 실제로 할당하고 완료 결과를 수집한다. 나머지 작업은 root가 직접 수행한다.
+   구현을 위임하면
    [위임 절차](../../references/subagent-development.md)를 읽는다. 병렬 writer는 별도 worktree를 사용한다.
 3. [공통 코드 품질](../../references/code-quality.md)을 구현자 brief에 포함한다. 계획의
    `verification_mode`와 근거를 구현자에게 전달하고 선언한 방식으로 검증한다. 계획 작업과
