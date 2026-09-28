@@ -269,6 +269,78 @@ class CodexPackagingTests(unittest.TestCase):
                 with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--check"]), contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(renderer.main(), 0)
 
+    def test_host_agent_roles_share_distinct_contracts_without_codex_model_overrides(self):
+        spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
+        renderer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(renderer)
+        codex_roles = json.loads((ROOT / "shared/agent-policy/profiles.json").read_text())["roles"]
+        claude_roles = json.loads((ROOT / "shared/agent-policy/claude-profiles.json").read_text())["roles"]
+        self.assertEqual(set(codex_roles), set(claude_roles))
+        self.assertEqual(set(codex_roles), set(renderer.ROLE_DEFINITIONS))
+        instructions = set()
+        for role in codex_roles:
+            _, role_instructions, read_only = renderer.role_definition(role)
+            instructions.add(role_instructions)
+            path, content = renderer.codex_agent(role)
+            self.assertEqual(path.read_bytes(), content)
+            self.assertNotIn(b"\nmodel =", content)
+            self.assertNotIn(b"\nreasoning_effort =", content)
+            self.assertEqual(b'\nsandbox_mode = "read-only"' in content, read_only)
+            for plugin in ("engineering", "prompting"):
+                path, content = renderer.claude_agent(plugin, role, claude_roles[role])
+                self.assertEqual(path.read_bytes(), content)
+                if read_only:
+                    self.assertIn(b"Do not modify files.", content)
+        self.assertEqual(len(instructions), len(codex_roles))
+
+    def test_render_preserves_custom_codex_agent(self):
+        spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
+        renderer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(renderer)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "shared/agent-policy"
+            shutil.copytree(ROOT / "shared/agent-policy", source)
+            custom = root / ".codex/agents/custom.toml"
+            custom.parent.mkdir(parents=True)
+            original = b'name = "custom"\ndescription = "User-owned"\ndeveloper_instructions = "Keep"\n'
+            custom.write_bytes(original)
+            with mock.patch.object(renderer, "ROOT", root), mock.patch.object(renderer, "SOURCE", source):
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(renderer.main(), 0)
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--check"]), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(renderer.main(), 0)
+                profile_file = source / "profiles.json"
+                profiles = json.loads(profile_file.read_text())
+                profiles["roles"].pop("red_team")
+                profile_file.write_text(json.dumps(profiles))
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--check"]), contextlib.redirect_stdout(io.StringIO()) as output:
+                    self.assertEqual(renderer.main(), 1)
+                self.assertIn("stale: .codex/agents/red_team.toml", output.getvalue())
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(renderer.main(), 0)
+                self.assertFalse((root / ".codex/agents/red_team.toml").exists())
+            self.assertEqual(custom.read_bytes(), original)
+
+    def test_render_refuses_to_overwrite_custom_codex_role(self):
+        spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
+        renderer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(renderer)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "shared/agent-policy"
+            shutil.copytree(ROOT / "shared/agent-policy", source)
+            custom = root / ".codex/agents/general_review.toml"
+            custom.parent.mkdir(parents=True)
+            original = b'name = "general_review"\ndescription = "Custom review role"\ndeveloper_instructions = "Keep local rules"\n'
+            custom.write_bytes(original)
+            with mock.patch.object(renderer, "ROOT", root), mock.patch.object(renderer, "SOURCE", source):
+                with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()) as output:
+                    self.assertEqual(renderer.main(), 1)
+            self.assertIn("conflict: .codex/agents/general_review.toml", output.getvalue())
+            self.assertEqual(custom.read_bytes(), original)
+            self.assertFalse((root / ".codex/agents/extraction.toml").exists())
+
 
 if __name__ == "__main__":
     unittest.main()
