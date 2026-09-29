@@ -1,7 +1,7 @@
 {
-  "version": 2,
-  "verified_at": "2026-09-27",
-  "evaluation_status": "GPT-6 model IDs and efforts match current Codex tool schema and official docs; native execution and role quality comparison not run",
+  "version": 3,
+  "verified_at": "2026-09-29",
+  "evaluation_status": "GPT-6 model IDs and efforts match current Codex tool schema; Astra high replaces Sol high per user preference, review xhigh retained; native execution and role quality comparison not run",
   "sources": [
     "https://developers.openai.com/api/docs/guides/latest-model#prompting-best-practices",
     "https://developers.openai.com/api/docs/guides/reasoning#reasoning-effort",
@@ -12,12 +12,12 @@
     "extraction": {"model": "gpt-6-luna", "effort": "medium", "count": 1},
     "exploration": {"model": "gpt-6-luna", "effort": "medium", "count": 1},
     "localized_implementation": {"model": "gpt-6-luna", "effort": "high", "count": 1},
-    "implementation": {"model": "gpt-6-sol", "effort": "high", "count": 1},
+    "implementation": {"model": "gpt-6-astra", "effort": "high", "count": 1},
     "complex_design": {"model": "gpt-6-astra", "effort": "high", "count": 1},
     "general_review": {"model": "gpt-6-luna", "effort": "xhigh", "count": 5},
     "focused_review": {"model": "gpt-6-luna", "effort": "xhigh", "count": 1},
     "senior_review": {"model": "gpt-6-astra", "effort": "xhigh", "count": 1},
-    "adjudication": {"model": "gpt-6-sol", "effort": "high", "count": 1},
+    "adjudication": {"model": "gpt-6-astra", "effort": "high", "count": 1},
     "complex_adjudication": {"model": "gpt-6-astra", "effort": "high", "count": 1},
     "red_team": {"model": "gpt-6-astra", "effort": "high", "count": 1}
   }
