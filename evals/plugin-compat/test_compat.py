@@ -242,6 +242,79 @@ class CodexPackagingTests(unittest.TestCase):
             self.assertFalse(generated_manifest.exists())
             self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
 
+    def test_omp_catalog_matches_codex_without_memory_manager(self):
+        codex = json.loads(CATALOG.read_text(encoding="utf-8"))
+        omp = json.loads((ROOT / ".omp-plugin/marketplace.json").read_text(encoding="utf-8"))
+        self.assertEqual(omp["name"], codex["name"])
+        self.assertEqual([entry["name"] for entry in omp["plugins"]],
+                         [entry["name"] for entry in codex["plugins"] if entry["name"] != "memory-manager"])
+        for entry in omp["plugins"]:
+            with self.subTest(plugin=entry["name"]):
+                self.assertEqual(entry["source"], f"./plugins/{entry['name']}")
+                source = json.loads((ROOT / "plugins" / entry["name"] / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
+                self.assertEqual(entry["version"], source["version"])
+
+    def test_readme_omp_preset_names_existing_items_and_configures_every_enabled_role(self):
+        presets = set()
+        for readme in ("README.md", "README.en.md", "README.ja.md"):
+            text = (ROOT / readme).read_text(encoding="utf-8")
+            match = re.search(r"<!-- omp-preset:start -->\n(.*?)<!-- omp-preset:end -->", text, re.S)
+            self.assertIsNotNone(match, readme)
+            presets.add(match.group(1))
+        self.assertEqual(len(presets), 1, "README omp presets differ")
+        preset = presets.pop()
+        catalog = {entry["name"] for entry in json.loads(
+            (ROOT / ".omp-plugin/marketplace.json").read_text(encoding="utf-8"))["plugins"]}
+        plugins = re.search(r"for plugin in ([^;]+); do", preset).group(1).split()
+        self.assertLessEqual(set(plugins), catalog)
+
+        def listed(key):
+            return [item.strip() for item in re.search(key + r": \[([^\]]*)\]", preset).group(1).split(",")]
+
+        for skill in listed("ignoredSkills"):
+            with self.subTest(skill=skill):
+                self.assertTrue(any((ROOT / "plugins" / plugin / "skills" / skill / "SKILL.md").is_file()
+                                    for plugin in plugins))
+        roles = json.loads((ROOT / "shared/agent-policy/omp-profiles.json").read_text(encoding="utf-8"))["roles"]
+        disabled = set(listed("disabledAgents"))
+        overrides = dict(re.findall(r'^    (\w+): "(@\w+)"$', preset, re.M))
+        self.assertFalse(disabled & set(overrides))
+        self.assertEqual(disabled | set(overrides), set(roles))
+        for role, model in overrides.items():
+            self.assertEqual(model, roles[role]["model"], role)
+
+    def test_omp_renderer_removes_obsolete_extension_package(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            catalog_path = root / ".agents/plugins/marketplace.json"
+            catalog_path.parent.mkdir(parents=True)
+            catalog_path.write_text(json.dumps({"name": "fixture", "plugins": [
+                {"name": "demo", "source": {"source": "local", "path": "./plugins/demo"}}]}))
+            demo_manifest = root / "plugins/demo/.codex-plugin/plugin.json"
+            demo_manifest.parent.mkdir(parents=True)
+            demo_manifest.write_text(json.dumps({"name": "demo", "version": "1.0.0"}))
+            profiles = root / "shared/task-continuity/profiles.json"
+            profiles.parent.mkdir(parents=True)
+            profiles.write_text(json.dumps({"demo": {}}))
+            extension = root / "shared/omp-runtime/extension.ts"
+            extension.parent.mkdir(parents=True)
+            extension.write_text("export default function () {}\n")
+            command = [sys.executable, str(ROOT / "scripts/render-omp-compat.py"), "--root", str(root)]
+            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
+            package = root / "plugins/demo/package.json"
+            generated = root / "plugins/demo/omp/extension.ts"
+            self.assertTrue(package.is_file())
+            self.assertEqual(generated.read_bytes(), extension.read_bytes())
+
+            profiles.write_text(json.dumps({}))
+            checked = subprocess.run(command + ["--check"], capture_output=True, text=True)
+            self.assertEqual(checked.returncode, 1)
+            self.assertIn("obsolete: plugins/demo/package.json", checked.stdout)
+            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
+            self.assertFalse(package.exists())
+            self.assertFalse(generated.parent.exists())
+            self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
+
     def test_removed_claude_role_fails_check_and_is_removed_by_render(self):
         spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
         renderer = importlib.util.module_from_spec(spec)
@@ -276,6 +349,8 @@ class CodexPackagingTests(unittest.TestCase):
         codex_roles = json.loads((ROOT / "shared/agent-policy/profiles.json").read_text())["roles"]
         claude_roles = json.loads((ROOT / "shared/agent-policy/claude-profiles.json").read_text())["roles"]
         self.assertEqual(set(codex_roles), set(claude_roles))
+        omp_roles = json.loads((ROOT / "shared/agent-policy/omp-profiles.json").read_text())["roles"]
+        self.assertEqual(set(codex_roles), set(omp_roles))
         self.assertEqual(set(codex_roles), set(renderer.ROLE_DEFINITIONS))
         instructions = set()
         for role in codex_roles:

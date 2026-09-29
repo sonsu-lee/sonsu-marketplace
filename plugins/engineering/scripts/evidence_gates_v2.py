@@ -28,6 +28,11 @@ GOVERNANCE = ('references/quality-gates.md',
               'skills/review-maintainability/SKILL.md',
               'skills/review-operability/SKILL.md',
               'skills/review-overengineering/SKILL.md')
+PROFILE_FILES = {'codex': 'model-profiles.json', 'claude-code': 'claude-model-profiles.json', 'omp': 'omp-model-profiles.json'}
+MODEL_REFERENCES = {'codex': 'references/model-profiles.md', 'claude-code': 'references/claude-model-profiles.md',
+                    'omp': 'references/omp-model-profiles.md'}
+HOST_TOOLS = {'claude-code': 'references/claude-code-tools.md', 'omp': 'references/omp-tools.md'}
+PROJECT_AGENT_DIRS = {'claude-code': '.claude/agents', 'omp': '.omp/agents'}
 
 
 def need(value, message):
@@ -158,7 +163,7 @@ def load(root, task):
     state = G.read_json(G.task_path(root, task))
     need(state.get('schema_version') == 2 and state.get('workspace_root') == str(root) and
          state.get('task_id') == task, 'v2 task identity mismatch; legacy receipts cannot pass v2')
-    need(state.get('host', 'codex') in ('codex', 'claude-code'), 'invalid task host')
+    need(state.get('host', 'codex') in PROFILE_FILES, 'invalid task host')
     validate(state['config'], root, check_inputs=False)
     return state
 
@@ -186,19 +191,17 @@ def profile_validate(profile):
 
 def profiles(host):
     package = Path(__file__).resolve().parents[1]
-    filename = 'claude-model-profiles.json' if host == 'claude-code' else 'model-profiles.json'
-    return G.read_json(package / 'references' / filename)['roles']
+    return G.read_json(package / 'references' / PROFILE_FILES[host])['roles']
 
 
 def policy_digest(host, review, root, artifact_root):
     package = Path(__file__).resolve().parents[1]
-    model_reference = 'references/claude-model-profiles.md' if host == 'claude-code' else 'references/model-profiles.md'
-    governance = tuple(model_reference if name == 'references/model-profiles.md' else name for name in GOVERNANCE)
-    if host == 'claude-code':
-        governance += ('references/claude-code-tools.md',)
-    profile_file = 'claude-model-profiles.json' if host == 'claude-code' else 'model-profiles.json'
+    governance = tuple(MODEL_REFERENCES[host] if name == 'references/model-profiles.md' else name for name in GOVERNANCE)
+    if host in HOST_TOOLS:
+        governance += (HOST_TOOLS[host],)
+    profile_file = PROFILE_FILES[host]
     agents = ()
-    if host == 'claude-code' and review != 'checks':
+    if host in PROJECT_AGENT_DIRS and review != 'checks':
         agents = ('general_review', 'focused_review')
         if review == 'red-team':
             agents += ('red_team',)
@@ -207,7 +210,7 @@ def policy_digest(host, review, root, artifact_root):
         # The controller and an isolated artifact workspace can both supply
         # project agents. Bind both scopes, including new or removed overrides.
         for workspace in {root, artifact_root}:
-            directory = workspace / '.claude/agents'
+            directory = workspace / PROJECT_AGENT_DIRS[host]
             G.safe_path(directory)
             if directory.exists():
                 need(directory.is_dir(), 'project agents path must be a directory')
@@ -861,7 +864,7 @@ def prepare_frozen(root, state, args, body, u, data, b, rows, scope, normal, pri
     host = state.get('host', 'codex')
     profile = profile_validate(overrides.get(role, profiles(host)[role]))
     requested = {'model': profile['model'], 'effort': profile['effort'], 'reviewers': profile['count']}
-    profile_source = overrides['source'] if role in overrides else ('packaged claude-model-profiles.json' if host == 'claude-code' else 'packaged model-profiles.json')
+    profile_source = overrides['source'] if role in overrides else 'packaged ' + PROFILE_FILES[host]
     row = {'attempt': len(rows) + 1, 'unit': args.unit, 'gate': args.gate, 'scope': scope,
            'prior_round': prior, 'impact_assessment': body.get('impact_assessment'), 'normal_review': normal,
            'binding': b, 'requested': requested, 'profile_source': profile_source, 'raw': [], 'outcome': 'pending',

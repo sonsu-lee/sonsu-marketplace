@@ -51,6 +51,12 @@ Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-
 패키지에 생성합니다. 정리·승격 스킬만 Claude의 수동 호출 제한을 적용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
 Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 
+## omp 배포
+
+`python3 scripts/render-omp-compat.py`가 Codex catalog에서 `memory-manager`를 제외한
+`.omp-plugin/marketplace.json`과 작업 연속성 플러그인의 omp extension 패키지를 생성합니다.
+스킬과 역할 agent는 같은 패키지 파일을 사용하고, 역할 모델은 사용자의 `task.agentModelOverrides`로 적용합니다.
+
 ## 검증
 
 생성기의 `--check`, 양쪽 catalog와 스킬 경로·frontmatter 검증, 실제 loader·행동 평가를

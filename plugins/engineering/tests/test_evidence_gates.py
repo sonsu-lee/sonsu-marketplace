@@ -41,7 +41,7 @@ class EvidenceGateTests(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text("Canonical shared policy fixture: " + name + "\n")
         self.env = dict(os.environ, CODEX_THREAD_ID="session-a", PYTHONDONTWRITEBYTECODE="1")
-        for key in ("CLAUDE_CODE_SESSION_ID", "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"):
+        for key in ("CLAUDE_CODE_SESSION_ID", "SONSU_OMP_SESSION_ID", "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"):
             self.env.pop(key, None)
         self.git("init", "-q")
         (self.work / ".gitignore").write_text(".engineering/\nignored.txt\n")

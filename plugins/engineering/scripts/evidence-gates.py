@@ -52,8 +52,10 @@ def session_identity(explicit):
         return identifier(explicit)
     claude = os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("SONSU_CLAUDE_SESSION_ID")
     codex = os.environ.get("CODEX_THREAD_ID")
-    require(not (claude and codex and claude != codex), "ambiguous host session; pass --session-id")
-    return identifier(claude or codex)
+    omp = os.environ.get("SONSU_OMP_SESSION_ID")
+    require(len({value for value in (claude, codex, omp) if value}) <= 1,
+            "ambiguous host session; pass --session-id")
+    return identifier(claude or codex or omp)
 
 
 def host_identity(explicit):
@@ -62,8 +64,10 @@ def host_identity(explicit):
     claude = (os.environ.get("CLAUDE_CODE_SESSION_ID") or
               os.environ.get("SONSU_CLAUDE_SESSION_ID") or os.environ.get("CLAUDE_PLUGIN_ROOT"))
     codex = os.environ.get("CODEX_THREAD_ID")
-    require(not (claude and codex), "ambiguous host; pass --host codex or --host claude-code")
-    return "claude-code" if claude else "codex"
+    omp = os.environ.get("SONSU_OMP_SESSION_ID")
+    require(sum(1 for value in (claude, codex, omp) if value) <= 1,
+            "ambiguous host; pass --host codex, --host claude-code or --host omp")
+    return "claude-code" if claude else "omp" if omp else "codex"
 
 
 def encode(value):
@@ -636,7 +640,7 @@ def parser():
             item.add_argument("--request-id", required=True)
         if command == "init":
             item.add_argument("--session-id")
-            item.add_argument("--host", choices=("codex", "claude-code"))
+            item.add_argument("--host", choices=("codex", "claude-code", "omp"))
         elif command == "run":
             item.add_argument("--check", required=True)
             item.add_argument("--timeout", type=float, default=300)

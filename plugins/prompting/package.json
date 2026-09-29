@@ -1,0 +1,11 @@
+{
+  "name": "sonsu-marketplace-prompting",
+  "version": "0.4.3",
+  "private": true,
+  "type": "module",
+  "omp": {
+    "extensions": [
+      "./omp/extension.ts"
+    ]
+  }
+}

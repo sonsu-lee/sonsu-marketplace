@@ -71,12 +71,14 @@ fluent-korean (im-not-ai v2.3) — 경로: {light|standard|heavy} ({route_hint|�
 
 `references/*` 는 **스킬 디렉터리** 기준이라 `${CLAUDE_SKILL_DIR}` 를 쓴다 — `${SKILL_ROOT}` 와 기준이 다르니 섞지 않는다. 룰북·taxonomy 경로도 맨앞 접두어 없이 쓰면 cwd 로 풀려 `No such file or directory` 가 난다.
 
+omp는 `${CLAUDE_SKILL_DIR}`를 치환하지 않는다. omp에서는 스킬 호출 메시지의 `Skill directory` 또는 `realpath skill://fluent-korean` 결과를 이 값으로 쓰고, `Agent` 도구 대신 같은 이름의 agent를 `task` 도구로 호출한다.
+
 `scripts/*.py`는 설치 루트에 있고 cwd 는 사용자 작업 디렉터리다. 마켓플레이스 설치에서 둘은 **절대 일치하지 않는다.** 반면 `_workspace/` 같은 데이터 경로는 cwd 기준이다(run_id 규칙 참조). 두 기준이 한 명령줄에 섞이므로 스크립트 쪽만 절대경로로 고정한다.
 
 Phase 1 시작 전에 한 번 정한다.
 
 ```bash
-SKILL_ROOT="$(d="$(cd -P "${CLAUDE_SKILL_DIR}" && pwd)"; \
+SKILL_ROOT="$(d="$(cd -P "${CLAUDE_SKILL_DIR:-$(realpath skill://fluent-korean)}" && pwd)"; \
   while [ "$d" != / ] && [ ! -d "$d/.claude-plugin" ]; do d="$(dirname "$d")"; done; echo "$d")"
 ```
 

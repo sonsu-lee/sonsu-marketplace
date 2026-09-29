@@ -2,7 +2,7 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-A collection of Codex and Claude Code plugins for development, research, product planning, and writing.
+A collection of Codex, Claude Code, and omp plugins for development, research, product planning, and writing.
 Install the plugins you need, then work with your coding agent as usual.
 
 [Installation](#installation) · [Plugins](#plugins) · [Usage examples](#usage-examples) · [Documentation](docs/README.md)
@@ -84,6 +84,49 @@ To test a local checkout, run `claude plugin marketplace add "$(pwd -P)"` from t
 root. Both sources use the name `sonsu-marketplace`, so choose the one you intend to use.
 Invoke skills as `/engineering:review`. Start a new session after installation or update. Codex connectors and
 Claude Code MCP connections require separate configuration.
+
+### omp
+
+Register the GitHub marketplace once. omp reads the 11 plugins in `.omp-plugin/marketplace.json`;
+`memory-manager` is excluded because omp provides its own memory.
+
+```sh
+omp plugin marketplace add sonsu-lee/sonsu-marketplace
+for plugin in \
+  engineering workflow fluent-korean fluent-english fluent-japanese \
+  writing research prompting product design-patterns design
+do
+  omp plugin install "$plugin@sonsu-marketplace"
+done
+```
+
+Invoke skills without a plugin prefix, such as `/skill:commit`. Instead of Claude Code command hooks,
+each plugin's omp extension restores task continuity, reports evidence gate stop notices, and passes the
+session ID to plugin scripts. Set models for all role agents by adding the `task.agentModelOverrides` block from the
+[omp model profile](plugins/engineering/references/omp-model-profiles.md) to `~/.omp/agent/config.yml`.
+
+To keep omp's own planning, delegation, and verification flow and add only non-overlapping features, use
+the setup below instead of installing everything. It filters out the planning, execution, TDD, debugging,
+and general review skills and unused role agents, and keeps explicitly requested review lenses, deep PR
+review, and the Git, writing style, and design skills. Merge the settings into the existing `skills:` and
+`task:` entries in `~/.omp/agent/config.yml`.
+
+<!-- omp-preset:start -->
+```sh
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese prompting design-patterns design; do omp plugin install "$plugin@sonsu-marketplace"; done
+```
+
+```yaml
+skills:
+  ignoredSkills: [execute-plan, plan, brainstorming, worktree, finish-branch, test-driven-development, debug, write-skill, review]
+task:
+  disabledAgents: [extraction, exploration, localized_implementation, implementation, complex_design, adjudication, complex_adjudication, red_team]
+  agentModelOverrides:
+    general_review: "@smol"
+    focused_review: "@smol"
+    senior_review: "@default"
+```
+<!-- omp-preset:end -->
 
 ## Plugins
 

@@ -2,7 +2,7 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-開発、リサーチ、プロダクト企画、文章作成に使えるCodex・Claude Codeプラグイン集です。
+開発、リサーチ、プロダクト企画、文章作成に使えるCodex・Claude Code・ompプラグイン集です。
 必要なプラグインを選んでインストールし、利用中のコーディングエージェントに作業を依頼してください。
 
 [インストール](#インストール) · [プラグイン](#プラグイン) · [使用例](#使用例) · [ドキュメント](docs/README.md)
@@ -85,6 +85,48 @@ claude plugin list
 という名前なので、使用するソースを一つ選んでください。
 スキルは `/engineering:review` のように呼び出します。インストール・更新後は新しい
 セッションで確認してください。CodexのコネクターとClaude CodeのMCP接続は別途設定します。
+
+### omp
+
+ompではGitHubのマーケットプレイスを一度登録します。ompは`.omp-plugin/marketplace.json`の
+11個のプラグインを読み込みます。`memory-manager`はomp自体のメモリを使うため除外します。
+
+```sh
+omp plugin marketplace add sonsu-lee/sonsu-marketplace
+for plugin in \
+  engineering workflow fluent-korean fluent-english fluent-japanese \
+  writing research prompting product design-patterns design
+do
+  omp plugin install "$plugin@sonsu-marketplace"
+done
+```
+
+スキルは `/skill:commit` のようにプラグイン接頭辞なしで呼び出します。Claude Codeのコマンドフックの代わりに、
+各プラグインのomp extensionが作業継続の復元、evidence gateの終了通知、セッションIDの受け渡しを担当します。
+すべてのロールエージェントのモデルは、[ompモデルプロファイル](plugins/engineering/references/omp-model-profiles.md)の
+`task.agentModelOverrides`ブロックを`~/.omp/agent/config.yml`に追加して指定します。
+
+ompの計画・委任・検証フローをそのまま使い、重複しない機能だけを追加する場合は、全体インストールの代わりに
+次の構成を使います。計画・実行・TDD・デバッグ・一般レビューのスキルと使わないロールエージェントは設定で除外し、
+明示的に依頼するレビュー観点、PRの詳細レビュー、Git・文体・デザインのスキルを残します。設定は
+`~/.omp/agent/config.yml`の既存の`skills:`・`task:`項目に統合します。
+
+<!-- omp-preset:start -->
+```sh
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese prompting design-patterns design; do omp plugin install "$plugin@sonsu-marketplace"; done
+```
+
+```yaml
+skills:
+  ignoredSkills: [execute-plan, plan, brainstorming, worktree, finish-branch, test-driven-development, debug, write-skill, review]
+task:
+  disabledAgents: [extraction, exploration, localized_implementation, implementation, complex_design, adjudication, complex_adjudication, red_team]
+  agentModelOverrides:
+    general_review: "@smol"
+    focused_review: "@smol"
+    senior_review: "@default"
+```
+<!-- omp-preset:end -->
 
 ## プラグイン
 

@@ -56,7 +56,8 @@ Workflow가 맡으며, 각 플러그인은 단독으로 쓰거나 필요한 지�
 게시 절차는 `workflow:to-ticket`·`workflow:to-pr`가 맡는다. 양식이 전달되지 않았으면 주어진 사실로 임시
 초안을 작성하고, 저장소나 팀의 유효한 양식인지 확인하는 일은 해당 절차에 남긴다.
 
-현재 설치된 언어 스킬은 요청한 작업과 출력 언어에 맞춰 선택한다. 영어
+현재 설치된 언어 스킬은 요청한 작업과 출력 언어에 맞춰 선택한다. 이 문서의 `plugin:skill`은
+Codex·Claude Code 표기이며, omp에서는 접두어 없는 스킬 이름으로 찾는다. 영어
 `fluent-english:fluent-english`는 일상·기술 문장의 작성·윤문·검토에 사용한다. 일본어
 `fluent-japanese:fluent-japanese`는 일상·기술 문장의 작성·윤문과 문서 진단에 사용하며
 기술 문서의 장 구성·Markdown 정리는 맡기지 않는다. 한국어 `fluent-korean:fluent-korean`은

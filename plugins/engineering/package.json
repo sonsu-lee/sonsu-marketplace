@@ -1,0 +1,11 @@
+{
+  "name": "sonsu-marketplace-engineering",
+  "version": "3.0.4",
+  "private": true,
+  "type": "module",
+  "omp": {
+    "extensions": [
+      "./omp/extension.ts"
+    ]
+  }
+}

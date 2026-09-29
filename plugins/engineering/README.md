@@ -80,6 +80,7 @@ effort를 명시하지 않은 지원 모델의 하위 에이전트만 메인 세
 ```bash
 python3 scripts/render-agent-policy.py --check
 python3 scripts/render-claude-compat.py --check
+python3 scripts/render-omp-compat.py --check
 python3 scripts/render-continuity.py --check
 python3 -m unittest discover -s plugins/engineering/tests -p 'test_*.py'
 python3 -m unittest discover -s evals/task-continuity -p 'test_*.py'

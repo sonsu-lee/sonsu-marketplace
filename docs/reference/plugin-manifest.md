@@ -26,6 +26,11 @@ manifest에 포함하지 않습니다. `claude plugin validate . --strict`와 �
 기본 `skills/`에 manifest 경로를 추가하므로, 서로 다른 frontmatter의 스킬은 별도 배포 루트가
 필요합니다. 생성 스킬에는 Claude Code의 명시 호출 제한을 추가합니다.
 
+omp 배포 파일은 `python3 scripts/render-omp-compat.py`로 생성합니다. `.omp-plugin/marketplace.json`은
+`memory-manager`를 제외한 Codex catalog를 투영합니다. omp는 Claude `hooks/hooks.json`을 실행하지 않으므로
+작업 연속성을 쓰는 플러그인에는 `package.json`의 `omp.extensions`와 `shared/omp-runtime/extension.ts`
+복사본을 생성합니다.
+
 ## 현재 사용하는 필드
 
 | 필드 | 용도 | 로컬 규칙 |

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "verified_at": "2026-09-29",
+  "sources": [
+    "omp://task-agent-discovery.md",
+    "omp://tools/task.md"
+  ],
+  "roles": {
+    "extraction": {"model": "@smol", "effort": "inherit", "count": 1},
+    "exploration": {"model": "@smol", "effort": "inherit", "count": 1},
+    "localized_implementation": {"model": "@smol", "effort": "inherit", "count": 1},
+    "implementation": {"model": "@default", "effort": "inherit", "count": 1},
+    "complex_design": {"model": "@default", "effort": "inherit", "count": 1},
+    "general_review": {"model": "@smol", "effort": "inherit", "count": 5},
+    "focused_review": {"model": "@smol", "effort": "inherit", "count": 1},
+    "senior_review": {"model": "@default", "effort": "inherit", "count": 1},
+    "adjudication": {"model": "@default", "effort": "inherit", "count": 1},
+    "complex_adjudication": {"model": "@default", "effort": "inherit", "count": 1},
+    "red_team": {"model": "@default", "effort": "inherit", "count": 1}
+  }
+}

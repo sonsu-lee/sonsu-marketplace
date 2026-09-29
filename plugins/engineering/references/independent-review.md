@@ -32,10 +32,11 @@ diff 패키지와 별개로 주변 소스·설정·의존성의 최신성을 다
 
 [code-reviewer.md](review/code-reviewer.md)에 고정 내용·계약·사실인 명령 결과·제약과 공통 기준을
 채운다. 이전 대화, 구현자의 자기 정당화, 다른 최초 리뷰어의 지적을 넘기지 않는다. 실행
-설정은 Codex의 [모델 프로필](model-profiles.md) 또는
-Claude Code의 [모델 프로필](claude-model-profiles.md)과 현재 native 스키마를 따른다.
+설정은 Codex의 [모델 프로필](model-profiles.md), Claude Code의 [모델 프로필](claude-model-profiles.md) 또는
+omp의 [모델 프로필](omp-model-profiles.md)과 현재 native 스키마를 따른다.
 Claude Code에서는 해당 역할의 `engineering:<role>` subagent를 선택해 프로필의 model과
 frontmatter effort를 적용한다. `inherit`는 effort 설정을 생략한다.
+omp에서는 `task` 도구로 같은 이름의 역할 agent를 선택하고 실제 모델을 관측값으로 기록한다.
 요청/관측 설정, 별개 run ID·완료 이벤트와 원결과를 보존한다. 같은 보고서 복사본은 독립 실행이 아니다.
 
 리뷰 전용 요청에는 전체 개발 DAG 등록·소스 수정·commit을 요구하지 않는다. 임시 쓰기가
