@@ -143,7 +143,7 @@ task:
 | [Prompting](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API·Claude Code·Anthropic API용 프롬프트 작성과 개선 | `prompting` |
 | [Product](plugins/product/README.md) | 제품 아이디어 탐색, 사용자 근거 정리, 가설 검증과 PRD 작성 | `product` |
 | [Memory Manager](plugins/memory-manager/README.md) | Codex·Claude Code가 공유하는 로컬 메모리의 회상·수집·정리 | `memory-manager` |
-| [Design](plugins/design/README.md) | 일반·운영 UI의 신규 설계·재설계·감사와 Figma 또는 코드 경로 | `design` |
+| [Design](plugins/design/README.md) | 일반·운영 UI의 신규 설계·재설계·감사, 디자인 레퍼런스 검색과 Figma 또는 코드 경로 | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | 실제 설계 forces에 맞는 패턴 선택과 기존 적용 검토 | `design-patterns` |
 
 각 플러그인은 독립적으로 사용할 수 있습니다. 포함된 스킬과 상세 사용법은 위 링크에서 확인하세요.
@@ -166,7 +166,7 @@ Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR�
 | Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
 | Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
 | Memory Manager | “`$memory-capture` 이 결정을 현재 프로젝트 기억으로 저장해 줘.” |
-| Design | “새 모바일 가입 흐름을 Figma에서 만들고, 이 운영 화면을 코드에서 재설계해 줘.” |
+| Design | “새 모바일 가입 흐름을 Figma에서 만들고, 이 운영 화면을 코드에서 재설계해 줘.” 또는 “로그인 화면 레퍼런스를 출처와 함께 찾아 줘.” |
 | Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
 
 호스트는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
@@ -176,6 +176,7 @@ Memory Manager는 관련 작업에서 `$memory-recall`이 선택될 수 있고, 
 
 Research의 Exa·Perplexity 연동은 선택 사항이며, 사용 가능한 web·browser·connector와 로컬 자료로도 조사할 수 있습니다.
 Design의 Figma 캔버스 작업에는 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
+Design의 레퍼런스 검색은 Mobbin·Refero 같은 MCP가 연결되어 있으면 사용하고, 없으면 호스트 웹 검색을 사용합니다.
 설정과 도구 요구사항은 각 플러그인의 문서를 참고하세요.
 
 ## 업데이트

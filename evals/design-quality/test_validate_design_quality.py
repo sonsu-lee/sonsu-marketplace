@@ -48,6 +48,38 @@ def figma_contract_extension() -> dict:
     }
 
 
+def reference_contract_extension() -> dict:
+    return {
+        "status": "selected",
+        "providers": [{"name": "mobbin", "status": "used"}],
+        "queries": [
+            {"id": "q-queue", "layer": "screen", "provider": "mobbin", "text": "support ticket queue"}
+        ],
+        "primary_id": "ref-queue",
+        "items": [
+            {
+                "id": "ref-queue",
+                "origin": "agent_found",
+                "provider": "mobbin",
+                "query_id": "q-queue",
+                "locator": "mobbin:screen/queue-1",
+                "title": "Support queue list",
+                "source_kind": "shipped_product",
+                "platform": "web",
+                "layer": "screen",
+                "inspection": "image",
+                "observed": "Stale cases carry a text badge next to the age column.",
+                "relevance": "Operators must notice stale data before choosing a case.",
+                "borrow": ["text badge beside the age column"],
+                "do_not_borrow": ["colour palette"],
+                "attribution": "Example helpdesk via Mobbin",
+                "retrieved_at": "2026-09-16T00:00:00Z",
+                "task_ids": ["triage-case"],
+            }
+        ],
+    }
+
+
 def valid_contract(scope: str = "proposal", risk: str = "low") -> dict:
     factors = []
     if risk == "medium":
@@ -949,6 +981,31 @@ class DesignQualityValidatorTests(unittest.TestCase):
         result = self.run_validator("contract", contract)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("extensions.figma", result.stdout)
+
+    def test_contract_can_record_references_linked_to_task_scenarios(self) -> None:
+        contract = valid_contract()
+        contract["extensions"] = {"references": reference_contract_extension()}
+        result = self.run_validator("contract", contract)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+        contract["extensions"]["references"]["items"][0]["task_ids"] = ["unknown-task"]
+        result = self.run_validator("contract", contract)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(
+            "extensions.references.items[0].task_ids references unknown task scenarios",
+            result.stdout,
+        )
+
+    def test_contract_references_use_the_embedded_reference_set_shape(self) -> None:
+        contract = valid_contract()
+        references = reference_contract_extension()
+        references["schema_version"] = "design-reference-set-v1"
+        references["items"][0]["inspection"] = "metadata_only"
+        contract["extensions"] = {"references": references}
+        result = self.run_validator("contract", contract)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("extensions.references has unknown fields: ['schema_version']", result.stdout)
+        self.assertIn("extensions.references.primary_id cannot reference a metadata_only reference", result.stdout)
 
     def test_figma_scenario_environment_must_belong_to_the_task_scenario(self) -> None:
         contract = valid_figma_contract()

@@ -42,6 +42,7 @@ def outputs():
             "policy.json",
             "design-decision-contract.schema.json",
             "design-quality-report.schema.json",
+            "design-reference-set.schema.json",
         ):
             yield root / "assets" / "design-quality" / name, (SOURCE / name).read_bytes()
 
