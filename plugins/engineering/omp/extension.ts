@@ -71,6 +71,7 @@ export default function sonsuOmp(pi: ExtensionAPI) {
   if (existsSync(EVIDENCE)) {
     pi.on("session_stop", async (_event, ctx) => {
       try {
+        if (ctx.agent?.kind === "sub") return;
         const id = session(ctx);
         if (!id) return;
         const result = await runHook(EVIDENCE, { hook_event_name: "Stop", session_id: id, cwd: ctx.cwd }, 10000, ctx);

@@ -283,23 +283,29 @@ class CodexPackagingTests(unittest.TestCase):
         for role, model in overrides.items():
             self.assertEqual(model, roles[role]["model"], role)
 
+    def omp_fixture(self, root, names, continuity):
+        catalog_path = root / ".agents/plugins/marketplace.json"
+        catalog_path.parent.mkdir(parents=True)
+        catalog_path.write_text(json.dumps({"name": "fixture", "plugins": [
+            {"name": name, "source": {"source": "local", "path": f"./plugins/{name}"}} for name in names]}))
+        for name in names:
+            manifest = root / f"plugins/{name}/.codex-plugin/plugin.json"
+            manifest.parent.mkdir(parents=True)
+            manifest.write_text(json.dumps({"name": name, "version": "1.0.0"}))
+        profiles = root / "shared/task-continuity/profiles.json"
+        profiles.parent.mkdir(parents=True)
+        profiles.write_text(json.dumps({name: {} for name in continuity}))
+        extension = root / "shared/omp-runtime/extension.ts"
+        extension.parent.mkdir(parents=True)
+        extension.write_text("export default function () {}\n")
+        return [sys.executable, str(ROOT / "scripts/render-omp-compat.py"), "--root", str(root)]
+
     def test_omp_renderer_removes_obsolete_extension_package(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            catalog_path = root / ".agents/plugins/marketplace.json"
-            catalog_path.parent.mkdir(parents=True)
-            catalog_path.write_text(json.dumps({"name": "fixture", "plugins": [
-                {"name": "demo", "source": {"source": "local", "path": "./plugins/demo"}}]}))
-            demo_manifest = root / "plugins/demo/.codex-plugin/plugin.json"
-            demo_manifest.parent.mkdir(parents=True)
-            demo_manifest.write_text(json.dumps({"name": "demo", "version": "1.0.0"}))
+            command = self.omp_fixture(root, ["demo"], ["demo"])
             profiles = root / "shared/task-continuity/profiles.json"
-            profiles.parent.mkdir(parents=True)
-            profiles.write_text(json.dumps({"demo": {}}))
             extension = root / "shared/omp-runtime/extension.ts"
-            extension.parent.mkdir(parents=True)
-            extension.write_text("export default function () {}\n")
-            command = [sys.executable, str(ROOT / "scripts/render-omp-compat.py"), "--root", str(root)]
             self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
             package = root / "plugins/demo/package.json"
             generated = root / "plugins/demo/omp/extension.ts"
@@ -314,6 +320,29 @@ class CodexPackagingTests(unittest.TestCase):
             self.assertFalse(package.exists())
             self.assertFalse(generated.parent.exists())
             self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
+
+    def test_omp_renderer_never_deletes_or_overwrites_unowned_packages(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            command = self.omp_fixture(root, ["demo", "tool"], ["demo"])
+            own = {root / "plugins/tool/package.json": '{"name": "tool-scripts", "private": true}\n',
+                   root / "plugins/tool/omp/extension.ts": "export default function tool() {}\n"}
+            for path, text in own.items():
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text)
+            self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 1)
+            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
+            self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
+            for path, text in own.items():
+                self.assertEqual(path.read_text(), text)
+
+            foreign = root / "plugins/demo/package.json"
+            foreign.write_text('{"name": "demo-scripts", "private": true}\n')
+            rendered = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(rendered.returncode, 0)
+            self.assertIn("unmanaged files at generated paths:", rendered.stderr)
+            self.assertIn("plugins/demo/package.json", rendered.stderr)
+            self.assertEqual(foreign.read_text(), '{"name": "demo-scripts", "private": true}\n')
 
     def test_removed_claude_role_fails_check_and_is_removed_by_render(self):
         spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")

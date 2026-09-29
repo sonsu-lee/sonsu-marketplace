@@ -10,6 +10,7 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
 OMP_EXCLUDED = {"memory-manager"}
+EXTENSION = "./omp/extension.ts"
 
 
 def read_json(path):
@@ -28,6 +29,16 @@ def has_symlink_component(path, root):
         if current.is_symlink():
             return True
     return False
+
+
+def owned_package(package):
+    """A plugin package.json is generated only when it declares exactly our extension entry."""
+    try:
+        data = read_json(package)
+    except (OSError, ValueError):
+        return False
+    return (isinstance(data, dict) and data.get("name") == f"sonsu-marketplace-{package.parent.name}"
+            and data.get("omp") == {"extensions": [EXTENSION]})
 
 
 def rendered_outputs(root):
@@ -76,7 +87,7 @@ def rendered_outputs(root):
                 "version": version,
                 "private": True,
                 "type": "module",
-                "omp": {"extensions": ["./omp/extension.ts"]},
+                "omp": {"extensions": [EXTENSION]},
             })
             outputs[plugin_root / "omp/extension.ts"] = extension
     outputs[root / ".omp-plugin/marketplace.json"] = encode({
@@ -99,7 +110,17 @@ def main():
     except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         parser.error(str(error))
 
-    managed = set(root.glob("plugins/*/package.json")) | set(root.glob("plugins/*/omp/extension.ts"))
+    packages = {path: path if path.name == "package.json" else path.parent.parent / "package.json"
+                for path in outputs if path.name in ("package.json", "extension.ts")}
+    conflicts = sorted(path for path, package in packages.items()
+                       if (path.exists() or path.is_symlink()) and not owned_package(package))
+    if conflicts:
+        parser.error("unmanaged files at generated paths: " + ", ".join(str(p.relative_to(root)) for p in conflicts))
+    managed = set()
+    for package in root.glob("plugins/*/package.json"):
+        if owned_package(package):
+            extension = package.parent / "omp/extension.ts"
+            managed.update(path for path in (package, extension) if path.exists() or path.is_symlink())
     obsolete = sorted(managed - set(outputs))
     if obsolete and not args.check:
         for path in obsolete:

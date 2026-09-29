@@ -13,8 +13,9 @@
   기본값은 [omp 모델 프로필](omp-model-profiles.md)에 있다.
 - `Unknown agent`가 반환되면 이 플러그인의 `agents/<role>.md`를 읽어 역할 지침을 brief에 넣고
   기본 `task` agent로 실행한다. 이때 native 역할이 선택됐다고 주장하지 않는다.
-- 요청 모델과 관측 모델을 구분해 기록한다. 관측하지 못한 모델을 요청값으로 채우지 않고,
-  필수 검토의 관측 모델이 요청과 다르면 `blocked`/`not_run`으로 둔다.
+- 요청 모델과 관측 모델을 구분해 기록한다. 관리형 gate는 `@smol` 같은 별칭을 사용자 설정으로 해석한
+  실제 모델 ID를 요청값으로 저장하므로 관측 모델도 실제 ID로 적는다. 관측하지 못한 모델을 요청값으로
+  채우지 않고, 필수 검토의 관측 모델이 요청과 다르면 `blocked`/`not_run`으로 둔다.
 - omp는 세션 ID 환경 변수를 제공하지 않는다. Sonsu omp extension이 `task-continuity.py`와
   `evidence-gates.py` 명령 앞에 `SONSU_OMP_SESSION_ID`를 export한다. 주입되지 않았으면
   (extension 비활성) `--session-id`를 명시하고 다른 세션이나 최신 디렉터리에서 추정하지 않는다.
