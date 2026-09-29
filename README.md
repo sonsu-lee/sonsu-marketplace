@@ -2,7 +2,7 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex·Claude Code 플러그인 모음입니다.
+개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex·Claude Code·omp 플러그인 모음입니다.
 필요한 플러그인만 골라 설치하고, 사용하는 코딩 에이전트에 평소처럼 작업을 요청하세요.
 
 [설치](#설치) · [플러그인](#플러그인) · [사용 예시](#사용-예시) · [문서](docs/README.md)
@@ -86,6 +86,48 @@ claude plugin list
 스킬은 `/engineering:review`처럼 호출합니다. 설치·업데이트 후 새 세션에서 확인하세요.
 Codex connector와 Claude Code MCP 연결은 별도로 설정하며, Figma 작업에는 현재 호스트의
 공식 Figma 도구 연결이 필요합니다.
+
+### omp
+
+omp에서는 GitHub 마켓플레이스를 한 번 등록합니다. omp는 `.omp-plugin/marketplace.json`의
+11개 플러그인을 읽으며, `memory-manager`는 omp 자체 메모리를 사용하므로 제외합니다.
+
+```sh
+omp plugin marketplace add sonsu-lee/sonsu-marketplace
+for plugin in \
+  engineering workflow fluent-korean fluent-english fluent-japanese \
+  writing research prompting product design-patterns design
+do
+  omp plugin install "$plugin@sonsu-marketplace"
+done
+```
+
+스킬은 `/skill:commit`처럼 플러그인 접두어 없이 호출합니다. Claude Code 명령 훅 대신 각 플러그인의
+omp extension이 작업 연속성 복구, evidence gate 종료 알림과 세션 ID 전달을 맡습니다. 역할 agent
+전체의 모델은 [omp 모델 프로필](plugins/engineering/references/omp-model-profiles.md)의
+`task.agentModelOverrides` 블록을 `~/.omp/agent/config.yml`에 추가해 지정합니다.
+
+omp의 계획·위임·검증 흐름을 그대로 쓰고 겹치지 않는 기능만 더하려면 전체 설치 대신 아래 구성을
+사용합니다. 계획·실행·TDD·디버깅·일반 리뷰 스킬과 쓰지 않는 역할 agent는 설정으로 거르고,
+명시적으로 요청하는 리뷰 관점, PR 심층 리뷰와 Git·문체·디자인 스킬을 남깁니다. 설정은
+`~/.omp/agent/config.yml`의 기존 `skills:`·`task:` 항목에 합칩니다.
+
+<!-- omp-preset:start -->
+```sh
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese prompting design-patterns design; do omp plugin install "$plugin@sonsu-marketplace"; done
+```
+
+```yaml
+skills:
+  ignoredSkills: [execute-plan, plan, brainstorming, worktree, finish-branch, test-driven-development, debug, write-skill, review]
+task:
+  disabledAgents: [extraction, exploration, localized_implementation, implementation, complex_design, adjudication, complex_adjudication, red_team]
+  agentModelOverrides:
+    general_review: "@smol"
+    focused_review: "@smol"
+    senior_review: "@default"
+```
+<!-- omp-preset:end -->
 
 ## 플러그인
 

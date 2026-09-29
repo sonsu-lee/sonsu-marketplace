@@ -33,6 +33,7 @@ class RuntimeTests(unittest.TestCase):
         self.env.pop("CLAUDE_CODE_SESSION_ID", None)
         self.env.pop("SONSU_CLAUDE_SESSION_ID", None)
         self.env.pop("CLAUDE_PLUGIN_ROOT", None)
+        self.env.pop("SONSU_OMP_SESSION_ID", None)
         for key in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"):
             self.env.pop(key, None)
         self.packages = {}
@@ -152,6 +153,19 @@ class RuntimeTests(unittest.TestCase):
         result = self.write(env=env)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(self.path(session="claude-session").exists())
+
+    def test_omp_session_id_can_replace_codex_thread_id(self):
+        env = self.env.copy()
+        env.pop("CODEX_THREAD_ID")
+        env["SONSU_OMP_SESSION_ID"] = "omp-session"
+        result = self.write(env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.path(session="omp-session").exists())
+
+    def test_different_codex_and_omp_sessions_are_ambiguous(self):
+        result = self.write(env=dict(self.env, SONSU_OMP_SESSION_ID="omp-other"))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("ambiguous host session", result.stderr)
 
     def test_current_claude_session_id_overrides_persisted_marker(self):
         env = self.env.copy()

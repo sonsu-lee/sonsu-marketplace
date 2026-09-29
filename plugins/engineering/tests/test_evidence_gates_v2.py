@@ -30,7 +30,8 @@ class ManagedGates(unittest.TestCase):
             (policies / (name + '.md')).write_text('policy one')
         (policies / 'model-profiles.json').write_text(json.dumps({'roles': {'general_review': {'model': 'gpt-5.6-luna', 'effort': 'xhigh', 'count': 5}, 'focused_review': {'model': 'gpt-5.6-luna', 'effort': 'xhigh', 'count': 1}, 'red_team': {'model': 'gpt-6-astra', 'effort': 'high', 'count': 1}}}))
         (policies / 'claude-model-profiles.json').write_text(json.dumps({'roles': {'general_review': {'model': 'claude-sonnet-5', 'effort': 'inherit', 'count': 5}, 'focused_review': {'model': 'claude-sonnet-5', 'effort': 'inherit', 'count': 1}, 'red_team': {'model': 'claude-opus-5-5', 'effort': 'inherit', 'count': 1}}}))
-        for name in ('references/quality-gates.md', 'references/agent-execution.md', 'references/model-profiles.md', 'references/claude-model-profiles.md', 'references/claude-code-tools.md', 'references/review/code-reviewer.md', 'references/review/red-team-reviewer.md', 'skills/review/SKILL.md', 'references/independent-review.md', 'skills/review-failure-modes/SKILL.md', 'skills/review-maintainability/SKILL.md', 'skills/review-operability/SKILL.md', 'skills/review-overengineering/SKILL.md'):
+        (policies / 'omp-model-profiles.json').write_text(json.dumps({'roles': {'general_review': {'model': '@smol', 'effort': 'inherit', 'count': 5}, 'focused_review': {'model': '@smol', 'effort': 'inherit', 'count': 1}, 'red_team': {'model': '@default', 'effort': 'inherit', 'count': 1}}}))
+        for name in ('references/quality-gates.md', 'references/agent-execution.md', 'references/model-profiles.md', 'references/claude-model-profiles.md', 'references/claude-code-tools.md', 'references/omp-model-profiles.md', 'references/omp-tools.md', 'references/review/code-reviewer.md', 'references/review/red-team-reviewer.md', 'skills/review/SKILL.md', 'references/independent-review.md', 'skills/review-failure-modes/SKILL.md', 'skills/review-maintainability/SKILL.md', 'skills/review-operability/SKILL.md', 'skills/review-overengineering/SKILL.md'):
             target = self.package / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text('Active governance fixture: ' + name)
@@ -42,6 +43,7 @@ class ManagedGates(unittest.TestCase):
         self.config = {'schema_version': 2, 'contracts': ['contract.md'], 'units': [self.unit('design')]}
         self.report = self.base / 'report.md'
         self.report.write_text('Concrete review evidence.')
+        self.host_env = {}
 
     def unit(self, name, needs=None, review='checks'):
         return {'id': name, 'stage': 'design', 'needs': needs or [],
@@ -51,6 +53,7 @@ class ManagedGates(unittest.TestCase):
 
     def call(self, command, *args, data=None, env=None):
         call_env = dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1')
+        call_env.update(self.host_env)
         if env is not None:
             call_env.update(env)
         return subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), command,
@@ -177,6 +180,71 @@ class ManagedGates(unittest.TestCase):
         state = json.loads((self.root / '.engineering/gates/tasks/task/state.json').read_text())
         self.assertEqual(state['host'], 'claude-code')
         self.assertEqual(state['sessions'], ['claude-persisted'])
+
+    def fake_omp(self, overrides, roles):
+        """Serve `omp config get <key>` from fixed settings instead of the user's omp config."""
+        bin_dir = self.base / 'bin'
+        bin_dir.mkdir(exist_ok=True)
+        script = bin_dir / 'omp'
+        settings = json.dumps({'task.agentModelOverrides': overrides, 'modelRoles': roles})
+        script.write_text('#!' + sys.executable + '\nimport json, sys\n'
+                          'print(json.dumps(json.loads(' + repr(settings) + ')[sys.argv[3]]))\n')
+        script.chmod(0o755)
+        self.host_env = {'PATH': str(bin_dir) + os.pathsep + os.environ['PATH']}
+
+    def omp_reviewed(self, observed_model):
+        self.config['units'][0]['review'] = 'independent'
+        result = self.call('init', data=self.config, env={'CODEX_THREAD_ID': '', 'SONSU_OMP_SESSION_ID': 'omp-controller'})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.checked()
+        prepared = self.prepare()
+        for n in range(5):
+            reviewer = 'omp-review-' + str(n)
+            body = {'run_id': reviewer + '-run', 'execution': 'complete', 'verdict': 'passed',
+                    'findings': [], 'observed': {'model': observed_model, 'effort': 'unknown'}}
+            self.ok('record-review', '--unit', 'design', '--gate', 'final-review', '--attempt', '1',
+                    '--reviewer-id', reviewer, '--report', str(self.report), data=body)
+        return prepared, self.call('adjudicate', '--unit', 'design', '--gate', 'final-review', '--attempt', '1',
+                                   data={'decisions': []})
+
+    def test_omp_session_id_identifies_omp_host_and_profile(self):
+        self.fake_omp({'general_review': '@smol'}, {'smol': 'openai-codex/gpt-6-luna:medium'})
+        prepared, adjudicated = self.omp_reviewed('openai-codex/gpt-6-luna')
+        state = json.loads((self.root / '.engineering/gates/tasks/task/state.json').read_text())
+        self.assertEqual(state['host'], 'omp')
+        self.assertEqual(state['sessions'], ['omp-controller'])
+        self.assertEqual(prepared['requested'], {'model': 'openai-codex/gpt-6-luna', 'effort': 'medium', 'reviewers': 5})
+        self.assertEqual(adjudicated.returncode, 0, adjudicated.stderr)
+        self.assertEqual(json.loads(adjudicated.stdout)['outcome'], 'passed')
+
+    def test_omp_review_rejects_a_model_other_than_the_configured_one(self):
+        self.fake_omp({'general_review': '@smol'}, {'smol': 'openai-codex/gpt-6-luna:medium'})
+        _, adjudicated = self.omp_reviewed('anthropic/claude-opus-5-5')
+        self.assertNotEqual(adjudicated.returncode, 0)
+        self.assertIn('observed reviewer configuration mismatches request', adjudicated.stderr)
+
+    def test_omp_review_requires_matching_agent_model_configuration(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.fake_omp({}, {'smol': 'openai-codex/gpt-6-luna:medium'})
+        result = self.call('init', data=self.config, env={'CODEX_THREAD_ID': '', 'SONSU_OMP_SESSION_ID': 'omp-controller'})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.checked()
+        prepare = ['prepare-review', '--unit', 'design', '--gate', 'final-review', '--package', str(self.report)]
+        missing = self.call(*prepare)
+        self.assertNotEqual(missing.returncode, 0)
+        self.assertIn('task.agentModelOverrides has no general_review', missing.stderr)
+        self.fake_omp({'general_review': '@default'}, {'smol': 'openai-codex/gpt-6-luna:medium',
+                                                        'default': 'anthropic/claude-opus-5-5:high'})
+        different = self.call(*prepare)
+        self.assertNotEqual(different.returncode, 0)
+        self.assertIn('differs from the requested review model', different.stderr)
+        self.fake_omp({'general_review': '@smol'}, {'smol': 'openai-codex/gpt-6-luna:medium'})
+        self.assertEqual(self.call(*prepare).returncode, 0)
+
+    def test_different_codex_and_omp_sessions_are_ambiguous(self):
+        result = self.call('init', data=self.config, env={'CODEX_THREAD_ID': 'controller', 'SONSU_OMP_SESSION_ID': 'omp-controller'})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('ambiguous host session', result.stderr)
 
     def review_pass(self, attempt=1, gate='final-review', count=5):
         for n in range(count):

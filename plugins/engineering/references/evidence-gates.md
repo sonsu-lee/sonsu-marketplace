@@ -57,6 +57,10 @@ Claude Code는 기본값에 해당하는 `engineering:<role>` native subagent를
 effort는 Agent 호출 인자로 적용되지 않으므로 요청값과 같은 frontmatter effort를 가진 native
 subagent definition을 선택하거나 제공한다. 모델까지 바뀌면 frontmatter의 model과 effort를 모두
 요청값에 맞춘다. profile 기록만으로 실제 실행 설정이 바뀌었다고 간주하지 않는다.
+omp는 `task`로 같은 이름의 역할 agent를 호출하며 호출별 model·effort를 지정할 수 없다. `prepare-review`는
+`omp config get`으로 해당 역할의 `task.agentModelOverrides`와 `modelRoles`를 읽어 요청값을 실제 모델 ID와
+effort로 고정한다. 설정이 없거나 요청 프로필과 다르면 준비를 거부하므로 설정을 맞추거나 검토를
+`blocked`/`not_run`으로 둔다. 관측 모델은 별칭이 아니라 실제 모델 ID로 기록한다.
 
 설정을 보완할 때에는 같은 unit ID를 유지한 `revise` stdin에 전체 설정과
 `revision:{reason:"변경 이유",source:"기존 승인·현재 지시 근거"}`를 넣는다. 기존 check ID·소비 예산,

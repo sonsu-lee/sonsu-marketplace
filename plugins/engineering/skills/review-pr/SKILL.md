@@ -31,13 +31,15 @@ description: GitHub PR을 심층 검토하거나 여러 독립 리뷰어로 검�
 
 기본 구성은 Codex에서 [생성된 모델 프로필](../../references/model-profiles.md)의
 `general_review` 5명과 `senior_review` 1명, Claude Code에서
-`engineering:general_review` 5명과 `engineering:senior_review` 1명이다.
+`engineering:general_review` 5명과 `engineering:senior_review` 1명, omp에서 `task` 도구의
+`general_review` 5명과 `senior_review` 1명이다.
 Claude agent 정의는 Sonnet 5 `high` 다섯 명과 Opus 5.5 `medium` 한 명을 요청한다.
 사용자가 인원·모델·추론 강도를 명시하면 지정한 항목을 우선하고 나머지는 기본 구성을 따른다.
 인원만 다르게 지정하면 상위 모델 1명과 나머지 일반 검토자로 구성한다. 1명이면 상위 모델이 맡는다.
 현재 호스트가 모델·추론 설정을 지원하는 범위를 확인하고 지원되는 방식으로 적용한다. Codex는
 spawn 인자에 model과 reasoning effort를 지정한다. Claude Code는 모델을 Agent 호출에 지정할 수
-있지만 effort는 선택한 native subagent definition에 설정해야 한다. 모델과 effort 조합이 맞는
+있지만 effort는 선택한 native subagent definition에 설정해야 한다. omp는 호출별 model·effort 인자가
+없고 `task.agentModelOverrides` 또는 역할 정의가 정한다. 모델과 effort 조합이 맞는
 정의가 없으면 해당 검토 전에 그 조합의 정의를 준비한다. 임의의 다른 effort를 실행하지 말고,
 구성을 만들거나 선택할 수 없으면 `blocked`/`not_run`으로 보고한다. 명시 모델이 미지원·대체된
 경우에도 실제 실행값을 확인하고 같은 상태로 처리한다.

@@ -7,6 +7,7 @@ Raw reviewer claims, controller adjudication, and current validity stay separate
 """
 from pathlib import Path
 import io
+import json
 from contextlib import contextmanager, ExitStack
 import os
 import stat
@@ -28,6 +29,12 @@ GOVERNANCE = ('references/quality-gates.md',
               'skills/review-maintainability/SKILL.md',
               'skills/review-operability/SKILL.md',
               'skills/review-overengineering/SKILL.md')
+PROFILE_FILES = {'codex': 'model-profiles.json', 'claude-code': 'claude-model-profiles.json', 'omp': 'omp-model-profiles.json'}
+MODEL_REFERENCES = {'codex': 'references/model-profiles.md', 'claude-code': 'references/claude-model-profiles.md',
+                    'omp': 'references/omp-model-profiles.md'}
+HOST_TOOLS = {'claude-code': 'references/claude-code-tools.md', 'omp': 'references/omp-tools.md'}
+PROJECT_AGENT_DIRS = {'claude-code': '.claude/agents', 'omp': '.omp/agents'}
+OMP_EFFORTS = ('off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max')
 
 
 def need(value, message):
@@ -158,7 +165,7 @@ def load(root, task):
     state = G.read_json(G.task_path(root, task))
     need(state.get('schema_version') == 2 and state.get('workspace_root') == str(root) and
          state.get('task_id') == task, 'v2 task identity mismatch; legacy receipts cannot pass v2')
-    need(state.get('host', 'codex') in ('codex', 'claude-code'), 'invalid task host')
+    need(state.get('host', 'codex') in PROFILE_FILES, 'invalid task host')
     validate(state['config'], root, check_inputs=False)
     return state
 
@@ -186,19 +193,57 @@ def profile_validate(profile):
 
 def profiles(host):
     package = Path(__file__).resolve().parents[1]
-    filename = 'claude-model-profiles.json' if host == 'claude-code' else 'model-profiles.json'
-    return G.read_json(package / 'references' / filename)['roles']
+    return G.read_json(package / 'references' / PROFILE_FILES[host])['roles']
+
+
+def omp_setting(root, key):
+    try:
+        result = subprocess.run(['omp', 'config', 'get', key], cwd=root, capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.TimeoutExpired):
+        need(False, 'omp CLI unavailable; cannot resolve the omp review model')
+    need(result.returncode == 0, 'omp config get ' + key + ' failed')
+    try:
+        value = json.loads(result.stdout)
+    except ValueError:
+        value = None
+    need(isinstance(value, dict), 'omp config get ' + key + ' returned no mapping')
+    return value
+
+
+def omp_requested(root, role, profile):
+    """Bind an omp review to the model its task agent actually runs.
+
+    omp picks a task agent's model from task.agentModelOverrides and expands
+    @role aliases through modelRoles; task calls cannot choose a model.
+    """
+    configured = omp_setting(root, 'task.agentModelOverrides').get(role)
+    need(isinstance(configured, str) and configured, 'omp task.agentModelOverrides has no ' + role)
+    roles = omp_setting(root, 'modelRoles')
+
+    def resolve(selector):
+        if selector.startswith('@'):
+            selector = roles.get(selector[1:])
+            need(isinstance(selector, str) and selector, 'omp modelRoles cannot resolve the review model alias')
+        model, _, level = selector.rpartition(':')
+        return (model, level) if model and level in OMP_EFFORTS else (selector, None)
+
+    model, level = resolve(configured)
+    wanted, wanted_level = resolve(profile['model'])
+    need(wanted == model, 'omp task.agentModelOverrides for ' + role + ' differs from the requested review model')
+    effort = level or wanted_level or profile['effort']
+    need(profile['effort'] in ('inherit', effort), 'omp configured effort for ' + role + ' differs from the request')
+    return ({'model': model, 'effort': effort, 'reviewers': profile['count']},
+            {'requested': profile['model'], 'configured': configured})
 
 
 def policy_digest(host, review, root, artifact_root):
     package = Path(__file__).resolve().parents[1]
-    model_reference = 'references/claude-model-profiles.md' if host == 'claude-code' else 'references/model-profiles.md'
-    governance = tuple(model_reference if name == 'references/model-profiles.md' else name for name in GOVERNANCE)
-    if host == 'claude-code':
-        governance += ('references/claude-code-tools.md',)
-    profile_file = 'claude-model-profiles.json' if host == 'claude-code' else 'model-profiles.json'
+    governance = tuple(MODEL_REFERENCES[host] if name == 'references/model-profiles.md' else name for name in GOVERNANCE)
+    if host in HOST_TOOLS:
+        governance += (HOST_TOOLS[host],)
+    profile_file = PROFILE_FILES[host]
     agents = ()
-    if host == 'claude-code' and review != 'checks':
+    if host in PROJECT_AGENT_DIRS and review != 'checks':
         agents = ('general_review', 'focused_review')
         if review == 'red-team':
             agents += ('red_team',)
@@ -207,7 +252,7 @@ def policy_digest(host, review, root, artifact_root):
         # The controller and an isolated artifact workspace can both supply
         # project agents. Bind both scopes, including new or removed overrides.
         for workspace in {root, artifact_root}:
-            directory = workspace / '.claude/agents'
+            directory = workspace / PROJECT_AGENT_DIRS[host]
             G.safe_path(directory)
             if directory.exists():
                 need(directory.is_dir(), 'project agents path must be a directory')
@@ -861,11 +906,16 @@ def prepare_frozen(root, state, args, body, u, data, b, rows, scope, normal, pri
     host = state.get('host', 'codex')
     profile = profile_validate(overrides.get(role, profiles(host)[role]))
     requested = {'model': profile['model'], 'effort': profile['effort'], 'reviewers': profile['count']}
-    profile_source = overrides['source'] if role in overrides else ('packaged claude-model-profiles.json' if host == 'claude-code' else 'packaged model-profiles.json')
+    selection = None
+    if host == 'omp':
+        requested, selection = omp_requested(root, role, profile)
+    profile_source = overrides['source'] if role in overrides else 'packaged ' + PROFILE_FILES[host]
     row = {'attempt': len(rows) + 1, 'unit': args.unit, 'gate': args.gate, 'scope': scope,
            'prior_round': prior, 'impact_assessment': body.get('impact_assessment'), 'normal_review': normal,
            'binding': b, 'requested': requested, 'profile_source': profile_source, 'raw': [], 'outcome': 'pending',
            'files': freeze(root, state, u, prefix[len(args.unit) + 1:] + '-snapshot', b)}
+    if selection is not None:
+        row['model_selection'] = selection
     if prior is not None:
         p = rows[prior - 1]
         chain = focused_chain(data, prior, b['context'])

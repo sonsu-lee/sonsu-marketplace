@@ -35,9 +35,10 @@ def identifier(value):
 def default_session_id():
     claude = os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("SONSU_CLAUDE_SESSION_ID")
     codex = os.environ.get("CODEX_THREAD_ID")
-    if claude and codex and claude != codex:
+    omp = os.environ.get("SONSU_OMP_SESSION_ID")
+    if len({value for value in (claude, codex, omp) if value}) > 1:
         raise ContinuityError("ambiguous host session; pass --session-id")
-    return claude or codex
+    return claude or codex or omp
 
 
 def persist_claude_session(session):

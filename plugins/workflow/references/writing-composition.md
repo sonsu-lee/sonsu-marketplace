@@ -3,7 +3,8 @@
 Workflow는 티켓·PR의 적용 양식·필수 항목, 실제 사실·diff·검증 근거, 연결 문법과 게시 조건을
 확인한다. 이 플러그인의 작성 지침과 양식으로 단독 실행할 수 있다.
 
-현재 inventory에 있는 스킬만 다음 범위에서 함께 적용한다.
+현재 inventory에 있는 스킬만 다음 범위에서 함께 적용한다. 아래 `plugin:skill`은 Codex·Claude Code
+표기이며, omp에서는 `writing`, `fluent-korean`처럼 접두어 없는 스킬 이름으로 찾는다.
 
 - `writing:writing`: 정보 선별·문서 배치와 문장·문단 구성. 실제 양식과 확인 상태, 사실·근거,
   출력 언어, 편집 범위와 보존할 제목·marker·연결 문법을 전달한다.

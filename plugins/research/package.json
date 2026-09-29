@@ -1,0 +1,11 @@
+{
+  "name": "sonsu-marketplace-research",
+  "version": "0.7.0-sonsu.10",
+  "private": true,
+  "type": "module",
+  "omp": {
+    "extensions": [
+      "./omp/extension.ts"
+    ]
+  }
+}

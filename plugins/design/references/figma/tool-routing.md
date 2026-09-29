@@ -17,6 +17,9 @@ Figma 제품 화면과 prototype은 Figma 안에서 완결한다. FigJam board�
 시스템 설명의 deliverable이며 reaction, overlay, state와 interaction evidence를 대체하지 않는다.
 
 화면·composed view 작업에서는 local quality skill과 현재 환경의 official Figma workflow를 함께 사용한다.
-official tool 전 required prerequisite skill이 설치되어 있으면 반드시 먼저 따른다. live schema가 cached
+official tool 전 required prerequisite skill이 설치되어 있으면 반드시 먼저 따른다. 이 문서들의
+`figma:<skill>`은 Codex·Claude Code의 공식 Figma 플러그인 스킬 표기다. omp처럼 스킬 이름에 플러그인
+접두어가 없는 호스트에서는 `figma-use`처럼 `<skill>` 이름을 쓰고, 설치된 스킬이 없으면 Figma MCP가
+제공하는 같은 이름의 skill 자료를 읽는다. live schema가 cached
 문서와 다르면 현재 schema만 capability 근거로 사용하고 tool/API 이름을 추정하지 않는다. 실행 경계와
 companion contract는 [deterministic execution](deterministic-execution.md)을 읽는다.
