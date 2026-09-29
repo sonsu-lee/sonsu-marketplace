@@ -1,0 +1,6 @@
+interface:
+  display_name: "Design Interface"
+  short_description: "새 웹·앱 화면을 설계하고 요청 산출물을 완성합니다"
+  default_prompt: "$design-interface 새 모바일 가입 흐름을 디자인해 줘."
+policy:
+  allow_implicit_invocation: true

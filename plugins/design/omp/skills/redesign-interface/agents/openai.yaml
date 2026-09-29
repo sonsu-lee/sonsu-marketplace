@@ -1,0 +1,6 @@
+interface:
+  display_name: "Redesign Interface"
+  short_description: "기존 UI의 의미·동작을 보존하며 재설계합니다"
+  default_prompt: "$redesign-interface 이 화면의 구성을 개선해 줘."
+policy:
+  allow_implicit_invocation: true

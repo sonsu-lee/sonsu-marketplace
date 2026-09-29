@@ -36,7 +36,8 @@ claude plugin marketplace list
 
 GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용합니다. 실제 등록·설치
 검증은 기존 사용자 설정과 분리된 환경에서 진행하세요.
-omp에서는 `omp plugin marketplace add "$(pwd -P)"`로 같은 체크아웃을 등록합니다.
+ompでは `omp plugin marketplace add "$(pwd -P)"` で同じチェックアウトを登録します。
+GitHub登録先との混同を避け、分離した設定でローカルの5件構成を確認します。
 플러그인 설치와 설치 후 스킬 목록을 다시 불러오는 방법은 [루트 README](../../README.md#설치)에 있습니다.
 
 ## 기존 플러그인 수정
@@ -45,6 +46,9 @@ omp에서는 `omp plugin marketplace add "$(pwd -P)"`로 같은 체크아웃을 
    외부 원본이 포함되어 있으면 `UPSTREAM.md`에서 원본과 로컬 변경의 경계를 확인합니다.
 2. 수정 대상의 정본을 갱신합니다. Fluent Languages는 각 `skills/fluent-<language>/SKILL.md`와
    해당 스킬의 참고 자료를 직접 편집합니다. 언어 사이에 공통 원본을 주입하지 않습니다.
+   Design・Workflowのomp配布本は `plugins/design/omp/` と `plugins/workflow/omp/` に生成します。
+   ここやインストールキャッシュを手で編集せず、元スキルまたは `scripts/render-omp-compat.py` の変換を修正して
+   `python3 scripts/render-omp-compat.py` で再生成します。言語3件は元のパッケージをそのまま配布します。
 3. 변경한 동작에 맞는 평가를 [evals/](../../evals)에서 선택하고 아래 검증을 실행합니다.
    사용법·계약·개발 절차가 달라졌다면 [문서 배치 기준](../README.md)에 따라 담당 문서를 갱신합니다.
 
@@ -65,8 +69,9 @@ omp에서는 `omp plugin marketplace add "$(pwd -P)"`로 같은 체크아웃을 
    버전, 라이선스와 포함 범위를 기록합니다.
 4. `.agents/plugins/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
 5. `python3 scripts/render-claude-compat.py`로 Claude Code catalog와 plugin manifest를 생성합니다.
-6. `python3 scripts/render-omp-compat.py`로 omp catalog와 작업 연속성·evidence gate를 쓰는
-   플러그인의 omp extension 패키지(`package.json`, `omp/extension.ts`)를 생성합니다.
+6. `python3 scripts/render-omp-compat.py` でomp catalogとDesign・Workflowの専用パッケージを生成します。
+   ompの配布対象は `workflow`、`fluent-korean`、`fluent-english`、`fluent-japanese`、`design` の5件に固定します。
+   Codex catalogへの追加だけでompの配布対象を増やしません。対象変更には配布方針の明示的な変更が必要です。
 
 ```json
 {
@@ -86,6 +91,22 @@ omp에서는 `omp plugin marketplace add "$(pwd -P)"`로 같은 체크아웃을 
 폴더명, 플러그인 매니페스트와 마켓플레이스 항목의 `name`은 같아야 합니다.
 `source.path`는 저장소 루트 기준입니다.
 `.agents/plugins/marketplace.json`과 plugin별 `.codex-plugin/plugin.json`이 패키지의 정본입니다.
+
+omp生成器は必要なスキル・参考資料・アセット・スクリプト・Figma companion・ライセンスを同梱し、
+スクリプトの実行権限を保持します。独自hook、evidence gate、`task-continuity.py` とruntime extensionは
+生成先に含めず、継続資料をomp標準のtodo・session向けに差し替えます。
+Designの品質契約・プロファイル、Workflowの操作権限、言語エージェントは維持します。
+元のCodex・Claude Code用hookや継続資料をomp対応のために書き換えないでください。
+
+生成器の `--check` は生成物の鮮度と不要な旧生成物を検査します。通常実行で整理できるのは、
+生成器が所有すると確認できる旧extensionファイルだけです。利用者のファイルや
+`.sonsu`・`.engineering` の記録、インストールキャッシュは削除・編集しません。
+
+この5件構成への変更は未公開です。公開時は対象プラグインのカタログ内バージョンも上げます。
+`marketplace.autoUpdate: auto` による更新はomp起動時の古いカタログの取得が前提であり、
+ローカル編集や `main` への変更だけではインストール済みパッケージへ反映されません。
+詳しい条件と旧構成の移行は[配布のライフサイクル](../architecture/plugin-lifecycle.md)と
+[README](../../README.md#omp)を参照してください。整理後はセッションを再起動して旧hook・agentを外します。
 
 ## 검증
 

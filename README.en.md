@@ -87,48 +87,56 @@ Claude Code MCP connections require separate configuration.
 
 ### omp
 
-Register the GitHub marketplace once. omp reads the 11 plugins in `.omp-plugin/marketplace.json`;
-`memory-manager` is excluded because omp provides its own memory.
+omp向けは `workflow`、`fluent-korean`、`fluent-english`、`fluent-japanese`、`design` の5件だけを
+`.omp-plugin/marketplace.json` に登録します。計画・委任・検証・メモリはomp標準の機能を使います。
+ローカル変更を試す場合は[開発ガイド](docs/guides/adding-a-plugin.md)の分離環境を使ってください。
 
-```sh
-omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in \
-  engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product design-patterns design
-do
-  omp plugin install "$plugin@sonsu-marketplace"
-done
-```
-
-Invoke skills without a plugin prefix, such as `/skill:commit`. Instead of Claude Code command hooks,
-each plugin's omp extension restores task continuity, reports evidence gate stop notices, and passes the
-session ID to plugin scripts. Set models for all role agents by adding the `task.agentModelOverrides` block from the
-[omp model profile](plugins/engineering/references/omp-model-profiles.md) to `~/.omp/agent/config.yml`.
-
-To keep omp's own planning, delegation, and verification flow and add only non-overlapping features, use
-the setup below instead of installing everything. It filters out the planning, execution, TDD, debugging,
-and general review skills and unused role agents, and keeps explicitly requested review lenses, deep PR
-review, and the Git, writing style, and design skills. Merge the settings into the existing `skills:` and
-`task:` entries in `~/.omp/agent/config.yml`.
+マーケットプレイスを登録して5件をインストールし、YAMLを `~/.omp/agent/config.yml` の
+既存の `marketplace:` 項目に統合します。
 
 <!-- omp-preset:start -->
 ```sh
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese prompting design-patterns design; do omp plugin install "$plugin@sonsu-marketplace"; done
+omp plugin marketplace add sonsu-lee/sonsu-marketplace
+for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
-skills:
-  ignoredSkills: [execute-plan, plan, brainstorming, worktree, finish-branch, test-driven-development, debug, write-skill, review]
-task:
-  disabledAgents: [extraction, exploration, localized_implementation, implementation, complex_design, adjudication, complex_adjudication, red_team]
-  agentModelOverrides:
-    general_review: "@smol"
-    focused_review: "@smol"
-    senior_review: "@default"
+marketplace:
+  autoUpdate: auto
 ```
 <!-- omp-preset:end -->
 
+`marketplace.autoUpdate: auto` はomp起動時に、24時間より古いカタログの更新を可能な範囲で試みます。
+インストール済みプラグインの自動更新には、カタログ内の対象プラグインのバージョンを上げる必要があります。
+`main` の常時監視や実行中セッションへのホットリロードではありません。
+
+スキルは `/skill:commit` のようにプラグイン接頭辞なしで呼び出します。カスタムロールのモデル設定は
+追加しません。言語エージェントは保持し、Workflowのcommit・push・PRなどの権限境界、
+Designの品質契約とプロファイルも変更しません。
+
+`design` と `workflow` は生成した `./plugins/design/omp` と `./plugins/workflow/omp` を配布元に使い、
+言語3件は元の `./plugins/<name>` を使います。omp向けパッケージには独自runtime extension、
+hook、evidence gate、`task-continuity.py` を含めません。作業の継続はomp標準のtodo・sessionで扱い、
+`.sonsu` へ新たな継続記録を書き込みません。詳細は[配布のライフサイクル](docs/architecture/plugin-lifecycle.md)を参照してください。
+
+#### 旧omp構成からの移行
+
+旧11件構成または8件プリセットを使っていた場合は、次のうちインストール済みの旧プラグインを
+ompからアンインストールします。Codex・Claude Codeのインストールは変更しません。
+
+```sh
+for plugin in engineering writing research prompting product design-patterns memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
+```
+
+旧プリセットのために追加した `skills.ignoredSkills`、`task.disabledAgents`、
+`task.agentModelOverrides` の項目だけを設定から外します。独自に設定した別の項目は残してください。
+上の5件構成をインストール・更新し、プラグイン整理後はセッションを終了してompを再起動します。
+読み込み済みの旧hook・agentは実行中セッションに残るため、同じセッションを使い続けないでください。
+キャッシュ内のファイルは手で編集せず、既存の `.sonsu`・`.engineering` 記録も削除しません。
+
 ## Plugins
+
+以下はCodex・Claude Code向けの全プラグイン一覧です。omp向けの配布対象は上記5件に限ります。
 
 | Plugin | Purpose | Installation name |
 | --- | --- | --- |

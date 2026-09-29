@@ -1,0 +1,101 @@
+{
+  "schema_version": "design-quality-policy-v1",
+  "contract_schema_version": "design-decision-contract-v1",
+  "report_schema_version": "design-quality-report-v1",
+  "profiles": [
+    "interface-design",
+    "operations-ui",
+    "figma-workflow"
+  ],
+  "artifact_scopes": {
+    "proposal": ["DQ0", "DQ1", "DQ2", "DQ3", "DQ4", "DQ5", "DQ6"],
+    "figma": ["DQ0", "DQ1", "DQ2", "DQ3", "DQ4", "DQ5", "DQ6", "DQ7"],
+    "implementation": ["DQ0", "DQ1", "DQ2", "DQ3", "DQ4", "DQ5", "DQ6", "DQ7"],
+    "live": ["DQ0", "DQ1", "DQ2", "DQ3", "DQ4", "DQ5", "DQ6", "DQ7", "DQ8"]
+  },
+  "gates": [
+    {
+      "id": "DQ0",
+      "name": "scope-and-evidence-contract",
+      "rubric_required": false,
+      "checks": ["contract-completeness", "traceability", "pre-registered-metrics"]
+    },
+    {
+      "id": "DQ1",
+      "name": "user-task-and-decision",
+      "rubric_required": true,
+      "checks": ["user-context-task", "decision-and-error-cost"]
+    },
+    {
+      "id": "DQ2",
+      "name": "information-and-representation",
+      "rubric_required": true,
+      "checks": ["information-priority", "representation-rationale"]
+    },
+    {
+      "id": "DQ3",
+      "name": "visual-semantics-and-system",
+      "rubric_required": true,
+      "checks": ["design-system-mapping", "semantic-not-color-only"]
+    },
+    {
+      "id": "DQ4",
+      "name": "state-and-content-resilience",
+      "rubric_required": true,
+      "checks": ["applicable-states", "content-and-localization-resilience"]
+    },
+    {
+      "id": "DQ5",
+      "name": "interaction-and-safety",
+      "rubric_required": true,
+      "checks": ["action-feedback", "safety-and-recovery"]
+    },
+    {
+      "id": "DQ6",
+      "name": "adaptive-and-accessible",
+      "rubric_required": true,
+      "checks": ["adaptive-environments", "accessibility-profile"]
+    },
+    {
+      "id": "DQ7",
+      "name": "artifact-and-runtime-evidence",
+      "rubric_required": false,
+      "checks": ["artifact-provenance", "scenario-environment-coverage"]
+    },
+    {
+      "id": "DQ8",
+      "name": "user-outcome-evidence",
+      "rubric_required": false,
+      "checks": ["outcome-metrics", "risk-appropriate-user-evidence"]
+    }
+  ],
+  "subjective_floor": 3,
+  "independent_evaluators": 2,
+  "maximum_score_divergence": 1,
+  "score_anchors": {
+    "0": "No usable evidence, or the artifact contradicts the locked contract.",
+    "1": "Major task, information, state, or environment gaps make the artifact unsafe to rely on.",
+    "2": "The intent is visible, but at least one material gap can still cause a wrong user decision.",
+    "3": "All material requirements are evidenced; remaining issues are minor and do not change the user decision.",
+    "4": "Score 3 is satisfied and independent evidence covers meaningful edge cases without unresolved material gaps."
+  },
+  "excludable_checks": [
+    "content-and-localization-resilience"
+  ],
+  "high_risk_factors": [
+    "legal",
+    "financial",
+    "health",
+    "safety",
+    "privacy",
+    "rights",
+    "irreversible",
+    "bulk-external-effects",
+    "costly-recovery"
+  ],
+  "medium_risk_factors": [
+    "cross-user-impact",
+    "workflow-disruption",
+    "recoverable-material-loss"
+  ]
+}

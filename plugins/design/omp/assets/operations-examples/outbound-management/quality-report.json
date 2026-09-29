@@ -1,0 +1,230 @@
+{
+  "schema_version": "design-quality-report-v1",
+  "contract_id": "outbound-management-v2",
+  "contract_revision": "example-r2",
+  "contract_digest": "sha256:d98ab715d6847b36195ed7d274fa58a71c2896386b8eb3e61d31e097396133e5",
+  "profile": "operations-ui",
+  "artifact": {
+    "scope": "implementation",
+    "revision": "example-artifact-r2",
+    "locators": [
+      "expected-structure.md"
+    ]
+  },
+  "scope_status": "not_run",
+  "end_to_end_status": "not_run",
+  "claim_level": "provisional",
+  "gates": [
+    {
+      "id": "DQ0",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
+      "checks": [
+        {
+          "id": "contract-completeness",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "traceability",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "pre-registered-metrics",
+          "status": "not_run",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "DQ1",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
+      "checks": [
+        {
+          "id": "user-context-task",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "decision-and-error-cost",
+          "status": "not_run",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "DQ2",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
+      "checks": [
+        {
+          "id": "information-priority",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "representation-rationale",
+          "status": "not_run",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "DQ3",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
+      "checks": [
+        {
+          "id": "design-system-mapping",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "semantic-not-color-only",
+          "status": "not_run",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "DQ4",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
+      "checks": [
+        {
+          "id": "applicable-states",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "content-and-localization-resilience",
+          "status": "not_run",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "DQ5",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
+      "checks": [
+        {
+          "id": "action-feedback",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "safety-and-recovery",
+          "status": "not_run",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "DQ6",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
+      "checks": [
+        {
+          "id": "adaptive-environments",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "accessibility-profile",
+          "status": "not_run",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "DQ7",
+      "required": true,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
+      "checks": [
+        {
+          "id": "artifact-provenance",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "scenario-environment-coverage",
+          "status": "not_run",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "DQ8",
+      "required": false,
+      "status": "not_run",
+      "score": null,
+      "evidence": [],
+      "checks": [
+        {
+          "id": "outcome-metrics",
+          "status": "not_run",
+          "evidence": []
+        },
+        {
+          "id": "risk-appropriate-user-evidence",
+          "status": "not_run",
+          "evidence": []
+        }
+      ]
+    }
+  ],
+  "evaluator_runs": [],
+  "metric_results": [],
+  "outcome_evidence": [],
+  "findings": [],
+  "extensions": {
+    "operations": {
+      "design_system_mapping": {
+        "system_id": "replace-with-target-product-system",
+        "token_source": "replace-with-target-token-source",
+        "mappings": [
+          {
+            "representation_ids": [
+              "priority-column"
+            ],
+            "semantic_role": "surface",
+            "token_id": "color.background.surface",
+            "evidence": [
+              "expected-structure.md"
+            ]
+          },
+          {
+            "representation_ids": [
+              "priority-column"
+            ],
+            "semantic_role": "primary-text",
+            "token_id": "color.text.primary",
+            "evidence": [
+              "expected-structure.md"
+            ]
+          }
+        ]
+      },
+      "browser_receipts": []
+    }
+  }
+}

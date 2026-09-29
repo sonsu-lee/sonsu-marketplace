@@ -82,11 +82,6 @@ class CodexPackagingTests(unittest.TestCase):
         for name in ("memory-architecture", "memory-lifecycle"):
             self.assertTrue((package / "assets" / (name + ".drawio.png")).read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
             ET.parse(package / "assets" / (name + ".drawio"))
-        for name in ("README.md", "README.en.md", "README.ja.md"):
-            with self.subTest(readme=name):
-                text = (ROOT / name).read_text(encoding="utf-8")
-                self.assertIn("$memory-capture", text)
-                self.assertIn("/memory-manager:memory-capture", text)
 
     def test_generated_claude_hook_stages_only_candidate(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -242,48 +237,53 @@ class CodexPackagingTests(unittest.TestCase):
             self.assertFalse(generated_manifest.exists())
             self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
 
-    def test_omp_catalog_matches_codex_without_memory_manager(self):
+    def test_omp_catalog_exposes_only_five_native_packages(self):
         codex = json.loads(CATALOG.read_text(encoding="utf-8"))
         omp = json.loads((ROOT / ".omp-plugin/marketplace.json").read_text(encoding="utf-8"))
         self.assertEqual(omp["name"], codex["name"])
         self.assertEqual([entry["name"] for entry in omp["plugins"]],
-                         [entry["name"] for entry in codex["plugins"] if entry["name"] != "memory-manager"])
+                         ["workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design"])
         for entry in omp["plugins"]:
             with self.subTest(plugin=entry["name"]):
-                self.assertEqual(entry["source"], f"./plugins/{entry['name']}")
-                source = json.loads((ROOT / "plugins" / entry["name"] / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
-                self.assertEqual(entry["version"], source["version"])
+                suffix = "/omp" if entry["name"] in ("workflow", "design") else ""
+                self.assertEqual(entry["source"], f"./plugins/{entry['name']}{suffix}")
+                package = ROOT / entry["source"]
+                manifest = json.loads((package / ".claude-plugin/plugin.json").read_text())
+                self.assertEqual(manifest["name"], entry["name"])
+                self.assertEqual(manifest["version"], entry["version"])
+                self.assertTrue((package / "skills").is_dir())
+                for forbidden in ("hooks", "extension.ts", "omp/extension.ts",
+                                  "scripts/task-continuity.py", "scripts/evidence-gates.py"):
+                    self.assertFalse((package / forbidden).exists(), forbidden)
 
-    def test_readme_omp_preset_names_existing_items_and_configures_every_enabled_role(self):
-        presets = set()
-        for readme in ("README.md", "README.en.md", "README.ja.md"):
-            text = (ROOT / readme).read_text(encoding="utf-8")
-            match = re.search(r"<!-- omp-preset:start -->\n(.*?)<!-- omp-preset:end -->", text, re.S)
-            self.assertIsNotNone(match, readme)
-            presets.add(match.group(1))
-        self.assertEqual(len(presets), 1, "README omp presets differ")
-        preset = presets.pop()
-        catalog = {entry["name"] for entry in json.loads(
-            (ROOT / ".omp-plugin/marketplace.json").read_text(encoding="utf-8"))["plugins"]}
-        plugins = re.search(r"for plugin in ([^;]+); do", preset).group(1).split()
-        self.assertLessEqual(set(plugins), catalog)
+    def test_omp_isolated_skills_resolve_local_resources(self):
+        for name in ("workflow", "design"):
+            package = ROOT / "plugins" / name / "omp"
+            with tempfile.TemporaryDirectory() as directory:
+                installed = Path(directory).resolve() / name
+                shutil.copytree(package, installed)
+                for subtree in ("skills", "references"):
+                    for document in (installed / subtree).rglob("*.md"):
+                        prose = re.sub(r"(?ms)^```[^\n]*\n.*?^```\s*$|`[^`\n]+`", "", document.read_text())
+                        for target in re.findall(r"!?\[[^]]+\]\(([^)]+)\)", prose):
+                            target = target.split("#", 1)[0]
+                            if not target or re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", target):
+                                continue
+                            with self.subTest(document=document.relative_to(installed), link=target):
+                                resolved = (document.parent / target).resolve()
+                                self.assertTrue(resolved.is_relative_to(installed))
+                                self.assertTrue(resolved.exists())
+                if name == "design":
+                    for script in ("scripts/design_md.mjs", "scripts/validate_design_quality.py",
+                                   "scripts/validate_operations_contracts.py",
+                                   "figma-plugin/package.json", "references/migration.md"):
+                        self.assertTrue((installed / script).is_file())
+                    companion = json.loads((installed / "figma-plugin/manifest.json").read_text())
+                    self.assertTrue((installed / "figma-plugin/src").is_dir())
+                    self.assertIn("main", companion)
 
-        def listed(key):
-            return [item.strip() for item in re.search(key + r": \[([^\]]*)\]", preset).group(1).split(",")]
-
-        for skill in listed("ignoredSkills"):
-            with self.subTest(skill=skill):
-                self.assertTrue(any((ROOT / "plugins" / plugin / "skills" / skill / "SKILL.md").is_file()
-                                    for plugin in plugins))
-        roles = json.loads((ROOT / "shared/agent-policy/omp-profiles.json").read_text(encoding="utf-8"))["roles"]
-        disabled = set(listed("disabledAgents"))
-        overrides = dict(re.findall(r'^    (\w+): "(@\w+)"$', preset, re.M))
-        self.assertFalse(disabled & set(overrides))
-        self.assertEqual(disabled | set(overrides), set(roles))
-        for role, model in overrides.items():
-            self.assertEqual(model, roles[role]["model"], role)
-
-    def omp_fixture(self, root, names, continuity):
+    def omp_fixture(self, root):
+        names = ("workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design")
         catalog_path = root / ".agents/plugins/marketplace.json"
         catalog_path.parent.mkdir(parents=True)
         catalog_path.write_text(json.dumps({"name": "fixture", "plugins": [
@@ -292,57 +292,114 @@ class CodexPackagingTests(unittest.TestCase):
             manifest = root / f"plugins/{name}/.codex-plugin/plugin.json"
             manifest.parent.mkdir(parents=True)
             manifest.write_text(json.dumps({"name": name, "version": "1.0.0"}))
-        profiles = root / "shared/task-continuity/profiles.json"
-        profiles.parent.mkdir(parents=True)
-        profiles.write_text(json.dumps({name: {} for name in continuity}))
-        extension = root / "shared/omp-runtime/extension.ts"
-        extension.parent.mkdir(parents=True)
-        extension.write_text("export default function () {}\n")
+        for name in ("workflow", "design"):
+            plugin = root / "plugins" / name
+            skill = plugin / "skills/example/SKILL.md"
+            skill.parent.mkdir(parents=True)
+            skill.write_text("---\nname: example\n---\n")
+            for relative in ("hooks/hooks.json", "scripts/task-continuity.py", "scripts/evidence-gates.py"):
+                path = plugin / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("legacy runtime")
+            executable = plugin / "scripts/tool.py"
+            executable.write_text("#!/usr/bin/env python3\nprint('ok')\n")
+            executable.chmod(0o755)
+        source = root / "shared/omp-runtime"
+        source.mkdir(parents=True)
+        for name in ("continuity.md", "migration.md"):
+            shutil.copyfile(ROOT / "shared/omp-runtime" / name, source / name)
         return [sys.executable, str(ROOT / "scripts/render-omp-compat.py"), "--root", str(root)]
 
-    def test_omp_renderer_removes_obsolete_extension_package(self):
+    def run_renderer(self, command, expected=0):
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+        return result
+
+    def test_omp_renderer_cleans_owned_stale_files_without_mutating_sources(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            command = self.omp_fixture(root, ["demo"], ["demo"])
-            profiles = root / "shared/task-continuity/profiles.json"
-            extension = root / "shared/omp-runtime/extension.ts"
-            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
-            package = root / "plugins/demo/package.json"
-            generated = root / "plugins/demo/omp/extension.ts"
-            self.assertTrue(package.is_file())
-            self.assertEqual(generated.read_bytes(), extension.read_bytes())
+            command = self.omp_fixture(root)
+            originals = {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+            self.run_renderer(command)
+            self.run_renderer(command + ["--check"])
+            installed = root / "plugins/design/omp"
+            self.assertEqual((installed / "scripts/tool.py").stat().st_mode & 0o777, 0o755)
+            self.assertFalse((installed / "omp").exists())
+            for path, data in originals.items():
+                self.assertEqual(path.read_bytes(), data)
+            user_file = installed / "personal.txt"
+            user_file.write_text("keep")
+            source = root / "plugins/design/scripts/tool.py"
+            source.unlink()
+            checked = self.run_renderer(command + ["--check"], expected=1)
+            self.assertIn("obsolete: plugins/design/omp/scripts/tool.py", checked.stdout)
+            self.assertTrue((installed / "scripts/tool.py").exists())
+            self.run_renderer(command)
+            self.assertFalse((installed / "scripts/tool.py").exists())
+            self.assertEqual(user_file.read_text(), "keep")
+            self.run_renderer(command + ["--check"])
 
-            profiles.write_text(json.dumps({}))
-            checked = subprocess.run(command + ["--check"], capture_output=True, text=True)
-            self.assertEqual(checked.returncode, 1)
-            self.assertIn("obsolete: plugins/demo/package.json", checked.stdout)
-            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
+    def test_omp_renderer_preserves_unowned_and_modified_generated_files(self):
+        for existing in ("unowned", "modified"):
+            with self.subTest(existing=existing), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                command = self.omp_fixture(root)
+                target = root / "plugins/design/omp/scripts/tool.py"
+                if existing == "modified":
+                    self.run_renderer(command)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("user-owned")
+                self.run_renderer(command, expected=2)
+                self.assertEqual(target.read_text(), "user-owned")
+
+    def test_omp_renderer_rejects_symlinks_before_mutating_other_packages(self):
+        for location in ("source", "destination", "obsolete"):
+            with self.subTest(location=location), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                command = self.omp_fixture(root)
+                outside = root / "outside"
+                outside.mkdir()
+                (outside / "keep").write_text("keep")
+                if location == "source":
+                    (root / "plugins/design/assets").symlink_to(outside, target_is_directory=True)
+                elif location == "destination":
+                    (root / "plugins/design/omp").symlink_to(outside, target_is_directory=True)
+                else:
+                    self.run_renderer(command)
+                    target = root / "plugins/design/omp/scripts/tool.py"
+                    target.unlink()
+                    target.symlink_to(outside / "keep")
+                    (root / "plugins/design/scripts/tool.py").unlink()
+                before = {path: path.read_bytes() for path in root.rglob("*")
+                          if path.is_file() and not path.is_symlink()}
+                self.run_renderer(command, expected=2)
+                for path, data in before.items():
+                    self.assertEqual(path.read_bytes(), data)
+
+    def test_omp_renderer_only_removes_identified_legacy_runtime(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            command = self.omp_fixture(root)
+            legacy = root / "plugins/engineering"
+            legacy.mkdir()
+            package = legacy / "package.json"
+            package.write_text(json.dumps({
+                "name": "sonsu-marketplace-engineering", "version": "1.0.0",
+                "private": True, "type": "module", "omp": {"extensions": ["./omp/extension.ts"]},
+            }))
+            extension = legacy / "omp/extension.ts"
+            extension.parent.mkdir()
+            extension.write_text("user-modified extension")
+            self.run_renderer(command, expected=2)
+            self.assertTrue(package.exists())
+            self.assertEqual(extension.read_text(), "user-modified extension")
+            extension.unlink()
+            user_package = root / "plugins/custom/package.json"
+            user_package.parent.mkdir()
+            user_package.write_text('{"name":"custom"}')
+            self.run_renderer(command)
             self.assertFalse(package.exists())
-            self.assertFalse(generated.parent.exists())
-            self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
-
-    def test_omp_renderer_never_deletes_or_overwrites_unowned_packages(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            command = self.omp_fixture(root, ["demo", "tool"], ["demo"])
-            own = {root / "plugins/tool/package.json": '{"name": "tool-scripts", "private": true}\n',
-                   root / "plugins/tool/omp/extension.ts": "export default function tool() {}\n"}
-            for path, text in own.items():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(text)
-            self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 1)
-            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
-            self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
-            for path, text in own.items():
-                self.assertEqual(path.read_text(), text)
-
-            foreign = root / "plugins/demo/package.json"
-            foreign.write_text('{"name": "demo-scripts", "private": true}\n')
-            rendered = subprocess.run(command, capture_output=True, text=True)
-            self.assertNotEqual(rendered.returncode, 0)
-            self.assertIn("unmanaged files at generated paths:", rendered.stderr)
-            self.assertIn("plugins/demo/package.json", rendered.stderr)
-            self.assertEqual(foreign.read_text(), '{"name": "demo-scripts", "private": true}\n')
+            self.assertEqual(user_package.read_text(), '{"name":"custom"}')
 
     def test_removed_claude_role_fails_check_and_is_removed_by_render(self):
         spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
@@ -371,31 +428,6 @@ class CodexPackagingTests(unittest.TestCase):
                 with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--check"]), contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(renderer.main(), 0)
 
-    def test_host_agent_roles_share_distinct_contracts_without_codex_model_overrides(self):
-        spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
-        renderer = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(renderer)
-        codex_roles = json.loads((ROOT / "shared/agent-policy/profiles.json").read_text())["roles"]
-        claude_roles = json.loads((ROOT / "shared/agent-policy/claude-profiles.json").read_text())["roles"]
-        self.assertEqual(set(codex_roles), set(claude_roles))
-        omp_roles = json.loads((ROOT / "shared/agent-policy/omp-profiles.json").read_text())["roles"]
-        self.assertEqual(set(codex_roles), set(omp_roles))
-        self.assertEqual(set(codex_roles), set(renderer.ROLE_DEFINITIONS))
-        instructions = set()
-        for role in codex_roles:
-            _, role_instructions, read_only = renderer.role_definition(role)
-            instructions.add(role_instructions)
-            path, content = renderer.codex_agent(role)
-            self.assertEqual(path.read_bytes(), content)
-            self.assertNotIn(b"\nmodel =", content)
-            self.assertNotIn(b"\nreasoning_effort =", content)
-            self.assertEqual(b'\nsandbox_mode = "read-only"' in content, read_only)
-            for plugin in ("engineering", "prompting"):
-                path, content = renderer.claude_agent(plugin, role, claude_roles[role])
-                self.assertEqual(path.read_bytes(), content)
-                if read_only:
-                    self.assertIn(b"Do not modify files.", content)
-        self.assertEqual(len(instructions), len(codex_roles))
 
     def test_render_preserves_custom_codex_agent(self):
         spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
