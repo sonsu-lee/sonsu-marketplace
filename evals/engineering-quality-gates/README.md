@@ -16,7 +16,7 @@
   1개의 근거 있는 finding도 처리 대상이며, 필요한 reviewer가 하나라도 미완료면 통과가 아니다.
 - 국소 수정은 기존 전체 근거의 유효 범위, 현재 delta·영향 근거, 새 검사와 Luna xhigh 1개의 집중
   rereview를 연결한다. 목표·계약·설계·의존 경계 변경 또는 영향 불명확성은 전체 5개 review를 다시 연다.
-- `red-team` policy만 independent 조건 뒤 fresh-context Astra high의 고정 bundle과
+- `red-team` policy만 independent 조건 뒤 fresh-context GPT-6.1 Sol high의 고정 bundle과
   `survives_challenge` 판정을 요구한다. 계획 기반이라는 이유만으로 red-team을 추가하지 않는다.
 - 재개는 task ID·history·소비한 round를 보존하고 current source·contract·evidence를 대조한다.
   재개 자체는 탈락·budget reset·과거 pass replay의 근거가 아니다.
