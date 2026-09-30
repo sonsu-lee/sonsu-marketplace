@@ -60,7 +60,7 @@ Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 | プラグイン | omp catalogのsource |
 | --- | --- |
 | Workflow | `./plugins/workflow/omp` |
-| Fluent Korean | `./plugins/fluent-korean` |
+| Fluent Korean | `./plugins/fluent-korean/omp` |
 | Fluent English | `./plugins/fluent-english` |
 | Fluent Japanese | `./plugins/fluent-japanese` |
 | Design | `./plugins/design/omp` |
@@ -69,11 +69,16 @@ Design・Workflowのomp専用パッケージは、必要なskills・references�
 figma-plugin・ライセンスを元パッケージから生成し、他のプラグインに依存せずに使える形にします。
 スクリプトの実行権限はコピー時に保持します。独自hook、evidence gate、`task-continuity.py`、
 omp runtime extensionは含めません。元パッケージのhook・継続スクリプトはCodex・Claude Code用に残します。
-言語3件のスキルとエージェント、Designの品質契約・プロファイル、Workflowの操作権限境界は保持します。
+Fluent KoreanはCodex単一呼び出しのスキル・参考資料・ライセンスを専用パッケージに生成します。
+品質不変式を保持し、現在のホストモデルを使います。Claude Codeの多段階・strictモード、固定Opusエージェントを
+要求しません。English・Japaneseのスキルとエージェント、Designの品質契約・プロファイル、Workflowの操作権限境界は保持します。
 
 生成先の `references/continuity.md` はomp標準のtodo・sessionによる継続を案内します。
 `.sonsu` への継続記録、復元hookやセッションID転送を独自に追加しません。
-カスタムロール用の `task.agentModelOverrides` も要求しません。
+開発実行・task・todo・session・reviewはomp標準、Workflow・言語3件・Designはドメイン契約を担当します。
+Research・Product・Writingは必要に応じた選択候補として扱い、基本catalogには追加しません。
+カスタムロール用の `task.agentModelOverrides` も要求しません。Engineeringのompモデルプロファイルは
+直接インストールした選択・legacy利用者の既存consumer向けに保持し、基本構成から切り離します。
 
 生成物は直接編集しません。生成器は `--check` で内容・実行権限の鮮度と不要な旧生成物を確認し、
 通常実行では自身が生成したと確認できる旧extensionの `package.json`・`extension.ts` だけを整理します。

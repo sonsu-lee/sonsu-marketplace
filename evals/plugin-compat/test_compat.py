@@ -245,7 +245,7 @@ class CodexPackagingTests(unittest.TestCase):
                          ["workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design"])
         for entry in omp["plugins"]:
             with self.subTest(plugin=entry["name"]):
-                suffix = "/omp" if entry["name"] in ("workflow", "design") else ""
+                suffix = "/omp" if entry["name"] in ("workflow", "design", "fluent-korean") else ""
                 self.assertEqual(entry["source"], f"./plugins/{entry['name']}{suffix}")
                 package = ROOT / entry["source"]
                 manifest = json.loads((package / ".claude-plugin/plugin.json").read_text())
@@ -257,7 +257,7 @@ class CodexPackagingTests(unittest.TestCase):
                     self.assertFalse((package / forbidden).exists(), forbidden)
 
     def test_omp_isolated_skills_resolve_local_resources(self):
-        for name in ("workflow", "design"):
+        for name in ("workflow", "design", "fluent-korean"):
             package = ROOT / "plugins" / name / "omp"
             with tempfile.TemporaryDirectory() as directory:
                 installed = Path(directory).resolve() / name
@@ -304,6 +304,15 @@ class CodexPackagingTests(unittest.TestCase):
             executable = plugin / "scripts/tool.py"
             executable.write_text("#!/usr/bin/env python3\nprint('ok')\n")
             executable.chmod(0o755)
+        korean = root / "plugins/fluent-korean"
+        for subtree in ("codex", "skills", "agents"):
+            shutil.copytree(ROOT / "plugins/fluent-korean" / subtree, korean / subtree)
+        shutil.copytree(ROOT / "plugins/fluent-korean/.claude-plugin", korean / ".claude-plugin")
+        for name in ("verify_change_rate.py", "console.py"):
+            target = korean / "scripts" / name
+            target.parent.mkdir(exist_ok=True)
+            shutil.copyfile(ROOT / "plugins/fluent-korean/scripts" / name, target)
+        shutil.copyfile(ROOT / "plugins/fluent-korean/UPSTREAM.md", korean / "UPSTREAM.md")
         source = root / "shared/omp-runtime"
         source.mkdir(parents=True)
         for name in ("continuity.md", "migration.md"):
@@ -314,6 +323,137 @@ class CodexPackagingTests(unittest.TestCase):
         result = subprocess.run(command, capture_output=True, text=True)
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         return result
+
+    def test_omp_korean_standalone_single_call_preserves_sources_and_rules(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            command = self.omp_fixture(root)
+            korean = root / "plugins/fluent-korean"
+            originals = {path: path.read_bytes() for path in korean.rglob("*") if path.is_file()}
+            self.run_renderer(command)
+            entry = next(entry for entry in json.loads((root / ".omp-plugin/marketplace.json").read_text())["plugins"]
+                         if entry["name"] == "fluent-korean")
+            self.assertEqual(entry["source"], "./plugins/fluent-korean/omp")
+            installed = root.resolve() / "installed-korean"
+            shutil.copytree(root / entry["source"], installed)
+            skill = installed / "skills/fluent-korean/SKILL.md"
+            text = skill.read_text()
+            self.assertEqual(read_skill_name(skill), "fluent-korean")
+            self.assertIn("(OMP)", text)
+            self.assertIn("현재 호스트 모델", text)
+            self.assertIn("OMP에서는 제공하지 않는다", text)
+            for forbidden in ("CLAUDE_SKILL_DIR", "humanize-monolith", "humanize-diagnostician",
+                              "humanize-finalizer", "claude-opus", "Task("):
+                self.assertNotIn(forbidden, text)
+            source = korean / "codex/skills/fluent-korean"
+            original = (source / "SKILL.md").read_text()
+            rules = original.split("## 윤문 철칙", 1)[1].split("## 파일·정량 윤문 절차", 1)[0]
+            for rule in rules.splitlines():
+                if rule and not rule.startswith("5."):
+                    self.assertIn(rule, text)
+            self.assertIn("30% 이상", text)
+            self.assertIn("50% 이상", text)
+            self.assertIn("01_input.txt", text)
+            self.assertIn("../../scripts/verify_change_rate.py", text)
+            self.assertIn("realpath skill://fluent-korean", text)
+            self.assertNotIn("skill://fluent-korean/../", text)
+            for code in range(4):
+                self.assertIn(f"exit {code}", text)
+            self.assertIn("채택 금지", text)
+            self.assertIn("완료로 보고하지", text)
+            for reference in (source / "references").iterdir():
+                projected = skill.parent / "references" / reference.name
+                if reference.name in ("quick-rules.md", "quick-rules.header.md", "quick-rules.footer.md"):
+                    source_lines = reference.read_text().splitlines()
+                    projected_lines = projected.read_text().splitlines()
+                    for prefix in ("- **", "**Do-NOT", "**서법 보존", "**내용 앵커",
+                                   "1. **고유명사", "3. **장르", "4. **register", "5. **잔존", "6. **인공"):
+                        protected = [line for line in source_lines if line.startswith(prefix)]
+                        if prefix == "- **":
+                            protected = [line for line in protected if re.match(r"- \*\*[A-J]-\d", line)]
+                        observed = [line for line in projected_lines if line.startswith(prefix)]
+                        if prefix == "- **":
+                            observed = [line for line in observed if re.match(r"- \*\*[A-J]-\d", line)]
+                        self.assertEqual(observed, protected)
+                    for forbidden in ("humanize-monolith", "monolith", "Phase 2.5", "strict 모드 권고"):
+                        self.assertNotIn(forbidden, projected.read_text())
+                    for target in re.findall(r"!?\[[^]]+\]\(([^)]+)\)", projected.read_text()):
+                        if target.endswith("verify_change_rate.py"):
+                            self.assertTrue((projected.parent / target).is_file())
+                else:
+                    self.assertEqual(projected.read_bytes(), reference.read_bytes())
+            for target in re.findall(r"`(references/[^`]+)`", text):
+                self.assertTrue((skill.parent / target).resolve().is_relative_to(installed))
+                self.assertTrue((skill.parent / target).is_file())
+            upstream = (installed / "UPSTREAM.md").read_text().rsplit("\n\n", 1)[-1]
+            self.assertIn("Codex single-call", upstream)
+            self.assertNotIn("CLAUDE_SKILL_DIR", upstream)
+            self.assertNotIn("task", upstream)
+            self.assertEqual({path.name for path in (installed / "scripts").iterdir()},
+                             {"verify_change_rate.py", "console.py"})
+            for name in ("verify_change_rate.py", "console.py"):
+                self.assertEqual((installed / "scripts" / name).read_bytes(),
+                                 (korean / "scripts" / name).read_bytes())
+            manifest = json.loads((installed / ".claude-plugin/plugin.json").read_text())
+            self.assertNotIn("agents", manifest)
+            self.assertNotIn("hooks", manifest)
+            for forbidden in ("agents", "hooks", "extension.ts", "omp",
+                              "scripts/task-continuity.py", "scripts/evidence-gates.py"):
+                self.assertFalse((installed / forbidden).exists(), forbidden)
+            for path, data in originals.items():
+                self.assertEqual(path.read_bytes(), data)
+            self.run_renderer(command + ["--check"])
+
+    def test_omp_korean_installed_validator_exit_codes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            command = self.omp_fixture(root)
+            self.run_renderer(command)
+            installed = root.resolve() / "installed-korean"
+            shutil.copytree(root / "plugins/fluent-korean/omp", installed)
+            validator = installed / "scripts/verify_change_rate.py"
+            self.assertTrue(validator.is_file())
+            before = root / "01_input.txt"
+            after = root / "final.md"
+            before.write_text("가나다라마바사아자차")
+            for body, code, percent in (("가나다라마바사아자차", 0, "0.0%"),
+                                        ("가나다라마바ABCZ", 1, "40.0%"),
+                                        ("가나다라마바사ABC", 1, "30.0%"),
+                                        ("가나다라마ABCDE", 2, "50.0%")):
+                with self.subTest(code=code, percent=percent):
+                    after.write_text(body + "\n\n<!-- HUMANIZE-SUMMARY metadata -->")
+                    result = subprocess.run([sys.executable, "-B", str(validator),
+                                             "--before", str(before), "--after", str(after)],
+                                            cwd=installed, capture_output=True, text=True)
+                    self.assertEqual(result.returncode, code, result.stdout + result.stderr)
+                    self.assertIn(percent, result.stdout)
+            after.unlink()
+            result = subprocess.run([sys.executable, "-B", str(validator),
+                                     "--before", str(before), "--after", str(after)],
+                                    cwd=installed, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
+            self.assertIn("error:", result.stderr)
+
+    def test_omp_continuity_has_no_removed_extension_claim(self):
+        template = (ROOT / "shared/task-continuity/continuity.md.tmpl").read_text()
+        profiles = json.loads((ROOT / "shared/task-continuity/profiles.json").read_text())
+        for text in (template, *((ROOT / "plugins" / name / "references/continuity.md").read_text()
+                                 for name in profiles)):
+            self.assertNotIn("SONSU_OMP_SESSION_ID", text)
+            self.assertNotIn("omp extension", text)
+            self.assertIn("omp 순정 todo·session", text)
+            self.assertIn("native session-ID", text)
+            self.assertIn("blocked`/`not_run", text)
+
+    def test_omp_direct_engineering_requires_native_session_evidence(self):
+        tools = (ROOT / "plugins/engineering/references/omp-tools.md").read_text()
+        self.assertNotIn("Sonsu omp extension", tools)
+        self.assertNotIn("session_stop", tools)
+        self.assertNotIn("SONSU_OMP_SESSION_ID", tools)
+        self.assertIn("native session-ID", tools)
+        profiles = (ROOT / "plugins/engineering/references/omp-model-profiles.md").read_text()
+        self.assertIn("기본 5개", profiles)
+        self.assertIn("직접 설치", profiles)
 
     def test_omp_renderer_cleans_owned_stale_files_without_mutating_sources(self):
         with tempfile.TemporaryDirectory() as directory:

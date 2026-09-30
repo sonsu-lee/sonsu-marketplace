@@ -17,10 +17,12 @@
 
 1. 세션은 명시한 `--session-id`를 우선한다. 생략하면 Claude Code는 현재
    `CLAUDE_CODE_SESSION_ID`를 먼저 사용하고, 없을 때만 `SONSU_CLAUDE_SESSION_ID`를 대체값으로
-   사용한다. Codex는 `CODEX_THREAD_ID`를 사용한다. omp는 Sonsu omp extension이 이 도구 호출에
-   주입하는 `SONSU_OMP_SESSION_ID`를 사용한다. 서로 다른 호스트 ID가 동시에 있거나 현재 ID를
+   사용한다. Codex는 `CODEX_THREAD_ID`를 사용한다. 서로 다른 호스트 ID가 동시에 있거나 현재 ID를
    알 수 없으면 명시하거나 기존 산출물로 수동 복구한다. 다른 세션이나 최신 디렉터리에서 ID를
-   추정하지 않는다.
+   추정하지 않는다. omp 기본 5개 구성은 이 저장 도구 대신 omp 순정 todo·session을 사용한다.
+   직접 설치한 선택·legacy 호출자가 이 도구를 사용하려면 실제 native session-ID를 관측한
+   증거와 명시적 `--session-id`가 필요하다. 현재 ID를 확인하지 못하면 `blocked`/`not_run`으로
+   기록하고 다른 세션·환경 변수 추정값·최신 디렉터리에서 추정하지 않는다.
 2. 작업 루트는 현재 Git worktree, Git 밖에서는 `--cwd`의 실제 경로다. 기록 위치는
    `<root>/.sonsu/continuity/<session-id>/research.json`이다.
 3. `read`로 기록과 revision을 읽는다. 최초 `write`의 `--expected-revision`은 0이며,
@@ -72,7 +74,8 @@
 ## 재개 알림
 
 `SessionStart` hook은 `startup|clear`에서 세션 ID를 후속 Bash 명령용으로 저장하고, `compact|resume`에서
-활성 기록과 이 참고 자료의 위치를 알려 준다. omp에서는 플러그인의 omp extension이 세션 시작·전환·컴팩션
-때 같은 알림을 숨은 메시지로 전달한다.
+활성 기록과 이 참고 자료의 위치를 알려 준다. omp 기본 5개 구성은 omp 순정 todo·session으로
+복구하며 이 플러그인은 세션 ID 주입이나 재개 알림을 제공하지 않는다. 직접 설치한 선택·legacy 호출자는
+관측한 native session-ID와 명시적 `--session-id`로 `read`부터 복구한다. 확인할 수 없으면 `blocked`/`not_run`으로 둔다.
 지원되지 않거나 신뢰 설정 때문에 실행되지 않으면 이 자료의 `read` 단계부터 직접 수행한다.
 hook 신뢰는 사용자가 호스트에서 관리한다. 마지막 기록 이후의 상태는 현재 산출물로 확인한다.
