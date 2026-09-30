@@ -109,12 +109,18 @@ marketplace:
 
 `marketplace.autoUpdate: auto` attempts to refresh catalogs older than 24 hours at omp startup.
 Automatic updates of installed plugins require a version increase for that plugin in the catalog.
-This setting does not continuously watch `main` or reload changes into an active session.
+This setting does not continuously watch `main` or reload changes into an active session. To pick up a new
+version immediately, refresh the catalog and upgrade the installed plugins.
+
+```sh
+omp plugin marketplace update sonsu-marketplace
+omp plugin upgrade
+```
 
 Invoke skills without a plugin prefix, for example `/skill:commit`. The default configuration requires
 no custom role model overrides. Fluent Korean uses a single call with the current host model; its omp
 package does not provide Claude Code's multistep or strict mode, or fixed Opus agents. Existing English
-and Japanese skills and agents, Workflow's commit/push/PR authority boundaries, and Design's quality
+and Japanese skills, Workflow's commit/push/PR authority boundaries, and Design's quality
 contracts, profiles, and native tool prerequisites remain in place.
 
 Design, Workflow, and Fluent Korean use generated `./plugins/<name>/omp` packages. English and Japanese
@@ -136,16 +142,26 @@ Engineering's omp profiles remain available for existing direct installations an
 #### Migrating from an earlier omp configuration
 
 If you used the earlier eleven-plugin configuration or eight-plugin preset, uninstall any installed
-plugins from the following list in omp. Keep Codex and Claude Code installations in place.
+plugins from the following list in omp. Ignore `not installed` errors for plugins you never installed.
+Keep Codex and Claude Code installations in place.
 
 ```sh
 for plugin in engineering writing research prompting product design-patterns memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
 ```
 
+The existing `sonsu-marketplace` registration may point to a local checkout or hold a stale catalog, so
+register the GitHub source again. Removing the marketplace does not uninstall its plugins. A plain `install`
+does not update the already installed `workflow`, `fluent-korean`, and `design`, so reinstall with `--force`.
+
+```sh
+omp plugin marketplace remove sonsu-marketplace
+omp plugin marketplace add sonsu-lee/sonsu-marketplace
+for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
+```
+
 Remove only the `skills.ignoredSkills`, `task.disabledAgents`, and `task.agentModelOverrides` entries added
-for the old preset. Preserve unrelated user settings. Install or update the five plugins above, then end
-the session and restart omp to unload old hooks and agents. Do not edit cache files manually or delete
-existing `.sonsu` or `.engineering` records.
+for the old preset. Preserve unrelated user settings. End the session and restart omp to unload old hooks
+and agents. Do not edit cache files manually or delete existing `.sonsu` or `.engineering` records.
 
 ## Plugins
 

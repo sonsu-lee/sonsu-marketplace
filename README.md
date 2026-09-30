@@ -110,11 +110,17 @@ marketplace:
 
 `marketplace.autoUpdate: auto`는 omp 시작 시 24시간보다 오래된 카탈로그의 갱신을 가능한 범위에서
 시도합니다. 설치한 플러그인의 자동 업데이트에는 카탈로그의 해당 플러그인 버전 증가가 필요합니다.
-`main`을 상시 감시하거나 실행 중 세션에 변경을 바로 적용하는 설정은 아닙니다.
+`main`을 상시 감시하거나 실행 중 세션에 변경을 바로 적용하는 설정은 아닙니다. 새 버전을 바로 받으려면
+카탈로그를 갱신한 뒤 설치한 플러그인을 업그레이드합니다.
+
+```sh
+omp plugin marketplace update sonsu-marketplace
+omp plugin upgrade
+```
 
 스킬은 `/skill:commit`처럼 플러그인 접두어 없이 호출합니다. 기본 구성에는 역할별 모델 설정을
 추가하지 않습니다. Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude Code의 다중 호출·strict 모드와
-고정 Opus agent를 배포하지 않습니다. English·Japanese의 기존 스킬·agent, Workflow의 commit·push·PR 권한 경계,
+고정 Opus agent를 배포하지 않습니다. English·Japanese의 기존 스킬, Workflow의 commit·push·PR 권한 경계,
 Design의 품질 계약·프로필과 native tool 전제는 유지합니다.
 
 `design`, `workflow`, `fluent-korean`은 생성된 `./plugins/<name>/omp`를 배포 원본으로 쓰고,
@@ -136,15 +142,25 @@ Engineering의 omp 프로필은 직접 설치한 기존 호출자를 위해 보�
 #### 이전 omp 구성에서 이동
 
 이전 11개 구성이나 8개 preset을 사용했다면 다음 중 설치한 이전 플러그인을 omp에서 제거합니다.
-Codex·Claude Code 설치는 유지합니다.
+설치하지 않은 항목의 `not installed` 오류는 무시합니다. Codex·Claude Code 설치는 유지합니다.
 
 ```sh
 for plugin in engineering writing research prompting product design-patterns memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
 ```
 
+이전에 등록한 `sonsu-marketplace`가 로컬 체크아웃 경로이거나 오래된 카탈로그일 수 있으므로 GitHub 소스로
+다시 등록합니다. 마켓플레이스 등록을 제거해도 설치된 플러그인은 제거되지 않습니다. 이미 설치한
+`workflow`·`fluent-korean`·`design`은 일반 `install`로 갱신되지 않으므로 `--force`로 다시 설치합니다.
+
+```sh
+omp plugin marketplace remove sonsu-marketplace
+omp plugin marketplace add sonsu-lee/sonsu-marketplace
+for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
+```
+
 이전 preset 때문에 추가한 `skills.ignoredSkills`, `task.disabledAgents`, `task.agentModelOverrides`
-항목만 설정에서 제거하고 사용자가 별도로 설정한 항목은 유지합니다. 위 5개 구성을 설치·업데이트한 뒤
-세션을 종료하고 omp를 다시 시작합니다. 실행 중 세션에는 이전 hook·agent가 남아 있을 수 있습니다.
+항목만 설정에서 제거하고 사용자가 별도로 설정한 항목은 유지합니다. 세션을 종료하고 omp를 다시
+시작합니다. 실행 중 세션에는 이전 hook·agent가 남아 있을 수 있습니다.
 캐시 파일을 직접 편집하거나 기존 `.sonsu`·`.engineering` 기록을 삭제하지 않습니다.
 
 ## 플러그인

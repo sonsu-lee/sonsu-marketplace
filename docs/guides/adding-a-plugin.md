@@ -36,9 +36,20 @@ claude plugin marketplace list
 
 GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용합니다. 실제 등록·설치
 검증은 기존 사용자 설정과 분리된 환경에서 진행하세요.
-omp에서는 `omp plugin marketplace add "$(pwd -P)"`로 같은 체크아웃을 등록합니다.
-GitHub 등록 대상과 혼동하지 않도록 분리된 설정에서 로컬 5개 구성을 확인합니다.
-플러그인 설치와 설치 후 스킬 목록을 다시 불러오는 방법은 [루트 README](../../README.md#설치)에 있습니다.
+omp는 이름 있는 profile로 기존 사용자 설정과 분리합니다. profile은 마켓플레이스 등록, 설치 플러그인,
+설정과 인증을 `~/.omp/profiles/<name>/`에 따로 둡니다. 저장소 루트에서 다음을 실행합니다.
+
+```sh
+export OMP_PROFILE=sonsu-marketplace-local
+omp plugin marketplace add "$(pwd -P)"
+for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
+omp plugin list
+```
+
+같은 셸에서 `omp`를 실행하면 이 profile을 사용하며, 세션 실행에는 profile 안의 인증이 따로 필요합니다.
+체크아웃을 바꾼 뒤에는 `omp plugin marketplace update sonsu-marketplace`와 `omp plugin upgrade`로
+반영하고, 버전이 같으면 `install --force`로 다시 설치합니다. 검증이 끝나면 `unset OMP_PROFILE`을 실행하고
+`~/.omp/profiles/sonsu-marketplace-local`을 삭제합니다. 기본 profile에 로컬 경로를 등록하지 않습니다.
 
 ## 기존 플러그인 수정
 
@@ -96,7 +107,7 @@ GitHub 등록 대상과 혼동하지 않도록 분리된 설정에서 로컬 5�
 omp 생성기는 필요한 스킬·참고 자료·asset·스크립트·Figma companion·라이선스를 동봉하고
 스크립트 실행 권한을 유지합니다. 독자 hook, evidence gate, `task-continuity.py`, runtime extension은
 포함하지 않으며 연속성 자료를 omp 순정 todo·session 안내로 바꿉니다.
-Design의 품질 계약·프로필, Workflow의 권한, English·Japanese agent는 유지합니다.
+Design의 품질 계약·프로필, Workflow의 권한, English·Japanese 스킬은 유지합니다.
 Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude agent와 다중 호출·strict 모드에 의존하지 않습니다.
 개발 실행·task·todo·session·review는 omp 순정 기능을 사용합니다. Research·Product·Writing은 선택 후보로
 문서화하며 기본 5개 배포에 추가하지 않습니다. Engineering의 omp 프로필은 직접 설치한 기존 consumer용으로
@@ -107,7 +118,7 @@ Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude
 파일은 생성기가 소유한다고 확인한 이전 extension 파일뿐입니다. 사용자 파일, `.sonsu`·`.engineering`
 기록과 설치 캐시는 삭제하거나 편집하지 않습니다.
 
-이 5개 구성의 변경은 아직 게시되지 않았습니다. 게시 시 대상 플러그인의 카탈로그 버전도 올립니다.
+배포 대상 플러그인의 변경을 게시할 때는 해당 플러그인의 카탈로그 버전도 올립니다.
 `marketplace.autoUpdate: auto` 업데이트는 omp 시작 시 오래된 카탈로그를 가져오는 것이 전제이며
 같은 버전의 캐시를 실행 중에 바꾸는 기능은 아닙니다. 이전 구성의 제거와 설정 정리는
 [README](../../README.md#omp)를 참고하세요. 정리 뒤 세션을 재시작해 이전 hook·agent를 해제합니다.
