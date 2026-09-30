@@ -89,7 +89,7 @@ claude plugin list
 ### omp
 
 omp向けは `workflow`、`fluent-korean`、`fluent-english`、`fluent-japanese`、`design` の5件だけを
-`.omp-plugin/marketplace.json` に登録します。計画・委任・検証・メモリはomp標準の機能を使います。
+`.omp-plugin/marketplace.json` に登録します。開発実行・task・todo・session・reviewとメモリはomp標準の機能を使います。
 ローカル変更を試す場合は[開発ガイド](docs/guides/adding-a-plugin.md)の分離環境を使ってください。
 
 マーケットプレイスを登録して5件をインストールし、YAMLを `~/.omp/agent/config.yml` の
@@ -112,13 +112,26 @@ marketplace:
 `main` の常時監視や実行中セッションへのホットリロードではありません。
 
 スキルは `/skill:commit` のようにプラグイン接頭辞なしで呼び出します。カスタムロールのモデル設定は
-追加しません。言語エージェントは保持し、Workflowのcommit・push・PRなどの権限境界、
+追加しません。Fluent Koreanは現在のホストモデルによる単一呼び出しを使い、Claude Codeの
+多段階・strictモードと固定Opusエージェントは配布しません。English・Japaneseの既存スキル・エージェント、
+Workflowのcommit・push・PRなどの権限境界、
 Designの品質契約とプロファイルも変更しません。
 
-`design` と `workflow` は生成した `./plugins/design/omp` と `./plugins/workflow/omp` を配布元に使い、
-言語3件は元の `./plugins/<name>` を使います。omp向けパッケージには独自runtime extension、
+`design`、`workflow`、`fluent-korean` は生成した `./plugins/<name>/omp` を配布元に使い、
+English・Japaneseは元の `./plugins/<name>` を使います。omp向けパッケージには独自runtime extension、
 hook、evidence gate、`task-continuity.py` を含めません。作業の継続はomp標準のtodo・sessionで扱い、
 `.sonsu` へ新たな継続記録を書き込みません。詳細は[配布のライフサイクル](docs/architecture/plugin-lifecycle.md)を参照してください。
+
+| 責任 | 担当 | 配布 |
+| --- | --- | --- |
+| 開発実行・task・todo・session・review | omp標準 | ホスト機能 |
+| Git・チケット・PR操作の権限と成果物 | Workflow | 基本5件 |
+| 言語別の文章品質・保護規則 | Fluent Korean・English・Japanese | 基本5件 |
+| UI・prototype・handoff品質とnative tool前提 | Design | 基本5件 |
+| 外部調査・製品探索・文章構成 | Research・Product・Writing | 選択候補。基本catalogには追加しない |
+
+Research・Product・Writingを追加する場合は、必要なドメインと現在のnative tool契約を別途確認します。
+Engineeringのompプロファイルは直接インストールした既存利用者向けに保持し、基本5件の設定には使いません。
 
 #### 旧omp構成からの移行
 

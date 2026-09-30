@@ -10,14 +10,14 @@
       "name": "workflow",
       "source": "./plugins/workflow/omp",
       "description": "Git·티켓·PR 작성과 PR 상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
-      "version": "0.12.3",
+      "version": "0.12.4",
       "category": "Developer Tools"
     },
     {
       "name": "fluent-korean",
-      "source": "./plugins/fluent-korean",
+      "source": "./plugins/fluent-korean/omp",
       "description": "기존 한국어 글의 AI 티·번역투를 윤문·진단한다. 일상 메시지와 기술 문서의 설명문에도 적용할 수 있다.",
-      "version": "0.1.0-beta.1",
+      "version": "0.1.0-beta.2",
       "category": "Productivity"
     },
     {
@@ -38,7 +38,7 @@
       "name": "design",
       "source": "./plugins/design/omp",
       "description": "웹·앱·운영 UI를 Figma 또는 코드에서 설계·재설계·감사하고 Google DESIGN.md와 DQ0–DQ8로 검증합니다.",
-      "version": "0.5.1",
+      "version": "0.5.2",
       "category": "Developer Tools"
     }
   ]
