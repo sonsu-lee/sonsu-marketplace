@@ -280,7 +280,11 @@ USER_REFERENCE_PROVIDER = "user"
 MAX_SECONDARY_BORROW = 2
 TRACKING_QUERY_KEYS = {"ref", "ref_src", "source", "fbclid", "gclid", "mc_cid", "mc_eid"}
 UNSAFE_LOCATOR_SCHEMES = {"file", "data", "javascript", "blob"}
-LOCATOR_TOKEN = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*:[^\s\"'<>()\[\]{},]+")
+LOCATOR_TOKEN = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*:[^\s\"'<>\[\]{}]+")
+REFERENCE_TIMESTAMP = re.compile(
+    r"[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}"
+    r"(?:\.[0-9]+)?(?:[Zz]|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])"
+)
 
 
 def _policy_path() -> Path:
@@ -392,6 +396,14 @@ def parsed_timestamp(value: Any) -> datetime | None:
 
 def timestamp(value: Any) -> bool:
     return parsed_timestamp(value) is not None
+
+
+def reference_timestamp(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and REFERENCE_TIMESTAMP.fullmatch(value) is not None
+        and timestamp(value.upper())
+    )
 
 
 def relative_path(value: Any) -> bool:
@@ -829,6 +841,10 @@ def normalize_locator(value: str) -> str:
 def reference_locator(value: Any, allow_relative_path: bool) -> bool:
     if not non_empty_string(value) or value != value.strip():
         return False
+    try:
+        value.encode("utf-8")
+    except UnicodeEncodeError:
+        return False
     if allow_relative_path and ":" not in value and relative_path(value):
         return True
     if not re.fullmatch(r"[A-Za-z][A-Za-z0-9+.-]+:\S+", value):
@@ -966,6 +982,13 @@ def validate_reference_set(
             allowed = "an http(s) URL, a provider-scoped id" + (", or a relative path" if user_supplied else "")
             errors.append(f"{item_context}.locator must be {allowed}")
         else:
+            scheme = locator.split(":", 1)[0].lower()
+            if (
+                origin == "agent_found"
+                and scheme not in {"http", "https"}
+                and (not isinstance(provider, str) or scheme != provider.lower())
+            ):
+                errors.append(f"{item_context}.locator scheme must match its provider")
             normalized = normalize_locator(locator)
             label = item_id if non_empty_string(item_id) else f"items[{index}]"
             if normalized in normalized_locators:
@@ -989,7 +1012,7 @@ def validate_reference_set(
         for field in ("borrow", "do_not_borrow"):
             if not string_list(item.get(field)):
                 errors.append(f"{item_context}.{field} must be a unique string array")
-        if not timestamp(item.get("retrieved_at")):
+        if not reference_timestamp(item.get("retrieved_at")):
             errors.append(f"{item_context}.retrieved_at must be an ISO-8601 date-time")
         borrow = item.get("borrow")
         if item.get("inspection") == "metadata_only" and isinstance(borrow, list) and borrow:
@@ -1020,7 +1043,11 @@ def validate_reference_set(
             errors.append(
                 f"{context}.items cannot contain agent_found references when status is no_verified_match"
             )
-        if not providers:
+        if not any(
+            provider_status in {"unavailable", "unauthorized", "failed"}
+            or (provider_status == "used" and name in query_providers.values())
+            for name, provider_status in provider_statuses.items()
+        ):
             errors.append(f"{context}.providers must record the attempted paths when status is no_verified_match")
     for item_id, item in items_by_id.items():
         borrow = item.get("borrow")
@@ -1042,7 +1069,7 @@ def validate_reference_document(payload: Any) -> list[str]:
     for field in ("id", "brief"):
         if not non_empty_string(payload.get(field)):
             errors.append(f"{field} must be a non-empty string")
-    if not timestamp(payload.get("created_at")):
+    if not reference_timestamp(payload.get("created_at")):
         errors.append("created_at must be an ISO-8601 date-time")
     body = {key: value for key, value in payload.items() if key in REFERENCE_SET_FIELDS}
     validate_reference_set(body, "reference_set", None, errors)
@@ -1053,11 +1080,17 @@ def validate_reference_provenance(payload: Any, records: list[str]) -> list[str]
     items = payload.get("items") if isinstance(payload, dict) else None
     if not isinstance(items, list):
         return []
-    observed = {
-        normalize_locator(token.rstrip(".,;:!?"))
-        for record in records
-        for token in LOCATOR_TOKEN.findall(record)
-    }
+    observed: set[str] = set()
+    for record in records:
+        for token in LOCATOR_TOKEN.findall(record):
+            # Keep the exact locator before considering surrounding prose punctuation.
+            observed.add(normalize_locator(token))
+            while token and (
+                token[-1] in ".,;:!?"
+                or (token[-1] == ")" and token.count(")") > token.count("("))
+            ):
+                token = token[:-1]
+                observed.add(normalize_locator(token))
     errors: list[str] = []
     for index, item in enumerate(items):
         if not isinstance(item, dict) or item.get("origin") != "agent_found":

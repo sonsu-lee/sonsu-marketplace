@@ -136,6 +136,51 @@ class ReferenceSetValidatorTests(unittest.TestCase):
         payload["items"][0]["locator"] = "mobbin:flow/signup-1"
         self.assert_accepted(payload)
 
+    def test_found_reference_provider_id_must_use_its_provider_scheme(self) -> None:
+        payload = valid_reference_set()
+        payload["items"][0]["locator"] = "refero:screen/stolen"
+        self.assert_rejected(payload, "items[0].locator scheme must match its provider")
+        payload["items"][0]["locator"] = "MOBBIN:screen/signup-1"
+        self.assert_accepted(payload)
+
+    def test_locator_with_lone_surrogate_is_rejected_without_traceback(self) -> None:
+        for locator in (
+            "https://mobbin.com/flows/signup-1?screen=\ud800",
+            "https://mobbin.com/flows/signup-1?\udfff=screen",
+        ):
+            with self.subTest(locator=ascii(locator)):
+                payload = valid_reference_set()
+                payload["items"][0]["locator"] = locator
+                self.assert_rejected(payload, "items[0].locator must be")
+
+    def test_reference_timestamps_require_rfc3339_grammar(self) -> None:
+        for field in ("retrieved_at", "created_at"):
+            for value in (
+                "2026-09-29\U0001f60009:00:00Z",
+                "20260929T090000Z",
+                "2026-09-29T09:00Z",
+                "2026-09-29T09:00:00+0900",
+                "2026-09-29T09:00:00+09:00:30",
+            ):
+                with self.subTest(field=field, value=value):
+                    payload = valid_reference_set()
+                    target = payload["items"][0] if field == "retrieved_at" else payload
+                    target[field] = value
+                    self.assert_rejected(payload, f"{field} must be")
+
+    def test_reference_timestamps_accept_rfc3339_case_and_offsets(self) -> None:
+        for value in (
+            "2026-09-29t09:00:00z",
+            "2026-09-29T09:00:00.123456Z",
+            "2026-09-29t09:00:00+09:00",
+            "2026-09-29T09:00:00-00:00",
+        ):
+            with self.subTest(value=value):
+                payload = valid_reference_set()
+                payload["items"][0]["retrieved_at"] = value
+                payload["created_at"] = value
+                self.assert_accepted(payload)
+
     def test_duplicate_locators_are_detected_after_normalization(self) -> None:
         payload = valid_reference_set()
         payload["primary_id"] = "ref-1"
@@ -197,9 +242,46 @@ class ReferenceSetValidatorTests(unittest.TestCase):
         silent["queries"] = []
         self.assert_rejected(silent, "providers must record the attempted paths")
 
+    def test_no_verified_match_requires_a_non_skipped_attempt(self) -> None:
+        payload = valid_reference_set()
+        payload.update(status="no_verified_match", items=[], queries=[])
+        del payload["primary_id"]
+        for status in ("skipped", "used"):
+            with self.subTest(status=status):
+                payload["providers"] = [{"name": "mobbin", "status": status}]
+                self.assert_rejected(payload, "providers must record the attempted paths")
+        for status in ("unavailable", "unauthorized", "failed"):
+            with self.subTest(status=status):
+                payload["providers"] = [{"name": "mobbin", "status": status}]
+                self.assert_accepted(payload)
+        payload["providers"] = [{"name": "mobbin", "status": "skipped"}]
+        payload["queries"] = valid_reference_set()["queries"]
+        self.assert_rejected(payload, "providers must record the attempted paths")
+
     def test_provenance_accepts_locators_seen_in_tool_output(self) -> None:
         record = "search_screens -> https://www.mobbin.com/flows/signup-1?utm_campaign=mcp."
         self.assert_accepted(valid_reference_set(), record)
+
+    def test_provenance_preserves_valid_locator_punctuation(self) -> None:
+        for locator in (
+            "https://mobbin.com/flows/sign,up",
+            "https://mobbin.com/flows/signup_(ios)",
+            "https://mobbin.com/flows/signup!",
+            "mobbin:flow/sign,up_(ios)!",
+        ):
+            with self.subTest(locator=locator):
+                payload = valid_reference_set()
+                payload["items"][0]["locator"] = locator
+                self.assert_accepted(payload, f"search_screens -> {locator}")
+                self.assert_accepted(payload, f"[{locator}]({locator})")
+                self.assert_accepted(payload, f'{{"locator": "{locator}"}}')
+                self.assert_accepted(payload, f"result ({locator}).")
+        payload = valid_reference_set()
+        payload["items"][0]["locator"] = "https://mobbin.com/flows/sign,up_(ios)!"
+        self.assert_accepted(
+            payload,
+            "https://www.Mobbin.com:443/flows/sign,up_(ios)!/?utm_source=mcp#top",
+        )
 
     def test_provenance_rejects_locators_missing_from_tool_output(self) -> None:
         record = "search_screens -> https://mobbin.com/flows/other-flow"
@@ -210,12 +292,20 @@ class ReferenceSetValidatorTests(unittest.TestCase):
         )
 
     def test_provenance_rejects_a_locator_that_only_prefixes_a_seen_url(self) -> None:
-        record = "search_screens -> https://mobbin.com/flows/signup-12 (Example app)"
-        self.assert_rejected(
-            valid_reference_set(),
-            "items[0].locator does not appear in the provenance record",
-            record,
-        )
+        for record in (
+            "search_screens -> https://mobbin.com/flows/signup-12 (Example app)",
+            "[Example app](https://mobbin.com/flows/signup-12)",
+            "result (https://mobbin.com/flows/signup-12).",
+            "https://mobbin.com/flows/signup-12?utm_source=mcp",
+            "https://mobbin.com/flows/signup-1,2",
+            "https://mobbin.com/flows/signup-1(ios)",
+        ):
+            with self.subTest(record=record):
+                self.assert_rejected(
+                    valid_reference_set(),
+                    "items[0].locator does not appear in the provenance record",
+                    record,
+                )
 
     def test_provenance_does_not_require_user_supplied_locators(self) -> None:
         record = "https://mobbin.com/flows/signup-1"
