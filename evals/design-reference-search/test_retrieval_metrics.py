@@ -171,6 +171,33 @@ class HandComputedMetricsTests(unittest.TestCase):
         self.assertAlmostEqual(metrics["unjudged_rate"]["value"], 1 / 3)
         self.assertEqual(metrics["missing_cases"], [])
 
+    def test_app_diversity_is_inconclusive_if_any_top_k_app_is_missing(self) -> None:
+        for missing_app in ({}, {"app": None}, {"app": ""}, {"app": "  "}):
+            with self.subTest(missing_app=missing_app):
+                metrics = MODULE.score_retrieval_case(
+                    {"mobbin:screen/a": 2},
+                    [
+                        {"locator": "mobbin:screen/a", "app": "AppA"},
+                        {"locator": "mobbin:screen/b", **missing_app},
+                    ],
+                    k=2,
+                )
+                self.assertIsNone(metrics["distinct_app_ratio"])
+                self.assertEqual(metrics["hit_at_k"], 1.0)
+
+    def test_missing_app_outside_deduplicated_top_k_does_not_affect_diversity(self) -> None:
+        metrics = MODULE.score_retrieval_case(
+            {"mobbin:screen/a": 2},
+            [
+                {"locator": "mobbin:screen/a", "app": "AppA"},
+                {"locator": "mobbin:screen/a"},
+                {"locator": "mobbin:screen/b", "app": "AppA"},
+                {"locator": "mobbin:screen/c"},
+            ],
+            k=2,
+        )
+        self.assertEqual(metrics["distinct_app_ratio"], 0.5)
+
 
 class DedupTests(unittest.TestCase):
     def test_duplicate_locators_are_deduped_before_truncation(self) -> None:
@@ -322,6 +349,32 @@ class SplitFilteringTests(unittest.TestCase):
         payload = json.loads(result.stdout.strip().splitlines()[0])
         self.assertEqual(set(payload), {"k", "calibration"})
 
+    def test_split_diversity_does_not_hide_incomplete_cases(self) -> None:
+        run = self._run()
+        run["cases"][0]["results"][0]["app"] = "AppA"
+        report = MODULE.compute_report(self._gold(), run, k=5, splits=list(MODULE.ALL_SPLIT_NAMES))
+        self.assertIsNone(report["all"]["distinct_app_ratio"]["value"])
+        self.assertEqual(report["calibration"]["distinct_app_ratio"], {
+            "value": 1.0, "n": 1, "inconclusive_cases": [],
+        })
+        self.assertEqual(report["held_out"]["distinct_app_ratio"], {
+            "value": None, "n": 0, "inconclusive_cases": ["held-1"],
+        })
+        self.assertEqual(report["all"]["distinct_app_ratio"], {
+            "value": None, "n": 1, "inconclusive_cases": ["held-1"],
+        })
+
+    def test_diversity_floor_fails_when_only_some_cases_have_app_data(self) -> None:
+        run = self._run()
+        run["cases"][0]["results"][0]["app"] = "AppA"
+        result = run_cli(
+            "score", gold=self._gold(), run=run,
+            floors=make_floors({"all": {"distinct_app_ratio": 0.5}}),
+        )
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("ERROR: all.distinct_app_ratio None", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
+
 
 class FloorsTests(unittest.TestCase):
     def _gold(self) -> dict:
@@ -375,6 +428,83 @@ class FloorsTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("unknown metric", result.stdout)
         self.assertNotIn("Traceback", result.stderr)
+
+    def test_huge_integer_floor_is_a_controlled_validation_error(self) -> None:
+        floors = make_floors({"held_out": {"ndcg_at_k": 10 ** 400}})
+        result = run_cli("score", gold=self._gold(), run=self._run(), floors=floors)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn(
+            "ERROR: splits.held_out.ndcg_at_k must be a finite number", result.stdout,
+            result.stdout + result.stderr,
+        )
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_requested_split_without_applicable_floors_is_an_error(self) -> None:
+        floors = make_floors({"held_out": {"ndcg_at_k": 0.5}})
+        for split in ("calibration", "all"):
+            with self.subTest(split=split):
+                result = run_cli(
+                    "score", extra=["--split", split],
+                    gold=self._gold(), run=self._run(), floors=floors,
+                )
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("ERROR: no floors apply to requested splits", result.stdout)
+                self.assertNotIn("Traceback", result.stderr)
+
+    def test_matching_requested_split_still_checks_floors(self) -> None:
+        result = run_cli(
+            "score", extra=["--split", "held_out"], gold=self._gold(), run=self._run(),
+            floors=make_floors({"held_out": {"ndcg_at_k": 0.5}}),
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_diversity_floor_fails_if_any_top_k_app_is_missing(self) -> None:
+        run = self._run()
+        run["cases"][0]["results"] = [
+            {"locator": "mobbin:screen/a", "app": "AppA"},
+            {"locator": "mobbin:screen/b"},
+        ]
+        result = run_cli(
+            "score", gold=self._gold(), run=run,
+            floors=make_floors({"held_out": {"distinct_app_ratio": 0.5}}),
+        )
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("ERROR: held_out.distinct_app_ratio None", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
+
+
+class LocatorValidationTests(unittest.TestCase):
+    def test_gold_and_run_reject_invalid_reference_locators(self) -> None:
+        for locator in (
+            "invented winner", "invented", "screens/a.png", "../screens/a.png",
+            "https:///missing-host", "http://[::1", "https://example.com/a b",
+            "file:/screens/a.png", "data:image/png;base64,abc", "javascript:alert(1)",
+            "blob:https://example.com/id",
+        ):
+            for source in ("gold", "run"):
+                with self.subTest(locator=locator, source=source):
+                    gold = FloorsTests()._gold()
+                    run = FloorsTests()._run()
+                    if source == "gold":
+                        gold["cases"][0]["judgments"][0]["locator"] = locator
+                        result = run_cli("validate", gold=gold)
+                    else:
+                        run["cases"][0]["results"][0]["locator"] = locator
+                        result = run_cli("score", gold=gold, run=run)
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    self.assertIn("locator must be an HTTP(S) URL or safe provider ID", result.stdout)
+                    self.assertNotIn("Traceback", result.stderr)
+
+    def test_gold_and_run_accept_http_urls_and_safe_provider_ids(self) -> None:
+        for locator in ("https://example.com/screens/1", "http://example.com/1", "Mobbin:screen/123", "Dribbble:Shot/ABC"):
+            with self.subTest(locator=locator):
+                gold = FloorsTests()._gold()
+                run = FloorsTests()._run()
+                gold["cases"][0]["judgments"][0]["locator"] = locator
+                run["cases"][0]["results"][0]["locator"] = locator
+                result = run_cli("score", gold=gold, run=run)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(json.loads(result.stdout)["held_out"]["hit_at_k"]["value"], 1.0)
 
 
 class MalformedGoldTests(unittest.TestCase):

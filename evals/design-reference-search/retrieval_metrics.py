@@ -12,7 +12,7 @@ from typing import Any
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "shared" / "design-quality"))
-from validate_design_quality import normalize_locator  # noqa: E402
+from validate_design_quality import normalize_locator, reference_locator  # noqa: E402
 
 
 GOLD_SCHEMA_VERSION = "design-reference-retrieval-gold-v1"
@@ -52,7 +52,10 @@ def non_empty_string(value: Any) -> bool:
 def is_finite_number(value: Any) -> bool:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return False
-    return math.isfinite(value)
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
 
 
 def reject_unknown_fields(value: dict[str, Any], allowed: set[str], context: str, errors: list[str]) -> None:
@@ -132,8 +135,8 @@ def validate_gold(payload: Any) -> list[str]:
             reject_unknown_fields(judgment, JUDGMENT_FIELDS, j_context, errors)
             require_fields(judgment, JUDGMENT_FIELDS, j_context, errors)
             locator = judgment.get("locator")
-            if not non_empty_string(locator):
-                errors.append(f"{j_context}.locator must be a non-empty string")
+            if not reference_locator(locator, allow_relative_path=False):
+                errors.append(f"{j_context}.locator must be an HTTP(S) URL or safe provider ID")
             else:
                 normalized = normalize_locator(locator)
                 if normalized in normalized_locators:
@@ -201,8 +204,8 @@ def validate_run(payload: Any, gold_ids: set[str]) -> list[str]:
                     errors.append(f"{r_context} must be an object")
                     continue
                 reject_unknown_fields(result, RESULT_FIELDS, r_context, errors)
-                if not non_empty_string(result.get("locator")):
-                    errors.append(f"{r_context}.locator must be a non-empty string")
+                if not reference_locator(result.get("locator"), allow_relative_path=False):
+                    errors.append(f"{r_context}.locator must be an HTTP(S) URL or safe provider ID")
                 if "app" in result and result["app"] is not None and not isinstance(result["app"], str):
                     errors.append(f"{r_context}.app must be a string")
         if status == "no_verified_match" and results:
@@ -283,7 +286,9 @@ def score_retrieval_case(
             mrr = 1.0 / rank
             break
     apps = [app for _locator, app in truncated if isinstance(app, str) and app.strip()]
-    distinct_app_ratio = len(set(apps)) / len(apps) if apps else None
+    distinct_app_ratio = (
+        len(set(apps)) / len(truncated) if truncated and len(apps) == len(truncated) else None
+    )
     unjudged_rate = (
         sum(1 for flag in judged if not flag) / len(truncated) if truncated else None
     )
@@ -334,6 +339,13 @@ def _aggregate_split(
             if per_case[cid]["metrics"][metric_name] is not None
         ]
         result[metric_name] = _summarize(values)
+        if metric_name == "distinct_app_ratio":
+            inconclusive_ids = sorted(
+                cid for cid in retrieval_ids if per_case[cid]["metrics"][metric_name] is None
+            )
+            result[metric_name]["inconclusive_cases"] = inconclusive_ids
+            if inconclusive_ids:
+                result[metric_name]["value"] = None
     abstention_values = [per_case[cid]["metrics"]["abstention"] for cid in oos_ids]
     result["abstention"] = _summarize(abstention_values)
     result["missing_cases"] = sorted(
@@ -436,6 +448,13 @@ def main() -> None:
         and args.k != floors_payload["k"]
     ):
         errors.append(f"--k {args.k} does not match floors k {floors_payload['k']}")
+    requested_splits = [args.split] if args.split else list(ALL_SPLIT_NAMES)
+    if (
+        not errors
+        and floors_payload is not None
+        and not any(split_name in floors_payload["splits"] for split_name in requested_splits)
+    ):
+        errors.append(f"no floors apply to requested splits: {requested_splits}")
     if errors:
         for error in errors:
             print(f"ERROR: {error}")
@@ -446,7 +465,6 @@ def main() -> None:
         print("ERROR: --k must be a positive integer")
         raise SystemExit(1)
 
-    requested_splits = [args.split] if args.split else list(ALL_SPLIT_NAMES)
     report = compute_report(gold_payload, run_payload, k, requested_splits)
     print(json.dumps(report, ensure_ascii=False, sort_keys=True))
 

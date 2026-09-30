@@ -63,7 +63,20 @@ python3 evals/design-reference-search/retrieval_metrics.py score --gold <gold.js
 상위 결과의 `distinct_app_ratio`를 함께 본다. run에 없는 사례는 결과 없음으로 채점하며 범위 밖
 사례라도 abstention 통과로 세지 않는다. 큐레이션한 표본이므로 신뢰구간을 주장하지 않고 사례 수를 함께 보고한다.
 
+gold의 judgment와 run의 result에 있는 `locator`는 HTTP(S) URL 또는 안전한 공급자 ID여야 한다.
+이름만 붙인 문자열이나 로컬 경로는 허용하지 않는다. 형식 검증은 실제 공급자에 존재하거나
+도구 출력에서 확인된 locator라는 증거를 대신하지 않는다.
+
+`app`은 선택 필드다. locator 중복 제거 후 상위 k개 결과가 모두 비어 있지 않은 `app`을 가지면
+`distinct_app_ratio`를 계산한다. 결과가 없거나 하나라도 앱 정보가 빠지면 해당 사례의 지표는
+`null`(`inconclusive`)이다. 그런 사례가 하나라도 있는 split의 다양성 평균도 `null`이며,
+`inconclusive_cases`에 해당 사례 ID를 표시한다. 이 지표의 `n`은 앱 정보가 완전한 사례 수다.
+다른 검색 지표는 계속 계산한다. `null`인 지표는 설정된 floor를 통과하지 못한다.
+
 첫 측정값은 목표가 아니라 `provisional-baseline-regression-gate` 상태의 최저선으로 floors 파일에 고정한다.
+`--floors`와 `--split`을 함께 쓰면 요청한 split 이름에 적용되는 floor가 있어야 한다.
+예를 들어 floors에 `held_out`만 있을 때 `--split calibration`이나 `--split all`을 쓰면 설정 오류다.
+`--split`을 생략하면 세 split을 보고하고 floors에 설정된 split의 지표를 검사한다.
 참고할 공개 수치로 GUing의 Hit@5 0.77, UI Remix의 Hit@5 0.88과 nDCG@5 0.77이 있다. 이 값은
 데이터와 과업이 달라 합격 기준으로 옮기지 않는다. calibration과 held-out의 차이가 크면 쿼리 규칙이
 calibration 사례에 과적합된 것으로 보고 다시 검토한다.
