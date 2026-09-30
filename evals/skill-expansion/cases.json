@@ -170,7 +170,7 @@
         "reviewers": 3,
         "models": {
           "gpt-6-luna": 2,
-          "gpt-6-astra": 1
+          "gpt-6.1-sol": 1
         },
         "reasoning_effort": "xhigh",
         "publication": "COMMENT with readback",
@@ -212,7 +212,7 @@
         "reviewers": 6,
         "models": {
           "gpt-6-luna": 5,
-          "gpt-6-astra": 1
+          "gpt-6.1-sol": 1
         },
         "reasoning_effort": "xhigh",
         "publication": "COMMENT with readback",
@@ -418,7 +418,7 @@
         "reviewers": 6,
         "models": {
           "gpt-6-luna": 5,
-          "gpt-6-astra": 1
+          "gpt-6.1-sol": 1
         },
         "reasoning_effort": "xhigh",
         "fresh_sessions": true,
@@ -433,9 +433,9 @@
       "installed_plugins": [
         "engineering"
       ],
-      "prompt": "$review-pr PR #12를 심층 검토해 줘. 호스트는 Luna xhigh만 지원하고 Astra 실행과 외부 실행 도구는 사용할 수 없어.",
+      "prompt": "$review-pr PR #12를 심층 검토해 줘. 호스트는 Luna xhigh만 지원하고 GPT-6.1 Sol 실행과 외부 실행 도구는 사용할 수 없어.",
       "expected": {
-        "astra_status": "blocked/not_run",
+        "sol_status": "blocked/not_run",
         "silent_substitution": false,
         "claim_complete": false
       }
