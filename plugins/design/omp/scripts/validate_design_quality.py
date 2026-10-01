@@ -12,6 +12,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -845,6 +846,8 @@ def reference_locator(value: Any, allow_relative_path: bool) -> bool:
         value.encode("utf-8")
     except UnicodeEncodeError:
         return False
+    if any(unicodedata.category(character) == "Cc" for character in value):
+        return False
     if allow_relative_path and ":" not in value and relative_path(value):
         return True
     if not re.fullmatch(r"[A-Za-z][A-Za-z0-9+.-]+:\S+", value):
@@ -854,9 +857,11 @@ def reference_locator(value: Any, allow_relative_path: bool) -> bool:
         return False
     if scheme in {"http", "https"}:
         try:
-            return bool(urlsplit(value).hostname)
+            parts = urlsplit(value)
+            port = parts.port
         except ValueError:
             return False
+        return bool(parts.hostname) and (port is None or 1 <= port <= 65535)
     return True
 
 
@@ -1034,6 +1039,10 @@ def validate_reference_set(
             primary = items_by_id[primary_id]
             if primary.get("inspection") == "metadata_only":
                 errors.append(f"{context}.primary_id cannot reference a metadata_only reference")
+            if primary.get("source_kind") == "unknown":
+                errors.append(
+                    f"{context}.primary_id cannot reference a reference whose source_kind is unknown"
+                )
             if not non_empty_string_list(primary.get("borrow")):
                 errors.append(f"{context}.primary reference {primary_id} must declare what to borrow")
     elif status == "no_verified_match":
@@ -1076,14 +1085,41 @@ def validate_reference_document(payload: Any) -> list[str]:
     return errors
 
 
+def explicit_locator(token: str, opener: str) -> str | None:
+    """Return the delimited locator when the token sits inside an explicit delimiter."""
+    if opener in {'"', "'", "<", "["}:
+        # LOCATOR_TOKEN stops at the matching closer for these delimiters.
+        return token
+    if opener == "`":
+        closer = token.find("`")
+        return token[:closer] if closer > 0 else None
+    if opener == "(":
+        depth = 0
+        for index, character in enumerate(token):
+            if character == "(":
+                depth += 1
+            elif character == ")":
+                if depth == 0:
+                    return token[:index] if index else None
+                depth -= 1
+    return None
+
+
 def validate_reference_provenance(payload: Any, records: list[str]) -> list[str]:
     items = payload.get("items") if isinstance(payload, dict) else None
     if not isinstance(items, list):
         return []
     observed: set[str] = set()
     for record in records:
-        for token in LOCATOR_TOKEN.findall(record):
-            # Keep the exact locator before considering surrounding prose punctuation.
+        for match in LOCATOR_TOKEN.finditer(record):
+            token = match.group(0)
+            opener = record[match.start() - 1] if match.start() else ""
+            explicit = explicit_locator(token, opener)
+            if explicit is not None:
+                # JSON, quoted, bracketed, and Markdown locators are compared exactly.
+                observed.add(normalize_locator(explicit))
+                continue
+            # Bare prose: keep the exact token, then allow trailing sentence punctuation.
             observed.add(normalize_locator(token))
             while token and (
                 token[-1] in ".,;:!?"

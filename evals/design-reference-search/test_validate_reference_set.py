@@ -128,13 +128,19 @@ class ReferenceSetValidatorTests(unittest.TestCase):
         self.assert_rejected(payload, "is reserved for user-supplied references")
 
     def test_found_reference_locator_must_be_a_url_or_provider_id(self) -> None:
-        for locator in ("references/local.png", "file:///tmp/shot.png", "C:\\shots\\a.png", "https://"):
+        for locator in (
+            "references/local.png", "file:///tmp/shot.png", "C:\\shots\\a.png", "https://",
+            "https://mobbin.com:bogus/flows/signup-1", "https://mobbin.com:99999/flows/signup-1",
+            "https://mobbin.com:0/flows/signup-1", "https://mobbin.com/flows/sign\x00up",
+            "mobbin:flow/signup\x7f-1",
+        ):
             payload = valid_reference_set()
             payload["items"][0]["locator"] = locator
             self.assert_rejected(payload, "items[0].locator must be an http(s) URL, a provider-scoped id")
-        payload = valid_reference_set()
-        payload["items"][0]["locator"] = "mobbin:flow/signup-1"
-        self.assert_accepted(payload)
+        for locator in ("mobbin:flow/signup-1", "https://mobbin.com:8443/flows/signup-1"):
+            payload = valid_reference_set()
+            payload["items"][0]["locator"] = locator
+            self.assert_accepted(payload)
 
     def test_found_reference_provider_id_must_use_its_provider_scheme(self) -> None:
         payload = valid_reference_set()
@@ -213,6 +219,7 @@ class ReferenceSetValidatorTests(unittest.TestCase):
         payload["items"][1]["borrow"] = ["stepper", "button shape", "copy tone"]
         self.assert_rejected(payload, "items ref-2 borrows more than 2 details")
         payload["primary_id"] = "ref-2"
+        payload["items"][1]["source_kind"] = "shipped_product"
         payload["items"][0]["borrow"] = ["one detail"]
         self.assert_accepted(payload)
 
@@ -258,6 +265,14 @@ class ReferenceSetValidatorTests(unittest.TestCase):
         payload["queries"] = valid_reference_set()["queries"]
         self.assert_rejected(payload, "providers must record the attempted paths")
 
+    def test_primary_reference_requires_a_known_source_kind(self) -> None:
+        payload = valid_reference_set()
+        payload["items"][0]["source_kind"] = "unknown"
+        self.assert_rejected(payload, "primary_id cannot reference a reference whose source_kind is unknown")
+        payload["primary_id"] = "ref-2"
+        payload["items"][1]["source_kind"] = "unknown"
+        self.assert_rejected(payload, "primary_id cannot reference a reference whose source_kind is unknown")
+
     def test_provenance_accepts_locators_seen_in_tool_output(self) -> None:
         record = "search_screens -> https://www.mobbin.com/flows/signup-1?utm_campaign=mcp."
         self.assert_accepted(valid_reference_set(), record)
@@ -282,6 +297,27 @@ class ReferenceSetValidatorTests(unittest.TestCase):
             payload,
             "https://www.Mobbin.com:443/flows/sign,up_(ios)!/?utm_source=mcp#top",
         )
+
+    def test_provenance_compares_delimited_locators_exactly(self) -> None:
+        seen = "https://mobbin.com/flows/signup-1!"
+        for record in (
+            f'{{"locator": "{seen}"}}',
+            f"locator: '{seen}'",
+            f"[{seen}]",
+            f"<{seen}>",
+            f"`{seen}`",
+            f"[Example app]({seen})",
+            f"result ({seen}).",
+        ):
+            with self.subTest(record=record):
+                self.assert_rejected(
+                    valid_reference_set(),
+                    "items[0].locator does not appear in the provenance record",
+                    record,
+                )
+                payload = valid_reference_set()
+                payload["items"][0]["locator"] = seen
+                self.assert_accepted(payload, record)
 
     def test_provenance_rejects_locators_missing_from_tool_output(self) -> None:
         record = "search_screens -> https://mobbin.com/flows/other-flow"

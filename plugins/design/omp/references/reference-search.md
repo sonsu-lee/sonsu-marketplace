@@ -80,8 +80,8 @@ MCP 서버, `research` 스킬은 이 계약의 실행 조건이 아니다.
 설계·재설계에 사용할 레퍼런스와 독립 `find-references`의 선별에 적용한다. 비교만 하는
 감사에는 primary나 차용할 요소를 정하도록 요구하지 않는다.
 
-- primary는 과업·플랫폼·밀도가 가장 가까운 레퍼런스 하나다. 이미지나 실제 페이지로 확인한
-  후보만 primary가 될 수 있다.
+- primary는 과업·플랫폼·밀도가 가장 가까운 레퍼런스 하나다. 이미지나 실제 페이지로 확인했고
+  출처 성격(`source_kind`)이 `unknown`이 아닌 후보만 primary가 될 수 있다.
 - 나머지 레퍼런스에서는 각각 최대 2개 디테일만 가져온다. 여러 레퍼런스를 평균 내지 않는다.
 - 레퍼런스에서의 역할을 유지한다. CTA 색은 CTA에만 쓰고, 경고 색을 장식으로 쓰지 않는다.
 - 표본이 5개 미만이면 "업계 표준" 같은 규범을 만들지 않고 표본 수가 작다는 사실을 결과에 밝힌다.
@@ -138,7 +138,7 @@ MCP 서버, `research` 스킬은 이 계약의 실행 조건이 아니다.
 - `agent_found` 카드의 공급자가 `used` 상태가 아니거나, `query_id`가 기록된 쿼리를 가리키지 않거나,
   `locator`가 URL·공급자 ID 형식이 아닌 경우
 - 정규화한 `locator`가 중복된 경우
-- primary가 없거나 `metadata_only`이거나 `borrow`가 비어 있는 경우
+- primary가 없거나 `metadata_only`·`source_kind: unknown`이거나 `borrow`가 비어 있는 경우
 - primary가 아닌 카드의 `borrow`가 2개를 넘거나, `metadata_only` 카드에 `borrow`가 있는 경우
 - `no_verified_match`인데 `agent_found` 카드나 `primary_id`가 있거나, 시도한 공급자 기록이 없는 경우
 
