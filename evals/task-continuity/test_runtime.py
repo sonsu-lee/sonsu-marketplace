@@ -237,12 +237,54 @@ os.write, os.close = delayed_write, delayed_close
 sys.argv = [SCRIPT_PATH, 'hook']
 raise SystemExit(hook.main())
 """.replace("SCRIPT_PATH", repr(str(self.packages["engineering"]))).replace("MARKER", repr(str(marker)))
+        # Exercise the actual recovery JSON with only PIPE_BUF bytes available.
+        # Emergency cleanup must emit no stdout, including when a prefix could fit.
+        self.assertGreater(len(normal.encode("utf-8")), 512)
+        read_fd, write_fd = os.pipe()
+        try:
+            atomic_limit = os.fpathconf(write_fd, "PC_PIPE_BUF")
+            os.set_blocking(write_fd, False)
+            prefilled = 0
+            try:
+                while True:
+                    prefilled += os.write(write_fd, b'x' * 4096)
+            except BlockingIOError:
+                pass
+            drained = len(os.read(read_fd, atomic_limit))
+            os.set_blocking(write_fd, True)
+            started = time.monotonic()
+            result = subprocess.run([sys.executable, "-c", code], input=json.dumps(event),
+                                    text=True, stdout=write_fd, stderr=subprocess.PIPE,
+                                    env=env, timeout=5)
+            self.assertLess(time.monotonic() - started, 4)
+            os.close(write_fd)
+            write_fd = None
+            received = bytearray()
+            while True:
+                chunk = os.read(read_fd, 131072)
+                if not chunk:
+                    break
+                received.extend(chunk)
+            emitted = bytes(received[prefilled - drained:])
+            self.assertEqual(emitted, b"", "emergency stdout must not expose a JSON prefix")
+            self.assertEqual(result.returncode, 0)
+            self.assertEqual(result.stderr, "task-continuity: session marker persistence unconfirmed\n")
+            self.assertTrue(marker.exists())
+            self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='session-a'\n")
+            self.assertEqual(self.path().read_bytes(), before)
+        finally:
+            os.close(read_fd)
+            if write_fd is not None:
+                os.close(write_fd)
+        env_file.unlink()
+        marker.unlink()
+
         started = time.monotonic()
         result = subprocess.run([sys.executable, "-c", code], input=json.dumps(event),
                                 text=True, capture_output=True, env=env, timeout=5)
         self.assertLess(time.monotonic() - started, 4)
         self.assertEqual(result.returncode, 0)
-        self.assertEqual(result.stdout, normal)
+        self.assertEqual(result.stdout, "", "forced cleanup omits context even on an empty pipe")
         self.assertEqual(result.stderr, "task-continuity: session marker persistence unconfirmed\n")
         self.assertTrue(marker.exists())
         self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='session-a'\n")

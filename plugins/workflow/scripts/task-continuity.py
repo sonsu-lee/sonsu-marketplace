@@ -393,11 +393,11 @@ def hook():
 
     def cleanup_timeout(signum, frame):
         try:
+            # Emergency exit omits context: recovery JSON can exceed PIPE_BUF,
+            # so a best-effort stdout write could expose a partial JSON document.
             if hook_state.get("session_saved") or hook_state.get("session_append_started"):
                 if not hook_state.get("session_saved"):
                     best_effort_hook_output(2, "task-continuity: session marker persistence unconfirmed\n")
-                if hook_state["result"] is not None:
-                    best_effort_hook_output(1, json.dumps(hook_state["result"], ensure_ascii=True, allow_nan=False) + "\n")
             else:
                 best_effort_hook_output(2, "task-continuity: recovery record unavailable; no checkpoint context injected\n")
         finally:
