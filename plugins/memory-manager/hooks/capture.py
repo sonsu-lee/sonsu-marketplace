@@ -2,6 +2,7 @@
 """Fail-open hook adapter. Never writes a long-term memory or emits hook context."""
 
 import json
+import os
 import signal
 import sys
 from pathlib import Path
@@ -11,6 +12,8 @@ from memory_store import hook_skip_status, project_key, root_path, stage_hook  #
 
 # Leave room for subprocess cleanup and diagnostics before the host's 5s limit.
 HOOK_SECONDS = 3
+HOOK_CLEANUP_SECONDS = 0.25
+HOOK_WRITE = os.write
 
 
 class HookTimeout(Exception):
@@ -21,9 +24,45 @@ def hook_timeout(signum, frame):
     raise HookTimeout()
 
 
+def failure_message(capture_state, error):
+    # Report observed commit state, never prompt text or an assumed rollback.
+    if capture_state.get("committed"):
+        if not capture_state.get("durable"):
+            return "memory-manager: candidate staged; durability confirmation incomplete (" + type(error).__name__ + ")"
+    elif capture_state.get("commit_started"):
+        return "memory-manager: candidate commit outcome unconfirmed (" + type(error).__name__ + ")"
+    else:
+        return "memory-manager: capture hook unavailable (" + type(error).__name__ + ")"
+    return None
+
+
+def best_effort_hook_output(fd, text):
+    try:
+        os.set_blocking(fd, False)
+        HOOK_WRITE(fd, text.encode("utf-8"))
+    except OSError:
+        pass
+
+
 def main():
     capture_state = {}
-    previous = signal.signal(signal.SIGALRM, hook_timeout)
+
+    def cleanup_timeout(signum, frame):
+        try:
+            message = failure_message(capture_state, HookTimeout())
+            if message:
+                best_effort_hook_output(2, message + "\n")
+        finally:
+            # End this hook only. OS teardown releases fds/locks; private scratch
+            # can remain when its unlink is stalled. Never delete a committed candidate.
+            os._exit(0)
+
+    def operation_timeout(signum, frame):
+        signal.signal(signal.SIGALRM, cleanup_timeout)
+        signal.setitimer(signal.ITIMER_REAL, HOOK_CLEANUP_SECONDS)
+        hook_timeout(signum, frame)
+
+    previous = signal.signal(signal.SIGALRM, operation_timeout)
     signal.setitimer(signal.ITIMER_REAL, HOOK_SECONDS)
     try:
         event = json.load(sys.stdin)
@@ -40,16 +79,9 @@ def main():
         stage_hook(root_path(), project_key(cwd), event, capture_state=capture_state)
     except Exception as error:
         # A hook must not block the host. Keep the diagnostic free of prompt text.
-        if capture_state.get("committed"):
-            if not capture_state.get("durable"):
-                print("memory-manager: candidate staged; durability confirmation incomplete (" +
-                      type(error).__name__ + ")", file=sys.stderr)
-        elif capture_state.get("commit_started"):
-            # The deadline can interrupt rename before its return value is known.
-            print("memory-manager: candidate commit outcome unconfirmed (" +
-                  type(error).__name__ + ")", file=sys.stderr)
-        else:
-            print("memory-manager: capture hook unavailable (" + type(error).__name__ + ")", file=sys.stderr)
+        message = failure_message(capture_state, error)
+        if message:
+            print(message, file=sys.stderr, flush=True)
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)
         signal.signal(signal.SIGALRM, previous)

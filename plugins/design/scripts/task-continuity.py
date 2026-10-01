@@ -23,6 +23,8 @@ ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}\Z")
 EXCLUSION = b"/.sonsu/continuity/\n"
 # Hook-only wall-clock budget; reserve time before the host's 5s deadline.
 HOOK_SECONDS = 3
+HOOK_CLEANUP_SECONDS = 0.25
+HOOK_WRITE = os.write
 
 
 class ContinuityError(ValueError):
@@ -35,6 +37,14 @@ class HookTimeout(Exception):
 
 def hook_timeout(signum, frame):
     raise HookTimeout()
+
+
+def best_effort_hook_output(fd, text):
+    try:
+        os.set_blocking(fd, False)
+        HOOK_WRITE(fd, text.encode("utf-8"))
+    except OSError:
+        pass
 
 
 def identifier(value):
@@ -380,7 +390,27 @@ def mutate(args):
 
 def hook():
     hook_state = {}
-    previous = signal.signal(signal.SIGALRM, hook_timeout)
+
+    def cleanup_timeout(signum, frame):
+        try:
+            if hook_state.get("session_saved") or hook_state.get("session_append_started"):
+                if not hook_state.get("session_saved"):
+                    best_effort_hook_output(2, "task-continuity: session marker persistence unconfirmed\n")
+                if hook_state["result"] is not None:
+                    best_effort_hook_output(1, json.dumps(hook_state["result"], ensure_ascii=True, allow_nan=False) + "\n")
+            else:
+                best_effort_hook_output(2, "task-continuity: recovery record unavailable; no checkpoint context injected\n")
+        finally:
+            # End this hook only; bypass stalled Python cleanup, preserving writes
+            # already observed and leaving OS teardown to release descriptors.
+            os._exit(0)
+
+    def operation_timeout(signum, frame):
+        signal.signal(signal.SIGALRM, cleanup_timeout)
+        signal.setitimer(signal.ITIMER_REAL, HOOK_CLEANUP_SECONDS)
+        hook_timeout(signum, frame)
+
+    previous = signal.signal(signal.SIGALRM, operation_timeout)
     signal.setitimer(signal.ITIMER_REAL, HOOK_SECONDS)
     try:
         # Finish all reads, validation and context preparation before appending.

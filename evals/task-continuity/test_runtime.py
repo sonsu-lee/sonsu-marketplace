@@ -205,6 +205,73 @@ raise SystemExit(hook.main())
                                      if boundary == "session_write" else "")
                     self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='session-a'\n")
 
+    def test_hook_deadline_includes_stalled_session_fd_cleanup(self):
+        self.assertEqual(self.write().returncode, 0)
+        before = self.path().read_bytes()
+        normal = self.hook(source="resume").stdout
+        env_file, marker = self.base / "claude-env", self.base / "cleanup-entered"
+        env = dict(self.env, CLAUDE_ENV_FILE=str(env_file),
+                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+        event = {"hook_event_name": "SessionStart", "source": "resume",
+                 "session_id": "session-a", "cwd": str(self.work)}
+        code = """
+import importlib.util, os, sys, time
+from pathlib import Path
+spec = importlib.util.spec_from_file_location('continuity_hook', SCRIPT_PATH)
+hook = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(hook)
+real_write, real_close = os.write, os.close
+written_fd = None
+def delayed_write(fd, raw):
+    global written_fd
+    result = real_write(fd, raw)
+    written_fd = fd
+    time.sleep(8)
+    return result
+def delayed_close(fd):
+    if fd == written_fd:
+        Path(MARKER).touch()
+        time.sleep(8)
+    return real_close(fd)
+os.write, os.close = delayed_write, delayed_close
+sys.argv = [SCRIPT_PATH, 'hook']
+raise SystemExit(hook.main())
+""".replace("SCRIPT_PATH", repr(str(self.packages["engineering"]))).replace("MARKER", repr(str(marker)))
+        started = time.monotonic()
+        result = subprocess.run([sys.executable, "-c", code], input=json.dumps(event),
+                                text=True, capture_output=True, env=env, timeout=5)
+        self.assertLess(time.monotonic() - started, 4)
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, normal)
+        self.assertEqual(result.stderr, "task-continuity: session marker persistence unconfirmed\n")
+        self.assertTrue(marker.exists())
+        self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='session-a'\n")
+        self.assertEqual(self.path().read_bytes(), before)
+
+        # Full output pipes drop the best-effort response while exit stays bounded.
+        env_file.unlink()
+        blocked_output = """
+for destination in (1, 2):
+    read_fd, write_fd = os.pipe()
+    os.set_blocking(write_fd, False)
+    try:
+        while True:
+            real_write(write_fd, b'x' * 4096)
+    except BlockingIOError:
+        pass
+    os.set_blocking(write_fd, True)
+    os.dup2(write_fd, destination)
+raise SystemExit(hook.main())
+"""
+        code = code.replace("raise SystemExit(hook.main())", blocked_output)
+        started = time.monotonic()
+        result = subprocess.run([sys.executable, "-c", code], input=json.dumps(event),
+                                text=True, capture_output=True, env=env, timeout=5)
+        self.assertLess(time.monotonic() - started, 4)
+        self.assertEqual((result.returncode, result.stdout, result.stderr), (0, "", ""))
+        self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='session-a'\n")
+        self.assertEqual(self.path().read_bytes(), before)
+
     def git(self, *args, cwd=None):
         return subprocess.run(["git", *args], cwd=cwd or self.work, env=self.env,
                               capture_output=True, text=True, check=True).stdout.strip()

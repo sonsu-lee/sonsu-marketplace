@@ -481,6 +481,54 @@ raise SystemExit(hook.main())
         self.assertEqual(self.run_hook(event).stderr, "")
         self.assertEqual(self.run_store("pending")["results"], pending)
 
+    def test_hook_deadline_includes_stalled_temporary_file_cleanup(self):
+        self.run_store("capture", "on")
+        marker = self.base / "cleanup-entered"
+        event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
+                 "prompt": "기억해 줘: cleanup deadline"}
+        code = """
+import importlib.util, os, stat, time
+from pathlib import Path
+spec = importlib.util.spec_from_file_location('capture_hook', HOOK_PATH)
+hook = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(hook)
+real_fsync, real_unlink = os.fsync, os.unlink
+def delayed_fsync(fd):
+    if stat.S_ISREG(os.fstat(fd).st_mode):
+        time.sleep(8)
+    return real_fsync(fd)
+def delayed_unlink(name, *args, **kwargs):
+    if Path(name).name.startswith('.memory-'):
+        Path(MARKER).touch()
+        time.sleep(8)
+    return real_unlink(name, *args, **kwargs)
+os.fsync, os.unlink = delayed_fsync, delayed_unlink
+raise SystemExit(hook.main())
+""".replace("HOOK_PATH", repr(str(HOOK))).replace("MARKER", repr(str(marker)))
+        result = self.run_hook(event, code=code)
+        self.assertEqual(result.stderr, "memory-manager: capture hook unavailable (HookTimeout)\n")
+        self.assertTrue(marker.exists())
+        self.assertEqual(self.run_store("pending")["results"], [])
+        self.assertEqual(len(list(self.store.rglob(".memory-*"))), 1)
+
+        # A full diagnostic pipe must not extend the last cleanup deadline.
+        blocked_output = """
+read_fd, write_fd = os.pipe()
+os.set_blocking(write_fd, False)
+try:
+    while True:
+        os.write(write_fd, b'x' * 4096)
+except BlockingIOError:
+    pass
+os.set_blocking(write_fd, True)
+os.dup2(write_fd, 2)
+raise SystemExit(hook.main())
+"""
+        code = code.replace("raise SystemExit(hook.main())", blocked_output)
+        self.assertEqual(self.run_hook(event, code=code).stderr, "")
+        self.assertEqual(self.run_store("pending")["results"], [])
+        self.assertEqual(len(list(self.store.rglob(".memory-*"))), 2)
+
     def test_selective_import_does_not_modify_host_source(self):
         source = self.base / "native-memory.md"
         source.write_text("사용자가 선택한 결정", encoding="utf-8")
