@@ -99,7 +99,7 @@
     "plugins/fluent-korean/omp/skills/fluent-korean/references/scholarship.md": "e83346a5b0147a923b725295cbee6b7fa3b22020840b5eee95c35f615b182e64",
     "plugins/fluent-korean/omp/skills/fluent-korean/references/taxonomy-candidates.md": "7b959a5156cfac19d171206ee4d124afd9148eb840b05b38e9118b042f4fa9d8",
     "plugins/fluent-korean/omp/skills/fluent-korean/references/web-service-spec.md": "be887c5e60b9a37e63a4aa8156ada0da4298098a51451925a3a22b9a37e25f6a",
-    "plugins/workflow/omp/.claude-plugin/plugin.json": "37db88887b75b91d1b03f3d9de7b55d0253ebbe85c5aff78220c99d5adf6bc6d",
+    "plugins/workflow/omp/.claude-plugin/plugin.json": "15bd8f022c5119006a53a476cf830c062626041f286f72f1ff2c078fd52a85bd",
     "plugins/workflow/omp/UPSTREAM.md": "d3af5b2fa29b3364315606050d13fd86cbcb212f7ecba5b97eca99ad4c6532d0",
     "plugins/workflow/omp/WRITING_LICENSE.md": "2e6ab9dcc884ebc57eb4b0551093a0d2cccf186b32ff495b781c50a0c2bab6b1",
     "plugins/workflow/omp/references/branch-naming.md": "b5f872a6a847d9578b01863d9591c9eb549abb7d65f4eda6fa66faf8d2e92f53",
@@ -139,13 +139,13 @@
     "plugins/workflow/omp/skills/to-ticket/SKILL.md": "5758b9044f28f751ef0b12475cf8067ea7e153ecdf655a8a56e88b4618b21625",
     "plugins/workflow/omp/skills/to-ticket/agents/openai.yaml": "52aea0c6afce3cea638a48af79674d9fee4ede5e9b9755160c0ec3ca204d8298",
     "plugins/workflow/omp/skills/to-ticket/assets/templates/bug.md": "1ab05b4f8ba712f38191d3cf55ab9647f04a9cc73b1df5d70e30761a7aa75ec4",
-    "plugins/workflow/omp/skills/to-ticket/assets/templates/default.md": "55867d1efda81e5570d9107d86ecbcac2ac32a683f6a2c1dff96a02abf87c9c8",
+    "plugins/workflow/omp/skills/to-ticket/assets/templates/default.md": "c9219f331c6271645eec3b67dea2987e1c1732fe425c8a80d8d80a2545c61197",
     "plugins/workflow/omp/skills/to-ticket/assets/templates/investigation.md": "fefa30c4c16f7256fdede9076a2f66f6051ed14aeb245340b3cf27dd6eb60aa2",
     "plugins/workflow/omp/skills/to-ticket/references/github.md": "9d619d094b8d12ccc06f823c74891ea88df6fc7eb7c07a86cdae3ffc1e5444ef",
     "plugins/workflow/omp/skills/to-ticket/references/linear.md": "729bfd697d3324457754877b5f10b15eedb118a8d43856cf664461ac6f8af329",
     "plugins/workflow/omp/skills/to-ticket/references/media-attachments.md": "0bfd3836b7b2dae0c39ebe9c323dd658b2b1c320a944e7810aece6207e88cb6f",
     "plugins/workflow/omp/skills/to-ticket/references/ticket-quality-bar.md": "0f5a3dcdf628397d80ee29fc6f236b2c8bfec4a5229d97eeb1420475eb95871a",
     "plugins/workflow/omp/skills/to-ticket/references/ticket-selection.md": "b605ced220e7a90c76a0ad012444e41ee286a0cd28aa1e019abb1cbf32f2606b",
-    "plugins/workflow/omp/skills/to-ticket/references/ticket-writing.md": "c9228cbfbea3cdca0e58ab4aa4eb01fde04456017e6bac94c0f11cf82f64aa81"
+    "plugins/workflow/omp/skills/to-ticket/references/ticket-writing.md": "1099a9e3a7f27346f2f2c48b8f31c6c397dc5665c4c40174398e2fe278cbf8e4"
   }
 }
