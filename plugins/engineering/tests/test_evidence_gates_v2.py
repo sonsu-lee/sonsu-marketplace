@@ -1,5 +1,6 @@
 """Behavior tests for managed evidence DAGs, using the public CLI."""
 import concurrent.futures
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -119,6 +120,59 @@ class ManagedGates(unittest.TestCase):
         self.assertEqual(set(json.loads(result.stdout)), {'systemMessage'})
         self.assertEqual(result.stderr, '')
         self.assertEqual(before, state_path.read_bytes())
+
+    def test_hook_and_status_reject_incomplete_v2_unit_records(self):
+        self.init()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = []
+        cases.append(('empty unit', lambda state: state['units'].__setitem__('design', {})))
+        cases.append(('missing checks', lambda state: state['units']['design'].pop('checks')))
+        cases.append(('missing reviews', lambda state: state['units']['design'].pop('reviews')))
+        cases.append(('missing completions', lambda state: state['units']['design'].pop('completions')))
+        cases.append(('wrong checks type', lambda state: state['units']['design'].__setitem__('checks', [])))
+        cases.append(('corrupt closed value', lambda state: state.__setitem__('closed', 'corrupt')))
+        cases.append(('malformed completion receipt', lambda state: state['units']['design'].__setitem__('completions', [{}])))
+        cases.append(('malformed check receipt', lambda state: state['units']['design']['checks'].__setitem__('verify', [{}])))
+        cases.append(('malformed review receipt', lambda state: state['units']['design']['reviews'].__setitem__('final-review', [{}])))
+        cases.append(('invalid owner metadata', lambda state: state['units']['design'].__setitem__('owner', 'corrupt')))
+        cases.append(('invalid request metadata', lambda state: state.__setitem__('requests', [])))
+
+        runtime_spec = importlib.util.spec_from_file_location('evidence_gates_fixture', self.script)
+        runtime = importlib.util.module_from_spec(runtime_spec)
+        runtime_spec.loader.exec_module(runtime)
+        v2_spec = importlib.util.spec_from_file_location('evidence_gates_v2_fixture', self.script.parent / 'evidence_gates_v2.py')
+        v2 = importlib.util.module_from_spec(v2_spec)
+        v2_spec.loader.exec_module(v2)
+        v2.G = runtime
+        live_state = v2.load(self.root, 'task')
+        binding = v2.binding(self.root, live_state, live_state['config']['units'][0])
+        focused = {'attempt': 1, 'unit': 'design', 'gate': 'final-review', 'scope': 'focused',
+                   'binding': binding, 'files': {}, 'outcome': 'passed', 'raw': []}
+        cases.append(('focused review missing prior round',
+                      lambda state: state['units']['design']['reviews']['final-review'].append(focused)))
+
+        event = {'hook_event_name': 'Stop', 'session_id': 'controller', 'cwd': str(self.root),
+                 'permission_mode': 'default', 'stop_hook_active': False}
+        for label, corrupt in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                corrupt(state)
+                state_path.write_text(json.dumps(state))
+                before = state_path.read_bytes()
+                hook = subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), 'hook'],
+                                      input=json.dumps(event), text=True, capture_output=True,
+                                      env=dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1'),
+                                      timeout=15)
+                self.assertEqual(hook.returncode, 0)
+                self.assertEqual(hook.stdout, '')
+                self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+                self.assertEqual(before, state_path.read_bytes())
+                status = self.call('status')
+                self.assertEqual(status.returncode, 2)
+                self.assertIn('evidence-gates:', status.stderr)
+                self.assertNotIn('Traceback', status.stderr)
+                self.assertEqual(before, state_path.read_bytes())
 
     def enter(self, unit='design', request='enter-1'):
         return self.ok('enter', '--unit', unit, '--request-id', request)

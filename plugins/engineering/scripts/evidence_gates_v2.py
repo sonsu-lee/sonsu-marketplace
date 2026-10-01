@@ -168,8 +168,65 @@ def load(root, task):
     need(isinstance(state, dict) and required <= set(state), 'invalid v2 task state')
     need(state.get('schema_version') == 2 and state.get('workspace_root') == str(root) and
          state.get('task_id') == task, 'v2 task identity mismatch; legacy receipts cannot pass v2')
-    need(state.get('host', 'codex') in PROFILE_FILES, 'invalid task host')
+    host = state.get('host', 'codex')
+    need(isinstance(host, str) and host in PROFILE_FILES, 'invalid task host')
     validate(state['config'], root, check_inputs=False)
+    need(isinstance(state['config_history'], list) and isinstance(state['sessions'], list) and
+         all(isinstance(session, str) for session in state['sessions']) and
+         isinstance(state['requests'], dict), 'invalid v2 task history')
+    need(all(isinstance(request, str) and isinstance(record, dict) and
+             {'payload', 'receipt'} <= set(record) and isinstance(record['payload'], dict) and
+             (record['receipt'] is None or isinstance(record['receipt'], dict))
+             for request, record in state['requests'].items()), 'invalid v2 request record')
+    need(state['closed'] is False or state['closed'] in ('complete', 'superseded', 'accepted_risk'),
+         'invalid v2 task lifecycle')
+    definitions = {u['id']: u for u in state['config']['units']}
+    units = state['units']
+    need(isinstance(units, dict) and set(units) == set(definitions), 'v2 unit state does not match configuration')
+    common_receipt = {'binding', 'files', 'outcome'}
+
+    def receipt_rows(rows, outcomes, extra=()):
+        need(isinstance(rows, list), 'invalid v2 receipt history')
+        for row in rows:
+            need(isinstance(row, dict) and common_receipt | set(extra) <= set(row) and
+                 row['outcome'] in outcomes and isinstance(row['binding'], dict) and
+                 {'context', 'artifact'} <= set(row['binding']) and
+                 isinstance(row['binding']['context'], dict) and isinstance(row['binding']['artifact'], str) and
+                 isinstance(row['files'], dict) and
+                 all(isinstance(name, str) and isinstance(fingerprint, str)
+                     for name, fingerprint in row['files'].items()), 'invalid v2 receipt')
+            if 'attempt' in extra:
+                need(type(row['attempt']) is int and row['attempt'] > 0, 'invalid v2 receipt attempt')
+
+    for name, definition in definitions.items():
+        data = units[name]
+        need(isinstance(data, dict) and {'owner', 'entries', 'completions', 'checks', 'reviews'} <= set(data),
+             'invalid v2 unit state')
+        owner = data['owner']
+        need(owner is None or (isinstance(owner, dict) and {'request_id', 'context'} <= set(owner) and
+                               isinstance(owner['request_id'], str) and isinstance(owner['context'], dict)),
+             'invalid v2 unit owner')
+        receipt_rows(data['entries'], ('entered',), {'receipt_id', 'unit'})
+        receipt_rows(data['completions'], ('passed', 'accepted_risk'), {'receipt_id', 'unit'})
+        check_ids = {check['id'] for check in definition['checks']}
+        need(isinstance(data['checks'], dict) and set(data['checks']) == check_ids,
+             'v2 check state does not match configuration')
+        for rows in data['checks'].values():
+            receipt_rows(rows, ('pending', 'passed', 'failed', 'blocked', 'inconclusive'), {'attempt'})
+        need(isinstance(data['reviews'], dict) and {'final-review', 'red-team'} <= set(data['reviews']),
+             'v2 review state is incomplete')
+        for gate, rows in data['reviews'].items():
+            receipt_rows(rows, ('pending', 'passed', 'failed', 'blocked', 'inconclusive'),
+                         {'attempt', 'unit', 'gate', 'scope', 'raw'})
+            for index, row in enumerate(rows, 1):
+                need(row['gate'] == gate and row['unit'] == name and row['attempt'] == index and
+                     row['scope'] in ('full', 'focused') and isinstance(row['raw'], list) and
+                     all(isinstance(raw, dict) for raw in row['raw']), 'invalid v2 review receipt')
+                if row['scope'] == 'focused':
+                    need(type(row.get('prior_round')) is int and 0 < row['prior_round'] < index,
+                         'invalid focused review history')
+                if gate == 'red-team':
+                    need(isinstance(row.get('normal_review'), str), 'invalid red-team review reference')
     return state
 
 
