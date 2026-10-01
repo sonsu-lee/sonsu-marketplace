@@ -417,8 +417,8 @@ branch 생성이 함께 요청되면 `ticket-lifecycle`과 `branch`를 runtime�
 ### PR은 연결하고 native automation을 우선한다
 
 새 branch 이름은 사용자 지정과 repository·team 규칙을 따르고, 규칙이 없으면 티켓 ID 없는
-설명형 이름을 씁니다. Linear·GitHub Issues 모두 티켓 연결은 PR 본문에서만 하고, 본문의 티켓 ID에는
-canonical URL 링크를 겁니다. 기존 branch는 자동 rename하지 않습니다. 여러 PR의 부분 병합이
+설명형 이름을 씁니다. Linear·GitHub Issues 모두 티켓은 PR 본문에서 연결하고, 사용자가 요청하면
+provider가 지원하는 별도 link 작업을 추가합니다. 본문의 티켓 ID에는 canonical URL 링크를 겁니다. 기존 branch는 자동 rename하지 않습니다. 여러 PR의 부분 병합이
 티켓을 조기 완료시킬 자동화가 있으면 [작성 설계](../reference/ticket-pr-writing.md)의 비종결 연결·
 충돌 처리 규칙을 적용합니다.
 
