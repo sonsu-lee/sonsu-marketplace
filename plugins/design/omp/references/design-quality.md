@@ -14,6 +14,14 @@
 5. 적용 가능한 상태와 복구·안전 동작을 정한 뒤, `outcome_plan`에 scenario·metric·참가자 기준·목표 인원·protocol을 결과 관찰 전에 고정한다.
 6. 아래 DESIGN.md 공통 절차와 현재 산출물 범위의 DQ gate를 평가하고, 뒤 단계는 `not_run`으로 남긴다.
 
+외부 레퍼런스를 찾거나 사용했으면 Design 플러그인의 레퍼런스 검색 계약에 따라 선택적
+`extensions.references`에 공급자·쿼리·레퍼런스 카드를 기록한다. 카드의 `task_ids`는 계약의
+task scenario를 가리킨다. 레퍼런스는 구성·표현의 근거일 뿐 DQ gate 통과나 사용자 결과의 근거가 아니다.
+
+```bash
+python3 <plugin-root>/scripts/validate_design_quality.py references <reference-set.json>
+```
+
 ## DESIGN.md 공통 절차
 
 이 계약을 사용하는 모든 스킬은 아래 작업 유형에 따라 같은 절차와 검증 명령을 사용한다.

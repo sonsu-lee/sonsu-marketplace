@@ -3237,6 +3237,222 @@
         "fluent-japanese:fluent-japanese"
       ],
       "must_not_install_plugins": true
+    },
+    {
+      "id": "expansion-find-references-login-auto",
+      "installed_plugins": [
+        "design"
+      ],
+      "prompt": "로그인 화면 레퍼런스를 몇 개 찾아서 출처와 함께 정리해 줘.",
+      "expected_sequence": [
+        "design:find-references"
+      ],
+      "expected_dq_reviewer_count": 0,
+      "fixture": {
+        "suite": "design-reference-search",
+        "case": "find-references-login-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-find-references-dashboard-mood-auto",
+      "installed_plugins": [
+        "design"
+      ],
+      "prompt": "차분한 분위기의 대시보드 레퍼런스를 모아서 컴포넌트 스타일까지 비교해 줘.",
+      "expected_sequence": [
+        "design:find-references"
+      ],
+      "expected_dq_reviewer_count": 0,
+      "fixture": {
+        "suite": "design-reference-search",
+        "case": "find-references-dashboard-mood-auto",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-find-references-explicit",
+      "installed_plugins": [
+        "design"
+      ],
+      "prompt": "$find-references 온보딩 흐름 레퍼런스를 찾아 줘.",
+      "expected_sequence": [
+        "design:find-references"
+      ],
+      "expected_dq_reviewer_count": 0,
+      "fixture": {
+        "suite": "design-reference-search",
+        "case": "find-references-explicit",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-find-references-then-design-combo",
+      "installed_plugins": [
+        "design"
+      ],
+      "prompt": "비슷한 로그인 화면 레퍼런스를 찾아서 참고하고 그걸 바탕으로 새 로그인 화면을 설계해 줘.",
+      "expected_sequence": [
+        "design:design-interface"
+      ],
+      "must_not_select": [
+        "design:find-references"
+      ],
+      "expected_dq_reviewer_count": 2,
+      "fixture": {
+        "suite": "design-reference-search",
+        "case": "find-references-then-design-combo",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-find-references-redesign-user-supplied",
+      "installed_plugins": [
+        "design"
+      ],
+      "prompt": "내가 캡처해서 보낸 이 레퍼런스 화면들을 참고해서 기존 결제 화면을 재설계해 줘.",
+      "expected_sequence": [
+        "design:redesign-interface"
+      ],
+      "must_not_select": [
+        "design:find-references"
+      ],
+      "expected_dq_reviewer_count": 2,
+      "fixture": {
+        "suite": "design-reference-search",
+        "case": "find-references-redesign-user-supplied",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-find-references-near-miss-new-screen-no-reference-request",
+      "installed_plugins": [
+        "design"
+      ],
+      "prompt": "새 알림 설정 화면을 처음부터 설계해 줘. 레퍼런스는 필요 없고 우리 서비스 맥락으로 바로 만들어 줘.",
+      "expected_sequence": [
+        "design:design-interface"
+      ],
+      "must_not_select": [
+        "design:find-references"
+      ],
+      "expected_dq_reviewer_count": 2,
+      "fixture": {
+        "suite": "design-reference-search",
+        "case": "find-references-near-miss-new-screen-no-reference-request",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-find-references-near-miss-audit",
+      "installed_plugins": [
+        "design"
+      ],
+      "prompt": "지금 배포된 결제 화면을 감사해서 문제점만 짚어 줘. 레퍼런스는 찾지 마.",
+      "expected_sequence": [
+        "design:audit-interface"
+      ],
+      "must_not_select": [
+        "design:find-references"
+      ],
+      "fixture": {
+        "suite": "design-reference-search",
+        "case": "find-references-near-miss-audit",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-find-references-near-miss-logo-generation",
+      "installed_plugins": [
+        "design"
+      ],
+      "prompt": "우리 서비스 로고 이미지를 새로 만들어 줘.",
+      "expected_sequence": [],
+      "must_not_select": [
+        "design:find-references",
+        "design:design-interface",
+        "design:redesign-interface",
+        "design:audit-interface"
+      ],
+      "expected_dq_reviewer_count": 0
+    },
+    {
+      "id": "expansion-find-references-near-miss-market-research",
+      "installed_plugins": [
+        "design",
+        "research"
+      ],
+      "prompt": "경쟁사 대시보드 제품들의 시장 점유율과 가격 정책을 조사해서 비교해 줘.",
+      "expected_sequence": [
+        "research:research"
+      ],
+      "must_not_select": [
+        "design:find-references"
+      ]
+    },
+    {
+      "id": "expansion-find-references-near-miss-design-system-tokens",
+      "installed_plugins": [
+        "design"
+      ],
+      "prompt": "우리 디자인 시스템의 색상·타이포 토큰 체계를 새로 구축해 줘.",
+      "expected_sequence": [],
+      "must_not_select": [
+        "design:find-references"
+      ],
+      "expected_dq_reviewer_count": 0
+    },
+    {
+      "id": "expansion-find-references-handoff-to-design",
+      "installed_plugins": [
+        "design"
+      ],
+      "prompt": "아까 찾아서 docs/design/references.json에 저장한 레퍼런스로 새 가입 화면을 설계해 줘.",
+      "expected_sequence": [
+        "design:design-interface"
+      ],
+      "must_not_select": [
+        "design:find-references"
+      ],
+      "expected_dq_reviewer_count": 2,
+      "fixture": {
+        "suite": "design-reference-search",
+        "case": "find-references-handoff-to-design",
+        "writes": "none"
+      }
+    },
+    {
+      "id": "expansion-find-references-with-research-installed",
+      "installed_plugins": [
+        "design",
+        "research"
+      ],
+      "prompt": "차분한 분위기의 대시보드 레퍼런스를 모아서 컴포넌트 스타일까지 비교해 줘.",
+      "expected_sequence": [
+        "design:find-references"
+      ],
+      "must_not_select": [
+        "research:research"
+      ],
+      "expected_dq_reviewer_count": 0
+    },
+    {
+      "id": "find-references-standalone-without-provider-mcp",
+      "installed_plugins": [
+        "design"
+      ],
+      "available_provider_integrations": [],
+      "available_fallbacks": [
+        "web",
+        "browser"
+      ],
+      "prompt": "Mobbin 같은 전용 도구 없이도 괜찮으니까 예약 화면 레퍼런스를 웹에서 찾아서 정리해 줘.",
+      "expected_sequence": [
+        "design:find-references"
+      ],
+      "expected_dq_reviewer_count": 0,
+      "must_not_auto_install_provider": true,
+      "must_not_assume_plugin_dependency": true
     }
   ]
 }

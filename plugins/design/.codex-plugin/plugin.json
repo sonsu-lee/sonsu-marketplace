@@ -1,7 +1,7 @@
 {
   "name": "design",
-  "version": "0.5.2",
-  "description": "웹·앱·운영 UI를 Figma 또는 코드에서 설계·재설계·감사하고 Google DESIGN.md와 DQ0–DQ8로 검증합니다.",
+  "version": "0.6.0",
+  "description": "웹·앱·운영 UI를 Figma 또는 코드에서 설계·재설계·감사하고 디자인 레퍼런스를 찾으며 Google DESIGN.md와 DQ0–DQ8로 검증합니다.",
   "author": {
     "name": "sonsu",
     "url": "https://github.com/sonsu-lee"
@@ -10,7 +10,7 @@
   "interface": {
     "displayName": "Design",
     "shortDescription": "일반·운영 UI의 Figma 또는 코드 설계와 감사",
-    "longDescription": "신규 설계·재설계·감사를 선택하고, 운영 업무 계약과 Figma 제작 지침을 조건부로 적용합니다. Figma 화면을 코드로 옮기기 전에 명시적 허가를 받습니다.",
+    "longDescription": "신규 설계·재설계·감사와 레퍼런스 검색을 선택하고, 운영 업무 계약과 Figma 제작 지침을 조건부로 적용합니다. 레퍼런스는 출처와 확인 수준을 붙여 선별합니다. Figma 화면을 코드로 옮기기 전에 명시적 허가를 받습니다.",
     "developerName": "sonsu",
     "category": "Developer Tools",
     "capabilities": [
@@ -21,7 +21,8 @@
     "defaultPrompt": [
       "새 운영 화면을 Figma에서 디자인해 줘.",
       "이 웹 화면을 코드에서 바로 재설계해 줘.",
-      "현재 Figma 화면을 수정 없이 감사해 줘."
+      "현재 Figma 화면을 수정 없이 감사해 줘.",
+      "로그인 화면 레퍼런스를 출처와 함께 찾아 줘."
     ]
   },
   "apps": "./.app.json"

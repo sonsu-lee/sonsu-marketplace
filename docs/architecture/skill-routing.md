@@ -76,6 +76,7 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 일반·운영 UI의 새 화면·흐름 설계, Figma 또는 코드 | `design:design-interface` |
 | 일반·운영 UI의 기존 화면·흐름 재설계, Figma 또는 코드 | `design:redesign-interface` |
 | 기존 코드·화면·Figma의 읽기 전용 감사 | `design:audit-interface` |
+| 화면·흐름·컴포넌트·시각 스타일의 디자인 레퍼런스 검색과 출처·관찰 근거 선별 | `design:find-references` |
 | 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
 | 반복 문제와 설계 forces에 맞는 named pattern 선택 | `design-patterns:select-design-patterns` |
 | 명시적으로 요청한 기존 pattern 적용·오용의 읽기 전용 검토 | `design-patterns:review-pattern-usage` |
@@ -103,6 +104,18 @@ Design은 산업명이 아니라 사용자 과업과 작업 유형으로 공개 
 Figma가 정본이면 native 화면·prototype을 완성하고 사용자에게 검토 가능한 결과를 제시합니다.
 그 결과를 코드로 옮기기 전에는 명시적 허가를 받습니다. Figma 없는 요청은 기존 앱에서
 직접 구현하고 실제 화면과 동작을 확인합니다. [UI 디자인 구조](design.md)를 참고하세요.
+
+`design:find-references`는 웹·모바일 앱의 화면·흐름·컴포넌트·시각 스타일 레퍼런스를 찾아 출처와
+관찰 근거를 붙여 선별하며, provider·locator·source_kind·inspection 수준과 차용·비차용 근거를 담은
+레퍼런스 카드만 기록합니다. 화면을 직접 설계·재설계·감사하지 않고 이미지·로고 생성, 브랜드
+전략과 시장·기업 조사도 다루지 않습니다. 레퍼런스를 찾아서 새 화면을 설계해 달라는 요청은
+설계가 주 작업이므로 `design:design-interface`를 선택하고, 그 안에서
+[레퍼런스 검색 계약](../../plugins/design/references/reference-search.md)을 직접 적용합니다.
+이때 `find-references`를 별도로 호출하거나 스킬 전환을 다시 요청하지 않습니다. 사용자가 이미
+제공한 레퍼런스로 기존 화면을 재설계하는 요청은 검색 없이 `design:redesign-interface`가
+담당합니다. Mobbin·Refero 같은 전용 MCP나 Research 플러그인이 없어도 host 웹 검색으로
+대체하거나 `no_verified_match`를 보고하며, MCP 서버나 플러그인을 자동 설치하지 않습니다.
+
 PR URL만으로 심층 리뷰를 시작하지 않고, 일반 리뷰와 명시적인 심층·다중 리뷰를 구분합니다.
 리뷰 의도는 요청과 기존 문맥에서 확인하며, 문맥 없는 URL 단독 입력에 리뷰·게시를 추가하지 않습니다.
 두 PR 리뷰 경로 모두 리뷰어별 별도 세션·워크트리에서 병렬 검토한 뒤 원인별로 중복을 제거해

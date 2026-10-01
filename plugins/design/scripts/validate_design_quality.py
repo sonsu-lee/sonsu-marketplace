@@ -12,9 +12,11 @@ import re
 import subprocess
 import sys
 import tempfile
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 
 CONTRACT_FIELDS = {
@@ -243,6 +245,47 @@ FIGMA_EXTENSION_FIELDS = {
     "resize_scenarios",
     "prototype_scenarios",
 }
+REFERENCE_SET_SCHEMA_VERSION = "design-reference-set-v1"
+REFERENCE_SET_FIELDS = {"status", "providers", "queries", "primary_id", "items"}
+REFERENCE_DOCUMENT_FIELDS = REFERENCE_SET_FIELDS | {"schema_version", "id", "created_at", "brief"}
+REFERENCE_PROVIDER_FIELDS = {"name", "status", "note"}
+REFERENCE_QUERY_FIELDS = {"id", "layer", "provider", "text"}
+REFERENCE_ITEM_FIELDS = {
+    "id",
+    "origin",
+    "provider",
+    "query_id",
+    "locator",
+    "title",
+    "source_kind",
+    "platform",
+    "layer",
+    "inspection",
+    "observed",
+    "relevance",
+    "borrow",
+    "do_not_borrow",
+    "attribution",
+    "retrieved_at",
+    "task_ids",
+}
+REQUIRED_REFERENCE_ITEM_FIELDS = REFERENCE_ITEM_FIELDS - {"query_id", "task_ids"}
+REFERENCE_STATUSES = {"selected", "no_verified_match"}
+REFERENCE_PROVIDER_STATUSES = {"used", "unavailable", "unauthorized", "failed", "skipped"}
+REFERENCE_LAYERS = {"style", "screen", "flow", "component"}
+REFERENCE_ORIGINS = {"user_supplied", "agent_found"}
+REFERENCE_SOURCE_KINDS = {"shipped_product", "concept", "design_system", "pattern_library", "unknown"}
+REFERENCE_PLATFORMS = {"web", "ios", "android", "desktop", "other"}
+REFERENCE_INSPECTIONS = {"image", "live_page", "metadata_only"}
+USER_REFERENCE_PROVIDER = "user"
+MAX_SECONDARY_BORROW = 2
+TRACKING_QUERY_KEYS = {"ref", "ref_src", "source", "fbclid", "gclid", "mc_cid", "mc_eid"}
+UNSAFE_LOCATOR_SCHEMES = {"file", "data", "javascript", "blob"}
+LOCATOR_TOKEN = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*:[^\s\"'<>\[\]{}]+")
+REFERENCE_TIMESTAMP = re.compile(
+    r"[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}"
+    r"(?:\.[0-9]+)?(?:[Zz]|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])"
+)
 
 
 def _policy_path() -> Path:
@@ -354,6 +397,14 @@ def parsed_timestamp(value: Any) -> datetime | None:
 
 def timestamp(value: Any) -> bool:
     return parsed_timestamp(value) is not None
+
+
+def reference_timestamp(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and REFERENCE_TIMESTAMP.fullmatch(value) is not None
+        and timestamp(value.upper())
+    )
 
 
 def relative_path(value: Any) -> bool:
@@ -761,6 +812,336 @@ def validate_figma_extension(
                 errors.append(f"{context}.expectation must be a non-empty string")
 
 
+def normalize_locator(value: str) -> str:
+    candidate = value.strip()
+    scheme, separator, rest = candidate.partition(":")
+    if not separator:
+        return candidate
+    if scheme.lower() not in {"http", "https"}:
+        return f"{scheme.lower()}:{rest}"
+    try:
+        parts = urlsplit(candidate)
+        port = parts.port
+    except ValueError:
+        return candidate
+    scheme = parts.scheme.lower()
+    host = (parts.hostname or "").lower()
+    if host.startswith("www."):
+        host = host[4:]
+    netloc = host
+    if port is not None and port != {"http": 80, "https": 443}[scheme]:
+        netloc = f"{host}:{port}"
+    query = sorted(
+        (key, item)
+        for key, item in parse_qsl(parts.query, keep_blank_values=True)
+        if not key.lower().startswith("utm_") and key.lower() not in TRACKING_QUERY_KEYS
+    )
+    return urlunsplit((scheme, netloc, parts.path.rstrip("/"), urlencode(query), ""))
+
+
+def reference_locator(value: Any, allow_relative_path: bool) -> bool:
+    if not non_empty_string(value) or value != value.strip():
+        return False
+    try:
+        value.encode("utf-8")
+    except UnicodeEncodeError:
+        return False
+    if any(unicodedata.category(character) == "Cc" for character in value):
+        return False
+    if allow_relative_path and ":" not in value and relative_path(value):
+        return True
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9+.-]+:\S+", value):
+        return False
+    scheme = value.split(":", 1)[0].lower()
+    if scheme in UNSAFE_LOCATOR_SCHEMES:
+        return False
+    if scheme in {"http", "https"}:
+        try:
+            parts = urlsplit(value)
+            port = parts.port
+        except ValueError:
+            return False
+        return bool(parts.hostname) and (port is None or 1 <= port <= 65535)
+    return True
+
+
+def validate_reference_set(
+    value: Any,
+    context: str,
+    task_ids: set[str] | None,
+    errors: list[str],
+) -> None:
+    if not isinstance(value, dict):
+        errors.append(f"{context} must be an object")
+        return
+    reject_unknown_fields(value, REFERENCE_SET_FIELDS, context, errors)
+    require_fields(value, REFERENCE_SET_FIELDS - {"primary_id"}, context, errors)
+    status = value.get("status")
+    if not choice(status, REFERENCE_STATUSES):
+        errors.append(f"{context}.status must be one of {sorted(REFERENCE_STATUSES)}")
+
+    providers = value.get("providers")
+    if not isinstance(providers, list):
+        errors.append(f"{context}.providers must be an array")
+        providers = []
+    provider_statuses: dict[str, str] = {}
+    for index, provider in enumerate(providers):
+        item_context = f"{context}.providers[{index}]"
+        if not isinstance(provider, dict):
+            errors.append(f"{item_context} must be an object")
+            continue
+        reject_unknown_fields(provider, REFERENCE_PROVIDER_FIELDS, item_context, errors)
+        require_fields(provider, {"name", "status"}, item_context, errors)
+        name = provider.get("name")
+        provider_status = provider.get("status")
+        if not choice(provider_status, REFERENCE_PROVIDER_STATUSES):
+            errors.append(
+                f"{item_context}.status must be one of {sorted(REFERENCE_PROVIDER_STATUSES)}"
+            )
+        if "note" in provider and not non_empty_string(provider.get("note")):
+            errors.append(f"{item_context}.note must be a non-empty string")
+        if not non_empty_string(name):
+            errors.append(f"{item_context}.name must be a non-empty string")
+        elif name == USER_REFERENCE_PROVIDER:
+            errors.append(
+                f"{item_context}.name '{USER_REFERENCE_PROVIDER}' is reserved for user-supplied references"
+            )
+        elif name in provider_statuses:
+            errors.append(f"duplicate {context}.providers name: {name}")
+        else:
+            provider_statuses[name] = provider_status if isinstance(provider_status, str) else ""
+
+    queries = value.get("queries")
+    if not isinstance(queries, list):
+        errors.append(f"{context}.queries must be an array")
+        queries = []
+    query_providers: dict[str, Any] = {}
+    for index, query in enumerate(queries):
+        item_context = f"{context}.queries[{index}]"
+        if not isinstance(query, dict):
+            errors.append(f"{item_context} must be an object")
+            continue
+        reject_unknown_fields(query, REFERENCE_QUERY_FIELDS, item_context, errors)
+        require_fields(query, REFERENCE_QUERY_FIELDS, item_context, errors)
+        if not choice(query.get("layer"), REFERENCE_LAYERS):
+            errors.append(f"{item_context}.layer must be one of {sorted(REFERENCE_LAYERS)}")
+        if not non_empty_string(query.get("text")):
+            errors.append(f"{item_context}.text must be a non-empty string")
+        provider = query.get("provider")
+        if not non_empty_string(provider) or provider not in provider_statuses:
+            errors.append(f"{item_context}.provider references an unknown provider")
+        query_id = query.get("id")
+        if not non_empty_string(query_id):
+            errors.append(f"{item_context}.id must be a non-empty string")
+        elif query_id in query_providers:
+            errors.append(f"duplicate {context}.queries id: {query_id}")
+        else:
+            query_providers[query_id] = provider
+
+    items = value.get("items")
+    if not isinstance(items, list):
+        errors.append(f"{context}.items must be an array")
+        items = []
+    items_by_id: dict[str, dict[str, Any]] = {}
+    normalized_locators: dict[str, str] = {}
+    agent_found_count = 0
+    for index, item in enumerate(items):
+        item_context = f"{context}.items[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{item_context} must be an object")
+            continue
+        reject_unknown_fields(item, REFERENCE_ITEM_FIELDS, item_context, errors)
+        require_fields(item, REQUIRED_REFERENCE_ITEM_FIELDS, item_context, errors)
+        item_id = item.get("id")
+        if not non_empty_string(item_id):
+            errors.append(f"{item_context}.id must be a non-empty string")
+        elif item_id in items_by_id:
+            errors.append(f"duplicate {context}.items id: {item_id}")
+        else:
+            items_by_id[item_id] = item
+
+        origin = item.get("origin")
+        provider = item.get("provider")
+        if not choice(origin, REFERENCE_ORIGINS):
+            errors.append(f"{item_context}.origin must be one of {sorted(REFERENCE_ORIGINS)}")
+        elif origin == "agent_found":
+            agent_found_count += 1
+            if not non_empty_string(provider) or provider_statuses.get(provider) != "used":
+                errors.append(f"{item_context}.provider must name a provider with status used")
+            query_id = item.get("query_id")
+            if not non_empty_string(query_id) or query_id not in query_providers:
+                errors.append(f"{item_context}.query_id references an unknown query")
+            elif query_providers[query_id] != provider:
+                errors.append(f"{item_context}.provider does not match the provider of query {query_id}")
+        else:
+            if provider != USER_REFERENCE_PROVIDER:
+                errors.append(
+                    f"{item_context}.provider must be '{USER_REFERENCE_PROVIDER}' for user-supplied references"
+                )
+            if "query_id" in item:
+                errors.append(f"{item_context}.query_id is only valid for agent_found references")
+
+        locator = item.get("locator")
+        user_supplied = origin == "user_supplied"
+        if not reference_locator(locator, allow_relative_path=user_supplied):
+            allowed = "an http(s) URL, a provider-scoped id" + (", or a relative path" if user_supplied else "")
+            errors.append(f"{item_context}.locator must be {allowed}")
+        else:
+            scheme = locator.split(":", 1)[0].lower()
+            if (
+                origin == "agent_found"
+                and scheme not in {"http", "https"}
+                and (not isinstance(provider, str) or scheme != provider.lower())
+            ):
+                errors.append(f"{item_context}.locator scheme must match its provider")
+            normalized = normalize_locator(locator)
+            label = item_id if non_empty_string(item_id) else f"items[{index}]"
+            if normalized in normalized_locators:
+                errors.append(
+                    f"{item_context}.locator duplicates {normalized_locators[normalized]} after normalization"
+                )
+            else:
+                normalized_locators[normalized] = label
+
+        for field in ("title", "observed", "relevance", "attribution"):
+            if not non_empty_string(item.get(field)):
+                errors.append(f"{item_context}.{field} must be a non-empty string")
+        for field, allowed_values in (
+            ("source_kind", REFERENCE_SOURCE_KINDS),
+            ("platform", REFERENCE_PLATFORMS),
+            ("layer", REFERENCE_LAYERS),
+            ("inspection", REFERENCE_INSPECTIONS),
+        ):
+            if not choice(item.get(field), allowed_values):
+                errors.append(f"{item_context}.{field} must be one of {sorted(allowed_values)}")
+        for field in ("borrow", "do_not_borrow"):
+            if not string_list(item.get(field)):
+                errors.append(f"{item_context}.{field} must be a unique string array")
+        if not reference_timestamp(item.get("retrieved_at")):
+            errors.append(f"{item_context}.retrieved_at must be an ISO-8601 date-time")
+        borrow = item.get("borrow")
+        if item.get("inspection") == "metadata_only" and isinstance(borrow, list) and borrow:
+            errors.append(f"{item_context}.borrow must be empty for metadata_only references")
+        if "task_ids" in item:
+            linked = item.get("task_ids")
+            if not non_empty_string_list(linked):
+                errors.append(f"{item_context}.task_ids must be a non-empty unique string array")
+            elif task_ids is not None:
+                unknown = sorted(set(linked) - task_ids)
+                if unknown:
+                    errors.append(f"{item_context}.task_ids references unknown task scenarios: {unknown}")
+
+    primary_id = value.get("primary_id")
+    if status == "selected":
+        if not non_empty_string(primary_id) or primary_id not in items_by_id:
+            errors.append(f"{context}.primary_id must reference an item when status is selected")
+        else:
+            primary = items_by_id[primary_id]
+            if primary.get("inspection") == "metadata_only":
+                errors.append(f"{context}.primary_id cannot reference a metadata_only reference")
+            if primary.get("source_kind") == "unknown":
+                errors.append(
+                    f"{context}.primary_id cannot reference a reference whose source_kind is unknown"
+                )
+            if not non_empty_string_list(primary.get("borrow")):
+                errors.append(f"{context}.primary reference {primary_id} must declare what to borrow")
+    elif status == "no_verified_match":
+        if "primary_id" in value:
+            errors.append(f"{context}.primary_id is only valid when status is selected")
+        if agent_found_count:
+            errors.append(
+                f"{context}.items cannot contain agent_found references when status is no_verified_match"
+            )
+        if not any(
+            provider_status in {"unavailable", "unauthorized", "failed"}
+            or (provider_status == "used" and name in query_providers.values())
+            for name, provider_status in provider_statuses.items()
+        ):
+            errors.append(f"{context}.providers must record the attempted paths when status is no_verified_match")
+    for item_id, item in items_by_id.items():
+        borrow = item.get("borrow")
+        if item_id != primary_id and isinstance(borrow, list) and len(borrow) > MAX_SECONDARY_BORROW:
+            errors.append(
+                f"{context}.items {item_id} borrows more than {MAX_SECONDARY_BORROW} details; "
+                "only the primary reference can be borrowed broadly"
+            )
+
+
+def validate_reference_document(payload: Any) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(payload, dict):
+        return ["reference set must be a JSON object"]
+    reject_unknown_fields(payload, REFERENCE_DOCUMENT_FIELDS, "reference_set", errors)
+    require_fields(payload, REFERENCE_DOCUMENT_FIELDS - REFERENCE_SET_FIELDS, "reference_set", errors)
+    if payload.get("schema_version") != REFERENCE_SET_SCHEMA_VERSION:
+        errors.append(f"schema_version must be {REFERENCE_SET_SCHEMA_VERSION}")
+    for field in ("id", "brief"):
+        if not non_empty_string(payload.get(field)):
+            errors.append(f"{field} must be a non-empty string")
+    if not reference_timestamp(payload.get("created_at")):
+        errors.append("created_at must be an ISO-8601 date-time")
+    body = {key: value for key, value in payload.items() if key in REFERENCE_SET_FIELDS}
+    validate_reference_set(body, "reference_set", None, errors)
+    return errors
+
+
+def explicit_locator(token: str, opener: str) -> str | None:
+    """Return the delimited locator when the token sits inside an explicit delimiter."""
+    if opener in {'"', "'", "<", "["}:
+        # LOCATOR_TOKEN stops at the matching closer for these delimiters.
+        return token
+    if opener == "`":
+        closer = token.find("`")
+        return token[:closer] if closer > 0 else None
+    if opener == "(":
+        depth = 0
+        for index, character in enumerate(token):
+            if character == "(":
+                depth += 1
+            elif character == ")":
+                if depth == 0:
+                    return token[:index] if index else None
+                depth -= 1
+    return None
+
+
+def validate_reference_provenance(payload: Any, records: list[str]) -> list[str]:
+    items = payload.get("items") if isinstance(payload, dict) else None
+    if not isinstance(items, list):
+        return []
+    observed: set[str] = set()
+    for record in records:
+        for match in LOCATOR_TOKEN.finditer(record):
+            token = match.group(0)
+            opener = record[match.start() - 1] if match.start() else ""
+            explicit = explicit_locator(token, opener)
+            if explicit is not None:
+                # JSON, quoted, bracketed, and Markdown locators are compared exactly.
+                observed.add(normalize_locator(explicit))
+                continue
+            # Bare prose: keep the exact token, then allow trailing sentence punctuation.
+            observed.add(normalize_locator(token))
+            while token and (
+                token[-1] in ".,;:!?"
+                or (token[-1] == ")" and token.count(")") > token.count("("))
+            ):
+                token = token[:-1]
+                observed.add(normalize_locator(token))
+    errors: list[str] = []
+    for index, item in enumerate(items):
+        if not isinstance(item, dict) or item.get("origin") != "agent_found":
+            continue
+        locator = item.get("locator")
+        if not non_empty_string(locator):
+            continue
+        if normalize_locator(locator) in observed:
+            continue
+        errors.append(
+            f"reference_set.items[{index}].locator does not appear in the provenance record: {locator}"
+        )
+    return errors
+
+
 def validate_contract(
     payload: Any,
     contract_directory: Path | None = None,
@@ -1134,7 +1515,9 @@ def validate_contract(
     if not isinstance(extensions, dict):
         errors.append("extensions must be an object")
         extensions = {}
-    reject_unknown_fields(extensions, {"operations", "figma"}, "extensions", errors)
+    reject_unknown_fields(extensions, {"operations", "figma", "references"}, "extensions", errors)
+    if "references" in extensions:
+        validate_reference_set(extensions.get("references"), "extensions.references", scenario_ids, errors)
     applicable_state_ids = {
         item.get("id")
         for item in states
@@ -2241,6 +2624,15 @@ def parse_args() -> argparse.Namespace:
     report = subparsers.add_parser("report")
     report.add_argument("report", type=Path)
     report.add_argument("contract", type=Path)
+    references = subparsers.add_parser("references", help="validate a design-reference-set-v1 document")
+    references.add_argument("reference_set", type=Path)
+    references.add_argument(
+        "--provenance",
+        type=Path,
+        action="append",
+        default=[],
+        help="tool-output record that must contain every agent_found locator",
+    )
     return parser.parse_args()
 
 
@@ -2249,7 +2641,18 @@ def main() -> None:
     if args.command == "design-md":
         raise SystemExit(check_design_md(args.file))
     load_errors: list[str] = []
-    if args.command == "contract":
+    if args.command == "references":
+        payload = load_json(args.reference_set, load_errors)
+        errors = load_errors or validate_reference_document(payload)
+        records: list[str] = []
+        for path in args.provenance:
+            try:
+                records.append(path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError) as error:
+                errors.append(f"{path}: unable to read: {error}")
+        if not errors and args.provenance:
+            errors.extend(validate_reference_provenance(payload, records))
+    elif args.command == "contract":
         payload = load_json(args.contract, load_errors)
         errors = load_errors or validate_contract(
             payload, args.contract.resolve().parent

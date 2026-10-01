@@ -164,7 +164,7 @@ for plugin in engineering writing research prompting product design-patterns mem
 | [Prompting](plugins/prompting/README.md) | Codex・ChatGPT・OpenAI API・Claude Code・Anthropic API向けプロンプトの作成・改善 | `prompting` |
 | [Product](plugins/product/README.md) | プロダクトのアイデア探索、ユーザーに関する根拠の整理、仮説検証、PRD作成 | `product` |
 | [Memory Manager](plugins/memory-manager/README.md) | CodexとClaude Codeで共有するローカルメモリの想起・保存・整理 | `memory-manager` |
-| [Design](plugins/design/README.md) | 一般・運用UIの新規設計・再設計・監査をFigmaまたはコードで実施 | `design` |
+| [Design](plugins/design/README.md) | 一般・運用UIの新規設計・再設計・監査をFigmaまたはコードで実施し、デザインリファレンスも検索 | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | 実際の設計上のforcesに基づくパターン選択と既存適用のレビュー | `design-patterns` |
 
 各プラグインは独立して利用できます。含まれるスキルや詳しい使い方は、上のリンクから確認してください。
@@ -187,7 +187,7 @@ Workflowはチケット・PRの新規作成に使うテンプレートと公開�
 | Prompting | 「このプロンプトを、Codexですぐに使えるように改善して。」 |
 | Product | 「このインタビューメモから、ユーザーの課題とその根拠を整理して。」 |
 | Memory Manager | 「`$memory-capture` この決定をプロジェクトのメモリに保存して。」 |
-| Design | 「登録フローをFigmaで設計して。運用画面はコードで直接再設計して。」 |
+| Design | 「登録フローをFigmaで設計して。運用画面はコードで直接再設計して。」または「ログイン画面のリファレンスを出典付きで探して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
 
 ホストは依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
@@ -197,6 +197,7 @@ Memory Managerの`$memory-recall`は関連する作業で選択され、明示�
 
 ResearchのExa・Perplexity連携は任意です。利用可能なWebツール、ブラウザー、コネクター、ローカル資料でも調査できます。
 DesignのFigmaキャンバスを操作するには、公式Figma MCP接続と、そのツールで必須とされるスキルが必要です。
+Designのリファレンス検索は、MobbinやReferoなどのMCPが接続されていれば使用し、なければホストのWeb検索を使います。
 設定方法と必要なツールは、各プラグインのドキュメントを参照してください。
 
 ## アップデート

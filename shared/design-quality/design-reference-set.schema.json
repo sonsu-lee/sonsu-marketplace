@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sonsu.dev/schemas/design-reference-set-v1.json",
+  "title": "Design Reference Set",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "created_at",
+    "brief",
+    "status",
+    "providers",
+    "queries",
+    "items"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "design-reference-set-v1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "brief": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "status": {
+      "enum": [
+        "selected",
+        "no_verified_match"
+      ]
+    },
+    "providers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/referenceProvider"
+      }
+    },
+    "queries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/referenceQuery"
+      }
+    },
+    "primary_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/referenceItem"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "if": {
+    "properties": {
+      "status": {
+        "const": "selected"
+      }
+    },
+    "required": [
+      "status"
+    ]
+  },
+  "then": {
+    "required": [
+      "primary_id"
+    ],
+    "properties": {
+      "items": {
+        "minItems": 1
+      }
+    }
+  },
+  "else": {
+    "not": {
+      "required": [
+        "primary_id"
+      ]
+    },
+    "properties": {
+      "providers": {
+        "minItems": 1
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "uniqueStrings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "referenceLayer": {
+      "enum": [
+        "style",
+        "screen",
+        "flow",
+        "component"
+      ]
+    },
+    "referenceProvider": {
+      "type": "object",
+      "required": [
+        "name",
+        "status"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "not": {
+            "const": "user"
+          }
+        },
+        "status": {
+          "enum": [
+            "used",
+            "unavailable",
+            "unauthorized",
+            "failed",
+            "skipped"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "additionalProperties": false
+    },
+    "referenceQuery": {
+      "type": "object",
+      "required": [
+        "id",
+        "layer",
+        "provider",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "layer": {
+          "$ref": "#/$defs/referenceLayer"
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "additionalProperties": false
+    },
+    "referenceItem": {
+      "type": "object",
+      "required": [
+        "id",
+        "origin",
+        "provider",
+        "locator",
+        "title",
+        "source_kind",
+        "platform",
+        "layer",
+        "inspection",
+        "observed",
+        "relevance",
+        "borrow",
+        "do_not_borrow",
+        "attribution",
+        "retrieved_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "origin": {
+          "enum": [
+            "user_supplied",
+            "agent_found"
+          ]
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "query_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "source_kind": {
+          "enum": [
+            "shipped_product",
+            "concept",
+            "design_system",
+            "pattern_library",
+            "unknown"
+          ]
+        },
+        "platform": {
+          "enum": [
+            "web",
+            "ios",
+            "android",
+            "desktop",
+            "other"
+          ]
+        },
+        "layer": {
+          "$ref": "#/$defs/referenceLayer"
+        },
+        "inspection": {
+          "enum": [
+            "image",
+            "live_page",
+            "metadata_only"
+          ]
+        },
+        "observed": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "relevance": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "borrow": {
+          "$ref": "#/$defs/uniqueStrings"
+        },
+        "do_not_borrow": {
+          "$ref": "#/$defs/uniqueStrings"
+        },
+        "attribution": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "task_ids": {
+          "$ref": "#/$defs/nonEmptyStrings"
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "agent_found"
+              }
+            },
+            "required": [
+              "origin"
+            ]
+          },
+          "then": {
+            "required": [
+              "query_id"
+            ],
+            "properties": {
+              "provider": {
+                "not": {
+                  "const": "user"
+                }
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "query_id"
+              ]
+            },
+            "properties": {
+              "provider": {
+                "const": "user"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "inspection": {
+                "const": "metadata_only"
+              }
+            },
+            "required": [
+              "inspection"
+            ]
+          },
+          "then": {
+            "properties": {
+              "borrow": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

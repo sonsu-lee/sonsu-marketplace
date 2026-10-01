@@ -15,6 +15,10 @@ DQ1–DQ6은 작성자가 아닌 독립 평가자 2명이 0–4점으로 판정�
 이상이어야 하고 차이가 1보다 크면 `inconclusive`다. open critical finding과 hard check 실패는
 다른 점수로 상쇄할 수 없다.
 
+레퍼런스를 잠근 작업은 결과를 primary와 나란히 놓고 `borrow`만 반영했는지, `do_not_borrow`·브랜드
+자산·레퍼런스의 실제 수치와 문구를 옮기지 않았는지 확인한다. 레퍼런스와 닮았다는 것은 어느 gate의
+통과 근거도 아니다.
+
 제안은 실제 시각적 제안과 명세의 일치, Figma는 screenshot·native structure·binding·resize와
 요청된 reaction/playback, 코드는 실제 실행 환경의 렌더링·조작·검사 결과를 각각 증명한다.
 정적 시안의 버튼을 동작 구현으로, 모의 데이터 이미지를 실제 데이터 검증으로 보고하지 않는다.

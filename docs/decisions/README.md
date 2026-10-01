@@ -48,3 +48,4 @@ Considered, Consequences와 Revisit When을 포함합니다.
 - [ADR 0017: 두 호스트가 공유하는 로컬 Markdown 메모리](0017-use-shared-local-memory.md)
 
 - [ADR 0018: UI 디자인 플러그인 통합](0018-consolidate-ui-design.md)
+- [ADR 0019: Design 레퍼런스 검색 스킬 추가](0019-add-design-reference-search.md)
