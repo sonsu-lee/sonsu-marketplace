@@ -115,7 +115,7 @@ def safe_read(root, path):
         os.close(fd)
 
 
-def atomic_write(root, path, data):
+def atomic_write(root, path, data, capture_state=None):
     checked_path(root, path)
     ensure_private_dir(root, path.parent)
     if path.exists() and not path.is_file():
@@ -128,10 +128,16 @@ def atomic_write(root, path, data):
             output.flush()
             os.fsync(output.fileno())
         checked_path(root, path)
+        if capture_state is not None:
+            capture_state["commit_started"] = True
         os.replace(name, path)
+        if capture_state is not None:
+            capture_state["committed"] = True
         directory = os.open(path.parent, os.O_RDONLY)
         try:
             os.fsync(directory)
+            if capture_state is not None:
+                capture_state["durable"] = True
         finally:
             os.close(directory)
     finally:
@@ -488,10 +494,12 @@ def hook_skip_status(event):
     match = SIGNAL_RE.search(excerpt) if isinstance(excerpt, str) else None
     if match is None or SKIP_RE.search(excerpt):
         return "ignored"
+    if SECRET_RE.search(excerpt):
+        return "sensitive_content"
     return None
 
 
-def stage_hook(root, key, event):
+def stage_hook(root, key, event, capture_state=None):
     if not isinstance(event, dict):
         raise StoreError("invalid_event")
     if event.get("permission_mode") == "plan" or capture_config(root, key)["enabled"] is not True:
@@ -501,8 +509,6 @@ def stage_hook(root, key, event):
         return {"status": skipped}
     kind = event["hook_event_name"]
     excerpt = event.get("prompt") if kind == "UserPromptSubmit" else event.get("last_assistant_message")
-    if SECRET_RE.search(excerpt):
-        return {"status": "sensitive_content"}
     match = SIGNAL_RE.search(excerpt)
     excerpt = excerpt[max(0, match.start() - 120):match.end() + 600]
     session = event.get("session_id", "unknown")
@@ -517,7 +523,11 @@ def stage_hook(root, key, event):
             return {"status": "disabled"}
         if path.exists():
             return {"status": "duplicate", "id": candidate_id}
-        atomic_write(root, path, json.dumps(candidate, ensure_ascii=False, indent=2).encode("utf-8"))
+        encoded = json.dumps(candidate, ensure_ascii=False, indent=2).encode("utf-8")
+        if capture_state is None:
+            atomic_write(root, path, encoded)
+        else:
+            atomic_write(root, path, encoded, capture_state=capture_state)
     return {"status": "staged", "id": candidate_id}
 
 

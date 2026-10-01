@@ -22,23 +22,34 @@ def hook_timeout(signum, frame):
 
 
 def main():
+    capture_state = {}
     previous = signal.signal(signal.SIGALRM, hook_timeout)
     signal.setitimer(signal.ITIMER_REAL, HOOK_SECONDS)
     try:
         event = json.load(sys.stdin)
         if not isinstance(event, dict):
             return 0
-        if hook_skip_status(event):
+        skipped = hook_skip_status(event)
+        if skipped:
+            if skipped == "sensitive_content":
+                print("memory-manager: candidate skipped (sensitive content)", file=sys.stderr)
             return 0
         cwd = event.get("cwd")
         if not isinstance(cwd, str) or not cwd:
             return 0
-        result = stage_hook(root_path(), project_key(cwd), event)
-        if result.get("status") == "sensitive_content":
-            print("memory-manager: candidate skipped (sensitive content)", file=sys.stderr)
+        stage_hook(root_path(), project_key(cwd), event, capture_state=capture_state)
     except Exception as error:
         # A hook must not block the host. Keep the diagnostic free of prompt text.
-        print("memory-manager: capture hook unavailable (" + type(error).__name__ + ")", file=sys.stderr)
+        if capture_state.get("committed"):
+            if not capture_state.get("durable"):
+                print("memory-manager: candidate staged; durability confirmation incomplete (" +
+                      type(error).__name__ + ")", file=sys.stderr)
+        elif capture_state.get("commit_started"):
+            # The deadline can interrupt rename before its return value is known.
+            print("memory-manager: candidate commit outcome unconfirmed (" +
+                  type(error).__name__ + ")", file=sys.stderr)
+        else:
+            print("memory-manager: capture hook unavailable (" + type(error).__name__ + ")", file=sys.stderr)
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)
         signal.signal(signal.SIGALRM, previous)

@@ -340,11 +340,12 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(result.stdout, "")
         self.assertIn("capture hook unavailable", result.stderr)
 
-    def run_hook(self, event, env=None):
+    def run_hook(self, event, env=None, code=None):
         environment = dict(os.environ, SONSU_MEMORY_HOME=str(self.store))
         environment.update(env or {})
         started = time.monotonic()
-        result = subprocess.run([sys.executable, str(HOOK)], input=json.dumps(event),
+        command = [sys.executable, str(HOOK)] if code is None else [sys.executable, "-c", code]
+        result = subprocess.run(command, input=json.dumps(event),
                                 text=True, capture_output=True, env=environment, timeout=5)
         self.assertLess(time.monotonic() - started, 4)
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -423,6 +424,62 @@ class StoreTests(unittest.TestCase):
                 self.assertEqual(self.run_hook(event, env).stderr, "")
                 self.assertFalse(marker.exists(), "ineligible event ran Git")
                 self.assertEqual(self.store_files(), before)
+
+        event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
+                 "prompt": "기억해 줘: token is abc123"}
+        marker.unlink(missing_ok=True)
+        result = self.run_hook(event, env)
+        self.assertEqual(result.stderr, "memory-manager: candidate skipped (sensitive content)\n")
+        self.assertFalse(marker.exists(), "sensitive event ran Git")
+        self.assertEqual(self.store_files(), before)
+
+    def test_hook_budget_preserves_candidate_after_rename_before_directory_fsync(self):
+        self.run_store("capture", "on")
+        event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
+                 "session_id": "committed-session", "prompt": "기억해 줘: committed candidate"}
+        code = """
+import importlib.util, os, stat, time
+spec = importlib.util.spec_from_file_location('capture_hook', HOOK_PATH)
+hook = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(hook)
+real_fsync = os.fsync
+def delayed_directory_fsync(fd):
+    if stat.S_ISDIR(os.fstat(fd).st_mode):
+        time.sleep(8)
+    return real_fsync(fd)
+os.fsync = delayed_directory_fsync
+raise SystemExit(hook.main())
+""".replace("HOOK_PATH", repr(str(HOOK)))
+        result = self.run_hook(event, code=code)
+        self.assertEqual(result.stderr, "memory-manager: candidate staged; durability confirmation incomplete (HookTimeout)\n")
+        pending = self.run_store("pending")["results"]
+        self.assertEqual(len(pending), 1)
+        self.assertEqual(pending[0]["session_id"], "committed-session")
+        self.assertIn("committed candidate", pending[0]["excerpt"])
+        self.assertEqual(self.run_hook(event).stderr, "")
+        self.assertEqual(self.run_store("pending")["results"], pending)
+
+        # Rename can finish before the interrupted caller observes its return.
+        event["session_id"] = "unconfirmed-session"
+        code = """
+import importlib.util, os, time
+spec = importlib.util.spec_from_file_location('capture_hook', HOOK_PATH)
+hook = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(hook)
+real_replace = os.replace
+def delayed_replace(*args, **kwargs):
+    real_replace(*args, **kwargs)
+    time.sleep(8)
+os.replace = delayed_replace
+raise SystemExit(hook.main())
+""".replace("HOOK_PATH", repr(str(HOOK)))
+        result = self.run_hook(event, code=code)
+        self.assertEqual(result.stderr, "memory-manager: candidate commit outcome unconfirmed (HookTimeout)\n")
+        pending = self.run_store("pending")["results"]
+        self.assertEqual({item["session_id"] for item in pending},
+                         {"committed-session", "unconfirmed-session"})
+        self.assertEqual(self.run_hook(event).stderr, "")
+        self.assertEqual(self.run_store("pending")["results"], pending)
 
     def test_selective_import_does_not_modify_host_source(self):
         source = self.base / "native-memory.md"

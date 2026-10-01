@@ -157,6 +157,54 @@ class RuntimeTests(unittest.TestCase):
             self.assertEqual(process.stderr.read(), "task-continuity: recovery record unavailable; no checkpoint context injected\n")
         self.assertFalse((self.work / ".sonsu").exists())
 
+    def test_hook_budget_observes_session_append_after_recovery_preparation(self):
+        self.assertEqual(self.write().returncode, 0)
+        before = self.path().read_bytes()
+        normal = self.hook(source="resume").stdout
+        env_file = self.base / "claude-env"
+        env = dict(self.env, CLAUDE_ENV_FILE=str(env_file),
+                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+        event = {"hook_event_name": "SessionStart", "source": "resume",
+                 "session_id": "session-a", "cwd": str(self.work)}
+        for boundary in ("record_read", "persist_claude_session", "session_write"):
+            with self.subTest(boundary=boundary):
+                env_file.unlink(missing_ok=True)
+                code = """
+import importlib.util, sys, time
+spec = importlib.util.spec_from_file_location('continuity_hook', SCRIPT_PATH)
+hook = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(hook)
+real = hook.os.write if BOUNDARY == 'session_write' else getattr(hook, BOUNDARY)
+def delayed(*args, **kwargs):
+    if BOUNDARY == 'record_read':
+        time.sleep(8)
+        return real(*args, **kwargs)
+    result = real(*args, **kwargs)
+    time.sleep(8)
+    return result
+if BOUNDARY == 'session_write':
+    hook.os.write = delayed
+else:
+    setattr(hook, BOUNDARY, delayed)
+sys.argv = [SCRIPT_PATH, 'hook']
+raise SystemExit(hook.main())
+""".replace("SCRIPT_PATH", repr(str(self.packages["engineering"]))).replace("BOUNDARY", repr(boundary))
+                started = time.monotonic()
+                result = subprocess.run([sys.executable, "-c", code], input=json.dumps(event),
+                                        text=True, capture_output=True, env=env, timeout=5)
+                self.assertLess(time.monotonic() - started, 4)
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(self.path().read_bytes(), before)
+                if boundary == "record_read":
+                    self.assertEqual(result.stdout, "")
+                    self.assertEqual(result.stderr, "task-continuity: recovery record unavailable; no checkpoint context injected\n")
+                    self.assertFalse(env_file.exists())
+                else:
+                    self.assertEqual(result.stdout, normal)
+                    self.assertEqual(result.stderr, "task-continuity: session marker persistence unconfirmed\n"
+                                     if boundary == "session_write" else "")
+                    self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='session-a'\n")
+
     def git(self, *args, cwd=None):
         return subprocess.run(["git", *args], cwd=cwd or self.work, env=self.env,
                               capture_output=True, text=True, check=True).stdout.strip()
