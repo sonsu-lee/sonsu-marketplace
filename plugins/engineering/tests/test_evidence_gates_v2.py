@@ -68,6 +68,58 @@ class ManagedGates(unittest.TestCase):
     def init(self):
         return self.ok('init', data=self.config)
 
+    def test_hook_fails_open_for_identity_matched_incomplete_v2_state(self):
+        self.init()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = []
+        missing_config = dict(original)
+        missing_config.pop('config')
+        cases.append(missing_config)
+        missing_units = dict(original)
+        missing_units.pop('units')
+        cases.append(missing_units)
+        incomplete_config = dict(original, config={'schema_version': 2})
+        cases.append(incomplete_config)
+
+        for state in cases:
+            with self.subTest(state=sorted(state)):
+                state_path.write_text(json.dumps(state))
+                before = state_path.read_bytes()
+                event = {'hook_event_name': 'Stop', 'session_id': 'controller', 'cwd': str(self.root),
+                         'permission_mode': 'default', 'stop_hook_active': False}
+                result = subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), 'hook'],
+                                        input=json.dumps(event), text=True, capture_output=True,
+                                        env=dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1'),
+                                        timeout=15)
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, '')
+                self.assertEqual(result.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+                self.assertEqual(before, state_path.read_bytes())
+                cli = self.call('status')
+                self.assertEqual(cli.returncode, 2)
+                self.assertIn('evidence-gates:', cli.stderr)
+                self.assertNotIn('Traceback', cli.stderr)
+                self.assertEqual(before, state_path.read_bytes())
+
+    def test_hook_accepts_legacy_v2_state_without_optional_host(self):
+        self.init()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        state.pop('host')
+        state_path.write_text(json.dumps(state))
+        before = state_path.read_bytes()
+        event = {'hook_event_name': 'Stop', 'session_id': 'controller', 'cwd': str(self.root),
+                 'permission_mode': 'default', 'stop_hook_active': False}
+        result = subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), 'hook'],
+                                input=json.dumps(event), text=True, capture_output=True,
+                                env=dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1'),
+                                timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(set(json.loads(result.stdout)), {'systemMessage'})
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(before, state_path.read_bytes())
+
     def enter(self, unit='design', request='enter-1'):
         return self.ok('enter', '--unit', unit, '--request-id', request)
 

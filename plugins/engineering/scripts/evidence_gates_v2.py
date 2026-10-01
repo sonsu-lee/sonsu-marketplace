@@ -163,6 +163,9 @@ def validate_revision(state, config):
 
 def load(root, task):
     state = G.read_json(G.task_path(root, task))
+    required = {'schema_version', 'task_id', 'workspace_root', 'config',
+                'config_history', 'sessions', 'closed', 'requests', 'units'}
+    need(isinstance(state, dict) and required <= set(state), 'invalid v2 task state')
     need(state.get('schema_version') == 2 and state.get('workspace_root') == str(root) and
          state.get('task_id') == task, 'v2 task identity mismatch; legacy receipts cannot pass v2')
     need(state.get('host', 'codex') in PROFILE_FILES, 'invalid task host')
