@@ -83,7 +83,7 @@ GitHub Draft PR의 가용성은 저장소 visibility와 plan에 따라 다르다
    ```
 
    여전히 크면 CRF를 2씩 올리되 32를 넘기지 않는다. 그다음 너비 960px, 15fps 순으로 낮춘다. 길이가 길어 이 방법으로 맞추기 어려우면 `목표 영상 kbps = 상한 bytes × 8 × 0.9 ÷ 길이(초) ÷ 1000 − 음성 kbps`로 2-pass bitrate 인코딩을 한다.
-3. 사용자가 설치를 원하지 않으면 macOS에서는 `avconvert --start <초> --duration <초> --preset Preset1280x720`으로 구간 자르기와 해상도 낮추기만 시도한다. bitrate를 지정할 수 없어 상한 안에 들어온다는 보장이 없고, `PresetMediumQuality` 이하는 568×320 수준으로 줄어 UI 글자를 읽기 어렵다. 아래 재검사를 할 도구가 없으면 결과는 `inconclusive`이며 업로드하지 않는다.
+3. 사용자가 설치를 원하지 않으면 macOS에서는 `avconvert --source input.mov --output output.mov --start <초> --duration <초> --preset Preset1280x720`으로 구간 자르기와 해상도 낮추기만 시도한다. bitrate를 지정할 수 없어 상한 안에 들어온다는 보장이 없고, `PresetMediumQuality` 이하는 568×320 수준으로 줄어 UI 글자를 읽기 어렵다. 아래 재검사를 할 도구가 없으면 결과는 `inconclusive`이며 업로드하지 않는다.
 4. 이미지는 긴 변을 2560px 이하로 줄인다. macOS에서는 `sips -Z 2560`을 쓸 수 있다. 그래도 크면 사진성 화면만 JPEG 품질 85로 바꾸고, 글자 중심 UI는 PNG를 유지한다.
 
 압축 사본은 다시 검사한다. 크기가 상한 이하이고 영상이 H.264(`avc1`)·`yuv420p`로 decode되며 길이가 의도한 구간과 맞아야 한다. caption의 timestamp와 이미지 marker 위치의 프레임을 직접 열어 marker와 UI 글자를 읽을 수 있는지도 확인한다. 민감정보·embedded metadata 검사와 SHA-256 기록도 새 사본 기준으로 다시 한다.

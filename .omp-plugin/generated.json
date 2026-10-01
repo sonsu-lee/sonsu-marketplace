@@ -129,7 +129,7 @@
     "plugins/workflow/omp/skills/to-pr/agents/openai.yaml": "6d4237c3f933944a01b903dcca67dcf97cab0ade0ce3fd279d64b2b8fd18ae10",
     "plugins/workflow/omp/skills/to-pr/assets/templates/pull-request.md": "0f5210cc2431d3ba9d6943370bb17799d9276cc7ff145789f3f6636b8d14083e",
     "plugins/workflow/omp/skills/to-pr/references/github.md": "98b54ae867860f54a545c2b71dfebcc1e0df61f774f98c0b818b6db42dfb3bb1",
-    "plugins/workflow/omp/skills/to-pr/references/media-attachments.md": "8577f14c5835bdf154de5a72e908a806566d675bdbe1e180b825b3fe40cb891c",
+    "plugins/workflow/omp/skills/to-pr/references/media-attachments.md": "1f0f30e8e34429408dffa3b6bd4ea8bb838ee31880bfcc1dea9c9b2c0efd144f",
     "plugins/workflow/omp/skills/to-pr/references/pr-quality-bar.md": "829bc9302216a120cbffe2a181f04b2a3dbd899b1af5bd7b59d29d6927eb927b",
     "plugins/workflow/omp/skills/to-pr/references/pr-template.md": "6d902f54960e0ea067600736b988e2d536f3d90bbcd29f192b83b18b4a8fa59e",
     "plugins/workflow/omp/skills/to-pr/references/pr-writing.md": "5d68f5109e9b5e5728aa69435139ed365e91135f68de3c4164133a7038b96803",
