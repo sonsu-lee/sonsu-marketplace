@@ -416,14 +416,14 @@ branch 생성이 함께 요청되면 `ticket-lifecycle`과 `branch`를 runtime�
 
 ### PR은 연결하고 native automation을 우선한다
 
-새 branch 이름은 사용자 지정, repository·team 규칙과 확인된 tracker 연동 형식을 따릅니다. 앞선
-규칙이 없고 활성 Linear 연동과 기준 티켓이 확인되면 설정된 형식이나 key를 포함한 fallback을 사용하며, GitHub Issues는 설명형 branch와
-PR 본문 연결을 기본으로 합니다. 기존 branch는 자동 rename하지 않습니다. 여러 PR의 부분 병합이
+새 branch 이름은 사용자 지정과 repository·team 규칙을 따르고, 규칙이 없으면 티켓 ID 없는
+설명형 이름을 씁니다. Linear·GitHub Issues 모두 티켓은 PR 본문에서 연결하고, 사용자가 요청하면
+provider가 지원하는 별도 link 작업을 추가합니다. 본문의 티켓 ID에는 canonical URL 링크를 겁니다. 기존 branch는 자동 rename하지 않습니다. 여러 PR의 부분 병합이
 티켓을 조기 완료시킬 자동화가 있으면 [작성 설계](../reference/ticket-pr-writing.md)의 비종결 연결·
 충돌 처리 규칙을 적용합니다.
 
 `to-pr`은 canonical ticket의 `complete`, `contribute`, `relate` 또는 `suppress` 의도를 provider의
-정확한 PR title·body·link 문법으로 표현합니다. Linear magic word와 GitHub closing keyword는
+정확한 PR body 문법(사용자가 요청하면 provider link 작업 추가)으로 표현합니다. Linear magic word와 GitHub closing keyword는
 서로 바꾸어 사용하지 않습니다. 같은 작업이 두 tracker에 동기화되어 있으면
 확인된 canonical ticket 하나에만 completion 의도를 적용합니다.
 

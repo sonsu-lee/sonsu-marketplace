@@ -35,9 +35,11 @@ PR은 함께 검토·검증할 수 있고 merge 직후 build를 유지하며 깨
 
 ## 연동별 브랜치와 관계 표현
 
-새 브랜치는 사용자 지정 이름, 확인된 저장소·팀 규칙, 실행 환경의 필수 제약을 우선한다. 그 규칙이 없고 기준 티켓과 Linear 연동이 확인되면 설정된 Copy git branch name 형식을 사용한다. 형식을 조회할 수 없지만 연동과 키가 확인되면 `<type>/<KEY>-<slug>`를 사용한다. GitHub Issues는 일반 설명형 `<type>/<slug>`를 사용하고 PR 본문으로 연결한다. 기존 브랜치는 자동으로 이름을 바꾸지 않는다. [Linear 연동](https://linear.app/docs/github), [GitHub Issues 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
+새 브랜치 이름은 사용자 지정 이름과 저장소·팀 규칙을 따르고, 규칙이 없으면 `<type>/<slug>`를 사용한다. 티켓 연동을 이유로 ID를 넣지 않으며 Linear의 Copy git branch name 형식과 integration 추천 이름은 그 자체로 이름 규칙이 아니다. 그 결과 Linear의 branch 이름 기반 연결은 일어나지 않고, PR은 본문의 magic word로 연결한다. 기존 브랜치는 자동으로 이름을 바꾸지 않는다. [Linear 연동](https://linear.app/docs/github), [GitHub Issues 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
 
-Linear의 부분 PR은 `Part of KEY`와 실제 비종결 관계를 확인한다. 브랜치 키로도 자동 연결될 수 있으므로 관계와 자동화 효과를 확인한다. `Part of`는 merge 완료 전이만 막는다. Draft·Open·Ready 같은 다른 PR 이벤트가 티켓을 완료 상태로 옮기도록 설정됐다면 해당 게시·전환을 보류하고 설정 충돌을 보고한다. GitHub Issues의 부분 PR은 종료 키워드 대신 일반 참조를 쓰며, 기본 브랜치 대상에서 전체 결과가 완료될 때만 종료 키워드를 쓴다.
+PR 본문의 티켓 ID에는 링크를 건다. GitHub Issues의 `#123`은 자동으로 링크된다. Linear는 `Part of [ENG-123](<canonical URL>)`처럼 magic word 바로 뒤의 ID를 링크한다. Linear 문서에 명시된 형식은 아니지만, 공개 PR 표본에서 magic word가 붙은 Markdown 링크는 연결되고 magic word 없는 링크는 연결되지 않았다. 게시 뒤에는 티켓을 다시 읽어 연결과 상태를 확인한다.
+
+Linear의 부분 PR은 `Part of KEY`와 실제 비종결 관계를 확인한다. 기존 브랜치에 키가 있으면 그 키로도 자동 연결될 수 있으므로 관계와 자동화 효과를 확인한다. `Part of`는 merge 완료 전이만 막는다. Draft·Open·Ready 같은 다른 PR 이벤트가 티켓을 완료 상태로 옮기도록 설정됐다면 해당 게시·전환을 보류하고 설정 충돌을 보고한다. GitHub Issues의 부분 PR은 종료 키워드 대신 일반 참조를 쓰며, 기본 브랜치 대상에서 전체 결과가 완료될 때만 종료 키워드를 쓴다.
 
 부분 PR을 게시하거나 Ready로 전환하기 전에 제목·본문·기존 브랜치뿐 아니라 포함 commit message에 남은 티켓 키와 완료 표현도 검사한다. [GitHub Issues의 commit 종료 키워드](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)와 [Linear의 commit linking](https://linear.app/docs/github)은 PR 본문의 비종결 표현과 별도로 작동할 수 있다. 현재 연동에서 조기 완료가 발생할 신호가 남고 이 단계에서 바꿀 수 없으면 해당 게시·전환을 보류하고 별도 Git 작업이나 자동화 조정이 필요함을 보고한다. 연결 표시와 실제 상태 변경은 별도로 확인한다.
 

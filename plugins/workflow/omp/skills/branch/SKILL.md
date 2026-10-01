@@ -16,16 +16,13 @@ description: 브랜치 이름을 제안·검토하거나 명시적으로 요청�
 
 [새 브랜치 이름 규칙](../../references/branch-naming.md)을 읽고 적용한다.
 
-## 티켓 연동 형식을 확인한다
+## 티켓 ID를 넣지 않는다
 
-기준 티켓과 provider를 확인한 뒤 repository·team 규칙 및 활성 Linear 연동의 branch 형식을 읽는다. ID 문자열의 모양이나 연동 가능성만으로 기준 티켓을 추정하지 않는다. repository·team 규칙이 없으면 다음 기본값을 사용한다.
+티켓 작업이라는 이유만으로 branch 이름에 ID를 넣지 않는다. Linear·GitHub Issues의 연결과 완료 의도는 PR 본문에서 처리한다. Linear의 `Copy git branch name` 형식이나 integration 추천 이름은 그 자체로 이름 규칙이 아니다.
 
-- Linear는 확인한 `Copy git branch name` 설정의 형식을 사용한다. 형식을 읽을 수 없지만 연동과 기준 티켓이 확인됐으면 `<type>/<KEY>-<short-kebab-description>`을 사용한다.
-- GitHub Issues는 일반 branch 이름의 번호만으로 PR 연결을 보장하지 않으므로 별도 규칙이 없으면 `<type>/<short-kebab-description>`을 사용한다. PR의 관계와 완료 의도는 PR metadata에서 처리한다.
+branch에 ID가 없으면 Linear의 branch 이름 기반 연결은 일어나지 않는다. 작업 시작 같은 PR 전 상태 변경은 `ticket-lifecycle` 요청으로 처리한다.
 
-한 티켓에 여러 PR이 있고 일부만 완료하는 branch라면 Linear의 자동 연결과 PR의 `Part of` 관계가 실제 비종결로 반영되는지 확인한다.
-
-branch에 이미 ID가 있으면 보조 정보로만 취급하고 canonical ticket을 확인한다. ID가 없거나 다르다는 이유로 기존 branch를 자동 rename하지 않는다.
+이미 ID가 들어 있는 기존 branch는 보조 정보로만 취급하고 canonical ticket을 확인한다. ID가 있거나 없다는 이유로 기존 branch를 자동 rename하지 않는다.
 
 ## 생성 전에 확인한다
 
