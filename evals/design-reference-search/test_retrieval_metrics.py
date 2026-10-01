@@ -479,7 +479,9 @@ class LocatorValidationTests(unittest.TestCase):
             "invented winner", "invented", "screens/a.png", "../screens/a.png",
             "https:///missing-host", "http://[::1", "https://example.com/a b",
             "file:/screens/a.png", "data:image/png;base64,abc", "javascript:alert(1)",
-            "blob:https://example.com/id",
+            "blob:https://example.com/id", "https://mobbin.com:bogus/flows/signup-1",
+            "https://mobbin.com:99999/flows/signup-1", "https://mobbin.com:0/flows/signup-1",
+            "https://mobbin.com/flows/sign\x00up", "mobbin:screen/a\x7f",
         ):
             for source in ("gold", "run"):
                 with self.subTest(locator=locator, source=source):
@@ -496,7 +498,10 @@ class LocatorValidationTests(unittest.TestCase):
                     self.assertNotIn("Traceback", result.stderr)
 
     def test_gold_and_run_accept_http_urls_and_safe_provider_ids(self) -> None:
-        for locator in ("https://example.com/screens/1", "http://example.com/1", "Mobbin:screen/123", "Dribbble:Shot/ABC"):
+        for locator in (
+            "https://example.com/screens/1", "http://example.com/1", "https://example.com:8443/screens/1",
+            "Mobbin:screen/123", "Dribbble:Shot/ABC",
+        ):
             with self.subTest(locator=locator):
                 gold = FloorsTests()._gold()
                 run = FloorsTests()._run()
@@ -588,6 +593,22 @@ class MalformedGoldTests(unittest.TestCase):
         result = run_cli("validate", gold=gold)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("grade 2", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_non_string_enum_values_fail_without_traceback(self) -> None:
+        for field, value in (("split", []), ("kind", {})):
+            with self.subTest(field=field):
+                gold = FloorsTests()._gold()
+                gold["cases"][0][field] = value
+                result = run_cli("validate", gold=gold)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn(f"cases[0].{field} must be one of", result.stdout)
+                self.assertNotIn("Traceback", result.stderr)
+        run = FloorsTests()._run()
+        run["cases"][0]["status"] = []
+        result = run_cli("score", gold=FloorsTests()._gold(), run=run)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("cases[0].status must be one of", result.stdout)
         self.assertNotIn("Traceback", result.stderr)
 
 

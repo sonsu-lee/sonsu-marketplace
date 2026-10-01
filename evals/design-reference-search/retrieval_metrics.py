@@ -112,10 +112,11 @@ def validate_gold(payload: Any) -> list[str]:
             errors.append(f"duplicate case id: {case_id}")
         else:
             seen_ids.add(case_id)
-        if case.get("split") not in SPLITS:
+        split = case.get("split")
+        if not isinstance(split, str) or split not in SPLITS:
             errors.append(f"{context}.split must be one of {sorted(SPLITS)}")
         kind = case.get("kind")
-        if kind not in KINDS:
+        if not isinstance(kind, str) or kind not in KINDS:
             errors.append(f"{context}.kind must be one of {sorted(KINDS)}")
         if not non_empty_string(case.get("query")):
             errors.append(f"{context}.query must be a non-empty string")
@@ -191,7 +192,7 @@ def validate_run(payload: Any, gold_ids: set[str]) -> list[str]:
             if case_id not in gold_ids:
                 errors.append(f"{context}.id {case_id!r} is not a gold case id")
         status = case.get("status")
-        if status not in RUN_STATUSES:
+        if not isinstance(status, str) or status not in RUN_STATUSES:
             errors.append(f"{context}.status must be one of {sorted(RUN_STATUSES)}")
         results = case.get("results")
         if not isinstance(results, list):
