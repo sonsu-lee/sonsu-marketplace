@@ -2114,6 +2114,65 @@
         ]
       },
       "host_search_policy_present": false
+    },
+    {
+      "id": "routing-explicit-provider-specialists-unavailable",
+      "language": "ko",
+      "prompt": "Exa로만 Node.js --env-file 공식 문서 URL을 검색해줘.",
+      "should_trigger": true,
+      "expected_route": "lookup",
+      "must": [
+        "explicit_provider_priority",
+        "provider_specific_no_silent_fallback",
+        "disclose_access_limit",
+        "light_audit_only"
+      ],
+      "must_not": [
+        "silent_provider_substitution",
+        "research_contract",
+        "evidence_ledger",
+        "deep_research"
+      ],
+      "fixture": {
+        "provider_access": [
+          {
+            "provider": "exa",
+            "connection": "managed"
+          },
+          {
+            "provider": "perplexity",
+            "connection": "managed"
+          }
+        ],
+        "capability_state": [
+          {
+            "provider": "exa",
+            "capability": "discover",
+            "tool_visible": false,
+            "schema_ok": false,
+            "auth_ok": false,
+            "read_only_call_ok": false
+          },
+          {
+            "provider": "perplexity",
+            "capability": "discover",
+            "tool_visible": false,
+            "schema_ok": false,
+            "auth_ok": false,
+            "read_only_call_ok": false
+          },
+          {
+            "provider": "generic_web",
+            "capability": "discover",
+            "available": true,
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true
+          }
+        ]
+      },
+      "host_search_policy_present": false
     }
   ]
 }
