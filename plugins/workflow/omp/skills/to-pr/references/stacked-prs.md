@@ -9,6 +9,15 @@
 - 뒤 주제가 앞 주제의 코드·계약에 의존하면 아래에서 위로 branch와 PR을 배열한다. 아래 PR은 trunk, 위 PR은 바로 아래 PR의 head branch를 base로 한다. 각 PR은 그 층의 diff만 설명한다.
 - 하나의 PR에 여러 주제가 섞였으면 주제별 범위와 필요한 branch·commit 경계를 먼저 제시한다. 이 스킬은 branch 생성, commit 분리, history rewrite와 rebase를 실행하지 않는다. 해당 Git 작업이 요청·허가되어 준비된 뒤 PR 작성으로 돌아온다.
 
+경계는 다음 기준으로 확인한다.
+
+- 롤백: 각 PR은 merge 직후 build와 기존 동작을 유지해야 한다. 독립 PR은 단독으로, stack의 층은 자신과 그 위층을 위에서부터 역순으로 revert하면 깨끗하게 되돌아가야 한다. 코드와 그 코드를 켜는 설정·flag처럼 배포 시점이 다른 변경은 나눠서 설정만 먼저 되돌릴 수 있게 한다.
+- 리팩터링 분리: 동작을 바꾸지 않는 큰 리팩터링은 기능 추가·버그 수정과 다른 PR로 둔다. 동작 변경이 리팩터링 diff에 묻히지 않게 하기 위해서다. 지역 변수 rename, import 정리, 그 변경에 필요한 작은 함수 추출 같은 정리는 같은 PR에 둔다.
+- 리뷰 크기: 생성 파일·lockfile·snapshot, 파일 전체 삭제와 내용 변경 없는 rename을 뺀 추가·삭제 줄이 약 400줄을 넘거나, 줄 수가 작아도 많은 파일에 흩어져 있으면 주제별로 더 나눌 수 있는지 먼저 확인한다. 나눌 수 없으면 PR을 유지하고 이유를 결과 보고에 남긴다.
+- 생성 파일이 diff의 상당 부분이면 리뷰어가 건너뛸 수 있는 경로를 glob으로 묶어 본문 `참고`에 한 줄로 적는다.
+
+400줄은 Cisco 팀을 대상으로 한 [SmartBear 연구](https://smartbear.com/learn/code-review/best-practices-for-peer-code-review/)의 “한 번의 리뷰에서 200–400줄을 넘기면 결함 발견 능력이 떨어진다”는 관찰을 PR 크기 기준으로 차용한 값이다. [Google의 Small CLs 지침](https://google.github.io/eng-practices/review/developer/small-cls.html)도 100줄은 대체로 적당하고 1000줄은 대체로 크다고 보며, 작은 변경이 롤백하기 쉽고 리팩터링은 기능 변경과 분리하되 작은 정리는 같은 CL에 둬도 된다고 설명한다. 두 자료 모두 고정 상한이 아니라 판단 기준이므로 줄 수만으로 나누지 않는다.
+
 각 층의 payload에는 `base`, `head`, 검토할 주제, 아래 PR에 대한 의존성, 해당 층의 diff·검증·티켓 intent를 기록한다. stack 전체의 목적은 짧게 연결하되, 모든 층에 동일한 전체 diff나 검증 결과를 복사하지 않는다. 사용자에게 보이는 변경과 시각 증거는 그 변경을 소유한 PR에 둔다.
 
 GitHub Issues closing keyword는 non-default base의 자동 종료 근거로 사용하지 않는다. stack 전체가 완료되어야 닫히는 티켓은 각 층에서 `Part of`처럼 completion을 만들지 않는 reference를 사용하고, 실제 merge 뒤 canonical ticket 상태를 별도로 확인한다. Linear도 [티켓 연결 규칙](ticket-linking.md)의 event별 automation을 따른다.

@@ -4,14 +4,18 @@
 
 ## 필요성을 판정한다
 
-다음 중 하나이면 PR에 보여 줄 시각 증거를 준비한다.
+다음 중 하나이면 PR 본문에 시각 증거를 넣는다.
 
-- 사용자가 스크린샷 포함을 요청했다.
+- 사용자가 스크린샷이나 영상 포함을 요청했다.
 - PR template이나 contribution 지침이 요구한다.
-- diff가 layout, style, theme, responsive behavior, interaction 또는 사용자에게 보이는 상태를 바꾸며, 리뷰어가 변경 화면이나 동작을 기존 증거만으로 판단하기 어렵다.
+- diff가 제품 UI의 layout, style, theme, responsive behavior, 문구, interaction이나 화면 상태를 바꾼다.
 - accessibility나 visual regression 결과의 실제 차이를 화면으로 설명해야 한다.
 
-해당 변경의 실제 화면 또는 의미 있는 visual diff가 기존 VRT 결과로 생성되고 리뷰어가 열어 볼 수 있으면 중복 캡처를 요구하지 않는다. 단순 VRT 통과 상태만으로 화면 증거를 대체하지 않으며, 정적 VRT가 보여 주지 못하는 interaction·motion은 필요한 화면 또는 영상으로 설명한다. backend-only, 내부 refactor, 문서, metadata와 사용자에게 보이는 출력이 없는 configuration 변경에는 기본적으로 만들지 않는다. 필요 없으면 `not_applicable`로 처리하고 빈 `Screenshots and videos` 섹션을 만들지 않는다.
+정적 상태 변화는 마킹한 스크린샷으로, interaction·전환·animation·여러 단계의 흐름은 확인할 시점을 timestamp caption으로 밝힌 영상으로 보여 준다. 영상에는 마킹을 요구하지 않는다. 여러 화면에 걸친 문구 일괄 변경은 대표 화면 하나를 마킹하고 나머지는 변경 전후 문구 표로 대신할 수 있다. VRT 산출물이나 GitHub Checks 링크는 리뷰어가 PR 밖으로 이동해야 하고 변경 위치를 표시하지 않으므로 본문 자료를 대체하지 않는다. VRT의 actual·diff는 마킹 근거나 원본으로 사용할 수 있다.
+
+사용자가 명시적으로 생략을 요청하면 따른다. 저장소 양식이 요구하는데 사용자가 생략을 요청했으면 생략하되 그 충돌을 결과 보고에 남긴다.
+
+backend-only, 내부 refactor, 문서, metadata와 configuration 변경에는 기본적으로 만들지 않는다. 다운로드 파일, 이메일, API 응답, CLI 출력처럼 화면 밖에서 사용자에게 보이는 결과가 바뀌면 확인 결과를 `검증`에 한 줄로 쓴다. 필요 없으면 `not_applicable`로 처리하고 빈 `Screenshots and videos` 섹션을 만들지 않는다.
 
 ## capture 환경을 고정한다
 

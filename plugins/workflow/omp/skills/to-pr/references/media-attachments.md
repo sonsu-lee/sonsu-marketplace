@@ -42,9 +42,11 @@ attachments[].remote_url
 attachments[].deletion_locator
 ```
 
-secret, token, cookie, 개인정보, 실제 고객 data, 내부 URL, 제한된 보안 정보와 불필요한 local path가 보이면 게시하지 않는다. 애니메이션 GIF를 포함한 이미지는 [시각 증거 규칙](visual-evidence.md)에 따라 변경 위치가 마킹된 사본만 첨부한다. GIF는 변경을 보여 주는 모든 관련 frame에서 marker가 유지되는지 확인하며, 신뢰할 수 있게 마킹할 수 없으면 마킹된 정적 이미지나 비디오로 대체하거나 업로드하지 않는다. GitHub CLI는 이미지를 마킹하지 않으므로 annotation은 upload 전에 이미지에 반영해야 한다. 비디오에는 무엇을 언제 확인할지 설명하는 caption과 필요한 timestamp를 PR body에 둔다.
+secret, token, cookie, 개인정보, 실제 고객 data, 내부 URL, 제한된 보안 정보와 불필요한 local path가 보이면 게시하지 않는다. 애니메이션 GIF를 포함한 이미지는 [시각 증거 규칙](visual-evidence.md)에 따라 변경 위치가 마킹된 사본만 첨부한다. GIF는 변경을 보여 주는 모든 관련 frame에서 marker가 유지되는지 확인하며, 신뢰할 수 있게 마킹할 수 없으면 마킹된 정적 이미지나 비디오로 대체하거나 업로드하지 않는다. GitHub CLI는 이미지를 마킹하지 않으므로 annotation은 upload 전에 이미지에 반영해야 한다. 비디오에는 마킹 대신 무엇을 언제 확인할지 설명하는 caption과 필요한 timestamp를 PR body에 두며, 비디오의 `annotation_status`는 이 caption이 준비됐는지로 판정한다.
 
-업로드 전에 이미 설치된 신뢰할 수 있는 decoder로 실제 content type, decode 가능 여부와 확장자의 일치를 확인한다. GIF의 모든 frame과 비디오의 전체 영상·audio track을 검토하여 민감정보가 없는지도 확인한다. EXIF·GPS·XMP, SVG metadata와 video container 메타데이터 같은 embedded metadata도 최종 첨부 사본에서 확인한다. 민감하거나 불필요한 metadata가 있으면 이미 설치된 도구로 정제한 별도 사본을 만들고 다시 검사한다. 전체 내용이나 metadata를 신뢰할 수 있게 검사하지 못하면 각각 `sensitive_data_check` 또는 `embedded_metadata_check`를 `inconclusive`로 기록하고 업로드하지 않는다. 이를 위해 image library, codec, `ffmpeg`, 메타데이터 도구나 player를 자동 설치하지 않는다.
+업로드 전에 신뢰할 수 있는 decoder로 실제 content type, decode 가능 여부와 확장자의 일치를 확인한다. GIF의 모든 frame과 비디오의 전체 영상·audio track을 검토하여 민감정보가 없는지도 확인한다. EXIF·GPS·XMP, SVG metadata와 video container 메타데이터 같은 embedded metadata도 최종 첨부 사본에서 확인한다. 민감하거나 불필요한 metadata가 있으면 정제한 별도 사본을 만들고 다시 검사한다. 전체 내용이나 metadata를 신뢰할 수 있게 검사하지 못하면 각각 `sensitive_data_check` 또는 `embedded_metadata_check`를 `inconclusive`로 기록하고 업로드하지 않는다.
+
+영상이 있으면 크기와 관계없이 `command -v ffmpeg ffprobe`로 검사·압축 도구를 확인한다. 없으면 필요한 이유와 함께 설치를 제안한다. macOS는 `brew install ffmpeg`, 그 밖에는 OS 패키지 관리자의 설치 명령을 제시한다. image library, codec, `ffmpeg`, 메타데이터 도구나 player는 사용자 승인 없이 설치하지 않는다.
 
 ## GitHub CLI 지원을 감지한다
 
@@ -67,6 +69,27 @@ GitHub Draft PR의 가용성은 저장소 visibility와 plan에 따라 다르다
 
 공식 참고: [GitHub CLI 파일 첨부](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli), [`gh pr edit`](https://cli.github.com/manual/gh_pr_edit), [GitHub 첨부 형식과 크기](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files), [Draft PR 가용성](https://docs.github.com/en/rest/pulls/pulls#create-a-pull-request), [GitHub CLI 2.99.0](https://github.com/cli/cli/releases/tag/v2.99.0)
 
+## 크기 제한을 넘으면 압축한다
+
+최종 첨부 사본이 위에서 정한 상한을 넘으면 첨부를 포기하지 않고 압축한 사본을 만든다. 플랜을 확인하지 못한 영상의 상한은 10 MB다. 원본은 `source_path`에 남기고, 같은 manifest 항목의 `local_path`·`mime_type`·`file_size`·`width`·`height`·`codec`·`duration`·`sha256`을 압축 사본 기준으로 갱신한다. 영상을 단계별로 나눌 때만 새 항목을 만든다.
+
+1. 영상은 먼저 변경을 보여 주는 구간만 남긴다. 앞뒤 대기·로딩 시간을 잘라내면 크기와 리뷰 시간이 함께 줄어든다.
+2. `ffmpeg`로 H.264로 다시 인코딩한다. 음성이 변경 설명에 필요할 때만 `-an` 대신 `-map '0:a:0?' -c:a aac -b:a 96k`를 쓴다.
+
+   ```sh
+   ffmpeg -i input.mov -map 0:v:0 -map_metadata -1 -an \
+     -vf "scale='trunc(min(1280,iw)/2)*2':-2,fps=30" \
+     -c:v libx264 -preset slow -crf 28 -pix_fmt yuv420p -movflags +faststart output.mp4
+   ```
+
+   여전히 크면 CRF를 2씩 올리되 32를 넘기지 않는다. 그다음 너비 960px, 15fps 순으로 낮춘다. 길이가 길어 이 방법으로 맞추기 어려우면 `목표 영상 kbps = 상한 bytes × 8 × 0.9 ÷ 길이(초) ÷ 1000 − 음성 kbps`로 2-pass bitrate 인코딩을 한다.
+3. 사용자가 설치를 원하지 않으면 macOS에서는 `avconvert --source input.mov --output output.mov --start <초> --duration <초> --preset Preset1280x720`으로 구간 자르기와 해상도 낮추기만 시도한다. bitrate를 지정할 수 없어 상한 안에 들어온다는 보장이 없고, `PresetMediumQuality` 이하는 568×320 수준으로 줄어 UI 글자를 읽기 어렵다. 아래 재검사를 할 도구가 없으면 결과는 `inconclusive`이며 업로드하지 않는다.
+4. 이미지는 긴 변을 2560px 이하로 줄인다. macOS에서는 `sips -Z 2560`을 쓸 수 있다. 그래도 크면 사진성 화면만 JPEG 품질 85로 바꾸고, 글자 중심 UI는 PNG를 유지한다.
+
+압축 사본은 다시 검사한다. 크기가 상한 이하이고 영상이 H.264(`avc1`)·`yuv420p`로 decode되며 길이가 의도한 구간과 맞아야 한다. caption의 timestamp와 이미지 marker 위치의 프레임을 직접 열어 marker와 UI 글자를 읽을 수 있는지도 확인한다. 민감정보·embedded metadata 검사와 SHA-256 기록도 새 사본 기준으로 다시 한다.
+
+읽을 수 있는 품질로 상한을 맞출 수 없으면 변경 단계별로 영상을 나누거나, 단계별로 마킹한 스크린샷으로 바꾼다.
+
 ## 기본 흐름에서는 로컬 경로를 body에 노출하지 않는다
 
 GitHub CLI는 body가 같은 로컬 파일을 참조하면 그 위치의 destination을 upload URL로 바꿀 수 있다. 하지만 여러 upload 중 일부만 성공해도 PR을 생성하므로 실패한 파일의 local path가 body에 남을 수 있다. `to-pr`의 기본 흐름에서는 local reference를 body에 쓰지 않는다.
@@ -85,7 +108,7 @@ GitHub CLI는 body가 같은 로컬 파일을 참조하면 그 위치의 destina
 
 `draft` 모드에서는 업로드하지 않는다. 여기서 `draft`는 로컬에서 payload만 준비하는 스킬 모드이며 GitHub의 Draft PR 상태와는 다르다. 사용자가 visual evidence가 포함된 새 PR 게시를 요청했고 final manifest와 body가 확정된 `publish` 모드에서만 GitHub native attachment를 실행한다. 이 승인은 검토한 manifest의 GitHub attachment만 포함하며 외부 storage, 다른 파일 또는 publish 시작 전에 이미 존재하던 PR의 수정으로 확대하지 않는다.
 
-`target_pr_state`는 `to-pr`의 기본 Draft 정책과 GitHub 규칙에 따라 publish 전에 확정하고 upload 결과에 따라 바꾸지 않는다. `required_for_ready`도 publish 전에 확정한다. 사용자가 명시적으로 요청했거나 PR 양식·`CONTRIBUTING`이 요구한 파일, 또는 PR이 주장하는 화면 동작을 입증하는 유일한 증거는 필수다. 없어도 PR의 주장과 검증 결과가 완전한 보조 diff, 추가 viewport나 대체 recording만 선택으로 둘 수 있다. 불명확하면 필수로 취급한다. 필수 항목 하나라도 annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded 메타데이터 검사를 완료하지 못하면 PR 생성 명령 자체를 실행하지 않는다.
+`target_pr_state`는 `to-pr`의 기본 Draft 정책과 GitHub 규칙에 따라 publish 전에 확정하고 upload 결과에 따라 바꾸지 않는다. `required_for_ready`도 publish 전에 확정한다. 사용자가 명시적으로 요청했거나 PR 양식·`CONTRIBUTING`이 요구한 파일, 화면 변경 PR의 마킹 스크린샷·caption 영상, 또는 PR이 주장하는 화면 동작을 입증하는 유일한 증거는 필수다. 접근 가능한 VRT 산출물이 있어도 본문 자료는 필수로 남는다. 없어도 PR의 주장과 검증 결과가 완전한 보조 diff, 추가 viewport나 대체 recording만 선택으로 둘 수 있다. 불명확하면 필수로 취급한다. 필수 항목 하나라도 annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded 메타데이터 검사를 완료하지 못하면 PR 생성 명령 자체를 실행하지 않는다.
 
 Draft PR을 만들기 전에 전체 manifest의 로컬 파일 identity를 비교한다. realpath, hard link나 symbolic link를 통해 같은 underlying file을 가리키는 항목이 둘 이상이면, 각 파일을 별도 명령으로 올리더라도 중복으로 보고 upload를 시작하지 않는다. 내용 hash만 같은 서로 다른 파일은 자동으로 같은 파일이라고 단정하지 않는다.
 
