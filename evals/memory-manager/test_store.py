@@ -225,6 +225,47 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(len(candidates), 1)
         self.assertEqual(json.loads(candidates[0].read_text(encoding="utf-8"))["project"], key_b)
 
+    def test_project_key_preserves_explicit_safe_directory_global_config(self):
+        repository = self.base / "safe-directory-repo"
+        worktree = self.base / "safe-directory-worktree"
+        global_config = self.base / "gitconfig"
+        repository.mkdir()
+        subprocess.run(["git", "init", str(repository)], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(repository), "-c", "user.name=Test", "-c",
+                        "user.email=test@example.invalid", "commit", "--allow-empty",
+                        "-m", "initial"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(repository), "worktree", "add", str(worktree)],
+                       check=True, capture_output=True)
+        for path in (repository, worktree):
+            subprocess.run(["git", "config", "--file", str(global_config), "--add",
+                            "safe.directory", str(path)], check=True, capture_output=True)
+
+        spec = importlib.util.spec_from_file_location("memory_store_safe_directory_test", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with mock.patch.dict(os.environ, {
+            "GIT_CONFIG_GLOBAL": str(global_config),
+            "GIT_CONFIG_SYSTEM": str(global_config),
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_TEST_ASSUME_DIFFERENT_OWNER": "1",
+            "GIT_DIR": str(repository / ".git"),
+            "GIT_WORK_TREE": str(repository),
+            "GIT_CONFIG_COUNT": "1",
+            "GIT_CONFIG_KEY_0": "core.worktree",
+            "GIT_CONFIG_VALUE_0": str(repository),
+        }):
+            self.assertEqual(module.project_key(repository), module.project_key(worktree))
+            with mock.patch.object(module.subprocess, "run", return_value=mock.Mock(
+                    returncode=0, stdout=".git\n")) as git_run:
+                module.project_key(repository)
+            child_env = git_run.call_args.kwargs["env"]
+            for name in ("GIT_CONFIG_GLOBAL", "GIT_CONFIG_SYSTEM", "GIT_CONFIG_NOSYSTEM",
+                         "GIT_TEST_ASSUME_DIFFERENT_OWNER"):
+                self.assertIn(name, child_env)
+            for name in ("GIT_DIR", "GIT_WORK_TREE", "GIT_CONFIG_COUNT",
+                         "GIT_CONFIG_KEY_0", "GIT_CONFIG_VALUE_0"):
+                self.assertNotIn(name, child_env)
+
     def test_secret_and_symlink_output_are_rejected(self):
         result = self.run_store("put", payload={
             "decision": "ADD", "scope": "project", "title": "secret",
