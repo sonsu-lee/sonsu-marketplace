@@ -1,0 +1,6 @@
+interface:
+  display_name: "Repair PR"
+  short_description: "지정 PR의 충돌·리뷰 의견·CI 실패를 처리합니다"
+  default_prompt: "$repair-pr 이 PR의 CI 실패 원인을 확인하고 수정해 줘."
+policy:
+  allow_implicit_invocation: true

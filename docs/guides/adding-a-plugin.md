@@ -37,6 +37,7 @@ claude plugin marketplace list
 GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용합니다. 실제 등록·설치
 검증은 기존 사용자 설정과 분리된 환경에서 진행하세요.
 omp에서는 `omp plugin marketplace add "$(pwd -P)"`로 같은 체크아웃을 등록합니다.
+GitHub 등록 대상과 혼동하지 않도록 분리된 설정에서 로컬 5개 구성을 확인합니다.
 플러그인 설치와 설치 후 스킬 목록을 다시 불러오는 방법은 [루트 README](../../README.md#설치)에 있습니다.
 
 ## 기존 플러그인 수정
@@ -45,6 +46,10 @@ omp에서는 `omp plugin marketplace add "$(pwd -P)"`로 같은 체크아웃을 
    외부 원본이 포함되어 있으면 `UPSTREAM.md`에서 원본과 로컬 변경의 경계를 확인합니다.
 2. 수정 대상의 정본을 갱신합니다. Fluent Languages는 각 `skills/fluent-<language>/SKILL.md`와
    해당 스킬의 참고 자료를 직접 편집합니다. 언어 사이에 공통 원본을 주입하지 않습니다.
+   Design·Workflow·Fluent Korean의 omp 배포본은 `plugins/<name>/omp/`에 생성합니다.
+   생성본과 설치 캐시는 직접 편집하지 않고 원본 스킬이나 `scripts/render-omp-compat.py` 변환을 고친 뒤
+   `python3 scripts/render-omp-compat.py`로 재생성합니다. Fluent Korean은 `codex/skills/`의 단일 호출을
+   투영하고 English·Japanese는 기존 패키지를 배포합니다.
 3. 변경한 동작에 맞는 평가를 [evals/](../../evals)에서 선택하고 아래 검증을 실행합니다.
    사용법·계약·개발 절차가 달라졌다면 [문서 배치 기준](../README.md)에 따라 담당 문서를 갱신합니다.
 
@@ -65,8 +70,9 @@ omp에서는 `omp plugin marketplace add "$(pwd -P)"`로 같은 체크아웃을 
    버전, 라이선스와 포함 범위를 기록합니다.
 4. `.agents/plugins/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
 5. `python3 scripts/render-claude-compat.py`로 Claude Code catalog와 plugin manifest를 생성합니다.
-6. `python3 scripts/render-omp-compat.py`로 omp catalog와 작업 연속성·evidence gate를 쓰는
-   플러그인의 omp extension 패키지(`package.json`, `omp/extension.ts`)를 생성합니다.
+6. `python3 scripts/render-omp-compat.py`로 omp catalog와 Design·Workflow·Fluent Korean 전용 패키지를 생성합니다.
+   omp 배포는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design` 5개로 고정합니다.
+   Codex catalog에 추가해도 omp 배포 대상이 늘어나지 않습니다. 대상 변경에는 배포 정책의 명시적 변경이 필요합니다.
 
 ```json
 {
@@ -86,6 +92,25 @@ omp에서는 `omp plugin marketplace add "$(pwd -P)"`로 같은 체크아웃을 
 폴더명, 플러그인 매니페스트와 마켓플레이스 항목의 `name`은 같아야 합니다.
 `source.path`는 저장소 루트 기준입니다.
 `.agents/plugins/marketplace.json`과 plugin별 `.codex-plugin/plugin.json`이 패키지의 정본입니다.
+
+omp 생성기는 필요한 스킬·참고 자료·asset·스크립트·Figma companion·라이선스를 동봉하고
+스크립트 실행 권한을 유지합니다. 독자 hook, evidence gate, `task-continuity.py`, runtime extension은
+포함하지 않으며 연속성 자료를 omp 순정 todo·session 안내로 바꿉니다.
+Design의 품질 계약·프로필, Workflow의 권한, English·Japanese agent는 유지합니다.
+Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude agent와 다중 호출·strict 모드에 의존하지 않습니다.
+개발 실행·task·todo·session·review는 omp 순정 기능을 사용합니다. Research·Product·Writing은 선택 후보로
+문서화하며 기본 5개 배포에 추가하지 않습니다. Engineering의 omp 프로필은 직접 설치한 기존 consumer용으로
+보존하고 기본 5개 설정에는 추가하지 않습니다. omp 대응을 위해 기존 Codex·Claude Code hook이나 연속성 자료를
+변경하지 않습니다.
+
+생성기의 `--check`는 생성물의 최신 상태와 불필요한 이전 생성물을 검사합니다. 일반 실행이 정리할 수 있는
+파일은 생성기가 소유한다고 확인한 이전 extension 파일뿐입니다. 사용자 파일, `.sonsu`·`.engineering`
+기록과 설치 캐시는 삭제하거나 편집하지 않습니다.
+
+이 5개 구성의 변경은 아직 게시되지 않았습니다. 게시 시 대상 플러그인의 카탈로그 버전도 올립니다.
+`marketplace.autoUpdate: auto` 업데이트는 omp 시작 시 오래된 카탈로그를 가져오는 것이 전제이며
+같은 버전의 캐시를 실행 중에 바꾸는 기능은 아닙니다. 이전 구성의 제거와 설정 정리는
+[README](../../README.md#omp)를 참고하세요. 정리 뒤 세션을 재시작해 이전 hook·agent를 해제합니다.
 
 ## 검증
 

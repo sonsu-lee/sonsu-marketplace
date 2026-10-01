@@ -1,8 +1,15 @@
 # Engineering
 
 Codex와 Claude Code에서 설계·구현·디버깅·코드 품질·독립 리뷰를 수행하는 플러그인입니다. Quality Engineering의
-8개 품질 스킬을 통합하고 PR 리뷰의 워크트리 실행·결과 게시를 제공하는 3.0.3이며, 일반 코드 리뷰도 `engineering:review`로 진입합니다.
+8개 품질 스킬을 통합하고 PR 리뷰의 워크트리 실행·결과 게시를 제공하는 3.0.5이며, 일반 코드 리뷰도 `engineering:review`로 진입합니다.
 기존 `quality-engineering:` 별칭과 별도 패키지는 제공하지 않습니다.
+
+## omp 기본 구성과 직접 설치
+
+omp 기본 5개 플러그인 구성에서는 개발 실행·task·todo·session·review를 omp 순정 기능이 맡으며
+Engineering을 설치하거나 역할별 모델 설정을 추가하지 않습니다. 기존 [omp 모델 프로필](references/omp-model-profiles.md)과
+[실행 참고](references/omp-tools.md)는 Engineering을 직접 설치한 선택·legacy 호출자를 위해 유지합니다.
+관리형 gate는 관측한 native session-ID 증거가 있을 때만 명시적으로 선택합니다.
 
 ## 실행 경계
 

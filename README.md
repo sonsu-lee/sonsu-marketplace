@@ -89,47 +89,67 @@ Codex connector와 Claude Code MCP 연결은 별도로 설정하며, Figma 작�
 
 ### omp
 
-omp에서는 GitHub 마켓플레이스를 한 번 등록합니다. omp는 `.omp-plugin/marketplace.json`의
-11개 플러그인을 읽으며, `memory-manager`는 omp 자체 메모리를 사용하므로 제외합니다.
+omp에는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design` 5개만
+`.omp-plugin/marketplace.json`으로 배포합니다. 개발 실행·task·todo·session·review와 메모리는
+omp 순정 기능이 맡습니다. 로컬 변경 검증은 [개발 가이드](docs/guides/adding-a-plugin.md)의 분리 환경에서 진행합니다.
 
-```sh
-omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in \
-  engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product design-patterns design
-do
-  omp plugin install "$plugin@sonsu-marketplace"
-done
-```
-
-스킬은 `/skill:commit`처럼 플러그인 접두어 없이 호출합니다. Claude Code 명령 훅 대신 각 플러그인의
-omp extension이 작업 연속성 복구, evidence gate 종료 알림과 세션 ID 전달을 맡습니다. 역할 agent
-전체의 모델은 [omp 모델 프로필](plugins/engineering/references/omp-model-profiles.md)의
-`task.agentModelOverrides` 블록을 `~/.omp/agent/config.yml`에 추가해 지정합니다.
-
-omp의 계획·위임·검증 흐름을 그대로 쓰고 겹치지 않는 기능만 더하려면 전체 설치 대신 아래 구성을
-사용합니다. 계획·실행·TDD·디버깅·일반 리뷰 스킬과 쓰지 않는 역할 agent는 설정으로 거르고,
-명시적으로 요청하는 리뷰 관점, PR 심층 리뷰와 Git·문체·디자인 스킬을 남깁니다. 설정은
-`~/.omp/agent/config.yml`의 기존 `skills:`·`task:` 항목에 합칩니다.
+마켓플레이스를 등록하고 5개를 설치한 뒤 YAML을 `~/.omp/agent/config.yml`의 기존
+`marketplace:` 항목에 합칩니다.
 
 <!-- omp-preset:start -->
 ```sh
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese prompting design-patterns design; do omp plugin install "$plugin@sonsu-marketplace"; done
+omp plugin marketplace add sonsu-lee/sonsu-marketplace
+for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
-skills:
-  ignoredSkills: [execute-plan, plan, brainstorming, worktree, finish-branch, test-driven-development, debug, write-skill, review]
-task:
-  disabledAgents: [extraction, exploration, localized_implementation, implementation, complex_design, adjudication, complex_adjudication, red_team]
-  agentModelOverrides:
-    general_review: "@smol"
-    focused_review: "@smol"
-    senior_review: "@default"
+marketplace:
+  autoUpdate: auto
 ```
 <!-- omp-preset:end -->
 
+`marketplace.autoUpdate: auto`는 omp 시작 시 24시간보다 오래된 카탈로그의 갱신을 가능한 범위에서
+시도합니다. 설치한 플러그인의 자동 업데이트에는 카탈로그의 해당 플러그인 버전 증가가 필요합니다.
+`main`을 상시 감시하거나 실행 중 세션에 변경을 바로 적용하는 설정은 아닙니다.
+
+스킬은 `/skill:commit`처럼 플러그인 접두어 없이 호출합니다. 기본 구성에는 역할별 모델 설정을
+추가하지 않습니다. Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude Code의 다중 호출·strict 모드와
+고정 Opus agent를 배포하지 않습니다. English·Japanese의 기존 스킬·agent, Workflow의 commit·push·PR 권한 경계,
+Design의 품질 계약·프로필과 native tool 전제는 유지합니다.
+
+`design`, `workflow`, `fluent-korean`은 생성된 `./plugins/<name>/omp`를 배포 원본으로 쓰고,
+English·Japanese는 기존 `./plugins/<name>`을 씁니다. omp 배포에는 독자 runtime extension,
+hook, evidence gate, `task-continuity.py`를 포함하지 않습니다. 작업 연속성은 omp의 todo·session으로
+관리하며 `.sonsu`에 새 기록을 쓰지 않습니다. 자세한 내용은 [배포 생명주기](docs/architecture/plugin-lifecycle.md)를 참고하세요.
+
+| 책임 | 담당 | 배포 |
+| --- | --- | --- |
+| 개발 실행·task·todo·session·review | omp 순정 기능 | 호스트 기능 |
+| Git·티켓·PR 권한과 산출물 | Workflow | 기본 5개 |
+| 언어별 문장 품질·보호 규칙 | Fluent Korean·English·Japanese | 기본 5개 |
+| UI·prototype·handoff 품질과 native tool 전제 | Design | 기본 5개 |
+| 외부 조사·제품 탐색·글 구성 | Research·Product·Writing | 선택 후보. 기본 카탈로그에 추가하지 않음 |
+
+Research·Product·Writing을 추가하려면 필요한 도메인과 현재 native tool 계약을 별도로 확인합니다.
+Engineering의 omp 프로필은 직접 설치한 기존 호출자를 위해 보존하며 기본 5개의 설정에는 적용하지 않습니다.
+
+#### 이전 omp 구성에서 이동
+
+이전 11개 구성이나 8개 preset을 사용했다면 다음 중 설치한 이전 플러그인을 omp에서 제거합니다.
+Codex·Claude Code 설치는 유지합니다.
+
+```sh
+for plugin in engineering writing research prompting product design-patterns memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
+```
+
+이전 preset 때문에 추가한 `skills.ignoredSkills`, `task.disabledAgents`, `task.agentModelOverrides`
+항목만 설정에서 제거하고 사용자가 별도로 설정한 항목은 유지합니다. 위 5개 구성을 설치·업데이트한 뒤
+세션을 종료하고 omp를 다시 시작합니다. 실행 중 세션에는 이전 hook·agent가 남아 있을 수 있습니다.
+캐시 파일을 직접 편집하거나 기존 `.sonsu`·`.engineering` 기록을 삭제하지 않습니다.
+
 ## 플러그인
+
+다음은 Codex·Claude Code용 전체 목록입니다. omp 배포는 위 5개로 제한합니다.
 
 | 플러그인 | 용도 | 설치 이름 |
 | --- | --- | --- |

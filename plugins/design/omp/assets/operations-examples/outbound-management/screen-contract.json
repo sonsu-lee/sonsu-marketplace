@@ -1,0 +1,243 @@
+{
+  "schema_version": "design-decision-contract-v1",
+  "id": "outbound-management-v2",
+  "profile": "operations-ui",
+  "artifact_scope": "implementation",
+  "mode": "redesign",
+  "revision": "example-r2",
+  "locked_at": "2026-09-17T00:00:00Z",
+  "actors": [
+    "support operator"
+  ],
+  "contexts": [
+    "triage incoming cases during a busy shift"
+  ],
+  "environments": [
+    {
+      "id": "desktop-ko",
+      "platform": "web",
+      "width": 1280,
+      "height": 800,
+      "input_methods": [
+        "keyboard",
+        "pointer"
+      ],
+      "locale": "ko-KR",
+      "writing_mode": "horizontal-tb",
+      "accessibility_profile": "WCAG-2.2-AA"
+    }
+  ],
+  "primary_question": "Which outbound order should the operator handle next, and is the action safe?",
+  "intended_outcome": "The operator selects the highest-risk waiting order and completes the intended action without acting on stale data.",
+  "risk_profile": {
+    "level": "low",
+    "factors": [],
+    "rationale": "The declared factors determine the minimum evidence level."
+  },
+  "task_scenarios": [
+    {
+      "id": "triage-case",
+      "actor": "support operator",
+      "starting_context": "three cases are waiting",
+      "task": "select the case that needs attention first",
+      "correct_outcome": "the overdue high-risk case is selected",
+      "wrong_outcome": "a routine case is selected first",
+      "wrong_outcome_cost": "the overdue case remains unresolved",
+      "information_ids": [
+        "case-risk",
+        "case-age"
+      ],
+      "representation_ids": [
+        "priority-column"
+      ],
+      "environment_ids": [
+        "desktop-ko"
+      ],
+      "observable_success": "the operator selects case A and explains the risk and age cues",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "actions": [
+        "select-case"
+      ],
+      "coverage": {
+        "jobs": [
+          "triage cases"
+        ],
+        "entities": [
+          "case"
+        ],
+        "lifecycle": [
+          "waiting",
+          "selected"
+        ],
+        "actions": [
+          "select-case"
+        ],
+        "permissions": [
+          "queue-read"
+        ],
+        "risks": [
+          "stale-priority"
+        ],
+        "states": [
+          "loaded",
+          "stale"
+        ]
+      }
+    }
+  ],
+  "information_requirements": [
+    {
+      "id": "case-risk",
+      "role": "must_know",
+      "meaning": "severity of customer impact",
+      "source": "case service",
+      "freshness": "current response",
+      "uncertainty": "none when the service is current",
+      "task_ids": [
+        "triage-case"
+      ]
+    },
+    {
+      "id": "case-age",
+      "role": "must_know",
+      "meaning": "elapsed wait time",
+      "source": "case service",
+      "freshness": "updated every minute",
+      "uncertainty": "may be stale while offline",
+      "task_ids": [
+        "triage-case"
+      ]
+    }
+  ],
+  "representation_map": [
+    {
+      "id": "priority-column",
+      "information_ids": [
+        "case-risk",
+        "case-age"
+      ],
+      "kind": "table-column",
+      "semantic_role": "decision-priority",
+      "non_color_signals": [
+        "risk label",
+        "elapsed-time text",
+        "sort position"
+      ],
+      "rationale": "supports comparison without relying on color alone",
+      "task_ids": [
+        "triage-case"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "loaded",
+      "applicable": true,
+      "reason": "primary task state"
+    },
+    {
+      "id": "stale",
+      "applicable": true,
+      "reason": "network data can age"
+    }
+  ],
+  "metric_targets": [
+    {
+      "id": "task-success",
+      "kind": "rate",
+      "role": "primary",
+      "operator": ">=",
+      "target": 0.8,
+      "unit": "ratio",
+      "rationale": "set before evaluation from the current baseline and error cost"
+    },
+    {
+      "id": "critical-harm",
+      "kind": "count",
+      "role": "guardrail",
+      "operator": "==",
+      "target": 0,
+      "unit": "events",
+      "rationale": "critical harm is never averaged away"
+    }
+  ],
+  "outcome_plan": {
+    "id": "outbound-triage-evaluation-v1",
+    "scenario_ids": [
+      "triage-case"
+    ],
+    "metric_ids": [
+      "task-success",
+      "critical-harm"
+    ],
+    "participant_criteria": "Operators who triage outbound cases in the target workflow.",
+    "planned_participant_count": 2,
+    "protocol": "Run the declared triage scenario independently in the locked desktop-ko environment and record both target metrics.",
+    "rationale": "Two independent walkthroughs are the minimum low-risk evidence; DQ8 remains not_run for this implementation example."
+  },
+  "unresolved_decisions": [],
+  "exclusions": [],
+  "extensions": {
+    "operations": {
+      "surface": "standalone-console",
+      "jobs": [
+        "triage cases"
+      ],
+      "entities": [
+        "case"
+      ],
+      "lifecycle": [
+        "waiting",
+        "selected"
+      ],
+      "actions": [
+        "select-case"
+      ],
+      "permissions": [
+        "queue-read"
+      ],
+      "risks": [
+        "stale-priority"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-1",
+          "text": "The highest-risk waiting case can be selected.",
+          "scenario_ids": [
+            "triage-case"
+          ]
+        }
+      ],
+      "current_behavior_inventory": [
+        {
+          "id": "INV-1",
+          "kind": "feature",
+          "observed": "The queue exposes case risk and age.",
+          "evidence": [
+            "evidence/current-queue.md"
+          ],
+          "decision": "preserve",
+          "reason": "These fields support the primary decision.",
+          "implementation_target": "queue priority columns",
+          "scenario_ids": [
+            "triage-case"
+          ]
+        }
+      ],
+      "change_contract": [
+        {
+          "id": "CHANGE-1",
+          "inventory_ids": [
+            "INV-1"
+          ],
+          "requirement_ids": [
+            "REQ-1"
+          ],
+          "description": "Preserve risk and age while clarifying their priority."
+        }
+      ]
+    }
+  }
+}

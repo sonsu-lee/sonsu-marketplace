@@ -67,7 +67,7 @@
         "policy": "red-team",
         "required_evidence": [
           "independent policy evidence",
-          "fresh-context Astra high red-team",
+          "fresh-context GPT-6.1 Sol high red-team",
           "survives_challenge verdict on the frozen current bundle"
         ]
       },

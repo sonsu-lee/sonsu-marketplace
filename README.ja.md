@@ -88,47 +88,69 @@ claude plugin list
 
 ### omp
 
-ompではGitHubのマーケットプレイスを一度登録します。ompは`.omp-plugin/marketplace.json`の
-11個のプラグインを読み込みます。`memory-manager`はomp自体のメモリを使うため除外します。
+omp向けは `workflow`、`fluent-korean`、`fluent-english`、`fluent-japanese`、`design` の5件だけを
+`.omp-plugin/marketplace.json` に登録します。開発実行・task・todo・session・reviewとメモリはomp標準の機能を使います。
+ローカル変更を試す場合は[開発ガイド](docs/guides/adding-a-plugin.md)の分離環境を使ってください。
 
-```sh
-omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in \
-  engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product design-patterns design
-do
-  omp plugin install "$plugin@sonsu-marketplace"
-done
-```
-
-スキルは `/skill:commit` のようにプラグイン接頭辞なしで呼び出します。Claude Codeのコマンドフックの代わりに、
-各プラグインのomp extensionが作業継続の復元、evidence gateの終了通知、セッションIDの受け渡しを担当します。
-すべてのロールエージェントのモデルは、[ompモデルプロファイル](plugins/engineering/references/omp-model-profiles.md)の
-`task.agentModelOverrides`ブロックを`~/.omp/agent/config.yml`に追加して指定します。
-
-ompの計画・委任・検証フローをそのまま使い、重複しない機能だけを追加する場合は、全体インストールの代わりに
-次の構成を使います。計画・実行・TDD・デバッグ・一般レビューのスキルと使わないロールエージェントは設定で除外し、
-明示的に依頼するレビュー観点、PRの詳細レビュー、Git・文体・デザインのスキルを残します。設定は
-`~/.omp/agent/config.yml`の既存の`skills:`・`task:`項目に統合します。
+マーケットプレイスを登録して5件をインストールし、YAMLを `~/.omp/agent/config.yml` の
+既存の `marketplace:` 項目に統合します。
 
 <!-- omp-preset:start -->
 ```sh
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese prompting design-patterns design; do omp plugin install "$plugin@sonsu-marketplace"; done
+omp plugin marketplace add sonsu-lee/sonsu-marketplace
+for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
-skills:
-  ignoredSkills: [execute-plan, plan, brainstorming, worktree, finish-branch, test-driven-development, debug, write-skill, review]
-task:
-  disabledAgents: [extraction, exploration, localized_implementation, implementation, complex_design, adjudication, complex_adjudication, red_team]
-  agentModelOverrides:
-    general_review: "@smol"
-    focused_review: "@smol"
-    senior_review: "@default"
+marketplace:
+  autoUpdate: auto
 ```
 <!-- omp-preset:end -->
 
+`marketplace.autoUpdate: auto` はomp起動時に、24時間より古いカタログの更新を可能な範囲で試みます。
+インストール済みプラグインの自動更新には、カタログ内の対象プラグインのバージョンを上げる必要があります。
+`main` の常時監視や実行中セッションへのホットリロードではありません。
+
+スキルは `/skill:commit` のようにプラグイン接頭辞なしで呼び出します。カスタムロールのモデル設定は
+追加しません。Fluent Koreanは現在のホストモデルによる単一呼び出しを使い、Claude Codeの
+多段階・strictモードと固定Opusエージェントは配布しません。English・Japaneseの既存スキル・エージェント、
+Workflowのcommit・push・PRなどの権限境界、
+Designの品質契約とプロファイルも変更しません。
+
+`design`、`workflow`、`fluent-korean` は生成した `./plugins/<name>/omp` を配布元に使い、
+English・Japaneseは元の `./plugins/<name>` を使います。omp向けパッケージには独自runtime extension、
+hook、evidence gate、`task-continuity.py` を含めません。作業の継続はomp標準のtodo・sessionで扱い、
+`.sonsu` へ新たな継続記録を書き込みません。詳細は[配布のライフサイクル](docs/architecture/plugin-lifecycle.md)を参照してください。
+
+| 責任 | 担当 | 配布 |
+| --- | --- | --- |
+| 開発実行・task・todo・session・review | omp標準 | ホスト機能 |
+| Git・チケット・PR操作の権限と成果物 | Workflow | 基本5件 |
+| 言語別の文章品質・保護規則 | Fluent Korean・English・Japanese | 基本5件 |
+| UI・prototype・handoff品質とnative tool前提 | Design | 基本5件 |
+| 外部調査・製品探索・文章構成 | Research・Product・Writing | 選択候補。基本catalogには追加しない |
+
+Research・Product・Writingを追加する場合は、必要なドメインと現在のnative tool契約を別途確認します。
+Engineeringのompプロファイルは直接インストールした既存利用者向けに保持し、基本5件の設定には使いません。
+
+#### 旧omp構成からの移行
+
+旧11件構成または8件プリセットを使っていた場合は、次のうちインストール済みの旧プラグインを
+ompからアンインストールします。Codex・Claude Codeのインストールは変更しません。
+
+```sh
+for plugin in engineering writing research prompting product design-patterns memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
+```
+
+旧プリセットのために追加した `skills.ignoredSkills`、`task.disabledAgents`、
+`task.agentModelOverrides` の項目だけを設定から外します。独自に設定した別の項目は残してください。
+上の5件構成をインストール・更新し、プラグイン整理後はセッションを終了してompを再起動します。
+読み込み済みの旧hook・agentは実行中セッションに残るため、同じセッションを使い続けないでください。
+キャッシュ内のファイルは手で編集せず、既存の `.sonsu`・`.engineering` 記録も削除しません。
+
 ## プラグイン
+
+以下はCodex・Claude Code向けの全プラグイン一覧です。omp向けの配布対象は上記5件に限ります。
 
 | プラグイン | 用途 | インストール名 |
 | --- | --- | --- |

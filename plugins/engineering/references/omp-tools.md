@@ -1,4 +1,7 @@
-# omp 기본 하네스 대응
+# omp 직접 설치 Engineering 실행 참고
+
+기본 5개 omp 배포에는 Engineering이 포함되지 않는다. 개발 실행·task·todo·session·review는
+omp 순정 기능이 맡는다. 아래 내용은 Engineering을 직접 설치한 선택·legacy 호출자만 적용한다.
 
 현재 omp 세션의 도구 schema와 권한을 확인하고 [실행 계약](agent-execution.md)을
 적용한다. 플러그인은 작업·품질 계약을 소유하며 세션·권한·에이전트 실행기를 재구현하지 않는다.
@@ -16,12 +19,11 @@
 - 요청 모델과 관측 모델을 구분해 기록한다. 관리형 gate는 `@smol` 같은 별칭을 사용자 설정으로 해석한
   실제 모델 ID를 요청값으로 저장하므로 관측 모델도 실제 ID로 적는다. 관측하지 못한 모델을 요청값으로
   채우지 않고, 필수 검토의 관측 모델이 요청과 다르면 `blocked`/`not_run`으로 둔다.
-- omp는 세션 ID 환경 변수를 제공하지 않는다. Sonsu omp extension이 `task-continuity.py`와
-  `evidence-gates.py` 명령 앞에 `SONSU_OMP_SESSION_ID`를 export한다. 주입되지 않았으면
-  (extension 비활성) `--session-id`를 명시하고 다른 세션이나 최신 디렉터리에서 추정하지 않는다.
-  새 관리형 gate는 `init --host omp`로 등록한다.
-- Stop 관찰은 extension의 `session_stop` 알림으로 전달된다. 이 알림은 작업을 막거나 권한을
-  부여하지 않는다.
+- 기본 구성은 native todo·session으로 작업을 이어간다. 이 저장소는 세션 ID 주입 extension이나
+  Stop hook을 배포하지 않는다. 직접 설치한 Engineering 호출자가 기존 관리형 gate를 선택하면
+  현재 native session-ID를 실제로 관측한 증거가 있을 때만 `--session-id`를 명시하고
+  `init --host omp`로 등록한다. 증거가 없으면 gate 실행을 `blocked`/`not_run`으로 기록한다.
+  다른 세션, 환경 변수의 추정값이나 최신 디렉터리에서 ID를 추정하지 않는다.
 - `todo`, `ask` 등 보조 도구는 현재 세션에 노출된 것만 사용한다.
 
 공식 참고: `omp://task-agent-discovery.md`, `omp://extensions.md`, `omp://skills.md`.

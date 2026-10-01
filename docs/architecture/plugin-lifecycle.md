@@ -1,7 +1,7 @@
 # 플러그인 생명주기
 
 - Status: Current
-- Last reviewed: 2026-09-25
+- Last reviewed: 2026-09-29
 
 ## 흐름
 
@@ -51,16 +51,56 @@ Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-
 패키지에 생성합니다. 정리·승격 스킬만 Claude의 수동 호출 제한을 적용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
 Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 
-## omp 배포
+## ompは5件だけを配布する
 
-`python3 scripts/render-omp-compat.py`가 Codex catalog에서 `memory-manager`를 제외한
-`.omp-plugin/marketplace.json`과 작업 연속성 플러그인의 omp extension 패키지를 생성합니다.
-스킬과 역할 agent는 같은 패키지 파일을 사용하고, 역할 모델은 사용자의 `task.agentModelOverrides`로 적용합니다.
+`python3 scripts/render-omp-compat.py` はCodex catalogの順序を保ち、`workflow`、
+`fluent-korean`、`fluent-english`、`fluent-japanese`、`design` の5件だけを
+`.omp-plugin/marketplace.json` に生成します。Codex・Claude Codeの配布対象と元パッケージは変更しません。
+
+| プラグイン | omp catalogのsource |
+| --- | --- |
+| Workflow | `./plugins/workflow/omp` |
+| Fluent Korean | `./plugins/fluent-korean/omp` |
+| Fluent English | `./plugins/fluent-english` |
+| Fluent Japanese | `./plugins/fluent-japanese` |
+| Design | `./plugins/design/omp` |
+
+Design・Workflowのomp専用パッケージは、必要なskills・references・assets・scripts・
+figma-plugin・ライセンスを元パッケージから生成し、他のプラグインに依存せずに使える形にします。
+スクリプトの実行権限はコピー時に保持します。独自hook、evidence gate、`task-continuity.py`、
+omp runtime extensionは含めません。元パッケージのhook・継続スクリプトはCodex・Claude Code用に残します。
+Fluent KoreanはCodex単一呼び出しのスキル・参考資料・ライセンスを専用パッケージに生成します。
+品質不変式を保持し、現在のホストモデルを使います。Claude Codeの多段階・strictモード、固定Opusエージェントを
+要求しません。English・Japaneseのスキルとエージェント、Designの品質契約・プロファイル、Workflowの操作権限境界は保持します。
+
+生成先の `references/continuity.md` はomp標準のtodo・sessionによる継続を案内します。
+`.sonsu` への継続記録、復元hookやセッションID転送を独自に追加しません。
+開発実行・task・todo・session・reviewはomp標準、Workflow・言語3件・Designはドメイン契約を担当します。
+Research・Product・Writingは必要に応じた選択候補として扱い、基本catalogには追加しません。
+カスタムロール用の `task.agentModelOverrides` も要求しません。Engineeringのompモデルプロファイルは
+直接インストールした選択・legacy利用者の既存consumer向けに保持し、基本構成から切り離します。
+
+生成物は直接編集しません。生成器は `--check` で内容・実行権限の鮮度と不要な旧生成物を確認し、
+通常実行では自身が生成したと確認できる旧extensionの `package.json`・`extension.ts` だけを整理します。
+利用者のファイルや既存の `.sonsu`・`.engineering` 記録、インストールキャッシュは削除・編集しません。
+
+### 公開と利用者の更新を分ける
+
+この5件構成への変更は未公開です。生成・検証・コミットと、GitHubへの公開、利用環境への反映は別の操作です。
+ローカル変更だけで既存のGitHub登録先やインストール済みパッケージが更新されたとは扱いません。
+
+利用者は `~/.omp/agent/config.yml` の `marketplace.autoUpdate` を `auto` に設定できます。
+ompは起動時に24時間より古いカタログの更新を可能な範囲で試みます。インストール済みプラグインを
+自動更新するには、配布するカタログ内の対象プラグインのバージョンを上げる必要があります。
+同じバージョンのまま `main` を変更しても自動更新の条件にはなりません。常時監視やホットリロードでもありません。
+
+旧構成のアンインストールと不要設定の除去は[READMEの移行手順](../../README.md#omp)に従います。
+整理後はセッションを終了してompを再起動し、読み込み済みの旧hook・agentを外します。
 
 ## 검증
 
-생성기의 `--check`, 양쪽 catalog와 스킬 경로·frontmatter 검증, 실제 loader·행동 평가를
-구분합니다. 정적 JSON 통과만으로 실제 스킬 선택이나 host별 hook 실행을 주장하지 않습니다.
+生成器の `--check`、各ホストのcatalog・スキルパス・frontmatterの検査、実際のloader・行動評価は
+分けて確認します。静的JSONの検査通過だけで、実際のスキル選択やホスト別のhook動作を確認済みとは扱いません。
 미실행은 `not_run`, 원인 불명은 `inconclusive`로 기록합니다.
 [업데이트 런북](../runbooks/updating-upstream-plugin.md)과
 [ADR 0015](../decisions/0015-independent-skills.md)를 따릅니다. 이전 Engineering 게이트 결정은
