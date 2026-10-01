@@ -8,48 +8,52 @@
 | --- | --- | --- | --- |
 | Background | Background | 배경 | 背景 |
 | Changes | Changes | 변경 사항 | 変更内容 |
-| Related work | Related work | 관련 작업 | 関連作業 |
 | Screenshots and videos | Screenshots and videos | 스크린샷 및 영상 | スクリーンショット・動画 |
+| Verification | Verification | 검증 | 検証 |
 | Notes | Notes | 참고 | 補足 |
+| Related work | Related work | 관련 작업 | 関連作業 |
 
 | 항목 | 구분 | 작성 기준 |
 | --- | --- | --- |
-| Background | 필수 | 기존 상황·문제와 변경이 필요한 이유. 작은 변경은 한 문장으로 충분하다. |
-| Changes | 필수 | 실제 diff로 달라지는 동작·결과와 검토에 필요한 주요 변경·설계 이유. |
-| Related work | 조건부 | 연결할 티켓·PR·문서가 확인됐을 때 관계와 canonical URL. |
-| Screenshots and videos | 조건부 | 사용자·저장소 규칙이 요구하거나 화면 자료가 리뷰에 필요할 때 자료와 설명. 해당 변화를 보여 주는 VRT 산출물을 리뷰어가 열어 볼 수 있으면 중복 첨부는 생략할 수 있다. |
-| Notes | 조건부 | 리뷰어에게 필요한 제약·주의사항·후속 작업, 실제로 시도한 수동 확인 결과나 CI가 다루지 않는 중요한 미검증 범위. |
+| Background | 필수 | 기존 문제·필요와 이 PR이 필요한 이유. 보통 1–3문장이다. |
+| Changes | 필수 | 달라지는 동작·결과와 리뷰어가 물을 만한 결정의 이유. 구조를 바꿨으면 설계 원칙과 구성 요소의 책임·흐름, 리팩터링이면 기존 방식 → 바꾼 방식 → 근거. |
+| Screenshots and videos | 조건부 | 제품 화면·상호작용이 바뀌었을 때 필수. 변경 위치를 마킹한 스크린샷과 마커 설명, 또는 확인할 시점을 밝힌 timestamp caption이 붙은 영상. |
+| Verification | 조건부 | [검증 포함 기준](../../references/pr-writing.md#검증은-ci가-대신할-수-없는-것만-쓴다)에 해당하는 확인 결과·재현 절차·남은 위험만. |
+| Notes | 조건부 | 배포·migration 순서, 호환성, 롤백 방법, 알려진 제한, 리뷰에서 제외해도 되는 생성 파일(glob으로 묶은 한 줄)처럼 리뷰어나 운영자가 알아야 하는 사항. |
+| Related work | 조건부 | 확인된 티켓·PR·문서와의 관계. 티켓은 [연결 규칙](../../references/ticket-linking.md)의 문법과 링크를 사용한다. |
 
 ```markdown
 ## <Background heading>
-<!-- Required: describe the existing situation or problem and why this change is needed. -->
+<!-- Required: the existing problem or need and why this PR exists. -->
 
-<Relevant context and reason for the change>
+<Problem or need, and why it matters>
 
 ## <Changes heading>
-<!-- Required: describe the resulting behavior and important changes in the reviewed diff. -->
+<!-- Required: resulting behavior first. For structural changes, explain the design principle,
+component responsibilities and flow. For refactors, state previous approach → new approach → evidence. -->
 
-- <Changed behavior or result, with a design reason when needed for review>
-
-## <Related work heading>
-<!-- Optional: include only when there is verified related work. -->
-
-- <Ticket, PR or document relationship and canonical URL>
+- <Changed behavior or result>
 
 ## <Screenshots and videos heading>
-<!-- Conditional: include when requested or needed to review a visual change that is not already shown by accessible VRT evidence. -->
+<!-- Conditional: required for product UI or interaction changes. Images must be marked; videos need timestamp captions. -->
 
-<Marked images or videos with descriptions; if unavailable, only a brief missing-media status>
-<!-- Put capture, inspection and upload procedures in the response outside the PR body. -->
+<Marked screenshot with what each marker shows, or video with what to watch at each timestamp>
+
+## <Verification heading>
+<!-- Conditional: only checks CI does not cover, reproduction steps the reviewer needs,
+or untested risk that affects the merge decision. -->
+
+- <What was checked, where, and the observed result>
 
 ## <Notes heading>
-<!-- Conditional: include reviewer-relevant constraints, caveats, follow-up work, observed manual verification,
-or important unchecked behavior outside CI coverage. Omit the section when none applies.
-Report CI-covered checks and CI status outside the body. -->
+<!-- Conditional: rollout order, compatibility, rollback, known limits, generated paths reviewers can skip. -->
 
-- <Reviewer-relevant constraint, manual observation or important unchecked behavior outside CI coverage>
+- <Reviewer- or operator-relevant constraint>
+
+## <Related work heading>
+<!-- Conditional: verified relationships only, using the provider's linking syntax. -->
+
+<Part of #123 | Part of [ENG-123](<canonical Linear issue URL>)>
 ```
 
-`Background`는 필요한 맥락만, `Changes`는 파일별 목록보다 달라지는 동작·결과와 중요한 선택을 설명한다. 기본형에는 별도 `Validation` 항목을 만들지 않는다. CI가 다루는 자동 검사 결과와 대기 상태는 본문에 반복하지 않고, 수동 확인 결과나 CI가 다루지 않는 중요한 미검증 범위만 `Notes`에 기록한다. 검증 근거 확인과 결과 보고는 생략하지 않는다.
-
-완성된 초안에서는 angle-bracket placeholder를 채우고 HTML comment를 포함한 작성 안내와 필수·선택 표시를 제거한다. 빈 선택 항목과 필요 조건에 해당하지 않는 미디어 항목은 생략하며 `없음`이나 `N/A`로 채우지 않는다. 필요한 첨부를 준비하지 못한 경우에는 그 사실을 남기고 준비 절차는 본문 밖에서 보고한다. 주어진 저장소 양식의 필수 항목·HTML comment에는 이 기본형의 삭제 규칙을 적용하지 않는다.
+완성된 초안에서는 angle-bracket placeholder를 채우고 HTML comment를 포함한 작성 안내와 필수·선택 표시를 제거한다. 빈 조건부 항목과 필요 조건에 해당하지 않는 항목은 제목째 생략하며 `없음`이나 `N/A`로 채우지 않는다. 화면 변경이 있는데 필요한 자료를 준비하지 못했으면 그 사실만 짧게 남기고 준비 절차는 본문 밖에서 보고한다. 주어진 저장소 양식의 필수 항목·HTML comment에는 이 기본형의 삭제 규칙을 적용하지 않는다.

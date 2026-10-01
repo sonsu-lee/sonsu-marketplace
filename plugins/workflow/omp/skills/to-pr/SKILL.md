@@ -5,7 +5,7 @@ description: 현재 Git 변경을 주제별 단일 PR 또는 준비된 GitHub st
 
 # to-pr: PR로 변환하기
 
-현재 Git 변경을 검토 가능한 주제별 PR로 표현한다. 서로 의존하는 여러 주제는 GitHub의 native stacked PR로 연결한다. 내부 기본형은 이 플러그인의 [PR 템플릿 규칙](references/pr-template.md)과 [PR 작성 지침](references/pr-writing.md)을 따른다. 화면 자료가 리뷰에 필요하면 게시 가능한 미디어 계획을 포함한다.
+현재 Git 변경을 검토 가능한 주제별 PR로 표현한다. 서로 의존하는 여러 주제는 GitHub의 native stacked PR로 연결한다. 내부 기본형은 이 플러그인의 [PR 템플릿 규칙](references/pr-template.md)과 [PR 작성 지침](references/pr-writing.md)을 따른다. 화면 변경이 있거나 사용자·저장소가 화면 자료를 요구하면 게시 가능한 미디어 계획을 포함한다.
 
 ## 작업 연속성
 
@@ -31,7 +31,7 @@ GitHub Draft 상태와 다르다.
 
 ## PR 경계를 정한다
 
-[stacked PR 규칙](references/stacked-prs.md)으로 실제 변경의 주제와 의존 관계를 먼저 확인한다. 한 검토 단위면 단일 PR을 유지한다. 서로 독립적인 주제는 사용자가 stack을 요청했더라도 각각 trunk를 대상으로 하는 별도 PR로 만든다. 앞선 변경에 의존하는 주제만 아래 branch의 head를 base로 하는 stack으로 만든다. 같은 티켓이거나 작업 순서가 있다는 이유만으로 stack을 만들지 않는다. 파일 수나 commit 수만으로 나누지 않고, 각 PR의 동작과 필요한 검증이 함께 이해되는 경계로 나눈다.
+[stacked PR 규칙](references/stacked-prs.md)으로 실제 변경의 주제와 의존 관계를 먼저 확인한다. 한 검토 단위면 단일 PR을 유지한다. 서로 독립적인 주제는 사용자가 stack을 요청했더라도 각각 trunk를 대상으로 하는 별도 PR로 만든다. 앞선 변경에 의존하는 주제만 아래 branch의 head를 base로 하는 stack으로 만든다. 같은 티켓이거나 작업 순서가 있다는 이유만으로 stack을 만들지 않는다. 파일 수나 commit 수만으로 나누지 않고, merge 직후 build를 유지하며 깨끗하게 되돌릴 수 있고 동작과 필요한 검증이 함께 이해되는 경계로 나눈다. 롤백·리팩터링 분리·리뷰 크기 기준은 같은 규칙을 따른다.
 
 현재 branch에 여러 주제가 섞였거나 필요한 branch·commit이 아직 없으면 주제와 의존 관계에 맞는 PR 계획과 필요한 Git 작업을 제시한다. 독립 주제는 각각 trunk를 base로 하는 별도 PR을, 앞선 변경에 의존하는 주제만 stack을 계획한다. 이 스킬에서 변경을 임의로 재배치하거나 새 branch를 만들지 않는다. 필요한 branch·commit이 준비되거나 사용자가 별도 Git 작업을 함께 허가한 뒤에 게시한다.
 
@@ -57,9 +57,9 @@ GitHub Issues와 Linear 중 provider를 문자열 모양만으로 추측하지 �
 
 ## 시각 증거를 준비한다
 
-사용자가 screenshot을 요청했거나 diff가 사용자에게 보이는 UI를 바꾸거나 저장소 규칙이 요구할 때만 [시각 증거 규칙](references/visual-evidence.md)을 읽는다. UI와 무관한 변경에는 빈 스크린샷 섹션을 만들지 않는다.
+사용자가 screenshot을 요청했거나 diff가 제품 화면·상호작용을 바꾸거나 저장소 규칙이 요구하면 [시각 증거 규칙](references/visual-evidence.md)을 읽는다. 화면 변경에는 변경 위치를 마킹한 스크린샷이나, 확인할 시점을 timestamp caption으로 밝힌 영상이 필수다. UI와 무관한 변경에는 빈 스크린샷 섹션을 만들지 않는다.
 
-로컬 이미지나 비디오를 넣을 때는 [미디어 첨부 규칙](references/media-attachments.md)을 읽고 게시 가능한 사본과 manifest를 준비한다. 이미지 마킹·비교는 시각 증거 규칙, 검사·업로드·본문 배치와 실패 처리는 미디어 첨부 규칙을 따른다.
+로컬 이미지나 비디오를 넣을 때는 [미디어 첨부 규칙](references/media-attachments.md)을 읽고 게시 가능한 사본과 manifest를 준비한다. 이미지 마킹·비교는 시각 증거 규칙, 크기 초과 시 압축, 검사·업로드·본문 배치와 실패 처리는 미디어 첨부 규칙을 따른다.
 
 ## 새 PR을 게시한다
 

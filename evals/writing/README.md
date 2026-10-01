@@ -19,7 +19,7 @@ git diff --check
 ```
 
 JSON·frontmatter와 세 패키지의 스킬/참조 상대 경로를 확인한다. Fluent는 언어별 독립 정본을 대조한다. 이전 Fluent 사용자 지침의 평가 자료는 역사적 snapshot이며, 새 배포 스킬의 품질 결과로 사용하지 않는다.
-원어 용례·보호 문자열과 법적 고지는 기존 main의 바이트를 기준으로 보존 여부를 확인한다. Workflow의 티켓 3종 본문도 기존 main과 같아야 한다.
+원어 용례·보호 문자열과 법적 고지는 기존 main의 바이트를 기준으로 보존 여부를 확인한다. Workflow의 티켓 3종 본문은 Workflow에서만 수정하며 Writing 변경으로 바뀌지 않아야 한다.
 PR 기본 양식과 `unverified` 시 기본형을 확정하지 않는 정책, marker·연결 문법은 별도로 검토한다.
 continuity 검사는 Writing 기록이 이전 Fluent 기록을 자동 복구하지 않는지 확인한다. 원본 Fluent 플러그인은 이 저장소의 continuity helper를 포함하지 않는다.
 

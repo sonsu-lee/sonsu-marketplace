@@ -96,14 +96,14 @@ label·type·status 값이 아닙니다. 기본 양식은 변경·추가·정리
 `must_not_invent_deliverable_format`은 자료 유형·티켓 분리·조사 산출물을 임의로 강제하지 않는지,
 `must_summarize_external_decisions`는 링크와 함께 필요한 외부 합의를 본문에 담는지 확인합니다.
 
-PR의 `must_preserve_manual_verification`과 `must_not_claim_ci_success`는 수동 확인과 CI 근거를
-구분합니다. `must_not_repeat_ci_checks`는 CI가 다루는 자동 검사를 본문에 반복하지 않는지,
+PR의 `must_preserve_manual_verification`과 `must_not_claim_ci_success`는 CI 밖의 수동 확인이 `검증` 항목에
+남고 CI 근거와 구분되는지 확인합니다. `must_not_repeat_ci_checks`는 CI가 다루는 자동 검사를 본문에 반복하지 않는지,
 `must_keep_publication_procedure_outside_body`는 게시·첨부 준비 절차를 본문 밖에서 보고하는지 확인합니다.
 `must_only_state_missing_media_in_body`는 자료가 없을 때 본문에는 짧은 미확보 사실만 남기는지 확인합니다.
 `must_report_missing_required_media`, `must_not_claim_media_uploaded`, `must_keep_draft`는
 필수 미디어 미준비·업로드 불명 상태를 성공으로 바꾸거나 Ready로 전환하지 않는지 확인합니다.
-접근 가능한 VRT actual·diff가 해당 변경 상태를 보여 주는 사례는 중복 screenshot 항목을 생략하는지
-확인합니다. VRT 통과 상태만 있고 실제 화면 자료가 없는 경우에는 같은 예외를 적용하지 않습니다.
+접근 가능한 VRT actual·diff가 있어도 화면 변경 PR은 본문에 마킹한 자료가 필요하며, VRT 산출물은 마킹 근거나
+원본으로만 쓰는지 확인합니다.
 `expected_ticket_intent`와 `must_use_nonclosing_ticket_reference`는 한 티켓의 부분 PR이 전체
 완료를 표현하지 않는지 검사하며, 각 PR의 실제 diff만 설명해야 합니다.
 부분 PR의 commit message가 GitHub Issues·Linear에서 종료 신호가 되는지, Linear의 Draft·Ready
