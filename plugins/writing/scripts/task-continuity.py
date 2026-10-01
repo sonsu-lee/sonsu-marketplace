@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import re
+import signal
 import stat
 import subprocess
 import sys
@@ -20,10 +21,20 @@ import tempfile
 MAX_BYTES = 32768
 ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}\Z")
 EXCLUSION = b"/.sonsu/continuity/\n"
+# Hook-only wall-clock budget; reserve time before the host's 5s deadline.
+HOOK_SECONDS = 3
 
 
 class ContinuityError(ValueError):
     pass
+
+
+class HookTimeout(Exception):
+    pass
+
+
+def hook_timeout(signum, frame):
+    raise HookTimeout()
 
 
 def identifier(value):
@@ -361,6 +372,16 @@ def mutate(args):
 
 
 def hook():
+    previous = signal.signal(signal.SIGALRM, hook_timeout)
+    signal.setitimer(signal.ITIMER_REAL, HOOK_SECONDS)
+    try:
+        return recover_hook()
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
+
+
+def recover_hook():
     event = stdin_json()
     if not isinstance(event, dict) or event.get("hook_event_name") != "SessionStart":
         return None
@@ -442,7 +463,7 @@ def main():
         if result is not None:
             print(json.dumps(result, ensure_ascii=True, allow_nan=False))
         return 0
-    except (ContinuityError, OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as error:
+    except (ContinuityError, HookTimeout, OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as error:
         if args.command == "hook":
             print("task-continuity: recovery record unavailable; no checkpoint context injected", file=sys.stderr)
             return 0

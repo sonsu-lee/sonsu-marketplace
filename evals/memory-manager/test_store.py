@@ -1,12 +1,14 @@
 """Behavioral contracts for the local Memory Manager store."""
 
 import json
+import fcntl
 import importlib.util
 import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest import mock
 import sqlite3
@@ -337,6 +339,90 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0)
         self.assertEqual(result.stdout, "")
         self.assertIn("capture hook unavailable", result.stderr)
+
+    def run_hook(self, event, env=None):
+        environment = dict(os.environ, SONSU_MEMORY_HOME=str(self.store))
+        environment.update(env or {})
+        started = time.monotonic()
+        result = subprocess.run([sys.executable, str(HOOK)], input=json.dumps(event),
+                                text=True, capture_output=True, env=environment, timeout=5)
+        self.assertLess(time.monotonic() - started, 4)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "")
+        return result
+
+    def slow_git(self):
+        directory = self.base / "slow-bin"
+        directory.mkdir()
+        git = directory / "git"
+        git.write_text("#!" + sys.executable + "\nimport os, time\nfrom pathlib import Path\nPath(" +
+                       repr(str(self.base / "git-pid")) + ").write_text(str(os.getpid()))\ntime.sleep(8)\n")
+        git.chmod(0o755)
+        return {"PATH": str(directory) + os.pathsep + os.environ["PATH"]}
+
+    def store_files(self):
+        return {str(path.relative_to(self.store)): path.read_bytes()
+                for path in self.store.rglob("*") if path.is_file()}
+
+    def test_hook_adapter_budget_covers_slow_git_and_held_lock(self):
+        self.run_store("capture", "on")
+        event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
+                 "session_id": "session-budget", "prompt": "기억해 줘: 예산 검사"}
+        before = self.store_files()
+        with self.subTest(boundary="git"):
+            result = self.run_hook(event, self.slow_git())
+            self.assertEqual(result.stderr, "memory-manager: capture hook unavailable (HookTimeout)\n")
+            self.assertEqual(self.store_files(), before)
+            with self.assertRaises(ProcessLookupError):
+                os.kill(int((self.base / "git-pid").read_text()), 0)
+        with self.subTest(boundary="lock"), (self.store / ".lock").open("r+b") as lock:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+            result = self.run_hook(event)
+            self.assertEqual(result.stderr, "memory-manager: capture hook unavailable (HookTimeout)\n")
+            self.assertEqual(self.store_files(), before)
+        # Normal capture and session deduplication still work after the timeout.
+        self.assertEqual(self.run_hook(event).stderr, "")
+        self.assertEqual(self.run_hook(event).stderr, "")
+        self.assertEqual(len(self.run_store("pending")["results"]), 1)
+
+    def test_hook_adapter_budget_covers_incomplete_stdin(self):
+        env = dict(os.environ, SONSU_MEMORY_HOME=str(self.store))
+        started = time.monotonic()
+        with subprocess.Popen([sys.executable, str(HOOK)], stdin=subprocess.PIPE,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              text=True, env=env) as process:
+            try:
+                # Keep the input pipe open, as a stalled host event writer would.
+                process.wait(timeout=5)
+            finally:
+                if process.poll() is None:
+                    process.kill()
+            self.assertLess(time.monotonic() - started, 4)
+            self.assertEqual(process.returncode, 0)
+            self.assertEqual(process.stdout.read(), "")
+            self.assertEqual(process.stderr.read(), "memory-manager: capture hook unavailable (HookTimeout)\n")
+        self.assertFalse(self.store.exists())
+
+    def test_ineligible_hook_events_skip_git(self):
+        self.run_store("capture", "on")
+        directory = self.base / "probe-bin"
+        directory.mkdir()
+        marker = self.base / "git-called"
+        git = directory / "git"
+        git.write_text("#!" + sys.executable + "\nfrom pathlib import Path\nPath(" +
+                       repr(str(marker)) + ").touch()\n")
+        git.chmod(0o755)
+        env = {"PATH": str(directory) + os.pathsep + os.environ["PATH"]}
+        before = self.store_files()
+        for changes in ({"hook_event_name": "SessionStart"}, {"permission_mode": "plan"},
+                        {"prompt": "안녕하세요"}, {"prompt": "기억하지 마: 이 결정"}):
+            with self.subTest(changes=changes):
+                marker.unlink(missing_ok=True)
+                event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.project),
+                         "prompt": "기억해 줘: 이 결정", **changes}
+                self.assertEqual(self.run_hook(event, env).stderr, "")
+                self.assertFalse(marker.exists(), "ineligible event ran Git")
+                self.assertEqual(self.store_files(), before)
 
     def test_selective_import_does_not_modify_host_source(self):
         source = self.base / "native-memory.md"

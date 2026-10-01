@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest import mock
 
@@ -106,6 +107,55 @@ class RuntimeTests(unittest.TestCase):
                 result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
                                         capture_output=True, cwd=self.work, env=env, timeout=15)
                 self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_compact_resume_hooks_fail_open_before_host_deadline_on_slow_git(self):
+        self.assertEqual(self.write().returncode, 0)
+        before = self.path().read_bytes()
+        directory = self.base / "slow-bin"
+        directory.mkdir()
+        git = directory / "git"
+        git_pid = self.base / "git-pid"
+        git.write_text("#!" + sys.executable + "\nimport os, time\nfrom pathlib import Path\nPath(" +
+                       repr(str(git_pid)) + ").write_text(str(os.getpid()))\ntime.sleep(8)\n")
+        git.chmod(0o755)
+        env_file = self.base / "claude-env"
+        env = dict(self.env, PATH=str(directory) + os.pathsep + self.env["PATH"],
+                   CLAUDE_ENV_FILE=str(env_file),
+                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+        for source in ("compact", "resume"):
+            with self.subTest(source=source):
+                event = {"hook_event_name": "SessionStart", "source": source,
+                         "session_id": "session-a", "cwd": str(self.work)}
+                started = time.monotonic()
+                result = subprocess.run([sys.executable, str(self.packages["engineering"]), "hook"],
+                                        input=json.dumps(event), text=True, capture_output=True,
+                                        env=env, cwd=self.work, timeout=5)
+                self.assertLess(time.monotonic() - started, 4)
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(result.stderr, "task-continuity: recovery record unavailable; no checkpoint context injected\n")
+                self.assertEqual(self.path().read_bytes(), before)
+                self.assertFalse(env_file.exists())
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(int(git_pid.read_text()), 0)
+        self.assertIn("continuity.md", self.hook().stdout)
+
+    def test_hook_budget_covers_incomplete_stdin(self):
+        started = time.monotonic()
+        with subprocess.Popen([sys.executable, str(self.packages["engineering"]), "hook"],
+                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              text=True, env=self.env, cwd=self.work) as process:
+            try:
+                # Keep the input pipe open, as a stalled host event writer would.
+                process.wait(timeout=5)
+            finally:
+                if process.poll() is None:
+                    process.kill()
+            self.assertLess(time.monotonic() - started, 4)
+            self.assertEqual(process.returncode, 0)
+            self.assertEqual(process.stdout.read(), "")
+            self.assertEqual(process.stderr.read(), "task-continuity: recovery record unavailable; no checkpoint context injected\n")
+        self.assertFalse((self.work / ".sonsu").exists())
 
     def git(self, *args, cwd=None):
         return subprocess.run(["git", *args], cwd=cwd or self.work, env=self.env,

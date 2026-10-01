@@ -475,22 +475,35 @@ def capture_config(root, key, setting=None):
     return {"enabled": setting}
 
 
-def stage_hook(root, key, event):
+def hook_skip_status(event):
+    """Reject ineligible events before a hook needs the project Git identity."""
     if not isinstance(event, dict):
         raise StoreError("invalid_event")
     if event.get("permission_mode") == "plan":
-        return {"status": "disabled"}
-    if capture_config(root, key)["enabled"] is not True:
-        return {"status": "disabled"}
+        return "disabled"
     kind = event.get("hook_event_name")
     if kind not in ("UserPromptSubmit", "Stop"):
-        return {"status": "ignored"}
+        return "ignored"
     excerpt = event.get("prompt") if kind == "UserPromptSubmit" else event.get("last_assistant_message")
     match = SIGNAL_RE.search(excerpt) if isinstance(excerpt, str) else None
     if match is None or SKIP_RE.search(excerpt):
-        return {"status": "ignored"}
+        return "ignored"
+    return None
+
+
+def stage_hook(root, key, event):
+    if not isinstance(event, dict):
+        raise StoreError("invalid_event")
+    if event.get("permission_mode") == "plan" or capture_config(root, key)["enabled"] is not True:
+        return {"status": "disabled"}
+    skipped = hook_skip_status(event)
+    if skipped:
+        return {"status": skipped}
+    kind = event["hook_event_name"]
+    excerpt = event.get("prompt") if kind == "UserPromptSubmit" else event.get("last_assistant_message")
     if SECRET_RE.search(excerpt):
         return {"status": "sensitive_content"}
+    match = SIGNAL_RE.search(excerpt)
     excerpt = excerpt[max(0, match.start() - 120):match.end() + 600]
     session = event.get("session_id", "unknown")
     if not isinstance(session, str):
