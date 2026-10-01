@@ -2269,10 +2269,10 @@
       "expected_required_headings": [
         "배경",
         "변경 사항",
-        "참고"
+        "검증"
       ],
       "expected_omitted_headings": [
-        "검증",
+        "참고",
         "관련 작업",
         "스크린샷 및 영상"
       ],
@@ -2317,7 +2317,7 @@
       "must_only_state_missing_media_in_body": true
     },
     {
-      "id": "pr-ui-vrt-artifact-avoids-duplicate-screenshot",
+      "id": "pr-ui-vrt-artifact-still-needs-marked-media",
       "installed_plugins": [
         "workflow"
       ],
@@ -2326,8 +2326,10 @@
       ],
       "expected_mode": "draft",
       "expected_remote_action": "none",
-      "prompt": "모바일 메뉴 위치를 바꾼 현재 branch의 PR 초안을 작성해 줘. 사용자나 repo가 스크린샷을 요구하지는 않아. 현재 head의 변경 화면과 baseline diff를 리뷰어가 GitHub Checks에서 열 수 있고, 그 결과가 바뀐 390px 상태를 포함해. 별도 스크린샷은 필요 없으면 생략해.",
+      "prompt": "모바일 메뉴 위치를 바꾼 현재 branch의 PR 초안을 작성해 줘. 사용자나 repo가 스크린샷을 요구하지는 않아. 현재 head의 변경 화면과 baseline diff를 리뷰어가 GitHub Checks에서 열 수 있고, 그 결과가 바뀐 390px 상태를 포함해. 아직 게시하지 마.",
       "fixture": {
+      "must_report_missing_required_media": true,
+      "must_not_claim_media_uploaded": true,
         "repository_template": "absent",
         "account_template": "absent",
         "committed_diff_summary": "390px 화면에서 모바일 메뉴 트리거 위치를 상단으로 이동",
@@ -2336,9 +2338,7 @@
       },
       "expected_required_headings": [
         "배경",
-        "변경 사항"
-      ],
-      "expected_omitted_headings": [
+        "변경 사항",
         "스크린샷 및 영상"
       ],
       "must_not_repeat_ci_checks": true
