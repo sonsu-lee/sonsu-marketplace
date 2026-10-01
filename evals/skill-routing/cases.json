@@ -2060,8 +2060,8 @@
       "must_not_invent_implementation": true,
       "must_not_classify_readiness": true,
       "expected_required_headings": [
-        "배경",
-        "작업 내용",
+        "문제",
+        "원하는 결과",
         "참고"
       ]
     },
@@ -2079,8 +2079,8 @@
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
       "expected_required_headings": [
-        "배경",
-        "작업 내용"
+        "문제",
+        "원하는 결과"
       ],
       "expected_omitted_headings": [
         "참고"
@@ -2197,8 +2197,8 @@
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
       "expected_required_headings": [
-        "배경",
-        "작업 내용",
+        "문제",
+        "원하는 결과",
         "참고"
       ],
       "must_preserve_preference_vs_agreement": true,
@@ -2219,8 +2219,8 @@
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
       "expected_required_headings": [
-        "배경",
-        "작업 내용"
+        "문제",
+        "원하는 결과"
       ],
       "must_preserve_whole_completion": true,
       "must_not_invent_implementation": true
