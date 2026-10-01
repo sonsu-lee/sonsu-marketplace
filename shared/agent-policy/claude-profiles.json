@@ -1,13 +1,16 @@
 {
-  "version": 2,
-  "verified_at": "2026-09-25",
+  "version": 3,
+  "verified_at": "2026-10-01",
+  "evaluation_status": "User-selected PR default is one fresh claude-opus-5-5 medium reviewer per round; non-PR role defaults remain unchanged; native reviewer execution and comparative quality are not verified",
   "sources": [
     "https://platform.claude.com/docs/en/models/overview",
     "https://platform.claude.com/docs/en/about-claude/models/choosing-a-model",
     "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence",
     "https://code.claude.com/docs/en/sub-agents",
-    "https://code.claude.com/docs/en/model-config"
+    "https://code.claude.com/docs/en/model-config",
+    "https://code.claude.com/docs/en/memory"
   ],
+  "pr_review": {"role": "senior_review", "count": 1},
   "roles": {
     "extraction": {"model": "claude-haiku-4-5-20251001", "effort": "inherit", "count": 1},
     "exploration": {"model": "claude-sonnet-5", "effort": "high", "count": 1},

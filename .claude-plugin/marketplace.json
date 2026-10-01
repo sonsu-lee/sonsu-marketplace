@@ -10,7 +10,7 @@
       "name": "engineering",
       "source": "./plugins/engineering",
       "description": "설계·구현·디버깅·검증과 도메인 구조, 단순성, 유지보수성, 실패 모드 및 운용 가능성 리뷰와 독립 심층 PR 리뷰를 함께 제공한다.",
-      "version": "3.0.6",
+      "version": "3.1.0",
       "category": "Developer Tools"
     },
     {
@@ -38,7 +38,7 @@
       "name": "fluent-japanese",
       "source": "./plugins/fluent-japanese",
       "description": "일본어 일상 메시지와 기술 문서의 설명문을 작성·윤문하고, 문서의 자연스러움을 진단한다. 기술 문서의 구성·Markdown 정리는 범위 밖이다.",
-      "version": "0.1.0-beta.1",
+      "version": "0.1.0-beta.2",
       "category": "Productivity"
     },
     {
@@ -59,7 +59,7 @@
       "name": "prompting",
       "source": "./plugins/prompting",
       "description": "Codex, ChatGPT, OpenAI API와 Claude Code·Anthropic API 모델에서 바로 사용할 수 있는 간결한 프롬프트를 작성합니다.",
-      "version": "0.4.4",
+      "version": "0.4.5",
       "category": "Productivity"
     },
     {

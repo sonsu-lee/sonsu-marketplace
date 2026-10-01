@@ -149,11 +149,11 @@
         "publication": "COMMENT with readback",
         "separate_worktrees": true,
         "fresh_sessions": true,
-        "parallel_when_slots_available": true,
+        "parallel_when_slots_available": false,
         "source_writes": "none",
-        "reviewers": 5,
+        "reviewers": 1,
         "models": {
-          "gpt-6-luna": 5
+          "gpt-6-luna": 1
         },
         "reasoning_effort": "xhigh"
       }
@@ -169,8 +169,7 @@
         "select": "engineering:review-pr",
         "reviewers": 3,
         "models": {
-          "gpt-6-luna": 2,
-          "gpt-6.1-sol": 1
+          "gpt-6-luna": 3
         },
         "reasoning_effort": "xhigh",
         "publication": "COMMENT with readback",
@@ -209,16 +208,15 @@
       "prompt": "$review-pr PR #12를 검토해 줘.",
       "expected": {
         "select": "engineering:review-pr",
-        "reviewers": 6,
+        "reviewers": 1,
         "models": {
-          "gpt-6-luna": 5,
-          "gpt-6.1-sol": 1
+          "gpt-6-luna": 1
         },
         "reasoning_effort": "xhigh",
         "publication": "COMMENT with readback",
         "separate_worktrees": true,
         "fresh_sessions": true,
-        "parallel_when_slots_available": true,
+        "parallel_when_slots_available": false,
         "source_writes": "none"
       }
     },
@@ -413,7 +411,7 @@
       "installed_plugins": [
         "engineering"
       ],
-      "prompt": "$review-pr PR #12를 심층 검토해 줘. 현재 새 리뷰어 슬롯은 2개이고 완료 후에는 반환돼.",
+      "prompt": "$review-pr PR #12를 Luna xhigh 5명과 GPT-6.1 Sol xhigh 1명, 총 6명으로 심층 검토해 줘. 현재 새 리뷰어 슬롯은 2개이고 완료 후에는 반환돼.",
       "expected": {
         "reviewers": 6,
         "models": {
@@ -433,7 +431,7 @@
       "installed_plugins": [
         "engineering"
       ],
-      "prompt": "$review-pr PR #12를 심층 검토해 줘. 호스트는 Luna xhigh만 지원하고 GPT-6.1 Sol 실행과 외부 실행 도구는 사용할 수 없어.",
+      "prompt": "$review-pr PR #12를 GPT-6.1 Sol xhigh 1명으로 심층 검토해 줘. 호스트는 Luna xhigh만 지원하고 GPT-6.1 Sol 실행과 외부 실행 도구는 사용할 수 없어.",
       "expected": {
         "sol_status": "blocked/not_run",
         "silent_substitution": false,
@@ -476,7 +474,7 @@
       "prompt": "PR #12를 로컬에서만 리뷰해 줘. GitHub에는 게시하지 마.",
       "expected": {
         "select": "engineering:review",
-        "reviewers": 5,
+        "reviewers": 1,
         "separate_worktrees": true,
         "must_not_post": true
       }

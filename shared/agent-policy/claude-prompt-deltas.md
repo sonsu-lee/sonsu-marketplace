@@ -12,15 +12,23 @@ Sonnet 5는 공식 기본값인 `high`, Opus 5.5는 공식 기본값인 `medium`
 이름이 모델 간 같은 연산량이나 성능을 뜻하지 않는다. 세션의 `/effort`는 명시 effort가 없는
 지원 모델 subagent에 상속된다. 역할 agent에 effort가 명시되면 frontmatter 설정이 세션 설정보다 우선한다.
 
-Haiku 4.5는 저비용 추출에, Sonnet 5는 탐색·일상 구현과 다섯 명의 일반 리뷰에, Opus 5.5는
-구현·복잡한 판단과 일반 PR 리뷰의 상위 검토자에 사용한다. 이 역할과 리뷰 인원은 Anthropic의
-고정 처방이 아니라 품질과 비용을 고려한 이 marketplace의 기본값이다. 일반 PR 심층 리뷰는
-Sonnet 5 `high` 다섯 명과 Opus 5.5 `medium` 한 명으로 실행한다.
+Haiku 4.5는 저비용 추출에, Sonnet 5는 탐색·일상 구현과 PR 외 일반 리뷰에, Opus 5.5는
+구현·복잡한 판단에 사용한다. PR은 `pr_review`에 지정한 `senior_review` 역할의
+`claude-opus-5-5` / `medium` 1명으로 시작한다. Opus 품질을 우선한 사용자 운영 선택이며
+다른 Claude 모델의 품질 열세나 Anthropic이 지정한 PR 리뷰 정답을 뜻하지 않는다.
+`opus` 별칭의 provider별 해석 대신 정확한 ID와 관측 모델을 대조한다.
+
+각 PR 라운드에는 새 non-fork subagent를 생성하고 역할에 persistent `memory`를 설정하지
+않는다. main 대화와 auto memory는 새 subagent 입력에 넣지 않으며 현재 프로젝트 지침과
+독립 brief는 유지한다. standalone CLI를 사용하면 자동 메모리를 끄는
+`CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`과 새 `claude -p --no-session-persistence` 실행을
+사용한다. memory 주입 hook·외부 MCP도 별도로 확인한다. `--bare`나 CLAUDE.md 전체 차단으로
+필요한 프로젝트 계약을 함께 지우지 않는다. 판단이 막히면 추가 근거를 확보하고 필요할 때
+같은 Opus의 `high` 등 명시 effort를 지원하는 별도 정의로 검토한다. PR 외 역할 기본값은 유지한다.
 
 Anthropic은 대부분의 작업에서 Opus 5.5부터 시작하고 실제 평가에 따라 효율을 조정하도록
 안내한다. 비용·지능 최적화 가이드는 반복되는 벌크 작업에 효율적인 모델을, 어려운 판단에 강한
-모델을 결합하는 패턴도 설명한다. 현재의 Sonnet 다섯 명 + Opus 한 명 구성은 그 비용·품질
-절충을 반영한 marketplace 운영값이지 Anthropic이 지정한 PR 리뷰 정답은 아니다. Opus 5.5의
+모델을 결합하는 패턴도 설명한다. Opus 5.5의
 높은 effort 평가에서도 어려운 장기 추론이 부족할 때 Fable 5.1을 시험한다. 따라서 Fable은
 사용자의 명시적 선택이나 Opus 고 effort 평가에서 개선 여지가 확인되고 접근권도 확인된 경우에만
 채택한다.
