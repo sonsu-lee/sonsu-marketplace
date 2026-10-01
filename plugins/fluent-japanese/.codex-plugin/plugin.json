@@ -1,6 +1,6 @@
 {
   "name": "fluent-japanese",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "description": "일본어 일상 메시지와 기술 문서의 설명문을 작성·윤문하고, 문서의 자연스러움을 진단한다. 기술 문서의 구성·Markdown 정리는 범위 밖이다.",
   "author": {
     "name": "sonsu",

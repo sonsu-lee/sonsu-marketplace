@@ -93,8 +93,10 @@ omp에는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `des
 `.omp-plugin/marketplace.json`으로 배포합니다. 개발 실행·task·todo·session·review와 메모리는
 omp 순정 기능이 맡습니다. 로컬 변경 검증은 [개발 가이드](docs/guides/adding-a-plugin.md)의 분리 환경에서 진행합니다.
 
-마켓플레이스를 등록하고 5개를 설치한 뒤 YAML을 `~/.omp/agent/config.yml`의 기존
-`marketplace:` 항목에 합칩니다.
+마켓플레이스를 등록하고 5개를 설치합니다. 모델·effort·메모리·isolation·동시성은 기존 omp
+설정을 사용하며 별도 역할 override를 추가하지 않습니다. 자동 업데이트 설정도 유지합니다.
+아래 YAML은 자동 업데이트를 새로 선택한 경우에만 `~/.omp/agent/config.yml`의 기존
+`marketplace:` 항목과 합칩니다.
 
 <!-- omp-preset:start -->
 ```sh
@@ -121,7 +123,8 @@ omp plugin upgrade
 스킬은 `/skill:commit`처럼 플러그인 접두어 없이 호출합니다. 기본 구성에는 역할별 모델 설정을
 추가하지 않습니다. Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude Code의 다중 호출·strict 모드와
 고정 Opus agent를 배포하지 않습니다. English·Japanese의 기존 스킬, Workflow의 commit·push·PR 권한 경계,
-Design의 품질 계약·프로필과 native tool 전제는 유지합니다.
+Design의 품질 계약·프로필과 native tool 전제는 유지합니다. Japanese도 omp의 기존 model·effort와
+병렬 정책을 유지하며 full 모드의 세 검토 관점은 같은 호출 안에서 확인합니다.
 
 `design`, `workflow`, `fluent-korean`은 생성된 `./plugins/<name>/omp`를 배포 원본으로 쓰고,
 English·Japanese는 기존 `./plugins/<name>`을 씁니다. omp 배포에는 독자 runtime extension,

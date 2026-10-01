@@ -1,10 +1,12 @@
 {
-  "version": 1,
-  "verified_at": "2026-09-29",
+  "version": 2,
+  "verified_at": "2026-10-01",
+  "evaluation_status": "OMP PR reviews inherit the existing native reviewer settings; legacy Engineering role aliases are references only; no universal superiority of a model or effort override is established",
   "sources": [
     "omp://task-agent-discovery.md",
     "omp://tools/task.md"
   ],
+  "pr_review": {"settings_policy": "inherit_native", "native_agent": "reviewer", "count": 1},
   "roles": {
     "extraction": {"model": "@smol", "effort": "inherit", "count": 1},
     "exploration": {"model": "@smol", "effort": "inherit", "count": 1},
