@@ -139,13 +139,13 @@
     "plugins/workflow/omp/skills/to-ticket/SKILL.md": "5758b9044f28f751ef0b12475cf8067ea7e153ecdf655a8a56e88b4618b21625",
     "plugins/workflow/omp/skills/to-ticket/agents/openai.yaml": "52aea0c6afce3cea638a48af79674d9fee4ede5e9b9755160c0ec3ca204d8298",
     "plugins/workflow/omp/skills/to-ticket/assets/templates/bug.md": "1ab05b4f8ba712f38191d3cf55ab9647f04a9cc73b1df5d70e30761a7aa75ec4",
-    "plugins/workflow/omp/skills/to-ticket/assets/templates/default.md": "75fc6943b5bda1c39c02a0d84fa58bc7df2ac9880d1550e6299dbb8db719082c",
+    "plugins/workflow/omp/skills/to-ticket/assets/templates/default.md": "c9219f331c6271645eec3b67dea2987e1c1732fe425c8a80d8d80a2545c61197",
     "plugins/workflow/omp/skills/to-ticket/assets/templates/investigation.md": "fefa30c4c16f7256fdede9076a2f66f6051ed14aeb245340b3cf27dd6eb60aa2",
     "plugins/workflow/omp/skills/to-ticket/references/github.md": "9d619d094b8d12ccc06f823c74891ea88df6fc7eb7c07a86cdae3ffc1e5444ef",
     "plugins/workflow/omp/skills/to-ticket/references/linear.md": "729bfd697d3324457754877b5f10b15eedb118a8d43856cf664461ac6f8af329",
     "plugins/workflow/omp/skills/to-ticket/references/media-attachments.md": "0bfd3836b7b2dae0c39ebe9c323dd658b2b1c320a944e7810aece6207e88cb6f",
     "plugins/workflow/omp/skills/to-ticket/references/ticket-quality-bar.md": "0f5a3dcdf628397d80ee29fc6f236b2c8bfec4a5229d97eeb1420475eb95871a",
     "plugins/workflow/omp/skills/to-ticket/references/ticket-selection.md": "b605ced220e7a90c76a0ad012444e41ee286a0cd28aa1e019abb1cbf32f2606b",
-    "plugins/workflow/omp/skills/to-ticket/references/ticket-writing.md": "4c008b5d924faa28240eeb9c239e2b529839ea3d5f484076a345a3cc206006df"
+    "plugins/workflow/omp/skills/to-ticket/references/ticket-writing.md": "1099a9e3a7f27346f2f2c48b8f31c6c397dc5665c4c40174398e2fe278cbf8e4"
   }
 }
