@@ -38,7 +38,7 @@ Claude Code: 저장소 루트
 omp: リポジトリルート
   → .omp-plugin/marketplace.json
   → plugins/{workflow,design,fluent-korean}/omp または plugins/fluent-{english,japanese}
-  → skills、English・Japaneseの言語エージェントと必要な同梱資料
+  → skillsと必要な同梱資料
 ```
 
 CodexとClaude Codeは、ほとんどのパッケージで共通のスキル・hook・scriptをそれぞれのローダーで読み込みます。
@@ -53,7 +53,7 @@ omp向けはWorkflow、Fluent Korean、Fluent English、Fluent Japanese、Design
 独自runtime extension、hook、evidence gate、`task-continuity.py` は配布しません。
 Fluent KoreanはCodexの単一呼び出しスキルと参考資料を投影し、現在のホストモデルを使います。
 Claude Codeの多段階・strictモードや固定Opusエージェントはomp配布に含めません。
-元パッケージのCodex・Claude Code向けファイル、English・Japaneseの言語エージェント、Designの品質契約とプロファイル、
+元パッケージのCodex・Claude Code向けファイル、English・Japaneseのスキル、Designの品質契約とプロファイル、
 Workflowの権限境界は維持します。生成先の継続資料は `.sonsu` へ書き込まず、omp標準のtodo・sessionを案内します。
 生成物やインストールキャッシュの手編集は行いません。
 
@@ -68,7 +68,7 @@ Workflowの権限境界は維持します。生成先の継続資料は `.sonsu`
 Engineeringのompプロファイルは直接インストールした選択・legacy利用者のgate・実行・独立レビューが
 参照するため保持します。基本5件の設定には使わず、独自セッションID注入やStop hookも提供しません。
 
-この変更は未公開であり、既存のインストールへの反映を意味しません。公開・自動更新の条件と
+`main` への公開は既存のインストールへの反映を意味しません。公開・自動更新の条件と
 セッション再起動は[配布のライフサイクル](plugin-lifecycle.md)を参照してください。
 
 마켓플레이스 등록은 저장소의 파일을 변경하거나 커밋하는 작업과 별개입니다. 호스트에

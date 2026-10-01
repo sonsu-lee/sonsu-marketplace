@@ -71,7 +71,7 @@ figma-plugin・ライセンスを元パッケージから生成し、他のプ�
 omp runtime extensionは含めません。元パッケージのhook・継続スクリプトはCodex・Claude Code用に残します。
 Fluent KoreanはCodex単一呼び出しのスキル・参考資料・ライセンスを専用パッケージに生成します。
 品質不変式を保持し、現在のホストモデルを使います。Claude Codeの多段階・strictモード、固定Opusエージェントを
-要求しません。English・Japaneseのスキルとエージェント、Designの品質契約・プロファイル、Workflowの操作権限境界は保持します。
+要求しません。English・Japaneseのスキル、Designの品質契約・プロファイル、Workflowの操作権限境界は保持します。
 
 生成先の `references/continuity.md` はomp標準のtodo・sessionによる継続を案内します。
 `.sonsu` への継続記録、復元hookやセッションID転送を独自に追加しません。
@@ -86,7 +86,7 @@ Research・Product・Writingは必要に応じた選択候補として扱い、�
 
 ### 公開と利用者の更新を分ける
 
-この5件構成への変更は未公開です。生成・検証・コミットと、GitHubへの公開、利用環境への反映は別の操作です。
+生成・検証・コミットと、GitHubへの公開、利用環境への反映は別の操作です。
 ローカル変更だけで既存のGitHub登録先やインストール済みパッケージが更新されたとは扱いません。
 
 利用者は `~/.omp/agent/config.yml` の `marketplace.autoUpdate` を `auto` に設定できます。

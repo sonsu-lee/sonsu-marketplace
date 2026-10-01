@@ -109,11 +109,17 @@ marketplace:
 
 `marketplace.autoUpdate: auto` はomp起動時に、24時間より古いカタログの更新を可能な範囲で試みます。
 インストール済みプラグインの自動更新には、カタログ内の対象プラグインのバージョンを上げる必要があります。
-`main` の常時監視や実行中セッションへのホットリロードではありません。
+`main` の常時監視や実行中セッションへのホットリロードではありません。新しいバージョンをすぐに
+反映するには、カタログを更新してからインストール済みプラグインをアップグレードします。
+
+```sh
+omp plugin marketplace update sonsu-marketplace
+omp plugin upgrade
+```
 
 スキルは `/skill:commit` のようにプラグイン接頭辞なしで呼び出します。カスタムロールのモデル設定は
 追加しません。Fluent Koreanは現在のホストモデルによる単一呼び出しを使い、Claude Codeの
-多段階・strictモードと固定Opusエージェントは配布しません。English・Japaneseの既存スキル・エージェント、
+多段階・strictモードと固定Opusエージェントは配布しません。English・Japaneseの既存スキル、
 Workflowのcommit・push・PRなどの権限境界、
 Designの品質契約とプロファイルも変更しません。
 
@@ -136,15 +142,27 @@ Engineeringのompプロファイルは直接インストールした既存利用
 #### 旧omp構成からの移行
 
 旧11件構成または8件プリセットを使っていた場合は、次のうちインストール済みの旧プラグインを
-ompからアンインストールします。Codex・Claude Codeのインストールは変更しません。
+ompからアンインストールします。インストールしていない項目の `not installed` エラーは無視します。
+Codex・Claude Codeのインストールは変更しません。
 
 ```sh
 for plugin in engineering writing research prompting product design-patterns memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
 ```
 
+登録済みの `sonsu-marketplace` がローカルのチェックアウトを指していたり、古いカタログを保持していたり
+する場合があるため、GitHubのソースで登録し直します。マーケットプレイスの登録を外してもインストール済みの
+プラグインは削除されません。インストール済みの `workflow`・`fluent-korean`・`design` は通常の
+`install` では更新されないため、`--force` で再インストールします。
+
+```sh
+omp plugin marketplace remove sonsu-marketplace
+omp plugin marketplace add sonsu-lee/sonsu-marketplace
+for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
+```
+
 旧プリセットのために追加した `skills.ignoredSkills`、`task.disabledAgents`、
 `task.agentModelOverrides` の項目だけを設定から外します。独自に設定した別の項目は残してください。
-上の5件構成をインストール・更新し、プラグイン整理後はセッションを終了してompを再起動します。
+プラグイン整理後はセッションを終了してompを再起動します。
 読み込み済みの旧hook・agentは実行中セッションに残るため、同じセッションを使い続けないでください。
 キャッシュ内のファイルは手で編集せず、既存の `.sonsu`・`.engineering` 記録も削除しません。
 
