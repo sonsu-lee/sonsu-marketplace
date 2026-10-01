@@ -6,9 +6,9 @@
 
 1. 사용자가 지정한 정확한 이름
 2. repository·team 문서와 도구 설정에서 확인한 규칙
-3. 기준 티켓과 활성 Linear 연동이 확인되고 앞선 규칙이 없을 때, Linear에서 설정한 branch 형식
-4. Linear 연동과 기준 티켓의 key가 확인됐지만 설정 형식을 읽을 수 없을 때 `<type>/<KEY>-<short-kebab-description>`
-5. GitHub Issues이거나 별도 규칙·적용할 Linear 형식이 없을 때 `<type>/<short-kebab-description>`
+3. 앞선 규칙이 없으면 `<type>/<short-kebab-description>`
+
+티켓 연동을 이유로 branch 이름에 티켓 ID를 추가하지 않는다. Linear·GitHub Issues 연결은 PR 본문에서 한다. Linear의 `Copy git branch name` 형식, integration이 추천하는 이름과 기존 branch들의 관례는 2번의 규칙이 아니다.
 
 Codex에서 실행 중이라는 사실이나 기존 branch 이름만으로 `codex/` 또는 `codex-` 접두사를 붙이지 않는다. 실행 환경이 prefix를 필수로 요구하면 선택한 형식에 그 prefix를 적용하고, 충돌하면 생성 전에 제약을 알린다. `type`은 실제 변경 목적에 맞는 `feat`, `fix`, `docs`, `refactor`, `test`, `chore` 중 하나를 우선하며, repository가 다른 taxonomy를 요구하면 그 규칙을 따른다.
 

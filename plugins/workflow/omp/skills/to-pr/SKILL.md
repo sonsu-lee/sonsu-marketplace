@@ -47,7 +47,7 @@ GitHub Draft 상태와 다르다.
 
 티켓 ID나 URL이 있거나 사용자가 연동을 요청하면 [티켓 연결 규칙](references/ticket-linking.md)을 읽는다.
 
-기준 티켓과 현재 연동을 확인해 provider가 해석하는 PR body·title 문법을 적용한다. 이미 존재하는 branch 이름의 ID는 가장 낮은 신뢰도의 hint로만 취급한다. branch에 ID가 없다는 이유로 PR을 막거나 branch를 만들고 rename하지 않는다.
+기준 티켓과 현재 연동을 확인해 provider가 해석하는 PR body 문법을 적용하고, 티켓 ID는 [연결 규칙](references/ticket-linking.md#티켓-id에-링크를-건다)에 따라 클릭할 수 있게 쓴다. 티켓 연결을 위해 branch 이름이나 PR 제목에 ID를 추가하지 않는다. 이미 존재하는 branch 이름의 ID는 가장 낮은 신뢰도의 hint로만 취급한다. branch에 ID가 없다는 이유로 PR을 막거나 branch를 만들고 rename하지 않는다.
 
 GitHub Issues와 Linear 중 provider를 문자열 모양만으로 추측하지 않는다. 같은 작업이 두 tracker에 동기화되어 있으면 canonical ticket을 확인하여 의도하지 않은 중복 completion을 만들지 않는다. 지원하지 않는 tracker의 연결이 필수인 요청은 연결 없는 PR로 바꿔 게시하지 않고 범위를 알린다.
 

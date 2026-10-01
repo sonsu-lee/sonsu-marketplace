@@ -25,17 +25,20 @@ provider와 canonical ticket은 사용자의 명시, 승인된 티켓 문서, �
 
 `intent`는 PR이 티켓과 맺는 의미이고 `status_effect`는 provider와 현재 automation이 실제로 만들 결과다. 둘을 같다고 가정하지 않는다. PR 게시 전에 저장소·team의 현재 integration, event mapping과 티켓 상태를 읽는다.
 
-## PR metadata를 우선한다
+## PR 본문에서만 연결한다
 
-연결 채널은 Git history와 branch naming에 미치는 결합도가 낮은 순서로 고른다.
+연결 채널은 PR 본문이다. 연결을 위해 PR 제목이나 branch 이름에 ID를 추가하지 않는다. 사용자가 요청하고 provider가 지원하는 별도 link 작업은 본문 연결에 더해서만 수행한다.
 
-1. provider가 지원하는 PR 본문 문법
-2. body로 부족할 때 PR 제목
-3. 사용자가 요청하고 provider가 지원하는 별도 link 작업
-4. 이미 존재하는 branch ID
-5. branch 생성·rename은 수행하지 않고 별도 Git workflow로 넘김
+이미 존재하는 branch 문자열은 가장 낮은 신뢰도의 hint다. ID가 없다는 이유로 PR을 막지 않고, ID가 있어도 canonical ticket으로 확정하지 않는다. 이미 있는 ID가 의도하지 않은 자동 연결을 일으킬 가능성만 검사한다. branch 생성·rename은 수행하지 않는다.
 
-branch 문자열은 가장 낮은 신뢰도의 hint다. ID가 없다는 이유로 PR을 막지 않고, ID가 있어도 canonical ticket으로 확정하지 않는다. 이미 있는 ID가 의도하지 않은 자동 연결을 일으킬 가능성만 검사한다.
+## 티켓 ID에 링크를 건다
+
+본문의 티켓 ID는 클릭해서 티켓으로 이동할 수 있어야 한다. URL은 tracker 조회 결과, 사용자가 준 URL, 승인된 문서의 URL 중 확인한 것을 쓴다. slug 없는 `https://linear.app/<workspace>/issue/ENG-123`도 된다. ID만 있고 URL을 확인할 수 없으면 workspace를 추측하지 않고 사용자에게 URL을 요청한다.
+
+- GitHub Issues: `#123`과 `owner/repository#123`은 GitHub가 자동으로 링크하므로 그대로 쓴다.
+- Linear: `Part of [ENG-123](https://linear.app/<workspace>/issue/ENG-123)`처럼 magic word 바로 뒤의 ID를 URL로 링크한다.
+
+Linear 문서가 예시로 든 형식은 `magic word + ID`와 `magic word + issue URL`이고 Markdown 링크 형식은 명시하지 않는다. 다만 2026-10-01에 Linear linkback 댓글이 달린 공개 PR을 조사했을 때, ID가 제목·branch·commit에 없고 본문의 `Fixes`·`Closes`·`Resolves`·`Refs`·`Relates to`·`Part of` + `[ID](URL)`로만 나온 독립 사례 11건이 모두 연결됐다. 같은 Markdown 링크라도 magic word가 없으면 연결되지 않았다. linkback으로는 closing·non-closing 구분까지 확인할 수 없으므로, 게시 뒤 canonical ticket을 다시 읽어 연결과 상태를 확인하는 [결과 확인](#status-effect를-판정한다) 절차는 그대로 적용한다.
 
 ## GitHub Issues
 
@@ -55,7 +58,7 @@ Draft PR 생성은 GitHub Issue나 Project item의 review 시작을 뜻하지 �
 
 ## Linear
 
-PR body의 magic word로 기여·완료 의도를 명시한다. 새 branch 이름은 확인된 저장소 규칙과 Linear 연동 형식을 따르되, PR 단계에서 ID를 추가하거나 이름을 바꾸지 않는다. title의 ID는 저장소 관례나 사용자의 명시가 있을 때만 사용한다.
+PR body의 magic word로 기여·완료 의도를 명시한다. 연결을 위해 새 branch 이름이나 PR 제목에 ID를 넣지 않고, PR 단계에서 기존 branch에 ID를 추가하거나 이름을 바꾸지 않는다.
 
 | 의도 | 표현 | 효과 |
 | --- | --- | --- |
@@ -63,6 +66,8 @@ PR body의 magic word로 기여·완료 의도를 명시한다. 새 branch 이�
 | `contribute` | `Part of ENG-123` | 연결하지만 merge completion은 적용하지 않음 |
 | `relate` | `Related to ENG-123` | 관계만 표시하고 상태를 바꾸지 않음 |
 | `suppress` | `Ignore ENG-123` | 해당 ID의 자동 연결을 막음 |
+
+표의 `ENG-123`에는 [링크 규칙](#티켓-id에-링크를-건다)을 적용한다. `Ignore`는 연결을 막는 표현이므로 링크를 걸지 않는다.
 
 `part of`는 두 단어다. branch에 Linear ID가 있으면 PR body의 비종결·종결 의도와 실제 Linear 관계가 일치하는지 확인한다. commit linking이 활성화된 경우에는 포함 commit의 magic word도 별도 연결·완료 신호로 검사한다. 여러 PR 중 일부만 완료하는 PR이 `Closes` 관계로 반영되거나 관계를 확인할 수 없으면 Ready 진행을 보류하고 결과를 보고한다. 원하지 않는 ID가 branch에 있으면 rename하지 않고 `Ignore ENG-123`가 필요한지 판단한다. 여러 ID에 모두 `Fixes`를 붙이지 않는다.
 

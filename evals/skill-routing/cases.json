@@ -757,12 +757,12 @@
       ]
     },
     {
-      "id": "linear-branch-follows-repository-convention",
-      "prompt": "Linear ENG-123의 검색 필터 작업용 branch 이름을 제안해 줘. 이 repo 관례와 integration 추천 이름에는 ENG-123이 들어 있어. codex/ prefix를 사용해.",
+      "id": "linear-branch-omits-id-despite-integration-suggestion",
+      "prompt": "Linear ENG-123의 검색 필터 작업용 branch 이름을 제안해 줘. 기존 branch들과 integration 추천 이름에는 ENG-123 같은 ID가 들어 있어. codex/ prefix를 사용해.",
       "expected_sequence": [
         "workflow:branch"
       ],
-      "must_include_linear_id_in_branch": true,
+      "must_not_include_linear_id_in_branch": true,
       "installed_plugins": [
         "workflow"
       ]
@@ -779,23 +779,12 @@
       ]
     },
     {
-      "id": "linear-branch-uses-configured-integration-format",
+      "id": "linear-branch-ignores-configured-integration-format",
       "prompt": "이 repo에는 branch 이름 규칙이 없어. Linear GitHub 연동이 활성화된 ENG-123 검색 필터 작업의 branch 이름을 제안해 줘. Linear의 설정된 Copy git branch name 형식은 feat/ENG-123-search-filter야.",
       "expected_sequence": [
         "workflow:branch"
       ],
-      "expected_branch_name": "feat/ENG-123-search-filter",
-      "installed_plugins": [
-        "workflow"
-      ]
-    },
-    {
-      "id": "linear-branch-uses-key-when-integration-format-unavailable",
-      "prompt": "이 repo에는 branch 규칙이 없어. Linear GitHub 연동과 기준 티켓 ENG-123은 확인됐지만 Copy git branch name 설정은 조회할 수 없어. 검색 필터 작업의 새 branch 이름을 제안해 줘.",
-      "expected_sequence": [
-        "workflow:branch"
-      ],
-      "must_include_linear_id_in_branch": true,
+      "expected_branch_name": "feat/search-filter",
       "installed_plugins": [
         "workflow"
       ]

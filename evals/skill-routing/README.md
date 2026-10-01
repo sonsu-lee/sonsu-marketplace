@@ -115,8 +115,9 @@ PR의 `must_preserve_manual_verification`과 `must_not_claim_ci_success`는 수�
 operation 뒤에만 노출합니다. 기대 field는 실행 모델에게 제공하지 않습니다. 응답 불명확·ADF 손실·
 동시 수정 충돌에서 제안한 쓰기 횟수와 보존 결과를 읽어 판정하며, 원격 mutation은 수행하지 않습니다.
 
-branch 사례는 repository 관례·확인된 Linear 형식·형식 조회 실패 시 key fallback을 따르는지, GitHub Issue 번호만으로
-native link를 주장하지 않는지, 사용자 지정 정확한 이름을 우선하는지 검사합니다. branch 제안
+branch 사례는 Linear integration 추천 이름·Copy git branch name 형식·기존 branch 관례가 있어도 티켓 ID를
+넣지 않는지, 사용자 지정 정확한 이름을 우선하는지, GitHub Issue 번호만으로
+native link를 주장하지 않는지 검사합니다. branch 제안
 사례는 생성 권한을 부여하지 않습니다.
 새 사례의 정적 등록과 모의 모델 실행, 실제 host의 native skill selection, 실제 tracker read/write는
 각각 별개의 검증으로 보고합니다.
