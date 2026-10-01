@@ -185,7 +185,7 @@ def load(root, task):
     need(isinstance(units, dict) and set(units) == set(definitions), 'v2 unit state does not match configuration')
     common_receipt = {'binding', 'files', 'outcome'}
 
-    def receipt_rows(rows, outcomes, extra=()):
+    def receipt_rows(rows, outcomes, extra=(), allow_empty_files=False, check_receipts=False):
         need(isinstance(rows, list), 'invalid v2 receipt history')
         for row in rows:
             need(isinstance(row, dict) and common_receipt | set(extra) <= set(row) and
@@ -195,8 +195,22 @@ def load(root, task):
                  isinstance(row['files'], dict) and
                  all(isinstance(name, str) and isinstance(fingerprint, str)
                      for name, fingerprint in row['files'].items()), 'invalid v2 receipt')
+            if not row['files']:
+                recovery = row.get('recovery')
+                recovered_before_spawn = (row['outcome'] == 'inconclusive' and isinstance(recovery, dict) and
+                                          recovery.get('reason') == 'interrupted_without_completion_receipt' and
+                                          recovery.get('process_group') == 'not_started')
+                need(allow_empty_files and
+                     (row['outcome'] == 'pending' or recovered_before_spawn),
+                     'v2 receipt is missing required evidence files')
             if 'attempt' in extra:
                 need(type(row['attempt']) is int and row['attempt'] > 0, 'invalid v2 receipt attempt')
+            if check_receipts and row['outcome'] == 'pending':
+                invocation = row.get('invocation')
+                need(row.get('execution') == 'incomplete' and isinstance(invocation, dict) and
+                     {'id', 'owner_pid', 'lease', 'process', 'log', 'scope'} <= set(invocation) and
+                     all(isinstance(invocation[key], str) for key in ('id', 'lease', 'process', 'log', 'scope')) and
+                     type(invocation['owner_pid']) is int, 'invalid pending check invocation')
 
     for name, definition in definitions.items():
         data = units[name]
@@ -212,7 +226,8 @@ def load(root, task):
         need(isinstance(data['checks'], dict) and set(data['checks']) == check_ids,
              'v2 check state does not match configuration')
         for rows in data['checks'].values():
-            receipt_rows(rows, ('pending', 'passed', 'failed', 'blocked', 'inconclusive'), {'attempt'})
+            receipt_rows(rows, ('pending', 'passed', 'failed', 'blocked', 'inconclusive'), {'attempt'},
+                         allow_empty_files=True, check_receipts=True)
         need(isinstance(data['reviews'], dict) and {'final-review', 'red-team'} <= set(data['reviews']),
              'v2 review state is incomplete')
         for gate, rows in data['reviews'].items():
@@ -221,12 +236,37 @@ def load(root, task):
             for index, row in enumerate(rows, 1):
                 need(row['gate'] == gate and row['unit'] == name and row['attempt'] == index and
                      row['scope'] in ('full', 'focused') and isinstance(row['raw'], list) and
-                     all(isinstance(raw, dict) for raw in row['raw']), 'invalid v2 review receipt')
+                     all(isinstance(raw, dict) and isinstance(raw.get('reviewer_id'), str)
+                         for raw in row['raw']), 'invalid v2 review receipt')
+                for raw in row['raw']:
+                    G.identifier(raw['reviewer_id'])
+                if gate == 'red-team':
+                    need(row['scope'] == 'full', 'red-team review scope must be full')
                 if row['scope'] == 'focused':
                     need(type(row.get('prior_round')) is int and 0 < row['prior_round'] < index,
                          'invalid focused review history')
                 if gate == 'red-team':
                     need(isinstance(row.get('normal_review'), str), 'invalid red-team review reference')
+                if row['outcome'] in ('passed', 'failed'):
+                    need('adjudication' in row, 'settled review is missing adjudication')
+                if 'adjudication' in row:
+                    adjudication = row['adjudication']
+                    need(isinstance(adjudication, dict) and isinstance(adjudication.get('decisions'), list),
+                         'invalid review adjudication')
+                    resolutions = adjudication.get('resolutions', [])
+                    need(isinstance(resolutions, list) and all(
+                        isinstance(resolution, dict) and {'finding', 'reason', 'evidence'} <= set(resolution) and
+                        all(isinstance(resolution[key], str) for key in ('finding', 'reason', 'evidence'))
+                        for resolution in resolutions), 'invalid review resolutions')
+                    for decision in adjudication['decisions']:
+                        need(isinstance(decision, dict) and isinstance(decision.get('finding'), str) and
+                             decision.get('decision') in ('valid', 'dismissed', 'duplicate'),
+                             'invalid review decision')
+                        if decision['decision'] == 'valid':
+                            need(type(decision.get('blocking')) is bool, 'invalid review blocking decision')
+                if gate == 'final-review' and row['scope'] == 'focused':
+                    need(rows[row['prior_round'] - 1]['scope'] == 'full',
+                         'focused review must refer to a full review')
     return state
 
 
@@ -611,7 +651,15 @@ def remember(state, request, payload, receipt=None):
     previous = state['requests'].get(request)
     if previous:
         need(previous['payload'] == payload, 'request ID reused with conflicting payload')
-        return previous['receipt']
+        command, name = payload.get('command'), payload.get('unit')
+        need(command in ('enter', 'complete-unit') and isinstance(name, str), 'invalid request replay target')
+        field = 'entries' if command == 'enter' else 'completions'
+        saved = previous['receipt']
+        rows = unit(state, name)[field]
+        need(isinstance(saved, dict) and any(row == saved and row['receipt_id'] == request and
+                                              row['unit'] == name for row in rows),
+             'request receipt does not match its historical unit receipt')
+        return saved
     if receipt is not None:
         state['requests'][request] = {'payload': payload, 'receipt': receipt}
     return None

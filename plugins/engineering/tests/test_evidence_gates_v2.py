@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from types import SimpleNamespace
 import unittest
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'scripts/evidence-gates.py'
@@ -60,6 +61,14 @@ class ManagedGates(unittest.TestCase):
         return subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), command,
                                '--task-id', 'task', *args], input='' if data is None else json.dumps(data),
                               text=True, capture_output=True, env=call_env, timeout=15)
+
+    def stop_hook(self):
+        event = {'hook_event_name': 'Stop', 'session_id': 'controller', 'cwd': str(self.root),
+                 'permission_mode': 'default', 'stop_hook_active': False}
+        return subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), 'hook'],
+                              input=json.dumps(event), text=True, capture_output=True,
+                              env=dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1'),
+                              timeout=15)
 
     def ok(self, command, *args, data=None):
         result = self.call(command, *args, data=data)
@@ -173,6 +182,217 @@ class ManagedGates(unittest.TestCase):
                 self.assertIn('evidence-gates:', status.stderr)
                 self.assertNotIn('Traceback', status.stderr)
                 self.assertEqual(before, state_path.read_bytes())
+
+    def test_empty_settled_receipt_files_cannot_report_ready(self):
+        self.init()
+        self.checked()
+        self.complete()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        unit_state = state['units']['design']
+        receipts = [unit_state['checks']['verify'][-1], unit_state['completions'][-1]]
+        evidence_files = {name for receipt in receipts for name in receipt['files']}
+        self.assertTrue(all(receipt['files'] for receipt in receipts))
+        for receipt in receipts:
+            receipt['files'] = {}
+        state_path.write_text(json.dumps(state))
+        for name in evidence_files:
+            (state_path.parent / name).unlink()
+        before = state_path.read_bytes()
+
+        status = self.call('status')
+        self.assertEqual(status.returncode, 2)
+        self.assertIn('evidence-gates:', status.stderr)
+        self.assertNotIn('Traceback', status.stderr)
+        self.assertEqual(before, state_path.read_bytes())
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertEqual(hook.stdout, '')
+        self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_empty_pending_and_recovered_check_files_remain_valid(self):
+        self.init()
+        self.enter()
+        runtime_spec = importlib.util.spec_from_file_location('pending_evidence_gates_fixture', self.script)
+        runtime = importlib.util.module_from_spec(runtime_spec)
+        runtime_spec.loader.exec_module(runtime)
+        v2_spec = importlib.util.spec_from_file_location('pending_evidence_gates_v2_fixture', self.script.parent / 'evidence_gates_v2.py')
+        v2 = importlib.util.module_from_spec(v2_spec)
+        v2_spec.loader.exec_module(v2)
+        v2.G = runtime
+
+        class BeforeExecute(Exception):
+            pass
+
+        def stop_before_execute(*_args):
+            raise BeforeExecute()
+
+        v2.execute_check = stop_before_execute
+        with self.assertRaises(BeforeExecute):
+            v2.run(self.root, SimpleNamespace(task_id='task', unit='design', check='verify', timeout=15))
+
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        pending = json.loads(state_path.read_text())['units']['design']['checks']['verify'][-1]
+        self.assertEqual((pending['outcome'], pending['files']), ('pending', {}))
+        self.assertFalse(self.ok('status')['ready'])
+        before = state_path.read_bytes()
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertNotIn('observation unavailable', hook.stdout)
+        self.assertEqual(before, state_path.read_bytes())
+
+        self.ok('abandon', '--unit', 'design')
+        recovered = json.loads(state_path.read_text())['units']['design']['checks']['verify'][-1]
+        self.assertEqual((recovered['outcome'], recovered['files']), ('inconclusive', {}))
+        self.assertEqual(recovered['recovery']['process_group'], 'not_started')
+        self.assertFalse(self.ok('status')['ready'])
+        before = state_path.read_bytes()
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertEqual(hook.stderr, '')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_red_team_focused_history_is_rejected_but_produced_history_passes(self):
+        self.config['units'][0]['review'] = 'red-team'
+        self.init()
+        self.checked()
+        self.prepare()
+        self.review_pass()
+        for attempt in range(1, 4):
+            self.prepare('red-team')
+            self.review_pass(attempt, 'red-team', 1)
+        self.complete()
+        self.assertTrue(self.ok('status')['ready'])
+
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        latest = state['units']['design']['reviews']['red-team'][-1]
+        latest['scope'] = 'focused'
+        latest['prior_round'] = 2
+        state_path.write_text(json.dumps(state))
+        before = state_path.read_bytes()
+        status = self.call('status')
+        self.assertEqual(status.returncode, 2)
+        self.assertNotIn('Traceback', status.stderr)
+        self.assertEqual(before, state_path.read_bytes())
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertEqual(hook.stdout, '')
+        self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_corrupt_focused_history_is_rejected_and_empty_history_is_valid(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.checked()
+        self.prepare()
+        self.review_pass()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        state['units']['design']['reviews']['final-review'][0]['adjudication'].pop('decisions')
+        state_path.write_text(json.dumps(state))
+        before = state_path.read_bytes()
+        focused = self.call('prepare-review', '--unit', 'design', '--gate', 'final-review',
+                            '--package', str(self.report),
+                            data={'scope': 'focused', 'prior_round': 1, 'impact_assessment': 'Local correction'})
+        self.assertEqual(focused.returncode, 2)
+        self.assertNotIn('Traceback', focused.stderr)
+        self.assertEqual(before, state_path.read_bytes())
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_raw_reviewer_identity_is_validated_before_resume(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.checked()
+        self.prepare()
+        self.review_pass()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        state['units']['design']['reviews']['final-review'][0]['raw'][0].pop('reviewer_id')
+        state_path.write_text(json.dumps(state))
+        before = state_path.read_bytes()
+        resumed = self.call('init', data=self.config)
+        self.assertEqual(resumed.returncode, 2)
+        self.assertNotIn('Traceback', resumed.stderr)
+        self.assertEqual(before, state_path.read_bytes())
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertEqual(hook.stdout, '')
+        self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_focused_history_validates_decision_and_resolution_fields(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.checked()
+        self.prepare()
+        finding = {'id': 'f1', 'title': 'Issue', 'location': 'design.md:1',
+                   'evidence': 'contradicts contract', 'impact': 'wrong result'}
+        self.assertEqual(self.record(1, 'r1', [finding]).returncode, 0)
+        for n in range(2, 6):
+            self.assertEqual(self.record(1, 'r' + str(n)).returncode, 0)
+        self.ok('adjudicate', '--unit', 'design', '--gate', 'final-review', '--attempt', '1',
+                data={'decisions': [{'finding': 'r1:f1', 'decision': 'valid', 'blocking': True,
+                                     'reason': 'Confirmed', 'evidence': 'contract.md:1'}]})
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = (
+            ('missing decisions', lambda row: row['adjudication'].pop('decisions')),
+            ('missing decision field', lambda row: row['adjudication']['decisions'][0].pop('decision')),
+            ('malformed resolution', lambda row: row['adjudication'].__setitem__('resolutions', [{}])),
+        )
+        for label, corrupt in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                corrupt(state['units']['design']['reviews']['final-review'][0])
+                state_path.write_text(json.dumps(state))
+                before = state_path.read_bytes()
+                focused = self.call('prepare-review', '--unit', 'design', '--gate', 'final-review',
+                                    '--package', str(self.report),
+                                    data={'scope': 'focused', 'prior_round': 1, 'impact_assessment': 'Local correction'})
+                self.assertEqual(focused.returncode, 2)
+                self.assertNotIn('Traceback', focused.stderr)
+                self.assertEqual(before, state_path.read_bytes())
+
+    def test_request_replay_matches_historical_receipts_after_newer_work(self):
+        self.init()
+        first_entry = self.enter()
+        self.ok('abandon', '--unit', 'design')
+        self.enter(request='enter-2')
+        self.ok('run', '--unit', 'design', '--check', 'verify')
+        first_completion = self.complete()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        before = state_path.read_bytes()
+
+        old_entry = self.call('enter', '--unit', 'design', '--request-id', 'enter-1')
+        self.assertEqual(old_entry.returncode, 0, old_entry.stderr)
+        self.assertEqual(json.loads(old_entry.stdout), first_entry)
+        old_completion = self.call('complete-unit', '--unit', 'design', '--request-id', 'complete-1')
+        self.assertEqual(old_completion.returncode, 0, old_completion.stderr)
+        self.assertEqual(json.loads(old_completion.stdout), first_completion)
+        self.assertEqual(before, state_path.read_bytes())
+
+        cases = (
+            ('enter-1', ('enter', '--unit', 'design', '--request-id', 'enter-1')),
+            ('complete-1', ('complete-unit', '--unit', 'design', '--request-id', 'complete-1')),
+        )
+        for request_id, command in cases:
+            with self.subTest(request_id=request_id):
+                state = json.loads(json.dumps(original))
+                state['requests'][request_id]['receipt'] = {'corrupt': True}
+                state_path.write_text(json.dumps(state))
+                corrupted = state_path.read_bytes()
+                result = self.call(*command)
+                self.assertEqual(result.returncode, 2)
+                self.assertEqual(result.stdout, '')
+                self.assertIn('evidence-gates:', result.stderr)
+                self.assertNotIn('Traceback', result.stderr)
+                self.assertEqual(corrupted, state_path.read_bytes())
 
     def enter(self, unit='design', request='enter-1'):
         return self.ok('enter', '--unit', unit, '--request-id', request)
