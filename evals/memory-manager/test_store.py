@@ -176,6 +176,55 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(self.run_store("search", "pnpm")["results"], [])
         self.assertEqual(len(self.run_store("pending")["results"]), 1)
 
+    def test_capture_hook_uses_event_repository_despite_git_routing_environment(self):
+        repo_a = self.base / "repo-a"
+        repo_b = self.base / "repo-b"
+        worktree = self.base / "repo-b-worktree"
+        for repository in (repo_a, repo_b):
+            repository.mkdir()
+            subprocess.run(["git", "init", str(repository)], check=True, capture_output=True)
+
+        subprocess.run(["git", "-C", str(repo_b), "-c", "user.name=Test", "-c",
+                        "user.email=test@example.invalid", "commit", "--allow-empty",
+                        "-m", "initial"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(repo_b), "worktree", "add", str(worktree)],
+                       check=True, capture_output=True)
+
+        spec = importlib.util.spec_from_file_location("memory_store_project_key_test", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        key_a = module.project_key(repo_a)
+        key_b = module.project_key(repo_b)
+        self.assertNotEqual(key_a, key_b)
+        self.assertEqual(key_b, module.project_key(worktree))
+
+        self.run_store("capture", "on", cwd=repo_a)
+        self.assertEqual(self.run_store("capture", "show", cwd=repo_b), {"enabled": False})
+        event = {"session_id": "routed-session", "cwd": str(repo_b),
+                 "hook_event_name": "UserPromptSubmit", "prompt": "기억해 줘: B 프로젝트 계약"}
+        env = os.environ.copy()
+        env["SONSU_MEMORY_HOME"] = str(self.store)
+        env.update({
+            "GIT_DIR": str(repo_a / ".git"),
+            "GIT_WORK_TREE": str(repo_a),
+            "GIT_COMMON_DIR": str(repo_a / ".git"),
+            "GIT_INDEX_FILE": str(repo_a / ".git" / "index"),
+        })
+        result = subprocess.run([sys.executable, str(HOOK)], cwd=repo_b, input=json.dumps(event),
+                                text=True, capture_output=True, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse((self.store / "inbox" / key_a).exists())
+        self.assertFalse((self.store / "inbox" / key_b).exists())
+
+        self.run_store("capture", "on", cwd=repo_b)
+        result = subprocess.run([sys.executable, str(HOOK)], cwd=repo_b, input=json.dumps(event),
+                                text=True, capture_output=True, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse((self.store / "inbox" / key_a).exists())
+        candidates = list((self.store / "inbox" / key_b).glob("*.json"))
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(json.loads(candidates[0].read_text(encoding="utf-8"))["project"], key_b)
+
     def test_secret_and_symlink_output_are_rejected(self):
         result = self.run_store("put", payload={
             "decision": "ADD", "scope": "project", "title": "secret",

@@ -71,9 +71,18 @@ def project_key(cwd):
     location = Path(cwd).expanduser().resolve(strict=True)
     if not location.is_dir():
         raise StoreError("invalid_project")
+    git_env = {
+        name: value for name, value in os.environ.items()
+        if name not in {
+            "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_CEILING_DIRECTORIES", "GIT_COMMON_DIR",
+            "GIT_CONFIG", "GIT_DIR", "GIT_DISCOVERY_ACROSS_FILESYSTEM", "GIT_IMPLICIT_WORK_TREE",
+            "GIT_INDEX_FILE", "GIT_NAMESPACE", "GIT_OBJECT_DIRECTORY", "GIT_PREFIX",
+            "GIT_WORK_TREE",
+        } and not name.startswith("GIT_CONFIG_")
+    }
     result = subprocess.run(
         ["git", "-C", str(location), "rev-parse", "--git-common-dir"],
-        capture_output=True, text=True, check=False,
+        capture_output=True, text=True, check=False, env=git_env,
     )
     common_dir = result.stdout.strip()
     identity = (location / common_dir).resolve() if result.returncode == 0 and common_dir else location
