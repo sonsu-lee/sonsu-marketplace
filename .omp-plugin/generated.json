@@ -2,7 +2,7 @@
   "generator": "scripts/render-omp-compat.py",
   "files": {
     "plugins/design/omp/.app.json": "58be5086d53807919a24c8fda5c38b03f820854dc16f6ac5a4db4b0478cbc040",
-    "plugins/design/omp/.claude-plugin/plugin.json": "f6d0b2458b0a37fe0ee697de66dba39ca1d56b78cce01bb79531e6f14eeadad3",
+    "plugins/design/omp/.claude-plugin/plugin.json": "99175eeb581e184347bd39eaaca936045eddeaf36e0e2f6cc8fc246299fc473d",
     "plugins/design/omp/UPSTREAM-FIGMA.md": "dcbb8ef19e9a03a18b4b8376864ebfa53432cb5cfbbded893831b3a562d5b78e",
     "plugins/design/omp/UPSTREAM-OPERATIONS.md": "ba1e11dcdf07ef5921e920fa9a024ee3c3a4b59f3ea7dbbd9309280adac85e33",
     "plugins/design/omp/UPSTREAM.md": "d314dd30cf91106b4d6a5f72766b2d701b5abe4db6170bfab18c5d00e1dd29da",
@@ -99,7 +99,7 @@
     "plugins/fluent-korean/omp/skills/fluent-korean/references/scholarship.md": "e83346a5b0147a923b725295cbee6b7fa3b22020840b5eee95c35f615b182e64",
     "plugins/fluent-korean/omp/skills/fluent-korean/references/taxonomy-candidates.md": "7b959a5156cfac19d171206ee4d124afd9148eb840b05b38e9118b042f4fa9d8",
     "plugins/fluent-korean/omp/skills/fluent-korean/references/web-service-spec.md": "be887c5e60b9a37e63a4aa8156ada0da4298098a51451925a3a22b9a37e25f6a",
-    "plugins/workflow/omp/.claude-plugin/plugin.json": "47144f6174e67bde914edf6157eba2adba59fc1966404a75df4f2032f377d0f2",
+    "plugins/workflow/omp/.claude-plugin/plugin.json": "45ded0fedd3cb0bddc525b6f3dd9ca3157a7d5d8ae64797673940a9d5dd3bb6e",
     "plugins/workflow/omp/UPSTREAM.md": "d3af5b2fa29b3364315606050d13fd86cbcb212f7ecba5b97eca99ad4c6532d0",
     "plugins/workflow/omp/WRITING_LICENSE.md": "2e6ab9dcc884ebc57eb4b0551093a0d2cccf186b32ff495b781c50a0c2bab6b1",
     "plugins/workflow/omp/references/branch-naming.md": "ef3d424f6abb4472399f5d97e23f4c324b1cc5425444580ddaf1a1b3e41f32e0",

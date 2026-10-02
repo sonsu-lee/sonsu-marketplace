@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import re
+import signal
 import stat
 import subprocess
 import sys
@@ -20,10 +21,30 @@ import tempfile
 MAX_BYTES = 32768
 ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}\Z")
 EXCLUSION = b"/.sonsu/continuity/\n"
+# Hook-only wall-clock budget; reserve time before the host's 5s deadline.
+HOOK_SECONDS = 3
+HOOK_CLEANUP_SECONDS = 0.25
+HOOK_WRITE = os.write
 
 
 class ContinuityError(ValueError):
     pass
+
+
+class HookTimeout(Exception):
+    pass
+
+
+def hook_timeout(signum, frame):
+    raise HookTimeout()
+
+
+def best_effort_hook_output(fd, text):
+    try:
+        os.set_blocking(fd, False)
+        HOOK_WRITE(fd, text.encode("utf-8"))
+    except OSError:
+        pass
 
 
 def identifier(value):
@@ -41,18 +62,25 @@ def default_session_id():
     return claude or codex or omp
 
 
-def persist_claude_session(session):
+def persist_claude_session(session, hook_state=None):
     destination = os.environ.get("CLAUDE_ENV_FILE")
     if not destination or not os.environ.get("CLAUDE_PLUGIN_ROOT"):
         return
     path = Path(destination)
     if not path.is_absolute() or path.is_symlink():
         raise ContinuityError("invalid Claude environment file")
+    if hook_state is not None:
+        hook_state["session_append_started"] = True
     fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
     try:
         if not stat.S_ISREG(os.fstat(fd).st_mode):
             raise ContinuityError("Claude environment file is not regular")
-        os.write(fd, ("export SONSU_CLAUDE_SESSION_ID='" + session + "'\n").encode())
+        raw = ("export SONSU_CLAUDE_SESSION_ID='" + session + "'\n").encode()
+        written = os.write(fd, raw)
+        if written != len(raw):
+            raise ContinuityError("incomplete Claude session append")
+        if hook_state is not None:
+            hook_state["session_saved"] = True
     finally:
         os.close(fd)
 
@@ -361,6 +389,49 @@ def mutate(args):
 
 
 def hook():
+    hook_state = {}
+
+    def cleanup_timeout(signum, frame):
+        try:
+            # Emergency exit omits context: recovery JSON can exceed PIPE_BUF,
+            # so a best-effort stdout write could expose a partial JSON document.
+            if hook_state.get("session_saved") or hook_state.get("session_append_started"):
+                if not hook_state.get("session_saved"):
+                    best_effort_hook_output(2, "task-continuity: session marker persistence unconfirmed\n")
+            else:
+                best_effort_hook_output(2, "task-continuity: recovery record unavailable; no checkpoint context injected\n")
+        finally:
+            # End this hook only; bypass stalled Python cleanup, preserving writes
+            # already observed and leaving OS teardown to release descriptors.
+            os._exit(0)
+
+    def operation_timeout(signum, frame):
+        signal.signal(signal.SIGALRM, cleanup_timeout)
+        signal.setitimer(signal.ITIMER_REAL, HOOK_CLEANUP_SECONDS)
+        hook_timeout(signum, frame)
+
+    previous = signal.signal(signal.SIGALRM, operation_timeout)
+    signal.setitimer(signal.ITIMER_REAL, HOOK_SECONDS)
+    try:
+        # Finish all reads, validation and context preparation before appending.
+        hook_state["result"] = recover_hook(hook_state)
+        if "session" in hook_state:
+            persist_claude_session(hook_state["session"], hook_state=hook_state)
+        return hook_state["result"]
+    except (HookTimeout, ContinuityError, OSError):
+        if hook_state.get("session_saved"):
+            return hook_state["result"]
+        if hook_state.get("session_append_started"):
+            # A signal during write can leave its return value unobserved.
+            best_effort_hook_output(2, "task-continuity: session marker persistence unconfirmed\n")
+            return hook_state["result"]
+        raise
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
+
+
+def recover_hook(hook_state):
     event = stdin_json()
     if not isinstance(event, dict) or event.get("hook_event_name") != "SessionStart":
         return None
@@ -368,12 +439,12 @@ def hook():
     if event.get("agent_id") is not None or event.get("parent_session_id") is not None:
         return None
     if event.get("source") in ("startup", "clear"):
-        persist_claude_session(identifier(event.get("session_id")))
+        hook_state["session"] = identifier(event.get("session_id"))
         return None
     if event.get("source") not in ("compact", "resume"):
         return None
     package_root, plugin, root, _, session, path = context(event["cwd"], event["session_id"])
-    persist_claude_session(session)
+    hook_state["session"] = session
     record = record_read(path, root, session, plugin, package_root)
     if record is None and plugin == "design":
         active = active_predecessors(package_root, root, session)
@@ -442,9 +513,9 @@ def main():
         if result is not None:
             print(json.dumps(result, ensure_ascii=True, allow_nan=False))
         return 0
-    except (ContinuityError, OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as error:
+    except (ContinuityError, HookTimeout, OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as error:
         if args.command == "hook":
-            print("task-continuity: recovery record unavailable; no checkpoint context injected", file=sys.stderr)
+            best_effort_hook_output(2, "task-continuity: recovery record unavailable; no checkpoint context injected\n")
             return 0
         print("task-continuity: " + str(error), file=sys.stderr)
         return 1

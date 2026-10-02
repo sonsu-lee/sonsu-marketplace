@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest import mock
 
@@ -106,6 +107,253 @@ class RuntimeTests(unittest.TestCase):
                 result = subprocess.run(command, shell=True, input=json.dumps(event), text=True,
                                         capture_output=True, cwd=self.work, env=env, timeout=15)
                 self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_compact_resume_hooks_fail_open_before_host_deadline_on_slow_git(self):
+        self.assertEqual(self.write().returncode, 0)
+        before = self.path().read_bytes()
+        directory = self.base / "slow-bin"
+        directory.mkdir()
+        git = directory / "git"
+        git_pid = self.base / "git-pid"
+        git.write_text("#!" + sys.executable + "\nimport os, time\nfrom pathlib import Path\nPath(" +
+                       repr(str(git_pid)) + ").write_text(str(os.getpid()))\ntime.sleep(8)\n")
+        git.chmod(0o755)
+        env_file = self.base / "claude-env"
+        env = dict(self.env, PATH=str(directory) + os.pathsep + self.env["PATH"],
+                   CLAUDE_ENV_FILE=str(env_file),
+                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+        for source in ("compact", "resume"):
+            with self.subTest(source=source):
+                event = {"hook_event_name": "SessionStart", "source": source,
+                         "session_id": "session-a", "cwd": str(self.work)}
+                started = time.monotonic()
+                result = subprocess.run([sys.executable, str(self.packages["engineering"]), "hook"],
+                                        input=json.dumps(event), text=True, capture_output=True,
+                                        env=env, cwd=self.work, timeout=5)
+                self.assertLess(time.monotonic() - started, 4)
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(result.stderr, "task-continuity: recovery record unavailable; no checkpoint context injected\n")
+                self.assertEqual(self.path().read_bytes(), before)
+                self.assertFalse(env_file.exists())
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(int(git_pid.read_text()), 0)
+        self.assertIn("continuity.md", self.hook().stdout)
+
+    def test_hook_budget_covers_incomplete_stdin(self):
+        started = time.monotonic()
+        with subprocess.Popen([sys.executable, str(self.packages["engineering"]), "hook"],
+                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              text=True, env=self.env, cwd=self.work) as process:
+            try:
+                # Keep the input pipe open, as a stalled host event writer would.
+                process.wait(timeout=5)
+            finally:
+                if process.poll() is None:
+                    process.kill()
+            self.assertLess(time.monotonic() - started, 4)
+            self.assertEqual(process.returncode, 0)
+            self.assertEqual(process.stdout.read(), "")
+            self.assertEqual(process.stderr.read(), "task-continuity: recovery record unavailable; no checkpoint context injected\n")
+        self.assertFalse((self.work / ".sonsu").exists())
+
+    def test_hook_diagnostic_with_full_stderr_does_not_extend_deadline(self):
+        for input_state in ("open", "malformed", "session_append_error"):
+            with self.subTest(input_state=input_state):
+                read_fd, write_fd = os.pipe()
+                try:
+                    os.set_blocking(write_fd, False)
+                    try:
+                        while True:
+                            os.write(write_fd, b"x" * 4096)
+                    except BlockingIOError:
+                        pass
+                    os.set_blocking(write_fd, True)
+                    env = self.env
+                    if input_state == "session_append_error":
+                        env = dict(self.env, CLAUDE_ENV_FILE=str(self.base / "missing-parent" / "env"),
+                                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+                    started = time.monotonic()
+                    with subprocess.Popen([sys.executable, str(self.packages["engineering"]), "hook"],
+                                          stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                          stderr=write_fd, text=True, cwd=self.work, env=env) as process:
+                        try:
+                            if input_state == "malformed":
+                                process.stdin.write("not-json")
+                                process.stdin.close()
+                            elif input_state == "session_append_error":
+                                process.stdin.write(json.dumps({"hook_event_name": "SessionStart",
+                                                                "source": "startup", "session_id": "session-a"}))
+                                process.stdin.close()
+                            process.wait(timeout=5)
+                        finally:
+                            if process.poll() is None:
+                                process.kill()
+                                process.wait()
+                        self.assertLess(time.monotonic() - started, 4)
+                        self.assertEqual(process.returncode, 0)
+                        self.assertEqual(process.stdout.read(), "")
+                    self.assertFalse((self.work / ".sonsu").exists())
+                finally:
+                    os.close(read_fd)
+                    os.close(write_fd)
+
+    def test_hook_budget_observes_session_append_after_recovery_preparation(self):
+        self.assertEqual(self.write().returncode, 0)
+        before = self.path().read_bytes()
+        normal = self.hook(source="resume").stdout
+        env_file = self.base / "claude-env"
+        env = dict(self.env, CLAUDE_ENV_FILE=str(env_file),
+                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+        event = {"hook_event_name": "SessionStart", "source": "resume",
+                 "session_id": "session-a", "cwd": str(self.work)}
+        for boundary in ("record_read", "persist_claude_session", "session_write"):
+            with self.subTest(boundary=boundary):
+                env_file.unlink(missing_ok=True)
+                code = """
+import importlib.util, sys, time
+spec = importlib.util.spec_from_file_location('continuity_hook', SCRIPT_PATH)
+hook = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(hook)
+real = hook.os.write if BOUNDARY == 'session_write' else getattr(hook, BOUNDARY)
+def delayed(*args, **kwargs):
+    if BOUNDARY == 'record_read':
+        time.sleep(8)
+        return real(*args, **kwargs)
+    result = real(*args, **kwargs)
+    time.sleep(8)
+    return result
+if BOUNDARY == 'session_write':
+    hook.os.write = delayed
+else:
+    setattr(hook, BOUNDARY, delayed)
+sys.argv = [SCRIPT_PATH, 'hook']
+raise SystemExit(hook.main())
+""".replace("SCRIPT_PATH", repr(str(self.packages["engineering"]))).replace("BOUNDARY", repr(boundary))
+                started = time.monotonic()
+                result = subprocess.run([sys.executable, "-c", code], input=json.dumps(event),
+                                        text=True, capture_output=True, env=env, timeout=5)
+                self.assertLess(time.monotonic() - started, 4)
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(self.path().read_bytes(), before)
+                if boundary == "record_read":
+                    self.assertEqual(result.stdout, "")
+                    self.assertEqual(result.stderr, "task-continuity: recovery record unavailable; no checkpoint context injected\n")
+                    self.assertFalse(env_file.exists())
+                else:
+                    self.assertEqual(result.stdout, normal)
+                    self.assertEqual(result.stderr, "task-continuity: session marker persistence unconfirmed\n"
+                                     if boundary == "session_write" else "")
+                    self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='session-a'\n")
+
+    def test_hook_deadline_includes_stalled_session_fd_cleanup(self):
+        self.assertEqual(self.write().returncode, 0)
+        before = self.path().read_bytes()
+        normal = self.hook(source="resume").stdout
+        env_file, marker = self.base / "claude-env", self.base / "cleanup-entered"
+        env = dict(self.env, CLAUDE_ENV_FILE=str(env_file),
+                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+        event = {"hook_event_name": "SessionStart", "source": "resume",
+                 "session_id": "session-a", "cwd": str(self.work)}
+        code = """
+import importlib.util, os, sys, time
+from pathlib import Path
+spec = importlib.util.spec_from_file_location('continuity_hook', SCRIPT_PATH)
+hook = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(hook)
+real_write, real_close = os.write, os.close
+written_fd = None
+def delayed_write(fd, raw):
+    global written_fd
+    result = real_write(fd, raw)
+    written_fd = fd
+    time.sleep(8)
+    return result
+def delayed_close(fd):
+    if fd == written_fd:
+        Path(MARKER).touch()
+        time.sleep(8)
+    return real_close(fd)
+os.write, os.close = delayed_write, delayed_close
+sys.argv = [SCRIPT_PATH, 'hook']
+raise SystemExit(hook.main())
+""".replace("SCRIPT_PATH", repr(str(self.packages["engineering"]))).replace("MARKER", repr(str(marker)))
+        # Exercise the actual recovery JSON with only PIPE_BUF bytes available.
+        # Emergency cleanup must emit no stdout, including when a prefix could fit.
+        self.assertGreater(len(normal.encode("utf-8")), 512)
+        read_fd, write_fd = os.pipe()
+        try:
+            atomic_limit = os.fpathconf(write_fd, "PC_PIPE_BUF")
+            os.set_blocking(write_fd, False)
+            prefilled = 0
+            try:
+                while True:
+                    prefilled += os.write(write_fd, b'x' * 4096)
+            except BlockingIOError:
+                pass
+            drained = len(os.read(read_fd, atomic_limit))
+            os.set_blocking(write_fd, True)
+            started = time.monotonic()
+            result = subprocess.run([sys.executable, "-c", code], input=json.dumps(event),
+                                    text=True, stdout=write_fd, stderr=subprocess.PIPE,
+                                    env=env, timeout=5)
+            self.assertLess(time.monotonic() - started, 4)
+            os.close(write_fd)
+            write_fd = None
+            received = bytearray()
+            while True:
+                chunk = os.read(read_fd, 131072)
+                if not chunk:
+                    break
+                received.extend(chunk)
+            emitted = bytes(received[prefilled - drained:])
+            self.assertEqual(emitted, b"", "emergency stdout must not expose a JSON prefix")
+            self.assertEqual(result.returncode, 0)
+            self.assertEqual(result.stderr, "task-continuity: session marker persistence unconfirmed\n")
+            self.assertTrue(marker.exists())
+            self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='session-a'\n")
+            self.assertEqual(self.path().read_bytes(), before)
+        finally:
+            os.close(read_fd)
+            if write_fd is not None:
+                os.close(write_fd)
+        env_file.unlink()
+        marker.unlink()
+
+        started = time.monotonic()
+        result = subprocess.run([sys.executable, "-c", code], input=json.dumps(event),
+                                text=True, capture_output=True, env=env, timeout=5)
+        self.assertLess(time.monotonic() - started, 4)
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "", "forced cleanup omits context even on an empty pipe")
+        self.assertEqual(result.stderr, "task-continuity: session marker persistence unconfirmed\n")
+        self.assertTrue(marker.exists())
+        self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='session-a'\n")
+        self.assertEqual(self.path().read_bytes(), before)
+
+        # Full output pipes drop the best-effort response while exit stays bounded.
+        env_file.unlink()
+        blocked_output = """
+for destination in (1, 2):
+    read_fd, write_fd = os.pipe()
+    os.set_blocking(write_fd, False)
+    try:
+        while True:
+            real_write(write_fd, b'x' * 4096)
+    except BlockingIOError:
+        pass
+    os.set_blocking(write_fd, True)
+    os.dup2(write_fd, destination)
+raise SystemExit(hook.main())
+"""
+        code = code.replace("raise SystemExit(hook.main())", blocked_output)
+        started = time.monotonic()
+        result = subprocess.run([sys.executable, "-c", code], input=json.dumps(event),
+                                text=True, capture_output=True, env=env, timeout=5)
+        self.assertLess(time.monotonic() - started, 4)
+        self.assertEqual((result.returncode, result.stdout, result.stderr), (0, "", ""))
+        self.assertEqual(env_file.read_text(), "export SONSU_CLAUDE_SESSION_ID='session-a'\n")
+        self.assertEqual(self.path().read_bytes(), before)
 
     def git(self, *args, cwd=None):
         return subprocess.run(["git", *args], cwd=cwd or self.work, env=self.env,
