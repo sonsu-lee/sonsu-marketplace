@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import importlib.util
 import json
 import os
 import re
@@ -308,8 +309,36 @@ def pending_video(video_id: str, title: str) -> dict[str, Any]:
         "exclusion_reason": None,
         "blocking_reason": None,
         "duplicate_of": None,
+        "analysis_receipt": None,
         "evidence_units": [],
     }
+
+
+def status_counts(videos: list[dict[str, Any]]) -> tuple[dict[str, int], float]:
+    counts = {status: 0 for status in ("analyzed", "excluded", "blocked", "pending")}
+    for video in videos:
+        status = video.get("status")
+        if not isinstance(status, str) or status not in counts:
+            raise ValueError(f"{video.get('video_id', '<unknown>')}: invalid status")
+        counts[status] += 1
+    closed = len(videos) - counts["pending"]
+    return counts, closed / len(videos) if videos else 0.0
+
+
+def normalize_catalog(catalog: dict[str, Any]) -> dict[str, Any]:
+    result = copy.deepcopy(catalog)
+    if result.get("schema_version") == "madia-design-practice-catalog-v1":
+        result["schema_version"] = "madia-design-practice-catalog-v2"
+    for video in result["videos"]:
+        video.setdefault("analysis_receipt", None)
+    for principle in result["principles"]:
+        principle.setdefault("durability", "contextual")
+        principle.setdefault("term_ids", [])
+    counts, coverage = status_counts(result["videos"])
+    result["inventory"].update(
+        discovered_unique_videos=len(result["videos"]), corpus_coverage=coverage, **counts
+    )
+    return result
 
 
 def build_catalog(as_of: str) -> dict[str, Any]:
@@ -362,7 +391,7 @@ def build_catalog(as_of: str) -> dict[str, Any]:
     if missing_existing:
         raise ValueError(
             "playlist discovery omitted existing catalog videos; refusing partial publication "
-            f"({len(missing_existing)} missing)"
+            f"({len(missing_existing)} missing): {missing_existing}"
         )
     membership: dict[str, set[str]] = {video_id: set() for video_id in discovered}
     for name, videos in playlist_videos.items():
@@ -387,11 +416,8 @@ def build_catalog(as_of: str) -> dict[str, Any]:
             item["published_at"] = recent[video_id]["published_at"]
             item["content_type"] = recent[video_id]["content_type"]
         merged.append(item)
-    counts = {status: 0 for status in ("analyzed", "excluded", "blocked", "pending")}
-    for item in merged:
-        counts[item["status"]] += 1
+    counts, coverage = status_counts(merged)
     total = len(merged)
-    coverage = (counts["analyzed"] + counts["excluded"] + counts["blocked"]) / total if total else 0.0
     principles = copy.deepcopy(existing.get("principles", []))
     reliability = copy.deepcopy(existing.get(
         "reliability",
@@ -424,7 +450,7 @@ def build_catalog(as_of: str) -> dict[str, Any]:
             for index in range(9)
         ]
     return {
-        "schema_version": "madia-design-practice-catalog-v1",
+        "schema_version": "madia-design-practice-catalog-v2",
         "as_of": as_of,
         "channel": {
             "id": CHANNEL_ID,
@@ -497,7 +523,7 @@ def render_summary(catalog: dict[str, Any]) -> str:
 | Gate | 상태 |
 | --- | --- |
 {gate_rows}
-`P1` 이상은 비중복 직접 관찰 3건과 서로 다른 프로젝트 2개 이상, `P2`는 독립 근거, `P3`는 적용 조건·예외·행동 평가 통과가 필요하다. `M0`–`M8` 중 하나라도 필수 조건을 충족하지 못하면 해당 원칙을 스킬의 차단 규칙으로 승격하지 않는다.
+`P1` 이상은 검증된 직접 관찰 3건, 고유 프로젝트 3개, 서로 다른 영상 3편 이상, `P2`는 독립 근거, `P3`는 적용 조건·예외·행동 평가 통과가 필요하다. `M0`–`M8` 중 하나라도 필수 조건을 충족하지 못하면 해당 원칙을 스킬의 차단 규칙으로 승격하지 않는다.
 """
 
 
@@ -527,20 +553,26 @@ def atomic_write(path: Path, data: str) -> None:
             temporary.unlink(missing_ok=True)
 
 
+def validator_module():
+    spec = importlib.util.spec_from_file_location("madia_catalog_validator", VALIDATOR)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def publish_catalog(catalog: dict[str, Any]) -> None:
     encoded = json.dumps(catalog, ensure_ascii=False, indent=2) + "\n"
-    CATALOG.parent.mkdir(parents=True, exist_ok=True)
-    temporary: Path | None = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            "w", encoding="utf-8", dir=CATALOG.parent, delete=False
-        ) as handle:
-            handle.write(encoded)
-            temporary = Path(handle.name)
-        validate(temporary)
-    finally:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
+    errors = validator_module().validate_catalog(catalog, CATALOG.parent)
+    if errors:
+        contextual = []
+        for error in errors:
+            match = re.match(r"videos\[(\d+)\]", error)
+            if match:
+                video = catalog["videos"][int(match.group(1))]
+                error = f"{video.get('video_id', '<unknown>')}: {error}"
+            contextual.append(error)
+        raise ValueError("\n".join(contextual))
     summary = render_summary(catalog)
     previous = {
         path: path.read_text(encoding="utf-8") if path.exists() else None
@@ -559,24 +591,36 @@ def publish_catalog(catalog: dict[str, Any]) -> None:
 
 
 def main() -> int:
+    global CATALOG, SUMMARY
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="validate the committed snapshot without network access")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--check", action="store_true", help="validate the committed snapshot without network access")
+    modes.add_argument("--normalize", action="store_true", help="migrate schema and recompute inventory without discovery")
+    parser.add_argument("--catalog", type=Path, default=CATALOG)
     parser.add_argument("--as-of", default=date.today().isoformat())
     args = parser.parse_args()
+    CATALOG = args.catalog.resolve()
+    SUMMARY = CATALOG.with_suffix(".md")
     try:
         if args.check:
             validate(CATALOG)
             catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
             expected = render_summary(catalog)
             if not SUMMARY.exists() or SUMMARY.read_text(encoding="utf-8") != expected:
-                print(f"stale: {SUMMARY.relative_to(ROOT)}")
+                print(f"stale: {SUMMARY}")
                 return 1
             print("OK: Madia catalog snapshot and summary")
             return 0
-        catalog = build_catalog(args.as_of)
+        if args.normalize:
+            existing = load_existing()
+            if existing is None:
+                raise ValueError(f"catalog does not exist: {CATALOG}")
+            catalog = normalize_catalog(existing)
+        else:
+            catalog = build_catalog(args.as_of)
         publish_catalog(catalog)
         print(
-            f"updated: {CATALOG.relative_to(ROOT)} "
+            f"updated: {CATALOG} "
             f"({catalog['inventory']['discovered_unique_videos']} videos, "
             f"{catalog['inventory']['pending']} pending)"
         )

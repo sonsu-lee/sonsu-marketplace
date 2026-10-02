@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -173,9 +175,8 @@ class MadiaCatalogUpdateTests(unittest.TestCase):
             with (
                 mock.patch.object(MODULE, "CATALOG", catalog_path),
                 mock.patch.object(MODULE, "SUMMARY", summary_path),
-                mock.patch.object(MODULE, "validate", side_effect=ValueError("invalid candidate")),
             ):
-                with self.assertRaisesRegex(ValueError, "invalid candidate"):
+                with self.assertRaises(ValueError):
                     MODULE.publish_catalog({"invalid": True})
             self.assertEqual(catalog_path.read_text(encoding="utf-8"), "existing catalog\n")
             self.assertEqual(summary_path.read_text(encoding="utf-8"), "existing summary\n")
@@ -669,14 +670,35 @@ class MadiaCatalogUpdateTests(unittest.TestCase):
             with (
                 mock.patch.object(MODULE, "CATALOG", catalog_path),
                 mock.patch.object(MODULE, "SUMMARY", summary_path),
-                mock.patch.object(MODULE, "validate", return_value=None),
                 mock.patch.object(MODULE.os, "replace", side_effect=fail_summary_once),
                 mock.patch.object(MODULE, "render_summary", return_value="new summary\n"),
             ):
                 with self.assertRaisesRegex(OSError, "summary replace failed"):
-                    MODULE.publish_catalog({"inventory": {}})
+                    MODULE.publish_catalog(
+                        self.existing_catalog([MODULE.pending_video("oldvideo001", "Old")])
+                    )
             self.assertEqual(catalog_path.read_text(encoding="utf-8"), "existing catalog\n")
             self.assertEqual(summary_path.read_text(encoding="utf-8"), "existing summary\n")
+
+
+    def test_normalize_cli_preserves_queue_and_is_idempotent(self) -> None:
+        catalog = self.existing_catalog([MODULE.pending_video("oldvideo001", "Old")])
+        catalog["schema_version"] = "madia-design-practice-catalog-v1"
+        del catalog["videos"][0]["analysis_receipt"]
+        catalog["inventory"]["pending"] = 0
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "catalog.json"
+            path.write_text(json.dumps(catalog), encoding="utf-8")
+            command = [sys.executable, str(SCRIPT), "--normalize", "--catalog", str(path)]
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            first = path.read_bytes(), path.with_suffix(".md").read_bytes()
+            normalized = json.loads(first[0])
+            self.assertEqual(normalized["schema_version"], "madia-design-practice-catalog-v2")
+            self.assertEqual(normalized["videos"][0]["video_id"], "oldvideo001")
+            self.assertIsNone(normalized["videos"][0]["analysis_receipt"])
+            self.assertEqual(normalized["inventory"]["pending"], 1)
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            self.assertEqual(first, (path.read_bytes(), path.with_suffix(".md").read_bytes()))
 
 
 if __name__ == "__main__":
