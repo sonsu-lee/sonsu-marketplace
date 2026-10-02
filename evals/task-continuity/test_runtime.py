@@ -157,6 +157,39 @@ class RuntimeTests(unittest.TestCase):
             self.assertEqual(process.stderr.read(), "task-continuity: recovery record unavailable; no checkpoint context injected\n")
         self.assertFalse((self.work / ".sonsu").exists())
 
+    def test_hook_diagnostic_with_full_stderr_does_not_extend_deadline(self):
+        for input_state in ("open", "malformed"):
+            with self.subTest(input_state=input_state):
+                read_fd, write_fd = os.pipe()
+                try:
+                    os.set_blocking(write_fd, False)
+                    try:
+                        while True:
+                            os.write(write_fd, b"x" * 4096)
+                    except BlockingIOError:
+                        pass
+                    os.set_blocking(write_fd, True)
+                    started = time.monotonic()
+                    with subprocess.Popen([sys.executable, str(self.packages["engineering"]), "hook"],
+                                          stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                          stderr=write_fd, text=True, cwd=self.work, env=self.env) as process:
+                        try:
+                            if input_state == "malformed":
+                                process.stdin.write("not-json")
+                                process.stdin.close()
+                            process.wait(timeout=5)
+                        finally:
+                            if process.poll() is None:
+                                process.kill()
+                                process.wait()
+                        self.assertLess(time.monotonic() - started, 4)
+                        self.assertEqual(process.returncode, 0)
+                        self.assertEqual(process.stdout.read(), "")
+                    self.assertFalse((self.work / ".sonsu").exists())
+                finally:
+                    os.close(read_fd)
+                    os.close(write_fd)
+
     def test_hook_budget_observes_session_append_after_recovery_preparation(self):
         self.assertEqual(self.write().returncode, 0)
         before = self.path().read_bytes()

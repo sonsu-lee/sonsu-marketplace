@@ -515,7 +515,7 @@ def main():
         return 0
     except (ContinuityError, HookTimeout, OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as error:
         if args.command == "hook":
-            print("task-continuity: recovery record unavailable; no checkpoint context injected", file=sys.stderr)
+            best_effort_hook_output(2, "task-continuity: recovery record unavailable; no checkpoint context injected\n")
             return 0
         print("task-continuity: " + str(error), file=sys.stderr)
         return 1
