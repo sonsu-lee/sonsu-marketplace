@@ -1,5 +1,6 @@
 """Behavior tests for managed evidence DAGs, using the public CLI."""
 import concurrent.futures
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -8,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from types import SimpleNamespace
 import unittest
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'scripts/evidence-gates.py'
@@ -60,6 +62,14 @@ class ManagedGates(unittest.TestCase):
                                '--task-id', 'task', *args], input='' if data is None else json.dumps(data),
                               text=True, capture_output=True, env=call_env, timeout=15)
 
+    def stop_hook(self):
+        event = {'hook_event_name': 'Stop', 'session_id': 'controller', 'cwd': str(self.root),
+                 'permission_mode': 'default', 'stop_hook_active': False}
+        return subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), 'hook'],
+                              input=json.dumps(event), text=True, capture_output=True,
+                              env=dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1'),
+                              timeout=15)
+
     def ok(self, command, *args, data=None):
         result = self.call(command, *args, data=data)
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
@@ -67,6 +77,471 @@ class ManagedGates(unittest.TestCase):
 
     def init(self):
         return self.ok('init', data=self.config)
+
+    def test_hook_fails_open_for_identity_matched_incomplete_v2_state(self):
+        self.init()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = []
+        missing_config = dict(original)
+        missing_config.pop('config')
+        cases.append(missing_config)
+        missing_units = dict(original)
+        missing_units.pop('units')
+        cases.append(missing_units)
+        incomplete_config = dict(original, config={'schema_version': 2})
+        cases.append(incomplete_config)
+
+        for state in cases:
+            with self.subTest(state=sorted(state)):
+                state_path.write_text(json.dumps(state))
+                before = state_path.read_bytes()
+                event = {'hook_event_name': 'Stop', 'session_id': 'controller', 'cwd': str(self.root),
+                         'permission_mode': 'default', 'stop_hook_active': False}
+                result = subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), 'hook'],
+                                        input=json.dumps(event), text=True, capture_output=True,
+                                        env=dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1'),
+                                        timeout=15)
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, '')
+                self.assertEqual(result.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+                self.assertEqual(before, state_path.read_bytes())
+                cli = self.call('status')
+                self.assertEqual(cli.returncode, 2)
+                self.assertIn('evidence-gates:', cli.stderr)
+                self.assertNotIn('Traceback', cli.stderr)
+                self.assertEqual(before, state_path.read_bytes())
+
+    def test_hook_accepts_legacy_v2_state_without_optional_host(self):
+        self.init()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        state.pop('host')
+        state_path.write_text(json.dumps(state))
+        before = state_path.read_bytes()
+        event = {'hook_event_name': 'Stop', 'session_id': 'controller', 'cwd': str(self.root),
+                 'permission_mode': 'default', 'stop_hook_active': False}
+        result = subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), 'hook'],
+                                input=json.dumps(event), text=True, capture_output=True,
+                                env=dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1'),
+                                timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(set(json.loads(result.stdout)), {'systemMessage'})
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_hook_and_status_reject_incomplete_v2_unit_records(self):
+        self.init()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = []
+        cases.append(('empty unit', lambda state: state['units'].__setitem__('design', {})))
+        cases.append(('missing checks', lambda state: state['units']['design'].pop('checks')))
+        cases.append(('missing reviews', lambda state: state['units']['design'].pop('reviews')))
+        cases.append(('missing completions', lambda state: state['units']['design'].pop('completions')))
+        cases.append(('wrong checks type', lambda state: state['units']['design'].__setitem__('checks', [])))
+        cases.append(('corrupt closed value', lambda state: state.__setitem__('closed', 'corrupt')))
+        cases.append(('malformed completion receipt', lambda state: state['units']['design'].__setitem__('completions', [{}])))
+        cases.append(('malformed check receipt', lambda state: state['units']['design']['checks'].__setitem__('verify', [{}])))
+        cases.append(('malformed review receipt', lambda state: state['units']['design']['reviews'].__setitem__('final-review', [{}])))
+        cases.append(('invalid owner metadata', lambda state: state['units']['design'].__setitem__('owner', 'corrupt')))
+        cases.append(('invalid request metadata', lambda state: state.__setitem__('requests', [])))
+
+        runtime_spec = importlib.util.spec_from_file_location('evidence_gates_fixture', self.script)
+        runtime = importlib.util.module_from_spec(runtime_spec)
+        runtime_spec.loader.exec_module(runtime)
+        v2_spec = importlib.util.spec_from_file_location('evidence_gates_v2_fixture', self.script.parent / 'evidence_gates_v2.py')
+        v2 = importlib.util.module_from_spec(v2_spec)
+        v2_spec.loader.exec_module(v2)
+        v2.G = runtime
+        live_state = v2.load(self.root, 'task')
+        binding = v2.binding(self.root, live_state, live_state['config']['units'][0])
+        focused = {'attempt': 1, 'unit': 'design', 'gate': 'final-review', 'scope': 'focused',
+                   'binding': binding, 'files': {}, 'outcome': 'passed', 'raw': []}
+        cases.append(('focused review missing prior round',
+                      lambda state: state['units']['design']['reviews']['final-review'].append(focused)))
+
+        event = {'hook_event_name': 'Stop', 'session_id': 'controller', 'cwd': str(self.root),
+                 'permission_mode': 'default', 'stop_hook_active': False}
+        for label, corrupt in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                corrupt(state)
+                state_path.write_text(json.dumps(state))
+                before = state_path.read_bytes()
+                hook = subprocess.run([sys.executable, str(self.script), '--cwd', str(self.root), 'hook'],
+                                      input=json.dumps(event), text=True, capture_output=True,
+                                      env=dict(os.environ, CODEX_THREAD_ID='controller', PYTHONDONTWRITEBYTECODE='1'),
+                                      timeout=15)
+                self.assertEqual(hook.returncode, 0)
+                self.assertEqual(hook.stdout, '')
+                self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+                self.assertEqual(before, state_path.read_bytes())
+                status = self.call('status')
+                self.assertEqual(status.returncode, 2)
+                self.assertIn('evidence-gates:', status.stderr)
+                self.assertNotIn('Traceback', status.stderr)
+                self.assertEqual(before, state_path.read_bytes())
+
+    def test_empty_settled_receipt_files_cannot_report_ready(self):
+        self.init()
+        self.checked()
+        self.complete()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        unit_state = state['units']['design']
+        receipts = [unit_state['checks']['verify'][-1], unit_state['completions'][-1]]
+        evidence_files = {name for receipt in receipts for name in receipt['files']}
+        self.assertTrue(all(receipt['files'] for receipt in receipts))
+        for receipt in receipts:
+            receipt['files'] = {}
+        state_path.write_text(json.dumps(state))
+        for name in evidence_files:
+            (state_path.parent / name).unlink()
+        before = state_path.read_bytes()
+
+        status = self.call('status')
+        self.assertEqual(status.returncode, 2)
+        self.assertIn('evidence-gates:', status.stderr)
+        self.assertNotIn('Traceback', status.stderr)
+        self.assertEqual(before, state_path.read_bytes())
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertEqual(hook.stdout, '')
+        self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def assert_corrupt_state_rejected(self, state, *command):
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state_path.write_text(json.dumps(state))
+        before = state_path.read_bytes()
+        for args in [('status',), command] if command else [('status',)]:
+            result = self.call(*args)
+            self.assertEqual(result.returncode, 2, result.stderr + result.stdout)
+            self.assertEqual(result.stdout, '')
+            self.assertIn('evidence-gates:', result.stderr)
+            self.assertNotIn('Traceback', result.stderr)
+            self.assertEqual(before, state_path.read_bytes())
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0, hook.stderr)
+        self.assertEqual(hook.stdout, '')
+        self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_owner_requires_matching_latest_entry(self):
+        self.init()
+        self.enter()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = (
+            ('missing entry', lambda data: data.__setitem__('entries', [])),
+            ('wrong request', lambda data: data['owner'].__setitem__('request_id', 'another-entry')),
+            ('wrong context', lambda data: data['owner'].__setitem__('context', {})),
+            ('wrong unit', lambda data: data['entries'][-1].__setitem__('unit', 'another-unit')),
+        )
+        for label, corrupt in cases:
+            for command in [('run', '--unit', 'design', '--check', 'verify'),
+                            ('complete-unit', '--unit', 'design', '--request-id', 'complete-1')]:
+                with self.subTest(case=label, command=command[0]):
+                    state = json.loads(json.dumps(original))
+                    corrupt(state['units']['design'])
+                    self.assert_corrupt_state_rejected(state, *command)
+
+    def test_completion_acceptance_must_match_outcome(self):
+        self.init()
+        self.checked()
+        completed = self.complete()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        acceptance = {'human': 'Named owner', 'source': 'user message 42',
+                      'artifact': completed['binding']['artifact'], 'reason': 'Deferred validation'}
+        cases = (
+            ('passed with empty acceptance', {'outcome': 'passed', 'acceptance': {}}),
+            ('passed with complete acceptance', {'outcome': 'passed', 'acceptance': acceptance}),
+            ('accepted without acceptance', {'outcome': 'accepted_risk'}),
+            ('accepted with empty acceptance', {'outcome': 'accepted_risk', 'acceptance': {}}),
+            ('accepted with stale artifact', {'outcome': 'accepted_risk',
+                                            'acceptance': dict(acceptance, artifact='stale')}),
+        )
+        # Preserve completion evidence while removing the check evidence that
+        # inspect() must not bypass just because an acceptance key exists.
+        for name in original['units']['design']['checks']['verify'][-1]['files']:
+            (state_path.parent / name).unlink()
+        for label, fields in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                state['units']['design']['completions'][-1].update(fields)
+                self.assert_corrupt_state_rejected(state)
+
+    def test_settled_check_execution_must_match_outcome(self):
+        self.config['units'][0]['checks'][0]['argv'] = [sys.executable, '-c', 'raise SystemExit(7)']
+        self.init()
+        self.enter()
+        failed = self.call('run', '--unit', 'design', '--check', 'verify')
+        self.assertEqual(failed.returncode, 1, failed.stderr)
+        self.assertEqual(json.loads(failed.stdout)['outcome'], 'failed')
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        self.assertEqual(original['units']['design']['checks']['verify'][-1]['exit_code'], 7)
+        cases = (
+            ('failed promoted to passed', {'outcome': 'passed'}),
+            ('passed incomplete', {'outcome': 'passed', 'exit_code': 0, 'execution': 'incomplete'}),
+            ('passed missing code', {'outcome': 'passed', 'exit_code': None}),
+            ('passed boolean code', {'outcome': 'passed', 'exit_code': False}),
+            ('failed zero code', {'outcome': 'failed', 'exit_code': 0}),
+            ('settled missing invocation', {'invocation': {}}),
+        )
+        for label, fields in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                state['units']['design']['checks']['verify'][-1].update(fields)
+                self.assert_corrupt_state_rejected(state, 'complete-unit', '--unit', 'design',
+                                                   '--request-id', 'complete-1')
+
+    def test_pending_review_validates_requested_and_raw_fields(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.checked()
+        self.prepare()
+        self.assertEqual(self.record(1, 'first').returncode, 0)
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        self.assertFalse(self.ok('status')['ready'])  # Partial pending raw is valid.
+        cases = [('missing requested', lambda row: row.pop('requested')),
+                 ('invalid reviewer count', lambda row: row['requested'].__setitem__('reviewers', '5')),
+                 ('raw requested mismatch', lambda row: row['raw'][0].__setitem__('requested', {})),
+                 ('malformed observed', lambda row: row['raw'][0].__setitem__('observed', {})),
+                 ('malformed finding', lambda row: row['raw'][0].__setitem__('findings', [{}])),
+                 ('invalid execution', lambda row: row['raw'][0].__setitem__('execution', 'broken'))]
+        for key in ('run_id', 'execution', 'verdict', 'findings', 'observed', 'report', 'report_digest', 'requested'):
+            cases.append(('missing raw ' + key, lambda row, key=key: row['raw'][0].pop(key)))
+        for label, corrupt in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                corrupt(state['units']['design']['reviews']['final-review'][-1])
+                self.assert_corrupt_state_rejected(state, 'record-review', '--unit', 'design',
+                    '--gate', 'final-review', '--attempt', '1', '--reviewer-id', 'second',
+                    '--report', str(self.report))
+
+    def test_settled_adjudication_covers_each_raw_finding_once(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.checked()
+        self.prepare()
+        finding = {'id': 'f1', 'title': 'Issue', 'location': 'design.md:1',
+                   'evidence': 'contradicts contract', 'impact': 'wrong result'}
+        self.assertEqual(self.record(1, 'r1', [finding]).returncode, 0)
+        for n in range(2, 6):
+            self.assertEqual(self.record(1, 'r' + str(n)).returncode, 0)
+        decision = {'finding': 'r1:f1', 'decision': 'valid', 'blocking': False,
+                    'reason': 'Confirmed optional issue', 'evidence': 'contract.md:1'}
+        self.ok('adjudicate', '--unit', 'design', '--gate', 'final-review', '--attempt', '1',
+                data={'decisions': [decision]})
+        self.complete()
+        self.assertTrue(self.ok('status')['ready'])
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = (
+            ('missing finding decision', []),
+            ('duplicate finding decision', [decision, decision]),
+            ('unknown finding', [dict(decision, finding='r1:unknown')]),
+            ('missing reason', [{key: value for key, value in decision.items() if key != 'reason'}]),
+            ('invalid duplicate target', [{'finding': 'r1:f1', 'decision': 'duplicate',
+                                          'duplicate_of': 'r1:unknown', 'reason': 'Same', 'evidence': 'report'}]),
+            ('outcome disagrees with blocking', [dict(decision, blocking=True)]),
+        )
+        for label, decisions in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                state['units']['design']['reviews']['final-review'][-1]['adjudication']['decisions'] = decisions
+                self.assert_corrupt_state_rejected(state)
+        state = json.loads(json.dumps(original))
+        state['units']['design']['reviews']['final-review'][-1]['adjudication']['resolutions'] = [
+            {'finding': 'r1:f1', 'reason': 'Claimed resolved', 'evidence': 'design.md:1'}]
+        self.assert_corrupt_state_rejected(state)
+
+    def test_empty_pending_and_recovered_check_files_remain_valid(self):
+        self.init()
+        self.enter()
+        runtime_spec = importlib.util.spec_from_file_location('pending_evidence_gates_fixture', self.script)
+        runtime = importlib.util.module_from_spec(runtime_spec)
+        runtime_spec.loader.exec_module(runtime)
+        v2_spec = importlib.util.spec_from_file_location('pending_evidence_gates_v2_fixture', self.script.parent / 'evidence_gates_v2.py')
+        v2 = importlib.util.module_from_spec(v2_spec)
+        v2_spec.loader.exec_module(v2)
+        v2.G = runtime
+
+        class BeforeExecute(Exception):
+            pass
+
+        def stop_before_execute(*_args):
+            raise BeforeExecute()
+
+        v2.execute_check = stop_before_execute
+        with self.assertRaises(BeforeExecute):
+            v2.run(self.root, SimpleNamespace(task_id='task', unit='design', check='verify', timeout=15))
+
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        pending = json.loads(state_path.read_text())['units']['design']['checks']['verify'][-1]
+        self.assertEqual((pending['outcome'], pending['files']), ('pending', {}))
+        self.assertFalse(self.ok('status')['ready'])
+        before = state_path.read_bytes()
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertNotIn('observation unavailable', hook.stdout)
+        self.assertEqual(before, state_path.read_bytes())
+
+        self.ok('abandon', '--unit', 'design')
+        recovered = json.loads(state_path.read_text())['units']['design']['checks']['verify'][-1]
+        self.assertEqual((recovered['outcome'], recovered['files']), ('inconclusive', {}))
+        self.assertEqual(recovered['recovery']['process_group'], 'not_started')
+        self.assertFalse(self.ok('status')['ready'])
+        before = state_path.read_bytes()
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertEqual(hook.stderr, '')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_red_team_focused_history_is_rejected_but_produced_history_passes(self):
+        self.config['units'][0]['review'] = 'red-team'
+        self.init()
+        self.checked()
+        self.prepare()
+        self.review_pass()
+        for attempt in range(1, 4):
+            self.prepare('red-team')
+            self.review_pass(attempt, 'red-team', 1)
+        self.complete()
+        self.assertTrue(self.ok('status')['ready'])
+
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        latest = state['units']['design']['reviews']['red-team'][-1]
+        latest['scope'] = 'focused'
+        latest['prior_round'] = 2
+        state_path.write_text(json.dumps(state))
+        before = state_path.read_bytes()
+        status = self.call('status')
+        self.assertEqual(status.returncode, 2)
+        self.assertNotIn('Traceback', status.stderr)
+        self.assertEqual(before, state_path.read_bytes())
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertEqual(hook.stdout, '')
+        self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_corrupt_focused_history_is_rejected_and_empty_history_is_valid(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.checked()
+        self.prepare()
+        self.review_pass()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        state['units']['design']['reviews']['final-review'][0]['adjudication'].pop('decisions')
+        state_path.write_text(json.dumps(state))
+        before = state_path.read_bytes()
+        focused = self.call('prepare-review', '--unit', 'design', '--gate', 'final-review',
+                            '--package', str(self.report),
+                            data={'scope': 'focused', 'prior_round': 1, 'impact_assessment': 'Local correction'})
+        self.assertEqual(focused.returncode, 2)
+        self.assertNotIn('Traceback', focused.stderr)
+        self.assertEqual(before, state_path.read_bytes())
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_raw_reviewer_identity_is_validated_before_resume(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.checked()
+        self.prepare()
+        self.review_pass()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        state['units']['design']['reviews']['final-review'][0]['raw'][0].pop('reviewer_id')
+        state_path.write_text(json.dumps(state))
+        before = state_path.read_bytes()
+        resumed = self.call('init', data=self.config)
+        self.assertEqual(resumed.returncode, 2)
+        self.assertNotIn('Traceback', resumed.stderr)
+        self.assertEqual(before, state_path.read_bytes())
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0)
+        self.assertEqual(hook.stdout, '')
+        self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_focused_history_validates_decision_and_resolution_fields(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.checked()
+        self.prepare()
+        finding = {'id': 'f1', 'title': 'Issue', 'location': 'design.md:1',
+                   'evidence': 'contradicts contract', 'impact': 'wrong result'}
+        self.assertEqual(self.record(1, 'r1', [finding]).returncode, 0)
+        for n in range(2, 6):
+            self.assertEqual(self.record(1, 'r' + str(n)).returncode, 0)
+        self.ok('adjudicate', '--unit', 'design', '--gate', 'final-review', '--attempt', '1',
+                data={'decisions': [{'finding': 'r1:f1', 'decision': 'valid', 'blocking': True,
+                                     'reason': 'Confirmed', 'evidence': 'contract.md:1'}]})
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = (
+            ('missing decisions', lambda row: row['adjudication'].pop('decisions')),
+            ('missing decision field', lambda row: row['adjudication']['decisions'][0].pop('decision')),
+            ('malformed resolution', lambda row: row['adjudication'].__setitem__('resolutions', [{}])),
+        )
+        for label, corrupt in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                corrupt(state['units']['design']['reviews']['final-review'][0])
+                state_path.write_text(json.dumps(state))
+                before = state_path.read_bytes()
+                focused = self.call('prepare-review', '--unit', 'design', '--gate', 'final-review',
+                                    '--package', str(self.report),
+                                    data={'scope': 'focused', 'prior_round': 1, 'impact_assessment': 'Local correction'})
+                self.assertEqual(focused.returncode, 2)
+                self.assertNotIn('Traceback', focused.stderr)
+                self.assertEqual(before, state_path.read_bytes())
+
+    def test_request_replay_matches_historical_receipts_after_newer_work(self):
+        self.init()
+        first_entry = self.enter()
+        self.ok('abandon', '--unit', 'design')
+        self.enter(request='enter-2')
+        self.ok('run', '--unit', 'design', '--check', 'verify')
+        first_completion = self.complete()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        before = state_path.read_bytes()
+
+        old_entry = self.call('enter', '--unit', 'design', '--request-id', 'enter-1')
+        self.assertEqual(old_entry.returncode, 0, old_entry.stderr)
+        self.assertEqual(json.loads(old_entry.stdout), first_entry)
+        old_completion = self.call('complete-unit', '--unit', 'design', '--request-id', 'complete-1')
+        self.assertEqual(old_completion.returncode, 0, old_completion.stderr)
+        self.assertEqual(json.loads(old_completion.stdout), first_completion)
+        self.assertEqual(before, state_path.read_bytes())
+
+        cases = (
+            ('enter-1', ('enter', '--unit', 'design', '--request-id', 'enter-1')),
+            ('complete-1', ('complete-unit', '--unit', 'design', '--request-id', 'complete-1')),
+        )
+        for request_id, command in cases:
+            with self.subTest(request_id=request_id):
+                state = json.loads(json.dumps(original))
+                state['requests'][request_id]['receipt'] = {'corrupt': True}
+                state_path.write_text(json.dumps(state))
+                corrupted = state_path.read_bytes()
+                result = self.call(*command)
+                self.assertEqual(result.returncode, 2)
+                self.assertEqual(result.stdout, '')
+                self.assertIn('evidence-gates:', result.stderr)
+                self.assertNotIn('Traceback', result.stderr)
+                self.assertEqual(corrupted, state_path.read_bytes())
 
     def enter(self, unit='design', request='enter-1'):
         return self.ok('enter', '--unit', unit, '--request-id', request)
@@ -408,8 +883,38 @@ class ManagedGates(unittest.TestCase):
         status = self.ok('status')
         self.assertTrue(status['complete'])
         self.assertFalse(status['ready'])
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = (
+            ('unknown receipt', lambda row: row['inherited_acceptances'][0].__setitem__('receipt_id', 'unknown')),
+            ('wrong digest', lambda row: row['inherited_acceptances'][0].__setitem__('receipt_digest', 'wrong')),
+            ('wrong binding', lambda row: row['binding']['context']['dependencies'].__setitem__('design', 'wrong')),
+            ('duplicate inheritance', lambda row: row['inherited_acceptances'].append(dict(row['inherited_acceptances'][0]))),
+        )
+        for label, corrupt in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                corrupt(state['units']['plan']['completions'][-1])
+                self.assert_corrupt_state_rejected(state)
+        state_path.write_text(json.dumps(original))
         self.assertNotEqual(self.call('close').returncode, 0)
         self.assertEqual(self.ok('close', '--outcome', 'accepted_risk')['closed'], 'accepted_risk')
+
+    def test_inherited_risk_requires_actual_accepted_dependency_receipt(self):
+        self.config['units'].append(self.unit('plan', ['design']))
+        self.init()
+        self.checked()
+        self.complete()
+        self.checked('plan')
+        self.complete('plan', 'plan-complete')
+        self.assertTrue(self.ok('status')['ready'])
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        completion = state['units']['plan']['completions'][-1]
+        completion['outcome'] = 'accepted_risk'
+        completion['inherited_acceptances'] = [{'unit': 'design', 'receipt_id': 'complete-1',
+            'receipt_digest': completion['binding']['context']['dependencies']['design']}]
+        self.assert_corrupt_state_rejected(state)
 
     def test_workspace_source_manifests_and_explicit_probe_define_snapshot(self):
         impl = self.base / 'implementation'
@@ -549,6 +1054,13 @@ class ManagedGates(unittest.TestCase):
         self.assertTrue(self.ok('status')['ready'])
         state = json.loads((self.root / '.engineering/gates/tasks/task/state.json').read_text())
         self.assertEqual(state['units']['design']['reviews']['final-review'][0]['outcome'], 'failed')
+        resolution = state['units']['design']['reviews']['final-review'][1]['adjudication']['resolutions'][0]
+        for resolutions in ([], [dict(resolution, finding='unknown:bug')],
+                            [resolution, resolution], [dict(resolution, reason='')]):
+            with self.subTest(resolutions=resolutions):
+                corrupted = json.loads(json.dumps(state))
+                corrupted['units']['design']['reviews']['final-review'][1]['adjudication']['resolutions'] = resolutions
+                self.assert_corrupt_state_rejected(corrupted)
 
     def start_long_check(self, script):
         self.config['units'][0]['checks'][0]['argv'] = [sys.executable, '-c', script]

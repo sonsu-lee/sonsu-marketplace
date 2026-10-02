@@ -600,6 +600,7 @@ def observe_hook():
     # Only registered tasks write observations; status never mutates receipts.
     with lock(root):
         raw = read_json(task_path(root, identifier(current["task_id"])))
+        require(isinstance(raw, dict), "invalid task state")
         managed = raw.get("schema_version") == 2
         if managed:
             import evidence_gates_v2
@@ -670,8 +671,12 @@ def main():
             supplied = parse_json(sys.stdin.buffer.read(MAX_JSON + 1)) if args.command in ("init", "revise") else None
             if args.command in ("init", "revise"):
                 require(isinstance(supplied, dict), "configuration must be a JSON object")
-            managed = supplied.get("schema_version") == 2 if supplied is not None else (
-                read_json(task_path(root, args.task_id)).get("schema_version") == 2)
+            if supplied is None:
+                existing = read_json(task_path(root, args.task_id))
+                require(isinstance(existing, dict), "invalid task state")
+            else:
+                existing = supplied
+            managed = existing.get("schema_version") == 2
             if managed:
                 import evidence_gates_v2
                 result = evidence_gates_v2.dispatch(sys.modules[__name__], root, args, supplied)
