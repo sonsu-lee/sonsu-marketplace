@@ -88,6 +88,25 @@ effort를 명시하지 않은 지원 모델의 하위 에이전트만 메인 세
 별개이며 Git 작업·PR 생성과 제목/본문 작성은 요청한 범위에서 Workflow와 연결합니다.
 기존 PR의 통합 리뷰 게시·재조회는 Engineering의 PR 리뷰 계약이 소유합니다.
 
+### Codex 기본 모델 전환
+
+marketplace 소스 저장소에서 기존 Sol/Astra 역할을 한 번에 전환하고 Engineering·Prompting의
+프로필 사본을 다시 생성합니다. 선택한 값은 `shared/agent-policy/profiles.json`에 저장되어
+다음 일반 생성에서도 유지됩니다.
+
+```bash
+python3 scripts/render-agent-policy.py --codex-primary-model gpt-6-astra
+# GPT-6.1 Sol로 전환
+python3 scripts/render-agent-policy.py --codex-primary-model gpt-6.1-sol
+```
+
+현재 전환 대상은 `implementation`, `complex_design`, `senior_review`, `adjudication`,
+`complex_adjudication`, `red_team`입니다. Luna 역할과 effort·인원, Claude Code·omp 정책은 유지합니다.
+`--check`는 읽기 전용이며 전환 옵션과 함께 사용할 수 없습니다.
+릴리스할 때 정책 version·확인 날짜와 Engineering·Prompting 패키지 버전을 갱신하고,
+호환 메타데이터도 재생성합니다. 설치본에는 marketplace 업데이트 후 새 작업부터 적용합니다.
+이 명령은 배포·설치 캐시·현재 root의 모델 설정을 변경하지 않습니다.
+
 ## 검증
 
 ```bash

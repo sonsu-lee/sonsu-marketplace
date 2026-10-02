@@ -1,7 +1,7 @@
 {
-  "version": 5,
-  "verified_at": "2026-10-01",
-  "evaluation_status": "User-selected PR default is one fresh Luna xhigh reviewer per round with evidence-based escalation; non-PR role counts remain unchanged; effective native model selection and comparative review quality are not verified",
+  "version": 6,
+  "verified_at": "2026-10-02",
+  "evaluation_status": "User-selected Codex primary models are recorded in roles; PR default remains one fresh Luna xhigh reviewer per round with evidence-based escalation; role efforts and counts remain unchanged; effective native model selection and comparative quality are not verified",
   "sources": [
     "https://developers.openai.com/api/docs/guides/latest-model#prompting-best-practices",
     "https://developers.openai.com/api/docs/guides/reasoning#reasoning-effort",
@@ -14,13 +14,13 @@
     "extraction": {"model": "gpt-6-luna", "effort": "medium", "count": 1},
     "exploration": {"model": "gpt-6-luna", "effort": "medium", "count": 1},
     "localized_implementation": {"model": "gpt-6-luna", "effort": "high", "count": 1},
-    "implementation": {"model": "gpt-6.1-sol", "effort": "high", "count": 1},
-    "complex_design": {"model": "gpt-6.1-sol", "effort": "high", "count": 1},
+    "implementation": {"model": "gpt-6-astra", "effort": "high", "count": 1},
+    "complex_design": {"model": "gpt-6-astra", "effort": "high", "count": 1},
     "general_review": {"model": "gpt-6-luna", "effort": "xhigh", "count": 5},
     "focused_review": {"model": "gpt-6-luna", "effort": "xhigh", "count": 1},
-    "senior_review": {"model": "gpt-6.1-sol", "effort": "xhigh", "count": 1},
-    "adjudication": {"model": "gpt-6.1-sol", "effort": "high", "count": 1},
-    "complex_adjudication": {"model": "gpt-6.1-sol", "effort": "high", "count": 1},
-    "red_team": {"model": "gpt-6.1-sol", "effort": "high", "count": 1}
+    "senior_review": {"model": "gpt-6-astra", "effort": "xhigh", "count": 1},
+    "adjudication": {"model": "gpt-6-astra", "effort": "high", "count": 1},
+    "complex_adjudication": {"model": "gpt-6-astra", "effort": "high", "count": 1},
+    "red_team": {"model": "gpt-6-astra", "effort": "high", "count": 1}
   }
 }
