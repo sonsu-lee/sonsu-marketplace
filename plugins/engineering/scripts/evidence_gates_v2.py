@@ -184,6 +184,7 @@ def load(root, task):
     units = state['units']
     need(isinstance(units, dict) and set(units) == set(definitions), 'v2 unit state does not match configuration')
     common_receipt = {'binding', 'files', 'outcome'}
+    reviewers, runs = set(), set()
 
     def receipt_rows(rows, outcomes, extra=(), allow_empty_files=False, check_receipts=False):
         need(isinstance(rows, list), 'invalid v2 receipt history')
@@ -205,12 +206,20 @@ def load(root, task):
                      'v2 receipt is missing required evidence files')
             if 'attempt' in extra:
                 need(type(row['attempt']) is int and row['attempt'] > 0, 'invalid v2 receipt attempt')
-            if check_receipts and row['outcome'] == 'pending':
+            if check_receipts:
                 invocation = row.get('invocation')
-                need(row.get('execution') == 'incomplete' and isinstance(invocation, dict) and
+                need(row.get('execution') in ('complete', 'incomplete') and isinstance(invocation, dict) and
                      {'id', 'owner_pid', 'lease', 'process', 'log', 'scope'} <= set(invocation) and
                      all(isinstance(invocation[key], str) for key in ('id', 'lease', 'process', 'log', 'scope')) and
-                     type(invocation['owner_pid']) is int, 'invalid pending check invocation')
+                     type(invocation['owner_pid']) is int, 'invalid check invocation')
+                exit_code = row.get('exit_code')
+                need(exit_code is None or type(exit_code) is int, 'invalid check exit code')
+                if row['outcome'] == 'pending':
+                    need(row['execution'] == 'incomplete', 'pending check execution must be incomplete')
+                if row['outcome'] in ('passed', 'failed'):
+                    need(row['execution'] == 'complete' and type(exit_code) is int and
+                         (exit_code == 0) == (row['outcome'] == 'passed'),
+                         'settled check outcome does not match execution')
 
     for name, definition in definitions.items():
         data = units[name]
@@ -222,6 +231,26 @@ def load(root, task):
              'invalid v2 unit owner')
         receipt_rows(data['entries'], ('entered',), {'receipt_id', 'unit'})
         receipt_rows(data['completions'], ('passed', 'accepted_risk'), {'receipt_id', 'unit'})
+        for row in data['entries'] + data['completions']:
+            G.identifier(row['receipt_id'])
+            need(row['unit'] == name, 'unit receipt identity mismatch')
+        if owner is not None:
+            need(data['entries'] and owner['request_id'] == data['entries'][-1]['receipt_id'] and
+                 owner['context'] == data['entries'][-1]['binding']['context'],
+                 'unit owner does not match latest entry receipt')
+        for row in data['completions']:
+            inherited = row.get('inherited_acceptances', [])
+            need(isinstance(inherited, list) and all(
+                isinstance(r, dict) and {'unit', 'receipt_id', 'receipt_digest'} <= set(r) and
+                isinstance(r['unit'], str) and r['unit'] in definition['needs'] and
+                all(isinstance(r[key], str) and r[key].strip() for key in ('receipt_id', 'receipt_digest'))
+                for r in inherited), 'invalid inherited acceptance metadata')
+            if row['outcome'] == 'passed':
+                need('acceptance' not in row and not inherited, 'passed completion cannot contain acceptance')
+            elif 'acceptance' in row:
+                acceptance({'outcome': 'accepted_risk', 'acceptance': row['acceptance']}, row['binding'])
+            else:
+                need(inherited, 'accepted_risk completion requires acceptance metadata')
         check_ids = {check['id'] for check in definition['checks']}
         need(isinstance(data['checks'], dict) and set(data['checks']) == check_ids,
              'v2 check state does not match configuration')
@@ -235,11 +264,27 @@ def load(root, task):
                          {'attempt', 'unit', 'gate', 'scope', 'raw'})
             for index, row in enumerate(rows, 1):
                 need(row['gate'] == gate and row['unit'] == name and row['attempt'] == index and
-                     row['scope'] in ('full', 'focused') and isinstance(row['raw'], list) and
-                     all(isinstance(raw, dict) and isinstance(raw.get('reviewer_id'), str)
-                         for raw in row['raw']), 'invalid v2 review receipt')
+                     row['scope'] in ('full', 'focused') and isinstance(row['raw'], list),
+                     'invalid v2 review receipt')
+                requested = row.get('requested')
+                need(isinstance(requested, dict) and set(requested) == {'model', 'effort', 'reviewers'},
+                     'invalid requested review profile')
+                profile_validate({'model': requested['model'], 'effort': requested['effort'],
+                                  'count': requested['reviewers']})
+                need(len(row['raw']) <= requested['reviewers'], 'too many raw reviewer records')
                 for raw in row['raw']:
-                    G.identifier(raw['reviewer_id'])
+                    fields = raw_review_fields(gate)
+                    need(isinstance(raw, dict) and fields | {'reviewer_id', 'report', 'report_digest', 'requested'} <= set(raw),
+                         'invalid stored raw review fields')
+                    validate_raw_review({key: raw[key] for key in fields}, gate)
+                    reviewer, run = G.identifier(raw['reviewer_id']), G.identifier(raw['run_id'])
+                    need(reviewer not in state['sessions'] and reviewer not in reviewers and run not in runs,
+                         'reviewers require distinct fresh runs and identities')
+                    reviewers.add(reviewer)
+                    runs.add(run)
+                    need(raw['requested'] == requested and isinstance(raw['report'], str) and
+                         isinstance(raw['report_digest'], str) and raw['report'] in row['files'] and
+                         row['files'][raw['report']] == raw['report_digest'], 'invalid stored raw review evidence')
                 if gate == 'red-team':
                     need(row['scope'] == 'full', 'red-team review scope must be full')
                 if row['scope'] == 'focused':
@@ -249,24 +294,33 @@ def load(root, task):
                     need(isinstance(row.get('normal_review'), str), 'invalid red-team review reference')
                 if row['outcome'] in ('passed', 'failed'):
                     need('adjudication' in row, 'settled review is missing adjudication')
+                    validate_reviewers(row)
                 if 'adjudication' in row:
                     adjudication = row['adjudication']
-                    need(isinstance(adjudication, dict) and isinstance(adjudication.get('decisions'), list),
-                         'invalid review adjudication')
-                    resolutions = adjudication.get('resolutions', [])
-                    need(isinstance(resolutions, list) and all(
-                        isinstance(resolution, dict) and {'finding', 'reason', 'evidence'} <= set(resolution) and
-                        all(isinstance(resolution[key], str) for key in ('finding', 'reason', 'evidence'))
-                        for resolution in resolutions), 'invalid review resolutions')
-                    for decision in adjudication['decisions']:
-                        need(isinstance(decision, dict) and isinstance(decision.get('finding'), str) and
-                             decision.get('decision') in ('valid', 'dismissed', 'duplicate'),
-                             'invalid review decision')
-                        if decision['decision'] == 'valid':
-                            need(type(decision.get('blocking')) is bool, 'invalid review blocking decision')
+                    decisions = adjudication_decisions(row['raw'], adjudication)
+                    adjudication_resolutions(data, row, adjudication)
+                    outcome = 'failed' if any(d['decision'] == 'valid' and d['blocking']
+                                              for d in decisions.values()) else 'passed'
+                    need(row['outcome'] == outcome, 'review outcome does not match adjudication')
                 if gate == 'final-review' and row['scope'] == 'focused':
                     need(rows[row['prior_round'] - 1]['scope'] == 'full',
                          'focused review must refer to a full review')
+    # Resolve cross-unit references only after all receipt histories are validated.
+    # Historical completions bind the dependency receipt current at their creation.
+    for data in units.values():
+        for row in data['completions']:
+            inherited = row.get('inherited_acceptances', [])
+            need(len({r['unit'] for r in inherited}) == len(inherited), 'duplicate inherited acceptance')
+            for reference in inherited:
+                dependencies = row['binding']['context'].get('dependencies')
+                need(isinstance(dependencies, dict) and
+                     dependencies.get(reference['unit']) == reference['receipt_digest'],
+                     'inherited acceptance does not match dependency binding')
+                need(any(receipt['outcome'] == 'accepted_risk' and
+                         receipt['receipt_id'] == reference['receipt_id'] and
+                         G.digest(G.encode(receipt)) == reference['receipt_digest']
+                         for receipt in units[reference['unit']]['completions']),
+                     'inherited acceptance does not match accepted dependency receipt')
     return state
 
 
@@ -1041,23 +1095,18 @@ def prepare_frozen(root, state, args, body, u, data, b, rows, scope, normal, pri
     return row
 
 
-def record(root, state, args, body):
-    u, data = active(root, state, args.unit)
-    row = review_pending(data, args)
-    b = binding(root, state, u)
-    need(review_current(root, state, row, b), 'review reservation stale')
-    need(len(row['raw']) < row['requested']['reviewers'], 'all reviewer slots already recorded')
-    reviewer = G.identifier(args.reviewer_id)
-    need(reviewer not in state['sessions'], 'reviewer cannot be controller')
+def raw_review_fields(gate):
     fields = {'run_id', 'execution', 'verdict', 'findings', 'observed'}
-    if args.gate == 'red-team':
+    if gate == 'red-team':
         fields.add('challenge_verdict')
-    need(set(body) == fields, 'invalid raw review fields')
-    if args.gate == 'red-team':
+    return fields
+
+
+def validate_raw_review(body, gate):
+    need(isinstance(body, dict) and set(body) == raw_review_fields(gate), 'invalid raw review fields')
+    if gate == 'red-team':
         need(body['challenge_verdict'] in ('survives_challenge', 'invalidated', 'inconclusive', 'blocked'), 'invalid challenge verdict')
-    run_id = G.identifier(body['run_id'])
-    all_raw = [r for d in state['units'].values() for rs in d['reviews'].values() for review in rs for r in review['raw']]
-    need(all(r['run_id'] != run_id and r['reviewer_id'] != reviewer for r in all_raw), 'reviewers require distinct fresh runs and identities')
+    G.identifier(body['run_id'])
     need(body['execution'] in ('complete', 'incomplete') and body['verdict'] in ('passed', 'failed', 'inconclusive', 'blocked'), 'invalid raw verdict')
     observed = body['observed']
     need(isinstance(observed, dict) and set(observed) == {'model', 'effort'}, 'record observed model/effort or unknown')
@@ -1072,8 +1121,77 @@ def record(root, state, args, body):
         for key in ('title', 'location', 'evidence', 'impact'):
             text(finding[key], key)
     need(len(ids) == len(set(ids)), 'duplicate finding ID')
-    if args.gate == 'red-team' and body['challenge_verdict'] == 'invalidated':
+    if gate == 'red-team' and body['challenge_verdict'] == 'invalidated':
         need(findings, 'invalidated challenge requires counterexample findings')
+
+
+def validate_reviewers(row):
+    need(len(row['raw']) == row['requested']['reviewers'], 'missing reviewer evidence')
+    need(all(r['execution'] == 'complete' and r['verdict'] in ('passed', 'failed') for r in row['raw']), 'incomplete or inconclusive reviewer blocks adjudication')
+    need(all(r['observed'][k] in ('unknown', row['requested'][k]) or (k == 'effort' and row['requested'][k] == 'inherit')
+             for r in row['raw'] for k in ('model', 'effort')), 'observed reviewer configuration mismatches request')
+    if row['gate'] == 'red-team':
+        need(all(r['challenge_verdict'] in ('survives_challenge', 'invalidated') for r in row['raw']), 'inconclusive or blocked challenge prevents adjudication')
+    need(all(r['verdict'] != 'failed' or r['findings'] for r in row['raw']), 'failed verdict lacks finding evidence')
+
+
+def adjudication_resolutions(data, row, body):
+    resolutions = body.get('resolutions', [])
+    need(isinstance(resolutions, list), 'invalid resolution evidence')
+    expected_resolutions = set()
+    if row['scope'] == 'focused':
+        chain = focused_chain(data, row['prior_round'], row['binding']['context'], row['attempt'])
+        expected_resolutions = unresolved_findings(chain)
+    seen_resolutions = set()
+    for resolution in resolutions:
+        need(isinstance(resolution, dict) and set(resolution) == {'finding', 'reason', 'evidence'}, 'invalid prior finding resolution')
+        key = resolution['finding']
+        need(isinstance(key, str) and key in expected_resolutions and key not in seen_resolutions, 'unknown or duplicate prior finding resolution')
+        text(resolution['reason'], 'resolution reason')
+        text(resolution['evidence'], 'current artifact resolution evidence')
+        seen_resolutions.add(key)
+    need(seen_resolutions == expected_resolutions, 'every prior blocking finding requires current artifact resolution evidence')
+
+
+def adjudication_decisions(raw, body):
+    findings = {r['reviewer_id'] + ':' + f['id']: f for r in raw for f in r['findings']}
+    need(isinstance(body, dict) and {'decisions'} <= set(body) <= {'decisions', 'resolutions'} and isinstance(body['decisions'], list), 'invalid adjudication fields')
+    decisions = {}
+    for d in body['decisions']:
+        need(isinstance(d, dict) and set(d) <= {'finding', 'decision', 'reason', 'evidence', 'duplicate_of', 'blocking'} and
+             {'finding', 'decision', 'reason', 'evidence'} <= set(d), 'invalid finding decision')
+        key = d['finding']
+        need(isinstance(key, str) and key in findings and key not in decisions, 'unknown or duplicate finding decision')
+        need(d['decision'] in ('valid', 'dismissed', 'duplicate'), 'invalid adjudication decision')
+        if d['decision'] == 'valid':
+            need(type(d.get('blocking')) is bool, 'valid finding requires explicit blocking boolean')
+        else:
+            need('blocking' not in d, 'blocking applies only to valid findings')
+        text(d['reason'], 'decision reason')
+        text(d['evidence'], 'validation evidence')
+        decisions[key] = d
+    need(set(decisions) == set(findings), 'each finding requires separate controller adjudication')
+    for key, d in decisions.items():
+        if d['decision'] == 'duplicate':
+            target = d.get('duplicate_of')
+            need(isinstance(target, str) and target in decisions and target != key and decisions[target]['decision'] != 'duplicate', 'duplicate must reference a distinct adjudicated primary finding')
+        else:
+            need('duplicate_of' not in d, 'duplicate_of only allowed for duplicates')
+    return decisions
+
+
+def record(root, state, args, body):
+    u, data = active(root, state, args.unit)
+    row = review_pending(data, args)
+    b = binding(root, state, u)
+    need(review_current(root, state, row, b), 'review reservation stale')
+    need(len(row['raw']) < row['requested']['reviewers'], 'all reviewer slots already recorded')
+    reviewer = G.identifier(args.reviewer_id)
+    need(reviewer not in state['sessions'], 'reviewer cannot be controller')
+    validate_raw_review(body, args.gate)
+    run_id = G.identifier(body['run_id'])
+    all_raw = [r for d in state['units'].values() for rs in d['reviews'].values() for review in rs for r in review['raw']]
+    need(all(r['run_id'] != run_id and r['reviewer_id'] != reviewer for r in all_raw), 'reviewers require distinct fresh runs and identities')
     report = G.read_file(Path(args.report).absolute(), G.MAX_REPORT)
     need(report.strip(), 'empty reviewer report')
     name = args.unit + '-' + args.gate + '-' + str(args.attempt) + '-' + reviewer + '.md'
@@ -1090,51 +1208,10 @@ def adjudicate(root, state, args, body):
     u, data = active(root, state, args.unit)
     row = review_pending(data, args)
     need(review_current(root, state, row, binding(root, state, u)), 'review reservation stale')
-    need(len(row['raw']) == row['requested']['reviewers'], 'missing reviewer evidence')
-    need(all(r['execution'] == 'complete' and r['verdict'] in ('passed', 'failed') for r in row['raw']), 'incomplete or inconclusive reviewer blocks adjudication')
-    need(all(r['observed'][k] in ('unknown', row['requested'][k]) or (k == 'effort' and row['requested'][k] == 'inherit')
-             for r in row['raw'] for k in ('model', 'effort')), 'observed reviewer configuration mismatches request')
-    if args.gate == 'red-team':
-        need(all(r['challenge_verdict'] in ('survives_challenge', 'invalidated') for r in row['raw']), 'inconclusive or blocked challenge prevents adjudication')
-    findings = {r['reviewer_id'] + ':' + f['id']: f for r in row['raw'] for f in r['findings']}
-    need(all(r['verdict'] != 'failed' or r['findings'] for r in row['raw']), 'failed verdict lacks finding evidence')
+    validate_reviewers(row)
     need(isinstance(body, dict) and {'decisions'} <= set(body) <= {'decisions', 'resolutions'} and isinstance(body['decisions'], list), 'invalid adjudication fields')
-    resolutions = body.get('resolutions', [])
-    need(isinstance(resolutions, list), 'invalid resolution evidence')
-    expected_resolutions = set()
-    if row['scope'] == 'focused':
-        chain = focused_chain(data, row['prior_round'], row['binding']['context'], row['attempt'])
-        expected_resolutions = unresolved_findings(chain)
-    seen_resolutions = set()
-    for resolution in resolutions:
-        need(isinstance(resolution, dict) and set(resolution) == {'finding', 'reason', 'evidence'}, 'invalid prior finding resolution')
-        key = resolution['finding']
-        need(key in expected_resolutions and key not in seen_resolutions, 'unknown or duplicate prior finding resolution')
-        text(resolution['reason'], 'resolution reason')
-        text(resolution['evidence'], 'current artifact resolution evidence')
-        seen_resolutions.add(key)
-    need(seen_resolutions == expected_resolutions, 'every prior blocking finding requires current artifact resolution evidence')
-    decisions = {}
-    for d in body['decisions']:
-        need(isinstance(d, dict) and set(d) <= {'finding', 'decision', 'reason', 'evidence', 'duplicate_of', 'blocking'} and
-             {'finding', 'decision', 'reason', 'evidence'} <= set(d), 'invalid finding decision')
-        key = d['finding']
-        need(key in findings and key not in decisions, 'unknown or duplicate finding decision')
-        need(d['decision'] in ('valid', 'dismissed', 'duplicate'), 'invalid adjudication decision')
-        if d['decision'] == 'valid':
-            need(type(d.get('blocking')) is bool, 'valid finding requires explicit blocking boolean')
-        else:
-            need('blocking' not in d, 'blocking applies only to valid findings')
-        text(d['reason'], 'decision reason')
-        text(d['evidence'], 'validation evidence')
-        decisions[key] = d
-    need(set(decisions) == set(findings), 'each finding requires separate controller adjudication')
-    for key, d in decisions.items():
-        if d['decision'] == 'duplicate':
-            target = d.get('duplicate_of')
-            need(target in decisions and target != key and decisions[target]['decision'] != 'duplicate', 'duplicate must reference a distinct adjudicated primary finding')
-        else:
-            need('duplicate_of' not in d, 'duplicate_of only allowed for duplicates')
+    adjudication_resolutions(data, row, body)
+    decisions = adjudication_decisions(row['raw'], body)
     row['adjudication'] = body
     row['outcome'] = 'failed' if any(d['decision'] == 'valid' and d['blocking'] for d in decisions.values()) else 'passed'
     if args.gate == 'red-team':

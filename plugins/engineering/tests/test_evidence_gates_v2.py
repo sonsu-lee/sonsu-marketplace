@@ -211,6 +211,155 @@ class ManagedGates(unittest.TestCase):
         self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
         self.assertEqual(before, state_path.read_bytes())
 
+    def assert_corrupt_state_rejected(self, state, *command):
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state_path.write_text(json.dumps(state))
+        before = state_path.read_bytes()
+        for args in [('status',), command] if command else [('status',)]:
+            result = self.call(*args)
+            self.assertEqual(result.returncode, 2, result.stderr + result.stdout)
+            self.assertEqual(result.stdout, '')
+            self.assertIn('evidence-gates:', result.stderr)
+            self.assertNotIn('Traceback', result.stderr)
+            self.assertEqual(before, state_path.read_bytes())
+        hook = self.stop_hook()
+        self.assertEqual(hook.returncode, 0, hook.stderr)
+        self.assertEqual(hook.stdout, '')
+        self.assertEqual(hook.stderr, 'Engineering gate observation unavailable; existing evidence was preserved.\n')
+        self.assertEqual(before, state_path.read_bytes())
+
+    def test_owner_requires_matching_latest_entry(self):
+        self.init()
+        self.enter()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = (
+            ('missing entry', lambda data: data.__setitem__('entries', [])),
+            ('wrong request', lambda data: data['owner'].__setitem__('request_id', 'another-entry')),
+            ('wrong context', lambda data: data['owner'].__setitem__('context', {})),
+            ('wrong unit', lambda data: data['entries'][-1].__setitem__('unit', 'another-unit')),
+        )
+        for label, corrupt in cases:
+            for command in [('run', '--unit', 'design', '--check', 'verify'),
+                            ('complete-unit', '--unit', 'design', '--request-id', 'complete-1')]:
+                with self.subTest(case=label, command=command[0]):
+                    state = json.loads(json.dumps(original))
+                    corrupt(state['units']['design'])
+                    self.assert_corrupt_state_rejected(state, *command)
+
+    def test_completion_acceptance_must_match_outcome(self):
+        self.init()
+        self.checked()
+        completed = self.complete()
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        acceptance = {'human': 'Named owner', 'source': 'user message 42',
+                      'artifact': completed['binding']['artifact'], 'reason': 'Deferred validation'}
+        cases = (
+            ('passed with empty acceptance', {'outcome': 'passed', 'acceptance': {}}),
+            ('passed with complete acceptance', {'outcome': 'passed', 'acceptance': acceptance}),
+            ('accepted without acceptance', {'outcome': 'accepted_risk'}),
+            ('accepted with empty acceptance', {'outcome': 'accepted_risk', 'acceptance': {}}),
+            ('accepted with stale artifact', {'outcome': 'accepted_risk',
+                                            'acceptance': dict(acceptance, artifact='stale')}),
+        )
+        # Preserve completion evidence while removing the check evidence that
+        # inspect() must not bypass just because an acceptance key exists.
+        for name in original['units']['design']['checks']['verify'][-1]['files']:
+            (state_path.parent / name).unlink()
+        for label, fields in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                state['units']['design']['completions'][-1].update(fields)
+                self.assert_corrupt_state_rejected(state)
+
+    def test_settled_check_execution_must_match_outcome(self):
+        self.config['units'][0]['checks'][0]['argv'] = [sys.executable, '-c', 'raise SystemExit(7)']
+        self.init()
+        self.enter()
+        failed = self.call('run', '--unit', 'design', '--check', 'verify')
+        self.assertEqual(failed.returncode, 1, failed.stderr)
+        self.assertEqual(json.loads(failed.stdout)['outcome'], 'failed')
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        self.assertEqual(original['units']['design']['checks']['verify'][-1]['exit_code'], 7)
+        cases = (
+            ('failed promoted to passed', {'outcome': 'passed'}),
+            ('passed incomplete', {'outcome': 'passed', 'exit_code': 0, 'execution': 'incomplete'}),
+            ('passed missing code', {'outcome': 'passed', 'exit_code': None}),
+            ('passed boolean code', {'outcome': 'passed', 'exit_code': False}),
+            ('failed zero code', {'outcome': 'failed', 'exit_code': 0}),
+            ('settled missing invocation', {'invocation': {}}),
+        )
+        for label, fields in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                state['units']['design']['checks']['verify'][-1].update(fields)
+                self.assert_corrupt_state_rejected(state, 'complete-unit', '--unit', 'design',
+                                                   '--request-id', 'complete-1')
+
+    def test_pending_review_validates_requested_and_raw_fields(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.checked()
+        self.prepare()
+        self.assertEqual(self.record(1, 'first').returncode, 0)
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        self.assertFalse(self.ok('status')['ready'])  # Partial pending raw is valid.
+        cases = [('missing requested', lambda row: row.pop('requested')),
+                 ('invalid reviewer count', lambda row: row['requested'].__setitem__('reviewers', '5')),
+                 ('raw requested mismatch', lambda row: row['raw'][0].__setitem__('requested', {})),
+                 ('malformed observed', lambda row: row['raw'][0].__setitem__('observed', {})),
+                 ('malformed finding', lambda row: row['raw'][0].__setitem__('findings', [{}])),
+                 ('invalid execution', lambda row: row['raw'][0].__setitem__('execution', 'broken'))]
+        for key in ('run_id', 'execution', 'verdict', 'findings', 'observed', 'report', 'report_digest', 'requested'):
+            cases.append(('missing raw ' + key, lambda row, key=key: row['raw'][0].pop(key)))
+        for label, corrupt in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                corrupt(state['units']['design']['reviews']['final-review'][-1])
+                self.assert_corrupt_state_rejected(state, 'record-review', '--unit', 'design',
+                    '--gate', 'final-review', '--attempt', '1', '--reviewer-id', 'second',
+                    '--report', str(self.report))
+
+    def test_settled_adjudication_covers_each_raw_finding_once(self):
+        self.config['units'][0]['review'] = 'independent'
+        self.init()
+        self.checked()
+        self.prepare()
+        finding = {'id': 'f1', 'title': 'Issue', 'location': 'design.md:1',
+                   'evidence': 'contradicts contract', 'impact': 'wrong result'}
+        self.assertEqual(self.record(1, 'r1', [finding]).returncode, 0)
+        for n in range(2, 6):
+            self.assertEqual(self.record(1, 'r' + str(n)).returncode, 0)
+        decision = {'finding': 'r1:f1', 'decision': 'valid', 'blocking': False,
+                    'reason': 'Confirmed optional issue', 'evidence': 'contract.md:1'}
+        self.ok('adjudicate', '--unit', 'design', '--gate', 'final-review', '--attempt', '1',
+                data={'decisions': [decision]})
+        self.complete()
+        self.assertTrue(self.ok('status')['ready'])
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = (
+            ('missing finding decision', []),
+            ('duplicate finding decision', [decision, decision]),
+            ('unknown finding', [dict(decision, finding='r1:unknown')]),
+            ('missing reason', [{key: value for key, value in decision.items() if key != 'reason'}]),
+            ('invalid duplicate target', [{'finding': 'r1:f1', 'decision': 'duplicate',
+                                          'duplicate_of': 'r1:unknown', 'reason': 'Same', 'evidence': 'report'}]),
+            ('outcome disagrees with blocking', [dict(decision, blocking=True)]),
+        )
+        for label, decisions in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                state['units']['design']['reviews']['final-review'][-1]['adjudication']['decisions'] = decisions
+                self.assert_corrupt_state_rejected(state)
+        state = json.loads(json.dumps(original))
+        state['units']['design']['reviews']['final-review'][-1]['adjudication']['resolutions'] = [
+            {'finding': 'r1:f1', 'reason': 'Claimed resolved', 'evidence': 'design.md:1'}]
+        self.assert_corrupt_state_rejected(state)
+
     def test_empty_pending_and_recovered_check_files_remain_valid(self):
         self.init()
         self.enter()
@@ -734,8 +883,38 @@ class ManagedGates(unittest.TestCase):
         status = self.ok('status')
         self.assertTrue(status['complete'])
         self.assertFalse(status['ready'])
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        original = json.loads(state_path.read_text())
+        cases = (
+            ('unknown receipt', lambda row: row['inherited_acceptances'][0].__setitem__('receipt_id', 'unknown')),
+            ('wrong digest', lambda row: row['inherited_acceptances'][0].__setitem__('receipt_digest', 'wrong')),
+            ('wrong binding', lambda row: row['binding']['context']['dependencies'].__setitem__('design', 'wrong')),
+            ('duplicate inheritance', lambda row: row['inherited_acceptances'].append(dict(row['inherited_acceptances'][0]))),
+        )
+        for label, corrupt in cases:
+            with self.subTest(case=label):
+                state = json.loads(json.dumps(original))
+                corrupt(state['units']['plan']['completions'][-1])
+                self.assert_corrupt_state_rejected(state)
+        state_path.write_text(json.dumps(original))
         self.assertNotEqual(self.call('close').returncode, 0)
         self.assertEqual(self.ok('close', '--outcome', 'accepted_risk')['closed'], 'accepted_risk')
+
+    def test_inherited_risk_requires_actual_accepted_dependency_receipt(self):
+        self.config['units'].append(self.unit('plan', ['design']))
+        self.init()
+        self.checked()
+        self.complete()
+        self.checked('plan')
+        self.complete('plan', 'plan-complete')
+        self.assertTrue(self.ok('status')['ready'])
+        state_path = self.root / '.engineering/gates/tasks/task/state.json'
+        state = json.loads(state_path.read_text())
+        completion = state['units']['plan']['completions'][-1]
+        completion['outcome'] = 'accepted_risk'
+        completion['inherited_acceptances'] = [{'unit': 'design', 'receipt_id': 'complete-1',
+            'receipt_digest': completion['binding']['context']['dependencies']['design']}]
+        self.assert_corrupt_state_rejected(state)
 
     def test_workspace_source_manifests_and_explicit_probe_define_snapshot(self):
         impl = self.base / 'implementation'
@@ -875,6 +1054,13 @@ class ManagedGates(unittest.TestCase):
         self.assertTrue(self.ok('status')['ready'])
         state = json.loads((self.root / '.engineering/gates/tasks/task/state.json').read_text())
         self.assertEqual(state['units']['design']['reviews']['final-review'][0]['outcome'], 'failed')
+        resolution = state['units']['design']['reviews']['final-review'][1]['adjudication']['resolutions'][0]
+        for resolutions in ([], [dict(resolution, finding='unknown:bug')],
+                            [resolution, resolution], [dict(resolution, reason='')]):
+            with self.subTest(resolutions=resolutions):
+                corrupted = json.loads(json.dumps(state))
+                corrupted['units']['design']['reviews']['final-review'][1]['adjudication']['resolutions'] = resolutions
+                self.assert_corrupt_state_rejected(corrupted)
 
     def start_long_check(self, script):
         self.config['units'][0]['checks'][0]['argv'] = [sys.executable, '-c', script]
