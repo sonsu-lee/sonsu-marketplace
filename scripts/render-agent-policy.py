@@ -2,7 +2,10 @@
 """Package shared policy references for standalone plugins; --check is read-only."""
 import argparse
 import json
+import os
 from pathlib import Path
+import stat
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "shared/agent-policy"
@@ -171,7 +174,6 @@ def outputs(codex_primary_model=None):
                 changed = True
         if changed:
             profile_bytes = (json.dumps(data, ensure_ascii=False, indent=2) + "\n").encode()
-        yield profile_path, profile_bytes
     for role in roles:
         yield codex_agent(role)
     table = "| 역할 | 모델 | 추론 | 기본 인원 |\n| --- | --- | --- | --- |\n"
@@ -221,6 +223,9 @@ def outputs(codex_primary_model=None):
                      (SOURCE / "branch-naming.md").read_text()).encode()
     for plugin in ("engineering", "workflow"):
         yield ROOT / f"plugins/{plugin}/references/branch-naming.md", branch_naming
+    if codex_primary_model:
+        # Commit the new source only after all generated outputs have been written.
+        yield profile_path, profile_bytes
 
 
 def generated_agents():
@@ -229,6 +234,21 @@ def generated_agents():
             yield path
     for plugin in ("engineering", "prompting"):
         yield from (ROOT / "plugins" / plugin / "agents").glob("*.md")
+
+
+def write_profile_atomically(path, data):
+    temporary_path = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, prefix=f".{path.name}.", delete=False) as temporary:
+            temporary_path = Path(temporary.name)
+            temporary.write(data)
+            temporary.flush()
+            temporary_path.chmod(stat.S_IMODE(path.stat().st_mode))
+            os.fsync(temporary.fileno())
+        os.replace(temporary_path, path)
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
 
 
 def main():
@@ -265,7 +285,10 @@ def main():
         stale.append(str(path.relative_to(ROOT)))
         if not args.check:
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(data)
+            if path == SOURCE / "profiles.json":
+                write_profile_atomically(path, data)
+            else:
+                path.write_bytes(data)
     for path in stale:
         print(("stale: " if args.check else "rendered: ") + path)
     return int(args.check and bool(stale))

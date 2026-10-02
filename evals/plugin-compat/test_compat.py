@@ -599,6 +599,60 @@ class CodexPackagingTests(unittest.TestCase):
                         self.assertEqual(error.exception.code, 2)
                         self.assertEqual({path: path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
 
+    def test_codex_model_switch_io_failures_preserve_source_and_allow_recovery(self):
+        spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
+        renderer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(renderer)
+        for failure in ("generated", "temporary", "replace"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / "shared/agent-policy"
+                shutil.copytree(ROOT / "shared/agent-policy", source)
+                profile_path = source / "profiles.json"
+                source_before = profile_path.read_bytes()
+                target = "gpt-6.1-sol" if json.loads(source_before)["roles"]["implementation"]["model"] == "gpt-6-astra" else "gpt-6-astra"
+                with mock.patch.object(renderer, "ROOT", root), mock.patch.object(renderer, "SOURCE", source):
+                    with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(renderer.main(), 0)
+                    before = {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+                    with contextlib.ExitStack() as stack:
+                        if failure == "generated":
+                            write_bytes = Path.write_bytes
+
+                            def fail_generated_write(path, data):
+                                if path == root / "plugins/prompting/references/model-profiles.md":
+                                    raise PermissionError("injected generated write failure")
+                                return write_bytes(path, data)
+
+                            stack.enter_context(mock.patch.object(Path, "write_bytes", fail_generated_write))
+                        elif failure == "temporary":
+                            named_temporary_file = tempfile.NamedTemporaryFile
+
+                            def interrupted_temporary_file(*args, **kwargs):
+                                temporary = named_temporary_file(*args, **kwargs)
+
+                                def fail_partial_write(data):
+                                    temporary.file.write(data[:len(data) // 2])
+                                    raise OSError("injected partial temporary write failure")
+
+                                temporary.write = fail_partial_write
+                                return temporary
+
+                            stack.enter_context(mock.patch.object(tempfile, "NamedTemporaryFile", interrupted_temporary_file))
+                        else:
+                            stack.enter_context(mock.patch.object(os, "replace", side_effect=OSError("injected replace failure")))
+                        with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--codex-primary-model", target]), contextlib.redirect_stdout(io.StringIO()):
+                            with self.assertRaisesRegex(OSError, "injected"):
+                                renderer.main()
+                    self.assertEqual(profile_path.read_bytes(), source_before)
+                    self.assertEqual(json.loads(profile_path.read_bytes()), json.loads(source_before))
+                    self.assertEqual({path for path in root.rglob("*") if path.is_file()}, set(before))
+                    with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(renderer.main(), 0)
+                    self.assertEqual({path: path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+                    with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--check"]), contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(renderer.main(), 0)
+
     def test_removed_claude_role_fails_check_and_is_removed_by_render(self):
         spec = importlib.util.spec_from_file_location("render_agent_policy", ROOT / "scripts/render-agent-policy.py")
         renderer = importlib.util.module_from_spec(spec)
