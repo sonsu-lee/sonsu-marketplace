@@ -96,6 +96,11 @@ coder-b, adjudicator, verifier는 서로 다른 task다. 오케스트레이터�
 불일치마다 원자료로 지지되는 판단을 고르며 평균·절충 문장을 만들지 않는다. verifier는 프레임과
 영역을 다시 추출해 `target`, `change`, `speech`, `numbers`, `attribution`을 판정한다.
 발췌는 단위 구간 ±2초 cue 원문과 대조한다. 무자막 영상은 화면 근거만으로 코딩한다.
+자동 자막의 공백만 있는 텍스트 줄은 cue 경계로 보지 않는다. contact sheet의 시각은 컨테이너
+길이가 아니라 실제 추출된 비디오 프레임의 PTS에서 기록해 오디오 꼬리를 화면 근거로 만들지 않는다.
+purge 뒤 독립 코더가 동시에 프레임을 요청하면 영상별 파일 잠금으로 재다운로드를 직렬화하고,
+잠금을 얻은 뒤 캐시 존재를 다시 확인한다.
+수집 CLI의 영상 ID 위치 인자는 `-` 또는 `--`로 시작하는 유효한 YouTube ID도 그대로 받는다.
 
 verifier가 수정할 수 있는 것은 `timestamp_start`, `timestamp_end`, 하향만 가능한
 `evidence_kind`·`confidence`, `"[해석] " + 원문`으로만 바꾸는 `rationale`, cue 원문과
@@ -192,6 +197,9 @@ kappa 재확인 → 재감사를 한다. 코드북 버전이 바뀌면 전원 �
 | exit 3 | 코딩 없이 blocked DIR을 merge에 포함 |
 | exit 4 (`RETRY_LATER`) | 60분 뒤 같은 영상부터 재시도. 같은 영상이 3번 연속 exit 4면 웨이브 중단·보고 |
 | exit 1 | 한 번 재시도. 재실패하면 `failures.json`에 `{video_id,stage,error}` 기록, merge에서 제외하고 pending 유지 |
+
+yt-dlp의 명시적인 `rate-limited` 오류는 `Video unavailable`이 함께 있어도 일시 제한으로
+분류해 exit 4로 처리한다. 영구 접근 차단으로 기록하거나 기존 `fetch.json`을 덮어쓰지 않는다.
 
 production 표본에만 coder-b·adjudicator를 배정한다. 모든 영상에 coder-a와 독립 verifier는
 필요하다. bundle·verification 검증 실패는 오류를 준 새 세션으로 한 번 재실행하고, 재실패하면
