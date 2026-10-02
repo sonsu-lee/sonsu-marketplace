@@ -51,8 +51,8 @@
     {
       "name": "research",
       "source": "./plugins/research",
-      "description": "근거 중심의 다중 출처 조사, 사실 검증, 문헌 검토와 코드 조사를 제공합니다.",
-      "version": "0.7.0-sonsu.11",
+      "description": "Exa·Perplexity 목적별 공개 검색과 근거 중심의 사실 검증·비교·코드 조사를 제공합니다.",
+      "version": "0.7.0-sonsu.12",
       "category": "Productivity"
     },
     {

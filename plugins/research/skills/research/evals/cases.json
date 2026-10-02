@@ -228,7 +228,7 @@
     {
       "id": "negative-single-doc-value",
       "language": "ko",
-      "prompt": "Responses API에서 background mode를 켜는 요청 필드 이름과 공식 문서 링크만 알려줘.",
+      "prompt": "이미 위치를 아는 https://developers.openai.com/api/docs/guides/background 공식 원문을 직접 읽고 background mode를 켜는 요청 필드 이름만 알려줘.",
       "should_trigger": false,
       "expected_route": "lookup",
       "must": [
@@ -1877,6 +1877,302 @@
           }
         ]
       }
+    },
+    {
+      "id": "routing-implicit-public-lookup-needs-url",
+      "language": "ko",
+      "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 공개 웹에서 검색해줘. URL은 아직 몰라.",
+      "should_trigger": true,
+      "expected_route": "lookup",
+      "expected_first_tool": "perplexity_search",
+      "must": [
+        "task_fit_perplexity",
+        "route_before_first_search",
+        "light_audit_only",
+        "plugin_internal_routing",
+        "no_host_search_policy_required"
+      ],
+      "must_not": [
+        "topic_only_provider_selection",
+        "duplicate_provider_query",
+        "research_contract",
+        "evidence_ledger",
+        "deep_research"
+      ],
+      "fixture": {
+        "provider_access": [
+          {
+            "provider": "exa",
+            "connection": "managed"
+          },
+          {
+            "provider": "perplexity",
+            "connection": "managed"
+          }
+        ],
+        "capability_state": [
+          {
+            "provider": "exa",
+            "capability": "discover",
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true
+          },
+          {
+            "provider": "perplexity",
+            "capability": "discover",
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true
+          },
+          {
+            "provider": "browser",
+            "capability": "fetch",
+            "available": true
+          }
+        ]
+      },
+      "host_search_policy_present": false
+    },
+    {
+      "id": "routing-structured-filtered-current-search",
+      "language": "ko",
+      "prompt": "최근 일주일 발표된 일본 대상 TypeScript 공식 소식을 typescriptlang.org 안에서 검색해 제목과 URL만 알려줘.",
+      "should_trigger": true,
+      "expected_route": "lookup",
+      "expected_first_tool": "perplexity_search",
+      "must": [
+        "task_fit_perplexity",
+        "route_before_first_search",
+        "light_audit_only",
+        "plugin_internal_routing",
+        "no_host_search_policy_required",
+        "preserve_requested_search_filters"
+      ],
+      "must_not": [
+        "topic_only_provider_selection",
+        "duplicate_provider_query",
+        "research_contract",
+        "evidence_ledger",
+        "deep_research"
+      ],
+      "fixture": {
+        "provider_access": [
+          {
+            "provider": "exa",
+            "connection": "managed"
+          },
+          {
+            "provider": "perplexity",
+            "connection": "managed"
+          }
+        ],
+        "capability_state": [
+          {
+            "provider": "exa",
+            "capability": "discover",
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true
+          },
+          {
+            "provider": "perplexity",
+            "capability": "discover",
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true
+          },
+          {
+            "provider": "browser",
+            "capability": "fetch",
+            "available": true
+          }
+        ]
+      },
+      "host_search_policy_present": false,
+      "expected_search_arguments": {
+        "search_domain_filter": [
+          "typescriptlang.org"
+        ],
+        "search_recency_filter": "week",
+        "country": "JP"
+      }
+    },
+    {
+      "id": "negative-known-official-url",
+      "language": "ko",
+      "prompt": "이미 위치를 아는 https://nodejs.org/api/cli.html 원문에서 --env-file 항목만 읽어줘.",
+      "should_trigger": false,
+      "expected_route": "lookup",
+      "must": [
+        "direct_official_lookup"
+      ],
+      "must_not": [
+        "web_search",
+        "research_contract"
+      ]
+    },
+    {
+      "id": "negative-supplied-content-only",
+      "language": "ko",
+      "prompt": "다음 문서 내용만 읽고 지원 버전을 알려줘. 외부 검색은 필요 없어. 문서: 지원 런타임은 Node.js 22 이상이다.",
+      "should_trigger": false,
+      "expected_route": "lookup",
+      "must": [
+        "provided_source_lookup"
+      ],
+      "must_not": [
+        "web_search",
+        "research_contract"
+      ]
+    },
+    {
+      "id": "routing-explicit-provider-missing-filter",
+      "language": "ko",
+      "prompt": "Exa로만 일본 대상 TypeScript 공식 소식을 검색해줘. 일본 국가 필터는 검색 도구의 country=JP 인수로 반드시 적용해줘.",
+      "should_trigger": true,
+      "expected_route": "lookup",
+      "must": [
+        "explicit_provider_priority",
+        "provider_specific_no_silent_fallback",
+        "disclose_access_limit",
+        "light_audit_only"
+      ],
+      "must_not": [
+        "silent_provider_substitution",
+        "duplicate_provider_query",
+        "research_contract",
+        "evidence_ledger",
+        "deep_research"
+      ],
+      "fixture": {
+        "provider_access": [
+          {
+            "provider": "exa",
+            "connection": "managed"
+          },
+          {
+            "provider": "perplexity",
+            "connection": "managed"
+          }
+        ],
+        "capability_state": [
+          {
+            "provider": "exa",
+            "capability": "discover",
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true,
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "query": {
+                  "type": "string"
+                },
+                "objective": {
+                  "type": "string"
+                },
+                "numResults": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "query",
+                "objective"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "provider": "perplexity",
+            "capability": "discover",
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true,
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "query": {
+                  "type": "string"
+                },
+                "country": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ]
+      },
+      "host_search_policy_present": false
+    },
+    {
+      "id": "routing-explicit-provider-specialists-unavailable",
+      "language": "ko",
+      "prompt": "Exa로만 Node.js --env-file 공식 문서 URL을 검색해줘.",
+      "should_trigger": true,
+      "expected_route": "lookup",
+      "must": [
+        "explicit_provider_priority",
+        "provider_specific_no_silent_fallback",
+        "disclose_access_limit",
+        "light_audit_only"
+      ],
+      "must_not": [
+        "silent_provider_substitution",
+        "research_contract",
+        "evidence_ledger",
+        "deep_research"
+      ],
+      "fixture": {
+        "provider_access": [
+          {
+            "provider": "exa",
+            "connection": "managed"
+          },
+          {
+            "provider": "perplexity",
+            "connection": "managed"
+          }
+        ],
+        "capability_state": [
+          {
+            "provider": "exa",
+            "capability": "discover",
+            "tool_visible": false,
+            "schema_ok": false,
+            "auth_ok": false,
+            "read_only_call_ok": false
+          },
+          {
+            "provider": "perplexity",
+            "capability": "discover",
+            "tool_visible": false,
+            "schema_ok": false,
+            "auth_ok": false,
+            "read_only_call_ok": false
+          },
+          {
+            "provider": "generic_web",
+            "capability": "discover",
+            "available": true,
+            "tool_visible": true,
+            "schema_ok": true,
+            "auth_ok": true,
+            "read_only_call_ok": true
+          }
+        ]
+      },
+      "host_search_policy_present": false
     }
   ]
 }
