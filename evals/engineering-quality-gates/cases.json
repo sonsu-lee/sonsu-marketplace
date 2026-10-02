@@ -67,7 +67,7 @@
         "policy": "red-team",
         "required_evidence": [
           "independent policy evidence",
-          "fresh-context GPT-6.1 Sol high red-team",
+          "fresh-context red-team using the current host red_team profile",
           "survives_challenge verdict on the frozen current bundle"
         ]
       },
