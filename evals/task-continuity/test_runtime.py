@@ -158,7 +158,7 @@ class RuntimeTests(unittest.TestCase):
         self.assertFalse((self.work / ".sonsu").exists())
 
     def test_hook_diagnostic_with_full_stderr_does_not_extend_deadline(self):
-        for input_state in ("open", "malformed"):
+        for input_state in ("open", "malformed", "session_append_error"):
             with self.subTest(input_state=input_state):
                 read_fd, write_fd = os.pipe()
                 try:
@@ -169,13 +169,21 @@ class RuntimeTests(unittest.TestCase):
                     except BlockingIOError:
                         pass
                     os.set_blocking(write_fd, True)
+                    env = self.env
+                    if input_state == "session_append_error":
+                        env = dict(self.env, CLAUDE_ENV_FILE=str(self.base / "missing-parent" / "env"),
+                                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
                     started = time.monotonic()
                     with subprocess.Popen([sys.executable, str(self.packages["engineering"]), "hook"],
                                           stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                          stderr=write_fd, text=True, cwd=self.work, env=self.env) as process:
+                                          stderr=write_fd, text=True, cwd=self.work, env=env) as process:
                         try:
                             if input_state == "malformed":
                                 process.stdin.write("not-json")
+                                process.stdin.close()
+                            elif input_state == "session_append_error":
+                                process.stdin.write(json.dumps({"hook_event_name": "SessionStart",
+                                                                "source": "startup", "session_id": "session-a"}))
                                 process.stdin.close()
                             process.wait(timeout=5)
                         finally:

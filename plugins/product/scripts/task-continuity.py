@@ -423,7 +423,7 @@ def hook():
             return hook_state["result"]
         if hook_state.get("session_append_started"):
             # A signal during write can leave its return value unobserved.
-            print("task-continuity: session marker persistence unconfirmed", file=sys.stderr)
+            best_effort_hook_output(2, "task-continuity: session marker persistence unconfirmed\n")
             return hook_state["result"]
         raise
     finally:
