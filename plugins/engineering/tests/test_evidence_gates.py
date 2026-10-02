@@ -685,13 +685,20 @@ class EvidenceGateTests(unittest.TestCase):
 
     def test_corrupt_state_observation_fails_open_without_repair(self):
         self.ok(self.init())
-        self.state_path.write_text('{"schema_version":999}')
-        before = self.state_path.read_bytes()
-        result = self.hook()
-        self.assertEqual(result.returncode, 0)
-        self.assertEqual(result.stdout, "")
-        self.assertIn("observation unavailable", result.stderr)
-        self.assertEqual(before, self.state_path.read_bytes())
+        for invalid in (b'{"schema_version":999}', b'[]', b'null', b'"state"', b'1'):
+            with self.subTest(invalid=invalid):
+                self.state_path.write_bytes(invalid)
+                before = self.state_path.read_bytes()
+                result = self.hook()
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(result.stderr, "Engineering gate observation unavailable; existing evidence was preserved.\n")
+                self.assertEqual(before, self.state_path.read_bytes())
+                cli = self.call("status", "--task-id", "task-a")
+                self.assertEqual(cli.returncode, 2)
+                self.assertIn("evidence-gates:", cli.stderr)
+                self.assertNotIn("Traceback", cli.stderr)
+                self.assertEqual(before, self.state_path.read_bytes())
 
     def test_close_requires_completion_but_superseding_keeps_evidence(self):
         self.ok(self.init())

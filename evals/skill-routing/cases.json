@@ -1278,7 +1278,7 @@
         "engineering",
         "research"
       ],
-      "prompt": "Node.js 공식 문서에서 --env-file option이 처음 추가된 버전 하나만 확인해줘.",
+      "prompt": "이미 위치를 아는 https://nodejs.org/api/cli.html 공식 페이지를 직접 읽고 --env-file option이 처음 추가된 버전 하나만 확인해줘.",
       "expected_plugins": [],
       "must_not_select": [
         "research:research"
@@ -1772,7 +1772,6 @@
         "research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd"
       ],
-      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "TanStack Query와 SWR의 현재 React 지원 범위와 최근 변경을 비교해줘.",
       "expected_sequence": [
         "research:research"
@@ -1781,7 +1780,8 @@
       "must_select_provider_before_specialist_skill": true,
       "must_not_select": [
         "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
-      ]
+      ],
+      "host_search_policy_present": false
     },
     {
       "id": "research-and-exa-ambiguous-technical-explanation",
@@ -1789,7 +1789,6 @@
         "research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd"
       ],
-      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "Rust retry 설계의 장단점을 조사해서 설명해줘.",
       "expected_sequence": [
         "research:research"
@@ -1798,7 +1797,8 @@
       "must_select_provider_before_specialist_skill": true,
       "must_not_select": [
         "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
-      ]
+      ],
+      "host_search_policy_present": false
     },
     {
       "id": "research-and-exa-unknown-candidates",
@@ -1806,7 +1806,6 @@
         "research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd"
       ],
-      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "이름을 아직 모르는 Rust retry 구현 저장소를 폭넓게 찾아줘.",
       "expected_sequence": [
         "research:research"
@@ -1815,50 +1814,50 @@
       "optional_after_provider_selection": [
         "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
       ],
-      "must_select_provider_before_specialist_skill": true
+      "must_select_provider_before_specialist_skill": true,
+      "host_search_policy_present": false
     },
     {
-      "id": "explicit-exa-skill-overrides-host-default",
+      "id": "explicit-exa-skill-overrides-plugin-default",
       "installed_plugins": [
         "research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd"
       ],
-      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "Exa Search 스킬을 사용해서 오늘 TypeScript 변경 소식을 검색해줘.",
       "expected_sequence": [
         "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
       ],
-      "expected_first_search_provider": "exa"
+      "expected_first_search_provider": "exa",
+      "host_search_policy_present": false
     },
     {
-      "id": "host-lookup-without-research-still-routes",
+      "id": "plugin-implicit-public-lookup-routes",
       "installed_plugins": [
         "research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd"
       ],
-      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
       "expected_first_search_provider": "perplexity",
       "expected_first_tool": "perplexity_search",
       "must_select_provider_before_specialist_skill": true,
       "must_not_select": [
-        "research:research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
       ],
-      "expected_sequence": []
+      "expected_sequence": [
+        "research:research"
+      ],
+      "host_search_policy_present": false
     },
     {
       "installed_plugins": [
         "research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd"
       ],
-      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
       "must_not_select": [
-        "research:research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
       ],
-      "id": "host-lookup-direct-missing-opt-in",
+      "id": "plugin-lookup-direct-missing-opt-in",
       "fixture": {
         "provider_access": [
           {
@@ -1892,20 +1891,21 @@
       "must_not_call_providers": [
         "perplexity"
       ],
-      "expected_sequence": []
+      "expected_sequence": [
+        "research:research"
+      ],
+      "host_search_policy_present": false
     },
     {
       "installed_plugins": [
         "research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd"
       ],
-      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
       "must_not_select": [
-        "research:research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
       ],
-      "id": "host-lookup-direct-missing-secret",
+      "id": "plugin-lookup-direct-missing-secret",
       "fixture": {
         "provider_access": [
           {
@@ -1939,20 +1939,21 @@
       "must_not_call_providers": [
         "perplexity"
       ],
-      "expected_sequence": []
+      "expected_sequence": [
+        "research:research"
+      ],
+      "host_search_policy_present": false
     },
     {
       "installed_plugins": [
         "research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd"
       ],
-      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
       "must_not_select": [
-        "research:research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
       ],
-      "id": "host-lookup-unknown-connection-no-rules",
+      "id": "plugin-lookup-unknown-connection-no-rules",
       "fixture": {
         "provider_access": [
           {
@@ -1983,20 +1984,21 @@
       "must_not_call_providers": [
         "perplexity"
       ],
-      "expected_sequence": []
+      "expected_sequence": [
+        "research:research"
+      ],
+      "host_search_policy_present": false
     },
     {
       "installed_plugins": [
         "research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd"
       ],
-      "host_search_policy": "plugins/research/README.md#호스트의-기본-검색-지침",
       "prompt": "라이브러리 X의 현재 공식 지원 런타임 문서 URL 하나만 찾아줘. URL은 아직 몰라.",
       "must_not_select": [
-        "research:research",
         "app-69ea4ed2cf7c8191b742ef3622479ddd:Search"
       ],
-      "id": "host-lookup-direct-qualified",
+      "id": "plugin-lookup-direct-qualified",
       "fixture": {
         "provider_access": [
           {
@@ -2028,7 +2030,10 @@
       "expected_first_tool": "perplexity_search",
       "must_check_direct_qualification_before_request": true,
       "must_not_call_providers": [],
-      "expected_sequence": []
+      "expected_sequence": [
+        "research:research"
+      ],
+      "host_search_policy_present": false
     },
     {
       "id": "ticket-common-template-preserves-preference-and-agreement",

@@ -33,15 +33,16 @@ Writing은 공통 구성을 담당합니다. 영어 Fluent는 일상·기술 문
 push, ticket 게시와 PR 생성은 허용하지 않습니다. 결과는 `pass`, `fail`, `not_run`,
 `inconclusive`로 구분하며, 선택 attribution을 확인할 수 없으면 `pass`로 판정하지 않습니다.
 
-검색 공급자 사례의 `host_search_policy`는 해당 README 절의 Markdown 코드 블록만 호스트
-지침으로 제공합니다. `installed_plugins`의 Research와 Exa Search description을 함께 노출하되
+검색 공급자 사례는 기본적으로 전역 검색 정책을 제공하지 않습니다. `host_search_policy_present: false`는
+머신의 전역 `AGENTS.md` 검색 규칙을 제외한 조건입니다. Research 플러그인의 description과
+선택 후 읽은 본문·reference가 공급자 선택의 근거여야 합니다. `installed_plugins`의 Research와 Exa Search description을 함께 노출하되
 본문은 모델이 선택하여 읽게 합니다. Exa 전용 스킬의 정확한 버전과 description·본문의 hash를
 실행 기록에 남깁니다. 별도 `fixture`가 없으면 관리형 Exa·Perplexity 검색 도구가 둘 다
 노출·인증·가용한 동일 조건으로 시작합니다. `fixture`가 있으면 그 연결 유형과 capability만
 제공하며 선언되지 않은 도구는 노출하지 않습니다. 실제 schema나 고정된 모의 schema를
 기록하고 기대 field는 실행 모델에게 주지 않습니다.
 
-호스트 자격 사례의 `provider_access`는 `managed`, `direct_adapter`, `unknown` 연결 유형을
+플러그인 자격 사례의 `provider_access`는 `managed`, `direct_adapter`, `unknown` 연결 유형을
 제공합니다. 직접 adapter의 `opt_in_marker_valid`는 설치 manifest로 고정한 plugin-root README의
 파일·marker·매핑 검증 결과이며, `secret_present`는 allowlist된 `secret_name`의 안전한 존재
 확인 결과입니다. 실제 비밀값은 제공하지 않습니다. `qualification_reference_available: true`이면
@@ -62,13 +63,13 @@ secret 존재 확인이 외부 요청보다 먼저 이뤄졌는지 검사합니�
 `must_select_provider_before_specialist_skill`은 일반 요청에서 공급자 전용 스킬 본문을 읽기
 전에 이번 검색 목적에 따라 공급자를 선택했는지 확인합니다. `optional_after_provider_selection`은
 그 선택 뒤에만 추가로 읽을 수 있는 스킬이며 필수 순서에 포함하지 않습니다. 사용자의 명시적
-전용 스킬 요청은 이 순서의 예외입니다. `expected_sequence: []`인 짧은 조회도 호스트 정책의
-공급자 선택은 검사합니다. `must_not_select`는 이 fixture의 첫 검색 준비 단계에 적용하며 후속
+전용 스킬 요청은 이 순서의 예외입니다. 단일 공개 검색도 `research:research`의 선택과
+`lookup` 소비 경로를 검사하며, 알려진 원문 직접 읽기·로컬 조회는 스킬 선택 없이 끝납니다. `must_not_select`는 이 fixture의 첫 검색 준비 단계에 적용하며 후속
 증거 목적 변경이나 실제 실패 시의 정상 fallback까지 금지하는 영구 규칙이 아닙니다.
 
 모델이 모의 tool name·args를 출력하는 routing 평가, 실제 provider 연결 smoke test, Codex의
 native 자동 skill selection은 별개의 검증입니다. 모의 trace나 JSON 검사만으로 native 선택이
-보장된다고 보고하지 않습니다. Research 단독 조건과 호스트 지침·Exa 스킬 동시 설치 조건은
+보장된다고 보고하지 않습니다. Research 단독 조건과 Exa 스킬 동시 설치 조건은 전역 지침 없이
 별도로 실행하고 baseline·변경 후의 입력과 모델 설정을 맞춥니다.
 
 ## 티켓 양식·내용 수정 사례
