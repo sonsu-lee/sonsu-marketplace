@@ -1,6 +1,6 @@
 {
   "name": "memory-manager",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Codex와 Claude Code가 공유하는 로컬 Markdown 메모리를 회상, 수집, 정리하고 절차 초안으로 승격합니다.",
   "author": {
     "name": "sonsu",

@@ -52,7 +52,7 @@
       "name": "research",
       "source": "./plugins/research",
       "description": "Exa·Perplexity 목적별 공개 검색과 근거 중심의 사실 검증·비교·코드 조사를 제공합니다.",
-      "version": "0.7.0-sonsu.12",
+      "version": "0.7.0-sonsu.13",
       "category": "Productivity"
     },
     {
@@ -73,7 +73,7 @@
       "name": "memory-manager",
       "source": "./plugins/memory-manager/claude",
       "description": "Codex와 Claude Code가 공유하는 로컬 Markdown 메모리를 회상, 수집, 정리하고 절차 초안으로 승격합니다.",
-      "version": "0.2.3",
+      "version": "0.2.4",
       "category": "Productivity"
     },
     {
