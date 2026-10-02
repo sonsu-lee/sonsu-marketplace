@@ -552,6 +552,9 @@ class CodexPackagingTests(unittest.TestCase):
             source = root / "shared/agent-policy"
             shutil.copytree(ROOT / "shared/agent-policy", source)
             original = json.loads((source / "profiles.json").read_text())
+            original["roles"]["general_review"]["model"] = "gpt-6-astra"
+            original["roles"]["implementation"]["model"] = "gpt-6-luna"
+            (source / "profiles.json").write_text(json.dumps(original))
             with mock.patch.object(renderer, "ROOT", root), mock.patch.object(renderer, "SOURCE", source):
                 with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(renderer.main(), 0)
