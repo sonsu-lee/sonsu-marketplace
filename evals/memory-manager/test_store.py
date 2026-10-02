@@ -442,6 +442,53 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(result.stdout, "")
         return result
 
+    def test_hook_diagnostics_with_full_stderr_remain_fail_open(self):
+        event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.base / "missing-project"),
+                 "prompt": "기억해 줘: 이 결정"}
+        inputs = {"malformed": "not-json", "invalid_cwd": json.dumps(event),
+                  "sensitive": json.dumps({**event, "prompt": "기억해 줘: token is abc123"})}
+        before = self.store_files()
+        for input_state, payload in inputs.items():
+            with self.subTest(input_state=input_state):
+                read_fd, write_fd = os.pipe()
+                try:
+                    os.set_blocking(write_fd, False)
+                    try:
+                        while True:
+                            os.write(write_fd, b"x" * 4096)
+                    except BlockingIOError:
+                        pass
+                    os.set_blocking(write_fd, True)
+                    started = time.monotonic()
+                    result = subprocess.run([sys.executable, str(HOOK)], input=payload,
+                                            text=True, stdout=subprocess.PIPE, stderr=write_fd,
+                                            env=dict(os.environ, SONSU_MEMORY_HOME=str(self.store)), timeout=5)
+                    self.assertLess(time.monotonic() - started, 4)
+                    self.assertEqual((result.returncode, result.stdout), (0, ""))
+                    self.assertEqual(self.store_files(), before)
+                finally:
+                    os.close(read_fd)
+                    os.close(write_fd)
+
+    def test_hook_timeout_in_error_diagnostic_remains_fail_open(self):
+        event = {"hook_event_name": "UserPromptSubmit", "cwd": str(self.base / "missing-project"),
+                 "prompt": "기억해 줘: 이 결정"}
+        code = """
+import importlib.util, time
+spec = importlib.util.spec_from_file_location('capture_hook', HOOK_PATH)
+hook = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(hook)
+real_message = hook.failure_message
+def delayed_message(*args):
+    time.sleep(8)
+    return real_message(*args)
+hook.failure_message = delayed_message
+raise SystemExit(hook.main())
+""".replace("HOOK_PATH", repr(str(HOOK)))
+        before = self.store_files()
+        self.run_hook(event, code=code)
+        self.assertEqual(self.store_files(), before)
+
     def slow_git(self):
         directory = self.base / "slow-bin"
         directory.mkdir()

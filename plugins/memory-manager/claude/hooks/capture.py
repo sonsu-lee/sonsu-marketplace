@@ -71,7 +71,7 @@ def main():
         skipped = hook_skip_status(event)
         if skipped:
             if skipped == "sensitive_content":
-                print("memory-manager: candidate skipped (sensitive content)", file=sys.stderr)
+                best_effort_hook_output(2, "memory-manager: candidate skipped (sensitive content)\n")
             return 0
         cwd = event.get("cwd")
         if not isinstance(cwd, str) or not cwd:
@@ -79,9 +79,12 @@ def main():
         stage_hook(root_path(), project_key(cwd), event, capture_state=capture_state)
     except Exception as error:
         # A hook must not block the host. Keep the diagnostic free of prompt text.
-        message = failure_message(capture_state, error)
-        if message:
-            print(message, file=sys.stderr, flush=True)
+        try:
+            message = failure_message(capture_state, error)
+            if message:
+                best_effort_hook_output(2, message + "\n")
+        except HookTimeout:
+            pass
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)
         signal.signal(signal.SIGALRM, previous)
