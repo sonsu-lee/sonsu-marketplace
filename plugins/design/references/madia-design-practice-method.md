@@ -350,6 +350,19 @@ P1·P2는 조언이나 탐색 질문으로는 쓸 수 있지만 차단 규칙으
 P1은 M0–M4, P2는 M0–M5, P3는 M0–M8이 모두 `passed`여야 한다. 따라서 전체 목록이 닫히기 전에는
 관찰 후보를 기록할 수는 있어도 승격 원칙으로 게시하지 않는다.
 
+## 용어 원장 검증
+
+`scripts/validate_design_terminology.py`는 `docs/research/design-terminology.json`의 고유 ID·명칭,
+관계 대상과 상태별 요건을 검사한다. `official`은 실제 확인한 출처가 필요하고, 공식 정의를
+확인하지 못한 명칭은 사유를 남긴 `internal_preferred`로 구분한다.
+`adopted`는 정의·포함·제외, 출처 또는 내부 명칭의 근거, 서로 다른 영상 2편 이상에 걸친
+표현 3개 이상과 유효한 `review_by`가 있어야 한다. 같은 표현·단위 쌍을 중복해 횟수를 늘리지 않는다.
+
+`--catalog`는 term 연결과 observed expression의 단위 존재를 대조하고, 채택 용어의 근거가
+`confirmed` 또는 `corrected`인지 검사한다. `--prune-orphans`는 카탈로그가 필요하며 사라진
+연결을 원장에서 제거한 뒤 다시 검증한다. 제거 후 채택 조건을 잃으면 성공으로 처리하지 않는다.
+기계 검증은 채택안을 위한 최소 조건일 뿐이며, 채택은 별도 사람 감사를 거친다.
+
 ## 스킬 반영 계약
 
 P3 후보를 반영할 때는 “예쁜 결과” 같은 문장 대신 `trigger → inspect → decide → act → verify`로
