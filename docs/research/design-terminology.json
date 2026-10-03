@@ -1,0 +1,1945 @@
+{
+  "schema_version": "design-terminology-v1",
+  "as_of": "2026-10-03",
+  "terms": [
+    {
+      "id": "term.alignment",
+      "ko": "정렬",
+      "en": "Alignment",
+      "label_status": "internal_preferred",
+      "definition": "요소의 가장자리·중심·텍스트 기준선을 공통 기준에 맞추는 공간적 배치 관계다. 이 원장에서는 레이아웃과 텍스트 배치를 다루며, 데이터를 이름이나 날짜 순으로 나열하는 정렬과 구분한다.",
+      "includes": [
+        "요소의 시작·끝 가장자리를 같은 열이나 기준선에 맞추기",
+        "텍스트 기준선 또는 컨테이너 중심을 기준으로 맞추기",
+        "문단의 시작·끝·가운데·양쪽 정렬"
+      ],
+      "excludes": [
+        "목록을 값의 오름차순·내림차순으로 재배열하는 데이터 정렬",
+        "요소 사이 간격을 같게 만드는 것만으로 정렬했다고 판단하는 것",
+        "언어나 쓰기 방향과 무관하게 왼쪽 정렬을 강제하는 것"
+      ],
+      "visual_signals": [
+        "여러 요소가 공유하는 가장자리·중심선·텍스트 기준선",
+        "그리드 열이나 가이드에 맞춰 반복되는 위치",
+        "정렬 기준에서 벗어난 요소와 주변 요소의 위치 차이"
+      ],
+      "relations": [
+        {
+          "type": "related",
+          "term_id": "term.spacing"
+        },
+        {
+          "type": "related",
+          "term_id": "term.consistency"
+        }
+      ],
+      "sources": [
+        {
+          "id": "nng-grids",
+          "title": "Using Grids in Interface Designs",
+          "url": "https://www.nngroup.com/articles/using-grids-in-interface-designs/",
+          "source_type": "research"
+        },
+        {
+          "id": "nng-typography-glossary",
+          "title": "Typography Terms: Glossary",
+          "url": "https://www.nngroup.com/articles/typography-terms-ux/",
+          "source_type": "research"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "이펙트 다 걷어내야 될 거 같고 카드는 그대로 한번 가져가 보도록 하긴 할게요. 근데 복잡해 보이긴 할 수도 있어.",
+          "occurrence_id": "Ycyt997c6ow:003"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "공식 정의 미확인: NN/g Using Grids in Interface Designs와 Typography Terms: Glossary. 그리드에 맞추는 배치와 문단 정렬 설명은 확인했으나 둘을 포괄하는 이 원장의 Alignment 정의는 내부 작업 정의다. 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.background-blur",
+      "ko": "배경 흐림",
+      "en": "Background blur",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "블러",
+          "occurrence_id": "Y_qV8uV6K5I:017"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.breakpoint",
+      "ko": "브레이크포인트",
+      "en": "Breakpoint",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "아니라 레이아웃이 변환되는 지점이라고",
+          "occurrence_id": "jaI2E50wu2k:001"
+        },
+        {
+          "text": "최대의 상도 하나 최저의 상도 하나",
+          "occurrence_id": "jaI2E50wu2k:003"
+        },
+        {
+          "text": "분기별로 사이즈마다 다 하면은 어때",
+          "occurrence_id": "jaI2E50wu2k:005"
+        },
+        {
+          "text": "모바일에도 굉장히 다양한 해상도가",
+          "occurrence_id": "jaI2E50wu2k:006"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.component",
+      "ko": "컴포넌트",
+      "en": "Component",
+      "label_status": "internal_preferred",
+      "definition": "디자인 시스템에서 이름·역할·속성·상태·사용 규칙을 공유하며 재사용하는 UI 구성 단위다. 이 원장에서는 디자인 자산과 구현의 재사용 단위를 가리키며, WCAG가 사용자 관점에서 정의하는 단일 컨트롤과 구분한다.",
+      "includes": [
+        "공통 속성과 상태를 갖는 재사용 버튼·입력 필드 등의 정의",
+        "공통 정의를 참조하는 디자인 인스턴스나 UI 구현"
+      ],
+      "excludes": [
+        "재사용 정의와 연결되지 않은 화면 조각의 단순 복사",
+        "디자인 시스템 전체나 여러 요소를 조합한 흐름 전체",
+        "WCAG의 user interface component와 항상 같은 단위라는 가정",
+        "화면에 노출되지 않는 일반 소프트웨어 모듈"
+      ],
+      "visual_signals": [
+        "여러 화면에서 반복되는 구조·모양·상태",
+        "라이브러리에서 확인되는 컴포넌트 이름과 속성·상태 목록",
+        "외형 반복만으로 재사용 연결을 확정하지 않고 자산 또는 구현을 확인"
+      ],
+      "relations": [
+        {
+          "type": "related",
+          "term_id": "term.design-token"
+        },
+        {
+          "type": "related",
+          "term_id": "term.ui-state"
+        },
+        {
+          "type": "related",
+          "term_id": "term.consistency"
+        }
+      ],
+      "sources": [
+        {
+          "id": "nng-design-systems",
+          "title": "Design Systems 101",
+          "url": "https://www.nngroup.com/articles/design-systems-101/",
+          "source_type": "research"
+        },
+        {
+          "id": "w3c-wcag22-understanding-target-size-minimum",
+          "title": "Understanding Success Criterion 2.5.8: Target Size (Minimum)",
+          "url": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+          "source_type": "standard"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "시작한다고 해 볼까요?",
+          "occurrence_id": "9GJbVpEIIZg:004"
+        },
+        {
+          "text": "버튼을 만들기 위해서는 오토 레아웃을 걸어 줘야 돼요.",
+          "occurrence_id": "F0kDoNaAxwY:001"
+        },
+        {
+          "text": "좌우가 비어 있죠? 여기는를 설정해 주시면 좌우로 꽉 찹니다.",
+          "occurrence_id": "F0kDoNaAxwY:002"
+        },
+        {
+          "text": "원본을 바꾸면 모든 컬러나 디자인들이 한 번에 같이 변하게 됩니다.",
+          "occurrence_id": "F0kDoNaAxwY:003"
+        },
+        {
+          "text": "컴포넌트가 걸린 버튼이 적용이 되어 있기 때문에 여기서 컬러를 제가 바꾸면 같이 동시에 바뀌는 걸 확인해 보실 수가 있겠죠?",
+          "occurrence_id": "F0kDoNaAxwY:004"
+        },
+        {
+          "text": "텍스트를 직접 입력할 수가 있는 거죠.",
+          "occurrence_id": "F0kDoNaAxwY:006"
+        },
+        {
+          "text": "그렇기 때문에 기본적으로 버튼의 컴포넌트는 좌우 다 아이콘을 포함하고 있는게 좋습니다.",
+          "occurrence_id": "F0kDoNaAxwY:007"
+        },
+        {
+          "text": "아이콘을 여기다가 추가해서 아이콘도 교체할 수 있게끔 버튼을 조금 더 디테일을 강화해 준다고 생각하시면 됩니다.",
+          "occurrence_id": "F0kDoNaAxwY:008"
+        },
+        {
+          "text": "인스턴트 수압도 레프트 라이트를 나눠 놔야 되는 거예요.",
+          "occurrence_id": "F0kDoNaAxwY:009"
+        },
+        {
+          "text": "버튼의 스타일이 하나만 있는게 아니잖아요. 이런 면의 버튼도 있겠지만 하나만 예를 들면 라인형 버튼도 있겠죠.",
+          "occurrence_id": "F0kDoNaAxwY:010"
+        },
+        {
+          "text": "프로젝트를 진행하게 된다면 뭐 직각 스타일이든지 라운드 스타일이든지 한 가지 스타일로 정해지잖아요. 그렇기 때문에 이렇게까지 많은 컴포넌트를 만들어 놓으실 필요는 없습니다.",
+          "occurrence_id": "F0kDoNaAxwY:011"
+        },
+        {
+          "text": "뭐냐면이 원본을 가지고 여기저기 저기 써도 자유롭게 바꿀 수 있는 방법을 좀 알아야 되는데요.이",
+          "occurrence_id": "F0kDoNaAxwY:012"
+        },
+        {
+          "text": "아이콘도 피그마로 좀 옮겼고요.",
+          "occurrence_id": "FAKwQSqQWKw:002"
+        },
+        {
+          "text": "디자인은 단순히 그냥 예쁜 화면을 그려내는게 아니에요. 시스템 공통부터 해서 시스템 가이드, 디자인 가이드, 유지보수",
+          "occurrence_id": "RGFAGMRHzFU:004"
+        },
+        {
+          "text": "컴포넌트가 하나가 더 추가됐죠",
+          "occurrence_id": "mtTXn2cCNRY:001"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "공식 정의 미확인: NN/g Design Systems 101의 component library 설명과 WCAG Understanding의 user interface component 정의. 재사용 단위와 사용자에게 하나의 기능으로 보이는 컨트롤은 범위가 달라 이 원장의 Component는 내부 작업 정의로 둔다. 아직 채택하지 않았다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.consistency",
+      "ko": "일관성",
+      "en": "Consistency",
+      "label_status": "official",
+      "definition": "비슷한 의미와 기능에 대응하는 표현과 상호작용 패턴을 일관되게 사용해 예측 가능성을 유지하는 성질이다. 한 제품·제품군 안의 내부 일관성과 플랫폼·분야 관례에 맞추는 외부 일관성을 구분한다.",
+      "includes": [
+        "같은 기능에 같은 용어·아이콘·동작 패턴을 사용하기",
+        "비슷한 역할에 대응하는 레이아웃·타이포그래피·색 표현",
+        "제품 내부 규칙과 외부 플랫폼 관례의 구분"
+      ],
+      "excludes": [
+        "서로 다른 의미나 상태를 구별할 수 없게 똑같이 표현하는 것",
+        "맥락·플랫폼·사용자 요구가 달라도 외형을 무조건 동일하게 유지하는 것",
+        "반복된다는 이유만으로 잘못된 패턴을 유지하는 것"
+      ],
+      "visual_signals": [
+        "동일 역할의 요소가 여러 화면에서 공유하는 명칭·위치·스타일",
+        "같은 동작 뒤에 반복되는 상태와 피드백 패턴",
+        "비슷한 의미인데 표현이나 버튼 순서가 달라지는 지점"
+      ],
+      "relations": [
+        {
+          "type": "related",
+          "term_id": "term.alignment"
+        },
+        {
+          "type": "related",
+          "term_id": "term.typographic-scale"
+        },
+        {
+          "type": "related",
+          "term_id": "term.component"
+        },
+        {
+          "type": "related",
+          "term_id": "term.design-token"
+        }
+      ],
+      "sources": [
+        {
+          "id": "nng-visual-design-glossary",
+          "title": "Visual Design: Glossary",
+          "url": "https://www.nngroup.com/articles/visual-design-cheat-sheet/",
+          "source_type": "research"
+        },
+        {
+          "id": "nng-consistency",
+          "title": "Maintain Consistency and Adhere to Standards (Usability Heuristic #4)",
+          "url": "https://www.nngroup.com/articles/consistency-and-standards/",
+          "source_type": "research"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "초록은 제가 볼 때는 다 빼는게 맞을",
+          "occurrence_id": "CYhJxtcL5B0:012"
+        },
+        {
+          "text": "원본을 바꾸면 모든 컬러나 디자인들이 한 번에 같이 변하게 됩니다.",
+          "occurrence_id": "F0kDoNaAxwY:003"
+        },
+        {
+          "text": "컴포넌트가 걸린 버튼이 적용이 되어 있기 때문에 여기서 컬러를 제가 바꾸면 같이 동시에 바뀌는 걸 확인해 보실 수가 있겠죠?",
+          "occurrence_id": "F0kDoNaAxwY:004"
+        },
+        {
+          "text": "동일한 위치에서 플러스가 마이너스로 변해야죠. 마이너스가 됐다고 얘가",
+          "occurrence_id": "Ycyt997c6ow:005"
+        },
+        {
+          "text": "최대한 공통 요소를 가지고 가이드를 맞춰서",
+          "occurrence_id": "jaI2E50wu2k:007"
+        },
+        {
+          "text": "구상을 머릿속에 담아두고 PC",
+          "occurrence_id": "jaI2E50wu2k:008"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "NN/g 용어집의 Consistency 정의와 내부·외부 일관성 설명을 확인했다. 일반 heuristic의 용어이며 모든 화면을 같게 만들라는 규범이 아니다. 한국어 명칭은 원장의 번역이고 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.contrast-ratio",
+      "ko": "명암비",
+      "en": "Contrast ratio",
+      "label_status": "official",
+      "definition": "WCAG에서 두 색의 상대 휘도를 비교하는 비율이다. 밝은 색의 상대 휘도를 L1, 어두운 색의 상대 휘도를 L2라 할 때 (L1 + 0.05) / (L2 + 0.05)로 계산한다. 범위는 1:1부터 21:1이며, 크기나 형태의 대비를 뜻하지 않는다.",
+      "includes": [
+        "글자색과 실제 배경색 사이의 상대 휘도 비율",
+        "식별 대상과 인접 색 사이의 명암비 계산"
+      ],
+      "excludes": [
+        "색상·채도·크기 차이까지 포함하는 일반적인 시각적 대비",
+        "눈대중이나 흐린 영상 픽셀로 추정한 WCAG 수치",
+        "명암비 하나로 접근성 전체의 준수 여부를 판단하는 것"
+      ],
+      "visual_signals": [
+        "글자 또는 요소가 배경에 비해 밝거나 어둡게 보이는 차이",
+        "정확한 수치는 원래 전경·배경 색값으로 계산하며 화면 인상만으로 확정하지 않음"
+      ],
+      "relations": [
+        {
+          "type": "related",
+          "term_id": "term.visual-hierarchy"
+        }
+      ],
+      "sources": [
+        {
+          "id": "w3c-wcag22",
+          "title": "Web Content Accessibility Guidelines (WCAG) 2.2",
+          "url": "https://www.w3.org/TR/WCAG22/",
+          "source_type": "standard"
+        },
+        {
+          "id": "w3c-wcag22-understanding-contrast-enhanced",
+          "title": "Understanding Success Criterion 1.4.6: Contrast (Enhanced)",
+          "url": "https://www.w3.org/WAI/WCAG22/Understanding/contrast-enhanced.html",
+          "source_type": "standard"
+        }
+      ],
+      "observed_expressions": [],
+      "status": "candidate",
+      "status_reason": "WCAG 2.2의 contrast ratio 정의를 확인했다. Understanding 문서는 표준 계열의 해설이며 규범 자체가 아니다. 적용 임계값과 예외는 해당 성공 기준에서 따로 판단한다. 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.dark-pattern",
+      "ko": "다크 패턴",
+      "en": "Dark pattern",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "좋은 UX는 사용자의 목적을 조금 더 쉽게 달성하도록 돕습니다. 하지만 나쁜 UX는 서비스의 이익만을 위해 사용자를 유도합니다.",
+          "occurrence_id": "3ZXBb8Ol_2M:008"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.design-exploration",
+      "ko": "디자인 탐색 과정",
+      "en": "design exploration",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "시안들을 만들었어요. 뭐 레이아웃도 바꿔 보고 구조도 짜보고 여러 가지 실험도 해보고",
+          "occurrence_id": "RGFAGMRHzFU:005"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.design-token",
+      "ko": "디자인 토큰",
+      "en": "Design token",
+      "label_status": "official",
+      "definition": "디자인 결정을 재사용 가능한 이름과 연결된 값으로 표현한 단위다. 색·서체·치수 같은 값을 이름으로 참조하며, 값은 다른 토큰을 참조할 수도 있다.",
+      "includes": [
+        "이름으로 참조하는 색상·타이포그래피·치수 값",
+        "같은 이름을 유지하면서 맥락에 따라 다른 값을 적용하는 디자인 결정",
+        "다른 토큰을 참조하는 별칭"
+      ],
+      "excludes": [
+        "이름이나 공유 참조 없이 화면에 직접 입력한 값 자체",
+        "컴포넌트 전체와 그 동작",
+        "모든 프로그래밍 변수를 디자인 토큰이라고 부르는 것"
+      ],
+      "visual_signals": [
+        "디자인 도구나 명세에 표시된 토큰 이름과 연결 값",
+        "여러 요소가 같은 토큰을 참조하는 대응 관계",
+        "색이나 치수가 같아 보인다는 사실만으로 토큰 공유를 확정하지 않음"
+      ],
+      "relations": [
+        {
+          "type": "related",
+          "term_id": "term.component"
+        },
+        {
+          "type": "related",
+          "term_id": "term.spacing"
+        },
+        {
+          "type": "related",
+          "term_id": "term.typographic-scale"
+        },
+        {
+          "type": "related",
+          "term_id": "term.consistency"
+        }
+      ],
+      "sources": [
+        {
+          "id": "material3-design-tokens",
+          "title": "Design tokens – Material Design 3: Overview",
+          "url": "https://m3.material.io/foundations/design-tokens/overview",
+          "source_type": "product"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "간단한 샘플 디자인 공통 가이드도",
+          "occurrence_id": "FAKwQSqQWKw:003"
+        },
+        {
+          "text": "디자인은 단순히 그냥 예쁜 화면을 그려내는게 아니에요. 시스템 공통부터 해서 시스템 가이드, 디자인 가이드, 유지보수",
+          "occurrence_id": "RGFAGMRHzFU:004"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "Material Design 3의 명시적 Design token 정의와 이름·값 구성을 확인했다. 제품 디자인 시스템의 정의이며 W3C 표준이라는 뜻은 아니다. 특정 도구의 변수와 자동으로 동일시하지 않는다. 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.dim-overlay",
+      "ko": "딤 오버레이",
+      "en": "Dim overlay",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "다크",
+          "occurrence_id": "Y_qV8uV6K5I:015"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.drag-bounds",
+      "ko": "드래그 범위 제한",
+      "en": "Drag bounds",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "프레임을 이탈할 수가 없어요.",
+          "occurrence_id": "Y_qV8uV6K5I:018"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.easing-curve",
+      "ko": "이징 곡선",
+      "en": "Easing curve",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "빨라졌다가 느게 놓차.",
+          "occurrence_id": "9GJbVpEIIZg:001"
+        },
+        {
+          "text": "시작한다고 해 볼까요?",
+          "occurrence_id": "9GJbVpEIIZg:004"
+        },
+        {
+          "text": "띠용 이랬으면 좋겠죠?",
+          "occurrence_id": "9GJbVpEIIZg:005"
+        },
+        {
+          "text": "핑크톤들이 먼저 끝나야겠죠? 그렇죠?",
+          "occurrence_id": "9GJbVpEIIZg:006"
+        },
+        {
+          "text": "느리다가 요런 식으로 부드럽게",
+          "occurrence_id": "9GJbVpEIIZg:007"
+        },
+        {
+          "text": "우리가 원하는 건 리본도 같이 여기",
+          "occurrence_id": "9GJbVpEIIZg:010"
+        },
+        {
+          "text": "로딩이 빠르게 빠르게 진행되는 거.",
+          "occurrence_id": "9GJbVpEIIZg:011"
+        },
+        {
+          "text": "커브에서는 커스텀",
+          "occurrence_id": "mtTXn2cCNRY:007"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.feedback",
+      "ko": "피드백",
+      "en": "Feedback",
+      "label_status": "internal_preferred",
+      "definition": "사용자 입력의 수신 여부, 처리 진행, 결과 또는 사용자에게 영향을 주는 시스템 변화를 알리는 응답이다. 이 원장에서는 인터페이스가 사용자에게 전달하는 응답을 뜻하며 디자인 리뷰 의견과 구분한다.",
+      "includes": [
+        "버튼을 눌렀음을 알리는 변화와 처리 진행 표시",
+        "작업 성공·실패와 다음 행동을 알려 주는 메시지",
+        "사용자에게 영향을 주는 시스템 변화의 시각·청각·촉각 응답"
+      ],
+      "excludes": [
+        "디자이너에게 전달하는 검토 의견이나 사용자 설문 응답",
+        "아직 사용자에게 전달되지 않은 내부 상태 자체",
+        "입력·처리·결과와 관계없는 장식 애니메이션"
+      ],
+      "visual_signals": [
+        "행동 직후 나타나는 눌림 표현·진행 표시·완료 표시",
+        "오류 설명과 복구 행동의 노출",
+        "소리·진동만 있는 피드백은 화면만으로 확인할 수 없음"
+      ],
+      "relations": [
+        {
+          "type": "confused_with",
+          "term_id": "term.ui-state"
+        }
+      ],
+      "sources": [
+        {
+          "id": "nng-system-status",
+          "title": "Visibility of System Status (Usability Heuristic #1)",
+          "url": "https://www.nngroup.com/articles/visibility-system-status/",
+          "source_type": "research"
+        },
+        {
+          "id": "nng-ten-heuristics",
+          "title": "10 Usability Heuristics for User Interface Design",
+          "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+          "source_type": "research"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "사람은 자신의 행동에 대한 결과를 바로바로 원하기 때문입니다.",
+          "occurrence_id": "3ZXBb8Ol_2M:004"
+        },
+        {
+          "text": "이쁘게 만드는 목적보다 사용자에게 피드백을 주기 위함이다.",
+          "occurrence_id": "3ZXBb8Ol_2M:005"
+        },
+        {
+          "text": "빨라졌다가 느게 놓차.",
+          "occurrence_id": "9GJbVpEIIZg:001"
+        },
+        {
+          "text": "핑크톤들이 먼저 끝나야겠죠? 그렇죠?",
+          "occurrence_id": "9GJbVpEIIZg:006"
+        },
+        {
+          "text": "로딩이 빠르게 빠르게 진행되는 거.",
+          "occurrence_id": "9GJbVpEIIZg:011"
+        },
+        {
+          "text": "정확하게 줘야 돼요.",
+          "occurrence_id": "CYhJxtcL5B0:011"
+        },
+        {
+          "text": "상태값이나 뭐 에러 처리나 뭐 운영 정책이나 뭐 권한 구조나 데이터 구조 접근성 반응형 구조 이런 무수한 여러 가지 등등등등등의 케이스가 굉장히 많단 말이에요.",
+          "occurrence_id": "RGFAGMRHzFU:002"
+        },
+        {
+          "text": "클로즈 아이콘 당연히 있어야죠.",
+          "occurrence_id": "Y_qV8uV6K5I:016"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "공식 정의 미확인: NN/g Visibility of System Status와 10 Usability Heuristics. 응답의 목적과 사례는 확인했으나 이 원장의 다중 감각 범위를 포괄하는 Feedback 독립 정의는 확인하지 못했다. 내부 작업 정의이며 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.gamification",
+      "ko": "게임화",
+      "en": "Gamification",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "사람은 시작한 것에 끝을 내고 싶어 하기 때문입니다.",
+          "occurrence_id": "3ZXBb8Ol_2M:006"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.glass-effect",
+      "ko": "글래스 효과",
+      "en": "Glass effect",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "프레임으로 제작을 해",
+          "occurrence_id": "_EWpVKIS8uI:001"
+        },
+        {
+          "text": "글래스의 느낌이 달라지는 걸 확인해",
+          "occurrence_id": "_EWpVKIS8uI:002"
+        },
+        {
+          "text": "섀도우나 드롭 섀도우를 좀 활용해",
+          "occurrence_id": "_EWpVKIS8uI:003"
+        },
+        {
+          "text": "조금 더 퍼진듯한 느낌을 가져가죠.",
+          "occurrence_id": "_EWpVKIS8uI:004"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.global-navigation",
+      "ko": "전역 내비게이션",
+      "en": "Global navigation",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "너무 강해 보이잖아. 지금 GNB 자체가. 그렇죠. 애초에 메인에서 이렇게 Gnb를 썼다고 해도 서브로 오면은 약간 화이트 GNB가 있거나",
+          "occurrence_id": "CmoUZyhGWOw:003"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.independent-scroll-region",
+      "ko": "독립 스크롤 영역",
+      "en": "Independent scroll region",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.information-priority",
+      "ko": "정보 우선순위",
+      "en": "Information priority",
+      "label_status": "internal_preferred",
+      "definition": "대상 사용자가 과업을 수행하거나 판단하는 데 필요한 정보를 중요도와 필요 시점에 따라 구분한 순서다. 무엇을 먼저 알려야 하는지에 관한 내용상의 판단이며, 이를 화면에서 얼마나 두드러지게 표현했는지와 구분한다.",
+      "includes": [
+        "현재 과업에 먼저 필요한 정보와 보조 정보를 구분하기",
+        "핵심 정보와 필요할 때 제공할 세부 정보를 나누기",
+        "사용자 목표에 비추어 콘텐츠의 제시 순서를 정하기"
+      ],
+      "excludes": [
+        "크고 진하게 보이는 요소를 곧바로 가장 중요한 정보라고 판단하는 것",
+        "과업 근거 없이 사업상 강조하고 싶은 정보만 앞세우는 것",
+        "시각적 강조 기법 자체"
+      ],
+      "visual_signals": [
+        "핵심·보조·상세 정보가 어떤 순서로 노출되는지",
+        "요약과 세부 정보의 분리 및 필요 시 펼쳐 보는 구조",
+        "시각적 강조는 우선순위의 표현일 뿐이며 과업·내용 근거와 대조해야 함"
+      ],
+      "relations": [
+        {
+          "type": "confused_with",
+          "term_id": "term.visual-hierarchy"
+        }
+      ],
+      "sources": [
+        {
+          "id": "nng-visual-hierarchy",
+          "title": "Visual Hierarchy in UX: Definition",
+          "url": "https://www.nngroup.com/articles/visual-hierarchy-ux-definition/",
+          "source_type": "research"
+        },
+        {
+          "id": "nng-ten-heuristics",
+          "title": "10 Usability Heuristics for User Interface Design",
+          "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+          "source_type": "research"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "그래도 뭐 최대 한 세 개",
+          "occurrence_id": "4OLsOwt5UTI:003"
+        },
+        {
+          "text": "같이 묶여야 돼요.",
+          "occurrence_id": "CYhJxtcL5B0:003"
+        },
+        {
+          "text": "중요한 핵심 정보만 보여 주고요.",
+          "occurrence_id": "CYhJxtcL5B0:004"
+        },
+        {
+          "text": "하려면 올리는게 맞는 거 같아요.",
+          "occurrence_id": "CYhJxtcL5B0:005"
+        },
+        {
+          "text": "저는 그래도이 타이틀이 훨씬 중요하다고 생각되기 때문에요 타이틀을 좀 이쪽으로 옮기고요.",
+          "occurrence_id": "CmoUZyhGWOw:008"
+        },
+        {
+          "text": "여기 탭이랑 여기 플랜들이 버튼이랑 부딪히잖아. 버튼이. 그죠? 요렇게 넣으셨잖아. 요렇게 요렇게 요렇게 요렇게. 이게 비교가 될까요?",
+          "occurrence_id": "CmoUZyhGWOw:023"
+        },
+        {
+          "text": "순서상으로 보면은 퍼센트 가격",
+          "occurrence_id": "N2aZc4jpuKs:008"
+        },
+        {
+          "text": "만약에 앱에 관리자 페이지가 없다면 관리자가 쓸 수 있는 앱을 따로 만들어서 연동을 시켜 줘야 된다는 얘기겠죠.",
+          "occurrence_id": "RuanY_p6mb4:003"
+        },
+        {
+          "text": "내려가면 이미지 정보를 같이 볼 수 있을 것 같거든요. 내가 선택한 대로 이미지가 바뀌고 정보도 같이 묶어서 한 그룹으로 보여 줄 수 있을 것 같은데",
+          "occurrence_id": "Ycyt997c6ow:006"
+        },
+        {
+          "text": "좌우 이렇게 하나에 한 번에 두 개씩",
+          "occurrence_id": "dT-OarWW2Wo:001"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "공식 정의 미확인: NN/g Visual Hierarchy in UX: Definition과 10 Usability Heuristics. 시각 표현 전에 콘텐츠 위계를 정하고 주요 목표에 맞춰 내용을 우선하라는 설명을 바탕으로 한 내부 작업 정의다. 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.interaction-intensity",
+      "ko": "인터랙션 강도",
+      "en": "Interaction intensity",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "이펙트를 너무 과하게 걸면은 좀",
+          "occurrence_id": "Y_qV8uV6K5I:001"
+        },
+        {
+          "text": "좀 정신 없어 보였거든요.",
+          "occurrence_id": "Y_qV8uV6K5I:002"
+        },
+        {
+          "text": "75%라 빠르게 지나가면 잘 느낌이",
+          "occurrence_id": "Y_qV8uV6K5I:007"
+        },
+        {
+          "text": "크게 요동치겠죠?",
+          "occurrence_id": "Y_qV8uV6K5I:019"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.letter-spacing",
+      "ko": "자간",
+      "en": "Letter spacing",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.marquee",
+      "ko": "자동 순환 슬라이드",
+      "en": "Marquee",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "Marquee",
+          "occurrence_id": "Y_qV8uV6K5I:011"
+        },
+        {
+          "text": "보면은 당연히 불편하고 복잡하긴",
+          "occurrence_id": "Y_qV8uV6K5I:012"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.policy-branching",
+      "ko": "정책 분기",
+      "en": "Policy branching",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "해외 사용자 가입 이거는 뭐 국가별 가입 정책 분기 적용이 될 수도 있죠.",
+          "occurrence_id": "RuanY_p6mb4:008"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.product-thumbnail-aspect-ratio",
+      "ko": "상품 썸네일 종횡비",
+      "en": "Product thumbnail aspect ratio",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.progressive-disclosure",
+      "ko": "점진적 공개",
+      "en": "Progressive disclosure",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.proximity",
+      "ko": "근접성",
+      "en": "Proximity",
+      "label_status": "official",
+      "definition": "가까이 놓인 요소를 같은 그룹에 속하거나 관련된 것으로 지각하는 경향이다. 단순히 거리가 짧다는 측정값이 아니라, 상대적 거리가 요소의 관계를 드러내는 지각 원리를 가리킨다.",
+      "includes": [
+        "라벨을 대응하는 입력 필드에 가깝게 배치해 관계를 나타내는 것",
+        "그룹 내부보다 그룹 사이의 거리를 넓혀 구분하는 것"
+      ],
+      "excludes": [
+        "요소 사이 거리의 수치 자체",
+        "가까운 요소는 실제 의미나 기능도 반드시 같다는 단정",
+        "색이나 테두리만으로 만들어지는 그룹화를 근접성이라고 부르는 것"
+      ],
+      "visual_signals": [
+        "그룹 내부 거리와 그룹 간 거리의 상대적 차이",
+        "제목과 본문 또는 라벨과 필드가 가까이 붙어 형성하는 묶음",
+        "반응형 재배치 뒤 달라지는 그룹 경계"
+      ],
+      "relations": [
+        {
+          "type": "confused_with",
+          "term_id": "term.spacing"
+        },
+        {
+          "type": "related",
+          "term_id": "term.visual-hierarchy"
+        }
+      ],
+      "sources": [
+        {
+          "id": "nng-proximity",
+          "title": "Proximity Principle in Visual Design",
+          "url": "https://www.nngroup.com/articles/gestalt-proximity/",
+          "source_type": "research"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "같이 묶여야 돼요.",
+          "occurrence_id": "CYhJxtcL5B0:003"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "NN/g의 Principle of proximity 정의를 확인했다. 지각 경향을 설명하는 연구·실무 용어이며 거리 임계값을 정한 규범은 아니다. 한국어 명칭은 원장의 번역이고 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.randomized-tilted-image-layout",
+      "ko": "무작위 기울기 이미지 배치",
+      "en": "Randomized tilted image layout",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "더 다이나믹한 느낌을 가져갈 수가",
+          "occurrence_id": "mtTXn2cCNRY:010"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.responsive-design",
+      "ko": "반응형 디자인",
+      "en": "Responsive design",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "PC에서는이 서랍식 아이콘이 필요가 없잖아요. 그렇죠? 어떻게 해야 돼? 눈을 꺼 줍니다.",
+          "occurrence_id": "6SDD-DLQuBU:001"
+        },
+        {
+          "text": "태블릿사서 쓰기에는 좌우 마진이 48은 너무 넓죠? 28로 바꿔 줍니다.",
+          "occurrence_id": "6SDD-DLQuBU:002"
+        },
+        {
+          "text": "태블릿사서 쓰기에는 좌우 마진이 48은 너무 넓죠? 28로 바꿔 줍니다. 로고 사이즈 조금만 줄여 줄게요. 32 정도. 카테고리 사이즈 20으로 바꿔 줍니다.",
+          "occurrence_id": "6SDD-DLQuBU:003"
+        },
+        {
+          "text": "375죠. 굉장히 좁아요. 자,이 상태에서는 여기 카테고리 항목들이 어떻게 되겠어요? 눈으로 가려지겠죠?",
+          "occurrence_id": "6SDD-DLQuBU:004"
+        },
+        {
+          "text": "모바일에서 사용하기에는이 태블릿 로고 사이즈도 꽤 큰 거 같습니다. 24로 이렇게 바꿔 주겠습니다.",
+          "occurrence_id": "6SDD-DLQuBU:005"
+        },
+        {
+          "text": "이 넘버링이이 태블릿의 영역을 벗어났죠.이 타이틀 부분을 필로 바꿔 줍니다.",
+          "occurrence_id": "6SDD-DLQuBU:007"
+        },
+        {
+          "text": "필로 만들어야지 이게 이미지가 커질 때마다 즉각적으로 반응을 합니다.",
+          "occurrence_id": "6SDD-DLQuBU:008"
+        },
+        {
+          "text": "1920, 1440, 1024, 375 해상도별로 다양한 디자인",
+          "occurrence_id": "FAKwQSqQWKw:004"
+        },
+        {
+          "text": "상태값이나 뭐 에러 처리나 뭐 운영 정책이나 뭐 권한 구조나 데이터 구조 접근성 반응형 구조 이런 무수한 여러 가지 등등등등등의 케이스가 굉장히 많단 말이에요.",
+          "occurrence_id": "RGFAGMRHzFU:002"
+        },
+        {
+          "text": "디바이스에 맞춰서 최적화해서 디자인을",
+          "occurrence_id": "jaI2E50wu2k:009"
+        },
+        {
+          "text": "반응형이 가능한 디자인이 있고 불가능한",
+          "occurrence_id": "jaI2E50wu2k:010"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.scroll-parallax",
+      "ko": "스크롤 패럴랙스",
+      "en": "Scroll parallax",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "75%라 빠르게 지나가면 잘 느낌이",
+          "occurrence_id": "Y_qV8uV6K5I:007"
+        },
+        {
+          "text": "여기를 0으로",
+          "occurrence_id": "Y_qV8uV6K5I:008"
+        },
+        {
+          "text": "1천은 좀 과하네요. 500",
+          "occurrence_id": "Y_qV8uV6K5I:009"
+        },
+        {
+          "text": "크게 요동치겠죠?",
+          "occurrence_id": "Y_qV8uV6K5I:019"
+        },
+        {
+          "text": "부드러워지겠죠. 약간 반응이 느린",
+          "occurrence_id": "Y_qV8uV6K5I:021"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.social-proof",
+      "ko": "사회적 증명",
+      "en": "Social proof",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "바로 사회적 증명 때문입니다.",
+          "occurrence_id": "3ZXBb8Ol_2M:007"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.spacing",
+      "ko": "간격",
+      "en": "Spacing",
+      "label_status": "official",
+      "definition": "컴포넌트와 레이아웃 요소의 안쪽·주변·사이에 두는 거리다. 패딩은 요소 안쪽, 갭은 요소 사이, 마진은 요소 바깥의 공간으로 구분해 기록한다.",
+      "includes": [
+        "컨테이너 경계와 내부 콘텐츠 사이의 패딩",
+        "나란한 요소나 쌓인 요소 사이의 갭",
+        "요소 바깥과 부모 컨테이너 또는 화면 경계 사이의 마진"
+      ],
+      "excludes": [
+        "가까운 요소를 관련된 것으로 지각하는 근접성 원리 자체",
+        "요소가 실제로 차지하는 가로·세로 크기",
+        "글자 간격·행간을 레이아웃 패딩과 구분 없이 같은 값으로 기록하는 것"
+      ],
+      "visual_signals": [
+        "콘텐츠와 컨테이너 경계 사이에 남는 공간",
+        "반복 항목 사이의 수평·수직 거리",
+        "그룹별로 반복되거나 달라지는 여백 패턴"
+      ],
+      "relations": [
+        {
+          "type": "confused_with",
+          "term_id": "term.proximity"
+        },
+        {
+          "type": "related",
+          "term_id": "term.alignment"
+        },
+        {
+          "type": "related",
+          "term_id": "term.target-size"
+        },
+        {
+          "type": "related",
+          "term_id": "term.design-token"
+        }
+      ],
+      "sources": [
+        {
+          "id": "material3-spacing",
+          "title": "Spacing – Material Design 3: Overview",
+          "url": "https://m3.material.io/styles/spacing/overview",
+          "source_type": "product"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "검색창의요 사이 여백이 있죠.",
+          "occurrence_id": "4OLsOwt5UTI:004"
+        },
+        {
+          "text": "취소 누르다가이 X 누르겠어요.이 X",
+          "occurrence_id": "4OLsOwt5UTI:007"
+        },
+        {
+          "text": "태블릿사서 쓰기에는 좌우 마진이 48은 너무 넓죠? 28로 바꿔 줍니다.",
+          "occurrence_id": "6SDD-DLQuBU:002"
+        },
+        {
+          "text": "암색창의 높이는 56은 좀 크구나. 40픽셀로",
+          "occurrence_id": "6SDD-DLQuBU:013"
+        },
+        {
+          "text": "타이틀의 힘을 좀 잡아 줄게요.",
+          "occurrence_id": "CYhJxtcL5B0:002"
+        },
+        {
+          "text": "다 똑같으니까 헷갈리죠.",
+          "occurrence_id": "CYhJxtcL5B0:010"
+        },
+        {
+          "text": "초록은 제가 볼 때는 다 빼는게 맞을",
+          "occurrence_id": "CYhJxtcL5B0:012"
+        },
+        {
+          "text": "갈라 놓은 거 같잖아요. 왜 그러냐면 여기 여백이 넓기 때문에 그래요.",
+          "occurrence_id": "CmoUZyhGWOw:007"
+        },
+        {
+          "text": "요거 없어도 된다고 했죠? 다 빼버립니다.",
+          "occurrence_id": "CmoUZyhGWOw:017"
+        },
+        {
+          "text": "너무 붙어 있지 않나? -4 너무 타이트해. 헌트 사이즈 16까지 키워 주고요.",
+          "occurrence_id": "CmoUZyhGWOw:018"
+        },
+        {
+          "text": "오토레 걸고 상단 40에 하단 80 정도 그대로 올려 줍니다. 그대로 내려봐요. 그다음에 스트록 탑으로 걸어 줄게요.",
+          "occurrence_id": "CmoUZyhGWOw:019"
+        },
+        {
+          "text": "시작과 끝이에요. 시작과 끝. 여백을 일부러 여긴 좁고 여긴 일부러 넓게 뛴 거란 말이에요.",
+          "occurrence_id": "CmoUZyhGWOw:022"
+        },
+        {
+          "text": "버튼을 만들기 위해서는 오토 레아웃을 걸어 줘야 돼요.",
+          "occurrence_id": "F0kDoNaAxwY:001"
+        },
+        {
+          "text": "얘가 여기가 이빨이 자꾸 빠져",
+          "occurrence_id": "N2aZc4jpuKs:005"
+        },
+        {
+          "text": "텍스트를 살짝 안으로 약간 밀어 넣어",
+          "occurrence_id": "N2aZc4jpuKs:007"
+        },
+        {
+          "text": "여백은 고정시키고 이미지하고 폰트만",
+          "occurrence_id": "jaI2E50wu2k:002"
+        },
+        {
+          "text": "Gutter",
+          "occurrence_id": "mtTXn2cCNRY:002"
+        },
+        {
+          "text": "잡으셔도이 밋밋함이 확실히 사라져요",
+          "occurrence_id": "usDqYTr9NM0:002"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "Material Design 3의 Spacing 및 padding·gap·margin 정의를 확인했다. 여기서는 레이아웃 간격으로 범위를 한정하며 Material의 단위 체계를 모든 제품의 규칙으로 일반화하지 않는다. 한국어 명칭은 원장의 번역이고 아직 채택하지 않았다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.spin-animation",
+      "ko": "반복 회전",
+      "en": "Spin animation",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "정신 없음이 보이겠죠?",
+          "occurrence_id": "Y_qV8uV6K5I:013"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.spring-animation",
+      "ko": "스프링 애니메이션",
+      "en": "Spring animation",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "띠용 이랬으면 좋겠죠?",
+          "occurrence_id": "9GJbVpEIIZg:005"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.target-size",
+      "ko": "입력 대상 크기",
+      "en": "Target size",
+      "label_status": "official",
+      "definition": "마우스·펜·터치 같은 포인터 동작을 받아들이는 화면 영역의 크기다. 보이는 아이콘이나 컨트롤 외형의 크기와 다를 수 있으며, 이 원장에서는 WCAG의 포인터 입력 대상 의미로 한정한다.",
+      "includes": [
+        "버튼이나 링크의 실제 클릭·탭 반응 영역",
+        "외형 밖으로 확장되어 같은 동작을 받는 투명한 입력 영역"
+      ],
+      "excludes": [
+        "입력을 받지 않는 아이콘 도형의 크기만을 재는 것",
+        "키보드 포커스 표시의 외곽선 크기",
+        "요소 사이의 빈 공간을 실제 입력 영역이라고 간주하는 것"
+      ],
+      "visual_signals": [
+        "런타임에서 포인터 반응 경계와 보이는 경계가 일치하는지 확인",
+        "화면만으로 실제 입력 경계가 보이지 않으면 크기를 확정하지 않음",
+        "구현 도구가 표시하는 클릭·탭 영역과 그 단위"
+      ],
+      "relations": [
+        {
+          "type": "confused_with",
+          "term_id": "term.visible-control-size"
+        },
+        {
+          "type": "related",
+          "term_id": "term.spacing"
+        }
+      ],
+      "sources": [
+        {
+          "id": "w3c-wcag22",
+          "title": "Web Content Accessibility Guidelines (WCAG) 2.2",
+          "url": "https://www.w3.org/TR/WCAG22/",
+          "source_type": "standard"
+        },
+        {
+          "id": "w3c-wcag22-understanding-target-size-minimum",
+          "title": "Understanding Success Criterion 2.5.8: Target Size (Minimum)",
+          "url": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+          "source_type": "standard"
+        }
+      ],
+      "observed_expressions": [],
+      "status": "candidate",
+      "status_reason": "WCAG의 target 정의와 Target Size 기준을 확인했다. Understanding은 보이는 크기를 늘리지 않고 활성 입력 영역을 늘릴 수 있다고 설명한다. 크기와 간격 예외를 구분하며, 한국어 명칭은 원장의 번역이다. 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.typographic-scale",
+      "ko": "타이포그래피 스케일",
+      "en": "Type scale",
+      "label_status": "official",
+      "definition": "제품 전반에서 일관되게 사용할 타이포그래피 스타일을 선정해 구성한 체계다. 글자 크기뿐 아니라 서체·굵기·행간·자간 등의 속성과 사용 역할을 함께 다룬다.",
+      "includes": [
+        "제목·본문·라벨 등 역할별로 재사용하는 텍스트 스타일 집합",
+        "스타일별 크기·굵기·행간·자간의 대응 관계"
+      ],
+      "excludes": [
+        "화면 하나에서 글자 하나를 임의로 키우는 행위만",
+        "서체 이름 목록만으로 이루어진 선택지",
+        "모든 제품이 같은 배율이나 같은 개수의 스타일을 써야 한다는 규칙"
+      ],
+      "visual_signals": [
+        "여러 화면에서 반복되는 제목·본문·라벨의 스타일",
+        "역할별 텍스트 스타일 표와 그 속성",
+        "글자 크기와 굵기 차이로 구분되는 텍스트 단계"
+      ],
+      "relations": [
+        {
+          "type": "related",
+          "term_id": "term.visual-hierarchy"
+        },
+        {
+          "type": "related",
+          "term_id": "term.design-token"
+        },
+        {
+          "type": "related",
+          "term_id": "term.consistency"
+        }
+      ],
+      "sources": [
+        {
+          "id": "material3-type-scale",
+          "title": "Typography – Material Design 3: Type scale & tokens",
+          "url": "https://m3.material.io/styles/typography/type-scale-tokens",
+          "source_type": "product"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "폰트 사이즈 좀 볼까? 12 조금 더",
+          "occurrence_id": "4OLsOwt5UTI:001"
+        },
+        {
+          "text": "검색창의요 사이 여백이 있죠.",
+          "occurrence_id": "4OLsOwt5UTI:004"
+        },
+        {
+          "text": "이 넘버링이이 태블릿의 영역을 벗어났죠.이 타이틀 부분을 필로 바꿔 줍니다.",
+          "occurrence_id": "6SDD-DLQuBU:007"
+        },
+        {
+          "text": "타이틀의 힘을 좀 잡아 줄게요.",
+          "occurrence_id": "CYhJxtcL5B0:002"
+        },
+        {
+          "text": "저 순간 8월 27일인 줄 알았다.",
+          "occurrence_id": "CYhJxtcL5B0:006"
+        },
+        {
+          "text": "타이틀 사이즈가 너무 작아요.이 크기에 비해서 항상 우리가 그 부피감에 비해서 폰트 사이즈를 좀 잡아 줘야 되거든요.",
+          "occurrence_id": "CmoUZyhGWOw:005"
+        },
+        {
+          "text": "타이틀 좀 확 키워 봐. 확 본문 사이즈도 좀 볼게요. 14 작죠? 18까지 세 줄 처리까지 가셔도 돼요.",
+          "occurrence_id": "CmoUZyhGWOw:009"
+        },
+        {
+          "text": "너무 붙어 있지 않나? -4 너무 타이트해. 헌트 사이즈 16까지 키워 주고요.",
+          "occurrence_id": "CmoUZyhGWOw:018"
+        },
+        {
+          "text": "여기를 13으로 올려",
+          "occurrence_id": "N2aZc4jpuKs:002"
+        },
+        {
+          "text": "커요. 16 줄이고 볼드 볼드는",
+          "occurrence_id": "N2aZc4jpuKs:003"
+        },
+        {
+          "text": "여백은 고정시키고 이미지하고 폰트만",
+          "occurrence_id": "jaI2E50wu2k:002"
+        },
+        {
+          "text": "1320 그래도 폰트",
+          "occurrence_id": "jaI2E50wu2k:004"
+        },
+        {
+          "text": "잡으셔도이 밋밋함이 확실히 사라져요",
+          "occurrence_id": "usDqYTr9NM0:002"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "Material Design 3의 Type scale 정의를 확인했다. 제품별 스타일 선정과 조정이 허용되므로 특정 스타일 수·기준 크기·배율은 용어 정의에 넣지 않았다. 한국어 명칭은 원장의 번역이고 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.ui-state",
+      "ko": "UI 상태",
+      "en": "UI state",
+      "label_status": "internal_preferred",
+      "definition": "특정 시점에 UI의 표시와 가능한 동작을 결정하는 조건이다. 컴포넌트의 상호작용 상태와 화면의 데이터·처리 상태를 포함하되, 상태 자체와 그 상태를 사용자에게 전달하는 피드백을 구분한다.",
+      "includes": [
+        "사용 가능·사용 불가·호버·포커스·눌림·선택 같은 컴포넌트 조건",
+        "로딩·비어 있음·성공·오류 등 화면 콘텐츠와 처리 조건",
+        "사용자 동작이나 시스템 사건에 따른 상태 전이"
+      ],
+      "excludes": [
+        "변화의 원인이나 조건을 알 수 없는 장식 차이만",
+        "상태를 전달하는 메시지·애니메이션 자체만",
+        "제품과 무관한 내부 변수의 모든 조합"
+      ],
+      "visual_signals": [
+        "같은 요소의 선택 표시·포커스 표시·사용 불가 표현",
+        "로딩 표시에서 결과·빈 화면·오류 화면으로의 전환",
+        "정지 화면만으로 확인할 수 없는 전이 조건은 별도로 확인"
+      ],
+      "relations": [
+        {
+          "type": "confused_with",
+          "term_id": "term.feedback"
+        },
+        {
+          "type": "related",
+          "term_id": "term.component"
+        }
+      ],
+      "sources": [
+        {
+          "id": "material3-states",
+          "title": "States – Material Design 3: Overview",
+          "url": "https://m3.material.io/foundations/interaction/states/overview",
+          "source_type": "product"
+        },
+        {
+          "id": "nng-system-status",
+          "title": "Visibility of System Status (Usability Heuristic #1)",
+          "url": "https://www.nngroup.com/articles/visibility-system-status/",
+          "source_type": "research"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "사람은 자신의 행동에 대한 결과를 바로바로 원하기 때문입니다.",
+          "occurrence_id": "3ZXBb8Ol_2M:004"
+        },
+        {
+          "text": "있어야지. 왜냐면 이거는 뭐야? 지금",
+          "occurrence_id": "4OLsOwt5UTI:002"
+        },
+        {
+          "text": "호보할 때 얘가 돌아가면서 흐려지겠죠? 볼까요?",
+          "occurrence_id": "6SDD-DLQuBU:011"
+        },
+        {
+          "text": "맨 처음 모습이 먼저 있어야",
+          "occurrence_id": "9GJbVpEIIZg:003"
+        },
+        {
+          "text": "시작한다고 해 볼까요?",
+          "occurrence_id": "9GJbVpEIIZg:004"
+        },
+        {
+          "text": "핑크톤들이 먼저 끝나야겠죠? 그렇죠?",
+          "occurrence_id": "9GJbVpEIIZg:006"
+        },
+        {
+          "text": "열리면서 약간의 바운스가 만들어져.",
+          "occurrence_id": "9GJbVpEIIZg:009"
+        },
+        {
+          "text": "우리가 원하는 건 리본도 같이 여기",
+          "occurrence_id": "9GJbVpEIIZg:010"
+        },
+        {
+          "text": "스크롤이 될 거잖아.",
+          "occurrence_id": "CYhJxtcL5B0:007"
+        },
+        {
+          "text": "버튼이 밑에 붙어서 따라다녀야",
+          "occurrence_id": "CYhJxtcL5B0:008"
+        },
+        {
+          "text": "다 똑같으니까 헷갈리죠.",
+          "occurrence_id": "CYhJxtcL5B0:010"
+        },
+        {
+          "text": "정확하게 줘야 돼요.",
+          "occurrence_id": "CYhJxtcL5B0:011"
+        },
+        {
+          "text": "각각의 속성값마다 색상이나 스타일들이 달라져야 되거든요.",
+          "occurrence_id": "F0kDoNaAxwY:005"
+        },
+        {
+          "text": "상태값이나 뭐 에러 처리나 뭐 운영 정책이나 뭐 권한 구조나 데이터 구조 접근성 반응형 구조 이런 무수한 여러 가지 등등등등등의 케이스가 굉장히 많단 말이에요.",
+          "occurrence_id": "RGFAGMRHzFU:002"
+        },
+        {
+          "text": "여기를 슬라이드인 바텀으로 바꿔",
+          "occurrence_id": "Y_qV8uV6K5I:003"
+        },
+        {
+          "text": "다시 역 주행했을 때도",
+          "occurrence_id": "Y_qV8uV6K5I:005"
+        },
+        {
+          "text": "마우스 커서가 변하는",
+          "occurrence_id": "Y_qV8uV6K5I:010"
+        },
+        {
+          "text": "라이트 박스",
+          "occurrence_id": "Y_qV8uV6K5I:014"
+        },
+        {
+          "text": "프레임을 이탈할 수가 없어요.",
+          "occurrence_id": "Y_qV8uV6K5I:018"
+        },
+        {
+          "text": "동일한 위치에서 플러스가 마이너스로 변해야죠. 마이너스가 됐다고 얘가",
+          "occurrence_id": "Ycyt997c6ow:005"
+        },
+        {
+          "text": "투명도를 0으로",
+          "occurrence_id": "mtTXn2cCNRY:005"
+        },
+        {
+          "text": "길을 따라서 이미지들이 쭉 따라오는",
+          "occurrence_id": "mtTXn2cCNRY:006"
+        },
+        {
+          "text": "마우스가 이탈할 때 나오는",
+          "occurrence_id": "mtTXn2cCNRY:008"
+        },
+        {
+          "text": "삽입한게 랜덤으로 따다다닥 바뀌면서",
+          "occurrence_id": "mtTXn2cCNRY:009"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "공식 정의 미확인: Material Design 3 States와 NN/g Visibility of System Status. Material의 상호작용 상태 설명보다 넓게 화면의 데이터·처리 조건까지 묶는 UI state는 이 원장의 내부 작업 정의다. 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.user-story",
+      "ko": "사용자 스토리",
+      "en": "User story",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "배달 음식을 빠르게 찾기 위해 내 기준으로 음식점을 검색을 하고",
+          "occurrence_id": "RuanY_p6mb4:001"
+        },
+        {
+          "text": "사장님 관점으로는 첫 번째로 들어온 주문을 빠르게 확인하고 접수 또는 거절 처리를 하게 됩니다.",
+          "occurrence_id": "RuanY_p6mb4:002"
+        },
+        {
+          "text": "만약에 앱에 관리자 페이지가 없다면 관리자가 쓸 수 있는 앱을 따로 만들어서 연동을 시켜 줘야 된다는 얘기겠죠.",
+          "occurrence_id": "RuanY_p6mb4:003"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.variable-reward",
+      "ko": "가변 보상",
+      "en": "Variable reward",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "다음 영상이 재미있을지도 모르기 때문입니다.",
+          "occurrence_id": "3ZXBb8Ol_2M:003"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.visible-control-size",
+      "ko": "보이는 컨트롤 크기",
+      "en": "Visible control size",
+      "label_status": "internal_preferred",
+      "definition": "컨트롤의 화면상 외형이 차지하는 크기를 기록하기 위한 내부 용어다. 버튼 배경·테두리·아이콘 등 무엇의 보이는 경계를 재는지 명시하며, 실제 포인터 입력 영역의 크기와 구분한다.",
+      "includes": [
+        "버튼의 보이는 배경이나 테두리의 가로·세로 크기",
+        "아이콘만 보이는 컨트롤에서 아이콘 도형의 외형 크기"
+      ],
+      "excludes": [
+        "보이지 않지만 클릭·탭을 받는 확장 영역",
+        "컨트롤 주변의 여백",
+        "보이는 외형만으로 입력 대상 크기나 WCAG 적합성을 확정하는 것"
+      ],
+      "visual_signals": [
+        "컨트롤의 보이는 배경·테두리·아이콘 경계",
+        "컨트롤 외형과 별도로 표시된 입력 영역 경계",
+        "아이콘 크기와 버튼 전체 외형 크기를 구분하는 속성 패널"
+      ],
+      "relations": [
+        {
+          "type": "confused_with",
+          "term_id": "term.target-size"
+        }
+      ],
+      "sources": [
+        {
+          "id": "w3c-wcag22-understanding-target-size-minimum",
+          "title": "Understanding Success Criterion 2.5.8: Target Size (Minimum)",
+          "url": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+          "source_type": "standard"
+        }
+      ],
+      "observed_expressions": [],
+      "status": "candidate",
+      "status_reason": "공식 정의 미확인: W3C WCAG 2.2 Understanding Target Size (Minimum). 보이는 크기와 활성 입력 영역을 구분하는 설명은 확인했으나 Visible control size라는 독립 표제의 정의는 확인하지 못했다. 그 구분을 기록하기 위한 내부 명칭이며 아직 채택하지 않았다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.visual-depth",
+      "ko": "시각적 깊이감",
+      "en": "Visual depth",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "어, 배경을 좀 날려 볼게요.",
+          "occurrence_id": "CYhJxtcL5B0:001"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.visual-hierarchy",
+      "ko": "시각적 위계",
+      "en": "Visual hierarchy",
+      "label_status": "official",
+      "definition": "화면의 디자인 요소를 의도한 중요도 순서로 살펴보도록 시선을 유도하는 시각적 조직이다. 색과 대비, 상대적 크기, 그룹화 등이 이를 표현하며, 실제로 사용자가 보는 순서는 별도로 검증한다.",
+      "includes": [
+        "제목·본문·보조 정보 사이의 시각적 강조 차이",
+        "그룹화와 상대적 크기로 드러내는 화면의 읽는 순서"
+      ],
+      "excludes": [
+        "사용자 과업을 기준으로 무엇이 중요한지 정하는 정보 우선순위 자체",
+        "명암비 수치 하나만으로 위계 전체를 판정하는 것",
+        "의도한 순서대로 사용자가 읽었다는 검증 없는 주장"
+      ],
+      "visual_signals": [
+        "요소 간 크기·굵기·색 대비 차이",
+        "그룹 내부와 그룹 사이의 여백 차이",
+        "주요 정보와 보조 정보가 서로 다른 시각적 강도로 제시됨"
+      ],
+      "relations": [
+        {
+          "type": "confused_with",
+          "term_id": "term.information-priority"
+        },
+        {
+          "type": "related",
+          "term_id": "term.proximity"
+        },
+        {
+          "type": "related",
+          "term_id": "term.typographic-scale"
+        },
+        {
+          "type": "related",
+          "term_id": "term.contrast-ratio"
+        }
+      ],
+      "sources": [
+        {
+          "id": "nng-visual-hierarchy",
+          "title": "Visual Hierarchy in UX: Definition",
+          "url": "https://www.nngroup.com/articles/visual-hierarchy-ux-definition/",
+          "source_type": "research"
+        }
+      ],
+      "observed_expressions": [
+        {
+          "text": "폰트 사이즈 좀 볼까? 12 조금 더",
+          "occurrence_id": "4OLsOwt5UTI:001"
+        },
+        {
+          "text": "이렇게 밝은 이미지 들어오면 숫자 안",
+          "occurrence_id": "4OLsOwt5UTI:005"
+        },
+        {
+          "text": "진짜 영상 답게 들어가는게 좋겠다라고",
+          "occurrence_id": "4OLsOwt5UTI:006"
+        },
+        {
+          "text": "너무 부담스러워져이 검색 아이콘",
+          "occurrence_id": "4OLsOwt5UTI:008"
+        },
+        {
+          "text": "얇아? 스트롱 몇이야? 이거 0.3.",
+          "occurrence_id": "4OLsOwt5UTI:009"
+        },
+        {
+          "text": "아이콘을 줄이고 텍스트를 조금",
+          "occurrence_id": "4OLsOwt5UTI:010"
+        },
+        {
+          "text": "44인데요. 36까지요 정도.",
+          "occurrence_id": "4OLsOwt5UTI:011"
+        },
+        {
+          "text": "0.3. 에이, 너무 얇다 있게",
+          "occurrence_id": "4OLsOwt5UTI:012"
+        },
+        {
+          "text": "타이틀의 힘을 좀 잡아 줄게요.",
+          "occurrence_id": "CYhJxtcL5B0:002"
+        },
+        {
+          "text": "같이 묶여야 돼요.",
+          "occurrence_id": "CYhJxtcL5B0:003"
+        },
+        {
+          "text": "하려면 올리는게 맞는 거 같아요.",
+          "occurrence_id": "CYhJxtcL5B0:005"
+        },
+        {
+          "text": "저 순간 8월 27일인 줄 알았다.",
+          "occurrence_id": "CYhJxtcL5B0:006"
+        },
+        {
+          "text": "다 똑같으니까 헷갈리죠.",
+          "occurrence_id": "CYhJxtcL5B0:010"
+        },
+        {
+          "text": "초록은 제가 볼 때는 다 빼는게 맞을",
+          "occurrence_id": "CYhJxtcL5B0:012"
+        },
+        {
+          "text": "밸런스가 좀 안 맞아요. 근데 이런 이미지의 배치 같은 거는 사실 좀 느낌적인 부분들이 좀 많거든요. 이게 아마 가운데로 와야 되지 않을까",
+          "occurrence_id": "CmoUZyhGWOw:001"
+        },
+        {
+          "text": "지그제그 패턴으로 가져가고 있네요. 제가 그렇게까지 선호하는 레이아서 구조는 아닙니다.",
+          "occurrence_id": "CmoUZyhGWOw:002"
+        },
+        {
+          "text": "너무 강해 보이잖아. 지금 GNB 자체가. 그렇죠. 애초에 메인에서 이렇게 Gnb를 썼다고 해도 서브로 오면은 약간 화이트 GNB가 있거나",
+          "occurrence_id": "CmoUZyhGWOw:003"
+        },
+        {
+          "text": "여기에도 지금 보면 이렇게 카드로 좀 감싸고 있잖아요. 그렇죠? 이렇게 카드로 감싸는 것 좀 안 했으면 좋겠다.",
+          "occurrence_id": "CmoUZyhGWOw:004"
+        },
+        {
+          "text": "타이틀 사이즈가 너무 작아요.이 크기에 비해서 항상 우리가 그 부피감에 비해서 폰트 사이즈를 좀 잡아 줘야 되거든요.",
+          "occurrence_id": "CmoUZyhGWOw:005"
+        },
+        {
+          "text": "그 강한 브랜드 컬러를 여기저기 저기저기 난발하면 이게 포인트성으로 효과가 없어요.",
+          "occurrence_id": "CmoUZyhGWOw:006"
+        },
+        {
+          "text": "갈라 놓은 거 같잖아요. 왜 그러냐면 여기 여백이 넓기 때문에 그래요.",
+          "occurrence_id": "CmoUZyhGWOw:007"
+        },
+        {
+          "text": "저는 그래도이 타이틀이 훨씬 중요하다고 생각되기 때문에요 타이틀을 좀 이쪽으로 옮기고요.",
+          "occurrence_id": "CmoUZyhGWOw:008"
+        },
+        {
+          "text": "타이틀 좀 확 키워 봐. 확 본문 사이즈도 좀 볼게요. 14 작죠? 18까지 세 줄 처리까지 가셔도 돼요.",
+          "occurrence_id": "CmoUZyhGWOw:009"
+        },
+        {
+          "text": "여기도 버튼에 힘이 너무 없구나. 버튼처럼 감싸시죠? 여기도 요거 빼 주고요. 위아래 16에 좌우 20",
+          "occurrence_id": "CmoUZyhGWOw:010"
+        },
+        {
+          "text": "지금 이미지가 조금 더 키워 가지고 약간 가운데로 딱 꽂히게.",
+          "occurrence_id": "CmoUZyhGWOw:011"
+        },
+        {
+          "text": "이것도 짐 좀 요렇게 해서 깔아 주도록 할게요. 그래야 내용이 더 잘 보이겠죠?",
+          "occurrence_id": "CmoUZyhGWOw:012"
+        },
+        {
+          "text": "굳이 내가 카드로 뭔가 이렇게 감싸거나 하지 않아도 어, 힘이 팍 잡혀.",
+          "occurrence_id": "CmoUZyhGWOw:013"
+        },
+        {
+          "text": "일반 라인형 탭으로 여기를 그냥 그레이톤으로 해서 레귤러나 뭐 미디움 정도로만 가시면 될 거 같고요.",
+          "occurrence_id": "CmoUZyhGWOw:014"
+        },
+        {
+          "text": "여기 여백이 좀 타이트하잖아요. 넓혀. 40. 좋아요. 자, 프레임 하나 그려서 끝까지 널널하게 잡습니다.",
+          "occurrence_id": "CmoUZyhGWOw:015"
+        },
+        {
+          "text": "여기서도 제가 아까 말씀드렸던 것처럼 이미지를 우측으로 보내고 카드는 걷어내고요. 이미지 사이즈 좀 줄이자.",
+          "occurrence_id": "CmoUZyhGWOw:016"
+        },
+        {
+          "text": "요거 없어도 된다고 했죠? 다 빼버립니다.",
+          "occurrence_id": "CmoUZyhGWOw:017"
+        },
+        {
+          "text": "오토레 걸고 상단 40에 하단 80 정도 그대로 올려 줍니다. 그대로 내려봐요. 그다음에 스트록 탑으로 걸어 줄게요.",
+          "occurrence_id": "CmoUZyhGWOw:019"
+        },
+        {
+          "text": "이 카드를 걷어내고 안 걷어내고 차이를 좀 느끼셔야 되고이 상단에도 이렇게 타이틀로만 좀 힘을 잡아 주셔도 돼요.",
+          "occurrence_id": "CmoUZyhGWOw:020"
+        },
+        {
+          "text": "흰바탕에다가 내가 텍스트로만 위계를 잡아서 배치하는 연습을 많이 해 보셔야 돼요.",
+          "occurrence_id": "CmoUZyhGWOw:021"
+        },
+        {
+          "text": "시작과 끝이에요. 시작과 끝. 여백을 일부러 여긴 좁고 여긴 일부러 넓게 뛴 거란 말이에요.",
+          "occurrence_id": "CmoUZyhGWOw:022"
+        },
+        {
+          "text": "여기 탭이랑 여기 플랜들이 버튼이랑 부딪히잖아. 버튼이. 그죠? 요렇게 넣으셨잖아. 요렇게 요렇게 요렇게 요렇게. 이게 비교가 될까요?",
+          "occurrence_id": "CmoUZyhGWOw:023"
+        },
+        {
+          "text": "여기를 13으로 올려",
+          "occurrence_id": "N2aZc4jpuKs:002"
+        },
+        {
+          "text": "커요. 16 줄이고 볼드 볼드는",
+          "occurrence_id": "N2aZc4jpuKs:003"
+        },
+        {
+          "text": "좀 커요. 여기 별은 이제 클 필요가",
+          "occurrence_id": "N2aZc4jpuKs:006"
+        },
+        {
+          "text": "순서상으로 보면은 퍼센트 가격",
+          "occurrence_id": "N2aZc4jpuKs:008"
+        },
+        {
+          "text": "가지고 본인의 브랜드성 강조하고 그런 거 잘하는데 얘를 가운데로 옮기고 이만하게 확 키워 봐요.",
+          "occurrence_id": "Ycyt997c6ow:001"
+        },
+        {
+          "text": "상품보다이 버튼의 눈이 뭐 너무 많이 가거든요. 그레이로 버튼 눌러 주는 것도 좋을 거 같습니다.",
+          "occurrence_id": "Ycyt997c6ow:002"
+        },
+        {
+          "text": "이펙트 다 걷어내야 될 거 같고 카드는 그대로 한번 가져가 보도록 하긴 할게요. 근데 복잡해 보이긴 할 수도 있어.",
+          "occurrence_id": "Ycyt997c6ow:003"
+        },
+        {
+          "text": "잡으셔도이 밋밋함이 확실히 사라져요",
+          "occurrence_id": "usDqYTr9NM0:002"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "NN/g의 명시적 용어 정의를 확인했다. official은 출처에 정의가 있음을 뜻하며 국제 표준이나 한국어 공인 번역을 뜻하지 않는다. 영상 사용례와 채택 감사는 아직 없다.",
+      "review_by": "2027-10-03"
+    },
+    {
+      "id": "term.visual-rhythm",
+      "ko": "시각적 리듬",
+      "en": "Visual rhythm",
+      "label_status": "internal_preferred",
+      "definition": "",
+      "includes": [],
+      "excludes": [],
+      "visual_signals": [],
+      "relations": [],
+      "sources": [],
+      "observed_expressions": [
+        {
+          "text": "조금 더 다이나믹하게 주고 싶다면 런",
+          "occurrence_id": "Y_qV8uV6K5I:006"
+        }
+      ],
+      "status": "candidate",
+      "status_reason": "출처 확인 전",
+      "review_by": "2027-10-03"
+    }
+  ]
+}

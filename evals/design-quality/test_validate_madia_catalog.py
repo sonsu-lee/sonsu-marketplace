@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import copy
+import hashlib
+import importlib.util
 import json
 import subprocess
 import tempfile
@@ -20,6 +22,9 @@ CANONICAL_DISCOVERY_SOURCES = [
     "playlist:design-tools:PLs8gZ5b9piXXqyPn0ruAStd5XPCPlcIMW",
     "channel-feed:UCxRnfrmJAkRLarzeBJETB5g",
 ]
+SPEC = importlib.util.spec_from_file_location("madia_catalog_validator", VALIDATOR)
+validator = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(validator)
 
 
 def coder_evidence(phase: str) -> dict:
@@ -27,8 +32,8 @@ def coder_evidence(phase: str) -> dict:
     record_count = 20 if phase == "pilot" else 2
     records = []
     for index in range(record_count):
-        relevance = "relevant" if index % 2 == 0 else "not_relevant"
-        decision_stage = "information" if index % 2 == 0 else "interaction"
+        relevance = "direct_design_work" if index % 2 == 0 else "not_relevant"
+        decision_stage = "information_priority" if index % 2 == 0 else "visual_system"
         evidence_kind = "verbalized" if index % 2 == 0 else "demonstrated"
         records.append(
             {
@@ -58,7 +63,7 @@ def coder_evidence(phase: str) -> dict:
 def evidence_unit(
     unit_id: str,
     kind: str = "verbalized",
-    project_id: str = "project-a",
+    project_id: str = "madia-proj-a",
 ) -> dict:
     return {
         "id": unit_id,
@@ -67,14 +72,84 @@ def evidence_unit(
         "timestamp_end": 25.0,
         "problem": "Must-know information has no visible priority.",
         "action": "Reorders and groups the repeated item fields.",
-        "rationale": "The viewer needs a stable order before comparing products.",
+        "rationale": ("[해석] " if kind == "inferred" else "") + "비교 전에 안정적인 읽기 순서가 필요하다.",
         "visible_effect": "The repeated item exposes the same priority across the list.",
         "user_task": "Compare repeated products.",
-        "decision_stage": "information-and-representation",
+        "decision_stage": "information_priority",
         "evidence_kind": kind,
         "principle_candidate_ids": ["stable-repeated-unit"],
         "confidence": "high" if kind != "inferred" else "low",
-        "source_locator": "https://www.youtube.com/watch?v=video000001&t=10s",
+        "source_locator": f"https://www.youtube.com/watch?v={unit_id.split(':')[0]}&t=10s",
+        "speech_excerpt": None if kind == "inferred" else "비교할 때 순서가 같아야 편해요.",
+        "context": {"platform": "web", "surface": "commerce"},
+        "term_ids": [],
+        "visual_evidence": [
+            {"frame_time": 10.0, "role": "before" if kind == "demonstrated" else "context",
+             "region": [0.1, 0.1, 0.8, 0.8], "observation": "상품 정보가 같은 순서로 배치되어 있다.",
+             "legibility": "clear"},
+        ] + ([
+            {"frame_time": 24.0, "role": "after", "region": None,
+             "observation": "상품 정보의 순서가 정리되었다.", "legibility": "clear"},
+        ] if kind == "demonstrated" else []),
+        "verification": {
+            "status": "confirmed", "verifier": "pilot-verifier", "note": None,
+            "checks": ["target", "attribution"] + ([] if kind == "inferred" else ["speech"])
+            + (["change"] if kind == "demonstrated" else []),
+        },
+    }
+
+
+def analysis_receipt() -> dict:
+    return {
+        "codebook_version": "codebook-v1",
+        "coders": ["coder-a", "coder-b", "adjudicator"],
+        "sessions": {"coder-a": "pilot-coder-a", "coder-b": "pilot-coder-b",
+                     "adjudicator": "pilot-adjudicator", "verifier": "pilot-verifier"},
+        "caption_source": "manual", "sheets_total": 2, "sheets_viewed": 2,
+    }
+
+
+def human_audit() -> dict:
+    records = [
+        {"target_type": "pilot_video", "target_id": f"video{index:06d}",
+         "codebook_version": "codebook-v1", "verdict": "confirmed",
+         "note": None, "audited_at": "2026-10-03"}
+        for index in range(20)
+    ]
+    records += [
+        {"target_type": "principle_occurrence",
+         "target_id": f"stable-repeated-unit|video{index:06d}:001",
+         "codebook_version": "codebook-v1", "verdict": "confirmed",
+         "note": None, "audited_at": "2026-10-03"}
+        for index in range(3)
+    ]
+    return {"schema_version": "madia-human-audit-v1", "auditor": "user", "records": records}
+
+
+def analysis_bundle() -> dict:
+    unit = evidence_unit("video000000:001", project_id="video000000:p1")
+    del unit["verification"]
+    unit["principle_candidate_ids"] = []
+    return {
+        "schema_version": "madia-video-analysis-v1", "video_id": "video000000",
+        "coder": "coder-a", "session_id": "w01-coder-a-01", "codebook_version": "codebook-v1",
+        "ratings": {"relevance": "direct_design_work", "decision_stage": "information_priority",
+                    "evidence_kind": "verbalized"},
+        "proposed_status": "analyzed", "reason": None, "sheets_total": 2, "sheets_viewed": 2,
+        "caption_source": "manual", "frames_requested": [10.0], "evidence_units": [unit],
+        "term_proposals": [],
+    }
+
+
+def verification_bundle(bundle: dict) -> dict:
+    return {
+        "schema_version": "madia-verification-v1", "video_id": bundle["video_id"],
+        "verifier": "w01-verifier-01", "exclusion_confirmed": None, "exclusion_note": None,
+        "units": [
+            {"unit_id": unit["id"], "status": "confirmed", "checks": ["target", "attribution", "speech"],
+             "corrections": {}, "note": None}
+            for unit in bundle["evidence_units"]
+        ],
     }
 
 
@@ -87,7 +162,7 @@ def valid_catalog() -> dict:
         if analyzed:
             unit = evidence_unit(
                 f"{video_id}:001",
-                project_id="project-a" if index < 2 else "project-b",
+                project_id=f"{video_id}:p1",
             )
             unit["source_locator"] = f"https://www.youtube.com/watch?v={video_id}&t=10s"
             evidence_units = [unit]
@@ -100,14 +175,15 @@ def valid_catalog() -> dict:
                 "content_type": "long-form",
                 "playlist_ids": ["uxui"],
                 "status": "analyzed" if analyzed else "excluded",
-                "exclusion_reason": None if analyzed else "Outside the UI/UX analysis scope.",
+                "exclusion_reason": None if analyzed else "not_relevant: 인터페이스 판단이 없다.",
                 "blocking_reason": None,
                 "duplicate_of": None,
                 "evidence_units": evidence_units,
+                "analysis_receipt": analysis_receipt(),
             }
         )
     return {
-        "schema_version": "madia-design-practice-catalog-v1",
+        "schema_version": "madia-design-practice-catalog-v2",
         "as_of": "2026-09-17",
         "channel": {
             "id": "UCxRnfrmJAkRLarzeBJETB5g",
@@ -146,7 +222,9 @@ def valid_catalog() -> dict:
                 "label": "Define the repeated comparison unit before composing the full list.",
                 "tier": "P3",
                 "occurrence_ids": [f"video{index:06d}:001" for index in range(3)],
-                "independent_projects": 2,
+                "independent_projects": 3,
+                "durability": "contextual",
+                "term_ids": [],
                 "external_sources": [
                     {
                         "id": "wcag-info-relationships",
@@ -175,7 +253,8 @@ def valid_catalog() -> dict:
             }
         ],
         "quality_gates": [
-            {"id": gate_id, "status": "passed", "evidence": [f"evidence/{gate_id.lower()}.md"]}
+            {"id": gate_id, "status": "passed", "evidence": [f"evidence/{gate_id.lower()}.md"]
+             + (["evidence/human-audit.json"] if gate_id in {"M3", "M8"} else [])}
             for gate_id in GATE_IDS
         ],
     }
@@ -189,6 +268,7 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
         materialize_evidence: bool = True,
         plain_coder_evidence: bool = False,
         coder_evidence_payloads: dict[str, dict] | None = None,
+        audit_payload: dict | None = None,
     ) -> subprocess.CompletedProcess[str]:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "catalog.json"
@@ -218,6 +298,25 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
                                             ),
                                             encoding="utf-8",
                                         )
+                                elif relative.endswith("human-audit.json"):
+                                    evidence_path.write_text(json.dumps(audit_payload or human_audit()), encoding="utf-8")
+                                elif relative.endswith("stable-repeated-unit-run-1.json"):
+                                    principle = payload["principles"][0]
+                                    fixture = principle["behavior_fixture"]
+                                    text = {field: principle[field] for field in
+                                            ("label", "trigger", "inspect", "decide", "act", "verify", "exceptions")}
+                                    receipt = {
+                                        "schema_version": "madia-behavior-receipt-v1",
+                                        "fixture_id": fixture["fixture_id"], "run_id": fixture["run_id"],
+                                        "artifact_revision": fixture["artifact_revision"],
+                                        "principle_sha256": hashlib.sha256(json.dumps(text, ensure_ascii=False, sort_keys=True).encode()).hexdigest(),
+                                        "scenario": "반복 상품을 비교할 수 있는 화면을 설계한다.",
+                                        "output": "상품마다 판단에 필요한 정보와 순서를 먼저 정했다.",
+                                        "behavior_options": fixture["expected"] + fixture["must_not"],
+                                        "observed": fixture["observed"],
+                                        "evaluator_notes": "출력에서 정보 순서를 먼저 정하는 행동을 확인했다.",
+                                    }
+                                    evidence_path.write_text(json.dumps(receipt), encoding="utf-8")
                                 else:
                                     evidence_path.write_text("test evidence\n", encoding="utf-8")
                         else:
@@ -264,7 +363,7 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("exclusion_reason", result.stdout)
 
-    def test_inferred_or_metadata_only_occurrences_cannot_reach_p1(self) -> None:
+    def test_inferred_occurrences_cannot_reach_p1(self) -> None:
         payload = valid_catalog()
         for video in payload["videos"]:
             if not video["evidence_units"]:
@@ -528,7 +627,7 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
 
     def test_independent_project_count_is_derived_from_evidence(self) -> None:
         payload = valid_catalog()
-        payload["principles"][0]["independent_projects"] = 3
+        payload["principles"][0]["independent_projects"] = 4
         result = self.run_validator(payload)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("project ids", result.stdout)
@@ -568,6 +667,367 @@ class MadiaCatalogValidatorTests(unittest.TestCase):
         result = self.run_validator(payload)
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn("Traceback", result.stderr)
+
+    def test_v1_catalog_is_rejected(self) -> None:
+        payload = valid_catalog()
+        payload["schema_version"] = "madia-design-practice-catalog-v1"
+        self.assertNotEqual(self.run_validator(payload).returncode, 0)
+
+    def test_visual_and_speech_evidence_requirements(self) -> None:
+        cases = [
+            ("missing after", lambda u: u["visual_evidence"].pop(), "before and after"),
+            ("empty visual", lambda u: u.update(visual_evidence=[]), "requires visual evidence"),
+            ("missing context", lambda u: u.pop("context"), ".context"),
+            ("partial high confidence", lambda u: u["visual_evidence"][0].update(legibility="partial"), "clearly legible"),
+            ("number without check", lambda u: u.update(visible_effect="속성 패널의 크기가 24 pt로 바뀐다."), "numbers"),
+            ("inference attribution", lambda u: u.update(evidence_kind="inferred"), "inferred rationale"),
+            ("missing speech", lambda u: u.update(speech_excerpt=None), "requires speech_excerpt"),
+        ]
+        for name, mutate, message in cases:
+            with self.subTest(name=name):
+                unit = evidence_unit("video000000:001", "demonstrated")
+                self.assertEqual(self.unit_errors(unit), [])
+                mutate(unit)
+                self.assertTrue(any(message in error for error in self.unit_errors(unit)))
+
+    def unit_errors(self, unit: dict, mode: str = "catalog") -> list[str]:
+        errors = []
+        validator.validate_evidence_unit(unit, "video000000", "unit", errors, mode=mode)
+        return errors
+
+    def test_region_time_and_excerpt_boundaries(self) -> None:
+        unit = evidence_unit("video000000:001")
+        for region in (None, [0, 0, 1, 1], [0.1, 0.2, 0.3, 0.4]):
+            unit["visual_evidence"][0]["region"] = region
+            self.assertEqual(self.unit_errors(unit), [])
+        for region in ([0, 0, 0, 1], [-0.1, 0, 0.5, 1], [0.5, 0, 0.6, 1],
+                       [0, 0, float("nan"), 1], [False, 0, 1, 1], [0, 1]):
+            with self.subTest(region=region):
+                unit["visual_evidence"][0]["region"] = region
+                self.assertTrue(any(".region" in error for error in self.unit_errors(unit)))
+        unit["visual_evidence"][0]["region"] = None
+        for frame in (10, 25):
+            unit["visual_evidence"][0]["frame_time"] = frame
+            self.assertEqual(self.unit_errors(unit), [])
+        for frame in (9.99, 25.01, float("inf"), True):
+            unit["visual_evidence"][0]["frame_time"] = frame
+            self.assertTrue(any(".frame_time" in error for error in self.unit_errors(unit)))
+        unit["visual_evidence"][0]["frame_time"] = 10
+        unit["speech_excerpt"] = "가" * 120
+        self.assertEqual(self.unit_errors(unit), [])
+        unit["speech_excerpt"] += "나"
+        self.assertTrue(any("speech_excerpt" in error for error in self.unit_errors(unit)))
+
+    def test_unit_identity_locator_project_and_term_contracts(self) -> None:
+        cases = {
+            "id": "video000001:001", "source_locator": "https://www.youtube.com/watch?v=video000000&t=11s",
+            "project_id": "project-a", "term_ids": ["term.valid", "term.valid"],
+            "decision_stage": "information", "evidence_kind": "metadata_only",
+        }
+        for field, value in cases.items():
+            with self.subTest(field=field):
+                unit = evidence_unit("video000000:001")
+                unit[field] = value
+                self.assertTrue(self.unit_errors(unit))
+        bundle = analysis_bundle()
+        self.assertEqual(validator.validate_analysis_bundle(bundle, set()), [])
+        bundle["evidence_units"][0]["project_id"] = "madia-proj-linked"
+        self.assertTrue(any("project_id" in error for error in validator.validate_analysis_bundle(bundle, set())))
+
+    def test_receipt_requires_distinct_roles_complete_sheets_and_valid_status(self) -> None:
+        for mutate in (
+            lambda r: r["sessions"].update(verifier=r["sessions"]["coder-a"]),
+            lambda r: r["sessions"].pop("adjudicator"),
+            lambda r: r.update(coders=["coder-a", "coder-b"]),
+            lambda r: r.update(sheets_viewed=1),
+            lambda r: r.update(sheets_total=True, sheets_viewed=True),
+            lambda r: r.update(codebook_version="v1"),
+        ):
+            video = valid_catalog()["videos"][0]
+            mutate(video["analysis_receipt"])
+            errors = []
+            validator.validate_analysis_receipt(video, "video", errors)
+            self.assertTrue(errors)
+        for status, duplicate in (("pending", None), ("blocked", None), ("excluded", "video000001")):
+            video = valid_catalog()["videos"][0]
+            video.update(status=status, duplicate_of=duplicate)
+            errors = []
+            validator.validate_analysis_receipt(video, "video", errors)
+            self.assertTrue(errors)
+            video["analysis_receipt"] = None
+            errors = []
+            validator.validate_analysis_receipt(video, "video", errors)
+            self.assertEqual(errors, [])
+
+    def test_held_evidence_cannot_support_any_principle_tier(self) -> None:
+        for tier in ("P0", "P1", "P2", "P3"):
+            payload = valid_catalog()
+            payload["principles"][0]["tier"] = tier
+            payload["videos"][0]["evidence_units"][0]["verification"].update(status="held", note="대상이 흐리다.")
+            result = self.run_validator(payload)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("cannot cite held", result.stdout)
+
+    def test_era_specific_principles_stop_at_p2(self) -> None:
+        payload = valid_catalog()
+        payload["principles"][0]["durability"] = "era_specific"
+        result = self.run_validator(payload)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("era_specific", result.stdout)
+        payload["principles"][0]["tier"] = "P2"
+        result = self.run_validator(payload)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_three_projects_in_two_videos_cannot_reach_p1(self) -> None:
+        payload = valid_catalog()
+        payload["principles"][0]["tier"] = "P1"
+        unit = copy.deepcopy(payload["videos"][2]["evidence_units"][0])
+        unit.update(id="video000000:002", project_id="video000000:p2",
+                    source_locator="https://www.youtube.com/watch?v=video000000&t=10s")
+        payload["videos"][0]["evidence_units"].append(unit)
+        payload["principles"][0]["occurrence_ids"][2] = unit["id"]
+        result = self.run_validator(payload)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("at least three videos", result.stdout)
+
+    def test_linked_project_across_videos_counts_only_once(self) -> None:
+        payload = valid_catalog()
+        payload["principles"][0].update(tier="P1", independent_projects=2)
+        for video in payload["videos"][:2]:
+            video["evidence_units"][0]["project_id"] = "madia-proj-shared"
+        result = self.run_validator(payload)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("independent recurrence", result.stdout)
+
+    def test_negative_kappa_is_valid_but_cannot_pass_m3(self) -> None:
+        payload = valid_catalog()
+        payload["principles"][0]["tier"] = "P0"
+        payload["quality_gates"][3].update(status="not_run", evidence=[])
+        payload["reliability"].update(pilot_kappa=-1, production_kappa=-0.5)
+        result = self.run_validator(payload)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        payload["quality_gates"][3].update(status="passed", evidence=["evidence/human-audit.json"])
+        result = self.run_validator(payload)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("M3 requires pilot_kappa", result.stdout)
+
+    def test_m3_requires_current_confirmed_pilot_audit(self) -> None:
+        payload = valid_catalog()
+        payload["quality_gates"][3]["evidence"] = ["evidence/m3.md"]
+        result = self.run_validator(payload)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("human-audit.json", result.stdout)
+        for changes in ({"verdict": "needs_correction", "note": "대상 확인 필요"},
+                        {"codebook_version": "codebook-v2"}):
+            audit = human_audit()
+            latest = {**audit["records"][0], **changes}
+            audit["records"].append(latest)
+            result = self.run_validator(valid_catalog(), audit_payload=audit)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("M3", result.stdout)
+            audit["records"].append(audit["records"][0].copy())
+            result = self.run_validator(valid_catalog(), audit_payload=audit)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_m8_requires_each_p3_pair_and_two_p1_p2_pairs(self) -> None:
+        for tier, retained in (("P3", 2), ("P2", 1), ("P1", 1)):
+            payload = valid_catalog()
+            payload["principles"][0]["tier"] = tier
+            audit = human_audit()
+            audit["records"] = audit["records"][:20 + retained]
+            result = self.run_validator(payload, audit_payload=audit)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("M8", result.stdout)
+
+    def test_removed_rejected_pair_no_longer_blocks_m8(self) -> None:
+        payload = valid_catalog()
+        payload["principles"][0]["tier"] = "P1"
+        extra = copy.deepcopy(payload["videos"][0]["evidence_units"][0])
+        extra["id"] = "video000000:002"
+        payload["videos"][0]["evidence_units"].append(extra)
+        payload["principles"][0]["occurrence_ids"].append(extra["id"])
+        audit = human_audit()
+        audit["records"].append({
+            **audit["records"][-1], "target_id": f"stable-repeated-unit|{extra['id']}",
+            "verdict": "rejected", "note": "조건에 맞지 않는다.",
+        })
+        result = self.run_validator(payload, audit_payload=audit)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("M8", result.stdout)
+        payload["principles"][0]["occurrence_ids"].remove(extra["id"])
+        extra["principle_candidate_ids"] = []
+        result = self.run_validator(payload, audit_payload=audit)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_bundle_ratings_use_majority_and_tie_rules(self) -> None:
+        bundle = analysis_bundle()
+        first = bundle["evidence_units"][0]
+        second = copy.deepcopy(first)
+        second.update(id="video000000:002", decision_stage="visual_system",
+                      evidence_kind="inferred", rationale="[해석] " + first["rationale"],
+                      timestamp_start=5, timestamp_end=9, source_locator="https://www.youtube.com/watch?v=video000000&t=5s")
+        second["visual_evidence"][0]["frame_time"] = 5
+        bundle["evidence_units"].append(second)
+        errors = validator.validate_analysis_bundle(bundle, set())
+        self.assertTrue(any("tie rules" in error for error in errors))
+        bundle["ratings"].update(decision_stage="visual_system", evidence_kind="inferred")
+        self.assertEqual(validator.validate_analysis_bundle(bundle, set()), [])
+        third = copy.deepcopy(first)
+        third["id"] = "video000000:003"
+        bundle["evidence_units"].append(third)
+        self.assertTrue(validator.validate_analysis_bundle(bundle, set()))
+        bundle["ratings"].update(decision_stage="information_priority", evidence_kind="verbalized")
+        self.assertEqual(validator.validate_analysis_bundle(bundle, set()), [])
+
+    def test_verification_requires_exact_units_and_independent_session(self) -> None:
+        bundle = analysis_bundle()
+        verification = verification_bundle(bundle)
+        self.assertEqual(validator.validate_verification(verification, bundle, set()), [])
+        for mutate, message in (
+            (lambda v: v.update(units=[]), "unit_id set"),
+            (lambda v: v["units"].append(copy.deepcopy(v["units"][0])), "unit_id set"),
+            (lambda v: v.update(verifier=bundle["session_id"]), "distinct"),
+        ):
+            verification = verification_bundle(bundle)
+            mutate(verification)
+            self.assertTrue(any(message in error for error in validator.validate_verification(verification, bundle, set())))
+
+    def test_verifier_corrections_are_scope_limited(self) -> None:
+        bundle = analysis_bundle()
+        original = bundle["evidence_units"][0]
+        cases = {
+            "evidence_kind": "demonstrated", "problem": "문제 수정",
+            "rationale": "새 이유", "visual_evidence": [],
+        }
+        changed_roles = copy.deepcopy(original["visual_evidence"])
+        changed_roles[0]["role"] = "during"
+        for field, value in list(cases.items()) + [("visual_evidence", changed_roles)]:
+            with self.subTest(field=field, value=value):
+                verification = verification_bundle(bundle)
+                verification["units"][0].update(status="corrected", note="프레임 대조", corrections={field: value})
+                errors = validator.validate_verification(verification, bundle, set())
+                self.assertTrue(any("exceed the verifier scope" in error for error in errors))
+        original["confidence"] = "low"
+        verification = verification_bundle(bundle)
+        verification["units"][0].update(status="corrected", note="확신 상향", corrections={"confidence": "high"})
+        self.assertTrue(any("scope" in error for error in validator.validate_verification(verification, bundle, set())))
+
+    def test_corrections_revalidate_interval_checks_and_ledger(self) -> None:
+        bundle = analysis_bundle()
+        verification = verification_bundle(bundle)
+        item = verification["units"][0]
+        item.update(status="corrected", note="발화 구간 조정", corrections={"timestamp_start": 11})
+        self.assertTrue(any("frame_time" in error for error in validator.validate_verification(verification, bundle, set())))
+        visual = copy.deepcopy(bundle["evidence_units"][0]["visual_evidence"])
+        visual[0]["frame_time"] = 11
+        item["corrections"]["visual_evidence"] = visual
+        self.assertEqual(validator.validate_verification(verification, bundle, set()), [])
+        visual[0]["observation"] = "패널에 16 px가 보인다."
+        self.assertTrue(any("numbers" in error for error in validator.validate_verification(verification, bundle, set())))
+        item["checks"].append("numbers")
+        item["corrections"]["term_ids"] = ["term.spacing"]
+        self.assertTrue(any("ledger" in error for error in validator.validate_verification(verification, bundle, set())))
+        self.assertEqual(validator.validate_verification(verification, bundle, {"term.spacing"}), [])
+        self.assertEqual(bundle["evidence_units"][0]["timestamp_start"], 10)
+
+    def test_allowed_downgrade_applies_inference_attribution(self) -> None:
+        bundle = analysis_bundle()
+        verification = verification_bundle(bundle)
+        verification["units"][0].update(
+            status="corrected", note="이유를 말하지 않아 추론으로 낮춤",
+            corrections={"evidence_kind": "inferred", "confidence": "low",
+                         "rationale": "[해석] " + bundle["evidence_units"][0]["rationale"]},
+        )
+        self.assertEqual(validator.validate_verification(verification, bundle, set()), [])
+
+    def test_exclusion_disagreement_requires_reason(self) -> None:
+        bundle = analysis_bundle()
+        bundle.update(proposed_status="excluded", reason="not_relevant: 디자인 판단이 없다.",
+                      evidence_units=[], frames_requested=[])
+        bundle["ratings"].update(relevance="not_relevant", decision_stage="none", evidence_kind="none")
+        self.assertEqual(validator.validate_analysis_bundle(bundle, set()), [])
+        verification = verification_bundle(bundle)
+        verification["exclusion_confirmed"] = False
+        self.assertTrue(any("exclusion_note" in error for error in validator.validate_verification(verification, bundle, set())))
+        verification["exclusion_note"] = "후반에 화면 비평이 있다."
+        self.assertEqual(validator.validate_verification(verification, bundle, set()), [])
+        verification.update(exclusion_confirmed=True, exclusion_note=None)
+        self.assertEqual(validator.validate_verification(verification, bundle, set()), [])
+        bundle["ratings"]["relevance"] = "design_explanation"
+        self.assertTrue(any("relevance" in error for error in validator.validate_analysis_bundle(bundle, set())))
+
+    def test_captionless_bundle_requires_inference_without_excerpt(self) -> None:
+        bundle = analysis_bundle()
+        bundle["caption_source"] = "none"
+        self.assertTrue(any("without captions" in error for error in validator.validate_analysis_bundle(bundle, set())))
+        unit = bundle["evidence_units"][0]
+        unit.update(evidence_kind="inferred", speech_excerpt=None, rationale="[해석] " + unit["rationale"])
+        bundle["ratings"]["evidence_kind"] = "inferred"
+        self.assertEqual(validator.validate_analysis_bundle(bundle, set()), [])
+
+    def test_bundle_cli_ledger_and_verification_modes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            bundle = analysis_bundle()
+            bundle["evidence_units"][0]["term_ids"] = ["term.spacing"]
+            bundle_path, ledger_path, verification_path = (base / name for name in ("bundle.json", "ledger.json", "verification.json"))
+            bundle_path.write_text(json.dumps(bundle), encoding="utf-8")
+            verification_path.write_text(json.dumps(verification_bundle(bundle)), encoding="utf-8")
+            command = ["python3", str(VALIDATOR), "--bundle", str(bundle_path), "--ledger", str(ledger_path)]
+            for status in ("candidate", "adopted", "held", "rejected", None):
+                ledger = {"schema_version": "design-terminology-v1", "terms": [] if status is None else [{"id": "term.spacing", "status": status}]}
+                ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
+                for extra in ([], ["--verification", str(verification_path)]):
+                    result = subprocess.run(command + extra, text=True, capture_output=True, check=False)
+                    if status in ("rejected", None):
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertIn("ledger", result.stdout)
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                        self.assertIn("OK: madia-verification" if extra else "OK: madia-video-analysis", result.stdout)
+            for arguments in ([], ["--verification", str(verification_path)], [str(bundle_path), "--bundle", str(bundle_path)]):
+                result = subprocess.run(["python3", str(VALIDATOR)] + arguments, text=True, capture_output=True, check=False)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertNotIn("Traceback", result.stderr)
+
+    def test_malformed_new_fields_return_validation_errors(self) -> None:
+        cases = [
+            ("frames_requested", [{}]), ("ratings", []), ("term_proposals", [None]),
+            ("evidence_units", [None]), ("session_id", []),
+        ]
+        for field, value in cases:
+            with self.subTest(field=field):
+                bundle = analysis_bundle()
+                bundle[field] = value
+                self.assertTrue(validator.validate_analysis_bundle(bundle, set()))
+        for field in ("evidence_kind", "confidence", "term_ids", "visual_evidence", "context", "verification"):
+            with self.subTest(field=field):
+                unit = evidence_unit("video000000:001")
+                unit[field] = {"invalid": True}
+                self.assertTrue(self.unit_errors(unit))
+
+    def test_coder_ratings_reject_non_codebook_labels(self) -> None:
+        for dimension in ("relevance", "decision_stage", "evidence_kind"):
+            pilot = coder_evidence("pilot")
+            pilot["records"][0]["ratings"][dimension]["coder-a"] = "legacy-label"
+            result = self.run_validator(valid_catalog(), coder_evidence_payloads={"pilot": pilot})
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(f"ratings.{dimension}", result.stdout)
+
+    def test_verification_status_controls_corrections_and_notes(self) -> None:
+        bundle = analysis_bundle()
+        for status, corrections, note in (
+            ("confirmed", {"confidence": "low"}, None),
+            ("corrected", {}, "수정 내용 없음"),
+            ("held", {}, None),
+            ("rejected", {}, None),
+        ):
+            verification = verification_bundle(bundle)
+            verification["units"][0].update(status=status, corrections=corrections, note=note)
+            self.assertTrue(validator.validate_verification(verification, bundle, set()))
+        verification = verification_bundle(bundle)
+        verification["units"][0].update(status="rejected", note="원자료가 주장을 반박한다.")
+        self.assertEqual(validator.validate_verification(verification, bundle, set()), [])
 
 
 if __name__ == "__main__":
