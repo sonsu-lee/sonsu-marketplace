@@ -44,10 +44,11 @@ Madia Designer의 공개 영상을 하나씩 관찰해 디자이너가 실제로
 
 단위 ID는 `<video_id>:NNN`이며 `timestamp_start`, `timestamp_end`, `source_locator`를
 필수로 남긴다. 링크는 `https://www.youtube.com/watch?v=<video_id>&t=<int(timestamp_start)>s`이다.
-서술 필드 5개는 한국어 300자 이하로 쓴다. `demonstrated`는 화면 수정 전후와 발화한 이유가
-함께 있어야 하며 before·after 화면 근거가 각각 필요하다. `verbalized`는 행동과 이유를 말로
-설명했지만 화면에서 실행하지 않은 경우다. 이유가 발화되지 않았으면 화면 변화가 있어도
-`inferred`이며 `rationale`을 `[해석] `으로 시작한다. `metadata_only` 단위는 금지한다.
+서술 필드 5개는 한국어 300자 이하로 쓴다. `demonstrated`는 동일한 화면·뷰포트 맥락의 실제 변경
+전후가 모두 보이고, 발화가 그 정확한 변경의 이유를 명시적으로 연결할 때만 쓴다. `verbalized`는
+행동·결정과 그 특정 이유를 설명하지만 동일한 화면·뷰포트의 전후는 확인되지 않을 때 쓴다.
+일반적인 목적이나 교육 맥락만 있고 그 정확한 행동의 이유가 발화되지 않으면 화면에서 작업을
+보더라도 `inferred`이며 `rationale`을 `[해석] `으로 시작한다. `metadata_only` 단위는 금지한다.
 `caption_source:none`이면 발췌는 모두 `null`이고 `inferred`만 가능하다.
 
 모든 프레임 시각은 단위 구간 안에 있어야 한다. 흐리거나 확대·원근으로 왜곡된 숫자를 쓰지
@@ -161,9 +162,24 @@ sheet 합계 40장 이하로 묶는다. 40장 초과 영상은 단독 task다. �
 대체하고, 이미 pilot merge한 영상은 대체하지 않고 멈춰 보고한다. merge 발췌 불일치는 재검증,
 그 밖의 오류는 전체 재코딩으로 처리한다. merge 후 용어 동기화·정리를 수행한다.
 
+영상 관련성은 코드북 §1의 배타적 우선순위를 적용한다. 특정 화면 편집·비평이 있으면
+`direct_design_work`, 화면 편집·비평 없는 도구·절차 기반 판단은 `tool_or_workflow`,
+그 밖의 구체적인 인터페이스 원칙 설명은 `design_explanation`이다.
+앞선 세 기준이 모두 해당하지 않으면 `not_relevant`다.
+단계의 권위 기준은 코드북 §2의 codebook-v4 판별 트리이며, 다음 요약은 순서를 별도로 정하지 않는다.
+UI 선택 전 요구·과업 범위만 파악하면 `task_context`; 기본·상시 UI에 넣을 정보·기능과 그 수·순서·
+그룹을 정하면 `information_priority`다. 상태에 따라 선택된 UI 요소의 기능·가용성·표시 여부·콘텐츠가
+달라지면 `state_content`; 진행·성공·오류·복구를 알리는 결정은 `feedback_recovery`가 우선한다.
+기기·뷰포트·접근성 조건으로 달리 설계하면 `environment_accessibility`; 결과가 내부 파일·레이어·
+재사용 구조면 `artifact_structure`, 사용자 결과를 측정하면 `outcome_validation`이다.
+고정 기기·뷰포트·상태에서 선택된 내용을 시각적으로 표현하는 결정은 `visual_system`이며
+단순 hover/focus 색상, 장식 모션과 시각 효과를 위한 선행 frame 선택도 여기에 속한다.
+모든 단위 코딩 뒤 코드북 §5의 mode·동률 규칙을 적용한다.
+
 합의 전 `relevance`·`decision_stage`·`evidence_kind`의 Cohen's kappa 중 최솟값이
-`null`이거나 0.70 미만이면 코드북 정의·규칙을 개정하고 20편 전부 전체 재코딩한다.
-코드 식별자는 바꾸지 않는다. 3회 개정 후에도 미달이면 멈추고 보고한다.
+`null`이거나 0.70 미만이면 코드 식별자는 유지하고 정의·규칙만 개정한다. 새 코드북 버전을
+기록하고 pilot 20편 전체를 coder-a·coder-b·adjudicator·verifier가 다시 수행한다. 3회
+개정 후에도 미달이면 멈추고 보고한다.
 
 통과한 최종 코딩을 영상별로 사람에게 감사받는다. 제목, timestamp 링크, 영상 ratings,
 제외 사유 또는 최종 단위의 문제·행동·이유·화면 효과·맥락·발췌·단계·근거 종류·신뢰도·검증 상태·

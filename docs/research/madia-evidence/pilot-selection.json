@@ -1,0 +1,28 @@
+{
+  "schema_version": "madia-pilot-selection-v1",
+  "selected_at": "2026-10-03",
+  "rule": "카탈로그 순서, NFKC→소문자→#\\S+ 제거→비영숫자·한글 제거 제목이 중복된 영상 제외. viewer-review 4, follow-along 3, design-information 4, design-tools 3, uxui만(uploads 제외 다른 주제 없음) 2, probe 길이 ≤180초 short 2, uploads만이며 >180초 long 2 순으로 미선정 영상을 선택. 층별 부족분 없음.",
+  "video_ids": [
+    "CmoUZyhGWOw",
+    "KU1vGO4LPyw",
+    "CYhJxtcL5B0",
+    "Ycyt997c6ow",
+    "mtTXn2cCNRY",
+    "mCCDTV9e240",
+    "_EWpVKIS8uI",
+    "RuanY_p6mb4",
+    "3ZXBb8Ol_2M",
+    "RGFAGMRHzFU",
+    "F0kDoNaAxwY",
+    "9GJbVpEIIZg",
+    "Y_qV8uV6K5I",
+    "6SDD-DLQuBU",
+    "jaI2E50wu2k",
+    "usDqYTr9NM0",
+    "dT-OarWW2Wo",
+    "N2aZc4jpuKs",
+    "FAKwQSqQWKw",
+    "4OLsOwt5UTI"
+  ],
+  "replacements": []
+}
