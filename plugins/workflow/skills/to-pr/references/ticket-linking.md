@@ -50,15 +50,15 @@ PR body를 기본 채널로 사용한다. closing keyword는 PR이 저장소 def
 | `contribute` | `Part of #123` | 일반 reference, 자동 close 아님 |
 | `relate` | `Related to #123` | 일반 reference, 자동 close 아님 |
 
-non-default base에서는 PR 본문의 closing keyword가 무시되므로 자동 연결이나 종료를 주장하지 않는다. default branch에 합쳐지는 commit message의 closing keyword도 issue를 닫을 수 있으므로 부분 PR의 포함 commit을 확인한다. GitHub Development sidebar 연결은 사용자가 요청한 별도 원격 동작으로 취급한다. branch에 issue 번호를 넣도록 요구하지 않는다.
+non-default base에서는 PR 본문의 closing keyword가 무시되므로 자동 연결이나 종료를 주장하지 않는다. default branch에 합쳐지는 commit message의 closing keyword도 issue를 닫을 수 있으므로 부분 PR의 포함 commit을 확인한다. GitHub Development sidebar 연결은 사용자가 요청한 별도 원격 동작으로 취급한다.
 
-Draft PR 생성은 GitHub Issue나 Project item의 review 시작을 뜻하지 않는다. merge가 release·deployment 전 단계일 뿐인 티켓에는 closing keyword를 사용하지 않고 `contribute` 또는 `relate`로 표현한다.
+merge가 release·deployment 전 단계일 뿐인 티켓에는 closing keyword를 사용하지 않고 `contribute` 또는 `relate`로 표현한다.
 
 공식 참고: [GitHub의 PR과 issue 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
 
 ## Linear
 
-PR body의 magic word로 기여·완료 의도를 명시한다. 연결을 위해 새 branch 이름이나 PR 제목에 ID를 넣지 않고, PR 단계에서 기존 branch에 ID를 추가하거나 이름을 바꾸지 않는다.
+PR body의 magic word로 기여·완료 의도를 명시한다.
 
 | 의도 | 표현 | 효과 |
 | --- | --- | --- |
@@ -71,7 +71,7 @@ PR body의 magic word로 기여·완료 의도를 명시한다. 연결을 위해
 
 `part of`는 두 단어다. branch에 Linear ID가 있으면 PR body의 비종결·종결 의도와 실제 Linear 관계가 일치하는지 확인한다. commit linking이 활성화된 경우에는 포함 commit의 magic word도 별도 연결·완료 신호로 검사한다. 여러 PR 중 일부만 완료하는 PR이 `Closes` 관계로 반영되거나 관계를 확인할 수 없으면 Ready 진행을 보류하고 결과를 보고한다. 원하지 않는 ID가 branch에 있으면 rename하지 않고 `Ignore ENG-123`가 필요한지 판단한다. 여러 ID에 모두 `Fixes`를 붙이지 않는다.
 
-Linear의 drafted, opened, review requested, ready for merge와 merged event mapping은 team·저장소 설정에 따라 다르다. `Part of`는 merge 완료 전이를 억제하지만 다른 PR 이벤트의 상태 전이는 적용될 수 있다. 부분 PR을 게시하거나 Ready로 전환하기 전에 실제로 발생할 이벤트와 그 목표 상태를 티켓의 남은 작업에 대조한다. Draft 생성·Open·Ready 등의 이벤트가 완료 상태로 옮기도록 설정됐다면 그 이벤트를 일으키는 게시·전환을 보류하고 설정 충돌을 보고한다. Draft PR 자체를 review 시작으로 해석하거나, configured mapping과 같은 status를 직접 중복 적용하지 않는다. merge 뒤 release·deployment가 완료 조건이면 `Fixes` 대신 completion을 만들지 않는 intent를 사용한다.
+Linear의 drafted, opened, review requested, ready for merge와 merged event mapping은 team·저장소 설정에 따라 다르다. `Part of`는 merge 완료 전이를 억제하지만 다른 PR 이벤트의 상태 전이는 적용될 수 있다. 부분 PR을 게시하거나 Ready로 전환하기 전에 실제로 발생할 이벤트와 그 목표 상태를 티켓의 남은 작업에 대조한다. merge 뒤 release·deployment가 완료 조건이면 `Fixes` 대신 completion을 만들지 않는 intent를 사용한다.
 
 공식 참고: [Linear GitHub integration](https://linear.app/docs/github)
 

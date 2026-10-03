@@ -1,54 +1,71 @@
-# 티켓·PR 작성 설계
+# 티켓·PR 작성 설계 근거
 
-Workflow의 티켓 작성·lifecycle과 PR 티켓 연결은 Linear와 GitHub Issues를 지원한다. 티켓·PR 기본형은 두 tracker에 공통으로 적용한다.
+Workflow의 티켓·PR 작성 규칙과 기본형의 정본은 플러그인 파일이다. 이 문서는 정본 위치, 설계 결정과 외부 근거만 기록하며 규칙을 다시 쓰지 않는다. 규칙은 정본 파일에서 고치고, 결정이나 근거가 달라졌을 때만 이 문서를 고친다.
 
-## 목적과 책임
+## 정본 위치
 
-티켓은 작업을 시작하기 전에 어떤 문제가 있고 무엇이 해결되기를 원하는지, 담당자가 알아야 할 합의된 제약을 전달한다. 원인 분석, 해결 방법, 파일·작업 순서와 구체적인 검증 방법은 이미 합의된 제약이 아닌 한 작업자가 결정한다.
+| 대상 | 정본 |
+| --- | --- |
+| 티켓 양식 선택·출력 언어·본문 내용·최종 점검 | [ticket-writing.md](../../plugins/workflow/skills/to-ticket/references/ticket-writing.md) |
+| 티켓 기본형 항목 | [to-ticket 기본형](../../plugins/workflow/skills/to-ticket/assets/templates/) |
+| 티켓 분할·게시·수정·결과 보고 | [to-ticket](../../plugins/workflow/skills/to-ticket/SKILL.md) |
+| PR 양식 선택·출력 언어·기본형 적용 조건 | [pr-template.md](../../plugins/workflow/skills/to-pr/references/pr-template.md) |
+| PR 본문 내용·검증·최종 점검 | [pr-writing.md](../../plugins/workflow/skills/to-pr/references/pr-writing.md) |
+| PR 기본형 항목 | [pull-request.md](../../plugins/workflow/skills/to-pr/assets/templates/pull-request.md) |
+| PR 모드·책임 경계·게시 직전 점검·결과 보고와 SKILL에 남긴 티켓 연결 규칙 | [to-pr](../../plugins/workflow/skills/to-pr/SKILL.md) |
+| PR 저장소 상태·diff 범위·payload·게시 절차 | [github.md](../../plugins/workflow/skills/to-pr/references/github.md) |
+| PR 경계와 stack | [stacked-prs.md](../../plugins/workflow/skills/to-pr/references/stacked-prs.md) |
+| 티켓 연결과 status effect | [ticket-linking.md](../../plugins/workflow/skills/to-pr/references/ticket-linking.md) |
+| 시각 자료와 첨부 | [visual-evidence.md](../../plugins/workflow/skills/to-pr/references/visual-evidence.md), [media-attachments.md](../../plugins/workflow/skills/to-pr/references/media-attachments.md) |
 
-PR은 리뷰어와 이후 history에서 PR을 찾아온 독자가 알아야 할 것만 설명한다. 각 문장은 왜 바꿨는지, 무엇이 달라지는지, 왜 이 방식인지, CI 밖에서 어떻게 확인했는지, 무엇을 조심해야 하는지, 무엇과 연결되고 어떻게 보면 되는지 중 하나에 답해야 한다. 작업 경위, CI가 다루는 검사 결과, 파일별 변경 목록, 근거 없는 평가어와 작성 도구 표기는 사용자나 저장소 양식이 요구하지 않으면 넣지 않는다. 한 티켓에는 여러 PR이 연결될 수 있으며, 각 PR은 자기 변경과 확인 결과만 설명한다.
+## 설계 결정
 
-## 양식 선택과 내부 기본형
+- Workflow는 Linear와 GitHub Issues를 지원하며, 티켓·PR 기본형은 두 tracker에 공통으로 적용한다.
+- 티켓은 문제·원하는 결과·합의된 제약을 전달하고, 이미 합의된 제약이 아닌 원인 분석·해결 방법·작업 순서·검증 방법은 작업자가 정한다.
+- PR은 리뷰어와 이후 history 독자가 알아야 할 것만 설명한다. 한 티켓에는 여러 PR이 연결될 수 있으며 각 PR은 자기 변경과 확인 결과만 설명한다.
+- 대상 공간의 양식이 내부 기본형보다 우선하며, 조회하지 못한 상태는 양식 부재와 구분한다.
+- 기본형에 완료조건 체크리스트를 강제하지 않고, 모르는 값을 채우기 위해 빈 항목이나 반복적인 `미확인` 문구를 만들지 않는다.
+- 티켓은 독립적으로 우선순위를 정하거나 담당·완료 여부를 판단할 결과가 있을 때만 나눈다. Terraform처럼 앞 단계의 merge와 apply 뒤에 다음 변경을 진행해야 한다면 같은 티켓의 순차 PR로 추적할 수 있다.
+- 부분 PR은 비종결 관계로 연결하고, 완료 표현은 그 PR의 병합 자체가 티켓의 전체 결과를 충족할 때만 쓴다. [Linear는 한 이슈에 여러 PR을 연결하고 비종결 관계를 지원한다](https://linear.app/docs/github).
+- 티켓 연결 채널은 PR 본문이며 티켓 연동을 이유로 branch 이름에 티켓 ID를 넣지 않는다. [Linear 연동](https://linear.app/docs/github), [GitHub Issues 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
+- 제품 화면·상호작용 변경은 마킹한 스크린샷이나 timestamp caption 영상을 PR 본문에 둔다. 사용자 요청이나 대상 PR 양식의 요구가 우선한다. VRT 결과 링크는 리뷰어가 PR 밖으로 이동해야 하고 변경 위치를 표시하지 않으므로 본문 자료를 대체하지 않는다.
 
-사용자가 지정한 양식을 먼저 사용한다. 그다음 대상 저장소·팀·프로젝트에서 실제로 적용되는 양식과 필수 입력을 확인한다. 적용 양식이 없다고 확인된 경우에만 Workflow가 소유한 [티켓 기본형](../../plugins/workflow/skills/to-ticket/assets/templates/) 또는 [PR 기본형](../../plugins/workflow/skills/to-pr/assets/templates/pull-request.md)을 사용한다. 조회하지 못한 상태는 양식 부재와 구분한다. 대상 양식의 제목·순서·필수 항목·고정 문구를 내부 기본형으로 덮어쓰지 않는다.
+## 외부 근거
 
-| 기본형 | 필수 항목 | 조건부 항목 | 담을 내용 |
-| --- | --- | --- | --- |
-| 일반 티켓 | `문제`, `원하는 결과` | `참고` | 지금의 문제와 알고 있는 영향, 해결 뒤 달라져 있어야 할 상태, 합의된 제약·선호·근거 중 작업에 필요한 것 |
-| 버그 티켓 | `현상` | `재현 정보`, `참고` | 실제·기대 동작과 영향, 확인된 환경·재현 단계·자료, 필요한 제약·근거 |
-| 조사 티켓 | `확인할 질문`, `남길 결과` | `참고` | 질문이 생긴 이유, 필요한 답변·판단 근거, 조사에 필요한 기존 정보 |
-| PR | `배경`, `변경 사항` | `스크린샷 및 영상`, `검증`, `참고`, `관련 작업` | 변경 이유와 결과, 화면 변경의 마킹 자료, CI 밖 확인 결과, 배포·호환성·롤백 주의사항, 링크된 티켓 관계 |
+### 티켓 제목과 버그 보고
 
-티켓 제목은 문제 또는 원하는 결과를 바로 드러낸다. 일반형의 `원하는 결과`는 구현 지시가 아니라 작업 후 달라져야 할 상태를 적는다. 버그형의 `현상`에는 실제·기대 동작을 함께 적고, 환경·재현 순서·이미지·로그는 확인됐거나 해결에 필요한 경우에만 `재현 정보`에 모은다. 모르는 값을 채우기 위해 빈 항목이나 반복적인 `미확인` 문구를 만들지 않는다. 조사형은 답변·판단 근거를 요구하되 산출물 형식은 합의된 경우에만 지정한다. 합의된 완료 조건은 해당 항목에 보존하지만 기본형에 별도 체크리스트를 강제하지 않는다.
+영어 원문 [Mozilla의 Bug Writing Guidelines](https://bugzilla.mozilla.org/page.cgi?id=bug-writing.html)는
+“Cancelling a File Copy dialog crashes File Manager”를 좋은 제목의 예로 제시한다.
+발생 조건·동작과 문제가 생기는 대상을 함께 알려 주기 때문이다. 재현 절차와 실제·기대 결과를
+구분하는 구조도 참고한다. 버그 보고 지침이므로 기능 제안·조사 티켓에 재현 절차를 강제하는 근거는 아니다.
 
-PR의 `변경 사항`은 동작을 먼저 쓴다. 구조를 바꿨으면 코드 해설 대신 설계 원칙, 구성 요소의 책임과 흐름을 쓴다. 리팩터링이 PR의 목적이면 기존 방식 → 바꾼 방식 → 근거를 쓴다. 근거는 변경 전후 측정값, 표준·공식 문서, 기존 구조로 생긴 실제 결함, 이 리팩터링이 필요한 후속 PR·티켓 중 하나 이상이어야 하며, 없으면 평가어로 채우지 않고 사용자에게 알린 뒤 답을 받기 전에는 게시하지 않는다. 기능·버그 수정 PR 안의 작은 정리에는 근거를 요구하지 않는다.
+### PR 설명
 
-PR의 `검증`에는 CI가 실행하지 않는 확인만 쓴다. 화면·실기기·외부 연동·배포·성능처럼 직접 확인한 결과, 리뷰어가 재현해야 하는 절차, merge 판단에 영향을 주는 미확인 위험, CI가 실행하지 않는 저장소 자동 검사를 실제로 실행해 통과한 명령이 해당한다. CI가 다루는지는 이 PR의 base·변경 경로에 실행될 workflow job과 최근 PR의 check로 판정한다. 시도할 수 없었다면 확인했다고 쓰지 않는다. 빈 조건부 항목은 삭제한다.
+아래는 배대준의 [공통시스템개발팀 코드 리뷰 문화 개선 이야기](https://techblog.woowahan.com/7152/)에 실린 한국어 MR 사례의 짧은 발췌다. 원문은 빌드 오류와 의존성 버전 변경을 설명한 뒤 해결을 연결한다.
 
-## 티켓과 PR의 경계
+> TS2305: Module '"react-router"' has no exported member 'useHistory'. 에러를 내면서 빌드가 깨집니다.
+>
+> 사용하는 react-router의 버전을 package.json에 명시합니다.
 
-티켓은 하나의 문제·결과 또는 해소할 불확실성을 추적한다. 여러 PR, 조사 단계, 배포 순서만으로 하위 티켓을 만들지 않는다. 독립적으로 우선순위를 정하거나 담당·완료 여부를 판단할 결과가 있을 때만 티켓을 나눈다.
+이 사례에서 가져올 점은 “버전 명시”라는 수정 행위를 독자가 겪는 빌드 실패와 연결하는 구조다. 원인·결과는 해당 MR의 설명이며 다른 PR에 자동 적용할 근거가 아니다. 글의 평가는 팀의 실무 경험에 따른 것이고, 모든 PR에 동일한 길이·항목을 강제하는 규칙은 아니다.
 
-PR은 함께 검토·검증할 수 있고 merge 직후 build를 유지하며 깨끗하게 되돌릴 수 있는 변경 단위로 나눈다. 독립 PR은 단독으로, stack 층은 위층부터 역순으로 revert할 수 있어야 한다. 동작을 바꾸지 않는 큰 리팩터링은 기능·버그 수정과 분리하되 작은 정리는 같은 PR에 둔다. 생성 파일·lockfile 등을 뺀 diff가 약 400줄을 넘으면 더 나눌 수 있는지 먼저 확인한다. 기준은 [SmartBear의 Cisco 리뷰 연구](https://smartbear.com/learn/code-review/best-practices-for-peer-code-review/)와 [Google Small CLs 지침](https://google.github.io/eng-practices/review/developer/small-cls.html)을 따른다. 서로 독립적인 PR은 각자 기본 브랜치를 대상으로 하고, 뒤 변경이 앞 변경의 코드·계약에 의존할 때만 stack을 사용한다. Terraform처럼 앞 단계의 merge와 apply 뒤에 다음 변경을 진행해야 한다면 같은 티켓의 순차 PR로 추적할 수 있다.
+일본어 원문 [Wantedly의 PR 작성법](https://docs.wantedly.dev/fields/dev-process/how-to-write-a-pull-request)은
+라우팅·controller 수정 목록을 나쁜 예로, 데모 화면에서 할 수 있는 동작과 접근 범위를 좋은 예로
+제시한다. 그중 제한을 밝히는 원문은 “デモメニューは本番環境以外でのみアクセスできる。”다.
+파일 이름을 지우라는 규칙이 아니라, 변경 목록을 읽고 사용 동작과 적용 범위를 추론해야 하는 부담을
+줄이는 예시다. 이 문서는 일본어 저자의 원문으로 참고했으며 번역판을 별도 표본으로 세지 않는다.
 
-부분 PR은 티켓에 기여하는 관계로 연결한다. `Closes`·`Fixes` 같은 완료 표현은 **그 PR의 병합 자체가 티켓의 전체 결과를 충족할 때만** 쓴다. 아직 merge되지 않은 다른 PR이나 apply·배포·운영 확인이 남아 있으면 완료 표현을 쓰지 않는다. PR 생성·merge·배포에 따른 티켓 상태는 현재 연동 설정과 실제 티켓 상태를 각각 확인한다. [Linear는 한 이슈에 여러 PR을 연결하고 비종결 관계를 지원한다](https://linear.app/docs/github).
+영어 원문 [Google의 CL 설명 지침](https://google.github.io/eng-practices/review/developer/cl-descriptions.html)은
+첫 줄에서 구체적인 변경을 식별하고 본문에서 문제·접근 방법·제약을 설명하는 예를 제시한다. 같은 지침은
+코드가 소프트웨어가 무엇을 하는지는 보여 줘도 왜 존재하는지는 보여 주지 않으므로, 이후 독자가 결정을
+바꿔도 되는지 판단할 맥락을 남기라고 설명하며 benchmark 결과와 설계 문서 링크를 그 맥락의 예로 든다.
+CL은 Google의 코드 변경 단위이며 이 저장소 PR 양식과 같지는 않다. 구조의 판단 근거로 참고하고,
+원문의 길이나 제목 규칙을 팀 양식보다 우선하지 않는다.
 
-## 연동별 브랜치와 관계 표현
+### PR 크기
 
-새 브랜치 이름은 사용자 지정 이름과 저장소·팀 규칙을 따르고, 규칙이 없으면 `<type>/<slug>`를 사용한다. 티켓 연동을 이유로 ID를 넣지 않으며 Linear의 Copy git branch name 형식과 integration 추천 이름은 그 자체로 이름 규칙이 아니다. 그 결과 Linear의 branch 이름 기반 연결은 일어나지 않고, PR은 본문의 magic word로 연결한다. 기존 브랜치는 자동으로 이름을 바꾸지 않는다. [Linear 연동](https://linear.app/docs/github), [GitHub Issues 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
+[stacked PR 규칙](../../plugins/workflow/skills/to-pr/references/stacked-prs.md)의 약 400줄 기준은 Cisco 팀을 대상으로 한 [SmartBear 연구](https://smartbear.com/learn/code-review/best-practices-for-peer-code-review/)의 “한 번의 리뷰에서 200–400줄을 넘기면 결함 발견 능력이 떨어진다”는 관찰을 PR 크기 기준으로 차용한 값이다. [Google의 Small CLs 지침](https://google.github.io/eng-practices/review/developer/small-cls.html)도 100줄은 대체로 적당하고 1000줄은 대체로 크다고 보며, 작은 변경이 롤백하기 쉽고 리팩터링은 기능 변경과 분리하되 작은 정리는 같은 CL에 둬도 된다고 설명한다.
 
-PR 본문의 티켓 ID에는 링크를 건다. GitHub Issues의 `#123`은 자동으로 링크된다. Linear는 `Part of [ENG-123](<canonical URL>)`처럼 magic word 바로 뒤의 ID를 링크한다. Linear 문서에 명시된 형식은 아니지만, 공개 PR 표본에서 magic word가 붙은 Markdown 링크는 연결되고 magic word 없는 링크는 연결되지 않았다. 게시 뒤에는 티켓을 다시 읽어 연결과 상태를 확인한다.
+## 변경 절차
 
-Linear의 부분 PR은 `Part of KEY`와 실제 비종결 관계를 확인한다. 기존 브랜치에 키가 있으면 그 키로도 자동 연결될 수 있으므로 관계와 자동화 효과를 확인한다. `Part of`는 merge 완료 전이만 막는다. Draft·Open·Ready 같은 다른 PR 이벤트가 티켓을 완료 상태로 옮기도록 설정됐다면 해당 게시·전환을 보류하고 설정 충돌을 보고한다. GitHub Issues의 부분 PR은 종료 키워드 대신 일반 참조를 쓰며, 기본 브랜치 대상에서 전체 결과가 완료될 때만 종료 키워드를 쓴다.
-
-부분 PR을 게시하거나 Ready로 전환하기 전에 제목·본문·기존 브랜치뿐 아니라 포함 commit message에 남은 티켓 키와 완료 표현도 검사한다. [GitHub Issues의 commit 종료 키워드](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)와 [Linear의 commit linking](https://linear.app/docs/github)은 PR 본문의 비종결 표현과 별도로 작동할 수 있다. 현재 연동에서 조기 완료가 발생할 신호가 남고 이 단계에서 바꿀 수 없으면 해당 게시·전환을 보류하고 별도 Git 작업이나 자동화 조정이 필요함을 보고한다. 연결 표시와 실제 상태 변경은 별도로 확인한다.
-
-## 화면 자료와 검증
-
-제품 화면·상호작용이 바뀌면 변경 위치를 마킹한 스크린샷이나, 확인할 시점을 timestamp caption으로 밝힌 영상을 PR 본문에 넣는다. 사용자 요청이나 대상 PR 양식의 요구는 우선한다. VRT 결과 링크는 리뷰어가 PR 밖으로 이동해야 하고 변경 위치를 표시하지 않으므로 본문 자료를 대체하지 않으며, 마킹의 근거로 사용한다. 화면 밖에서 사용자에게 보이는 결과(다운로드 파일, 이메일, API·CLI 출력)는 `검증`에 한 줄로 쓴다. 영상이 첨부 상한을 넘으면 변경 구간만 남기고 `ffmpeg`로 H.264 압축한다. `ffmpeg`가 없으면 설치를 제안하고 사용자가 승인한 뒤 설치한다.
-
-GitHub CLI에서 지원되면 기존 `gh --attach` 절차로 필요한 자료를 업로드하고, 실제 PR 본문에 URL·설명·표시 위치가 맞는지 재조회한다. 업로드 일부가 실패해도 PR이 생성·수정될 수 있으므로 명령 종료 코드만으로 성공을 판정하지 않는다. [GitHub CLI 첨부 가이드](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli)
-
-## 정본과 검증
-
-내부 기본형의 정본은 Workflow의 `assets/templates/` 파일이다. 이 문서는 각 기본형의 의미와 적용 경계를 설명하며, 실제 작성 절차는 Workflow의 `to-ticket`·`to-pr` 스킬과 참고 문서가 맡는다. 양식이나 관계 규칙을 바꾸면 세 위치와 라우팅 평가 사례를 함께 대조한다. 정적 형식 검사와 사례 정의는 실제 tracker 자동화·미디어 게시 성공의 증거가 아니므로, 원격 작업에서는 결과를 다시 읽는다.
+규칙이나 기본형을 바꾸면 정본 파일, 이 문서의 결정·근거와 [라우팅 평가 사례](../../evals/skill-routing/cases.json)를 함께 대조한다. 정적 형식 검사와 사례 정의는 실제 tracker 자동화·미디어 게시 성공의 증거가 아니므로, 원격 작업에서는 결과를 다시 읽는다.

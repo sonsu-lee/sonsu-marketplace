@@ -323,11 +323,11 @@ Workflow는 Linear와 GitHub Issues의 ticket 접수·작성·내용 수정, 기
 ### 작업 전달과 내용 수정을 담당한다
 
 `to-ticket`은 외부 논의의 핵심 결론과 작업에 필요한 맥락을 본문에 담습니다.
-[양식 선택 기준](../../plugins/workflow/skills/to-ticket/references/ticket-selection.md)에 따라
+[티켓 작성 지침](../../plugins/workflow/skills/to-ticket/references/ticket-writing.md)에 따라
 사용자·대상 공간의 양식을 우선하고, 없으면 일반 작업·버그·조사 작업 양식을 사용합니다.
-이 구분은 본문 작성 방식이며 tracker의 type·label·status가 아닙니다. 항목·순서·필수 여부는
-각 템플릿, 내용과 언어는 [작성 기준](../../plugins/workflow/skills/to-ticket/references/ticket-quality-bar.md)이 담당합니다.
-[티켓·PR 작성 설계](../reference/ticket-pr-writing.md)는 두 산출물의 역할과 내부 기본형을 설명합니다.
+이 구분은 본문 작성 방식이며 tracker의 type·label·status가 아닙니다. 항목별 의미는 각 템플릿의
+작성 안내, 양식 선택·언어·내용은 [티켓 작성 지침](../../plugins/workflow/skills/to-ticket/references/ticket-writing.md)이 담당합니다.
+[티켓·PR 작성 설계 근거](../reference/ticket-pr-writing.md)는 두 산출물의 정본 위치와 설계 근거를 설명합니다.
 
 첨부는 [미디어 규칙](../../plugins/workflow/skills/to-ticket/references/media-attachments.md)과
 프로바이더 문서로 처리합니다. 기존 본문의 부분 수정·동시 변경 보존·결과 재조회는
@@ -419,7 +419,7 @@ branch 생성이 함께 요청되면 `ticket-lifecycle`과 `branch`를 runtime�
 새 branch 이름은 사용자 지정과 repository·team 규칙을 따르고, 규칙이 없으면 티켓 ID 없는
 설명형 이름을 씁니다. Linear·GitHub Issues 모두 티켓은 PR 본문에서 연결하고, 사용자가 요청하면
 provider가 지원하는 별도 link 작업을 추가합니다. 본문의 티켓 ID에는 canonical URL 링크를 겁니다. 기존 branch는 자동 rename하지 않습니다. 여러 PR의 부분 병합이
-티켓을 조기 완료시킬 자동화가 있으면 [작성 설계](../reference/ticket-pr-writing.md)의 비종결 연결·
+티켓을 조기 완료시킬 자동화가 있으면 [티켓 연결 규칙](../../plugins/workflow/skills/to-pr/references/ticket-linking.md)의 비종결 연결·
 충돌 처리 규칙을 적용합니다.
 
 `to-pr`은 canonical ticket의 `complete`, `contribute`, `relate` 또는 `suppress` 의도를 provider의
