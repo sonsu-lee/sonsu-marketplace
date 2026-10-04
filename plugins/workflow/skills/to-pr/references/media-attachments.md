@@ -42,7 +42,7 @@ attachments[].remote_url
 attachments[].deletion_locator
 ```
 
-secret, token, cookie, 개인정보, 실제 고객 data, 내부 URL, 제한된 보안 정보와 불필요한 local path가 보이면 게시하지 않는다. 애니메이션 GIF를 포함한 이미지는 [시각 증거 규칙](visual-evidence.md)에 따라 변경 위치가 마킹된 사본만 첨부한다. GIF는 변경을 보여 주는 모든 관련 frame에서 marker가 유지되는지 확인하며, 신뢰할 수 있게 마킹할 수 없으면 마킹된 정적 이미지나 비디오로 대체하거나 업로드하지 않는다. GitHub CLI는 이미지를 마킹하지 않으므로 annotation은 upload 전에 이미지에 반영해야 한다. 비디오에는 마킹 대신 무엇을 언제 확인할지 설명하는 caption과 필요한 timestamp를 PR body에 두며, 비디오의 `annotation_status`는 이 caption이 준비됐는지로 판정한다.
+화면과 파일에 secret, token, cookie, 개인정보·개인 email, 고객 정보·실제 고객 data, 내부 URL·hostname, notification과 다른 application의 내용, 제한된 보안 정보와 불필요한 local path가 없는지 확인한다. 안전하게 제거할 수 없으면 업로드하지 않는다. 애니메이션 GIF를 포함한 이미지는 [시각 증거 규칙](visual-evidence.md#첨부-이미지에-마킹한다)에 따라 변경 위치가 마킹된 사본만 첨부한다. GitHub CLI는 이미지를 마킹하지 않으므로 annotation은 upload 전에 이미지에 반영해야 한다. 비디오에는 마킹 대신 무엇을 언제 확인할지 설명하는 caption과 필요한 timestamp를 PR body에 두며, 비디오의 `annotation_status`는 이 caption이 준비됐는지로 판정한다.
 
 업로드 전에 신뢰할 수 있는 decoder로 실제 content type, decode 가능 여부와 확장자의 일치를 확인한다. GIF의 모든 frame과 비디오의 전체 영상·audio track을 검토하여 민감정보가 없는지도 확인한다. EXIF·GPS·XMP, SVG metadata와 video container 메타데이터 같은 embedded metadata도 최종 첨부 사본에서 확인한다. 민감하거나 불필요한 metadata가 있으면 정제한 별도 사본을 만들고 다시 검사한다. 전체 내용이나 metadata를 신뢰할 수 있게 검사하지 못하면 각각 `sensitive_data_check` 또는 `embedded_metadata_check`를 `inconclusive`로 기록하고 업로드하지 않는다.
 
@@ -94,7 +94,7 @@ GitHub Draft PR의 가용성은 저장소 visibility와 plan에 따라 다르다
 
 GitHub CLI는 body가 같은 로컬 파일을 참조하면 그 위치의 destination을 upload URL로 바꿀 수 있다. 하지만 여러 upload 중 일부만 성공해도 PR을 생성하므로 실패한 파일의 local path가 body에 남을 수 있다. `to-pr`의 기본 흐름에서는 local reference를 body에 쓰지 않는다.
 
-대신 [선택한 템플릿](pr-template.md)의 시각 자료 항목에 각 marker와 video에서 확인할 내용을 설명한다. body가 참조하지 않은 attachment는 flag 순서대로 끝에 추가되므로 manifest의 `display_order`와 `--attach` 순서를 일치시킨다. 여러 파일이면 설명에도 `Attachment 1`, `Video 3`처럼 같은 번호를 붙여 각 파일과 caption이 일대일로 대응하게 한다. before와 after를 표로 비교해야 하면 가능할 때 마킹된 두 화면을 하나의 안전한 comparison image로 합친다.
+대신 [선택한 템플릿](pr-template.md)의 시각 자료 항목에 각 marker와 video에서 확인할 내용을 설명한다. body가 참조하지 않은 attachment는 flag 순서대로 끝에 추가되므로 manifest의 `display_order`와 `--attach` 순서를 일치시킨다. 여러 파일이면 설명에도 `Attachment 1`, `Video 3`처럼 같은 번호를 붙여 각 파일과 caption이 일대일로 대응하게 한다.
 
 첨부 후에는 아래 게시 절차에 따라 확인된 URL을 지정 항목에 배치하고, 본문 끝의 중복 attachment와 local placeholder가 제거됐는지 재조회한다.
 
@@ -106,7 +106,7 @@ GitHub CLI는 body가 같은 로컬 파일을 참조하면 그 위치의 destina
 
 ## Draft PR을 먼저 만들고 한 파일씩 첨부한다
 
-`draft` 모드에서는 업로드하지 않는다. 여기서 `draft`는 로컬에서 payload만 준비하는 스킬 모드이며 GitHub의 Draft PR 상태와는 다르다. 사용자가 visual evidence가 포함된 새 PR 게시를 요청했고 final manifest와 body가 확정된 `publish` 모드에서만 GitHub native attachment를 실행한다. 이 승인은 검토한 manifest의 GitHub attachment만 포함하며 외부 storage, 다른 파일 또는 publish 시작 전에 이미 존재하던 PR의 수정으로 확대하지 않는다.
+`draft` 모드에서는 업로드하지 않는다. 사용자가 visual evidence가 포함된 새 PR 게시를 요청했고 final manifest와 body가 확정된 `publish` 모드에서만 GitHub native attachment를 실행한다. 이 승인은 검토한 manifest의 GitHub attachment만 포함하며 외부 storage, 다른 파일 또는 publish 시작 전에 이미 존재하던 PR의 수정으로 확대하지 않는다.
 
 `target_pr_state`는 `to-pr`의 기본 Draft 정책과 GitHub 규칙에 따라 publish 전에 확정하고 upload 결과에 따라 바꾸지 않는다. `required_for_ready`도 publish 전에 확정한다. 사용자가 명시적으로 요청했거나 PR 양식·`CONTRIBUTING`이 요구한 파일, 화면 변경 PR의 마킹 스크린샷·caption 영상, 또는 PR이 주장하는 화면 동작을 입증하는 유일한 증거는 필수다. 접근 가능한 VRT 산출물이 있어도 본문 자료는 필수로 남는다. 없어도 PR의 주장과 검증 결과가 완전한 보조 diff, 추가 viewport나 대체 recording만 선택으로 둘 수 있다. 불명확하면 필수로 취급한다. 필수 항목 하나라도 annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded 메타데이터 검사를 완료하지 못하면 PR 생성 명령 자체를 실행하지 않는다.
 
@@ -129,8 +129,6 @@ Draft PR을 만들기 전에 전체 manifest의 로컬 파일 identity를 비교
 gh pr edit "https://github.com/OWNER/REPOSITORY/pull/123" \
   --attach '/absolute/path/annotated-after.png#Marker 1 outlines the relocated navigation trigger'
 ```
-
-같은 publish 흐름에서 방금 만든 Draft PR에는 아직 확인하지 않은 manifest 첨부를 위 방식으로 추가하고 사용자가 명시한 ready 상태로만 전환할 수 있다. 제목, ticket, reviewer, label과 다른 본문 내용은 이 예외로 변경하지 않는다.
 
 `gh pr create --attach`는 `--web`이나 `--dry-run`과 함께 사용할 수 없다. attachment dry-run은 없으므로 첫 upload 전에 모든 로컬 검사를 마친다.
 

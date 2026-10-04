@@ -7,7 +7,8 @@ GitHub PR payload를 작성하거나 새 PR을 게시할 때 읽는다. 여러 P
 - 정확한 `[HOST/]OWNER/REPOSITORY`, visibility와 인증 주체를 비밀값 없이 확인한다.
 - 사용자가 지정한 base를 우선하고, 없으면 branch의 `gh-merge-base` 설정과 저장소 default branch를 확인한다.
 - 대상 브랜치, upstream, remote ref와 head SHA를 확인한다.
-- 단일 PR과 stack의 하단 PR은 base와 head의 merge base부터 head까지, stack의 위층은 확인한 선형 ancestry에 따라 바로 아래 branch의 head부터 위층 head까지 commit과 diff를 읽는다.
+- 단일 PR과 stack의 하단 PR은 base와 head의 merge base부터 head까지, stack의 위층은 확인한 선형 ancestry에 따라 바로 아래 branch의 head부터 위층 head까지 commit과 diff를 읽는다. 관련 없는 commit이나 파일이 있으면 포함 범위를 임의로 정리하지 않고 보고한다.
+- 저장소 root, linked worktree 여부, 진행 중인 Git 작업과 staged·unstaged·untracked 변경을 확인한다.
 - [PR 템플릿 규칙](pr-template.md)으로 적용할 양식과 `CONTRIBUTING`·기존 PR 관례를 확인한다.
 - 대상 head branch마다 open·draft PR을 조회한다.
 
@@ -21,7 +22,7 @@ title과 body를 명시적으로 완성한다. [PR 템플릿 규칙](pr-template
 
 `target_pr_state`는 [메인 스킬의 모드 규칙](../SKILL.md#모드를-정한다)으로 정한다. Draft 지원 여부를 확인하며, Draft 요청을 Ready로 대체하지 않는다.
 
-CLI에서는 완성한 multiline body를 임시 파일에 기록하고 `gh pr create --body-file`로 전달한다. `--template`과 함께 사용하지 않는다. 실행 시점의 `gh pr create --help`, target host와 base 저장소 권한을 확인한다. `--dry-run`도 Git push를 수행할 수 있으므로 read-only 검사로 사용하지 않는다. 미디어가 있으면 생성 전에 [미디어 첨부 규칙](media-attachments.md)을 읽어 파일·지원 경로와 필수 검사를 확인한다.
+CLI에서는 완성한 multiline body를 임시 파일에 기록하고 `gh pr create --body-file`로 전달한다. `--template`은 base 저장소가 노출한 양식 filename으로 시작 본문만 제공하고 `--body`·`--body-file`과 함께 쓸 수 없으므로 사용하지 않는다. 실행 시점의 `gh pr create --help`, target host와 base 저장소 권한을 확인한다. `--dry-run`도 Git push를 수행할 수 있으므로 read-only 검사로 사용하지 않는다. 미디어가 있으면 생성 전에 [미디어 첨부 규칙](media-attachments.md)을 읽어 파일·지원 경로와 필수 검사를 확인한다.
 
 공식 참고: [GitHub CLI `gh pr create`](https://cli.github.com/manual/gh_pr_create), [`gh pr edit`](https://cli.github.com/manual/gh_pr_edit)
 
@@ -39,7 +40,7 @@ CLI에서는 완성한 multiline body를 임시 파일에 기록하고 `gh pr cr
 - 기존 PR 수정
 - 로그인, 계정 전환 또는 scope 확대
 
-같은 head의 기존 PR이 있으면 새 PR을 만들지 않는다. 이 스킬은 publish 시작 전에 이미 존재하던 PR을 업데이트하지 않으므로 URL과 현재 상태를 보고한다. 예외는 현재 publish 흐름에서 방금 만든 GitHub Draft PR에 검토한 manifest의 미디어를 첨부하고 사용자가 명시한 ready 상태로 전환하는 경우뿐이다.
+같은 head의 기존 PR이 있으면 새 PR을 만들지 않는다. publish 시작 전에 이미 존재하던 PR은 업데이트하지 않고 URL과 현재 상태를 보고한다. 방금 만든 PR에 대한 예외는 [책임 경계](../SKILL.md#책임-경계를-지킨다)를 따른다.
 
 ## 생성하고 검증한다
 
