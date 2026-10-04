@@ -174,7 +174,7 @@ for plugin in workflow fluent-korean fluent-english fluent-japanese design; do o
 | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | 소프트웨어 변경 설계·구현·검증과 코드 단순화·품질 리뷰 | `engineering` |
 | [Workflow](plugins/workflow) | Git branch·commit·push, 티켓 작성·수정·상태 관리와 GitHub PR 작업 | `workflow` |
-| [Fluent Korean](plugins/fluent-korean) | 기존 일상·기술 한국어의 AI 티·번역투 윤문 (`im-not-ai` 기반) | `fluent-korean` |
+| [Fluent Korean](plugins/fluent-korean) | 한국어 새 글의 생성 규칙과 기존 글의 AI 티·번역투 윤문 (`im-not-ai` 기반) | `fluent-korean` |
 | [Fluent English](plugins/fluent-english) | 일상·기술 영어 작성·윤문·검토 (`better-writing` 기반) | `fluent-english` |
 | [Fluent Japanese](plugins/fluent-japanese) | 일상·기술 일본어 작성·윤문·문서 진단 (`natural-japanese` 기반) | `fluent-japanese` |
 | [Writing](plugins/writing) | 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성 | `writing` |
@@ -237,7 +237,7 @@ claude plugin update engineering@sonsu-marketplace
 
 이전 `fluent-languages` 설치본이 있으면 언어 스킬의 적용 범위가 겹치므로 먼저 제거하고 필요한
 언어 플러그인을 설치하세요. 새 스킬 ID는 `fluent-korean:fluent-korean`,
-`fluent-english:fluent-english`, `fluent-japanese:fluent-japanese`입니다. 영어는 일상·기술 문장의 작성·윤문·검토에, 일본어는 작성·윤문과 문서 진단에 사용할 수 있습니다. 한국어는 기존 글의 AI 티·번역투 윤문에 적용합니다. 기존 작업 연속성 기록은 자동 이전되지 않으며
+`fluent-english:fluent-english`, `fluent-japanese:fluent-japanese`입니다. 영어는 일상·기술 문장의 작성·윤문·검토에, 일본어는 작성·윤문과 문서 진단에 사용할 수 있습니다. 한국어는 새 글의 생성 규칙과 기존 글의 AI 티·번역투 윤문에 적용합니다. 기존 작업 연속성 기록은 자동 이전되지 않으며
 [수동 복구 절차](docs/reference/task-continuity.md)에 따라 확인합니다.
 
 ```sh

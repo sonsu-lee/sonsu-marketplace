@@ -174,7 +174,7 @@ for plugin in workflow fluent-korean fluent-english fluent-japanese design; do o
 | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | ソフトウェア変更の設計・実装・検証、簡素化、品質レビュー | `engineering` |
 | [Workflow](plugins/workflow) | Gitのブランチ・コミット・プッシュ、チケット、GitHub PRの作成・管理 | `workflow` |
-| [Fluent Korean](plugins/fluent-korean) | `im-not-ai` をもとに既存の日常・技術文のAI的表現・翻訳調を推敲 | `fluent-korean` |
+| [Fluent Korean](plugins/fluent-korean) | `im-not-ai` をもとに韓国語の新規文章に生成ルールを適用し、既存文のAI的表現・翻訳調を推敲 | `fluent-korean` |
 | [Fluent English](plugins/fluent-english) | `better-writing` をもとに日常・技術文の作成・推敲・レビュー | `fluent-english` |
 | [Fluent Japanese](plugins/fluent-japanese) | `natural-japanese` をもとに日常・技術文の作成・推敲と文書診断 | `fluent-japanese` |
 | [Writing](plugins/writing) | 読み手と目的に合わせた情報の選別、記載先の判断、文章の構成 | `writing` |
@@ -235,7 +235,7 @@ claude plugin marketplace update sonsu-marketplace
 claude plugin update engineering@sonsu-marketplace
 ```
 
-以前の `fluent-languages` がインストールされている場合は、言語指針の重複を避けるため、先に削除してから必要な言語プラグインをインストールしてください。新しいスキル ID は `fluent-korean:fluent-korean`、`fluent-english:fluent-english`、`fluent-japanese:fluent-japanese` です。英語は日常文と技術文の作成・推敲・レビューに、日本語は作成・推敲と文書診断に使えます。韓国語は既存文のAI的表現・翻訳調の推敲に使います。既存の作業継続記録は自動移行されません。[手動の復旧手順](docs/reference/task-continuity.md)を参照してください。
+以前の `fluent-languages` がインストールされている場合は、言語指針の重複を避けるため、先に削除してから必要な言語プラグインをインストールしてください。新しいスキル ID は `fluent-korean:fluent-korean`、`fluent-english:fluent-english`、`fluent-japanese:fluent-japanese` です。英語は日常文と技術文の作成・推敲・レビューに、日本語は作成・推敲と文書診断に使えます。韓国語は新規文章の生成ルールと既存文のAI的表現・翻訳調の推敲に使います。既存の作業継続記録は自動移行されません。[手動の復旧手順](docs/reference/task-continuity.md)を参照してください。
 
 ```sh
 codex plugin remove fluent-languages@sonsu-marketplace

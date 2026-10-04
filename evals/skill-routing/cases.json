@@ -3195,9 +3195,7 @@
       ],
       "prompt": "오늘 약속에 10분 정도 늦을 것 같아. 친구에게 보낼 자연스러운 한국어 메시지 한 문장만 써 줘.",
       "expected_sequence": [
-        "writing:writing"
-      ],
-      "must_not_select": [
+        "writing:writing",
         "fluent-korean:fluent-korean"
       ],
       "must_not_install_plugins": true
@@ -3210,9 +3208,7 @@
       ],
       "prompt": "`cacheKey`를 바꾸면 기존 캐시 항목을 다시 찾지 못한다는 사실만으로 한국어 기술 설명을 두 문장으로 작성해 줘. 코드 식별자는 그대로 둬.",
       "expected_sequence": [
-        "writing:writing"
-      ],
-      "must_not_select": [
+        "writing:writing",
         "fluent-korean:fluent-korean"
       ],
       "must_not_install_plugins": true
@@ -3486,6 +3482,19 @@
       "expected_output_language": "ja",
       "expected_action": "create",
       "expected_mode": "draft"
+    },
+    {
+      "id": "korean-chat-answer-does-not-select-fluent",
+      "installed_plugins": [
+        "writing",
+        "fluent-korean"
+      ],
+      "prompt": "파이썬 리스트 컴프리헨션이 뭔지 간단히 설명해 줘.",
+      "expected_sequence": [],
+      "must_not_select": [
+        "fluent-korean:fluent-korean"
+      ],
+      "must_not_install_plugins": true
     }
   ]
 }

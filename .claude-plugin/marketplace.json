@@ -23,8 +23,8 @@
     {
       "name": "fluent-korean",
       "source": "./plugins/fluent-korean",
-      "description": "기존 한국어 글의 AI 티·번역투를 윤문·진단한다. 일상 메시지와 기술 문서의 설명문에도 적용할 수 있다.",
-      "version": "0.1.0-beta.2",
+      "description": "한국어 글의 AI 티·번역투를 새 글 작성 중에 피하고, 기존 글을 윤문·진단한다. 일상 메시지와 기술 문서에도 적용할 수 있다.",
+      "version": "0.2.0-beta.1",
       "category": "Productivity"
     },
     {
@@ -45,7 +45,7 @@
       "name": "writing",
       "source": "./plugins/writing",
       "description": "독자·목적·근거에 맞춰 업무 문서와 개발자 블로그의 정보를 선별하고, 문서 배치와 글의 흐름을 다듬는다.",
-      "version": "0.3.0-beta.5",
+      "version": "0.4.0-beta.1",
       "category": "Productivity"
     },
     {
