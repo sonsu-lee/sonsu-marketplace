@@ -66,7 +66,7 @@ worklog hook을 신뢰하세요. 플러그인을 업데이트한 뒤에는 `/hoo
 | `compact` | `trigger` |
 | `session_end` | `reason` |
 
-`tool_result`의 `exit_code`·`error`·`is_interrupt`·`input_excerpt`는 실패 레코드에만 둡니다.
+`tool_result`는 위 키를 유지하고 호스트가 제공하지 않은 값은 `null`로 둡니다. omp의 `input_excerpt`는 실패 때만 채웁니다.
 `signal_source`는 `hook:<HookEventName>`, `rollout:item_completed`, `transcript:attachment`,
 `omp:<event>` 중 하나입니다.
 
@@ -100,6 +100,7 @@ worklog hook을 신뢰하세요. 플러그인을 업데이트한 뒤에는 `/hoo
 - `SONSU_WORKLOG_PROMPTS=off`이면 프롬프트 발췌 없이 길이만 남깁니다.
 - 보존 기간은 90일입니다. 세션 시작 때 그 프로젝트·호스트의 날짜 디렉터리 중 90일이 지난 것을
   지우며, 24시간에 한 번만 정리하고 시각을 `<host>/.state/last-prune`에 남깁니다.
+  세션 상태와 잠금 파일은 지우지 않습니다. 진행 중인 기록의 잠금과 rollout 읽기 위치를 보존하기 위해서입니다.
   `python3 scripts/worklog.py prune [--days 90]`은 모든 호스트를 즉시 정리합니다.
 - 로그가 가리키는 Claude Code transcript는 Claude Code 설정 `cleanupPeriodDays`(기본 30일)에 따라
   먼저 지워질 수 있습니다. 이때 진단은 "원문 없음"으로 보고합니다.

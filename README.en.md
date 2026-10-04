@@ -25,12 +25,12 @@ codex plugin add engineering@sonsu-marketplace
 ```
 
 For another plugin, use its installation name from the [table below](#plugins).
-To install all 12 plugins, run:
+To install all 13 plugins, run:
 
 ```sh
 for plugin in \
   engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design
+  writing research prompting product memory-manager design-patterns design worklog
 do
   codex plugin add "$plugin@sonsu-marketplace"
 done
@@ -62,12 +62,12 @@ Install only the plugins you need. For example, to install Engineering:
 claude plugin install engineering@sonsu-marketplace
 ```
 
-To install all 12 plugins from the [table below](#plugins), run:
+To install all 13 plugins from the [table below](#plugins), run:
 
 ```sh
 for plugin in \
   engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design
+  writing research prompting product memory-manager design-patterns design worklog
 do
   claude plugin install "$plugin@sonsu-marketplace"
 done
@@ -87,8 +87,8 @@ Claude Code MCP connections require separate configuration.
 
 ### omp
 
-The omp catalog, `.omp-plugin/marketplace.json`, distributes five plugins: `workflow`, `fluent-korean`,
-`fluent-english`, `fluent-japanese`, and `design`. Native omp features own development execution,
+The omp catalog, `.omp-plugin/marketplace.json`, distributes five default plugins: `workflow`, `fluent-korean`,
+`fluent-english`, `fluent-japanese`, and `design`, plus the opt-in `worklog` package. Native omp features own development execution,
 task, todo, session, review, and memory. Test local changes in the isolated environment described in the
 [development guide](docs/guides/adding-a-plugin.md).
 
@@ -107,6 +107,12 @@ marketplace:
 ```
 <!-- omp-preset:end -->
 
+For a work log, install `worklog` separately from the default five. Its runtime extension records tool results and session events as local JSONL, and its diagnosis skill is read-only. The omp package contains no hooks.
+
+```sh
+omp plugin install worklog@sonsu-marketplace
+```
+
 `marketplace.autoUpdate: auto` attempts to refresh catalogs older than 24 hours at omp startup.
 Automatic updates of installed plugins require a version increase for that plugin in the catalog.
 This setting does not continuously watch `main` or reload changes into an active session. To pick up a new
@@ -123,9 +129,9 @@ package does not provide Claude Code's multistep or strict mode, or fixed Opus a
 and Japanese skills, Workflow's commit/push/PR authority boundaries, and Design's quality
 contracts, profiles, and native tool prerequisites remain in place.
 
-Design, Workflow, and Fluent Korean use generated `./plugins/<name>/omp` packages. English and Japanese
-use their existing `./plugins/<name>` packages. The omp packages contain no custom runtime extension,
-hook, evidence gate, or `task-continuity.py`. Native todo and session features handle continuity without
+Design, Workflow, Fluent Korean, and Worklog use generated `./plugins/<name>/omp` packages. English and Japanese
+use their existing `./plugins/<name>` packages. The default five contain no custom runtime extension,
+hook, evidence gate, or `task-continuity.py`; only opt-in Worklog includes a runtime extension. Native todo and session features handle continuity without
 new `.sonsu` records. See the [distribution lifecycle](docs/architecture/plugin-lifecycle.md).
 
 | Responsibility | Owner | Distribution |
@@ -134,6 +140,7 @@ new `.sonsu` records. See the [distribution lifecycle](docs/architecture/plugin-
 | Git, ticket, and PR authority and artifacts | Workflow | Default five plugins |
 | Language quality and preservation rules | Fluent Korean, English, Japanese | Default five plugins |
 | UI, prototype, and handoff quality; native tool prerequisites | Design | Default five plugins |
+| Raw work events and diagnosis | Worklog | Opt-in |
 | External research, product exploration, writing structure | Research, Product, Writing | Optional candidates, excluded from the default catalog |
 
 Before adding Research, Product, or Writing, verify the required domain and current native tool contract.
@@ -165,7 +172,7 @@ and agents. Do not edit cache files manually or delete existing `.sonsu` or `.en
 
 ## Plugins
 
-The following is the full Codex and Claude Code catalog. omp distributes only the five plugins above.
+The following is the full Codex and Claude Code catalog. omp distributes the five plugins above by default; Worklog is available as an opt-in install.
 
 | Plugin | Purpose | Installation name |
 | --- | --- | --- |
@@ -181,6 +188,7 @@ The following is the full Codex and Claude Code catalog. omp distributes only th
 | [Memory Manager](plugins/memory-manager/README.md) | Shared local memory for recall, capture, and maintenance in Codex and Claude Code | `memory-manager` |
 | [Design](plugins/design/README.md) | Design, redesign, and audit general and operations interfaces through Figma or code, and find design references | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | Select patterns from observed design forces and review existing usage | `design-patterns` |
+| [Worklog](plugins/worklog/README.md) | Log and diagnose failures, interruptions, and user corrections across Claude Code, Codex, and omp | `worklog` |
 
 Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
 

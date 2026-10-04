@@ -1,5 +1,6 @@
 """worklog-v1 hook recording and CLI contracts."""
 from datetime import datetime, timedelta, timezone
+import fcntl
 import importlib.util
 import json
 import os
@@ -192,6 +193,20 @@ class WorklogTests(unittest.TestCase):
         (project / "claude" / old).mkdir()
         self.hook("claude", self.event("SessionStart", session="session-2"))
         self.assertTrue((project / "claude" / old).exists())
+        state_dir = project / "claude/.state"
+        expired_state = state_dir / "active.json"
+        expired_lock = state_dir / "active.lock"
+        expired_state.write_text('{"rollout_offset": 123}')
+        expired_lock.touch()
+        expired = (datetime.now(timezone.utc) - timedelta(days=100)).timestamp()
+        for path in (expired_state, expired_lock):
+            os.utime(path, (expired, expired))
+        with expired_lock.open("r+") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            inode = os.fstat(lock.fileno()).st_ino
+            self.cli("prune")
+            self.assertEqual(expired_lock.stat().st_ino, inode)
+            self.assertEqual(json.loads(expired_state.read_text())["rollout_offset"], 123)
 
     def test_invalid_stdin_exits_zero_without_output(self):
         for raw in ("", "not json", "[]", "{\"hook_event_name\": \"Stop\"}",

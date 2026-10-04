@@ -50,7 +50,7 @@ Workflow의 `git-workflow`는 `branch`, `commit`, `push`, `review-commit`으로 
 
 ## 플러그인 경계
 
-Engineering, Workflow, Research, Prompting, Product, Design, Design Patterns, Memory Manager, Writing과 Fluent Languages는
+Engineering, Workflow, Research, Prompting, Product, Design, Design Patterns, Memory Manager, Worklog, Writing과 Fluent Languages는
 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
 Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
@@ -84,6 +84,7 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 명시적 기억 요청 또는 선택한 후보의 검증·저장 | `memory-manager:memory-capture` |
 | 명시적으로 요청한 메모리 점검·정리 | `memory-manager:memory-maintain` |
 | 반복 사례의 검토용 스킬 초안 | `memory-manager:memory-promote` |
+| 작업 로그 기반 최근 실패·중단·교정의 타임라인과 원인 후보 진단 | `worklog:worklog-diagnose` |
 | 외부 다중 출처 조사, 사실 검증, 문헌 검토와 근거 중심 code research | `research:research` |
 | Codex·ChatGPT·OpenAI API·Claude Code·Anthropic API용 프롬프트 생성·재작성·최적화 | `prompting:prompt-builder` |
 | 제품 문제·기회·가치 제안과 해법 후보 발산 | `product:product-brainstorming` |
@@ -556,6 +557,12 @@ Writing은 영속 문서 작업에서 이후에도 찾아볼 내용인지 판단
 의미 있는 동작·결함은 재현/회귀 테스트로 보호하고 문서·메타데이터는 파서·경로·실제 loader로
 확인합니다. 관련 필수 검사가 통과하면 새 변경·실패·미해결 우려가 있을 때만 검사를 확대합니다.
 Git·외부 전달은 [공유 권한](../../plugins/workflow/references/delivery-authority.md)을 따릅니다.
+
+## Worklog 조합
+
+`worklog-diagnose`는 읽기 전용 진단입니다. 작업 로그(`worklog-v1`)와 원문 transcript를 읽어 최근 도구 실패·중단·API 오류·사용자 교정의 타임라인과 원인 후보를 보고하며 파일을 수정하지 않습니다.
+
+Memory Manager는 승인된 지식, 작업 연속성 기록은 진행 중인 작업 상태, Worklog는 원시 이벤트를 다룹니다. 기억 저장·회상 요청에는 Memory Manager를 사용합니다. 진단에 따른 수정·커밋·PR은 Engineering과 Workflow가 맡습니다.
 
 ## 라우팅 평가
 
