@@ -1,0 +1,16 @@
+{
+  "session_id": "fixture-claude",
+  "transcript_path": "/tmp/worklog-fixture/transcript.jsonl",
+  "cwd": "/tmp/worklog-fixture",
+  "permission_mode": "default",
+  "hook_event_name": "PostToolUseFailure",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "ls ./no-such-file-xyz",
+    "description": "List a missing file"
+  },
+  "tool_use_id": "toolu_fixture_failure",
+  "error": "Exit code 1\nls: ./no-such-file-xyz: No such file or directory",
+  "is_interrupt": false,
+  "duration_ms": 335
+}

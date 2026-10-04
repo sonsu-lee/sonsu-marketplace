@@ -17,6 +17,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / ".agents/plugins/marketplace.json"
+CLAUDE_ROOT_PACKAGES = {"memory-manager", "worklog"}
 
 
 def read_skill_name(path):
@@ -41,7 +42,7 @@ class CodexPackagingTests(unittest.TestCase):
                          [entry["name"] for entry in codex["plugins"]])
         for entry in claude["plugins"]:
             with self.subTest(plugin=entry["name"]):
-                expected = entry["name"] + ("/claude" if entry["name"] == "memory-manager" else "")
+                expected = entry["name"] + ("/claude" if entry["name"] in CLAUDE_ROOT_PACKAGES else "")
                 self.assertEqual(entry["source"], f"./plugins/{expected}")
                 package = ROOT / "plugins" / expected
                 source = json.loads((ROOT / "plugins" / entry["name"] / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
@@ -70,6 +71,16 @@ class CodexPackagingTests(unittest.TestCase):
         for relative in ("scripts/memory_store.py", "hooks/capture.py", "hooks/hooks.json"):
             self.assertEqual((ROOT / "plugins/memory-manager" / relative).read_bytes(),
                              (ROOT / "plugins/memory-manager/claude" / relative).read_bytes())
+
+    def test_worklog_claude_root_copies_host_hooks(self):
+        package = ROOT / "plugins/worklog"
+        for source, generated in (("hooks/claude-hooks.json", "claude/hooks/hooks.json"),
+                                  ("scripts/worklog.py", "claude/scripts/worklog.py")):
+            with self.subTest(file=generated):
+                self.assertEqual((package / generated).read_bytes(), (package / source).read_bytes())
+        self.assertFalse((package / ".claude-plugin").exists())
+        skill = package / "claude/skills/worklog-diagnose/SKILL.md"
+        self.assertEqual(skill.read_bytes(), (package / "skills/worklog-diagnose/SKILL.md").read_bytes())
 
     def test_memory_manager_readme_links_diagrams_and_entrypoints(self):
         package = ROOT / "plugins/memory-manager"
@@ -115,7 +126,7 @@ class CodexPackagingTests(unittest.TestCase):
                 continue
             with self.subTest(plugin=entry["name"]):
                 codex = json.loads((package / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
-                claude_package = package / "claude" if entry["name"] == "memory-manager" else package
+                claude_package = package / "claude" if entry["name"] in CLAUDE_ROOT_PACKAGES else package
                 claude = json.loads((claude_package / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
                 self.assertNotIn("hooks", codex)
                 self.assertNotIn("hooks", claude)
@@ -237,27 +248,33 @@ class CodexPackagingTests(unittest.TestCase):
             self.assertFalse(generated_manifest.exists())
             self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
 
-    def test_omp_catalog_exposes_only_five_native_packages(self):
+    def test_omp_catalog_exposes_default_five_and_optin_worklog(self):
         codex = json.loads(CATALOG.read_text(encoding="utf-8"))
         omp = json.loads((ROOT / ".omp-plugin/marketplace.json").read_text(encoding="utf-8"))
         self.assertEqual(omp["name"], codex["name"])
         self.assertEqual([entry["name"] for entry in omp["plugins"]],
-                         ["workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design"])
+                         ["workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design", "worklog"])
         for entry in omp["plugins"]:
             with self.subTest(plugin=entry["name"]):
-                suffix = "/omp" if entry["name"] in ("workflow", "design", "fluent-korean") else ""
+                suffix = "/omp" if entry["name"] in ("workflow", "design", "fluent-korean", "worklog") else ""
                 self.assertEqual(entry["source"], f"./plugins/{entry['name']}{suffix}")
                 package = ROOT / entry["source"]
                 manifest = json.loads((package / ".claude-plugin/plugin.json").read_text())
                 self.assertEqual(manifest["name"], entry["name"])
                 self.assertEqual(manifest["version"], entry["version"])
                 self.assertTrue((package / "skills").is_dir())
+                if entry["name"] == "worklog":
+                    runtime = json.loads((package / "package.json").read_text())
+                    self.assertEqual(runtime["omp"]["extensions"], ["./extension/worklog.ts"])
+                    self.assertTrue((package / "extension/worklog.ts").is_file())
+                    self.assertFalse((package / "hooks").exists())
+                    continue
                 for forbidden in ("hooks", "extension.ts", "omp/extension.ts",
                                   "scripts/task-continuity.py", "scripts/evidence-gates.py"):
                     self.assertFalse((package / forbidden).exists(), forbidden)
 
     def test_omp_isolated_skills_resolve_local_resources(self):
-        for name in ("workflow", "design", "fluent-korean"):
+        for name in ("workflow", "design", "fluent-korean", "worklog"):
             package = ROOT / "plugins" / name / "omp"
             with tempfile.TemporaryDirectory() as directory:
                 installed = Path(directory).resolve() / name

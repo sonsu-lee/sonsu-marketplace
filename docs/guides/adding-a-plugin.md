@@ -81,9 +81,12 @@ omp plugin list
    버전, 라이선스와 포함 범위를 기록합니다.
 4. `.agents/plugins/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
 5. `python3 scripts/render-claude-compat.py`로 Claude Code catalog와 plugin manifest를 생성합니다.
-6. `python3 scripts/render-omp-compat.py`로 omp catalog와 Design·Workflow·Fluent Korean 전용 패키지를 생성합니다.
-   omp 배포는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design` 5개로 고정합니다.
+6. `python3 scripts/render-omp-compat.py`로 omp catalog와 Design·Workflow·Fluent Korean·Worklog 전용 패키지를 생성합니다.
+   omp 기본 배포는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design` 5개로 고정합니다.
    Codex catalog에 추가해도 omp 배포 대상이 늘어나지 않습니다. 대상 변경에는 배포 정책의 명시적 변경이 필요합니다.
+   예외로 [ADR 0021](../decisions/0021-add-worklog-plugin.md)에 따라 `worklog`를 opt-in 패키지로 catalog에
+   추가합니다. opt-in 패키지는 사용자가 직접 설치할 때만 쓰이며, 생성기의 `OMP_OPTIN_PLUGINS`와
+   `RUNTIME_EXTENSIONS`에 등록된 경우에만 catalog 항목과 runtime extension을 생성합니다.
 
 ```json
 {
@@ -106,7 +109,9 @@ omp plugin list
 
 omp 생성기는 필요한 스킬·참고 자료·asset·스크립트·Figma companion·라이선스를 동봉하고
 스크립트 실행 권한을 유지합니다. 독자 hook, evidence gate, `task-continuity.py`, runtime extension은
-포함하지 않으며 연속성 자료를 omp 순정 todo·session 안내로 바꿉니다.
+포함하지 않으며 연속성 자료를 omp 순정 todo·session 안내로 바꿉니다. 예외로 opt-in 패키지 `worklog`는
+`omp-extension/worklog.ts`를 `extension/worklog.ts`로 복사하고 이를 선언하는 `package.json`을 생성합니다.
+hook은 opt-in 패키지에도 포함하지 않습니다.
 Design의 품질 계약·프로필, Workflow의 권한, English·Japanese 스킬은 유지합니다.
 Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude agent와 다중 호출·strict 모드에 의존하지 않습니다.
 개발 실행·task·todo·session·review는 omp 순정 기능을 사용합니다. Research·Product·Writing은 선택 후보로
@@ -138,6 +143,7 @@ claude plugin validate . --strict
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
 python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v
+python3 -B -m unittest discover -s evals/worklog -p 'test_*.py' -v
 git diff --check
 ```
 

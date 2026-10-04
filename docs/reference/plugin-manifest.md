@@ -22,19 +22,22 @@ manifest는 이름·버전·설명 등 공통 metadata만 투영합니다. 패�
 `hooks/hooks.json`은 Claude Code 로더가 발견하며, Codex의 `.app.json` connector는 이
 manifest에 포함하지 않습니다. `claude plugin validate . --strict`와 실제 설치·호출을 별개로
 확인합니다.
-`memory-manager`는 정본 패키지 안에 Claude Code 배포 루트를 둡니다. 두 호스트의 스킬 로더가
+`memory-manager`와 `worklog`는 정본 패키지 안에 Claude Code 배포 루트를 둡니다. 두 호스트의 스킬 로더가
 기본 `skills/`에 manifest 경로를 추가하므로, 서로 다른 frontmatter의 스킬은 별도 배포 루트가
-필요합니다. 생성 스킬에는 Claude Code의 명시 호출 제한을 추가합니다.
+필요합니다. 생성 스킬 중 수동 호출 전용으로 지정한 스킬에는 Claude Code의 명시 호출 제한을 추가합니다.
+`worklog`는 호스트마다 hook 이벤트 집합이 달라 Claude Code용 `hooks/claude-hooks.json`을 배포 루트의
+`hooks/hooks.json`으로 복사합니다.
 
-omp 配布は `python3 scripts/render-omp-compat.py` で生成します。カタログには Workflow、
-Fluent Korean・English・Japanese、Design の5件だけを登録します。English・Japaneseは元のパッケージを
-参照し、Design・Workflow・Fluent Koreanは `plugins/<name>/omp` に独立した配布用コピーを生成します。
+omp 配布は `python3 scripts/render-omp-compat.py` で生成します。カタログには基本5件の Workflow、
+Fluent Korean・English・Japanese、Design と、opt-inの Worklog を登録します。English・Japaneseは元のパッケージを
+参照し、Design・Workflow・Fluent Korean・Worklogは `plugins/<name>/omp` に独立した配布用コピーを生成します。
 Fluent Koreanの `skills/fluent-korean/SKILL.md` と参考資料はCodexの単一呼び出し経路から生成し、
 現在のホストモデルを使います。default `skills/` discoveryで発見でき、Claude agent・固定Opus・
 多段階・strictモードを要求しません。
 生成先の作業継続・移行の参照は omp 標準の todo と session を使います。独自の hook、
 extension、`task-continuity.py`、evidence gate は同梱せず、元の Codex・Claude Code 用
-パッケージは保持します。生成ファイルの所有情報は `.omp-plugin/generated.json` で管理します。
+パッケージは保持します。例外としてopt-inのWorklogだけは `package.json` と runtime extension
+`extension/worklog.ts` を同梱します(hookは同梱しません)。生成ファイルの所有情報は `.omp-plugin/generated.json` で管理します。
 
 ## 현재 사용하는 필드
 

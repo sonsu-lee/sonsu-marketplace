@@ -11,8 +11,21 @@ ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
 PLUGIN_SCHEMA = "https://json.schemastore.org/claude-code-plugin-manifest.json"
 MANIFEST_FIELDS = ("version", "description", "author", "homepage", "repository", "license", "keywords")
-MEMORY_SKILLS = ("memory-recall", "memory-capture", "memory-maintain", "memory-promote")
-CLAUDE_MANUAL_SKILLS = {"memory-maintain", "memory-promote"}
+CLAUDE_ROOT_PACKAGES = {
+    "memory-manager": {
+        "skills": ("memory-recall", "memory-capture", "memory-maintain", "memory-promote"),
+        "manual_skills": {"memory-maintain", "memory-promote"},
+        "files": {"scripts/memory_store.py": "scripts/memory_store.py",
+                  "hooks/capture.py": "hooks/capture.py",
+                  "hooks/hooks.json": "hooks/hooks.json"},
+    },
+    "worklog": {
+        "skills": ("worklog-diagnose",),
+        "manual_skills": set(),
+        "files": {"scripts/worklog.py": "scripts/worklog.py",
+                  "hooks/claude-hooks.json": "hooks/hooks.json"},
+    },
+}
 
 
 def read_json(path):
@@ -52,8 +65,9 @@ def rendered_outputs(root):
         if source != {"source": "local", "path": codex_source_path}:
             raise ValueError(f"{name}: invalid local plugin path")
         plugin_root = root / "plugins" / name
-        claude_root = plugin_root / "claude" if name == "memory-manager" else plugin_root
-        source_path = f"./plugins/{name}/claude" if name == "memory-manager" else codex_source_path
+        package = CLAUDE_ROOT_PACKAGES.get(name)
+        claude_root = plugin_root / "claude" if package else plugin_root
+        source_path = f"./plugins/{name}/claude" if package else codex_source_path
         if plugin_root.is_symlink() or not plugin_root.is_dir() or not plugin_root.resolve().is_relative_to(root.resolve()):
             raise ValueError(f"{name}: plugin root is missing or escapes the repository")
         codex_manifest_path = plugin_root / ".codex-plugin/plugin.json"
@@ -72,18 +86,18 @@ def rendered_outputs(root):
         for field in MANIFEST_FIELDS:
             if field in codex_manifest:
                 manifest[field] = codex_manifest[field]
-        if name == "memory-manager":
-            for skill_name in MEMORY_SKILLS:
+        if package:
+            for skill_name in package["skills"]:
                 skill_root = plugin_root / "skills" / skill_name
                 skill = (skill_root / "SKILL.md").read_text(encoding="utf-8")
                 frontmatter_end = skill.find("\n---\n", 4)
                 if not skill.startswith("---\n") or frontmatter_end == -1 or "disable-model-invocation" in skill[4:frontmatter_end]:
                     raise ValueError(f"{skill_name}: invalid Codex skill frontmatter")
-                if skill_name in CLAUDE_MANUAL_SKILLS:
+                if skill_name in package["manual_skills"]:
                     skill = skill[:frontmatter_end] + "\ndisable-model-invocation: true" + skill[frontmatter_end:]
                 outputs[claude_root / "skills" / skill_name / "SKILL.md"] = skill.encode("utf-8")
-            for relative in ("scripts/memory_store.py", "hooks/capture.py", "hooks/hooks.json"):
-                outputs[claude_root / relative] = (plugin_root / relative).read_bytes()
+            for source_relative, claude_relative in package["files"].items():
+                outputs[claude_root / claude_relative] = (plugin_root / source_relative).read_bytes()
         outputs[claude_root / ".claude-plugin/plugin.json"] = encode(manifest)
         claude_entries.append({
             "name": name,
@@ -116,16 +130,17 @@ def main():
     unexpected = set(root.glob("plugins/*/.claude-plugin/plugin.json")) - set(outputs)
     if unexpected:
         parser.error("unexpected Claude manifests: " + ", ".join(str(path.relative_to(root)) for path in sorted(unexpected)))
-    generated_root = root / "plugins/memory-manager/claude"
     managed = set()
-    generated_manifest = generated_root / ".claude-plugin/plugin.json"
-    if generated_manifest.is_file() or generated_manifest.is_symlink():
-        managed.add(generated_manifest)
-    for directory in (generated_root / "skills", generated_root / "scripts", generated_root / "hooks"):
-        if directory.is_dir():
-            managed.update(path for path in directory.rglob("*")
-                           if (path.is_file() or path.is_symlink()) and
-                           "__pycache__" not in path.parts and path.suffix != ".pyc")
+    generated_roots = [root / "plugins" / name / "claude" for name in CLAUDE_ROOT_PACKAGES]
+    for generated_root in generated_roots:
+        generated_manifest = generated_root / ".claude-plugin/plugin.json"
+        if generated_manifest.is_file() or generated_manifest.is_symlink():
+            managed.add(generated_manifest)
+        for directory in (generated_root / "skills", generated_root / "scripts", generated_root / "hooks"):
+            if directory.is_dir():
+                managed.update(path for path in directory.rglob("*")
+                               if (path.is_file() or path.is_symlink()) and
+                               "__pycache__" not in path.parts and path.suffix != ".pyc")
     obsolete = sorted(managed - set(outputs))
     if obsolete and not args.check:
         for path in obsolete:
@@ -133,9 +148,12 @@ def main():
                 parser.error(f"generated path contains a symlink: {path}")
             path.unlink()
             print(f"removed: {path.relative_to(root)}")
-        for directory in sorted((p for p in generated_root.rglob("*") if p.is_dir()), reverse=True):
-            if not any(directory.iterdir()):
-                directory.rmdir()
+        for generated_root in generated_roots:
+            if not generated_root.is_dir():
+                continue
+            for directory in sorted((p for p in generated_root.rglob("*") if p.is_dir()), reverse=True):
+                if not any(directory.iterdir()):
+                    directory.rmdir()
     for path, data in outputs.items():
         if has_symlink_component(path, root) or not path.resolve().is_relative_to(root):
             parser.error(f"generated path escapes repository or contains a symlink: {path}")

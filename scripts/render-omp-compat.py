@@ -12,7 +12,9 @@ import stat
 ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
 OMP_PLUGINS = {"workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design"}
-ISOLATED = {"workflow", "design", "fluent-korean"}
+OMP_OPTIN_PLUGINS = {"worklog"}
+RUNTIME_EXTENSIONS = {"worklog": "omp-extension/worklog.ts"}
+ISOLATED = {"workflow", "design", "fluent-korean", "worklog"}
 MANIFEST_FIELDS = ("version", "description", "author", "homepage", "repository", "license", "keywords")
 COPY_ROOTS = ("skills", "references", "assets", "scripts", "figma-plugin")
 SKIP_PARTS = {"__pycache__", "node_modules", ".git"}
@@ -167,7 +169,7 @@ def isolated_outputs(root, plugin_root, manifest, outputs, modes):
             data = (text + "\n\nFor omp, scripts/render-omp-compat.py projects the Codex single-call skill and its references into an independent package. Only host guidance in the skill and quick-rules files is adapted; language patterns and preservation rules remain intact. The existing verify_change_rate.py and console.py domain validator scripts are copied without modification, with their metrics dependencies from the Codex references. The package uses the current host model and provides no Claude multistep or strict execution path.\n").encode("utf-8")
         outputs[destination / relative] = data
         modes[destination / relative] = stat.S_IMODE(source.stat().st_mode)
-    for name in (() if manifest["name"] == "fluent-korean" else ("continuity.md", "migration.md")):
+    for name in (() if manifest["name"] in ("fluent-korean", "worklog") else ("continuity.md", "migration.md")):
         if name == "migration.md" and manifest["name"] != "design":
             continue
         source = root / "shared/omp-runtime" / name
@@ -178,6 +180,16 @@ def isolated_outputs(root, plugin_root, manifest, outputs, modes):
     for field in MANIFEST_FIELDS:
         if field in manifest:
             native_manifest[field] = manifest[field]
+    if manifest["name"] in RUNTIME_EXTENSIONS:
+        # Opt-in packages may ship one runtime extension; the default five never do.
+        source = plugin_root / RUNTIME_EXTENSIONS[manifest["name"]]
+        require_safe(source, root)
+        extension = destination / "extension" / source.name
+        outputs[extension] = source.read_bytes()
+        outputs[destination / "package.json"] = encode({
+            "name": f"sonsu-{manifest['name']}", "version": manifest["version"], "private": True,
+            "type": "module", "omp": {"extensions": ["./" + extension.relative_to(destination).as_posix()]},
+        })
     outputs[destination / ".claude-plugin/plugin.json"] = encode(native_manifest)
 
 
@@ -200,7 +212,7 @@ def rendered_outputs(root):
         source_path = f"./plugins/{name}"
         if entry.get("source") != {"source": "local", "path": source_path}:
             raise ValueError(f"{name}: invalid local plugin path")
-        if name not in OMP_PLUGINS:
+        if name not in OMP_PLUGINS | OMP_OPTIN_PLUGINS:
             continue
         plugin_root = root / "plugins" / name
         require_safe(plugin_root, root)
@@ -292,7 +304,7 @@ def main():
                              "scripts/task-continuity.py", "scripts/evidence-gates.py"):
                 path = root / "plugins" / name / "omp" / relative
                 require_safe(path, root)
-                if path.exists() and path not in obsolete:
+                if path.exists() and path not in obsolete and path not in outputs:
                     raise ValueError(f"unmanaged runtime in isolated package: {path}")
         catalog = root / ".omp-plugin/marketplace.json"
         for path in outputs:
