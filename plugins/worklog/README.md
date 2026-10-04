@@ -8,8 +8,10 @@ Claude Code·Codex·omp 작업에서 일어난 도구 실패, 중단, API 오류
   기록 도구는 컨텍스트를 주입하지 않고, hook stdout에 아무것도 쓰지 않으며, 실패해도 작업을
   막지 않습니다(fail-open).
 - **진단**: `worklog-diagnose`는 로그와 transcript를 읽기만 하고 파일을 수정하지 않습니다.
-- **조회 도구**: `scripts/worklog.py`의 `where`, `summary`, `failures`, `prune`. Python 3.9+
+- **조회 도구**: `scripts/worklog.py`의 `where`, `summary`, `failures`, `clusters`, `prune`. Python 3.9+
   표준 라이브러리만 사용합니다.
+- **개선안 비교**: 명시적으로 요청한 `worklog-improve`가 평가 사례와 최소 diff를 만들고,
+  임시 worktree에서 수정 전후를 비교합니다. 원래 작업 디렉터리의 지침에 자동 적용하지 않습니다.
 
 memory-manager는 사람이 승인한 지식을, worklog는 가공하지 않은 작업 이벤트를 다룹니다.
 두 플러그인은 서로 의존하지 않습니다([ADR 0021](../../docs/decisions/0021-add-worklog-plugin.md)).
@@ -25,7 +27,7 @@ omp plugin install worklog@sonsu-marketplace
 ```
 
 omp에서는 기본 5개 묶음에 들어 있지 않은 opt-in 패키지이므로 필요한 경우에만 직접 설치합니다.
-omp 패키지는 진단 스킬과 `extension/worklog.ts`를 함께 담고 hook은 담지 않습니다.
+omp 패키지는 진단·개선 스킬과 `extension/worklog.ts`를 함께 담고 hook은 담지 않습니다.
 Claude Code 배포본은 `scripts/render-claude-compat.py`가 내부 `claude/`에 생성하며,
 `hooks/claude-hooks.json`을 Claude용 `hooks/hooks.json`으로 복사합니다. 생성물은 직접 고치지
 않습니다.
@@ -111,12 +113,48 @@ worklog hook을 신뢰하세요. 플러그인을 업데이트한 뒤에는 `/hoo
 python3 scripts/worklog.py where
 python3 scripts/worklog.py summary [--days 7] [--host claude|codex|omp] [--format text|json]
 python3 scripts/worklog.py failures [--days 14] [--format jsonl]
+python3 scripts/worklog.py clusters [--days 14] [--min-count 2] [--format json|text]
 python3 scripts/worklog.py prune [--days 90]
 ```
 
 모든 명령은 `--cwd`(기본값: 현재 디렉터리)로 프로젝트를 정합니다. `failures`는 실패한
 `tool_result`, `stop_failure`, `permission_denied`, `interrupt`, 교정 표시가 있는 `user_prompt`를
 내고 각 줄에 `log_path`, `line`(1부터), 그 세션의 `transcript_path`를 붙입니다.
+
+`clusters`는 `failures`와 같은 레코드를 묶고, 최소 건수와 서로 다른 세션 ID 2개 이상을
+만족하는 묶음만 반환합니다. 기본 출력은 JSON 배열이며 count 내림차순, 같으면 last_ts
+내림차순입니다. 각 객체에는 `signature`, `count`, `sessions`(세션 ID 배열), `hosts`(호스트
+배열), `first_ts`, `last_ts`, `examples`(최대 5개)가 있습니다. 예시는 `log_path`, `line`,
+`transcript_path`, `tool_use_id`로 원본을 가리키며 원문 내용을 복제하지 않습니다.
+
+실패 signature는 `tool_name|normalize(error)`, 교정은 `user_correction|normalize(excerpt)`입니다.
+도구 이름이 없는 이벤트는 이벤트 이름을, `permission_denied`의 오류는 `reason`을 사용합니다.
+정규화는 비밀 치환 뒤 소문자화 → `/\S+` 절대 경로를 `<path>`로 치환 → 8자 이상 hex·UUID를
+`<id>`로 치환 → 숫자열을 `N`으로 치환 → 공백 합치기 → 120자 자르기 순입니다. 프롬프트 발췌를
+끄면 교정 signature 본문이 비어 있으므로, 묶음만 보고 같은 원인이라고 판단하지 않습니다.
+
+## 명시적으로 요청하는 개선 루프
+
+`worklog-improve`는 자동 진단의 다음 단계가 아닙니다. 사용자가 평가 사례·수정안 비교를
+명시적으로 요청했을 때만 한 묶음을 처리합니다. Claude Code에서는 수동 호출 전용
+(`disable-model-invocation: true`)으로 배포하고, Codex·omp에서도 같은 요청 조건을 지킵니다.
+
+1. 반복 신호를 고르고 transcript로 저장소 안의 원인 지침을 특정합니다. 신호가 없으면
+   `no_signal`, 지침을 특정할 수 없으면 `inconclusive`로 끝냅니다.
+2. 기존 `evals/<plugin>/cases.json`의 스키마로 사례 하나를 추가하고
+   `origin: worklog:<host>:<session_id>:<ts>`를 남깁니다. 빈 스위트도 선언된 스키마를 따릅니다.
+   스위트가 없으면 로그 프로젝트 디렉터리의 `improve/<case-id>.json`에 저장합니다.
+3. 현재 지침으로 3회 기준선을 실행합니다. 관찰자와 별도인 새 컨텍스트 제안자가 항목 단위
+   최소 diff를 만듭니다. 순증가 15줄을 넘으면 사용자 승인을 기다립니다.
+4. 임시 worktree에서 후보를 3회, 같은 스킬의 기존 회귀 사례 최대 5개를 비교합니다. 실행자는
+   기대 항목을 보지 않습니다. 결정적 검사 후 새 컨텍스트 비교자가 무작위 A/B를 판정합니다.
+5. 수정 후 2/3 이상이면서 기준선보다 높고 회귀 통과 수가 줄지 않아야 통과합니다. 후보는
+   최대 3개이며 결과표·사례·diff를 사람이 검토하도록 넘깁니다.
+
+사례·비식별 fixture 작성은 허용하지만 후보 diff는 원래 작업 디렉터리에 적용하지 않습니다.
+커밋·PR은 따로 요청받았을 때만 Workflow로 넘깁니다. 각 단계의 상한과 중단 조건은
+[스킬](skills/worklog-improve/SKILL.md), 이 저장소의 생성·검사·게시 인계 절차는
+[운영 절차](../../docs/runbooks/improving-skills-from-worklog.md)에 있습니다.
 
 ## 알려진 한계
 

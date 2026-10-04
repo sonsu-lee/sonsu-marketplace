@@ -276,6 +276,80 @@ class WorklogTests(unittest.TestCase):
                                             if k not in ("log_path", "line", "transcript_path")})
                 self.assertEqual(entry["transcript_path"], transcript if entry["host"] == "claude" else str(rollout))
 
+    def test_clusters_normalize_paths_ids_and_group_by_session(self):
+        worklog = load_worklog()
+        self.assertEqual(
+            worklog.normalize_signal("FAILED /tmp/job-17/out  DEADBEEF  "
+                                     "85a4be90-9c82-481d-acdf-c407dc9a2e36 503\n  attempts"),
+            "failed <path> <id> <id> N attempts")
+        self.assertEqual(worklog.normalize_signal("Z" * 130 + " 42"), "z" * 120)
+        self.assertEqual(worklog.normalize_signal(None), "")
+        self.assertEqual(json.loads(self.cli("clusters")), [])
+        self.assertEqual(self.cli("clusters", "--format", "text").strip(), "no clusters")
+        directory = self.project_dir()
+        key = directory.name
+        base = datetime.now(timezone.utc) - timedelta(days=1)
+
+        def record(host, sid, event, data, offset):
+            moment = base + timedelta(seconds=offset)
+            log = directory / host / moment.date().isoformat() / (sid + ".jsonl")
+            log.parent.mkdir(parents=True, exist_ok=True)
+            row = {
+                "schema": "worklog-v1", "ts": worklog.iso(moment), "host": host,
+                "host_version": None, "session_id": sid, "project_key": key,
+                "cwd": str(self.project), "turn_id": None, "event": event,
+                "signal_source": "hook:fixture", "data": data,
+            }
+            with log.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+        for index, (host, sid) in enumerate((("claude", "first"), ("codex", "second"))):
+            record(host, sid, "session_start", {"transcript_path": f"/tmp/{sid}.jsonl"}, 0)
+            for repetition in range(4):
+                record(host, sid, "tool_result", {
+                    "outcome": "failed", "tool_name": "Bash", "tool_use_id": f"{sid}-{repetition}",
+                    "error": f"FAILED /tmp/{sid}/file-{repetition} "
+                             f"{'DEADBEEF' if index == 0 else '85a4be90-9c82-481d-acdf-c407dc9a2e36'} "
+                             f"after {10 + repetition} attempts",
+                }, 10 + repetition + index)
+            record(host, sid, "user_prompt", {"correction_hint": True, "excerpt": "Wrong 42"}, 20 + index)
+            record(host, sid, "stop_failure", {"error": "API 503"}, 30 + index)
+            record(host, sid, "permission_denied", {"tool_name": "Read", "reason": "Denied /tmp/file"}, 40 + index)
+            record(host, sid, "interrupt", {}, 50 + index)
+            record(host, sid, "tool_result", {"outcome": "ok", "tool_name": "Bash", "error": "ignore"}, 60)
+            record(host, sid, "tool_result", {"outcome": "unknown", "tool_name": "Bash"}, 60)
+            record(host, sid, "user_prompt", {"correction_hint": False, "excerpt": "Wrong 42"}, 60)
+            record(host, sid, "tool_result", {"outcome": "failed", "tool_name": "Old", "error": "expired"},
+                   -20 * 86400)
+        for offset in range(3):
+            record("claude", "only-session", "tool_result",
+                   {"outcome": "failed", "tool_name": "Read", "error": "single session"}, offset)
+
+        groups = json.loads(self.cli("clusters"))
+        self.assertEqual([group["signature"] for group in groups], [
+            "Bash|failed <path> <id> after N attempts", "interrupt|",
+            "Read|denied <path>", "stop_failure|api N", "user_correction|wrong N",
+        ])
+        self.assertEqual([group["count"] for group in groups], [8, 2, 2, 2, 2])
+        self.assertEqual(groups[0]["first_ts"], worklog.iso(base + timedelta(seconds=10)))
+        self.assertEqual(groups[0]["last_ts"], worklog.iso(base + timedelta(seconds=14)))
+        self.assertEqual(len(groups[0]["examples"]), 5)
+        for group in groups:
+            self.assertEqual(group["sessions"], ["first", "second"])
+            self.assertEqual(group["hosts"], ["claude", "codex"])
+            self.assertLessEqual(len(group["examples"]), 5)
+            for example in group["examples"]:
+                self.assertEqual(set(example), {"log_path", "line", "transcript_path", "tool_use_id"})
+                original = json.loads(Path(example["log_path"]).read_text().splitlines()[example["line"] - 1])
+                self.assertTrue(worklog.is_failure(original))
+                self.assertEqual(example["tool_use_id"], original["data"].get("tool_use_id"))
+                self.assertEqual(example["transcript_path"], f"/tmp/{original['session_id']}.jsonl")
+        self.assertEqual(json.loads(self.cli("clusters", "--min-count", "3")), groups[:1])
+        self.assertEqual(len(json.loads(self.cli("clusters", "--min-count", "1"))), 5)
+        self.assertEqual(json.loads(self.cli("clusters", "--min-count", "9")), [])
+        self.assertEqual(json.loads(self.cli("clusters", "--days", "0")), [])
+        self.assertIn("8 Bash|failed <path> <id> after N attempts", self.cli("clusters", "--format", "text"))
+
     def test_hooks_json_event_sets_per_host(self):
         expected = {
             "hooks/hooks.json": ("codex", {
