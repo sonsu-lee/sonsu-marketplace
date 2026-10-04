@@ -255,6 +255,15 @@ Product는 제품 문제와 기회, 사용자 근거, 제품 도메인 규칙, �
   → 승인 경계를 통과한 내용만 to-prd로 변환
 ```
 
+```text
+PRD 이후(작업 크기 L)
+  → 화면·흐름은 Design, API·데이터·통합 계약은 Engineering 설계 문서 또는 ADR
+  → Workflow to-ticket으로 결과 단위 분해(REQ ID·수용 기준 보존)
+  → Engineering plan에서 흐름 F와 REQ 연결
+```
+
+작업 크기에 따른 생략 기준은 [인계 계약](../../plugins/product/references/delivery-handoff.md)을 따릅니다.
+
 위 흐름은 가능한 조합 예시이며 고정된 7단계 pipeline이 아닙니다. 사용자는 제공된 인터뷰의
 근거 종합, 이미 실행한 test의 판정 또는 준비된 합의의 PRD 변환부터 직접 시작할 수 있습니다.
 각 Product 스킬은 자기 결과와 handoff 정보를 독립적으로 완성하며 다른 Product 스킬의 선행

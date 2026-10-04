@@ -100,7 +100,7 @@
     "plugins/fluent-korean/omp/skills/fluent-korean/references/scholarship.md": "e83346a5b0147a923b725295cbee6b7fa3b22020840b5eee95c35f615b182e64",
     "plugins/fluent-korean/omp/skills/fluent-korean/references/taxonomy-candidates.md": "7b959a5156cfac19d171206ee4d124afd9148eb840b05b38e9118b042f4fa9d8",
     "plugins/fluent-korean/omp/skills/fluent-korean/references/web-service-spec.md": "be887c5e60b9a37e63a4aa8156ada0da4298098a51451925a3a22b9a37e25f6a",
-    "plugins/workflow/omp/.claude-plugin/plugin.json": "8c4918124f52abc5da91845f3924861de4e44c7281b0ee3c6ff8e01f573e8b67",
+    "plugins/workflow/omp/.claude-plugin/plugin.json": "18dc66b3eed96dcb1bb0e4feee22761fff089e5848d41e04dd4c264addc41d69",
     "plugins/workflow/omp/UPSTREAM.md": "d3af5b2fa29b3364315606050d13fd86cbcb212f7ecba5b97eca99ad4c6532d0",
     "plugins/workflow/omp/WRITING_LICENSE.md": "2e6ab9dcc884ebc57eb4b0551093a0d2cccf186b32ff495b781c50a0c2bab6b1",
     "plugins/workflow/omp/references/branch-naming.md": "ef3d424f6abb4472399f5d97e23f4c324b1cc5425444580ddaf1a1b3e41f32e0",
@@ -146,6 +146,6 @@
     "plugins/workflow/omp/skills/to-ticket/references/github.md": "9d619d094b8d12ccc06f823c74891ea88df6fc7eb7c07a86cdae3ffc1e5444ef",
     "plugins/workflow/omp/skills/to-ticket/references/linear.md": "729bfd697d3324457754877b5f10b15eedb118a8d43856cf664461ac6f8af329",
     "plugins/workflow/omp/skills/to-ticket/references/media-attachments.md": "0bfd3836b7b2dae0c39ebe9c323dd658b2b1c320a944e7810aece6207e88cb6f",
-    "plugins/workflow/omp/skills/to-ticket/references/ticket-writing.md": "06b47a588214d2c2f15c72eeaaade8808346070174e93228bac0f0ff7e772954"
+    "plugins/workflow/omp/skills/to-ticket/references/ticket-writing.md": "f13e6c232b249d1669ec91a208a020752f3c0ed76ecbcd602ff057d4badef22a"
   }
 }
