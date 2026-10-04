@@ -33,7 +33,7 @@ Writing에서 Workflow로 지침·양식을 복사하는 생성기는 없다.
 
 - [`cases.json`](cases.json): 19개. 과거 Fluent 사례를 일부 재분류했으며, 새 배포 스킬의
   모델 동작 판정은 다시 실행해야 한다.
-- [`workflow-cases.json`](workflow-cases.json): Workflow 단독 3개.
+- [`workflow-cases.json`](workflow-cases.json): Workflow 단독 7개.
 - [`composition-cases.json`](composition-cases.json): 10개. Writing+Fluent 6개, Workflow+Fluent 2개,
   Workflow+Writing 1개, 세 플러그인 함께 1개.
 - [`developer-blog-cases.json`](developer-blog-cases.json): Writing의 개발자 블로그 명시 적용 10개.
@@ -60,6 +60,10 @@ opaque ID로 바꾼다. `installed_plugins`와 `entry_skill`은 명시적 적용
 | workflow-ticket-only | 다른 플러그인 없이 자체 버그 기본형으로 알려진 사실만 쓴다. |
 | workflow-pr-unverified | 양식 미확인을 부재로 바꾸지 않으며 실제 UI·첨부 미확인을 유지한다. |
 | workflow-pr-fixed | 제공 양식·marker·Part of URL과 미확인 UI를 보존한다. |
+| workflow-commit-english-default | 영어 명령형 제목을 쓰고 AI trailer를 붙이지 않는다. |
+| workflow-commit-repo-requires-assisted-by | `Assisted-by:` trailer를 정확히 1줄 넣는다. |
+| workflow-pr-lightweight | 제목 없는 영어 한 문단으로 쓰고 "This PR"로 시작하지 않는다. |
+| workflow-ticket-japanese-space | 대상 공간 관례에 따라 일본어 본문으로 쓴다. |
 | writing-fluent-* | 대응하는 단독 사례의 의미·형식 계약을 유지한다. 영어는 일상·기술 문장의 작성·윤문·검토에, 일본어는 작성·윤문과 문서 진단에 적용한다. 한국어는 기존 글의 AI 티·번역투 윤문 요청에만 적용한다. |
 | workflow-fluent-* | Writing 없이 Workflow 양식과 Fluent 표현을 함께 적용하고 고정 제목·연결 문법·미검증 상태를 보존한다. |
 | workflow-writing-unverified | Fluent 없이 구성 지침을 적용하고 Workflow의 양식 확정 경계를 유지한다. |

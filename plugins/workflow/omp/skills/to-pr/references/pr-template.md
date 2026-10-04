@@ -24,6 +24,8 @@ target repository에서 유효한 PR template을 찾지 못했으면 base 저장
 
 공식 참고: [GitHub PR template 만들기](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository), [PR template 개요](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/about-issue-and-pull-request-templates), [account-level default community health file](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file)
 
+`CONTRIBUTING`, `AI_POLICY.md`, `AGENTS.md`에 PR 본문 요구(AI 사용 공개 등)가 있으면 양식의 필수 항목과 같이 다룬다.
+
 ## 관련 템플릿 하나를 선택한다
 
 선택 순서는 다음과 같다.
@@ -42,9 +44,9 @@ target repository에서 유효한 PR template을 찾지 못했으면 base 저장
 양식 선택과 출력 언어 선택은 별개로 처리한다. 생성하는 제목, 설명, validation과 caption의 언어는 다음 근거를 순서대로 사용한다.
 
 1. 사용자가 PR 언어를 명시했으면 그 언어를 사용한다.
-2. repository의 `CONTRIBUTING`, PR 지침이나 일관된 최근 PR 관례가 언어를 정하면 따른다.
+2. repository의 `CONTRIBUTING`, `AGENTS.md`·`CLAUDE.md`, PR 지침이나 일관된 최근 PR 관례가 언어를 정하면 따른다.
 3. 연결할 기준 티켓, 승인된 specification이나 제품 문서가 명확한 주 언어를 사용하면 그 언어를 따른다.
-4. 근거가 없으면 사용자가 요청한 출력 언어를 사용하고, 그것도 없으면 현재 대화의 주 언어를 사용한다.
+4. 근거가 없으면 영어를 사용한다. 대화 언어와 결과 보고 언어는 PR 언어의 근거가 아니다.
 
 저장소 template에 이미 있는 제목, checklist와 고정 안내 문구는 번역하지 않는다. 채워 넣는 내용만 결정된 PR 언어로 작성한다. template이 특정 언어로 전체 작성을 요구하면 그 지시를 따른다. 코드, 명령어, 로그, identifier, ticket ID와 URL은 번역하지 않는다. 다른 언어 플러그인이나 스킬이 설치되었다고 가정하지 않는다.
 
