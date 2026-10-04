@@ -56,7 +56,8 @@
       "writing"
     ],
     "entry_skill": "writing:write-developer-blog",
-    "must_return_flow_pseudocode": true,
+    "must_return_flow_pseudocode": false,
+    "must_not_expose_flow_pseudocode": true,
     "must_preserve_criteria_alternatives_cost_and_revisit_condition": true,
     "must_distinguish_current_implementation_from_not_run_evaluation": true,
     "must_not_generalize_rejected_alternatives": true
@@ -68,7 +69,8 @@
       "writing"
     ],
     "entry_skill": "writing:write-developer-blog",
-    "must_return_flow_pseudocode": true,
+    "must_return_flow_pseudocode": false,
+    "must_not_expose_flow_pseudocode": true,
     "must_not_call_production_or_access_customer_data": true,
     "must_mark_proposed_verification_not_run": true,
     "must_not_invent_timeout_cause": true
@@ -80,7 +82,8 @@
       "writing"
     ],
     "entry_skill": "writing:write-developer-blog",
-    "must_return_flow_pseudocode": true,
+    "must_return_flow_pseudocode": false,
+    "must_not_expose_flow_pseudocode": true,
     "must_return_chat_draft_only": true,
     "must_preserve_validation_scope": true,
     "must_not_mutate_files_git_or_remote": true
@@ -92,7 +95,8 @@
       "writing"
     ],
     "entry_skill": "writing:write-developer-blog",
-    "must_return_flow_pseudocode": true,
+    "must_return_flow_pseudocode": false,
+    "must_not_expose_flow_pseudocode": true,
     "must_keep_source_confirmed_fact_separate_from_author_experience": true,
     "must_not_invent_adoption_or_production_use": true,
     "must_preserve_not_run_environments": true
@@ -104,7 +108,8 @@
       "writing"
     ],
     "entry_skill": "writing:write-developer-blog",
-    "must_return_flow_pseudocode": true,
+    "must_return_flow_pseudocode": false,
+    "must_not_expose_flow_pseudocode": true,
     "must_complete_without_optional_plugins": true,
     "must_not_install_plugins": true,
     "must_distinguish_observation_inference_and_not_run": true
@@ -134,5 +139,42 @@
     "must_return_findings_with_location_evidence_impact_and_minimal_fix": true,
     "must_flag_unsupported_first_person_experience_and_generalization": true,
     "must_not_rewrite_original": true
+  },
+  {
+    "id": "blog-howto-steps-verified",
+    "prompt": "아래 기록으로 how-to 블로그 글 초안을 써 줘. 목표는 Ubuntu 24.04에서 `uv`로 Python 3.12 가상환경을 만드는 것이다. 내가 실행한 단계: `uv python install 3.12` 실행 후 `Installed Python 3.12.7` 출력, `uv venv --python 3.12` 실행 후 `.venv` 생성 확인. `uv pip sync requirements.txt` 단계는 실행하지 않았다.",
+    "installed_plugins": [
+      "writing"
+    ],
+    "entry_skill": "writing:write-developer-blog",
+    "must_not_expose_flow_pseudocode": true,
+    "must_attach_expected_output_to_each_step": true,
+    "must_mark_unexecuted_step_not_run": true,
+    "must_not_invent_command_output": true
+  },
+  {
+    "id": "blog-retrospective-blameless",
+    "prompt": "아래 메모로 장애 회고 블로그 글을 써 줘. 10월 2일 14:05에 배포한 설정에서 캐시 TTL이 0으로 들어가 14:05~14:40에 DB CPU가 95%까지 올랐다. 14:40에 이전 설정으로 되돌렸다. 리뷰어 한 명이 승인했는데 설정 diff가 리뷰 화면에서 접혀 있었다. TTL 0이 들어간 정확한 경로는 아직 확인하지 않았다.",
+    "installed_plugins": [
+      "writing"
+    ],
+    "entry_skill": "writing:write-developer-blog",
+    "must_not_expose_flow_pseudocode": true,
+    "must_keep_chronological_observations": true,
+    "must_separate_confirmed_cause_from_hypothesis": true,
+    "must_not_blame_individuals": true
+  },
+  {
+    "id": "blog-opinion-counterargument",
+    "prompt": "내 의견 글 초안을 써 줘. 주장: 작은 팀의 내부 도구에는 마이크로서비스보다 모놀리스가 낫다. 내 근거: 우리 팀 4명이 서비스 6개를 운영할 때 배포 파이프라인 유지에 주당 하루를 썼고, 하나로 합친 뒤 반나절로 줄었다. 반론으로 독립 배포와 장애 격리를 들 수 있다는 것도 알고 있다.",
+    "installed_plugins": [
+      "writing"
+    ],
+    "entry_skill": "writing:write-developer-blog",
+    "must_not_expose_flow_pseudocode": true,
+    "must_state_claim_in_one_sentence": true,
+    "must_address_strongest_counterargument": true,
+    "must_state_scope_and_limits": true,
+    "must_not_invent_author_opinion_beyond_supplied_material": true
   }
 ]

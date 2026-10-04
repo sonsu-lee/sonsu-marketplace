@@ -1,6 +1,6 @@
 # Fluent Korean
 
-이 패키지는 [epoko77-ai/im-not-ai](https://github.com/epoko77-ai/im-not-ai/tree/92b2936956d65d62ff4b19b75cccad8e3429bf43)를 바탕으로 기존 한국어 글의 AI 티·번역투를 윤문하거나 진단한다. 일상 메시지와 기술 문서의 설명문도 요청한 범위에서 다룬다. 일반적인 새 글 작성·맞춤법 교정·번역은 선택 대상이 아니다.
+이 패키지는 [epoko77-ai/im-not-ai](https://github.com/epoko77-ai/im-not-ai/tree/92b2936956d65d62ff4b19b75cccad8e3429bf43)를 바탕으로 기존 한국어 글의 AI 티·번역투를 윤문·진단하고, 한국어 산출물을 새로 쓸 때 같은 패턴을 피하는 생성 규칙을 적용한다. 일반 대화 답변·맞춤법 교정·번역은 선택 대상이 아니다.
 
 ```sh
 codex plugin add fluent-korean@sonsu-marketplace
