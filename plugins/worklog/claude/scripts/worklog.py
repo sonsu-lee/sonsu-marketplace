@@ -710,6 +710,64 @@ def summary_text(summary):
     return "\n".join(lines)
 
 
+def normalize_signal(value):
+    text = redact(text_value(value) or "").lower()
+    text = re.sub(r"/\S+", "<path>", text)
+    text = re.sub(r"\b(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{8,})\b",
+                  "<id>", text)
+    text = re.sub(r"\d+", "N", text)
+    return " ".join(text.split())[:120]
+
+
+def cluster_failures(directory, days, min_count):
+    groups = {}
+    since = utc_now() - timedelta(days=days)
+    for record, log_path, line, transcript in iter_records(directory, HOSTS, since):
+        if not is_failure(record):
+            continue
+        data = record.get("data") if isinstance(record.get("data"), dict) else {}
+        entry = failure_entry(record, transcript)
+        if record.get("event") == "user_prompt":
+            signature = "user_correction|" + normalize_signal(data.get("excerpt"))
+        else:
+            signature = str(entry["tool_name"]) + "|" + normalize_signal(entry["error"])
+        group = groups.setdefault(signature, {
+            "signature": signature, "count": 0, "sessions": set(), "hosts": set(),
+            "first_ts": record["ts"], "last_ts": record["ts"], "examples": [],
+        })
+        group["count"] += 1
+        group["sessions"].add(record["session_id"])
+        group["hosts"].add(record["host"])
+        group["first_ts"] = min(group["first_ts"], record["ts"])
+        group["last_ts"] = max(group["last_ts"], record["ts"])
+        if len(group["examples"]) < 5:
+            group["examples"].append({
+                "log_path": log_path, "line": line, "transcript_path": transcript,
+                "tool_use_id": data.get("tool_use_id"),
+            })
+    result = []
+    for group in groups.values():
+        if group["count"] >= min_count and len(group["sessions"]) >= 2:
+            group["sessions"] = sorted(group["sessions"])
+            group["hosts"] = sorted(group["hosts"])
+            result.append(group)
+    result.sort(key=lambda group: (group["count"], group["last_ts"]), reverse=True)
+    return result
+
+
+def clusters_text(clusters):
+    lines = []
+    for group in clusters:
+        lines.append(f"{group['count']} {group['signature']} "
+                     f"sessions={','.join(group['sessions'])} hosts={','.join(group['hosts'])} "
+                     f"first_ts={group['first_ts']} last_ts={group['last_ts']}")
+        for example in group["examples"]:
+            lines.append(f"  {example['log_path']}:{example['line']} "
+                         f"transcript={example['transcript_path'] or '-'} "
+                         f"tool_use_id={example['tool_use_id'] or '-'}")
+    return "\n".join(lines) if lines else "no clusters"
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -725,6 +783,10 @@ def main(argv=None):
     failures = commands.add_parser("failures", parents=[location], help="print failure records as JSON lines")
     failures.add_argument("--days", type=int, default=14)
     failures.add_argument("--format", choices=("jsonl",), default="jsonl")
+    clusters = commands.add_parser("clusters", parents=[location], help="group recurring failure signals")
+    clusters.add_argument("--days", type=int, default=14)
+    clusters.add_argument("--min-count", type=int, default=2)
+    clusters.add_argument("--format", choices=("json", "text"), default="json")
     prune = commands.add_parser("prune", parents=[location], help="remove expired date directories")
     prune.add_argument("--days", type=int, default=RETENTION_DAYS)
     args = parser.parse_args(argv)
@@ -749,6 +811,9 @@ def main(argv=None):
         selected.sort(key=lambda entry: entry.get("ts") or "", reverse=True)
         for entry in selected:
             print(json.dumps(entry, ensure_ascii=False))
+    elif args.command == "clusters":
+        result = cluster_failures(directory, args.days, args.min_count)
+        print(json.dumps(result, ensure_ascii=False, indent=2) if args.format == "json" else clusters_text(result))
     elif args.command == "prune":
         today = utc_now().date()
         print(sum(prune_host(directory / host, args.days, today) for host in HOSTS))

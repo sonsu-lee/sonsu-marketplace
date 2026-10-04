@@ -564,6 +564,8 @@ Git·외부 전달은 [공유 권한](../../plugins/workflow/references/delivery
 
 Memory Manager는 승인된 지식, 작업 연속성 기록은 진행 중인 작업 상태, Worklog는 원시 이벤트를 다룹니다. 기억 저장·회상 요청에는 Memory Manager를 사용합니다. 진단에 따른 수정·커밋·PR은 Engineering과 Workflow가 맡습니다.
 
+worklog-improve는 명시적 요청에만 실행하며 평가 사례·수정안·비교 결과까지 만들고, 커밋·PR은 Workflow에 넘깁니다.
+
 ## 라우팅 평가
 
 경계 변경은 [repository-level routing cases](../../evals/skill-routing/cases.json)의 positive,
