@@ -1,5 +1,9 @@
 # Repository guidance
 
+## Git and Tracker Language
+
+- Write commit messages, pull request titles and bodies, and GitHub issues in English.
+
 ## Code Review Rules
 
 - Write the review summary and every inline review comment in Korean. Keep code identifiers,

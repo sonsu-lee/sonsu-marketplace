@@ -50,4 +50,6 @@ generated paths reviewers can skip as one glob line. -->
 <Part of #123 | Part of [ENG-123](<canonical Linear issue URL>)>
 ```
 
+배경과 변경을 한 문단으로 설명할 수 있고 조건부 항목이 모두 비면 제목 없이 그 문단만 쓴다([경량형](../../../../references/tracker-prose.md#경량형)).
+
 완성된 초안에서는 angle-bracket placeholder를 채우고 HTML comment를 포함한 작성 안내와 필수·선택 표시를 제거한다. 빈 조건부 항목과 필요 조건에 해당하지 않는 항목은 제목째 생략하며 `없음`이나 `N/A`로 채우지 않는다. 화면 변경이 있는데 필요한 자료를 준비하지 못했으면 그 사실만 짧게 남기고 준비 절차는 본문 밖에서 보고한다.
