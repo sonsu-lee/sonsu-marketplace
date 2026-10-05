@@ -34,6 +34,9 @@ codex plugin remove figma-workflow@sonsu-marketplace
 결과를 제시하고 그 revision에 대한 명시적 허가를 받습니다. Figma를 쓰지 않으면 기존 앱에서
 직접 구현하고 실제 화면과 동작을 확인합니다.
 
+Figma 캔버스 작업에는 현재 호스트의 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
+Codex connector와 Claude Code MCP 연결은 별도로 설정합니다.
+
 새 설계·재설계·Figma 화면은 대상 앱의 가장 가까운 `DESIGN.md`를 사용하고 Google 형식으로
 작성·검증합니다. 감사는 읽기 전용으로 검사합니다. 공통 Design Decision Contract와 DQ0–DQ8은
 [품질 계약](references/design-quality.md)을 따릅니다. Proposal은 DQ0–DQ6, Figma/implementation은
