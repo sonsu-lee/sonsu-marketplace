@@ -83,7 +83,7 @@ label·type·status 값이 아닙니다. 기본 양식은 변경·추가·정리
 `must_ask_for_problem_context`는 문제 자체를 특정할 수 없을 때 핵심 질문을 반환하는지 검사합니다.
 `must_preserve_preference_vs_agreement`와 `must_not_invent_implementation`은 선호·합의의 강도를
 보존하고 요청에 없는 구현을 만들지 않는지, `must_not_add_completion_checklist`와
-`must_not_add_empty_optional_sections`는 불필요한 항목을 붙이지 않는지 확인합니다. `expected_template_source`는 team과 unverified 등의
+`must_not_add_empty_optional_sections`는 불필요한 항목을 붙이지 않는지 확인합니다. `must_not_add_completion_checklist`는 결과 항목과 같은 뜻의 별도 완료조건 목록이나 공통 품질 절차를 덧붙이지 않는지 검사하며, 완료 판단에 필요한 결과·합의된 조건을 빼라는 뜻은 아닙니다. `expected_template_source`는 team과 unverified 등의
 출처 확인을 검사합니다. `must_not_apply_bundled_template`은 대상 버그 양식 조회가 `unverified`일 때 번들 양식을 선택하지 않는지 검사합니다. `must_preserve_*`는 실제 초안·수정 payload에서 해당 내용이 유지되는지,
 `expected_child_count`와 `must_map_parent_and_child_keys`는 사용자가 지정한 분해 경계와 게시 전
 부모·자식 참조를 실제 초안에서 확인합니다. `must_limit_update_to_content`는 식별자 이외의 변경 field가 요청한 제목·본문에 한정되는지 검사합니다.

@@ -23,10 +23,10 @@ Workflow의 티켓·PR 작성 규칙과 기본형의 정본은 플러그인 파�
 ## 설계 결정
 
 - Workflow는 Linear와 GitHub Issues를 지원하며, 티켓·PR 기본형은 두 tracker에 공통으로 적용한다.
-- 티켓은 문제·원하는 결과·합의된 제약을 전달하고, 이미 합의된 제약이 아닌 원인 분석·해결 방법·작업 순서·검증 방법은 작업자가 정한다.
+- 티켓은 완료를 판단할 결과·합의된 제약을 보존하고, 이미 합의된 제약이 아닌 원인 분석·해결 방법·작업 순서·검증 방법은 작업자가 정한다. 수용 기준, 팀 공통 완료 기준과 실제 검증 근거는 서로 다른 정보다.
 - PR은 리뷰어와 이후 history 독자가 알아야 할 것만 설명한다. 한 티켓에는 여러 PR이 연결될 수 있으며 각 PR은 자기 변경과 확인 결과만 설명한다.
 - 대상 공간의 양식이 내부 기본형보다 우선하며, 조회하지 못한 상태는 양식 부재와 구분한다.
-- 기본형에 완료조건 체크리스트를 강제하지 않고, 모르는 값을 채우기 위해 빈 항목이나 반복적인 `미확인` 문구를 만들지 않는다.
+- 수용 기준은 일반형의 `원하는 결과`, 버그의 기대 동작, 조사의 `남길 결과`에서 한 번만 표현한다. 별도 완료조건 체크리스트는 강제하지 않는다. 공통 품질 절차는 복제하지 않되 티켓 고유의 요구사항을 자동 검증 여부 때문에 삭제하지 않는다. 승인 명세·인수 테스트가 정본이면 해당 결과의 요약과 정확한 참조를 사용할 수 있다.
 - 티켓은 독립적으로 우선순위를 정하거나 담당·완료 여부를 판단할 결과가 있을 때만 나눈다. Terraform처럼 앞 단계의 merge와 apply 뒤에 다음 변경을 진행해야 한다면 같은 티켓의 순차 PR로 추적할 수 있다.
 - 부분 PR은 비종결 관계로 연결하고, 완료 표현은 그 PR의 병합 자체가 티켓의 전체 결과를 충족할 때만 쓴다. [Linear는 한 이슈에 여러 PR을 연결하고 비종결 관계를 지원한다](https://linear.app/docs/github).
 - 티켓 연결 채널은 PR 본문이며 티켓 연동을 이유로 branch 이름에 티켓 ID를 넣지 않는다. [Linear 연동](https://linear.app/docs/github), [GitHub Issues 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
@@ -43,6 +43,20 @@ Workflow의 티켓·PR 작성 규칙과 기본형의 정본은 플러그인 파�
 “Cancelling a File Copy dialog crashes File Manager”를 좋은 제목의 예로 제시한다.
 발생 조건·동작과 문제가 생기는 대상을 함께 알려 주기 때문이다. 재현 절차와 실제·기대 결과를
 구분하는 구조도 참고한다. 버그 보고 지침이므로 기능 제안·조사 티켓에 재현 절차를 강제하는 근거는 아니다.
+
+### 수용 기준과 검증 근거
+
+다음 출처의 개념 구분을 참고해 이 저장소의 경량 작성 정책을 정했다. 원문 양식·역할·회의 절차를 그대로 도입하거나 보편 표준으로 강제하지 않는다.
+
+- [Scrum Guide 2020의 Definition of Done](https://scrumguides.org/scrum-guide.html#commitment-definition-of-done)은 Increment의 제품 품질 상태에 대한 공통 정의다. 티켓별 CI 체크리스트 양식을 정한 문서가 아니다.
+- [GOV.UK의 사용자 스토리 작성 안내](https://www.gov.uk/service-manual/agile-delivery/writing-user-stories#acceptance-criteria)는 수용 기준을 사용자 필요를 충족했는지 확인하는 결과로 설명하고 근거를 연결한다. 별도 체크리스트를 모든 티켓에 강제하는 근거로 쓰지 않는다.
+- [Agile Alliance의 Acceptance Testing](https://agilealliance.org/glossary/acceptance-testing/)은 테스트를 동작 예시·시나리오로 설명하며, 실행 가능한 인수 테스트가 요구사항의 정본인 팀도 다룬다. 기준 보존이 같은 산문의 복제 의무는 아니다.
+- [Given–When–Then](https://agilealliance.org/glossary/given-when-then/)은 맥락·행동·관찰 결과를 쓰는 도구다. 모든 티켓의 강제 문법으로 삼지 않는다.
+- Matt Wynne의 [Example Mapping](https://cucumber.io/blog/bdd/example-mapping-introduction/)은 규칙·예시·질문을 나눈다. 명백한 규칙에 예시를 억지로 붙이지 않으며, 결과를 모르는 상황은 조건을 창작하지 않고 질문으로 남긴다.
+- [Linear Method](https://linear.app/method/write-issues-not-user-stories)는 분명한 결과가 있는 짧은 이슈를 권하고 사용자 스토리를 기본 형식으로 삼지 않는다. GOV.UK와 형식 선호가 다르므로 결과의 명확성만 채택한다.
+- Don Wells의 [Spike Solution](http://www.extremeprogramming.org/rules/spike.html)은 특정 기술 문제의 불확실성을 줄이는 탐색이다. 조사의 완료를 원하는 결론이나 제품 배포 성공으로 고정하지 않는다.
+
+CI 통과는 그 검사가 다룬 조건·리비전·환경 범위의 근거다. 수용 기준을 없애거나 확인하지 않은 전체 동작을 완료로 판단하는 근거는 아니다. 이 구분은 중복 수동 검수를 줄이기 위한 것이며 새 readiness gate나 상태 전이 권한을 만들지 않는다. Product의 기존 수용 기준·REQ 인계와 ticket-lifecycle의 권한 경계는 유지한다.
 
 ### PR 설명
 
