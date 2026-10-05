@@ -33,8 +33,8 @@ give videos timestamp captions that say what to watch. -->
 <Marked screenshot with what each marker shows, or video with what to watch at each timestamp>
 
 ## <Verification heading>
-<!-- Conditional: only checks CI does not cover, reproduction steps the reviewer needs,
-or untested risk that affects the merge decision. -->
+<!-- Conditional: only what reviewers or CI cannot re-check by running repository commands:
+manual or environment observations, reproduction steps the reviewer needs, or untested risk that affects the merge decision. -->
 
 - <What was checked, where, and the observed result>
 

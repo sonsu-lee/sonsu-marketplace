@@ -61,5 +61,14 @@
       "workflow"
     ],
     "entry_skill": "workflow:to-ticket"
+  },
+  {
+    "id": "workflow-pr-no-ci-rerunnable-checks",
+    "skill": "to-pr",
+    "prompt": "PR 초안만 작성해 줘. 추가 조회나 게시를 하지 마. 이 테스트의 자료가 확정 입력이다. 저장소와 account-level에 PR 양식이 없음을 확인했고 PR 언어 규칙은 없다. 이 저장소에는 CI workflow가 없고 최근 PR에도 check가 없다. CONTRIBUTING.md는 `make test`와 `make lint`를 검사 명령으로 안내한다. 연결할 티켓은 없다. base main, head abc123. diff: 설정 화면의 언어 선택 드롭다운이 Safari에서 열리지 않던 문제를 고쳤다(`src/settings/LanguageSelect.tsx`의 이벤트 핸들러를 `onClick`에서 `onPointerDown`으로 변경). 내가 실행한 확인: `make test` 통과(테스트 412개), `make lint` 통과, Safari 17.4(macOS 14)에서 설정 화면을 열어 드롭다운이 열리고 언어를 바꿀 수 있음을 직접 확인. Firefox는 확인하지 않았다.",
+    "installed_plugins": [
+      "workflow"
+    ],
+    "entry_skill": "workflow:to-pr"
   }
 ]

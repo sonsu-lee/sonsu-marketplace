@@ -98,7 +98,7 @@ label·type·status 값이 아닙니다. 기본 양식은 변경·추가·정리
 `must_summarize_external_decisions`는 링크와 함께 필요한 외부 합의를 본문에 담는지 확인합니다.
 
 PR의 `must_preserve_manual_verification`과 `must_not_claim_ci_success`는 CI 밖의 수동 확인이 `검증` 항목에
-남고 CI 근거와 구분되는지 확인합니다. `must_not_repeat_ci_checks`는 CI가 다루는 자동 검사를 본문에 반복하지 않는지,
+남고 CI 근거와 구분되는지 확인합니다. `must_not_repeat_ci_checks`는 CI 유무와 관계없이 저장소 명령으로 다시 실행할 수 있는 자동 검사를 본문에 쓰지 않는지,
 `must_keep_publication_procedure_outside_body`는 게시·첨부 준비 절차를 본문 밖에서 보고하는지 확인합니다.
 `must_only_state_missing_media_in_body`는 자료가 없을 때 본문에는 짧은 미확보 사실만 남기는지 확인합니다.
 `must_report_missing_required_media`, `must_not_claim_media_uploaded`, `must_keep_draft`는
