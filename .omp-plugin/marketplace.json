@@ -4,7 +4,7 @@
     "name": "sonsu-lee",
     "url": "https://github.com/sonsu-lee"
   },
-  "description": "omp 用の Sonsu プラグイン",
+  "description": "omp용 Sonsu 플러그인",
   "plugins": [
     {
       "name": "workflow",
