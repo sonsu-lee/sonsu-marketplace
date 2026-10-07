@@ -51,10 +51,10 @@ Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-
 패키지에 생성합니다. 정리·승격 스킬만 Claude의 수동 호출 제한을 적용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
 Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 
-## ompは5件だけを配布する
+## ompは6件だけを配布する
 
 `python3 scripts/render-omp-compat.py` はCodex catalogの順序を保ち、`workflow`、
-`fluent-korean`、`fluent-english`、`fluent-japanese`、`design` の5件だけを
+`fluent-korean`、`fluent-english`、`fluent-japanese`、`design`、`career` の6件だけを
 `.omp-plugin/marketplace.json` に生成します。Codex・Claude Codeの配布対象と元パッケージは変更しません。
 
 | プラグイン | omp catalogのsource |
@@ -64,6 +64,7 @@ Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 | Fluent English | `./plugins/fluent-english` |
 | Fluent Japanese | `./plugins/fluent-japanese` |
 | Design | `./plugins/design/omp` |
+| Career | `./plugins/career` |
 
 Design・Workflowのomp専用パッケージは、必要なskills・references・assets・scripts・
 figma-plugin・ライセンスを元パッケージから生成し、他のプラグインに依存せずに使える形にします。
@@ -75,7 +76,7 @@ Fluent KoreanはCodex単一呼び出しのスキル・参考資料・ライセ�
 
 生成先の `references/continuity.md` はomp標準のtodo・sessionによる継続を案内します。
 `.sonsu` への継続記録、復元hookやセッションID転送を独自に追加しません。
-開発実行・task・todo・session・reviewはomp標準、Workflow・言語3件・Designはドメイン契約を担当します。
+開発実行・task・todo・session・reviewはomp標準、Workflow・言語3件・Design・Careerはドメイン契約を担当します。
 Research・Product・Writingは必要に応じた選択候補として扱い、基本catalogには追加しません。
 カスタムロール用の `task.agentModelOverrides` も要求しません。Engineeringのompモデルプロファイルは
 直接インストールした選択・legacy利用者の既存consumer向けに保持し、基本構成から切り離します。

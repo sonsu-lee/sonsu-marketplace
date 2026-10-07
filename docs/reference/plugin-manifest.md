@@ -27,7 +27,7 @@ manifest에 포함하지 않습니다. `claude plugin validate . --strict`와 �
 필요합니다. 생성 스킬에는 Claude Code의 명시 호출 제한을 추가합니다.
 
 omp 配布は `python3 scripts/render-omp-compat.py` で生成します。カタログには Workflow、
-Fluent Korean・English・Japanese、Design の5件だけを登録します。English・Japaneseは元のパッケージを
+Fluent Korean・English・Japanese、Design、Career の6件だけを登録します。English・Japanese・Careerは元のパッケージを
 参照し、Design・Workflow・Fluent Koreanは `plugins/<name>/omp` に独立した配布用コピーを生成します。
 Fluent Koreanの `skills/fluent-korean/SKILL.md` と参考資料はCodexの単一呼び出し経路から生成し、
 現在のホストモデルを使います。default `skills/` discoveryで発見でき、Claude agent・固定Opus・
