@@ -1,0 +1,34 @@
+{
+  "name": "career",
+  "version": "0.1.0",
+  "description": "개발자 이직을 위해 경력 원본을 정리하고, 미국식 resume·履歴書·職務経歴書를 작성하며, 면접 준비·모의면접·회고를 진행합니다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "keywords": [
+    "career",
+    "resume",
+    "rirekisho",
+    "shokumu-keirekisho",
+    "interview",
+    "mock-interview"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Career",
+    "shortDescription": "근거를 지키는 지원 서류와 면접 준비",
+    "longDescription": "확인 상태가 있는 경력 원본 하나에서 미국식 resume, 履歴書, 職務経歴書와 면접 답변을 만들고, 라운드별 준비, 모의면접, 실제 면접 회고를 질문 은행으로 이어 줍니다.",
+    "developerName": "sonsu",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "내 경력을 棚卸し해서 확인된 사실과 스토리로 정리해 줘.",
+      "이 JD에 맞춰 1페이지 영문 resume를 만들고 근거 없는 수치는 비워 둬.",
+      "다음 주 1차 면접 기준으로 모의면접을 해 줘. 답변마다 피드백해 줘."
+    ]
+  }
+}
