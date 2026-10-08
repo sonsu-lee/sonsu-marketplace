@@ -89,7 +89,7 @@ label·type·status 값이 아닙니다. 기본 양식은 변경·추가·정리
 부모·자식 참조를 실제 초안에서 확인합니다. `must_limit_update_to_content`는 식별자 이외의 변경 field가 요청한 제목·본문에 한정되는지 검사합니다.
 
 `expected_required_headings`와 `expected_omitted_headings`는 완성된 기본형에서 필요한 항목과 생략할
-항목을 검사하며, 고정된 팀 양식에는 적용하지 않습니다. `must_preserve_actual_and_expected`,
+항목을 검사하며, 고정된 팀 양식에는 적용하지 않습니다. `expected_headerless`는 제목 없는 경량형 본문을, `expected_output_language`는 본문 언어를, `expected_commit_language`와 `must_not_add_ai_trailer`는 커밋 메시지의 언어와 AI trailer 부재를 검사합니다. `must_preserve_actual_and_expected`,
 `must_preserve_request_response`, `must_include_reproduction_media`는 버그의 동작·요청·응답·제공 자료
 보존을 확인합니다. `must_not_repeat_expected_behavior`는 같은 기대 동작을 현상과 참고에 반복하지 않는지,
 `must_not_invent_reproduction_steps_or_media`와 `must_not_invent_reproduction_media`는 없는 재현 단계·자료를 만들거나 빈 항목을 채우지 않는지 확인합니다.
@@ -98,7 +98,7 @@ label·type·status 값이 아닙니다. 기본 양식은 변경·추가·정리
 `must_summarize_external_decisions`는 링크와 함께 필요한 외부 합의를 본문에 담는지 확인합니다.
 
 PR의 `must_preserve_manual_verification`과 `must_not_claim_ci_success`는 CI 밖의 수동 확인이 `검증` 항목에
-남고 CI 근거와 구분되는지 확인합니다. `must_not_repeat_ci_checks`는 CI가 다루는 자동 검사를 본문에 반복하지 않는지,
+남고 CI 근거와 구분되는지 확인합니다. `must_not_repeat_ci_checks`는 CI 유무와 관계없이 저장소 명령으로 다시 실행할 수 있는 자동 검사를 본문에 쓰지 않는지,
 `must_keep_publication_procedure_outside_body`는 게시·첨부 준비 절차를 본문 밖에서 보고하는지 확인합니다.
 `must_only_state_missing_media_in_body`는 자료가 없을 때 본문에는 짧은 미확보 사실만 남기는지 확인합니다.
 `must_report_missing_required_media`, `must_not_claim_media_uploaded`, `must_keep_draft`는

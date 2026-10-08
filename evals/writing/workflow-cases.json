@@ -25,5 +25,50 @@
       "workflow"
     ],
     "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-commit-english-default",
+    "skill": "commit",
+    "prompt": "지금 staged된 변경으로 커밋 메시지를 만들어 줘. 커밋은 하지 마. 이 저장소에는 CONTRIBUTING, commitlint 설정, AGENTS.md, CLAUDE.md, .github 안내가 없다. staged diff: src/session.ts에서 세션 만료 시각 비교를 `<`에서 `<=`로 바꿔, 만료 시각과 정확히 같은 요청도 만료로 처리한다. 배경: 만료 시각과 같은 밀리초에 들어온 요청이 유효한 세션으로 통과했다.",
+    "installed_plugins": [
+      "workflow"
+    ],
+    "entry_skill": "workflow:commit"
+  },
+  {
+    "id": "workflow-commit-repo-requires-assisted-by",
+    "skill": "commit",
+    "prompt": "staged 변경으로 커밋 메시지를 만들어 줘. 커밋은 하지 마. 이 커밋은 AI 도구의 도움을 받아 작성했어. 저장소의 CONTRIBUTING.md 원문 중 커밋 관련 부분은 다음 한 줄이다: \"Add an `Assisted-by:` trailer for AI-assisted commits.\" 다른 커밋 규칙 문서는 없다. staged diff: docs/install.md의 설치 명령에서 패키지 이름 오타 `sonsu-clii`를 `sonsu-cli`로 고친다.",
+    "installed_plugins": [
+      "workflow"
+    ],
+    "entry_skill": "workflow:commit"
+  },
+  {
+    "id": "workflow-pr-lightweight",
+    "skill": "to-pr",
+    "prompt": "PR 초안만 작성해 줘. 추가 조회나 게시를 하지 마. 이 테스트의 자료가 확정 입력이다. 저장소와 account-level에 PR 양식이 없음을 확인했고, 저장소 문서에 PR 언어 규칙은 없다. 연결할 티켓도 없다. base main, head def456, 전체 diff는 한 줄이다: README.md의 설치 명령에서 `npm instal`을 `npm install`로 고친다. 화면 변경, 위험, 별도 검증 항목은 없다.",
+    "installed_plugins": [
+      "workflow"
+    ],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-ticket-japanese-space",
+    "skill": "to-ticket",
+    "prompt": "GitHub Issue 초안만 작성해 줘. 게시하지 마. 대상 저장소에 이슈 양식은 없고 필수 필드는 제목과 본문뿐임을 확인했다. 대상 저장소의 최근 이슈 3개는 다음과 같다.\n1. 「検索結果が0件のときにページネーションが表示される」\n2. 「設定画面で通知のオン・オフが保存されない」\n3. 「CSVエクスポートで日付の書式が崩れる」\n입력: Safari에서 로그인 버튼을 눌러도 반응이 없다. 다른 브라우저는 확인하지 않았고 원인은 모른다. 버튼을 누르면 로그인되어야 한다.",
+    "installed_plugins": [
+      "workflow"
+    ],
+    "entry_skill": "workflow:to-ticket"
+  },
+  {
+    "id": "workflow-pr-no-ci-rerunnable-checks",
+    "skill": "to-pr",
+    "prompt": "PR 초안만 작성해 줘. 추가 조회나 게시를 하지 마. 이 테스트의 자료가 확정 입력이다. 저장소와 account-level에 PR 양식이 없음을 확인했고 PR 언어 규칙은 없다. 이 저장소에는 CI workflow가 없고 최근 PR에도 check가 없다. CONTRIBUTING.md는 `make test`와 `make lint`를 검사 명령으로 안내한다. 연결할 티켓은 없다. base main, head abc123. diff: 설정 화면의 언어 선택 드롭다운이 Safari에서 열리지 않던 문제를 고쳤다(`src/settings/LanguageSelect.tsx`의 이벤트 핸들러를 `onClick`에서 `onPointerDown`으로 변경). 내가 실행한 확인: `make test` 통과(테스트 412개), `make lint` 통과, Safari 17.4(macOS 14)에서 설정 화면을 열어 드롭다운이 열리고 언어를 바꿀 수 있음을 직접 확인. Firefox는 확인하지 않았다.",
+    "installed_plugins": [
+      "workflow"
+    ],
+    "entry_skill": "workflow:to-pr"
   }
 ]

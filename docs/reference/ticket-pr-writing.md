@@ -17,6 +17,8 @@ Workflow의 티켓·PR 작성 규칙과 기본형의 정본은 플러그인 파�
 | PR 경계와 stack | [stacked-prs.md](../../plugins/workflow/skills/to-pr/references/stacked-prs.md) |
 | 티켓 연결과 status effect | [ticket-linking.md](../../plugins/workflow/skills/to-pr/references/ticket-linking.md) |
 | 시각 자료와 첨부 | [visual-evidence.md](../../plugins/workflow/skills/to-pr/references/visual-evidence.md), [media-attachments.md](../../plugins/workflow/skills/to-pr/references/media-attachments.md) |
+| 커밋 메시지 언어·제목·본문·trailer | [commit-message.md](../../plugins/workflow/references/commit-message.md) |
+| 티켓·PR·커밋 공통 문장 형식(경량형·서식 밀도·서두·어조·제목·AI 사용 표기) | [tracker-prose.md](../../plugins/workflow/references/tracker-prose.md) |
 
 ## 설계 결정
 
@@ -29,6 +31,9 @@ Workflow의 티켓·PR 작성 규칙과 기본형의 정본은 플러그인 파�
 - 부분 PR은 비종결 관계로 연결하고, 완료 표현은 그 PR의 병합 자체가 티켓의 전체 결과를 충족할 때만 쓴다. [Linear는 한 이슈에 여러 PR을 연결하고 비종결 관계를 지원한다](https://linear.app/docs/github).
 - 티켓 연결 채널은 PR 본문이며 티켓 연동을 이유로 branch 이름에 티켓 ID를 넣지 않는다. [Linear 연동](https://linear.app/docs/github), [GitHub Issues 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
 - 제품 화면·상호작용 변경은 마킹한 스크린샷이나 timestamp caption 영상을 PR 본문에 둔다. 사용자 요청이나 대상 PR 양식의 요구가 우선한다. VRT 결과 링크는 리뷰어가 PR 밖으로 이동해야 하고 변경 위치를 표시하지 않으므로 본문 자료를 대체하지 않는다.
+- 티켓·PR·커밋의 언어는 사용자 지정과 저장소·대상 공간의 명시 규칙을 먼저 따르고, 근거가 없으면 마지막 단계로 영어를 쓴다. 대화 언어는 근거로 쓰지 않는다.
+- AI 사용 표기는 저장소가 요구할 때만 그 형식대로 넣고, 요구가 없으면 AI용 trailer나 서명을 붙이지 않는다.
+- 배경과 변경을 한 문단으로 설명할 수 있는 PR과 필수 항목 하나만 채워지는 티켓은 제목 없는 경량형을 허용한다.
 
 ## 외부 근거
 
@@ -66,6 +71,17 @@ CL은 Google의 코드 변경 단위이며 이 저장소 PR 양식과 같지는 
 
 [stacked PR 규칙](../../plugins/workflow/skills/to-pr/references/stacked-prs.md)의 약 400줄 기준은 Cisco 팀을 대상으로 한 [SmartBear 연구](https://smartbear.com/learn/code-review/best-practices-for-peer-code-review/)의 “한 번의 리뷰에서 200–400줄을 넘기면 결함 발견 능력이 떨어진다”는 관찰을 PR 크기 기준으로 차용한 값이다. [Google의 Small CLs 지침](https://google.github.io/eng-practices/review/developer/small-cls.html)도 100줄은 대체로 적당하고 1000줄은 대체로 크다고 보며, 작은 변경이 롤백하기 쉽고 리팩터링은 기능 변경과 분리하되 작은 정리는 같은 CL에 둬도 된다고 설명한다.
 
+### 커밋 메시지와 AI 사용 공개
+
+- [Git SubmittingPatches](https://github.com/git/git/blob/master/Documentation/SubmittingPatches): 본문에 문제, 택한 방식의 이유, 버린 대안을 쓴다.
+- [Linux kernel의 AI coding assistant 지침](https://docs.kernel.org/process/coding-assistants.html): AI는 `Signed-off-by`를 붙이지 않고 `Assisted-by:`로 사용을 밝힌다.
+- [How to Write a Git Commit Message](https://cbea.ms/git-commit/): 명령형 제목, 제목 길이 제한, 본문에 무엇과 왜를 쓰는 관례를 정리한다.
+- [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): description` 제목과 `BREAKING CHANGE` footer 형식의 명세다.
+- [GitHub squash merge 기본 제목 변경 공지](https://github.blog/changelog/2022-05-11-default-to-pr-titles-for-squash-merge-commit-messages/): squash 병합 시 PR 제목이 기본 커밋 제목이 된다.
+- [Kubernetes PR 템플릿](https://github.com/kubernetes/kubernetes/blob/master/.github/PULL_REQUEST_TEMPLATE.md): PR 본문에 AI 사용 공개 칸을 둔 저장소 사례다.
+- [LLVM AI Tool Policy](https://github.com/llvm/llvm-project/blob/main/llvm/docs/AIToolPolicy.md): 저장소가 AI 도구 사용 공개 방식을 정책으로 정한 사례다.
+- [Linear Method: Write issues not user stories](https://linear.app/method/write-issues-not-user-stories): 이슈 설명은 필요한 만큼만 쓴다.
+
 ## 변경 절차
 
-규칙이나 기본형을 바꾸면 정본 파일, 이 문서의 결정·근거와 [라우팅 평가 사례](../../evals/skill-routing/cases.json)를 함께 대조한다. 정적 형식 검사와 사례 정의는 실제 tracker 자동화·미디어 게시 성공의 증거가 아니므로, 원격 작업에서는 결과를 다시 읽는다.
+규칙이나 기본형을 바꾸면 정본 파일, 이 문서의 결정·근거와 [라우팅 평가 사례](../../evals/skill-routing/cases.json)와 [Workflow 작성 사례](../../evals/writing/workflow-cases.json)를 함께 대조한다. 정적 형식 검사와 사례 정의는 실제 tracker 자동화·미디어 게시 성공의 증거가 아니므로, 원격 작업에서는 결과를 다시 읽는다.
