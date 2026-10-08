@@ -16,13 +16,13 @@
   "skills": "./codex/skills/",
   "interface": {
     "displayName": "Fluent Korean",
-    "shortDescription": "기존 한국어 글의 AI 티·번역투 윤문·진단",
-    "longDescription": "im-not-ai 기반. 기존 일상·기술 문장의 AI 티·번역투를 요청한 범위에서 윤문하거나 진단한다.",
+    "shortDescription": "한국어 글 작성과 AI 티·번역투 윤문·진단",
+    "longDescription": "im-not-ai 기반. 한국어 블로그·문서·메시지·티켓·PR을 새로 쓸 때 AI 티·번역투를 피하는 생성 규칙을 적용하고, 기존 일상·기술 문장은 요청한 범위에서 윤문하거나 진단한다. 일반 대화 답변·단순 맞춤법 교정·번역에는 자동 적용하지 않는다.",
     "developerName": "sonsu",
     "category": "Productivity",
     "capabilities": [
       "Write"
     ],
-    "defaultPrompt": "이 기존 한국어 글에서 AI 티와 번역투만 찾아 의미와 기술 용어를 보존하며 윤문해 줘."
+    "defaultPrompt": "제공한 사실로 한국어 글을 새로 쓰거나 기존 글을 윤문해 줘. AI 티·번역투를 피하고 의미와 기술 용어를 보존해 줘."
   }
 }
