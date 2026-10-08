@@ -1,7 +1,7 @@
 # 마켓플레이스 아키텍처
 
 - Status: Current
-- Last reviewed: 2026-09-29
+- Last reviewed: 2026-10-07
 
 ## 목적
 
@@ -15,7 +15,7 @@ Sonsu MarketplaceはCodex・Claude Code・ompのプラグインを一つのリ�
 | `.agents/plugins/marketplace.json` | 마켓플레이스 식별자와 제공할 플러그인을 등록 |
 | `plugins/<name>/.codex-plugin/plugin.json` | 개별 플러그인의 메타데이터와 구성 요소 진입점 정의 |
 | `.claude-plugin/marketplace.json`, `plugins/<name>/.claude-plugin/plugin.json` | Codex 정본에서 생성한 Claude Code 배포 메타데이터 |
-| `.omp-plugin/marketplace.json` | omp向け5件のカタログ。Codex catalogから対象だけを生成 |
+| `.omp-plugin/marketplace.json` | omp向け6件のカタログ。Codex catalogから対象だけを生成 |
 | `plugins/{design,workflow,fluent-korean}/omp/` | 独自runtimeを含まない、生成済みのomp専用パッケージ |
 | `plugins/<name>/skills/` | 플러그인이 제공하는 스킬 보관 |
 | `plugins/<name>/UPSTREAM.md` | 업스트림 기준 commit, 포함 범위와 로컬 차이 기록 |
@@ -37,7 +37,7 @@ Claude Code: 저장소 루트
   → skills, hooks와 지원되는 구성 요소
 omp: リポジトリルート
   → .omp-plugin/marketplace.json
-  → plugins/{workflow,design,fluent-korean}/omp または plugins/fluent-{english,japanese}
+  → plugins/{workflow,design,fluent-korean}/omp または plugins/{fluent-english,fluent-japanese,career}
   → skillsと必要な同梱資料
 ```
 
@@ -47,7 +47,7 @@ CodexとClaude Codeは、ほとんどのパッケージで共通のスキル・h
 `scripts/render-claude-compat.py`로 배포본을 갱신합니다. Codex 전용 connector 선언은 이식하지 않습니다. 구성과
 검증 절차는 [플러그인 개발 가이드](../guides/adding-a-plugin.md)에 있습니다.
 
-omp向けはWorkflow、Fluent Korean、Fluent English、Fluent Japanese、Designの5件に限ります。
+omp向けはWorkflow、Fluent Korean、Fluent English、Fluent Japanese、Design、Careerの6件に限ります。
 開発実行・task・todo・session・review・メモリはomp標準の機能を使い、カスタムロールの設定を追加しません。
 `scripts/render-omp-compat.py` がDesign・Workflow・Fluent Koreanの専用パッケージを生成します。
 独自runtime extension、hook、evidence gate、`task-continuity.py` は配布しません。
@@ -63,10 +63,11 @@ Workflowの権限境界は維持します。生成先の継続資料は `.sonsu`
 | Git・チケット・PRの操作権限と成果物 | Workflow |
 | 言語別の文章品質・保護規則 | Fluent Korean・English・Japanese |
 | UI・prototype・handoff品質とnative tool前提 | Design |
+| 경력 원본·지원 서류·면접 준비 | Career |
 | 必要に応じた調査・製品探索・文章構成 | Research・Product・Writing。基本配布に追加しない選択候補 |
 
 Engineeringのompプロファイルは直接インストールした選択・legacy利用者のgate・実行・独立レビューが
-参照するため保持します。基本5件の設定には使わず、独自セッションID注入やStop hookも提供しません。
+参照するため保持します。基本6件の設定には使わず、独自セッションID注入やStop hookも提供しません。
 
 `main` への公開は既存のインストールへの反映を意味しません。公開・自動更新の条件と
 セッション再起動は[配布のライフサイクル](plugin-lifecycle.md)を参照してください。
@@ -85,6 +86,7 @@ Figma를 사용하는 경우 native 화면·prototype과 handoff 품질을 확�
 Figma가 정본이 아니면 기존 앱에 직접 구현합니다. 운영 업무 계약은 필요할 때 내부 참고 자료로 적용합니다.
 Design Patterns는 실제 설계 forces와 필요한 guarantee에 근거한 named pattern 선택과 기존 적용의
 읽기 전용 검토를 담당합니다. 전체 개발 lifecycle이나 broad code quality review는 소유하지 않습니다.
+Career는 개발자 이직을 위한 경력 원본 정리, 미국식 resume·履歴書·職務経歴書 작성과 면접 준비·모의면접·회고를 담당합니다.
 Figma canvas의 agent mutation은 registered official Figma MCP가 단독으로 소유하고, companion은
 사용자가 Desktop에서 직접 실행합니다. 한 요청에서 여러 책임이 필요하면 runtime이 설치된 스킬을
 조합하며 manifest dependency나 공통 router를 전제하지 않습니다.

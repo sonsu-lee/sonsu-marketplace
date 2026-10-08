@@ -1,7 +1,7 @@
 # Madia Designer 디자인 실무 관찰 방법
 
 - Status: Active research protocol
-- Last reviewed: 2026-09-17
+- Last reviewed: 2026-10-03
 
 ## 목적과 경계
 
@@ -10,26 +10,56 @@ Madia Designer의 공개 영상을 하나씩 관찰해 디자이너가 실제로
 제품별 정답이 아니다. 제목·설명·썸네일만으로 원칙을 만들지 않고, 영상 전체와 화면 수정 전후를
 확인하지 않은 항목은 `pending`으로 유지한다.
 
-공개 채널의 무료 영상만 대상으로 한다. 유료·멤버십·비공개 자료를 우회하지 않으며 전체 자막,
-영상, 썸네일을 저장하지 않는다. 저장하는 근거는 짧은 요약, timestamp와 공개 URL뿐이다.
+공개 채널의 무료 영상만 대상으로 한다. 유료·멤버십·비공개 자료를 우회하지 않는다. 저장소에는
+짧은 요약, `speech_excerpt`(120자 이하 원문 발췌), timestamp, 정규화 좌표, 맥락 코드, 공개 URL,
+코더 판정과 검증·감사 기록만 남긴다. `copyright.stores_media:false`와
+`stores_full_transcripts:false`를 유지한다. 영상·자막·contact sheet·프레임·분석 bundle·검증
+파일·작업 파일은 모두 로컬 캐시에만 두고 커밋하지 않는다. 캐시는 `MADIA_CACHE_DIR`이며,
+없으면 `~/.cache/sonsu-marketplace/madia`이다. 영상 파일은 그 영상의 merge 직후
+`python3 scripts/madia_media.py purge <video_id>`로 지우고 sheet·프레임은 남긴다.
 
 ## 분석 단위
 
-영상 하나를 곧바로 원칙 하나로 바꾸지 않는다. 영상 안에서 다음 항목이 함께 관찰되는 구간을
-`evidence_unit` 하나로 기록한다.
+영상 하나를 곧바로 원칙 하나로 바꾸지 않는다. (문제, 행동) 쌍마다 `evidence_unit` 하나를
+기록하고, 대상 요소나 문제가 바뀌면 나눈다. 좋은 예시를 설명하는 장면도 남기되 `problem`에는
+그 선택이 피하려는 문제를 쓴다. 코드와 역할별 지시는
+`docs/research/madia-design-practice-codebook.md`를 따른다.
 
-1. `project_id`: 화면이나 작업 흐름이 속한 프로젝트를 구분하는 안정적인 연구 식별자
+1. `project_id`: 영상 안의 작업물(제품·서비스·포트폴리오) 하나마다 `<video_id>:p<n>`.
+   같은 작업물의 여러 화면은 같은 ID를 쓰며, 영상 간 연결은 연작 확인 뒤에만 한다.
 2. `problem`: 디자이너가 발견한 문제
 3. `action`: 실제로 수행한 수정 또는 작업
 4. `rationale`: 그 행동을 선택한 이유
 5. `visible_effect`: 수정 뒤 화면이나 과업에서 확인되는 변화
 6. `user_task`: 변화가 지원하는 사용자 과업
-7. `decision_stage`: 정보, 표현, 상태, 상호작용 등 판단 단계
-8. `evidence_kind`: `verbalized`, `demonstrated`, `inferred`, `metadata_only`
+7. `decision_stage`: DQ1–DQ8과 1:1인 코드북의 8개 판단 단계 중 하나
+8. `evidence_kind`: `demonstrated`, `verbalized`, `inferred` 중 하나
+9. `speech_excerpt`: cue 원문을 그대로 발췌한 1–120자 문자열 또는 `null`
+10. `visual_evidence`: 시각, before/after/during/context 역할, 정규화 영역,
+    관찰 내용, 판독성을 가진 비어 있지 않은 화면 근거 배열
+11. `context`: `platform`과 `surface` 맥락 코드
+12. `term_ids`: 용어 원장의 `rejected`가 아닌 term ID 배열
+13. `confidence`: `high`, `medium`, `low` 중 하나
+14. `verification`: 독립 verifier의 `status`, `verifier`, `checks`, `note`
 
-`timestamp_start`, `timestamp_end`, `source_locator`를 필수로 남긴다. 말로 설명한 내용과 화면에서
-직접 보여준 행동을 구분하고, 분석자의 해석은 `inferred`로 낮춘다. `metadata_only`와 `inferred`는
-원칙 반복 횟수에 포함하지 않는다.
+단위 ID는 `<video_id>:NNN`이며 `timestamp_start`, `timestamp_end`, `source_locator`를
+필수로 남긴다. 링크는 `https://www.youtube.com/watch?v=<video_id>&t=<int(timestamp_start)>s`이다.
+서술 필드 5개는 한국어 300자 이하로 쓴다. `demonstrated`는 동일한 화면·뷰포트 맥락의 실제 변경
+전후가 모두 보이고, 발화가 그 정확한 변경의 이유를 명시적으로 연결할 때만 쓴다. `verbalized`는
+행동·결정과 그 특정 이유를 설명하지만 동일한 화면·뷰포트의 전후는 확인되지 않을 때 쓴다.
+일반적인 목적이나 교육 맥락만 있고 그 정확한 행동의 이유가 발화되지 않으면 화면에서 작업을
+보더라도 `inferred`이며 `rationale`을 `[해석] `으로 시작한다. `metadata_only` 단위는 금지한다.
+`caption_source:none`이면 발췌는 모두 `null`이고 `inferred`만 가능하다.
+
+모든 프레임 시각은 단위 구간 안에 있어야 한다. 흐리거나 확대·원근으로 왜곡된 숫자를 쓰지
+않고 영상 픽셀을 CSS px나 Figma 값으로 환산하지 않는다. 배율만 바뀐 전후는 디자인 변경이
+아니다. 여러 속성이 함께 바뀌면 모두 기록하고 특정 속성 하나의 효과로 단정하지 않는다.
+`high`는 모든 화면 근거가 `clear`이고 대상·변화·발화가 분명할 때만 쓴다.
+
+분석 완료 영상과 중복이 아닌 제외 영상에는 `analysis_receipt`를 남긴다. 코드북 버전,
+`coders`, 서로 다른 역할별 `sessions`(verifier 포함), `caption_source`, `sheets_total`,
+`sheets_viewed`를 기록하며 전체 sheet를 본 경우에만 닫는다(`sheets_viewed == sheets_total ≥ 1`).
+`pending`, `blocked`, `duplicate_of`가 있는 `excluded`의 receipt는 `null`이다.
 
 ## 실행 순서
 
@@ -38,56 +68,283 @@ Madia Designer의 공개 영상을 하나씩 관찰해 디자이너가 실제로
    ID로 검증하고, uploads를 포함한 모든 playlist 항목은 watch page의 `externalChannelId`가
    manifest의 채널 ID와 일치할 때만 합친다. 카탈로그의 `channel`과 `discovery_sources`도 이
    manifest와 정확히 일치해야 한다.
-2. 20개 파일럿은 long-form, short, 시청자 첨삭, 따라 만들기, 도구·정보 영상이 섞이도록
-   층화한다. 선택 규칙과 목록을 분석 전에 기록한다.
-3. 두 코더가 파일럿을 독립적으로 분류한다. 관련성, `decision_stage`, `evidence_kind`의 Cohen's
-   kappa가 0.70 미만이면 코드북을 고치고 파일럿을 다시 코딩한다.
-4. 본 분석은 frozen queue 순서로 진행한다. 관련 영상은 전체를 보고 evidence unit을 남기며,
-   비관련·중복 영상은 이유와 함께 `excluded`, 접근 불가는 이유와 함께 `blocked`로 남긴다.
-5. 본 분석의 20% 이상을 독립적으로 이중 코딩한다. 합의 전 kappa가 0.75 미만이면 승격을
-   중단하고 코드북과 이미 분석한 영향 범위를 재검토한다. M3를 통과시킬 때는 계산값뿐 아니라
-   코더별 판정, 불일치, 합의 전 값과 계산 결과가 담긴 `pilot_evidence`와
-   `production_evidence` 파일을 함께 남긴다. 각 파일은 `madia-coder-evidence-v1` JSON이며
-   `phase`, 정확히 두 코더, `population_size`, 고유 `unit_id`별 `relevance`·`decision_stage`·
-   `evidence_kind`의 코더별 판정을 기록한다. `unit_id`는 pilot에서는 catalog video ID, production에서는
-   `analyzed` video ID여야 한다. pilot `population_size`는 전체 catalog video 수, production
-   `population_size`는 실제 `analyzed` video 수에서 validator가 다시 계산한다. validator는 세 차원의
-   Cohen's kappa를 다시 계산해 그 최솟값을 선언한 kappa와 비교하고, 본 분석 레코드 수를 재계산한
-   production 모집단으로 나누어 이중 코딩 비율을 계산한다. 임의의 ID·분모·텍스트 파일이나 선언값만으로는
-   M3를 통과할 수 없다.
+2. 파일럿 20편을 분석 전에 층화 선정하고, 두 코더의 독립 코딩 → adjudicator 판정 →
+   verifier 검증 → merge → 용어 정리 → kappa 점검 → 사람 감사 순으로 닫는다.
+3. 파일럿 통과 후 고정 queue의 다음 `pending` 100편씩 웨이브를 진행한다. 미리 정한
+   이중 코딩 표본에는 두 코더와 adjudicator를, 나머지에는 coder-a를 배정하고 모두 독립 검증한다.
+4. 전체 목록을 다시 발견하고, 재업로드 중복을 정리하고, 이중 코딩 비율을 보충한 뒤 M0–M3를
+   판정한다. 비관련 영상은 이유와 함께 `excluded`, 접근 불가는 이유와 함께 `blocked`로 남긴다.
+5. 연작의 실제 작업물을 비교해 프로젝트를 연결하고, 검증된 단위를 판단 단계별로 합성한다.
 6. 반복되는 행동을 원칙 후보로 묶되 동일 영상·동일 프로젝트의 반복 편집을 독립 사례로 세지 않는다.
+   연결된 같은 프로젝트는 영상 수와 무관하게 1회로 센다.
 7. 후보를 외부 표준·heuristic·제품 연구와 대조하고, 적용 조건·예외·검증 행동으로 변환한다.
    외부 근거는 `id`, `title`, canonical HTTPS `url`, `source_type`을 가진 레코드로 기록한다.
    같은 카탈로그 영상이나 그 영상의 다른 URL을 외부 근거로 재사용하지 않는다. 외부 근거는
    후보를 만든 직접 관찰과 독립된 출처에서 조건·예외·검증 행동을 뒷받침해야 한다.
-8. 실제 스킬에 넣기 전 behavior fixture에서 기대 행동과 금지 행동을 평가한다. P3에는
-   fixture·run·artifact revision, 기대 행동, 금지 행동, 실제 관찰과 근거 파일을 묶은 실행 receipt가
-   있어야 하며 선언만으로 M7을 통과시키지 않는다. receipt의 `observed`는 모든 `expected`를
-   포함해야 하고 금지 행동 `must_not`과 겹치면 안 된다. 즉 `expected ⊆ observed`이면서
-   `observed ∩ must_not = ∅`인 실행 결과만 `passed`로 인정한다. `failed`·`blocked`·
-   `inconclusive` receipt는 실제 실패 관찰을 그대로 보존하며 성공 oracle을 충족한 것처럼 꾸미지
-   않는다.
+8. 실제 스킬에 넣기 전 behavior fixture와 사람 감사·provenance audit를 통과해야 한다.
 
-현재 카탈로그의 대부분은 게시일이 없어 임의의 연대순을 만들 수 없다. 파일럿 이후 본 분석 queue는
-JSON 원장의 배열 순서를 고정하고, 목록 갱신으로 새 영상이 추가되면 기존 순서를 바꾸지 않고 뒤에
-추가한다. 새 영상이 발견되면 코퍼스 완결성 주장이 깨지므로 M0–M8을 모두 `not_run`으로 되돌리고,
-기존 승격 후보는 P0·`validation_status: not_run`으로 내리고 기존 behavior fixture receipt도
-`status: not_run`으로 무효화하며 production reliability 근거도 무효화한다. queue 규칙을 바꾸면
-변경 이유와 영향 범위를 별도 근거로 남긴다.
+### 역할·검증·파일 교체 공통 규칙
+
+분석은 `task`, 리뷰·감사·평가는 `reviewer` 서브에이전트로 실행하며 현재 세션 기본 모델을 쓴다.
+각 task의 고유 이름 `<단계>-<역할>-<순번>`(예: `w03-coder-a-07`)이 session ID다.
+bundle의 `session_id`와 verification의 `verifier`에 그대로 기록한다. 같은 영상의 coder-a,
+coder-b, adjudicator, verifier는 서로 다른 task다. 오케스트레이터는 한 코더의 결과를 다른
+코더에게 전달하지 않는다. adjudicator만 두 bundle을 읽고 verifier는 최종 bundle만 읽는다.
+
+코더는 코드북과 `fetch.json`, `cues.json`, `scenes.json`을 읽고 모든 sheet를 순서대로 본다.
+단위마다 원본 프레임을 추출해 화면과 발화를 대조하고 bundle을 검증한다. adjudicator는
+불일치마다 원자료로 지지되는 판단을 고르며 평균·절충 문장을 만들지 않는다. verifier는 프레임과
+영역을 다시 추출해 `target`, `change`, `speech`, `numbers`, `attribution`을 판정한다.
+발췌는 단위 구간 ±2초 cue 원문과 대조한다. 무자막 영상은 화면 근거만으로 코딩한다.
+자동 자막의 공백만 있는 텍스트 줄은 cue 경계로 보지 않는다. contact sheet의 시각은 컨테이너
+길이가 아니라 실제 추출된 비디오 프레임의 PTS에서 기록해 오디오 꼬리를 화면 근거로 만들지 않는다.
+purge 뒤 독립 코더가 동시에 프레임을 요청하면 영상별 파일 잠금으로 재다운로드를 직렬화하고,
+잠금을 얻은 뒤 캐시 존재를 다시 확인한다.
+수집 CLI의 영상 ID 위치 인자는 `-` 또는 `--`로 시작하는 유효한 YouTube ID도 그대로 받는다.
+
+verifier가 수정할 수 있는 것은 `timestamp_start`, `timestamp_end`, 하향만 가능한
+`evidence_kind`·`confidence`, `"[해석] " + 원문`으로만 바꾸는 `rationale`, cue 원문과
+일치시키는 `speech_excerpt`, `term_ids`, 원소 수와 role 순서를 유지한 `visual_evidence`의
+`frame_time`·`region`·`legibility`·`observation`뿐이다. 이 밖의 수정은 `held`와 메모로 남긴다.
+모두 통과하면 `confirmed`, 허용된 수정으로 맞추면 `corrected`, 판단 불가면 `held`,
+원자료가 반박하면 `rejected`다. `corrected`·`held`·`rejected`에는 메모를 남긴다.
+카탈로그에는 기각 단위를 넣지 않는다.
+
+교체할 파일은 `<cache>/<id>/superseded/<n>/`으로 옮긴다. `n`은 1부터 비어 있는 첫 정수다.
+
+| 상황 | 옮길 파일 | 새로 수행할 역할 |
+| --- | --- | --- |
+| 전체 재코딩 | `analysis-*.json`, `verification*.json` | 해당 역할 전부. 파일럿은 항상 coder-a·coder-b·adjudicator·verifier |
+| 부분 재판정(제외 불일치, 이중 코딩 보충) | `analysis-adjudicator.json`, `verification*.json` | 없는 coder-b, adjudicator, verifier. coder bundle은 유지 |
+| 재검증 | `verification*.json`만 | verifier |
+| 재처리(`failures.json`에서 다시 넣는 영상, 파일럿에서 대체된 영상) | `analysis-*.json`, `verification*.json` | 그 웨이브 규칙의 역할 전부 |
+
+merge나 curation 뒤에는 카탈로그에서 사라진 (단위, term) 연결을 원장에서 제거하고 검증한다.
+
+```bash
+python3 scripts/validate_design_terminology.py docs/research/design-terminology.json --catalog docs/research/madia-design-practice-catalog.json --prune-orphans
+```
+
+각 merge 뒤에는 코드북 §13.4의 용어 정리도 수행한다. 이번 영상들의 기존
+`observed_expressions`를 지우고 제안을 기존 term 연결·새 candidate·기각으로 나눈다.
+카탈로그에 남은 단위만 연결하며 `confirmed`·`corrected` 단위의 실제 표현만 원장에 넣는다.
+원장 구조 검증 → `term_assignments` curation → 위 동기화 순서를 지킨다.
+시작 전 원장·카탈로그 JSON·요약 MD를 `<cache>/waves/<wave>/before-<n>/`에 복사한다.
+실패하면 세 파일을 복원하고 새 steward로 한 번 재실행하며, 재실패하면 멈추고 보고한다.
+단일 영상 re-merge도 같은 절차를 따른다.
+
+### 파일럿 20편
+
+분석 전에 `docs/research/madia-evidence/pilot-selection.json`에 선택 시각·규칙·20개 ID와
+대체 기록(`replaced`, `by`, `reason`)을 고정한다. 정규화 제목이 다른 영상과 같은 후보는 뺀다.
+후보를 카탈로그 순서로 `probe`하여 180초 이하는 short, 초과는 long으로 본다.
+층별로 아직 뽑지 않은 영상을 다음 순서로 고른다.
+
+| 층 | 편수 |
+| --- | --- |
+| viewer-review | 4 |
+| follow-along | 3 |
+| design-information | 4 |
+| design-tools | 3 |
+| `uxui`만 있고 다른 주제 playlist가 없음 | 2 |
+| short | 2 |
+| `uploads`만 있고 long | 2 |
+
+층이 부족하면 다음 층에서 채우고 판정 방식을 `rule`에 적는다. 20편을 직렬로 `prepare`한다.
+exit 3은 같은 층의 다음 영상으로 대체하고 blocked DIR은 non-pilot merge로 닫는다.
+exit 4는 아래 웨이브 대기 규칙을 따른다. exit 1은 한 번 재시도하고, 재실패하면 대체하되
+원래 영상은 `pending`으로 둔다.
+
+한 task 배치로 coder-a 20편과 coder-b 20편을 독립 실행한다. task는 한 역할만 맡으며
+sheet 합계 40장 이하로 묶는다. 40장 초과 영상은 단독 task다. 두 bundle 판정·독립 검증 후
+`--merge-analysis <파일럿 dirs> --pilot`으로 병합한다. 제외 bundle도 전체 sheet·자막을
+검증한다. `exclusion_confirmed:false`는 부분 재판정한다. 반복되면 최초 pilot merge 전에는
+대체하고, 이미 pilot merge한 영상은 대체하지 않고 멈춰 보고한다. merge 발췌 불일치는 재검증,
+그 밖의 오류는 전체 재코딩으로 처리한다. merge 후 용어 동기화·정리를 수행한다.
+
+영상 관련성은 코드북 §1의 배타적 우선순위를 적용한다. 특정 화면 편집·비평이 있으면
+`direct_design_work`, 화면 편집·비평 없는 도구·절차 기반 판단은 `tool_or_workflow`,
+그 밖의 구체적인 인터페이스 원칙 설명은 `design_explanation`이다.
+앞선 세 기준이 모두 해당하지 않으면 `not_relevant`다.
+단계의 권위 기준은 코드북 §2의 codebook-v4 판별 트리이며, 다음 요약은 순서를 별도로 정하지 않는다.
+UI 선택 전 요구·과업 범위만 파악하면 `task_context`; 기본·상시 UI에 넣을 정보·기능과 그 수·순서·
+그룹을 정하면 `information_priority`다. 상태에 따라 선택된 UI 요소의 기능·가용성·표시 여부·콘텐츠가
+달라지면 `state_content`; 진행·성공·오류·복구를 알리는 결정은 `feedback_recovery`가 우선한다.
+기기·뷰포트·접근성 조건으로 달리 설계하면 `environment_accessibility`; 결과가 내부 파일·레이어·
+재사용 구조면 `artifact_structure`, 사용자 결과를 측정하면 `outcome_validation`이다.
+고정 기기·뷰포트·상태에서 선택된 내용을 시각적으로 표현하는 결정은 `visual_system`이며
+단순 hover/focus 색상, 장식 모션과 시각 효과를 위한 선행 frame 선택도 여기에 속한다.
+모든 단위 코딩 뒤 코드북 §5의 mode·동률 규칙을 적용한다.
+
+합의 전 `relevance`·`decision_stage`·`evidence_kind`의 Cohen's kappa 중 최솟값이
+`null`이거나 0.70 미만이면 코드 식별자는 유지하고 정의·규칙만 개정한다. 새 코드북 버전을
+기록하고 pilot 20편 전체를 coder-a·coder-b·adjudicator·verifier가 다시 수행한다. 3회
+개정 후에도 미달이면 멈추고 보고한다.
+
+통과한 최종 코딩을 영상별로 사람에게 감사받는다. 제목, timestamp 링크, 영상 ratings,
+제외 사유 또는 최종 단위의 문제·행동·이유·화면 효과·맥락·발췌·단계·근거 종류·신뢰도·검증 상태·
+화면 observation과 로컬 프레임 경로를 보여 준다. 질문은 `ask`로 대상 하나씩 최대 4개까지
+묶는다. `확인`은 `confirmed`, `수정 필요`는 `needs_correction`, `기각`은 `rejected`로
+기록하며 수정·기각 이유는 Other 입력으로 받는다.
+`docs/research/madia-evidence/human-audit.json`에 `auditor:"user"`,
+`target_type:"pilot_video"`, 영상 ID, receipt의 `codebook_version`, verdict, note,
+ISO 날짜 `audited_at`를 추가한다. 같은 대상의 마지막 record가 유효하다.
+
+수정 요구가 verifier 범위 안이면 새 verifier로 재검증한다. 범위 밖 수정이나 기각은 개별 판단
+오류면 해당 영상을 전체 재코딩하고, 코드북 정의·규칙 문제면 코드북 개정 후 20편 전부 재코딩한다.
+adjudicator는 사용자 메모가 지적한 항목에 한해 원자료로 확인되면 두 코더와 다르게 판정할 수
+있으며 근거는 캐시의 `adjudication-notes.md`에 남긴다. 처리 뒤 pilot re-merge → 용어 정리 →
+kappa 재확인 → 재감사를 한다. 코드북 버전이 바뀌면 전원 재감사한다. 영상별 재감사는 2회까지며
+초과하면 멈춘다. 모든 최신 판정이 `confirmed`이고 receipt 버전과 같아야 끝난다.
+
+끝나면 `docs/research/madia-evidence/production-sample.json`을 만든다. 표본 규칙은
+“파일럿이 아닌 영상 중 카탈로그 배열 0-based index가 4의 배수인 영상, 이후 9.3 보충분 추가”다.
+파일럿 영상 파일을 purge하고 해당 단계만 로컬 commit한다.
+
+### 본 분석 웨이브
+
+현재 카탈로그의 대부분은 게시일이 없어 임의의 연대순을 만들 수 없다. queue는 JSON 원장의
+배열 순서를 고정한다. 웨이브 `wave-<NN>`마다 다음 `pending` 100편을
+`<cache>/waves/wave-<NN>/videos.txt`에 기록하고 직렬로 준비한다.
+
+| prepare 결과 | 처리 |
+| --- | --- |
+| exit 3 | 코딩 없이 blocked DIR을 merge에 포함 |
+| exit 4 (`RETRY_LATER`) | 60분 뒤 같은 영상부터 재시도. 같은 영상이 3번 연속 exit 4면 웨이브 중단·보고 |
+| exit 1 | 한 번 재시도. 재실패하면 `failures.json`에 `{video_id,stage,error}` 기록, merge에서 제외하고 pending 유지 |
+
+yt-dlp의 명시적인 `rate-limited` 오류는 `Video unavailable`이 함께 있어도 일시 제한으로
+분류해 exit 4로 처리한다. 영구 접근 차단으로 기록하거나 기존 `fetch.json`을 덮어쓰지 않는다.
+
+production 표본에만 coder-b·adjudicator를 배정한다. 모든 영상에 coder-a와 독립 verifier는
+필요하다. bundle·verification 검증 실패는 오류를 준 새 세션으로 한 번 재실행하고, 재실패하면
+`failures.json`에 기록한다. 제외 불일치는 부분 재판정하며 반복되면 failures에 남긴다.
+merge 오류의 영상 ID로 해당 DIR을 찾아 failures에 넣고 나머지만 다시 병합한다.
+성공한 영상은 용어 동기화 → 용어 정리 → purge한다.
+
+production record가 50개 이상인 시점부터 kappa가 `null`이거나 0.75 미만이면 중단한다.
+코드북을 개정하고 다음 범위를 전체 재코딩한다.
+
+- production 표본의 analyzed 영상 전부
+- 정의가 바뀐 코드를 단위에서 쓰는 analyzed 영상
+- relevance 정의가 바뀌었으면 해당 코드로 판정한 analyzed·excluded 영상
+- 규칙(최빈 판정·분할·프로젝트·화면 근거 등)이 바뀌었으면 이전 버전으로 코딩한 analyzed 영상 전부
+
+re-merge·용어 정리 뒤 기준을 넘으면 재개한다. 포함된 파일럿은 네 역할과 pilot merge,
+파일럿 kappa·사람 감사를 다시 수행한다. 본 분석 중 개정이 3회를 넘거나 `null`이 계속되면
+멈추고 보고하며 M3를 `blocked`로 둔다. 같은 모델 계열 코더의 상관 오류 가능성과
+`sheets_viewed`가 자기보고라는 한계를 gate 근거에 기록한다.
+
+`pending`이 0이 되거나 남은 영상 전부가 3개 웨이브 연속 failures에 기록되면 웨이브를 끝낸다.
+후자의 경우 영상마다 사람에게 재시도·blocked·수동 분석 중 처리를 받는다. 재시도는 다음 웨이브,
+blocked는 `analysis_failed: <마지막 오류>` 사유의 fetch 기록을 merge하며, 수동 분석이면
+bundle이 올 때까지 코퍼스 종결을 보류한다. 각 웨이브는 validator·`--check`·용어 검증 통과 뒤
+해당 웨이브만 로컬 commit하며 push하지 않는다.
+
+### 코퍼스 종결과 M0–M3
+
+오늘 날짜로 discovery를 다시 실행하고 곧바로 `--normalize`한다. 기존 영상 누락 오류는
+누락 ID와 오류를 보여 주고 사람에게 스냅샷 유지(기본)·중단 중 선택받는다. 유지하면 기존
+`as_of`로 종결하고 `docs/research/madia-evidence/gates/M0.md`에 기록한다.
+목록 갱신은 기존 순서를 바꾸지 않고 새 영상을 뒤에 추가한다. 새 영상이 발견되면 코퍼스
+완결성 주장이 깨지므로 M0–M8을 모두 `not_run`으로 되돌리고 기존 승격 후보를 P0·
+`validation_status:not_run`으로 내린다. 기존 behavior fixture receipt도 `status:not_run`으로
+무효화하고 production reliability 근거도 무효화한다. 새 index에 표본 규칙을 적용하고 웨이브로
+닫는다. queue 규칙을 바꾸면 변경 이유와 영향 범위를 별도 근거로 남긴다.
+
+제목 정규화는 NFKC → 소문자화 → `#\S+` 제거 → `[^0-9a-z가-힣]` 제거 순서다.
+`groups --kind duplicate`로 후보를 만들고 task가 sheet를 비교해 같은 내용의 재업로드만
+확정한다. 기본적으로 카탈로그 앞 영상을 남긴다. 한쪽이 파일럿이면 비파일럿을 duplicate로
+표시하고, 둘 다 파일럿이면 멈춰 보고한다. 둘 다 비파일럿이고 한쪽만 production 표본이면
+표본이 아닌 쪽을 표시한다. `mark_duplicates` curation 뒤 용어 동기화한다.
+
+production 이중 코딩 비율이 0.20 미만이면 non-pilot analyzed 중 표본이 아닌 영상을
+카탈로그 순서로 표본 파일에 추가한다. 현재 코드북 버전과 receipt가 같으면 부분 재판정,
+다르면 전체 재코딩하고 re-merge·용어 정리를 반복해 0.20 이상으로 만든다.
+
+코더 evidence는 합의 전 판정이다. `madia-coder-evidence-v1` JSON에 `phase`, 정확히 두 코더,
+`population_size`, 고유 `unit_id`별 세 차원의 코더 판정을 남긴다. pilot의 `unit_id`는 영상 ID,
+production은 analyzed 영상 ID다. pilot 모집단은 전체 영상 수, production 모집단은 실제
+analyzed 수다. 검증기는 세 차원의 kappa를 재계산해 최솟값과 선언값을 비교하고 production
+record 수 / analyzed 수로 이중 코딩 비율을 다시 구한다. 음수 kappa도 실제 값으로 보존하지만
+M3 임계값을 완화하지 않는다. 임의 ID·분모·텍스트 파일·선언만으로 M3를 통과할 수 없다.
+
+`docs/research/madia-evidence/gates/M0.md`–`M3.md`에 시각, 명령·출력, 상태별 수,
+kappa·비율과 한계를 기록한다. M0–M3는 `passed`, M4–M8은 `not_run`인 curation을 적용한다.
+M3 evidence에는 pilot·production coder evidence, human audit, M3 gate 문서를 모두 넣는다.
+검증기가 거부하면 해당 단계로 돌아간다.
+
+### 연작 연결·원칙 합성과 P1
+
+`confirmed`·`corrected` 단위만 입력으로 쓴다. `groups --kind series` 후보는 원제목에
+`\d+부`가 있는 영상 중 `컨펌 #\d+` 토큰, 원제목을 `[`·`｜`·`|`로 나눈 첫 조각의 정규화 값,
+또는 카탈로그 위치 차이 5 이하인 연속 구간 중 하나라도 같은 영상을 합집합으로 묶는다.
+그룹별 task가 context 프레임과 파일명·제품명·작업물을 비교해 같은 작업물만
+`project_links`로 연결한다. 연결 ID는 `madia-proj-<kebab>`이며 같은 그룹이라도 다른 작업물은
+연결하지 않는다.
+
+`decision_stage`별 최대 300개 단위 묶음으로 후보를 만들며 ID는 `MP-<단계 약어>-<3자리>`다.
+label은 “~할 때 ~한다” 조건 문장이다. 맥락이 다르면 label 또는 trigger에 조건을 명시한다.
+`durability`는 시기·트렌드 의존이면 `era_specific`, 특정 맥락 조건이 필요하면 `contextual`,
+그 외는 `enduring`이다. occurrence는 행동과 이유가 실제로 원칙을 구현하는 단위만 배정한다.
+`term_ids`는 occurrence 용어의 정렬된 합집합이다. 초기 실행 필드는 빈 문자열, 예외·외부 근거는
+빈 배열, `validation_status:not_run`, `behavior_fixture:null`로 둔다.
+
+단계 안에서 병합한 뒤 모든 단계의 label·action을 비교해 같은 원칙을 합친다. 병합한 단계는
+occurrence 단계의 최빈값이다. 상충은 맥락 조건으로 나눌 수 있으면 별개 원칙으로 남기고,
+나눌 수 없으면 양쪽 모두 캐시의 `synthesis/dropped.json`에 사유와 함께 옮긴다.
+검증된 직접 occurrence가 없어진 후보도 같은 방식으로 제외한다.
+
+새 reviewer가 원문과 occurrence 배정, label·trigger 조건 안의 포함 여부, 같은 맥락의 상충을
+검토한다. 수정 뒤마다 새 세션으로 최대 5회 반복한다. 남은 finding의 후보는 dropped로 옮기고
+보고한다. 나머지는 P0 curation으로 적용한 뒤 검증된 직접 관찰 3건, 고유 프로젝트 3개,
+서로 다른 영상 3편 이상인 원칙만 P1로 올린다. M4 gate 문서와 `passed` 상태를 같은
+curation으로 적용한다.
+
+### 승격 이후 행동 평가와 사람 감사
+
+P2에는 독립된 지지·반박 탐색을 모두 남긴다. 반박이 있으면 적용 조건을 좁히거나 예외로 해소하고
+occurrence 배정을 재검토한다. P3에는 fixture·run·artifact revision, 기대 행동, 금지 행동,
+실제 관찰과 근거 파일을 묶은 실행 receipt가 있어야 하며 선언만으로 M7을 통과시키지 않는다.
+`expected ⊆ observed`이면서 `observed ∩ must_not = ∅`인 결과만 `passed`로 인정한다.
+`failed`·`blocked`·`inconclusive` receipt는 실제 실패 관찰을 보존하고 성공처럼 꾸미지 않는다.
+runner와 evaluator는 서로 다른 새 세션이며 evaluator에는 expected·must_not의 구분을 숨긴다.
+receipt에는 실행한 원칙 텍스트의 `principle_sha256`을 남긴다. 해시 대상인
+`label`·`trigger`·`inspect`·`decide`·`act`·`verify`·`exceptions`가 바뀌면 case를 갱신·commit하고
+새 artifact revision·run ID로 행동 평가와 사람 감사를 다시 한다.
+
+원칙 사람 감사의 단위는 `(principle_id, unit_id)` 쌍이다. 파일럿 표시 항목에 원칙 label·
+trigger·tier를 더해 “이 단위가 이 원칙을 조건 안에서 뒷받침하는가”를 묻는다.
+human audit의 `target_type`은 `principle_occurrence`, `target_id`는
+`<principle_id>|<unit_id>`다. 행동 평가를 통과한 P3 후보의 모든 occurrence, P1·P2의 직접
+occurrence 중 `sha256(f"{principle_id}|{unit_id}")` 순서로 2개를 감사한다. 하나라도 미확인이면
+해당 원칙의 직접 occurrence 전부를 감사한다. 수정·기각 쌍은 occurrence에서 빼고 tier를
+재계산한다. P1·P2의 확인 쌍이 2개 미만이 되면 다음 순위 단위를 감사한다.
+
+새 reviewer의 provenance audit는 근거 종류·검증·사람 감사의 일치, 조건 밖 일반화,
+occurrence·예외·상충, `era_specific` P3 금지, 외부 근거의 독립성과 실제 지지를 확인한다.
+매번 새 세션으로 최대 5회 검토하고 남은 finding의 원칙은 P0로 내린 뒤 보고한다.
+P1·P2의 label·occurrence가 바뀌면 표본 감사를 다시 한다. M8은 현재 occurrence에 대한
+미해결 수정·기각이 없어야 한다. 제거한 쌍의 과거 판정은 차단 조건으로 삼지 않는다.
 
 ## 원칙 승격 수준
 
 | 수준 | 필요한 근거 | 사용 범위 |
 | --- | --- | --- |
 | P0 | 하나 이상의 후보 관찰 | 연구 메모만 가능 |
-| P1 | 비중복 직접 관찰 3건 이상, 서로 다른 프로젝트 2개 이상 | 사례·검토 질문으로만 사용 |
+| P1 | 검증된 직접 관찰 3건 이상, 고유 프로젝트 3개 이상, 서로 다른 영상 3편 이상 | 사례·검토 질문으로만 사용 |
 | P2 | P1과 독립된 표준·연구·제품 근거 | 조건부 heuristic 후보 |
 | P3 | P2, trigger·inspect·decide·act·verify·예외, behavior 평가 통과 | 스킬의 실행 규칙 또는 gate 후보 |
 
+- `held` 단위는 근거로 쓰지 않는다.
+- `era_specific`은 P2까지.
+
 P1·P2는 조언이나 탐색 질문으로는 쓸 수 있지만 차단 규칙으로 사용하지 않는다. P3도 모든 제품의
 보편 법칙이 아니며 Design Decision Contract의 사용자·과업·환경·위험과 충돌하면 적용하지 않는다.
-`independent_projects`는 작성자가 적는 주장으로만 인정하지 않고, 직접 관찰 evidence unit의 고유
-`project_id` 수와 정확히 일치해야 한다.
+검증된 직접 관찰은 `evidence_kind ∈ {verbalized, demonstrated}`이며
+`verification.status ∈ {confirmed, corrected}`인 단위다. `inferred`는 직접 관찰·독립 반복
+집계에 포함하지 않는다. `independent_projects`와 독립 반복 수는 검증된 직접 occurrence의
+고유 `project_id` 수로 계산한다. 선언값만으로 인정하지 않는다.
 
 ## M0–M8 연구 게이트
 
@@ -95,18 +352,31 @@ P1·P2는 조언이나 탐색 질문으로는 쓸 수 있지만 차단 규칙으
 | --- | --- |
 | M0 | discovery가 완료되고 모든 목록 항목이 `analyzed`, `excluded`, `blocked` 중 하나로 닫힘 |
 | M1 | 모든 `analyzed` 영상에 timestamped evidence unit이 있음 |
-| M2 | 승격 근거가 metadata-only가 아니며 직접 관찰과 추론이 구분됨 |
-| M3 | 파일럿 20개 이상, pilot kappa ≥ 0.70, 본 분석 이중 코딩 ≥ 20%, production kappa ≥ 0.75이며 코더 단위 근거 파일이 있음 |
-| M4 | P1 이상 후보마다 직접 관찰 3건과 서로 다른 프로젝트 2개 이상 |
+| M2 | 모든 근거 단위에서 직접 관찰과 추론이 구분되고 화면·발화·맥락 근거가 검증됨 |
+| M3 | 파일럿 20개 이상, pilot kappa ≥ 0.70, 본 분석 이중 코딩 ≥ 20%, production kappa ≥ 0.75, 코더 단위 근거 파일과 사람 감사 파일이 있음. 모든 pilot 영상의 최신 감사가 confirmed이고 receipt와 codebook_version이 같음 |
+| M4 | P1 이상 후보마다 검증된 직접 관찰 3건 이상, 고유 프로젝트 3개 이상, 서로 다른 영상 3편 이상 |
 | M5 | P2·P3 후보마다 식별자·제목·canonical HTTPS URL·출처 유형이 있는 독립 외부 근거가 있음 |
 | M6 | P3 후보가 trigger·inspect·decide·act·verify와 예외로 실행 가능하게 표현됨 |
 | M7 | P3 후보의 behavior fixture 실행 receipt가 기대 행동을 유도하고 금지 행동을 피했음을 입증함 |
-| M8 | 직접 관찰·추론·미확인을 과장하지 않는 최종 provenance audit를 통과함 |
+| M8 | 최종 provenance audit와 사람 감사를 통과함. 모든 P3 occurrence 쌍과 P1·P2별 최소 2개 쌍의 최신 감사가 confirmed이며, 현재 occurrence에 needs_correction·rejected 쌍이 없음 |
 
 게이트는 평균 점수로 상쇄하지 않는다. 필수 조건 하나라도 충족하지 않으면 해당 원칙의 승격을
 중단한다. `accepted_risk`는 통과가 아니며, 접근 차단이나 미확인은 그대로 남긴다.
 P1은 M0–M4, P2는 M0–M5, P3는 M0–M8이 모두 `passed`여야 한다. 따라서 전체 목록이 닫히기 전에는
 관찰 후보를 기록할 수는 있어도 승격 원칙으로 게시하지 않는다.
+
+## 용어 원장 검증
+
+`scripts/validate_design_terminology.py`는 `docs/research/design-terminology.json`의 고유 ID·명칭,
+관계 대상과 상태별 요건을 검사한다. `official`은 실제 확인한 출처가 필요하고, 공식 정의를
+확인하지 못한 명칭은 사유를 남긴 `internal_preferred`로 구분한다.
+`adopted`는 정의·포함·제외, 출처 또는 내부 명칭의 근거, 서로 다른 영상 2편 이상에 걸친
+표현 3개 이상과 유효한 `review_by`가 있어야 한다. 같은 표현·단위 쌍을 중복해 횟수를 늘리지 않는다.
+
+`--catalog`는 term 연결과 observed expression의 단위 존재를 대조하고, 채택 용어의 근거가
+`confirmed` 또는 `corrected`인지 검사한다. `--prune-orphans`는 카탈로그가 필요하며 사라진
+연결을 원장에서 제거한 뒤 다시 검증한다. 제거 후 채택 조건을 잃으면 성공으로 처리하지 않는다.
+기계 검증은 채택안을 위한 최소 조건일 뿐이며, 채택은 별도 사람 감사를 거친다.
 
 ## 스킬 반영 계약
 
@@ -117,6 +387,10 @@ P3 후보를 반영할 때는 “예쁜 결과” 같은 문장 대신 `trigger 
 - behavior fixture의 기대 행동과 금지 행동
 - 직접 관찰 occurrence ID, 독립 근거와 예외
 - 기존 스킬 규칙과 충돌할 때의 우선순위
+
+용어 기준은 `docs/research/design-terminology.json`의 채택(`adopted`) 용어를 따른다.
+사용자 표현은 원문을 보존한 채 term에 연결한다. 용어 후보·보류·기각을 채택 용어처럼
+제시하지 않는다. P3 실행 규칙과 채택 용어가 없는 경우 스킬의 연결 문구를 억지로 추가하지 않는다.
 
 카탈로그와 요약은 다음 명령으로 정합성을 검사한다.
 
