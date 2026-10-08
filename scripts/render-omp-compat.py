@@ -11,7 +11,7 @@ import stat
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
-OMP_PLUGINS = {"workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design"}
+OMP_PLUGINS = {"workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design", "career"}
 ISOLATED = {"workflow", "design", "fluent-korean"}
 MANIFEST_FIELDS = ("version", "description", "author", "homepage", "repository", "license", "keywords")
 COPY_ROOTS = ("skills", "references", "assets", "scripts", "figma-plugin")
