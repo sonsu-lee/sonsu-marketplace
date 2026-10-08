@@ -36,7 +36,7 @@ Writing에서 Workflow로 지침·양식을 복사하는 생성기는 없다.
 - [`workflow-cases.json`](workflow-cases.json): Workflow 단독 8개.
 - [`composition-cases.json`](composition-cases.json): 10개. Writing+Fluent 6개, Workflow+Fluent 2개,
   Workflow+Writing 1개, 세 플러그인 함께 1개.
-- [`developer-blog-cases.json`](developer-blog-cases.json): Writing의 개발자 블로그 명시 적용 13개.
+- [`developer-blog-cases.json`](developer-blog-cases.json): Writing의 개발자 블로그 명시 적용 14개.
 
 각 사례의 `installed_plugins`를 해당 실행의 유일한 관련 inventory로 취급한다. 고정한 패키지에서
 `entry_skill`과 실제 필요한 참조를 읽고 요청을 수행한다. 제공된 양식·조회 결과는 테스트 fixture이며
@@ -79,7 +79,8 @@ opaque ID로 바꾼다. `installed_plugins`와 `entry_skill`은 명시적 적용
 
 | 사례 | 생성 후 확인할 계약 |
 | --- | --- |
-| blog-author-gap | 1인칭 경험·선택 이유를 만들지 않고 가능한 각도, 흐름과 필요한 질문에서 멈춘다. |
+| blog-author-gap | 1인칭 경험·선택 이유를 만들지 않고 필요한 질문에서 멈추며, 요청하지 않은 흐름은 노출하지 않는다. |
+| blog-plan-only | 여섯 흐름 필드의 이름과 값을 반환하고 본문은 작성하지 않는다. |
 | blog-til-sufficient | 짧은 흐름과 TIL 초안을 같은 응답에 제공하며 저자가 제공한 실행을 `observer: author`, 현재 작업 재실행을 `false`로 남기고 미확인 버전과 구분한다. |
 | blog-debug-counterevidence | 격리 fixture에서 허용된 명령만 실행하고 예상·관찰을 나눈다. 결과가 최초 `.strip()` 가설과 다르면 실제 동작에 맞춰 논지를 바꾼다. |
 | blog-decision-tradeoff | 선택 기준·대안·기각 이유·부담한 비용·현재 상태·재검토 조건을 보존한다. |

@@ -3667,6 +3667,36 @@
         "fluent-english:fluent-english",
         "career:mock-interview"
       ]
+    },
+    {
+      "id": "korean-translation-does-not-select-fluent",
+      "installed_plugins": [
+        "writing",
+        "fluent-korean"
+      ],
+      "prompt": "다음 영어 문장을 한국어로 번역해 줘: Changing `cacheKey` prevents existing cache entries from being found.",
+      "expected_sequence": [
+        "writing:writing"
+      ],
+      "must_not_select": [
+        "fluent-korean:fluent-korean"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "korean-spelling-does-not-select-fluent",
+      "installed_plugins": [
+        "writing",
+        "fluent-korean"
+      ],
+      "prompt": "이 문장은 맞춤법만 고쳐 줘. 문체는 바꾸지 마: 내일 회의에서 뵈요.",
+      "expected_sequence": [
+        "writing:writing"
+      ],
+      "must_not_select": [
+        "fluent-korean:fluent-korean"
+      ],
+      "must_not_install_plugins": true
     }
   ]
 }
