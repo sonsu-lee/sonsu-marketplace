@@ -87,7 +87,9 @@ local inspection, 기존 test·build와 local browser 확인으로 판정할 수
 
 외부 다중 출처 조사가 결과를 좌우하면 사용할 수 있는 `research:research`(omp에서는 `research`)를,
 출력 언어의 표현을 다듬을 때는 해당 Fluent 스킬을 선택적으로 함께 적용한다. 어느 플러그인도 설치된 것으로
-가정하지 않는다. 여러 차례 이어지는 장문·여러 파일 작성만
+가정하지 않는다. 한국어 `draft`에서는 Fluent Korean이 설치되어 있으면 해당 스킬의
+`references/drafting-rules.md`를 읽어 생성 규칙을 적용한다. 설치되어 있지 않으면 Writing 지침으로 작성한다.
+여러 차례 이어지는 장문·여러 파일 작성만
 [작업 연속성](../../references/continuity.md)에 기록한다.
 
 ## 반환 전에 대조한다
