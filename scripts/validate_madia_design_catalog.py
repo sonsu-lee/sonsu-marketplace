@@ -52,6 +52,7 @@ VIDEO_FIELDS = {
     "blocking_reason",
     "duplicate_of",
     "evidence_units",
+    "analysis_receipt",
 }
 EVIDENCE_FIELDS = {
     "id",
@@ -68,6 +69,11 @@ EVIDENCE_FIELDS = {
     "principle_candidate_ids",
     "confidence",
     "source_locator",
+    "speech_excerpt",
+    "visual_evidence",
+    "context",
+    "term_ids",
+    "verification",
 }
 PRINCIPLE_FIELDS = {
     "id",
@@ -84,6 +90,8 @@ PRINCIPLE_FIELDS = {
     "act",
     "verify",
     "exceptions",
+    "durability",
+    "term_ids",
 }
 EXTERNAL_SOURCE_FIELDS = {"id", "title", "url", "source_type"}
 BEHAVIOR_FIXTURE_FIELDS = {
@@ -117,6 +125,34 @@ CODER_EVIDENCE_FIELDS = {
 }
 CODER_RECORD_FIELDS = {"unit_id", "ratings"}
 CODER_DIMENSIONS = {"relevance", "decision_stage", "evidence_kind"}
+RELEVANCE_CODES = {"direct_design_work", "design_explanation", "tool_or_workflow", "not_relevant"}
+DECISION_STAGES = {
+    "task_context", "information_priority", "visual_system", "state_content",
+    "feedback_recovery", "environment_accessibility", "artifact_structure", "outcome_validation",
+}
+EVIDENCE_KINDS = {"demonstrated", "verbalized", "inferred"}
+PLATFORMS = {"web", "mobile_app", "desktop_app", "cross_platform", "unknown"}
+SURFACES = {
+    "landing_marketing", "commerce", "content_feed", "form_input", "dashboard_data",
+    "settings_account", "navigation", "component_system", "portfolio_presentation", "other",
+}
+VISUAL_ROLES = {"before", "after", "during", "context"}
+LEGIBILITY = {"clear", "partial", "unreadable"}
+VERIFICATION_STATUSES = {"confirmed", "corrected", "held"}
+VERIFICATION_CHECKS = {"target", "change", "speech", "numbers", "attribution"}
+DURABILITY = {"enduring", "contextual", "era_specific"}
+CAPTION_SOURCES = {"manual", "auto", "none"}
+RECEIPT_CODERS = {"coder-a", "coder-b", "adjudicator"}
+HUMAN_VERDICTS = {"confirmed", "needs_correction", "rejected"}
+TERM_ID_RE = re.compile(r"^term\.[a-z0-9]+(?:-[a-z0-9]+)*$")
+CODEBOOK_VERSION_RE = re.compile(r"^codebook-v[1-9][0-9]*$")
+EVIDENCE_RANK = {"inferred": 0, "verbalized": 1, "demonstrated": 2}
+CONFIDENCE_RANK = {"low": 0, "medium": 1, "high": 2}
+RATING_CODES = {
+    "relevance": RELEVANCE_CODES,
+    "decision_stage": DECISION_STAGES | {"none"},
+    "evidence_kind": EVIDENCE_KINDS | {"none"},
+}
 
 
 def non_empty_string(value: Any) -> bool:
@@ -334,9 +370,9 @@ def load_coder_evidence(
                     )
                     valid_record = False
                     continue
-                if not all(non_empty_string(value) for value in dimension_ratings.values()):
+                if not all(choice(value, RATING_CODES[dimension]) for value in dimension_ratings.values()):
                     errors.append(
-                        f"{record_context}.ratings.{dimension} values must be non-empty strings"
+                        f"{record_context}.ratings.{dimension} values must use codebook codes"
                     )
                     valid_record = False
             if valid_record and non_empty_string(unit_id):
@@ -372,6 +408,7 @@ def load_coder_evidence(
         "population_size": expected_population_size,
         "minimum_kappa": min(kappas.values()),
         "kappas": kappas,
+        "unit_ids": [record["unit_id"] for record in records],
     }
 
 
@@ -438,14 +475,465 @@ def require_fields(value: dict[str, Any], required: set[str], context: str, erro
         errors.append(f"{context} missing required fields: {missing}")
 
 
+def validate_term_ids(values: Any, context: str, errors: list[str]) -> None:
+    if not unique_string_list(values, allow_empty=True):
+        errors.append(f"{context}.term_ids must be a unique string array")
+    elif any(not TERM_ID_RE.fullmatch(value) for value in values):
+        errors.append(f"{context}.term_ids must use term.<kebab> identifiers")
+
+
+def validate_checks(value: Any, context: str, errors: list[str]) -> None:
+    if not unique_string_list(value) or not safe_string_set(value) <= VERIFICATION_CHECKS:
+        errors.append(f"{context}.checks must be a non-empty unique subset of verification checks")
+
+
+def validate_evidence_unit(
+    unit: dict, video_id: str, context: str, errors: list[str], *, mode: str
+) -> None:
+    if mode not in {"catalog", "bundle"}:
+        raise ValueError("evidence mode must be catalog or bundle")
+    if not isinstance(unit, dict):
+        errors.append(f"{context} must be an object")
+        return
+    fields = EVIDENCE_FIELDS if mode == "catalog" else EVIDENCE_FIELDS - {"verification"}
+    reject_unknown_fields(unit, fields, context, errors)
+    require_fields(unit, fields, context, errors)
+    unit_id = unit.get("id")
+    if not isinstance(unit_id, str) or not re.fullmatch(re.escape(video_id) + r":\d{3}", unit_id, re.ASCII):
+        errors.append(f"{context}.id must be <video_id>:NNN")
+    project = unit.get("project_id")
+    pattern = re.escape(video_id) + r":p[0-9]+"
+    if mode == "catalog":
+        pattern += r"|madia-proj-[a-z0-9]+(?:-[a-z0-9]+)*"
+    if not isinstance(project, str) or not re.fullmatch(pattern, project):
+        errors.append(f"{context}.project_id is invalid for {mode} mode")
+    start, end = unit.get("timestamp_start"), unit.get("timestamp_end")
+    if not finite_number(start) or start < 0:
+        errors.append(f"{context}.timestamp_start must be a non-negative number")
+    if not finite_number(end) or not finite_number(start) or end <= start:
+        errors.append(f"{context}.timestamp_end must be greater than timestamp_start")
+    if finite_number(start) and unit.get("source_locator") != f"https://www.youtube.com/watch?v={video_id}&t={int(start)}s":
+        errors.append(f"{context}.source_locator must identify the source video at int(timestamp_start)")
+    for field in ("problem", "action", "rationale", "visible_effect", "user_task"):
+        if not non_empty_string(unit.get(field)) or len(unit[field]) > 300:
+            errors.append(f"{context}.{field} must be a non-empty string of at most 300 characters")
+    if not choice(unit.get("decision_stage"), DECISION_STAGES):
+        errors.append(f"{context}.decision_stage is invalid")
+    kind = unit.get("evidence_kind")
+    if not choice(kind, EVIDENCE_KINDS):
+        errors.append(f"{context}.evidence_kind is invalid")
+    if not choice(unit.get("confidence"), set(CONFIDENCE_RANK)):
+        errors.append(f"{context}.confidence is invalid")
+    if not unique_string_list(unit.get("principle_candidate_ids"), allow_empty=True):
+        errors.append(f"{context}.principle_candidate_ids must be a unique string array")
+    if mode == "bundle" and unit.get("principle_candidate_ids") != []:
+        errors.append(f"{context}.principle_candidate_ids must be empty in bundle mode")
+    setting = unit.get("context")
+    if not isinstance(setting, dict) or set(setting) != {"platform", "surface"}:
+        errors.append(f"{context}.context must contain exactly platform and surface")
+    else:
+        for field, allowed in (("platform", PLATFORMS), ("surface", SURFACES)):
+            if not choice(setting.get(field), allowed):
+                errors.append(f"{context}.context.{field} is invalid")
+    speech = unit.get("speech_excerpt")
+    if speech is not None and (not non_empty_string(speech) or len(speech) > 120):
+        errors.append(f"{context}.speech_excerpt must be null or a string of 1–120 characters")
+    if choice(kind, {"verbalized", "demonstrated"}) and speech is None:
+        errors.append(f"{context} requires speech_excerpt for verbalized or demonstrated evidence")
+    if kind == "inferred" and not str(unit.get("rationale", "")).startswith("[해석] "):
+        errors.append(f"{context} inferred rationale must start with [해석]")
+    visual = unit.get("visual_evidence")
+    if not isinstance(visual, list) or not visual:
+        errors.append(f"{context} requires visual evidence")
+        visual = []
+    roles = set()
+    for index, item in enumerate(visual):
+        item_context = f"{context}.visual_evidence[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{item_context} must be an object")
+            continue
+        fields = {"frame_time", "role", "region", "observation", "legibility"}
+        reject_unknown_fields(item, fields, item_context, errors)
+        require_fields(item, fields, item_context, errors)
+        frame = item.get("frame_time")
+        if not finite_number(frame) or not finite_number(start) or not finite_number(end) or not start <= frame <= end:
+            errors.append(f"{item_context}.frame_time must be inside the evidence interval")
+        if not choice(item.get("role"), VISUAL_ROLES):
+            errors.append(f"{item_context}.role is invalid")
+        else:
+            roles.add(item["role"])
+        if not choice(item.get("legibility"), LEGIBILITY):
+            errors.append(f"{item_context}.legibility is invalid")
+        if not non_empty_string(item.get("observation")):
+            errors.append(f"{item_context}.observation must be a non-empty string")
+        region = item.get("region")
+        if region is not None:
+            valid = isinstance(region, list) and len(region) == 4 and all(finite_number(n) for n in region)
+            if valid:
+                x, y, w, h = region
+                valid = x >= 0 and y >= 0 and w > 0 and h > 0 and x + w <= 1 and y + h <= 1
+            if not valid:
+                errors.append(f"{item_context}.region must be null or normalized [x, y, w, h]")
+    if kind == "demonstrated" and not {"before", "after"} <= roles:
+        errors.append(f"{context} demonstrated evidence requires before and after visual evidence")
+    if unit.get("confidence") == "high" and any(
+        not isinstance(item, dict) or item.get("legibility") != "clear" for item in visual
+    ):
+        errors.append(f"{context} high confidence requires clearly legible visual evidence")
+    validate_term_ids(unit.get("term_ids"), context, errors)
+    if mode == "catalog":
+        verification = unit.get("verification")
+        if not isinstance(verification, dict):
+            errors.append(f"{context}.verification must be an object")
+            return
+        fields = {"status", "verifier", "checks", "note"}
+        reject_unknown_fields(verification, fields, f"{context}.verification", errors)
+        require_fields(verification, fields, f"{context}.verification", errors)
+        status = verification.get("status")
+        if not choice(status, VERIFICATION_STATUSES):
+            errors.append(f"{context}.verification.status is invalid")
+        if not non_empty_string(verification.get("verifier")):
+            errors.append(f"{context}.verification.verifier must be a non-empty session id")
+        validate_checks(verification.get("checks"), f"{context}.verification", errors)
+        note = verification.get("note")
+        if note is not None and not isinstance(note, str):
+            errors.append(f"{context}.verification.note must be null or a string")
+        if choice(status, {"corrected", "held"}) and not non_empty_string(note):
+            errors.append(f"{context}.verification.note is required for corrected or held evidence")
+        if choice(status, {"confirmed", "corrected"}):
+            required = {"target", "attribution"}
+            if kind == "demonstrated":
+                required.add("change")
+            if speech is not None:
+                required.add("speech")
+            texts = [unit.get("visible_effect")] + [
+                item.get("observation") for item in visual if isinstance(item, dict)
+            ]
+            if any(isinstance(text, str) and re.search(r"\d", text) for text in texts):
+                required.add("numbers")
+            missing = sorted(required - safe_string_set(verification.get("checks")))
+            if missing:
+                errors.append(f"{context}.verification checks are missing required checks: {missing}")
+
+
+def validate_sheet_counts(payload: dict, context: str, errors: list[str]) -> None:
+    total, viewed = payload.get("sheets_total"), payload.get("sheets_viewed")
+    if not isinstance(total, int) or isinstance(total, bool) or total < 1:
+        errors.append(f"{context}.sheets_total must be a positive integer")
+    if not isinstance(viewed, int) or isinstance(viewed, bool) or viewed != total:
+        errors.append(f"{context}.sheets_viewed must equal sheets_total")
+
+
+def validate_analysis_receipt(video: dict, context: str, errors: list[str]) -> None:
+    receipt = video.get("analysis_receipt")
+    if choice(video.get("status"), {"pending", "blocked"}) or (
+        video.get("status") == "excluded" and video.get("duplicate_of") is not None
+    ):
+        if receipt is not None:
+            errors.append(f"{context}.analysis_receipt must be null for unreviewed or duplicate videos")
+        return
+    if not isinstance(receipt, dict):
+        errors.append(f"{context}.analysis_receipt must be an object")
+        return
+    context += ".analysis_receipt"
+    fields = {"codebook_version", "coders", "sessions", "caption_source", "sheets_total", "sheets_viewed"}
+    reject_unknown_fields(receipt, fields, context, errors)
+    require_fields(receipt, fields, context, errors)
+    version = receipt.get("codebook_version")
+    if not isinstance(version, str) or not CODEBOOK_VERSION_RE.fullmatch(version):
+        errors.append(f"{context}.codebook_version is invalid")
+    coders = receipt.get("coders")
+    if coders not in (["coder-a"], ["coder-a", "coder-b", "adjudicator"]):
+        errors.append(f"{context}.coders must identify single coding or complete adjudication")
+    sessions = receipt.get("sessions")
+    if (
+        not isinstance(sessions, dict)
+        or set(sessions) != safe_string_set(coders) | {"verifier"}
+        or not unique_string_list(list(sessions.values()))
+    ):
+        errors.append(f"{context}.sessions must identify all roles with distinct non-empty session ids")
+    if not choice(receipt.get("caption_source"), CAPTION_SOURCES):
+        errors.append(f"{context}.caption_source is invalid")
+    validate_sheet_counts(receipt, context, errors)
+
+
+def load_human_audit(
+    values: Any, catalog_directory: Path | None, errors: list[str]
+) -> list[dict] | None:
+    paths = [value for value in safe_list(values) if isinstance(value, str) and value.endswith("human-audit.json")]
+    if not paths:
+        errors.append("passed audit gate requires human-audit.json evidence")
+        return None
+    records = []
+    for relative in paths:
+        path = resolve_catalog_file(relative, "human audit", catalog_directory, errors)
+        if path is None:
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+            errors.append(f"human audit must be structured JSON: {error}")
+            continue
+        if not isinstance(payload, dict):
+            errors.append("human audit must be an object")
+            continue
+        fields = {"schema_version", "auditor", "records"}
+        reject_unknown_fields(payload, fields, "human audit", errors)
+        require_fields(payload, fields, "human audit", errors)
+        if payload.get("schema_version") != "madia-human-audit-v1":
+            errors.append("human audit schema_version must be madia-human-audit-v1")
+        if not non_empty_string(payload.get("auditor")):
+            errors.append("human audit auditor must be a non-empty string")
+        if not isinstance(payload.get("records"), list):
+            errors.append("human audit records must be an array")
+        for index, record in enumerate(safe_list(payload.get("records"))):
+            context = f"human audit records[{index}]"
+            if not isinstance(record, dict):
+                errors.append(f"{context} must be an object")
+                continue
+            before = len(errors)
+            fields = {"target_type", "target_id", "codebook_version", "verdict", "note", "audited_at"}
+            reject_unknown_fields(record, fields, context, errors)
+            require_fields(record, fields, context, errors)
+            target = record.get("target_id")
+            target_type = record.get("target_type")
+            pattern = r"[A-Za-z0-9_-]{11}" if target_type == "pilot_video" else r"[^|\s]+\|[A-Za-z0-9_-]{11}:[0-9]{3}"
+            if not choice(target_type, {"pilot_video", "principle_occurrence"}) or not isinstance(target, str) or not re.fullmatch(pattern, target):
+                errors.append(f"{context} has an invalid audit target")
+            version = record.get("codebook_version")
+            if not isinstance(version, str) or not CODEBOOK_VERSION_RE.fullmatch(version):
+                errors.append(f"{context}.codebook_version is invalid")
+            if not choice(record.get("verdict"), HUMAN_VERDICTS):
+                errors.append(f"{context}.verdict is invalid")
+            note = record.get("note")
+            if note is not None and not isinstance(note, str):
+                errors.append(f"{context}.note must be null or a string")
+            if choice(record.get("verdict"), {"needs_correction", "rejected"}) and not non_empty_string(note):
+                errors.append(f"{context}.note is required for correction or rejection")
+            date = record.get("audited_at")
+            if not isinstance(date, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", date) or not timestamp(date):
+                errors.append(f"{context}.audited_at must be an ISO date")
+            if len(errors) == before:
+                records.append(record)
+    return records
+
+
+def validate_ledger_terms(unit: dict, ledger_term_ids: set[str], context: str, errors: list[str]) -> None:
+    unknown = sorted(safe_string_set(unit.get("term_ids")) - ledger_term_ids)
+    if unknown:
+        errors.append(f"{context}.term_ids must reference non-rejected ledger terms: {unknown}")
+
+
+def validate_analysis_bundle(payload: Any, ledger_term_ids: set[str]) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(payload, dict):
+        return ["bundle must be an object"]
+    fields = {
+        "schema_version", "video_id", "coder", "session_id", "codebook_version", "ratings",
+        "proposed_status", "reason", "sheets_total", "sheets_viewed", "caption_source",
+        "frames_requested", "evidence_units", "term_proposals",
+    }
+    reject_unknown_fields(payload, fields, "bundle", errors)
+    require_fields(payload, fields, "bundle", errors)
+    if payload.get("schema_version") != "madia-video-analysis-v1":
+        errors.append("bundle.schema_version must be madia-video-analysis-v1")
+    video_id = payload.get("video_id")
+    if not isinstance(video_id, str) or not VIDEO_ID_RE.fullmatch(video_id):
+        errors.append("bundle.video_id must be an 11-character YouTube video id")
+    if not choice(payload.get("coder"), RECEIPT_CODERS):
+        errors.append("bundle.coder is invalid")
+    if not non_empty_string(payload.get("session_id")):
+        errors.append("bundle.session_id must be a non-empty string")
+    version = payload.get("codebook_version")
+    if not isinstance(version, str) or not CODEBOOK_VERSION_RE.fullmatch(version):
+        errors.append("bundle.codebook_version is invalid")
+    if not choice(payload.get("caption_source"), CAPTION_SOURCES):
+        errors.append("bundle.caption_source is invalid")
+    validate_sheet_counts(payload, "bundle", errors)
+    frames = payload.get("frames_requested")
+    if not isinstance(frames, list) or not all(finite_number(frame) and frame >= 0 for frame in frames) or len(frames) != len(set(frames)):
+        errors.append("bundle.frames_requested must be a unique array of non-negative finite numbers")
+    status, reason = payload.get("proposed_status"), payload.get("reason")
+    if not choice(status, {"analyzed", "excluded"}):
+        errors.append("bundle.proposed_status is invalid")
+    if status == "analyzed" and reason is not None:
+        errors.append("analyzed bundle.reason must be null")
+    if status == "excluded" and (
+        not isinstance(reason, str)
+        or not reason.startswith(("not_relevant: ", "no_design_judgment: "))
+        or not reason.split(": ", 1)[-1].strip()
+    ):
+        errors.append("excluded bundle.reason must use not_relevant: or no_design_judgment: with a reason")
+    units = payload.get("evidence_units")
+    if not isinstance(units, list):
+        errors.append("bundle.evidence_units must be an array")
+        units = []
+    if status == "analyzed" and not units:
+        errors.append("analyzed bundle requires evidence_units")
+    if status == "excluded" and units:
+        errors.append("excluded bundle must not contain evidence_units")
+    ids = set()
+    for index, unit in enumerate(units):
+        context = f"bundle.evidence_units[{index}]"
+        validate_evidence_unit(unit, str(video_id), context, errors, mode="bundle")
+        if not isinstance(unit, dict):
+            continue
+        unit_id = unit.get("id")
+        if non_empty_string(unit_id):
+            if unit_id in ids:
+                errors.append(f"duplicate evidence unit id: {unit_id}")
+            ids.add(unit_id)
+        validate_ledger_terms(unit, ledger_term_ids, context, errors)
+        if payload.get("caption_source") == "none" and unit.get("speech_excerpt") is not None:
+            errors.append(f"{context}.speech_excerpt must be null without captions")
+    ratings = payload.get("ratings")
+    if not isinstance(ratings, dict) or set(ratings) != CODER_DIMENSIONS:
+        errors.append("bundle.ratings must contain exact codebook dimensions")
+    else:
+        for dimension, allowed in RATING_CODES.items():
+            if not choice(ratings.get(dimension), allowed):
+                errors.append(f"bundle.ratings.{dimension} is invalid")
+        if (ratings.get("relevance") == "not_relevant") != (isinstance(reason, str) and reason.startswith("not_relevant: ")):
+            errors.append("bundle.ratings.relevance must agree with not_relevant reason")
+        if status == "excluded":
+            if ratings.get("decision_stage") != "none" or ratings.get("evidence_kind") != "none":
+                errors.append("excluded bundle ratings must use none for stage and evidence kind")
+        elif status == "analyzed" and units and all(
+            isinstance(unit, dict) and choice(unit.get("decision_stage"), DECISION_STAGES)
+            and choice(unit.get("evidence_kind"), EVIDENCE_KINDS)
+            and finite_number(unit.get("timestamp_start")) for unit in units
+        ):
+            stages = [unit["decision_stage"] for unit in units]
+            maximum = max(stages.count(stage) for stage in set(stages))
+            stage = next(unit["decision_stage"] for unit in sorted(units, key=lambda item: item["timestamp_start"]) if stages.count(unit["decision_stage"]) == maximum)
+            kinds = [unit["evidence_kind"] for unit in units]
+            kind = min(set(kinds), key=lambda item: (-kinds.count(item), EVIDENCE_RANK[item]))
+            if ratings.get("decision_stage") != stage or ratings.get("evidence_kind") != kind:
+                errors.append("bundle.ratings must match evidence-unit majorities and tie rules")
+    proposals = payload.get("term_proposals")
+    if not isinstance(proposals, list):
+        errors.append("bundle.term_proposals must be an array")
+    for index, proposal in enumerate(safe_list(proposals)):
+        context = f"bundle.term_proposals[{index}]"
+        if not isinstance(proposal, dict):
+            errors.append(f"{context} must be an object")
+            continue
+        fields = {"expression", "unit_id", "proposed_ko", "proposed_en", "note"}
+        reject_unknown_fields(proposal, fields, context, errors)
+        require_fields(proposal, fields, context, errors)
+        expression = proposal.get("expression")
+        if not non_empty_string(expression) or len(expression) > 120:
+            errors.append(f"{context}.expression must have 1–120 characters")
+        if not non_empty_string(proposal.get("unit_id")) or proposal["unit_id"] not in ids:
+            errors.append(f"{context}.unit_id must reference a bundle unit")
+        for field in ("proposed_ko", "proposed_en"):
+            if not non_empty_string(proposal.get(field)):
+                errors.append(f"{context}.{field} must be a non-empty string")
+        if proposal.get("note") is not None and not isinstance(proposal.get("note"), str):
+            errors.append(f"{context}.note must be null or a string")
+    return errors
+
+
+def validate_verification(payload: Any, bundle: Any, ledger_term_ids: set[str]) -> list[str]:
+    errors = validate_analysis_bundle(bundle, ledger_term_ids)
+    if not isinstance(bundle, dict):
+        return errors
+    if not isinstance(payload, dict):
+        return errors + ["verification must be an object"]
+    fields = {"schema_version", "video_id", "verifier", "exclusion_confirmed", "exclusion_note", "units"}
+    reject_unknown_fields(payload, fields, "verification", errors)
+    require_fields(payload, fields, "verification", errors)
+    if payload.get("schema_version") != "madia-verification-v1":
+        errors.append("verification.schema_version must be madia-verification-v1")
+    if payload.get("video_id") != bundle.get("video_id"):
+        errors.append("verification.video_id must match bundle")
+    verifier = payload.get("verifier")
+    if not non_empty_string(verifier) or verifier == bundle.get("session_id"):
+        errors.append("verification.verifier must be a distinct non-empty session id")
+    excluded = bundle.get("proposed_status") == "excluded"
+    confirmed = payload.get("exclusion_confirmed")
+    if (excluded and not isinstance(confirmed, bool)) or (not excluded and confirmed is not None):
+        errors.append("verification.exclusion_confirmed must be boolean only for excluded bundles")
+    note = payload.get("exclusion_note")
+    if (confirmed is False and not non_empty_string(note)) or (confirmed is not False and note is not None):
+        errors.append("verification.exclusion_note is required only when exclusion_confirmed is false")
+    originals = {
+        unit["id"]: unit for unit in safe_list(bundle.get("evidence_units"))
+        if isinstance(unit, dict) and non_empty_string(unit.get("id"))
+    }
+    units = payload.get("units")
+    if not isinstance(units, list):
+        errors.append("verification.units must be an array")
+        units = []
+    ids = [unit.get("unit_id") for unit in units if isinstance(unit, dict)]
+    if not unique_string_list(ids, allow_empty=True) or safe_string_set(ids) != set(originals):
+        errors.append("verification unit_id set must exactly match bundle evidence units")
+    allowed = {"timestamp_start", "timestamp_end", "evidence_kind", "confidence", "rationale", "speech_excerpt", "visual_evidence", "term_ids"}
+    for index, item in enumerate(units):
+        context = f"verification.units[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{context} must be an object")
+            continue
+        fields = {"unit_id", "status", "checks", "corrections", "note"}
+        reject_unknown_fields(item, fields, context, errors)
+        require_fields(item, fields, context, errors)
+        status = item.get("status")
+        if not choice(status, VERIFICATION_STATUSES | {"rejected"}):
+            errors.append(f"{context}.status is invalid")
+        validate_checks(item.get("checks"), context, errors)
+        note = item.get("note")
+        if note is not None and not isinstance(note, str):
+            errors.append(f"{context}.note must be null or a string")
+        if choice(status, {"corrected", "held", "rejected"}) and not non_empty_string(note):
+            errors.append(f"{context}.note is required for corrected, held or rejected evidence")
+        corrections = item.get("corrections")
+        if not isinstance(corrections, dict):
+            errors.append(f"{context}.corrections must be an object")
+            continue
+        if bool(corrections) != (status == "corrected"):
+            errors.append(f"{context}.corrections must be non-empty only for corrected evidence")
+        unit_id = item.get("unit_id")
+        if not non_empty_string(unit_id) or unit_id not in originals:
+            continue
+        original = originals[unit_id]
+        for field, value in corrections.items():
+            permitted = field in allowed
+            if field in {"evidence_kind", "confidence"}:
+                rank = EVIDENCE_RANK if field == "evidence_kind" else CONFIDENCE_RANK
+                permitted = choice(value, set(rank)) and choice(original.get(field), set(rank)) and rank[value] <= rank[original[field]]
+            elif field == "rationale":
+                permitted = value == "[해석] " + str(original.get("rationale", ""))
+            elif field == "visual_evidence":
+                previous = safe_list(original.get(field))
+                permitted = (
+                    isinstance(value, list) and len(value) == len(previous)
+                    and all(isinstance(old, dict) and isinstance(new, dict) and old.get("role") == new.get("role") for old, new in zip(previous, value))
+                )
+            if not permitted:
+                errors.append(f"{context} corrections exceed the verifier scope: {field}")
+        if status != "rejected":
+            corrected = {**original, **corrections}
+            start = corrected.get("timestamp_start")
+            if finite_number(start):
+                corrected["source_locator"] = f"https://www.youtube.com/watch?v={bundle.get('video_id')}&t={int(start)}s"
+            corrected["verification"] = {
+                "status": status, "verifier": verifier, "checks": item.get("checks"), "note": note,
+            }
+            validate_evidence_unit(corrected, str(bundle.get("video_id")), context, errors, mode="catalog")
+            validate_ledger_terms(corrected, ledger_term_ids, context, errors)
+            if bundle.get("caption_source") == "none" and corrected.get("speech_excerpt") is not None:
+                errors.append(f"{context}.speech_excerpt must be null without captions")
+    return errors
+
+
 def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> list[str]:
     errors: list[str] = []
     if not isinstance(payload, dict):
         return ["catalog must be a JSON object"]
     reject_unknown_fields(payload, TOP_LEVEL_FIELDS, "catalog", errors)
     require_fields(payload, TOP_LEVEL_FIELDS, "catalog", errors)
-    if payload.get("schema_version") != "madia-design-practice-catalog-v1":
-        errors.append("schema_version must be madia-design-practice-catalog-v1")
+    if payload.get("schema_version") != "madia-design-practice-catalog-v2":
+        errors.append("schema_version must be madia-design-practice-catalog-v2")
     as_of = payload.get("as_of")
     if not non_empty_string(as_of):
         errors.append("as_of must be a non-empty date string")
@@ -545,14 +1033,14 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
         duplicate_of = video.get("duplicate_of")
         if duplicate_of is not None and not VIDEO_ID_RE.fullmatch(str(duplicate_of)):
             errors.append(f"{context}.duplicate_of must be null or a YouTube video id")
+        validate_analysis_receipt(video, context, errors)
         unit_ids: set[str] = set()
         for unit_index, unit in enumerate(units):
             unit_context = f"{context}.evidence_units[{unit_index}]"
             if not isinstance(unit, dict):
                 errors.append(f"{unit_context} must be an object")
                 continue
-            reject_unknown_fields(unit, EVIDENCE_FIELDS, unit_context, errors)
-            require_fields(unit, EVIDENCE_FIELDS, unit_context, errors)
+            validate_evidence_unit(unit, str(video_id), unit_context, errors, mode="catalog")
             unit_id = unit.get("id")
             if not non_empty_string(unit_id):
                 errors.append(f"{unit_context}.id must be a non-empty string")
@@ -563,28 +1051,9 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
                 evidence_by_id[unit_id] = unit
                 if isinstance(video_id, str):
                     evidence_video_ids[unit_id] = video_id
-            start = unit.get("timestamp_start")
-            end = unit.get("timestamp_end")
-            if not finite_number(start) or start < 0:
-                errors.append(f"{unit_context}.timestamp_start must be a non-negative number")
-            if not finite_number(end) or not finite_number(start) or end <= start:
-                errors.append(f"{unit_context}.timestamp_end must be greater than timestamp_start")
-            for field in (
-                "project_id", "problem", "action", "rationale", "visible_effect", "user_task",
-                "decision_stage", "source_locator",
-            ):
-                if not non_empty_string(unit.get(field)):
-                    errors.append(f"{unit_context}.{field} must be a non-empty string")
-            if youtube_video_id(unit.get("source_locator")) != video_id:
-                errors.append(f"{unit_context}.source_locator must identify the source video")
-            if not choice(unit.get("evidence_kind"), {
-                "verbalized", "demonstrated", "inferred", "metadata_only"
-            }):
-                errors.append(f"{unit_context}.evidence_kind is invalid")
-            if not choice(unit.get("confidence"), {"high", "medium", "low"}):
-                errors.append(f"{unit_context}.confidence is invalid")
-            if not unique_string_list(unit.get("principle_candidate_ids"), allow_empty=True):
-                errors.append(f"{unit_context}.principle_candidate_ids must be a unique string array")
+            receipt = video.get("analysis_receipt")
+            if isinstance(receipt, dict) and receipt.get("caption_source") == "none" and unit.get("speech_excerpt") is not None:
+                errors.append(f"{unit_context}.speech_excerpt must be null without captions")
 
     for index, video in enumerate(videos):
         if not isinstance(video, dict):
@@ -655,6 +1124,11 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
         if not choice(tier, {"P0", "P1", "P2", "P3"}):
             errors.append(f"{context}.tier is invalid")
             continue
+        if not choice(principle.get("durability"), DURABILITY):
+            errors.append(f"{context}.durability is invalid")
+        if principle.get("durability") == "era_specific" and tier == "P3":
+            errors.append(f"{context} era_specific principles cannot be P3")
+        validate_term_ids(principle.get("term_ids"), context, errors)
         occurrences = principle.get("occurrence_ids")
         if not unique_string_list(occurrences):
             errors.append(f"{context}.occurrence_ids must be a non-empty unique string array")
@@ -667,6 +1141,13 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
             for item in occurrences
             if item in evidence_by_id
         ]
+        held = [
+            item for item in linked_occurrences
+            if isinstance(evidence_by_id[item].get("verification"), dict)
+            and evidence_by_id[item]["verification"].get("status") == "held"
+        ]
+        if held:
+            errors.append(f"{context} principles cannot cite held evidence units: {held}")
         for occurrence_id in linked_occurrences:
             if (
                 non_empty_string(principle_id)
@@ -686,13 +1167,14 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
                 evidence_by_id[item].get("evidence_kind"),
                 {"verbalized", "demonstrated"},
             )
+            and isinstance(evidence_by_id[item].get("verification"), dict)
+            and choice(evidence_by_id[item]["verification"].get("status"), {"confirmed", "corrected"})
         ]
         direct_occurrences = [evidence_by_id[item] for item in direct_occurrence_ids]
         independent_recurrences = {
-            (evidence_video_ids.get(item), evidence_by_id[item].get("project_id"))
+            evidence_by_id[item].get("project_id")
             for item in direct_occurrence_ids
-            if non_empty_string(evidence_video_ids.get(item))
-            and non_empty_string(evidence_by_id[item].get("project_id"))
+            if non_empty_string(evidence_by_id[item].get("project_id"))
         }
         projects = principle.get("independent_projects")
         if not isinstance(projects, int) or isinstance(projects, bool) or projects < 1:
@@ -745,14 +1227,16 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
             if not isinstance(projects, int) or projects < 2:
                 errors.append(f"{context} {tier} requires at least two projects")
             if len(direct_occurrences) < 3:
-                errors.append(f"{context} {tier} requires direct observation, not inferred or metadata-only evidence")
+                errors.append(f"{context} {tier} requires verified direct observation, not inferred evidence")
             if len(independent_recurrences) < 3:
                 errors.append(
                     f"{context} {tier} requires at least three independent recurrence cases "
-                    "after deduplicating the same video and project"
+                    "after deduplicating project ids"
                 )
             if len(observed_projects) < 2:
                 errors.append(f"{context} {tier} requires direct evidence from at least two project ids")
+            if len({evidence_video_ids.get(item) for item in direct_occurrence_ids}) < 3:
+                errors.append(f"{context} {tier} requires direct evidence from at least three videos")
         if tier in {"P2", "P3"} and not principle.get("external_sources"):
             errors.append(f"{context} {tier} requires external_sources")
         operational_fields = ("trigger", "inspect", "decide", "act", "verify")
@@ -813,6 +1297,7 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
     if gates and actual_gate_ids != GATE_IDS:
         errors.append(f"quality_gates must use exact order {GATE_IDS}")
     gate_status: dict[str, str] = {}
+    gate_evidence: dict[str, Any] = {}
     for index, gate in enumerate(gates):
         context = f"quality_gates[{index}]"
         if not isinstance(gate, dict):
@@ -825,6 +1310,7 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
             errors.append(f"{context}.status is invalid")
         if non_empty_string(gate.get("id")):
             gate_status[gate["id"]] = status
+            gate_evidence[gate["id"]] = gate.get("evidence")
         if not unique_string_list(gate.get("evidence"), allow_empty=status != "passed"):
             errors.append(f"{context}.evidence must match its status")
         validate_evidence_files(
@@ -859,10 +1345,11 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
             "production_kappa",
         ):
             value = reliability.get(field)
+            minimum = 0 if field == "production_double_coded_ratio" else -1
             if value is not None and (
-                not finite_number(value) or not 0 <= value <= 1
+                not finite_number(value) or not minimum <= value <= 1
             ):
-                errors.append(f"reliability.{field} must be null or a finite number between 0 and 1")
+                errors.append(f"reliability.{field} must be null or a finite number between {minimum} and 1")
 
     for evidence_id, unit in evidence_by_id.items():
         unknown_candidates = sorted(
@@ -898,12 +1385,6 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
             for video in videos if isinstance(video, dict)
         ):
             errors.append("M1 cannot pass without timestamped evidence for every analyzed video")
-    if gate_status.get("M2") == "passed":
-        if any(
-            unit.get("evidence_kind") == "metadata_only"
-            for unit in evidence_by_id.values()
-        ):
-            errors.append("M2 cannot pass when analyzed evidence is metadata_only")
     if gate_status.get("M3") == "passed":
         sample = reliability.get("pilot_sample_size")
         pilot = reliability.get("pilot_kappa")
@@ -943,6 +1424,22 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
             errors,
         )
         if pilot_summary is not None:
+            audit = load_human_audit(gate_evidence.get("M3"), catalog_directory, errors)
+            latest = {
+                (record["target_type"], record["target_id"]): record for record in (audit or [])
+            }
+            videos_by_id = {
+                video["video_id"]: video for video in videos
+                if isinstance(video, dict) and non_empty_string(video.get("video_id"))
+            }
+            for pilot_id in pilot_summary["unit_ids"]:
+                record = latest.get(("pilot_video", pilot_id), {})
+                receipt = videos_by_id.get(pilot_id, {}).get("analysis_receipt")
+                version = receipt.get("codebook_version") if isinstance(receipt, dict) else None
+                if record.get("verdict") != "confirmed":
+                    errors.append(f"M3 requires confirmed human audit for pilot video: {pilot_id}")
+                elif record.get("codebook_version") != version:
+                    errors.append(f"M3 human audit codebook_version must match analysis_receipt: {pilot_id}")
             computed_sample = pilot_summary["record_count"]
             computed_kappa = pilot_summary["minimum_kappa"]
             if sample != computed_sample:
@@ -981,6 +1478,8 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
                 )
             if computed_ratio < 0.20 or computed_kappa < 0.75:
                 errors.append("M3 computed production coder evidence does not meet its thresholds")
+        if pilot_summary is None:
+            load_human_audit(gate_evidence.get("M3"), catalog_directory, errors)
     if gate_status.get("M4") == "passed" and any(
         safe_list_length(item.get("occurrence_ids")) < 3
         or not isinstance(item.get("independent_projects"), int)
@@ -1010,34 +1509,79 @@ def validate_catalog(payload: Any, catalog_directory: Path | None = None) -> lis
         and all(
             choice(
                 evidence_by_id.get(occurrence_id, {}).get("evidence_kind"),
-                {"inferred", "metadata_only"},
+                {"inferred"},
             )
             for occurrence_id in safe_string_set(item.get("occurrence_ids"))
         )
         for item in principles if isinstance(item, dict)
     ):
         errors.append("M8 cannot pass when promoted principles misrepresent inference as direct evidence")
+    if gate_status.get("M8") == "passed":
+        audit = load_human_audit(gate_evidence.get("M8"), catalog_directory, errors)
+        latest = {
+            (record["target_type"], record["target_id"]): record for record in (audit or [])
+        }
+        for principle in principles:
+            if not isinstance(principle, dict):
+                continue
+            confirmed = 0
+            for unit_id in safe_string_set(principle.get("occurrence_ids")):
+                pair = f"{principle.get('id')}|{unit_id}"
+                record = latest.get(("principle_occurrence", pair), {})
+                verdict = record.get("verdict")
+                if verdict == "confirmed":
+                    confirmed += 1
+                if choice(verdict, {"needs_correction", "rejected"}):
+                    errors.append(f"M8 cannot cite an unapproved human audit pair: {pair}")
+                if principle.get("tier") == "P3" and verdict != "confirmed":
+                    errors.append(f"M8 requires confirmed human audit for P3 occurrence: {pair}")
+            if choice(principle.get("tier"), {"P1", "P2"}) and confirmed < 2:
+                errors.append(f"M8 requires at least two confirmed human audit pairs: {principle.get('id')}")
     return errors
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("catalog", type=Path)
+    parser.add_argument("catalog", type=Path, nargs="?")
+    parser.add_argument("--bundle", type=Path)
+    parser.add_argument("--verification", type=Path)
+    parser.add_argument("--ledger", type=Path, default=ROOT / "docs/research/design-terminology.json")
     args = parser.parse_args()
+    if (args.catalog is None) == (args.bundle is None):
+        parser.error("choose exactly one catalog or --bundle")
+    if args.verification is not None and args.bundle is None:
+        parser.error("--verification requires --bundle")
     try:
-        payload = json.loads(args.catalog.read_text(encoding="utf-8"))
-    except OSError as error:
-        print(f"ERROR: unable to read {args.catalog}: {error}")
+        if args.catalog is not None:
+            payload = json.loads(args.catalog.read_text(encoding="utf-8"))
+            errors = validate_catalog(payload, args.catalog.resolve().parent)
+            success = "madia-design-practice-catalog"
+        else:
+            ledger = json.loads(args.ledger.read_text(encoding="utf-8"))
+            if not isinstance(ledger, dict) or ledger.get("schema_version") != "design-terminology-v1" or not isinstance(ledger.get("terms"), list):
+                raise ValueError("ledger must be a design-terminology-v1 object with terms")
+            term_ids = set()
+            for term in ledger["terms"]:
+                if not isinstance(term, dict) or not isinstance(term.get("id"), str) or not TERM_ID_RE.fullmatch(term["id"]) or not choice(term.get("status"), {"candidate", "adopted", "held", "rejected"}):
+                    raise ValueError("ledger terms must contain valid ids and statuses")
+                if term["status"] != "rejected":
+                    term_ids.add(term["id"])
+            bundle = json.loads(args.bundle.read_text(encoding="utf-8"))
+            if args.verification is None:
+                errors = validate_analysis_bundle(bundle, term_ids)
+                success = "madia-video-analysis"
+            else:
+                verification = json.loads(args.verification.read_text(encoding="utf-8"))
+                errors = validate_verification(verification, bundle, term_ids)
+                success = "madia-verification"
+    except (OSError, UnicodeDecodeError, ValueError) as error:
+        print(f"ERROR: unable to validate input: {error}")
         raise SystemExit(1)
-    except json.JSONDecodeError as error:
-        print(f"ERROR: invalid JSON: {error}")
-        raise SystemExit(1)
-    errors = validate_catalog(payload, args.catalog.resolve().parent)
     if errors:
         for error in errors:
             print(f"ERROR: {error}")
         raise SystemExit(1)
-    print("OK: madia-design-practice-catalog")
+    print(f"OK: {success}")
 
 
 if __name__ == "__main__":

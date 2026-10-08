@@ -1,0 +1,351 @@
+{
+  "schema_version": "madia-coder-evidence-v1",
+  "phase": "pilot",
+  "coders": [
+    "coder-a",
+    "coder-b"
+  ],
+  "population_size": 1324,
+  "records": [
+    {
+      "unit_id": "CmoUZyhGWOw",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "KU1vGO4LPyw",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "CYhJxtcL5B0",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "information_priority"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "Ycyt997c6ow",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "information_priority",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "mtTXn2cCNRY",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "state_content",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "inferred"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "mCCDTV9e240",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "_EWpVKIS8uI",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "RuanY_p6mb4",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "information_priority",
+          "coder-b": "information_priority"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "design_explanation",
+          "coder-b": "design_explanation"
+        }
+      }
+    },
+    {
+      "unit_id": "3ZXBb8Ol_2M",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "information_priority",
+          "coder-b": "information_priority"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "design_explanation",
+          "coder-b": "design_explanation"
+        }
+      }
+    },
+    {
+      "unit_id": "RGFAGMRHzFU",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "artifact_structure"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "design_explanation",
+          "coder-b": "design_explanation"
+        }
+      }
+    },
+    {
+      "unit_id": "F0kDoNaAxwY",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "artifact_structure",
+          "coder-b": "artifact_structure"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "9GJbVpEIIZg",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "demonstrated"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "Y_qV8uV6K5I",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "6SDD-DLQuBU",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "environment_accessibility",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "demonstrated",
+          "coder-b": "demonstrated"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "jaI2E50wu2k",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "environment_accessibility",
+          "coder-b": "environment_accessibility"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "usDqYTr9NM0",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "dT-OarWW2Wo",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "information_priority",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "demonstrated",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "N2aZc4jpuKs",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "FAKwQSqQWKw",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "artifact_structure",
+          "coder-b": "artifact_structure"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    },
+    {
+      "unit_id": "4OLsOwt5UTI",
+      "ratings": {
+        "decision_stage": {
+          "coder-a": "visual_system",
+          "coder-b": "visual_system"
+        },
+        "evidence_kind": {
+          "coder-a": "verbalized",
+          "coder-b": "verbalized"
+        },
+        "relevance": {
+          "coder-a": "direct_design_work",
+          "coder-b": "direct_design_work"
+        }
+      }
+    }
+  ]
+}
