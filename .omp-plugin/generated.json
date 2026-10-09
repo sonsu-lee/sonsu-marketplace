@@ -69,7 +69,7 @@
     "plugins/design/omp/scripts/design_md.mjs": "9d62303fdca6b39db91946fe76fdc38bdc1c02368df6be2d312d2b1180d68e42",
     "plugins/design/omp/scripts/validate_design_quality.py": "3826cfeec2a7dfbcffa4fe276afcff11db22ee0c84bdf4bf572eebb1ff21ef61",
     "plugins/design/omp/scripts/validate_operations_contracts.py": "3b31907e42d1981a6fde53561cd47a9b9b5118cab8a7b53fc5280f3e15e00782",
-    "plugins/design/omp/skills/audit-interface/SKILL.md": "94dc58d3b25dfe936e8e1b7ec233ca9f19ee182ec0a56312f6a15f104a617e30",
+    "plugins/design/omp/skills/audit-interface/SKILL.md": "6e97490065ee3aed71ed3653abf15b786edaa4799c3b650a2f16e9da2f0da5f7",
     "plugins/design/omp/skills/audit-interface/agents/openai.yaml": "e498df24d07d7e7b153d0626fcacfc7a0c8de0093197fcfcec640fad356c5837",
     "plugins/design/omp/skills/design-interface/SKILL.md": "3efa5cd3fd5df6db3e7747aec1be47e7a181448c0538b8e21e7142e3a73ce477",
     "plugins/design/omp/skills/design-interface/agents/openai.yaml": "48d6dfa7602738284e526493fc9bdfd9b44941f93073ff9365b087a102ffc4fc",

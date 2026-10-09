@@ -14,6 +14,7 @@ description: 기존 웹·모바일·운영 UI 또는 Figma 화면·prototype의 
    부재나 오류는 finding으로 보고한다. 감사 중 문서를 만들거나 수정하지 않는다.
 2. [공통 디자인 품질 계약](../../references/design-quality.md)으로 사용자 과업·핵심 질문·정보·
    표현·환경과 미확인을 복원한다. DQ1–DQ6은 독립 평가자 2명의 근거가 없으면 통과시키지 않는다.
+   DQ0에서는 입력의 기존 요구사항 ID·출처·관련 조건과 화면·상태·흐름의 대응을 기존 명세·annotation에서 읽기 전용으로 대조한다. 확인할 수 없는 대응은 미확인으로 남기고 없는 ID나 문서를 만들지 않는다.
 3. 운영 화면이면 [Operations 품질 적용](../../references/operations/quality-contract.md)과
    [증거 계약](../../references/operations/evidence-contract.md)으로 action·permission·state,
    부분 실패·복구와 scenario×environment를 검사한다.
