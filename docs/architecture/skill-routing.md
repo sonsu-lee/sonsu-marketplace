@@ -72,7 +72,7 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 기존 ticket의 작업 시작·review·완료 상태, 담당자와 native relation 변경 | `workflow:ticket-lifecycle` |
 | PR 상태·CI·리뷰·미해결 대화 조회 | `workflow:inspect-prs` |
 | 지정 PR의 충돌·리뷰 지적·CI 실패 처리 | `workflow:repair-pr` |
-| 독립된 PR 심층·다중 리뷰 또는 명시적 호출 | `engineering:review-pr` |
+| GitHub PR 일반·심층·다중 리뷰 | `engineering:review` (PR 경로, 기본 `pr_review` 새 검토자 1명/라운드) |
 | 일반·운영 UI의 새 화면·흐름 설계, Figma 또는 코드 | `design:design-interface` |
 | 일반·운영 UI의 기존 화면·흐름 재설계, Figma 또는 코드 | `design:redesign-interface` |
 | 기존 코드·화면·Figma의 읽기 전용 감사 | `design:audit-interface` |
@@ -210,8 +210,8 @@ Prompting만 설치된 환경에서도 Codex, ChatGPT와 OpenAI API용 프롬프
 ## 코드 품질과 리뷰
 
 일반 리뷰, 도메인 타입·상태, 단순화, 유지보수·실패·운영성은 Engineering 내부의 전문 스킬입니다.
-일반 리뷰와 개발 단계의 독립 전체 리뷰는 `review`, 특정 관점은 해당 focused 스킬,
-독립 PR 심층·다중 리뷰는 `review-pr`가 맡습니다. 리뷰 패키징과 결과 수집은
+일반 리뷰, 개발 단계의 독립 전체 리뷰와 GitHub PR의 일반·심층·다중 리뷰는 `review`, 특정 관점은
+해당 focused 스킬이 맡습니다. 리뷰 패키징과 결과 수집은
 [독립 리뷰 실행 절차](../../plugins/engineering/references/independent-review.md)를 공유합니다.
 판단 기준은 패키지의 공통 references를 재사용합니다.
 

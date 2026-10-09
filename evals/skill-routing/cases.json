@@ -2974,7 +2974,7 @@
       ],
       "prompt": "PR #12를 독립 리뷰어 3명으로 심층 검토해 줘.",
       "expected_sequence": [
-        "engineering:review-pr"
+        "engineering:review"
       ],
       "fixture": {
         "suite": "skill-expansion",
@@ -3017,9 +3017,9 @@
       "installed_plugins": [
         "engineering"
       ],
-      "prompt": "$review-pr PR #12를 검토해 줘.",
+      "prompt": "$review PR #12를 심층 검토해 줘.",
       "expected_sequence": [
-        "engineering:review-pr"
+        "engineering:review"
       ],
       "fixture": {
         "suite": "skill-expansion",

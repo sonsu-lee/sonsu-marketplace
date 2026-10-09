@@ -33,4 +33,28 @@ grep -Fq "Revision: sha256:" <<<"$result"
 grep -Fq '+after' "$package_path"
 grep -Fq '+untracked' "$package_path"
 
-echo "review-package repository-wide working-tree test: PASS"
+printf '\000before\n' > "$fixture_dir/artifact.bin"
+git -C "$fixture_dir" add -A
+git -C "$fixture_dir" commit -qm "test: add binary fixture"
+base=$(git -C "$fixture_dir" rev-parse HEAD)
+printf '\000after\n' > "$fixture_dir/artifact.bin"
+git -C "$fixture_dir" add artifact.bin
+git -C "$fixture_dir" commit -qm "test: change binary artifact"
+head=$(git -C "$fixture_dir" rev-parse HEAD)
+
+first=$(cd "$fixture_dir" && "$review_package" range "$base" "$head")
+second=$(cd "$fixture_dir" && "$review_package" range "$base" "$head")
+first_path=$(awk '/^Package: / {sub(/^Package: /, ""); print; exit}' <<<"$first")
+second_path=$(awk '/^Package: / {sub(/^Package: /, ""); print; exit}' <<<"$second")
+[ -n "$first_path" ] && [ -f "$first_path" ]
+[ -n "$second_path" ] && [ -f "$second_path" ]
+[ "$first_path" != "$second_path" ]
+grep -Fq 'GIT binary patch' "$first_path"
+rm -f "$first_path" "$second_path"
+
+if (cd "$fixture_dir" && "$review_package" range "$base" "$head" "$package_path") 2>/dev/null; then
+  echo "existing OUTFILE was overwritten" >&2
+  exit 1
+fi
+
+echo "review-package working-tree and binary range tests: PASS"

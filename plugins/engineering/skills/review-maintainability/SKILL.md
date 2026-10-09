@@ -7,29 +7,18 @@ description: 사용자가 현재 diff나 지정한 코드의 reader load, 변경
 
 실제 변경 흐름을 따라가며 다음 수정자가 계약을 이해하고 안전하게 바꾸는 데 드는 비용을 검토한다.
 
-리뷰를 시작할 때 [공통 리뷰 기준](../../references/review-criteria.md)을 읽고 해당 관점에 적용한다.
-근거의 적용 이유, 실제 영향과 최소 수정으로 설명하며 선택적 개선을 새 필수 절차로 만들지 않는다.
+## 절차
 
-루트가 이 요청을 받은 경우에는 [집중 리뷰 실행](../../references/independent-review.md#집중-리뷰-진입)에
-따라 위임·원결과 수집·판정·최종 보고를 마친다. 아래 관점은 요청한 대상에만 적용한다.
-이 관점의 검토자로 이미 위임받았다면 직접 검토하고 재위임하지 않는다.
+1. [공통 리뷰 기준](../../references/review-criteria.md)과
+   [공통 우선순위](../../references/code-quality.md#공통-우선순위)를 적용한다. 근거의 적용 이유,
+   실제 영향과 최소 수정으로 설명하고 선택적 개선을 새 필수 절차로 만들지 않는다.
+2. 루트는 [집중 리뷰 실행](../../references/independent-review.md#집중-리뷰-진입)에 따라
+   위임·원결과 수집·판정·최종 보고를 마친다. 이미 이 관점의 검토자로 위임받았다면
+   요청한 대상만 직접 검토하고 재위임하지 않는다.
+3. 여러 단계의 주 조정자는 필요할 때 [작업 연속성](../../references/continuity.md)에
+   진행과 근거를 기록한다. 단발 작업과 위임된 작업자는 별도 기록을 만들지 않는다.
 
-## 작업 연속성
-
-여러 단계의 작업이나 외부 쓰기를 맡은 주 조정자는 필요할 때 [연속성 참고 자료](../../references/continuity.md)를
-읽어 진행과 근거를 기록한다. 단발 작업과 위임된 작업자는 별도 기록을 만들지 않는다.
-
-## 공통 우선순위
-
-1. 확인된 제품·도메인 계약
-2. correctness, security, data integrity, accessibility와 compatibility
-3. 실제 실행 흐름을 읽는 사람의 이해 비용
-4. 단순성과 제거 가능한 코드
-5. 아직 확인되지 않은 확장 가능성
-
-뒤 순위 때문에 앞 순위를 희생하지 않는다.
-
-## 범위와 방법
+### 범위와 방법
 
 - 사용자가 지정한 diff, commit, branch 또는 경로와 판단에 필요한 caller·test를 읽는다.
 - entry point에서 주요 data와 control flow를 따라 실제 reader journey를 확인한다.
@@ -52,4 +41,22 @@ reader load나 변경 비용을 만드는지 확인한다.
 
 finding마다 priority, `path:line`, 독자가 따라야 하는 실제 흐름, 변경 비용이나 결함 가능성,
 가장 작은 개선 방향을 적는다. 같은 root cause의 증상은 하나로 합친다. 실행 가능한 finding이
-없으면 없다고 말한다. 코드를 수정하거나 Git 작업을 하지 않는다.
+없으면 없다고 말한다.
+
+## 예시
+
+입력: “문서 내보내기 옵션을 바꿀 때 수정 지점이 왜 많은지 검토해 줘.”
+`src/export-options.ts:24`의 옵션을 바꾸려면 의미를 더하지 않는 세 forwarding 모듈을
+같이 수정해야 한다면 실제 호출 순서와 변경 비용을 적고 불필요한 전달 단계를 줄이도록 제안한다.
+대조: 같은 모듈 수라도 각 단계가 파일 형식별 호환 계약을 번역한다면 단순히 파일이 많다는
+이유로 합치지 않는다. 확인한 계약과 유지 이유를 보고한다.
+
+## 경계
+
+- 코드를 수정하거나 Git 작업을 하지 않는다.
+
+## 참고 자료
+
+- [공통 리뷰 기준](../../references/review-criteria.md), [공통 코드 품질](../../references/code-quality.md)
+- [집중 리뷰 실행](../../references/independent-review.md#집중-리뷰-진입)
+- [JavaScript·TypeScript 기준](../../references/javascript-typescript-review.md)

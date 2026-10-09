@@ -18,7 +18,7 @@
 
 ## 예시: 빈 projectDir
 
-아래는 원 디버깅 기록의 증상과 호출 관계다.
+빈 `projectDir`이 전달되는 호출 관계를 예로 든다.
 
 ```text
 Error: git init failed in ~/project/packages/core
@@ -35,8 +35,8 @@ WorktreeManager.createSessionWorktree(projectDir, sessionId)
   → called by test at Project.create()
 ```
 
-당시 `projectDir = ''`이 전달돼 Git이 `process.cwd()`에서 실행됐다. 빈 값의 시작점은
-`beforeEach`보다 먼저 `context.tempDir`에 접근한 테스트 초기화였다.
+`projectDir = ''`이 전달되면 Git이 `process.cwd()`에서 실행될 수 있다. 다음 코드에서는
+`beforeEach`보다 먼저 `context.tempDir`에 접근하는 테스트 초기화가 빈 값의 시작점이다.
 
 ```typescript
 const context = setupCoreTest(); // Returns { tempDir: '' }
@@ -63,7 +63,7 @@ async function gitInit(directory: string) {
 }
 ```
 
-원 실행 예시는 다음과 같다.
+출력 필터 예시는 다음과 같다.
 
 ```bash
 npm test 2>&1 | grep 'DEBUG git init'
@@ -84,9 +84,3 @@ npm test 2>&1 | grep 'DEBUG git init'
 
 스크립트는 테스트를 하나씩 실행하고 첫 오염을 찾으면 멈춘다. 테스트 순서·병렬 실행에만
 의존하는 문제는 이 방식의 검출 범위 밖일 수 있다.
-
-## 과거 결과
-
-원 자료의 2025-10-03 기록은 다섯 호출 단계를 추적해 `beforeEach` 이전 접근을 막는 getter로
-수정하고, 네 보호 지점을 추가했다고 보고했다. 기록의 결과는 “1847 tests passed, zero pollution”이다.
-이는 당시 관찰 결과이며 현재 리비전의 실행 증거는 아니다.

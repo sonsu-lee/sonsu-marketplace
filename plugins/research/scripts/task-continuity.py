@@ -226,7 +226,7 @@ RETIRED_ACTIVE_SKILLS = {
         "receiving-code-review", "using-git-worktrees", "finishing-a-development-branch",
         "writing-skills", "using-engineering-skills", "requesting-code-review",
         "verification-before-completion", "dispatching-parallel-agents",
-        "subagent-driven-development",
+        "subagent-driven-development", "review-pr",
     }),
     "workflow": frozenset({"git-workflow"}),
 }

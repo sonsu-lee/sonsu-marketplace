@@ -1,11 +1,33 @@
 # PR 리뷰 실행과 게시
 
-`review`의 일반 PR 리뷰와 `review-pr`의 심층 리뷰가 함께 사용하는 실행 계약이다.
+`review`의 일반·심층·다중 PR 리뷰가 사용하는 실행 계약이다.
 인원·모델·추론 강도는 현재 호스트 프로필의 `pr_review`와 사용자 지정에 따른다.
 기본은 한 라운드에 새 검토자 1명이며 상위 모델 검토를 자동 추가하지 않는다. PR 외 일반 리뷰·
 개발 DAG의 역할 인원과 라운드 상한은 이 경로의 기본값이 아니다. 현재 요청과 기존 문맥에서도 리뷰
 의도가 확인되지 않는 PR URL 단독 입력에는 리뷰 실행·게시를 추가하지 않는다. 상태 조회·로컬
 코드 리뷰·기존 결과 정리만 요청한 작업에도 게시를 추가하지 않는다.
+
+## 검토자 설정
+
+현재 호스트의 [Codex](model-profiles.md), [Claude Code](claude-model-profiles.md),
+[omp](omp-model-profiles.md) 프로필을 읽는다. Codex는 `pr_review`의 Luna xhigh 1명,
+Claude Code는 Opus 5.5 medium 1명이 기본이다. omp는 `settings_policy: inherit_native`에
+따라 순정 `reviewer` 1명을 기존 설정으로 요청한다. 순정 reviewer와 직접 설치한 Engineering
+agent를 구분하고 model·effort·memory·isolation·동시성이나 역할별 override를 자동 변경하지 않는다.
+
+사용자가 지정한 인원·모델·effort는 해당 항목만 우선한다. 인원만 늘리면 같은 PR 기본 역할을
+지정한 수만큼 호출하며 다른 모델을 섞거나 관점을 강제로 나누지 않는다. 심층 요청만으로 PR 외
+기본 5인·5라운드나 상위 모델을 추가하지 않는다. 다른 플러그인이나 특정 CLI 설치를 필수로
+요구하지 않고 필요한 격리를 지원하는 실행 경로를 선택한다. 미지원 설정·대체·격리 실패는
+근거와 `blocked`/`not_run`으로 기록하며 조용히 대체하지 않는다.
+
+판단 정체, 상충 근거, 복잡한 상태·권한·복구 경계나 판단 능력 부족이 확인되면 추가 근거를
+확보하고 적합한 검토/판정 설정을 선택한다. Codex는 `senior_review`, `adjudication`,
+`complex_adjudication`을 사용하며 다른 모델은 지원·접근권을 확인한 명시 override로 지정한다.
+Claude는 Opus 5.5를 유지하고 필요하면 더 높은 effort의 별도 native 정의를 선택한다.
+omp는 기존 설정을 우선하고 사용자가 명시한 실행만 정확한 provider/model/effort로 지정한다.
+라운드 수나 용량 오류만으로 승격하지 않는다. 새 전체 리뷰에는 이전 결과를 숨기고 특정
+finding 판정에는 그 finding과 근거를 제공한다.
 
 ## 요청 범위
 
@@ -21,6 +43,52 @@ commit·push·merge 또는 `APPROVE`·`REQUEST_CHANGES` 제출 권한으로 확�
 범위 중 소스 수정 금지는 유지하고, PR 리뷰의 준비용 fetch·워크트리와 결과 게시는 이 문서의
 명시적 예외로 수행한다. 일반 로컬 리뷰에는 이 예외를 적용하지 않는다. Engineering이 리뷰
 결과의 통합·게시·재조회를 끝까지 소유하며, Workflow의 PR 생성·제목/본문 작성과 구분한다.
+
+## 읽기 전용 snapshot 도구
+
+설치한 플러그인의 `scripts`를 `REVIEW_SCRIPTS`, 정확한 이력이 있는 로컬 checkout을 `REPO`로
+지정한다. 이 도구는 `git`과 인증된 `gh`로 metadata만 조회한다. fetch·diff 패키징·워크트리
+생성·원격 쓰기는 수행하지 않는다. 필요한 fetch는 승인된 준비 단계에서 별도로 수행하고,
+수집한 `fixed_shas`와 fetched commit을 대조한다. shallow 저장소, 없는 commit, 공통 조상 없음,
+여러 merge base는 근사하지 않고 실패로 반환한다. `review-package`는 수집된
+`merge_base`부터 `head`까지 diff를 고정하는 별도 도구다.
+
+```bash
+python3 "$REVIEW_SCRIPTS/pr_review_snapshot.py" capture 87 --repository github.com/acme/catalog --repo "$REPO" --output "$BEFORE"
+python3 "$REVIEW_SCRIPTS/pr_review_snapshot.py" compare --against "$BEFORE" --repo "$REPO" --output "$PRE_POST"
+python3 "$REVIEW_SCRIPTS/pr_review_snapshot.py" compare --against "$PRE_POST" --repo "$REPO" --output "$POST"
+```
+
+`capture [PR]`은 번호 또는 HTTPS PR URL을 받는다. URL의 host·base repository를 우선하고
+`--repository HOST/OWNER/REPO`와 충돌하면 실패한다. 번호만 주면 `gh repo view`로 저장소를
+확인한다. PR도 생략하면 현재 브랜치의 열린 PR이 정확히 하나인 경우만 선택한다.
+`compare --against FILE`은 성공한 저장 snapshot의 대상을 다시 조회하므로 PR 선택 인자가 없다.
+두 명령의 `--repo PATH` 기본값은 현재 디렉터리이며 `--output FILE`은 기존 파일을 덮지 않고
+새 파일로만 저장한다. stdout에도 같은 JSON을 출력한다. 모든 파일 쓰기 금지 시 `--output`을
+생략하고 결과를 호출 입력에 보존한다. 저장 파일 비교가 불가능하면 동일 필드를 읽기 전용으로
+대조하고 자동 비교를 실행했다고 보고하지 않는다.
+
+| 필드 | 의미와 사용 |
+| --- | --- |
+| `schema_version`, `status` | 현재 schema는 `1`; `ok`, `changed`, `blocked`로 수집 상태를 구분 |
+| `snapshot.host`, `repository`, `number`, `url`, `state` | GitHub host·base 저장소·PR 식별자와 `open`/`closed`/`merged` 상태 |
+| `snapshot.base`, `head` | 각각 `{sha, ref, repository}`; fork의 head repository와 base repository를 구분하며 삭제된 head repository는 `null` |
+| `snapshot.merge_base`, `fixed_shas` | 검증한 정확한 공통 조상과 고정 `{base, head, merge_base}` SHA; 로컬 working tree는 포함하지 않음 |
+| `snapshot.existing_review_ids`, `existing_inline_comment_ids` | 모든 페이지에서 수집한 ID 목록; 본문·작성자·해결 상태를 판정하는 자료는 아님 |
+| `snapshot.collection_stable`, `observed_after` | metadata를 수집 앞뒤로 읽어 같았는지와 마지막 관측; 원자적 조회나 이후 불변을 보증하지 않음 |
+| `comparison` | `unchanged`, `changed_fields`, `before`/`after` state·fixed SHA, `new_review_ids`, `new_inline_comment_ids` |
+| `error` | `blocked`일 때 확인하지 못한 원인 |
+
+종료 코드 `0`은 수집 중 안정된 열린 PR이며 비교 모드에서는 저장 SHA/state도 같다.
+`1`은 닫힌 PR, 저장 SHA/state의 차이 또는 수집 중 변경이다. `2`는 인자·저장 파일·도구·인증·
+응답·Git 이력 오류다. argparse 인자 오류는 stderr로 출력하고 `2`로 종료한다.
+`1`이면 기존 검토 결과와 현재 상태를 구분하고 쓰기를 멈춘다. `2`이면 원인을 해결하기 전까지
+SHA 일치나 게시 가능 상태를 주장하지 않는다.
+
+위 예시의 첫 compare는 게시 직전, 둘째는 게시 후에 실행한다. 쓰기 재시도 전에도 새로 비교한다.
+`changed_fields`가 비어 있어도 `collection_stable=false`면 수집 중 변한 것이다.
+ID 증가만으로 이번 게시를 식별할 수 없으므로 아래 게시 계약의 작성자·commit_id·본문·댓글
+payload 대조와 원격 readback은 별도로 수행한다. 도구의 `ok`는 게시 권한·리뷰 완료·게시 성공이 아니다.
 
 ## 대상 고정과 워크트리
 
@@ -73,10 +141,17 @@ commit·push·merge 또는 `APPROVE`·`REQUEST_CHANGES` 제출 권한으로 확�
 프로젝트 규칙·현재 요구사항·소스·검사 결과는 남긴다. 정책 문구나 설정 요청만으로 관측된
 격리를 주장하지 않으며 다른 작업의 memory·전역 설정을 자동으로 변경하지 않는다.
 
+각 검토자에게 고정 base/head의 전체 diff와 caller·test·계약을 읽기 전용으로 검토하고 이전
+작업 memory를 조회·생성하지 않도록 지시한다. 실제 발생 조건·영향·근거가 있는 지적만
+priority·`path:line`·원인·최소 수정 방향으로 반환하고 확인 범위·실행한 검사·미확인도 보고하게 한다.
+지적 없음은 정확성·보안의 증명이 아니다. 조정자는 이전 라운드 이력과 지적별 수정 상태를
+별도로 보존하고 새 검토자에게 잠정 통과 결론을 넘기지 않는다.
+
 ## 지적 검증과 반복 종료
 
 1. root가 해당 라운드의 모든 원결과를 수집해 계약·도달 경로·재현/정적 근거로 판정한다.
    원인별 중복을 합치고 지적별 `valid`/`dismissed`/`inconclusive`, 수정·검사 상태를 추적한다.
+   생성 성공만으로 완료를 세지 않는다. 실행 실패·빈 결과와 검토 완료 후 지적 없음을 구분한다.
    다수결이나 지적 수 경쟁을 사용하지 않고 중요한 미판정 후보는 근거를 확보할 때까지 남긴다.
 2. 리뷰만 요청받았으면 검증한 지적과 미해결·한계를 보고/게시한다. 이미 수정 권한이 있으면
    담당 구현 단계에서 실제 문제를 수정하고 필요한 검사를 수행한다. 검토자에게 수정을 맡기지
@@ -90,10 +165,11 @@ commit·push·merge 또는 `APPROVE`·`REQUEST_CHANGES` 제출 권한으로 확�
 5. 현재 산출물에 미해결 검증 지적·중요한 미판정 후보가 없고 필요한 검사가 통과하면 종료한다.
    이 결과를 완전한 무결함 증명으로 표현하지 않는다. 사용자 예산·중단·호스트 한계로 멈추면
    미해결과 `incomplete`/`blocked`를 보존한다. 세션·모델 변경으로 이력이나 예산을 초기화하지 않는다.
+   같은 완료 결과를 횟수만 채우려고 다시 검토하지 않는다.
 
 로컬 수정이 원격 head에 반영되지 않았으면 로컬 snapshot의 검토와 원격 PR 상태를 구분한다.
 현재 원격 PR이 수정·수렴했다고 게시하지 않는다. 예상한 승인된 수정 외에 원격 base/head가
-바뀌면 기존 결과를 보존하고 범위·권한·새 고정 입력을 다시 확인한다.
+바뀌면 기존 결과를 보존하고 범위·권한·새 고정 입력을 다시 확인한다. 외부 SHA 변경은 자동 수정 권한이 아니다.
 
 ## 일시 실행 오류
 

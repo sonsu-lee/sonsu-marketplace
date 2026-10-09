@@ -393,6 +393,16 @@ raise SystemExit(hook.main())
                 self.assertEqual(migrated.returncode, 0, migrated.stderr)
                 self.assertEqual(json.loads(path.read_text())["active_skill"], "example-work")
 
+    def test_merged_review_pr_checkpoint_can_resume(self):
+        self.assertEqual(self.write(plugin="engineering").returncode, 0)
+        path = self.path(plugin="engineering")
+        saved = json.loads(path.read_text())
+        saved["active_skill"] = "review-pr"
+        path.write_text(json.dumps(saved))
+        read = self.run_cli("read", plugin="engineering")
+        self.assertEqual(read.returncode, 0, read.stderr)
+        self.assertEqual(json.loads(read.stdout)["active_skill"], "review-pr")
+
     def test_claude_session_id_can_replace_codex_thread_id(self):
         env = self.env.copy()
         env.pop("CODEX_THREAD_ID")
