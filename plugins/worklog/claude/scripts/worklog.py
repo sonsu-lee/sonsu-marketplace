@@ -170,7 +170,14 @@ def int_value(value):
     return value if isinstance(value, int) and not isinstance(value, bool) else None
 
 
+def require_safe_path(path):
+    for component in (path, *path.parents):
+        if component.is_symlink():
+            raise WorklogError("unsafe_path")
+
+
 def ensure_dir(path):
+    require_safe_path(path)
     path.mkdir(mode=0o700, parents=True, exist_ok=True)
     if path.is_symlink() or not path.is_dir():
         raise WorklogError("unsafe_path")
@@ -228,6 +235,10 @@ def ensure_project(directory, identity):
 def prune_host(host_dir, days, today):
     cutoff = (today - timedelta(days=days)).isoformat()
     removed = 0
+    try:
+        require_safe_path(host_dir)
+    except WorklogError:
+        return removed
     if not host_dir.is_dir() or host_dir.is_symlink():
         return removed
     for entry in sorted(host_dir.iterdir()):
@@ -285,6 +296,10 @@ class Session:
             "rollout_offset": int_value(state.get("rollout_offset")) or 0,
             "context_scanned": state.get("context_scanned") is True,
         }
+        cutoff = (utc_now().date() - timedelta(days=RETENTION_DAYS)).isoformat()
+        if self.state["date"] is not None and self.state["date"] < cutoff:
+            self.state["date"] = None
+            self.state["context_scanned"] = False
         return self
 
     def __exit__(self, *exc):
@@ -361,7 +376,7 @@ def scan_claude_transcript(session, path):
                 attachment.get("hookEvent") == "SessionStart"):
             command = text_value(attachment.get("command"))
             loads.append({"kind": "hook_output", "hook_name": text_value(attachment.get("hookName")),
-                          "command": command[:COMMAND_EXCERPT] if command is not None else None,
+                          "command": clip(command, COMMAND_EXCERPT),
                           "chars": attachment_chars(attachment)})
     for entry in loads:
         session.write("context_load", "transcript:attachment", entry)
