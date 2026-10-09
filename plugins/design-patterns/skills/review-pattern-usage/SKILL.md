@@ -29,12 +29,21 @@ description: 사용자가 기존 코드, diff 또는 설계에서 named design p
 ## 결과
 
 - finding 목록을 쓴다.
+- 같은 구현의 문제는 패턴 이름이 달라도 finding 하나로 묶는다.
+- 구조 변경은 절차 3의 유형 중 하나에 해당할 때만 제안한다. 단순성 취향은 근거로 쓰지 않는다.
 - 유효한 finding이 없으면 “finding 없음”이라고 쓴다.
 - `no-pattern`은 결함이 아니다.
 
 ## 예시
 
-> idempotency key가 없는 결제 `POST`에 `cloud-resilience-retry`를 적용했다. 응답 timeout 뒤 재시도하면 중복 결제가 생기므로 재시도 안전성이라는 guarantee가 없다. idempotency key를 추가하거나 POST 재시도를 제외한다.
+```text
+severity: high
+위치: payments/client.ts `createCharge`
+trigger: idempotency key 없는 결제 POST에 cloud-resilience-retry 적용, 응답 timeout 뒤 재시도
+actual behavior: 첫 요청이 처리된 경우 중복 결제
+required guarantee: 재시도 안전성(idempotency)
+수정 방향: idempotency key를 추가하거나 POST를 재시도 대상에서 제외
+```
 
 ## 경계
 
