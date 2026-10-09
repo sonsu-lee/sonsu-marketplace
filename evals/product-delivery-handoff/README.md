@@ -23,7 +23,7 @@ Engineering 계획의 REQ 추적과 근거 표기를 행동으로 확인한다. 
 ## 실행 방법
 
 1. 사례마다 대화 이력이 없는 새 컨텍스트 서브에이전트를 띄운다.
-2. `installed_plugins`의 스킬 파일만 읽게 하고 `entry_skill`로 `prompt`를 준다. `expected`는 보여 주지 않는다.
+2. `installed_plugins`에 속한 `entry_skill`과 그 스킬이 현재 요청에 대해 읽도록 지시하는 필수 reference를 읽게 하고 `prompt`를 준다. reference가 다시 필수로 연결한 자료도 같은 범위에서 읽는다. 설치되지 않은 플러그인의 스킬은 제공하지 않으며, 필요한 자료를 읽을 수 없으면 그 제한을 기록한다. `expected`는 보여 주지 않는다.
 3. 판정자가 출력을 `expected`의 각 문장과 대조한다.
 
 ## 판정
