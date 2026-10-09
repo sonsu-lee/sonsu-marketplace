@@ -25,12 +25,12 @@ codex plugin add engineering@sonsu-marketplace
 ```
 
 別のプラグインは、[下の表](#プラグイン)のインストール名に置き換えてください。
-13個すべてをインストールする場合は、次のコマンドを実行します。
+14個すべてをインストールする場合は、次のコマンドを実行します。
 
 ```sh
 for plugin in \
   engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design worklog
+  writing research prompting product memory-manager design-patterns design career worklog
 do
   codex plugin add "$plugin@sonsu-marketplace"
 done
@@ -62,12 +62,12 @@ claude plugin marketplace add sonsu-lee/sonsu-marketplace
 claude plugin install engineering@sonsu-marketplace
 ```
 
-[下の表](#プラグイン)の13個すべてをインストールする場合は、次のコマンドを実行します。
+[下の表](#プラグイン)の14個すべてをインストールする場合は、次のコマンドを実行します。
 
 ```sh
 for plugin in \
   engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design worklog
+  writing research prompting product memory-manager design-patterns design career worklog
 do
   claude plugin install "$plugin@sonsu-marketplace"
 done
@@ -88,17 +88,17 @@ claude plugin list
 
 ### omp
 
-omp向けは `workflow`、`fluent-korean`、`fluent-english`、`fluent-japanese`、`design` の基本5件と
+omp向けは `workflow`、`fluent-korean`、`fluent-english`、`fluent-japanese`、`design`、`career` の基本6件と
 opt-inの `worklog` を `.omp-plugin/marketplace.json` に登録します。開発実行・task・todo・session・reviewとメモリはomp標準の機能を使います。
 ローカル変更を試す場合は[開発ガイド](docs/guides/adding-a-plugin.md)の分離環境を使ってください。
 
-マーケットプレイスを登録して5件をインストールし、YAMLを `~/.omp/agent/config.yml` の
+マーケットプレイスを登録して6件をインストールし、YAMLを `~/.omp/agent/config.yml` の
 既存の `marketplace:` 項目に統合します。
 
 <!-- omp-preset:start -->
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
@@ -107,7 +107,7 @@ marketplace:
 ```
 <!-- omp-preset:end -->
 
-作業ログが必要な場合は、基本5件とは別に `worklog` をインストールします。ツールの結果とセッションイベントをローカルJSONLに記録するruntime extensionと読み取り専用の診断スキルを提供します。omp向けパッケージにhookは含みません。
+作業ログが必要な場合は、基本6件とは別に `worklog` をインストールします。ツールの結果とセッションイベントをローカルJSONLに記録するruntime extensionと読み取り専用の診断スキルを提供します。omp向けパッケージにhookは含みません。
 
 ```sh
 omp plugin install worklog@sonsu-marketplace
@@ -130,21 +130,22 @@ Workflowのcommit・push・PRなどの権限境界、
 Designの品質契約とプロファイルも変更しません。
 
 `design`、`workflow`、`fluent-korean`、`worklog` は生成した `./plugins/<name>/omp` を配布元に使い、
-English・Japaneseは元の `./plugins/<name>` を使います。基本5件には独自runtime extension、
+English・Japanese・Careerは元の `./plugins/<name>` を使います。基本6件には独自runtime extension、
 hook、evidence gate、`task-continuity.py` を含めず、opt-inのWorklogだけがruntime extensionを提供します。作業の継続はomp標準のtodo・sessionで扱い、
 `.sonsu` へ新たな継続記録を書き込みません。詳細は[配布のライフサイクル](docs/architecture/plugin-lifecycle.md)を参照してください。
 
 | 責任 | 担当 | 配布 |
 | --- | --- | --- |
 | 開発実行・task・todo・session・review | omp標準 | ホスト機能 |
-| Git・チケット・PR操作の権限と成果物 | Workflow | 基本5件 |
-| 言語別の文章品質・保護規則 | Fluent Korean・English・Japanese | 基本5件 |
-| UI・prototype・handoff品質とnative tool前提 | Design | 基本5件 |
+| Git・チケット・PR操作の権限と成果物 | Workflow | 基本6件 |
+| 言語別の文章品質・保護規則 | Fluent Korean・English・Japanese | 基本6件 |
+| UI・prototype・handoff品質とnative tool前提 | Design | 基本6件 |
+| 経歴原本・応募書類・面接準備 | Career | 基本6件 |
 | 生の作業イベントの記録と診断 | Worklog | opt-in |
 | 外部調査・製品探索・文章構成 | Research・Product・Writing | 選択候補。基本catalogには追加しない |
 
 Research・Product・Writingを追加する場合は、必要なドメインと現在のnative tool契約を別途確認します。
-Engineeringのompプロファイルは直接インストールした既存利用者向けに保持し、基本5件の設定には使いません。
+Engineeringのompプロファイルは直接インストールした既存利用者向けに保持し、基本6件の設定には使いません。
 
 #### 旧omp構成からの移行
 
@@ -164,7 +165,7 @@ for plugin in engineering writing research prompting product design-patterns mem
 ```sh
 omp plugin marketplace remove sonsu-marketplace
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install --force "$plugin@sonsu-marketplace"; done
 ```
 
 旧プリセットのために追加した `skills.ignoredSkills`、`task.disabledAgents`、
@@ -175,7 +176,7 @@ for plugin in workflow fluent-korean fluent-english fluent-japanese design; do o
 
 ## プラグイン
 
-以下はCodex・Claude Code向けの全プラグイン一覧です。omp向けの基本配布は上記5件で、Worklogだけをopt-inで追加インストールできます。
+以下はCodex・Claude Code向けの全プラグイン一覧です。omp向けの基本配布は上記6件で、Worklogだけをopt-inで追加インストールできます。
 
 | プラグイン | 用途 | インストール名 |
 | --- | --- | --- |
@@ -191,6 +192,7 @@ for plugin in workflow fluent-korean fluent-english fluent-japanese design; do o
 | [Memory Manager](plugins/memory-manager/README.md) | CodexとClaude Codeで共有するローカルメモリの想起・保存・整理 | `memory-manager` |
 | [Design](plugins/design/README.md) | 一般・運用UIの新規設計・再設計・監査をFigmaまたはコードで実施し、デザインリファレンスも検索 | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | 実際の設計上のforcesに基づくパターン選択と既存適用のレビュー | `design-patterns` |
+| [Career](plugins/career/README.md) | 開発者の経歴原本の整理、米国式レジュメ・履歴書・職務経歴書の作成、面接準備・模擬面接・振り返り | `career` |
 | [Worklog](plugins/worklog/README.md) | Claude Code・Codex・ompの作業で起きた失敗・中断・訂正のログと診断 | `worklog` |
 
 各プラグインは独立して利用できます。含まれるスキルや詳しい使い方は、上のリンクから確認してください。
@@ -215,6 +217,7 @@ Workflowはチケット・PRの新規作成に使うテンプレートと公開�
 | Memory Manager | 「`$memory-capture` この決定をプロジェクトのメモリに保存して。」 |
 | Design | 「登録フローをFigmaで設計して。運用画面はコードで直接再設計して。」または「ログイン画面のリファレンスを出典付きで探して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
+| Career | 「このJDに合わせて1ページの英文レジュメを作り、来週の一次面接を想定して模擬面接をして。」 |
 
 ホストは依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
 Memory Managerの`$memory-recall`は関連する作業で選択され、明示的な保存依頼には

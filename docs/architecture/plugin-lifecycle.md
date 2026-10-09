@@ -52,10 +52,10 @@ Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-
 생성합니다. memory-manager의 정리·승격 스킬만 Claude의 수동 호출 제한을 적용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
 Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 
-## ompは基本5件とopt-inのworklog(runtime extension含む)を配布する
+## omp는 기본 6개와 opt-in Worklog를 배포한다
 
-`python3 scripts/render-omp-compat.py` はCodex catalogの順序を保ち、基本5件の `workflow`、
-`fluent-korean`、`fluent-english`、`fluent-japanese`、`design` と、opt-inの `worklog` を
+`python3 scripts/render-omp-compat.py` はCodex catalogの順序を保ち、基本6件の `workflow`、
+`fluent-korean`、`fluent-english`、`fluent-japanese`、`design`、`career` と、opt-inの `worklog` を
 `.omp-plugin/marketplace.json` に生成します。Codex・Claude Codeの配布対象と元パッケージは変更しません。
 worklogは基本構成に含めず、必要な利用者だけが個別にインストールします。
 
@@ -66,6 +66,7 @@ worklogは基本構成に含めず、必要な利用者だけが個別にイン�
 | Fluent English | `./plugins/fluent-english` |
 | Fluent Japanese | `./plugins/fluent-japanese` |
 | Design | `./plugins/design/omp` |
+| Career | `./plugins/career` |
 | Worklog(opt-in) | `./plugins/worklog/omp` |
 
 Design・Workflowのomp専用パッケージは、必要なskills・references・assets・scripts・
@@ -76,14 +77,14 @@ Fluent KoreanはCodex単一呼び出しのスキル・参考資料・ライセ�
 品質不変式を保持し、現在のホストモデルを使います。Claude Codeの多段階・strictモード、固定Opusエージェントを
 要求しません。English・Japaneseのスキル、Designの品質契約・プロファイル、Workflowの操作権限境界は保持します。
 
-Worklogは[ADR 0021](../decisions/0021-add-worklog-plugin.md)によるopt-inの例外です。専用パッケージに
+Worklogは[ADR 0022](../decisions/0022-add-worklog-plugin.md)によるopt-inの例外です。専用パッケージに
 診断スキルと記録スクリプトに加え、runtime extension `extension/worklog.ts` とそれを宣言する
 `package.json` を生成します。runtime extensionを配布するのはopt-inパッケージだけで、hookは配布しません。
-基本5件のパッケージにはhook・runtime extensionを含めない方針を維持します。
+基本6件のパッケージにはhook・runtime extensionを含めない方針を維持します。
 
 生成先の `references/continuity.md` はomp標準のtodo・sessionによる継続を案内します。
 `.sonsu` への継続記録、復元hookやセッションID転送を独自に追加しません。
-開発実行・task・todo・session・reviewはomp標準、Workflow・言語3件・Designはドメイン契約を担当します。
+開発実行・task・todo・session・reviewはomp標準、Workflow・言語3件・Design・Careerはドメイン契約を担当します。
 Research・Product・Writingは必要に応じた選択候補として扱い、基本catalogには追加しません。
 カスタムロール用の `task.agentModelOverrides` も要求しません。Engineeringのompモデルプロファイルは
 直接インストールした選択・legacy利用者の既存consumer向けに保持し、基本構成から切り離します。

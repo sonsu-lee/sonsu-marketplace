@@ -25,12 +25,12 @@ codex plugin add engineering@sonsu-marketplace
 ```
 
 For another plugin, use its installation name from the [table below](#plugins).
-To install all 13 plugins, run:
+To install all 14 plugins, run:
 
 ```sh
 for plugin in \
   engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design worklog
+  writing research prompting product memory-manager design-patterns design career worklog
 do
   codex plugin add "$plugin@sonsu-marketplace"
 done
@@ -62,12 +62,12 @@ Install only the plugins you need. For example, to install Engineering:
 claude plugin install engineering@sonsu-marketplace
 ```
 
-To install all 13 plugins from the [table below](#plugins), run:
+To install all 14 plugins from the [table below](#plugins), run:
 
 ```sh
 for plugin in \
   engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design worklog
+  writing research prompting product memory-manager design-patterns design career worklog
 do
   claude plugin install "$plugin@sonsu-marketplace"
 done
@@ -87,18 +87,18 @@ Claude Code MCP connections require separate configuration.
 
 ### omp
 
-The omp catalog, `.omp-plugin/marketplace.json`, distributes five default plugins: `workflow`, `fluent-korean`,
-`fluent-english`, `fluent-japanese`, and `design`, plus the opt-in `worklog` package. Native omp features own development execution,
+The omp catalog, `.omp-plugin/marketplace.json`, distributes six default plugins: `workflow`, `fluent-korean`,
+`fluent-english`, `fluent-japanese`, `design`, and `career`, plus the opt-in `worklog` package. Native omp features own development execution,
 task, todo, session, review, and memory. Test local changes in the isolated environment described in the
 [development guide](docs/guides/adding-a-plugin.md).
 
-Register the marketplace, install the five plugins, and merge the YAML into the existing `marketplace:`
+Register the marketplace, install the six plugins, and merge the YAML into the existing `marketplace:`
 section of `~/.omp/agent/config.yml`.
 
 <!-- omp-preset:start -->
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
@@ -107,7 +107,7 @@ marketplace:
 ```
 <!-- omp-preset:end -->
 
-For a work log, install `worklog` separately from the default five. Its runtime extension records tool results and session events as local JSONL, and its diagnosis skill is read-only. The omp package contains no hooks.
+For a work log, install `worklog` separately from the default six. Its runtime extension records tool results and session events as local JSONL, and its diagnosis skill is read-only. The omp package contains no hooks.
 
 ```sh
 omp plugin install worklog@sonsu-marketplace
@@ -129,22 +129,23 @@ package does not provide Claude Code's multistep or strict mode, or fixed Opus a
 and Japanese skills, Workflow's commit/push/PR authority boundaries, and Design's quality
 contracts, profiles, and native tool prerequisites remain in place.
 
-Design, Workflow, Fluent Korean, and Worklog use generated `./plugins/<name>/omp` packages. English and Japanese
-use their existing `./plugins/<name>` packages. The default five contain no custom runtime extension,
+Design, Workflow, Fluent Korean, and Worklog use generated `./plugins/<name>/omp` packages. English, Japanese, and Career
+use their existing `./plugins/<name>` packages. The default six contain no custom runtime extension,
 hook, evidence gate, or `task-continuity.py`; only opt-in Worklog includes a runtime extension. Native todo and session features handle continuity without
 new `.sonsu` records. See the [distribution lifecycle](docs/architecture/plugin-lifecycle.md).
 
 | Responsibility | Owner | Distribution |
 | --- | --- | --- |
 | Development execution, task, todo, session, review | Native omp | Host features |
-| Git, ticket, and PR authority and artifacts | Workflow | Default five plugins |
-| Language quality and preservation rules | Fluent Korean, English, Japanese | Default five plugins |
-| UI, prototype, and handoff quality; native tool prerequisites | Design | Default five plugins |
+| Git, ticket, and PR authority and artifacts | Workflow | Default six plugins |
+| Language quality and preservation rules | Fluent Korean, English, Japanese | Default six plugins |
+| UI, prototype, and handoff quality; native tool prerequisites | Design | Default six plugins |
+| Career record, application documents, and interview prep | Career | Default six plugins |
 | Raw work events and diagnosis | Worklog | Opt-in |
 | External research, product exploration, writing structure | Research, Product, Writing | Optional candidates, excluded from the default catalog |
 
 Before adding Research, Product, or Writing, verify the required domain and current native tool contract.
-Engineering's omp profiles remain available for existing direct installations and do not configure the default five plugins.
+Engineering's omp profiles remain available for existing direct installations and do not configure the default six plugins.
 
 #### Migrating from an earlier omp configuration
 
@@ -163,7 +164,7 @@ does not update the already installed `workflow`, `fluent-korean`, and `design`,
 ```sh
 omp plugin marketplace remove sonsu-marketplace
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install --force "$plugin@sonsu-marketplace"; done
 ```
 
 Remove only the `skills.ignoredSkills`, `task.disabledAgents`, and `task.agentModelOverrides` entries added
@@ -172,7 +173,7 @@ and agents. Do not edit cache files manually or delete existing `.sonsu` or `.en
 
 ## Plugins
 
-The following is the full Codex and Claude Code catalog. omp distributes the five plugins above by default; Worklog is available as an opt-in install.
+The following is the full Codex and Claude Code catalog. omp distributes the six plugins above by default; Worklog is available as an opt-in install.
 
 | Plugin | Purpose | Installation name |
 | --- | --- | --- |
@@ -188,6 +189,7 @@ The following is the full Codex and Claude Code catalog. omp distributes the fiv
 | [Memory Manager](plugins/memory-manager/README.md) | Shared local memory for recall, capture, and maintenance in Codex and Claude Code | `memory-manager` |
 | [Design](plugins/design/README.md) | Design, redesign, and audit general and operations interfaces through Figma or code, and find design references | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | Select patterns from observed design forces and review existing usage | `design-patterns` |
+| [Career](plugins/career/README.md) | Developer career record, US-style resume, rirekisho and shokumu keirekisho drafting, interview prep, mock interviews, and retros | `career` |
 | [Worklog](plugins/worklog/README.md) | Log and diagnose failures, interruptions, and user corrections across Claude Code, Codex, and omp | `worklog` |
 
 Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
@@ -213,6 +215,7 @@ After installing the relevant plugin, try requests like these in Codex:
 | Memory Manager | “`$memory-capture` Save this decision as a memory for this project.” |
 | Design | “Design a mobile signup flow in Figma, or redesign this operations screen directly in code.” or “Find sign-in screen references with their sources.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
+| Career | “Build a one-page English resume tailored to this JD, then run a mock interview for next week's first-round interview.” |
 
 The host selects skills based on your request and the descriptions of installed skills.
 Memory Manager may select `$memory-recall` for relevant work and uses `$memory-capture` for explicit
