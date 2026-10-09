@@ -16,6 +16,7 @@
     {
       "path": "plugins/prompting/skills/prompt-builder/SKILL.md",
       "sha256": "c2cad09df769c6927b7e64a108a6d80d8187aecebcce5665b110722aaea446f0",
+      "sources": {},
       "problem": "장황하거나 모호한 프롬프트를 줄이는 과정에서 필수 성공 조건과 권한 경계가 사라지고, 제품별 설정을 자연어 지시로 잘못 표현할 수 있습니다.",
       "outcome": "대상 surface의 입력 칸별로 완결된 fenced block을 제공하고, 실제 사용에 필요한 API control만 별도로 반환합니다.",
       "ai_judgment": "요청의 필수 의미와 불필요한 설명을 구분하고, 산출물을 바꾸는 누락 정보만 질문합니다. 모델·제품별 차이 중 실제 동작에 영향을 주는 지시와 예시를 고르고 중복을 줄입니다.",

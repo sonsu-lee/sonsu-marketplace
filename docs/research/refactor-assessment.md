@@ -29,6 +29,7 @@
 
 | 경로 | 판정 | 대상 | 근거 |
 |---|---|---|---|
+| plugins/engineering/skills/debug/condition-based-waiting-example.ts | to-reference | plugins/engineering/skills/debug/condition-based-waiting.md | `~/threads` 경로의 Lace 타입을 import하므로 이 패키지에서 실행하거나 타입 검사할 수 없다. 실행 도구가 아니라 조건 기반 대기의 구현 형태를 보여 주는 자료이므로 필요한 부분만 reference 예시로 옮긴다. |
 
 ### 도구 후보
 
@@ -59,9 +60,10 @@
 1. `plugins/engineering/skills/finish-branch`: `duplicate-rule` 1건. 티켓 연결·자동 종료 규칙을 `shared/agent-policy` 정본으로 옮겨 Workflow와 공유한다.
 2. Fluent Korean `ai-tell-taxonomy.md`·`quick-rules.footer.md`: `history` 2건. 판정 근거와 얽힌 버전 경위를 정리하고 omp 투영 테스트가 고정한 행을 함께 조정한다.
 3. Writing `references/continuity.md`: `duplicate-rule` 1건. 생성물이므로 `shared/task-continuity/continuity.md.tmpl`에서 호스트 세션 규칙의 배치를 정한다.
+4. `plugins/engineering/skills/debug/condition-based-waiting-example.ts`: `to-reference`. 이 패키지에서 실행·타입 검사할 수 없는 예시 코드이므로 필요한 부분만 `condition-based-waiting.md`의 예시로 옮긴다.
 
 ## 참고 구현
 
-- `oxc-config`(`/Users/sonsu/dev/projects/oxc-config`): 규칙을 설정과 계약 테스트로 고정하고 결정 근거는 `docs/rule-ledger.md`에 둔다.
+- [sonsu-lee/oxc-config](https://github.com/sonsu-lee/oxc-config): 규칙을 설정과 계약 테스트로 고정하고 결정 근거는 [`docs/rule-ledger.md`](https://github.com/sonsu-lee/oxc-config/blob/main/docs/rule-ledger.md)에 둔다.
 - [antfu/skills](https://github.com/antfu/skills): 짧은 SKILL.md와 references로 구성하고 `GENERATION.md`에 원본 SHA를 둔다.
 - [wrtnlabs/evidence](https://github.com/wrtnlabs/evidence): 요구사항 연결의 누락은 검사하고 근거의 진위는 리뷰한다.

@@ -16,6 +16,9 @@
     {
       "path": "plugins/writing/skills/write-developer-blog/SKILL.md",
       "sha256": "4951cb1077b102a8366c0cc9d247c4f6e914965f8c0ec0b02f12227e7746ceb3",
+      "sources": {
+        "plugins/writing/references/continuity.md": "03de6d3a6dfaa43705781a476b7253b8c57ddf9b2b7515d9eaade025c2437c7f"
+      },
       "problem": "개발자 글에서 저자의 실제 경험과 기술 사실이 섞이거나, 근거 없이 성공·인과관계를 단정하는 문제를 다룹니다.",
       "outcome": "독자 문제와 확인된 근거를 연결한 기획·본문·국소 수정 또는 위치가 있는 검토 결과를 반환합니다.",
       "ai_judgment": "글의 핵심 답, 절 순서, 저자 정보의 충분성, 기술 주장의 근거 수준과 검증 필요성을 판단합니다.",
@@ -63,6 +66,9 @@
     {
       "path": "plugins/writing/skills/writing/SKILL.md",
       "sha256": "bdde1d4e45f52b6d8bbf3bd0e12191ff128c43f782a1138bf763472fb3839eeb",
+      "sources": {
+        "plugins/writing/skills/writing/references/integrity.md": "5d6d2fa197b56d33e1ed859d18917e4da01b40da66c5a3b65b74623190fb06d8"
+      },
       "problem": "업무 문서에서 독자에게 필요한 정보가 묻히거나 부분 수정이 문서 구조·보호 문자열까지 바꾸는 문제를 다룹니다.",
       "outcome": "독자와 목적에 맞게 구성하고 지정된 편집 범위·양식·사실을 유지한 문서나 메시지를 반환합니다.",
       "ai_judgment": "정보 선별, 문서 유형, 기존 문서 갱신 위치, 문장과 문단의 관계, 양식과 언어 스킬의 적용 범위를 판단합니다.",

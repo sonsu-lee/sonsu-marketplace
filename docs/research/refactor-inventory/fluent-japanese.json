@@ -16,6 +16,9 @@
     {
       "path": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md",
       "sha256": "93e84a483929e72602345fe5cc6563a1bd1bcf37ed3e0f61cc468a75eb266e60",
+      "sources": {
+        "plugins/fluent-japanese/skills/fluent-japanese/references/diagnose.md": "fc471df37001fcad7ba7264bd0779648c3bd9003fdc3829121c96b04a48d8b6d"
+      },
       "problem": "일본어 업무 글이 번역투·반복 구조로 읽기 어렵거나 문서 진단이 표현을 일괄 삭제하는 교정으로 흐르는 문제를 다룹니다.",
       "outcome": "목적에 맞는 일본어 문서·윤문본 또는 근거가 있는 자연도 진단을 반환하며 기계 신호와 문맥 판단을 구분합니다.",
       "ai_judgment": "독자·주요 메시지·문서 유형, finding별 수정·보존, 읽기 부담과 사실 보존, full 진단의 점수 조정을 판단합니다.",

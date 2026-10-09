@@ -15,14 +15,17 @@
   "skills": [
     {
       "path": "plugins/design-patterns/skills/review-pattern-usage/SKILL.md",
-      "sha256": "00168066ecdaa87b9152860a89980f0bd872c3c4bb4ebda2cf6f23116dd98f11",
+      "sha256": "431dafb6db6e062fe6023121d37ba94498b7eca46130481373a80417bce75ffa",
+      "sources": {
+        "plugins/design-patterns/README.md": "fc135ebd0cb458268dd0e5dd17c2f2f2cb81d2d31597eb5ae6d2b95d1ce8f7b2"
+      },
       "problem": "기존 패턴 구현이 이름만 맞고 필요한 guarantee·scope·실패 비용을 충족하지 않을 수 있다.",
       "outcome": "발생 조건·실제 동작·필요 보장·최소 수정을 갖춘 finding 또는 finding 없음을 제공한다.",
       "ai_judgment": "현재 코드·계약의 실제 보장과 비용을 카탈로그 scope·forces에 대조하고 유효한 결함만 선별한다.",
       "mechanical": [
         {
           "step": "카탈로그 ID·성숙도·필수 필드·원천 snapshot·overlay와 cross-family 관계의 구조적 정합성을 검사한다.",
-          "location": "plugins/design-patterns/README.md:39-44",
+          "location": "plugins/design-patterns/README.md:45-50",
           "existing_tool": "plugins/design-patterns/scripts/validate_catalog.py",
           "proposal": "none"
         },
@@ -52,14 +55,17 @@
     },
     {
       "path": "plugins/design-patterns/skills/select-design-patterns/SKILL.md",
-      "sha256": "601cd62d7216f7fb2681a597ad79b410863b381b7aa39fcb0ad10a76cbd833cd",
+      "sha256": "bc6854f427aedd05bd5c18c80366758615822aa5a5974a0d70851460881d3ec1",
+      "sources": {
+        "plugins/design-patterns/README.md": "fc135ebd0cb458268dd0e5dd17c2f2f2cb81d2d31597eb5ae6d2b95d1ce8f7b2"
+      },
       "problem": "문제와 제약보다 패턴 이름을 먼저 고르면 불필요한 구조나 검증되지 않은 분산 보장을 선택한다.",
       "outcome": "use·no-pattern·insufficient-evidence 결정과 baseline·후보·선택·구현 형태·검증 근거를 제공한다.",
       "ai_judgment": "반복 문제와 충돌 forces가 실제로 있는지, 직접 해법·플랫폼 기능보다 패턴의 추가 보장이 비용을 정당화하는지 판단한다.",
       "mechanical": [
         {
           "step": "카탈로그 ID·성숙도·필수 필드·원천 snapshot·overlay와 cross-family 관계의 구조적 정합성을 검사한다.",
-          "location": "plugins/design-patterns/README.md:39-44",
+          "location": "plugins/design-patterns/README.md:45-50",
           "existing_tool": "plugins/design-patterns/scripts/validate_catalog.py",
           "proposal": "none"
         },

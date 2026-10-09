@@ -16,6 +16,7 @@
     {
       "path": "plugins/worklog/skills/worklog-diagnose/SKILL.md",
       "sha256": "79f957639d5780816bc4526def03bcbc9814700b0b4a0e346d407516f981e087",
+      "sources": {},
       "problem": "실패 로그만 보면 지침 공백·잘못된 스킬 선택·환경 문제·요구 변경을 같은 도구 오류로 오인할 수 있다.",
       "outcome": "로그와 transcript 위치를 붙인 타임라인, 실패별 원인 후보와 다음 확인 사항을 읽기 전용으로 제공한다.",
       "ai_judgment": "질문과 관련된 실패를 고르고 원문 지시·선택 스킬·사용자 교정을 대조하여 원인 후보와 확신 수준을 판단한다.",
@@ -47,6 +48,9 @@
     {
       "path": "plugins/worklog/skills/worklog-improve/SKILL.md",
       "sha256": "1a1cfa9c39805d6a8cb24891a44395f5c9ff5950b4c0f745b8989d4dd6d35d55",
+      "sources": {
+        "plugins/worklog/skills/worklog-improve/references/evaluation.md": "f77b794f010a95a151bb2158f8513c7088b2669680b6a920847f78848a6575db"
+      },
       "problem": "반복 실패 뒤 지침을 즉흥적으로 늘리면 실제 개선 여부를 입증하지 못하고 기존 통과 동작을 회귀시킬 수 있다.",
       "outcome": "비식별 평가 사례와 고정 기준선·후보·회귀 결과를 비교해 사람이 승인할 최소 diff와 근거를 제공한다.",
       "ai_judgment": "실패를 지배한 지침의 인과관계, 재현에 필요한 최소 입력, 의미 있는 기대 조건과 최소 수정안 및 블라인드 출력의 의미를 판단한다.",
@@ -89,6 +93,14 @@
     }
   ],
   "scripts": [
+    {
+      "path": "plugins/worklog/omp-extension/worklog.ts",
+      "sha256": "da9ba1ebc7984e461bb3968f67ea43fe5713646254e7a0c050fb323435491d32",
+      "role": "omp 세션·tool_result·agent_end 이벤트를 비밀 치환한 worklog-v1 JSONL로 기록하고 90일 보존 정리를 수행하는 runtime extension이다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "omp는 plugin hook 대신 extension으로 이벤트를 받으므로 worklog.py의 hook 진입점을 그대로 쓸 수 없다. 같은 로그 형식으로 기록만 하고 결과 변경이나 문맥 주입을 하지 않으므로 opt-in 패키지의 정본으로 유지한다."
+    },
     {
       "path": "plugins/worklog/scripts/worklog.py",
       "sha256": "7cf0c0eb16a37cd90e7333324ac798c4aef9e9dc42d5921476d9010d73d54ae3",
