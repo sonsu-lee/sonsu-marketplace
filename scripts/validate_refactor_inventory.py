@@ -21,6 +21,12 @@ REPOSITORY = "repository"
 
 # 다른 정본에서 생성되거나 캐시인 파일은 플러그인 스크립트 단위로 세지 않는다.
 GENERATED_SCRIPTS = {"task-continuity.py", "validate_design_quality.py", "design_md.mjs"}
+# 플러그인 root의 omp/(render-omp-compat.py)와 claude/(render-claude-compat.py)는 생성된 호스트 미러다.
+GENERATED_ROOTS = {"omp", "claude"}
+# 실행 도구를 찾을 때 테스트·빌드 산출물·의존성·캐시 디렉터리는 내려가지 않는다.
+SKIP_DIRS = {"tests", "dist", "node_modules", "__pycache__"}
+TOOL_SUFFIXES = {".py", ".sh", ".js", ".mjs", ".cjs", ".ts"}
+TEST_FILE = re.compile(r"^test_.+\.py$|_test\.py$|\.test\.[cm]?[jt]s$")
 
 VERDICT = {"keep", "merge", "to-reference", "replace-with-existing", "new-tool", "delete"}
 ASSET_VERDICT = VERDICT - {"new-tool"}
@@ -102,17 +108,34 @@ def skill_roots(plugin_dir):
     if (claude.is_file() and "skills" not in read_json(claude) and
             (plugin_dir / "skills").is_dir() and "skills/" not in roots):
         roots.append("skills/")
-    return [root for root in roots if root.split("/", 1)[0] not in {"omp", "claude"}]
+    return [root for root in roots if root.split("/", 1)[0] not in GENERATED_ROOTS]
 
 
-def script_files(directory, root):
-    if not directory.is_dir():
-        return []
-    return [
-        rel(path, root)
-        for path in sorted(directory.iterdir())
-        if path.is_file() and path.name not in GENERATED_SCRIPTS and path.suffix != ".pyc"
-    ]
+def is_tool(path):
+    """scripts/ 안의 파일, 스크립트 확장자 파일, shebang 파일을 실행 도구로 본다."""
+    if path.name in GENERATED_SCRIPTS or path.suffix == ".pyc" or TEST_FILE.search(path.name):
+        return False
+    if path.parent.name == "scripts" or path.suffix in TOOL_SUFFIXES:
+        return True
+    with path.open("rb") as file:
+        return file.read(2) == b"#!"
+
+
+def tool_files(plugin_dir, root):
+    """생성 미러·테스트·빌드 산출물을 뺀 플러그인 정본 트리의 실행 도구를 열거한다."""
+    found = []
+    pending = [plugin_dir]
+    while pending:
+        directory = pending.pop()
+        for path in directory.iterdir():
+            if path.name.startswith(".") or path.is_symlink():
+                continue
+            if path.is_dir():
+                if path.name not in SKIP_DIRS and not (directory == plugin_dir and path.name in GENERATED_ROOTS):
+                    pending.append(path)
+            elif path.is_file() and is_tool(path):
+                found.append(rel(path, root))
+    return sorted(found)
 
 
 def skill_metrics(path):
@@ -133,14 +156,13 @@ def enumerate_units(root):
     for name in catalog:
         plugin_dir = root / "plugins" / name
         skills = []
-        scripts = script_files(plugin_dir / "scripts", root)
+        scripts = tool_files(plugin_dir, root)
         for skill_root in skill_roots(plugin_dir):
             base = plugin_dir / skill_root
             if not base.is_dir():
                 continue
             for skill in sorted(base.glob("*/SKILL.md")):
                 skills.append({"path": rel(skill, root), "sha256": sha256(skill), **skill_metrics(skill)})
-                scripts.extend(script_files(skill.parent / "scripts", root))
         plugins.append({
             "name": name,
             "manifest_sha256": sha256(plugin_dir / ".codex-plugin/plugin.json"),
@@ -187,6 +209,7 @@ class Checker:
         }
         self.catalog = [plugin["name"] for plugin in units["plugins"]]
         self.line_counts = {}
+        self.digests = {}
 
     def add(self, code, where, message):
         self.violations.append((code, where, message))
@@ -201,7 +224,7 @@ class Checker:
 
     def enum_field(self, obj, key, allowed, where):
         value = obj.get(key)
-        if value not in allowed:
+        if not isinstance(value, str) or value not in allowed:
             self.add("invalid-field", f"{where}.{key}", f"must be one of {', '.join(sorted(allowed))}")
             return None
         return value
@@ -233,6 +256,11 @@ class Checker:
         self.str_field(obj, "reason", where)
         return verdict
 
+    def digest(self, value):
+        if value not in self.digests:
+            self.digests[value] = sha256(self.resolve(value))
+        return self.digests[value]
+
     def line_count(self, path):
         if path not in self.line_counts:
             try:
@@ -246,21 +274,43 @@ class Checker:
         return path if path.is_absolute() else self.root / path
 
     def location(self, obj, key, where):
+        """위치를 검사하고 읽을 수 있는 파일이면 그 경로 문자열을 돌려준다."""
         value = self.str_field(obj, key, where)
         if value is None:
-            return
+            return None
         match = LOCATION.match(value)
         if not match:
             self.add("invalid-location", f"{where}.{key}", f"{value!r} is not <path>:<line>[-<line>]")
-            return
+            return None
         path = self.resolve(match.group(1))
         start = int(match.group(2))
         end = int(match.group(3) or start)
         count = self.line_count(path) if path.is_file() else None
         if count is None:
             self.add("invalid-location", f"{where}.{key}", f"{match.group(1)} is not a readable file")
-        elif not 1 <= start <= end <= count:
+            return None
+        if not 1 <= start <= end <= count:
             self.add("invalid-location", f"{where}.{key}", f"{value} is outside 1-{count}")
+        return match.group(1)
+
+    def sources(self, item, referenced, where):
+        """항목 밖 파일을 가리키는 위치마다 기록한 sha256이 현재 파일과 같은지 검사한다."""
+        if "sources" not in item:
+            return  # object_keys가 이미 누락을 보고했다.
+        value = item["sources"]
+        if not isinstance(value, dict):
+            self.add("invalid-field", f"{where}.sources", "must be an object of path to sha256")
+            return
+        for path in sorted(referenced - set(value)):
+            self.add("invalid-field", f"{where}.sources", f"has no sha256 for location file {path}")
+        for path in sorted(set(value) - referenced):
+            self.add("invalid-field", f"{where}.sources.{path}", "is not a location file of this entry")
+        for path in sorted(referenced & set(value)):
+            recorded = value[path]
+            if not isinstance(recorded, str):
+                self.add("invalid-field", f"{where}.sources.{path}", "must be str")
+            elif recorded != self.digest(path):
+                self.add("stale", path, f"{where}.sources sha256 differs from the current file")
 
     def existing_tool(self, obj, where):
         value = obj.get("existing_tool")
@@ -295,38 +345,47 @@ class Checker:
                 if path not in expected:
                     self.add("unknown-entry", path, f"{item_where} is not a current unit")
                     continue
-            check(item, item_where, expected.get(path))
+            check(item, item_where, expected.get(path) if isinstance(path, str) else None)
         for path in expected:
             if path not in seen:
                 self.add("missing-entry", path, f"no entry in {where}")
         return len(items)
 
+    def own_digest(self, item, where, digest):
+        """항목 경로를 검사하고, 경로가 유효하면 기록한 sha256을 현재 파일과 대조한다."""
+        path = self.str_field(item, "path", where)
+        recorded = self.str_field(item, "sha256", where)
+        if path is not None and recorded is not None and recorded != digest:
+            self.add("stale", path, "sha256 differs from the current file")
+        return path
+
     def asset(self, item, where, digest, with_sha):
         keys = ["path", "role", "verdict", "verdict_target", "reason"] + (["sha256"] if with_sha else [])
         if not self.object_keys(item, keys, where):
             return
-        self.str_field(item, "path", where)
+        if with_sha:
+            self.own_digest(item, where, digest)
+        else:
+            self.str_field(item, "path", where)
         self.str_field(item, "role", where)
         self.verdict_fields(item, ASSET_VERDICT, where)
-        if with_sha and self.str_field(item, "sha256", where) is not None and item["sha256"] != digest:
-            self.add("stale", item["path"], "sha256 differs from the current file")
 
     def skill(self, item, where, digest):
-        keys = ["path", "sha256", "problem", "outcome", "ai_judgment", "mechanical", "unique_value",
+        keys = ["path", "sha256", "sources", "problem", "outcome", "ai_judgment", "mechanical", "unique_value",
                 "overlaps", "verdict", "verdict_target", "reason", "doc_findings", "example"]
         if not self.object_keys(item, keys, where):
             return None
-        for key in ("path", "problem", "outcome", "ai_judgment", "unique_value"):
+        path = self.own_digest(item, where, digest)
+        for key in ("problem", "outcome", "ai_judgment", "unique_value"):
             self.str_field(item, key, where)
-        if self.str_field(item, "sha256", where) is not None and item["sha256"] != digest:
-            self.add("stale", item["path"], "sha256 differs from the current file")
+        referenced = set()
         tool_proposals = 0
         for index, step in enumerate(self.list_field(item, "mechanical", where)):
             step_where = f"{where}.mechanical[{index}]"
             if not self.object_keys(step, ["step", "location", "existing_tool", "proposal"], step_where):
                 continue
             self.str_field(step, "step", step_where)
-            self.location(step, "location", step_where)
+            referenced.add(self.location(step, "location", step_where))
             self.existing_tool(step, step_where)
             tool_proposals += self.enum_field(step, "proposal", PROPOSAL, step_where) in {"script", "validator"}
         for index, overlap in enumerate(self.list_field(item, "overlaps", where)):
@@ -338,8 +397,9 @@ class Checker:
             finding_where = f"{where}.doc_findings[{index}]"
             if self.object_keys(finding, ["kind", "location", "note"], finding_where):
                 self.enum_field(finding, "kind", set(KIND), finding_where)
-                self.location(finding, "location", finding_where)
+                referenced.add(self.location(finding, "location", finding_where))
                 self.str_field(finding, "note", finding_where)
+        self.sources(item, referenced - {None, path}, where)
         self.enum_field(item, "example", EXAMPLE, where)
         verdict = self.verdict_fields(item, VERDICT, where)
         if verdict == "new-tool" and not tool_proposals:
@@ -415,7 +475,8 @@ class Checker:
             self.str_field(item, "path", item_where)
             self.str_field(item, "role", item_where)
             covers = item.get("covers")
-            if not isinstance(covers, list) or not covers or any(name not in allowed for name in covers):
+            if (not isinstance(covers, list) or not covers or
+                    any(not isinstance(name, str) or name not in allowed for name in covers)):
                 self.add("invalid-field", f"{item_where}.covers",
                          "must list one or more catalog plugin names or repository")
 
@@ -472,7 +533,7 @@ def render_report(catalog, inventories, repository):
                                    item.get("reason", "")])
         for skill in skills:
             for step in (as_dict(step) for step in as_list(skill.get("mechanical"))):
-                if step.get("proposal") in {"script", "validator"}:
+                if step.get("proposal") in ("script", "validator"):
                     tool_rows.append([skill.get("path", ""), step.get("location", ""), step.get("step", ""),
                                       step.get("proposal"), step.get("existing_tool")])
         finding_rows.append([name] + [sum(finding.get("kind") == kind for finding in findings) for kind in KIND])
@@ -568,7 +629,7 @@ def command_check(root, args):
         covered = {
             name
             for item in as_list(as_dict(inventories.get(REPOSITORY)).get("evals"))
-            for name in as_list(as_dict(item).get("covers"))
+            for name in as_list(as_dict(item).get("covers")) if isinstance(name, str)
         }
         warnings = [f"warning: uncovered-plugin {name}" for name in catalog if name not in covered]
         report = root / REPORT

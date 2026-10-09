@@ -74,7 +74,7 @@ description: 현재 Git 변경을 주제별 단일 PR 또는 GitHub native stack
  "existing_prs": {"status": "checked", "items": [{"number": 42, "url": "https://github.com/o/r/pull/42", "is_draft": true, "is_cross_repository": false}]}}
 ```
 
-같은 저장소 head의 PR #42가 이미 있다. URL과 현재 상태를 보고하고 새 PR은 만들지 않는다.
+push 대상 저장소의 같은 branch에서 열린 PR #42가 이미 있다. URL과 현재 상태를 보고하고 새 PR은 만들지 않는다.
 
 ```json
 {"templates": {"status": "local-only", "source": null, "candidates": []},

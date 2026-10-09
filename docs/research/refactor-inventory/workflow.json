@@ -16,6 +16,7 @@
     {
       "path": "plugins/workflow/skills/branch/SKILL.md",
       "sha256": "a43324f265411640b5fd5047a5ff3c77e66a68ce62acd85d5fe556538ac92274",
+      "sources": {},
       "problem": "작업 목적과 저장소 규칙에 맞는 브랜치 이름을 고르고 기존 변경·worktree를 보존하며 생성해야 한다.",
       "outcome": "근거 있는 이름 제안 또는 명시적으로 승인된 새 브랜치와 확인된 HEAD를 제공한다.",
       "ai_judgment": "사용자 지정과 저장소 규칙의 우선순위, 변경 목적을 드러내는 이름, dirty 변경의 이동 영향을 판단한다.",
@@ -47,6 +48,7 @@
     {
       "path": "plugins/workflow/skills/commit/SKILL.md",
       "sha256": "e3f1791ea7da5edb891fedd4e4db8336cf01ef7d2610d4de0fa84c1166cba311",
+      "sources": {},
       "problem": "관계없는 변경이 섞인 작업 트리에서 요청된 범위만 원자적 커밋으로 전달해야 한다.",
       "outcome": "실제 diff를 설명하는 Conventional Commit 메시지 또는 승인 범위만 포함한 새 commit과 남은 변경 내역을 제공한다.",
       "ai_judgment": "목적별 원자성, hunk의 관련성, 메시지의 이유·부작용과 검증 근거의 정확성을 판단한다.",
@@ -78,6 +80,9 @@
     {
       "path": "plugins/workflow/skills/inspect-prs/SKILL.md",
       "sha256": "3c85bb7dcdc87a1f922755ef980150d7ca4cbef4bbeda75b39f68fcc40aa8fb5",
+      "sources": {
+        "plugins/workflow/references/pr-inspection.md": "1fdd50c84b309485a93cc6fb3274688481ce9bdc8467f620c9fe69fcac4096c9"
+      },
       "problem": "PR 목록의 불완전한 페이지나 오래된 head의 리뷰를 현재 CI·병합 준비 상태로 오인하기 쉽다.",
       "outcome": "조회 시점과 head가 연결된 PR별 CI·리뷰·미해결 대화·병합 상태 및 누락 범위를 읽기 전용으로 보고한다.",
       "ai_judgment": "사용자가 필요한 상세 범위, 상태 간 불일치의 의미와 현재 변경에 관련된 리뷰 근거를 해석한다.",
@@ -109,6 +114,7 @@
     {
       "path": "plugins/workflow/skills/push/SKILL.md",
       "sha256": "42418bcd602da33d8dbcb32b8a7981c27004637406090c1d9c5310593c53a76a",
+      "sources": {},
       "problem": "현재 commit을 다른 remote나 ref로 보내거나 불명확한 응답 뒤 잘못 재시도할 위험이 있다.",
       "outcome": "정확한 source·destination으로 일반 push하고 실제 원격 SHA와 미확인 결과를 보고한다.",
       "ai_judgment": "요청에서 전송 대상을 해소하고 저장소 규칙·upstream의 적용과 non-fast-forward 시 필요한 별도 작업을 판단한다.",
@@ -140,6 +146,9 @@
     {
       "path": "plugins/workflow/skills/repair-pr/SKILL.md",
       "sha256": "59b4d3f26562cc0275fcfbee2c8863dfe20bce1741626f02e9406eca7bd48d86",
+      "sources": {
+        "plugins/workflow/skills/repair-pr/references/remote-results.md": "35c487efd86ac665fef6f5b404c66b8064a472bef5a9cb062888ec2b4d619888"
+      },
       "problem": "PR 충돌·리뷰 지적·실패 CI를 복구하면서 다른 작업 트리 변경과 승인되지 않은 원격 작업까지 건드릴 수 있다.",
       "outcome": "확인된 원인만 최소 수정·검증하고 해결·기각·추가 확인 필요 및 실제 원격 반영을 구분한다.",
       "ai_judgment": "충돌의 올바른 의미, 리뷰 지적의 현재 유효성, CI의 독립 원인과 연쇄 실패, 안전한 최소 수정 범위를 판단한다.",
@@ -177,6 +186,7 @@
     {
       "path": "plugins/workflow/skills/review-commit/SKILL.md",
       "sha256": "416f7de68246a60ca985977bbf18a9f0dd133375387633dff3618918a2e03bec",
+      "sources": {},
       "problem": "커밋 후보나 기존 commit의 범위·원자성·메시지가 실제 diff와 맞는지 쓰기 없이 검토해야 한다.",
       "outcome": "revision과 비교 범위를 고정한 커밋 전달상의 문제 목록 또는 문제 없음과 검증 한계를 제공한다.",
       "ai_judgment": "변경 목적별 원자성, 위험에 맞는 검증, 메시지와 diff의 의미 일치를 판단한다.",
@@ -208,6 +218,7 @@
     {
       "path": "plugins/workflow/skills/ticket-lifecycle/SKILL.md",
       "sha256": "962031d02071a8fd7de861973f91c3c7e987c4cd03e5cb22ec0d8cd43a95b300",
+      "sources": {},
       "problem": "티켓 내용 수정과 상태·담당자·관계 변경을 혼동하거나 provider별 방향·automation 효과를 잘못 적용할 수 있다.",
       "outcome": "검증된 canonical 티켓의 요청 operation만 적용하고 applied·unapplied·unknown·no-op과 실제 변경 전후 상태를 보고한다.",
       "ai_judgment": "자연어 의도와 관계 방향, tracker 정책에 맞는 상태 전이, native automation과 직접 변경의 책임을 판단한다.",
@@ -238,14 +249,20 @@
     },
     {
       "path": "plugins/workflow/skills/to-pr/SKILL.md",
-      "sha256": "93312072c641e4f0b23f9735437dd80f608f6b95157dd12cf01b14fee88e95bd",
+      "sha256": "c289dacfa70ab0b256b9ed9ceebf9a121184142e6b60bfe32be79890125c7a0a",
+      "sources": {
+        "plugins/workflow/skills/to-pr/references/github.md": "207459418853c7f04b33f538cd879a552b2ea4eae7365cba72f17aa86b07c525",
+        "plugins/workflow/skills/to-pr/references/media-attachments.md": "9948095f24349e6c9e8a994940adac1e320507cf7cb1e8bdade90d49a5b1bc20",
+        "plugins/workflow/skills/to-pr/references/pr-template.md": "90908f0a832465a790fdceb01ef22a868e83e3d184478532341b8d8872e421db",
+        "plugins/workflow/skills/to-pr/references/stacked-prs.md": "e62f5f2a98bf508a9a2d3325a5ab49a54535724114c85dcd2a162fe5ae51774c"
+      },
       "problem": "현재 Git 변경을 PR로 전달할 때 대상·양식·ticket intent·미디어·Draft 상태와 실제 게시 결과를 일관되게 확인하기 어렵다.",
       "outcome": "주제별 단일 또는 native stacked PR의 근거 있는 초안·게시 payload와 단계별 실제 반영 결과를 제공한다.",
       "ai_judgment": "주제·의존성에 맞는 PR 경계, 본문에 필요한 변경 이유, 적용 양식·언어, 티켓 완료 의도와 시각 증거의 필요성을 판단한다.",
       "mechanical": [
         {
           "step": "Git·gh로 저장소·worktree·진행 중 작업·working tree·remote·인증·head·base·merge base·commit/diff 범위·기존 PR을 읽기 전용 JSON으로 수집한다.",
-          "location": "plugins/workflow/skills/to-pr/references/github.md:5-35",
+          "location": "plugins/workflow/skills/to-pr/references/github.md:5-37",
           "existing_tool": "plugins/workflow/scripts/pr_context.py",
           "proposal": "none"
         },
@@ -263,7 +280,7 @@
         },
         {
           "step": "publish 직전에 같은 상태 수집기를 다시 실행해 head SHA·remote ref·기존 PR 부재를 이전 입력과 대조한다.",
-          "location": "plugins/workflow/skills/to-pr/references/github.md:65",
+          "location": "plugins/workflow/skills/to-pr/references/github.md:67",
           "existing_tool": "plugins/workflow/scripts/pr_context.py",
           "proposal": "none"
         },
@@ -298,6 +315,9 @@
     {
       "path": "plugins/workflow/skills/to-ticket/SKILL.md",
       "sha256": "16635ca9527670c47cf17797f4d097abb477084353115f63d93ee96b5e5ec857",
+      "sources": {
+        "plugins/workflow/skills/to-ticket/references/media-attachments.md": "6af67400c1138e4c04bfb28411f56c9f5479fdd8684af47d9d094ec17ca43555"
+      },
       "problem": "요청을 티켓으로 옮기며 미정 구현을 확정하거나 기존 본문의 결정·출처를 잃고 내용 수정 권한을 상태 변경까지 확대할 수 있다.",
       "outcome": "적용 양식과 합의된 범위·완료조건을 보존한 티켓 초안 또는 정확한 생성·제목·본문 수정 및 필드별 실제 반영 상태를 제공한다.",
       "ai_judgment": "독립 완료 단위의 티켓 분해, 사용자 의도의 create/revise·draft/publish 구분, 필요한 맥락·완료조건·기존 결정의 보존을 판단한다.",
@@ -336,7 +356,7 @@
   "scripts": [
     {
       "path": "plugins/workflow/scripts/pr_context.py",
-      "sha256": "e1af791dabff3cfa072735f1bd0c35eca2f1c2b0a715729b329cf531b8f0c788",
+      "sha256": "66818c2497531317bbc5bf2a3b8f229e2a8a9b8064bb846c79332ec091e77a61",
       "role": "to-pr가 쓸 저장소·head·base·commit 범위·작업 트리·PR 양식·기존 PR 상태와 blocker·미확인 항목을 읽기 전용 JSON으로 수집한다.",
       "verdict": "keep",
       "verdict_target": "",

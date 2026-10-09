@@ -16,6 +16,11 @@
     {
       "path": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md",
       "sha256": "e048191e9b39357b4d7f0d065772e9d4130120667dcbdb9e864c762869cb5165",
+      "sources": {
+        "plugins/fluent-japanese/skills/fluent-japanese/references/diagnose.md": "b525493484cafec917e3505b48fc7ec6122347dd89be8ec32c485c9fc0ff1ffd",
+        "plugins/fluent-japanese/skills/fluent-japanese/references/manual-checklist.md": "19eda8c3098e941c593bb3d4018b9b1f284f3c184db140c799623a07e91c487c",
+        "plugins/fluent-japanese/skills/fluent-japanese/references/revision-guide.md": "27641d1a2aa5b41821d3da186ddf4139dc091c5dd8fb20544d814675b863433a"
+      },
       "problem": "일본어 업무 글이 번역투·반복 구조로 읽기 어렵거나 문서 진단이 표현을 일괄 삭제하는 교정으로 흐르는 문제를 다룹니다.",
       "outcome": "목적에 맞는 일본어 문서·윤문본 또는 근거가 있는 자연도 진단을 반환하며 기계 신호와 문맥 판단을 구분합니다.",
       "ai_judgment": "독자·주요 메시지·문서 유형, finding별 수정·보존, 읽기 부담과 사실 보존, full 진단의 점수 조정을 판단합니다.",

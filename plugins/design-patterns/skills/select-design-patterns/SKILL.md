@@ -1,6 +1,6 @@
 ---
 name: select-design-patterns
-description: 실제 코드나 설계에서 반복 문제, 충돌하는 forces와 필요한 보장을 확인해 named design pattern의 필요 여부와 형태를 결정할 때 사용한다. 일반 구현이나 원칙 설명 요청은 대상이 아니다.
+description: 실제 코드나 설계에서 반복 문제, 충돌하는 forces와 필요한 보장을 확인해 named design pattern의 필요 여부와 형태를 결정할 때 사용한다. 일반 구현·단순 리팩터링이나 원칙 설명 요청은 대상이 아니다.
 ---
 
 # Design pattern 선택
@@ -45,10 +45,15 @@ description: 실제 코드나 설계에서 반복 문제, 충돌하는 forces와
 
 ```text
 Decision: use
-Selected: cloud-resilience-circuit-breaker
+Scope: 결제 API를 호출하는 HTTP client 경계
+Observed forces: 장애 중 요청마다 30초 대기로 worker 고갈, 복구 뒤 자동 재개 필요
 Baseline: timeout 단축 — 장애가 이어지는 동안 호출 비용은 줄지 않음
+Candidates: cloud-resilience-circuit-breaker — 장애 중 호출 차단, 상태 관리 비용; cloud-resilience-bulkhead — 다른 작업 보호, worker 고갈 자체는 남음
+Selected: cloud-resilience-circuit-breaker
+Rejected: cloud-resilience-bulkhead — 결제 호출의 대기 시간을 줄이지 않음; cloud-resilience-retry — 장애 중 호출을 늘림
 Implementation shape: 사용 중인 HTTP client나 resilience 라이브러리의 breaker 정책
 Verification: 연속 실패 후 즉시 실패, half-open 시험 호출 성공 후 정상 호출 복귀
+Sources: 결제 client 호출 코드와 장애 기록; cloud-resilience-circuit-breaker
 ```
 
 ## 경계
