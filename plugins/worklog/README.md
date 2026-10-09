@@ -14,7 +14,7 @@ Claude Code·Codex·omp 작업에서 일어난 도구 실패, 중단, API 오류
   임시 worktree에서 수정 전후를 비교합니다. 원래 작업 디렉터리의 지침에 자동 적용하지 않습니다.
 
 memory-manager는 사람이 승인한 지식을, worklog는 가공하지 않은 작업 이벤트를 다룹니다.
-두 플러그인은 서로 의존하지 않습니다([ADR 0021](../../docs/decisions/0021-add-worklog-plugin.md)).
+두 플러그인은 서로 의존하지 않습니다([ADR 0022](../../docs/decisions/0022-add-worklog-plugin.md)).
 
 ## 설치
 
@@ -26,7 +26,7 @@ claude plugin install worklog@sonsu-marketplace
 omp plugin install worklog@sonsu-marketplace
 ```
 
-omp에서는 기본 5개 묶음에 들어 있지 않은 opt-in 패키지이므로 필요한 경우에만 직접 설치합니다.
+omp에서는 기본 6개 묶음에 들어 있지 않은 opt-in 패키지이므로 필요한 경우에만 직접 설치합니다.
 omp 패키지는 진단·개선 스킬과 `extension/worklog.ts`를 함께 담고 hook은 담지 않습니다.
 Claude Code 배포본은 `scripts/render-claude-compat.py`가 내부 `claude/`에 생성하며,
 `hooks/claude-hooks.json`을 Claude용 `hooks/hooks.json`으로 복사합니다. 생성물은 직접 고치지
@@ -148,7 +148,7 @@ python3 scripts/worklog.py prune [--days 90]
    최소 diff를 만듭니다. 순증가 15줄을 넘으면 사용자 승인을 기다립니다.
 4. 임시 worktree에서 후보를 3회, 같은 스킬의 기존 회귀 사례 최대 5개를 비교합니다. 실행자는
    기대 항목을 보지 않습니다. 결정적 검사 후 새 컨텍스트 비교자가 무작위 A/B를 판정합니다.
-5. 수정 후 2/3 이상이면서 기준선보다 높고 회귀 통과 수가 줄지 않아야 통과합니다. 후보는
+5. 수정 후 2/3 이상이면서 기준선보다 높고, 기준선에서 통과한 모든 회귀 사례가 후보에서도 통과해야 합니다. 후보는
    최대 3개이며 결과표·사례·diff를 사람이 검토하도록 넘깁니다.
 
 사례·비식별 fixture 작성은 허용하지만 후보 diff는 원래 작업 디렉터리에 적용하지 않습니다.

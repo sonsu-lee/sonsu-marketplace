@@ -15,7 +15,7 @@ codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
 # 하나만 설치
 codex plugin add engineering@sonsu-marketplace
 # 전체 설치 시 위 단일 설치 대신 실행
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design career worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
 codex plugin marketplace list
 codex plugin list --marketplace sonsu-marketplace
 ```
@@ -29,19 +29,19 @@ claude plugin marketplace add sonsu-lee/sonsu-marketplace
 # 하나만 설치
 claude plugin install engineering@sonsu-marketplace
 # 전체 설치 시 위 단일 설치 대신 실행
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design career worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
 claude plugin marketplace list
 claude plugin list
 ```
 
 ### omp
 
-기본 5개를 설치하며 Worklog는 선택 사항입니다. 자동 업데이트를 새로 선택할 때만 아래 YAML을 `~/.omp/agent/config.yml`의 기존 `marketplace:` 항목과 합치세요.
+기본 6개를 설치하며 Worklog는 선택 사항입니다. 자동 업데이트를 새로 선택할 때만 아래 YAML을 `~/.omp/agent/config.yml`의 기존 `marketplace:` 항목과 합치세요.
 
 <!-- omp-preset:start -->
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
@@ -58,7 +58,7 @@ omp plugin list
 
 ## 플러그인
 
-각 플러그인은 독립적으로 사용하며 링크에서 상세 사용법을 확인할 수 있습니다(Codex·Claude Code: 전체 13개, omp: 기본 5개와 opt-in Worklog).
+각 플러그인은 독립적으로 사용하며 링크에서 상세 사용법을 확인할 수 있습니다(Codex·Claude Code: 전체 14개, omp: 기본 6개와 opt-in Worklog).
 
 | 플러그인 | 용도 | 설치 이름 |
 | --- | --- | --- |
@@ -74,6 +74,7 @@ omp plugin list
 | [Memory Manager](plugins/memory-manager/README.md) | Codex·Claude Code가 공유하는 로컬 메모리의 회상·수집·정리 | `memory-manager` |
 | [Design](plugins/design/README.md) | 일반·운영 UI의 신규 설계·재설계·감사, 디자인 레퍼런스 검색과 Figma 또는 코드 경로 | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | 실제 설계 forces에 맞는 패턴 선택과 기존 적용 검토 | `design-patterns` |
+| [Career](plugins/career/README.md) | 개발자 경력 원본 정리, 미국식 resume·履歴書·職務経歴書 작성, 면접 준비·모의면접·회고 | `career` |
 | [Worklog](plugins/worklog/README.md) | Claude Code·Codex·omp 작업의 실패·중단·교정 로그와 진단 | `worklog` |
 
 ## 사용 예시
@@ -92,6 +93,7 @@ omp plugin list
 | Memory Manager | “`$memory-capture` 이 결정을 현재 프로젝트 기억으로 저장해 줘.” |
 | Design | “새 모바일 가입 흐름을 Figma에서 만들고, 이 운영 화면을 코드에서 재설계해 줘.” 또는 “로그인 화면 레퍼런스를 출처와 함께 찾아 줘.” |
 | Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
+| Career | “이 JD에 맞춰 1페이지 영문 resume를 만들고, 다음 주 1차 면접 기준으로 모의면접을 해 줘.” |
 
 호스트는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
 

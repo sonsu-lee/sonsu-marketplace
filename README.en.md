@@ -15,7 +15,7 @@ codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
 # Install one plugin
 codex plugin add engineering@sonsu-marketplace
 # To install all, use this instead of the single install above
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design career worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
 codex plugin marketplace list
 codex plugin list --marketplace sonsu-marketplace
 ```
@@ -29,19 +29,19 @@ claude plugin marketplace add sonsu-lee/sonsu-marketplace
 # Install one plugin
 claude plugin install engineering@sonsu-marketplace
 # To install all, use this instead of the single install above
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design career worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
 claude plugin marketplace list
 claude plugin list
 ```
 
 ### omp
 
-Install the default five plugins; Worklog is optional. Only if you choose to enable automatic updates, merge the YAML below into the existing `marketplace:` section of `~/.omp/agent/config.yml`.
+Install the default six plugins; Worklog is optional. Only if you choose to enable automatic updates, merge the YAML below into the existing `marketplace:` section of `~/.omp/agent/config.yml`.
 
 <!-- omp-preset:start -->
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
@@ -58,7 +58,7 @@ omp plugin list
 
 ## Plugins
 
-Each plugin works independently; follow its link for details (Codex and Claude Code: all 13; omp: the default five and opt-in Worklog).
+Each plugin works independently; follow its link for details (Codex and Claude Code: all 14; omp: the default six and opt-in Worklog).
 
 | Plugin | Purpose | Installation name |
 | --- | --- | --- |
@@ -74,6 +74,7 @@ Each plugin works independently; follow its link for details (Codex and Claude C
 | [Memory Manager](plugins/memory-manager/README.md) | Shared local memory for recall, capture, and maintenance in Codex and Claude Code | `memory-manager` |
 | [Design](plugins/design/README.md) | Design, redesign, and audit general and operations interfaces through Figma or code, and find design references | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | Select patterns from observed design forces and review existing usage | `design-patterns` |
+| [Career](plugins/career/README.md) | Developer career record, US-style resume, rirekisho and shokumu keirekisho drafting, interview prep, mock interviews, and retros | `career` |
 | [Worklog](plugins/worklog/README.md) | Log and diagnose failures, interruptions, and user corrections across Claude Code, Codex, and omp | `worklog` |
 
 ## Usage examples
@@ -92,6 +93,7 @@ After installing the relevant plugin, make a request in Codex or Claude Code (di
 | Memory Manager | “`$memory-capture` Save this decision as a memory for this project.” |
 | Design | “Design a mobile signup flow in Figma, or redesign this operations screen directly in code.” or “Find sign-in screen references with their sources.” |
 | Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
+| Career | “Build a one-page English resume tailored to this JD, then run a mock interview for next week's first-round interview.” |
 
 The host selects skills based on your request and the descriptions of installed skills.
 

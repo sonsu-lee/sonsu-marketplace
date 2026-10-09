@@ -44,7 +44,7 @@ omp는 이름 있는 profile로 기존 사용자 설정과 분리합니다. prof
 ```sh
 export OMP_PROFILE=sonsu-marketplace-local
 omp plugin marketplace add "$(pwd -P)"
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install "$plugin@sonsu-marketplace"; done
 omp plugin list
 ```
 
@@ -84,9 +84,10 @@ omp plugin list
 4. `.agents/plugins/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
 5. `python3 scripts/render-claude-compat.py`로 Claude Code catalog와 plugin manifest를 생성합니다.
 6. `python3 scripts/render-omp-compat.py`로 omp catalog와 Design·Workflow·Fluent Korean·Worklog 전용 패키지를 생성합니다.
-   omp 기본 배포는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design` 5개로 고정합니다.
-   Codex catalog에 추가해도 omp 배포 대상이 늘어나지 않습니다. 대상 변경에는 배포 정책의 명시적 변경이 필요합니다.
-   예외로 [ADR 0021](../decisions/0021-add-worklog-plugin.md)에 따라 `worklog`를 opt-in 패키지로 catalog에
+   omp 기본 배포는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design`, `career` 6개로 고정합니다.
+   Codex catalog에 추가해도 omp 배포 대상은 늘어나지 않습니다. 대상을 바꾸려면 배포 정책을 명시적으로 변경하고
+   `scripts/render-omp-compat.py`의 `OMP_PLUGINS`와 `evals/plugin-compat/test_compat.py`의 omp 목록을 함께 갱신합니다.
+   예외로 [ADR 0022](../decisions/0022-add-worklog-plugin.md)에 따라 `worklog`를 opt-in 패키지로 catalog에
    추가합니다. opt-in 패키지는 사용자가 직접 설치할 때만 쓰이며, 생성기의 `OMP_OPTIN_PLUGINS`와
    `RUNTIME_EXTENSIONS`에 등록된 경우에만 catalog 항목과 runtime extension을 생성합니다.
 
@@ -117,8 +118,8 @@ hook은 opt-in 패키지에도 포함하지 않습니다.
 Design의 품질 계약·프로필, Workflow의 권한, English·Japanese 스킬은 유지합니다.
 Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude agent와 다중 호출·strict 모드에 의존하지 않습니다.
 개발 실행·task·todo·session·review는 omp 순정 기능을 사용합니다. Research·Product·Writing은 선택 후보로
-문서화하며 기본 5개 배포에 추가하지 않습니다. Engineering의 omp 프로필은 직접 설치한 기존 consumer용으로
-보존하고 기본 5개 설정에는 추가하지 않습니다. omp 대응을 위해 기존 Codex·Claude Code hook이나 연속성 자료를
+문서화하며 기본 6개 배포에 추가하지 않습니다. Engineering의 omp 프로필은 직접 설치한 기존 consumer용으로
+보존하고 기본 6개 설정에는 추가하지 않습니다. omp 대응을 위해 기존 Codex·Claude Code hook이나 연속성 자료를
 변경하지 않습니다.
 
 생성기의 `--check`는 생성물의 최신 상태와 불필요한 이전 생성물을 검사합니다. 일반 실행이 정리할 수 있는

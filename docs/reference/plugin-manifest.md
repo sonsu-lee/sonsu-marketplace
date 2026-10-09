@@ -28,8 +28,8 @@ manifest에 포함하지 않습니다. `claude plugin validate . --strict`와 �
 `worklog`는 호스트마다 hook 이벤트 집합이 달라 Claude Code용 `hooks/claude-hooks.json`을 배포 루트의
 `hooks/hooks.json`으로 복사합니다.
 
-omp 配布は `python3 scripts/render-omp-compat.py` で生成します。カタログには基本5件の Workflow、
-Fluent Korean・English・Japanese、Design と、opt-inの Worklog を登録します。English・Japaneseは元のパッケージを
+omp 配布は `python3 scripts/render-omp-compat.py` で生成します。カタログには基本6件の Workflow、
+Fluent Korean・English・Japanese、Design、Career と、opt-inの Worklog を登録します。English・Japanese・Careerは元のパッケージを
 参照し、Design・Workflow・Fluent Korean・Worklogは `plugins/<name>/omp` に独立した配布用コピーを生成します。
 Fluent Koreanの `skills/fluent-korean/SKILL.md` と参考資料はCodexの単一呼び出し経路から生成し、
 現在のホストモデルを使います。default `skills/` discoveryで発見でき、Claude agent・固定Opus・

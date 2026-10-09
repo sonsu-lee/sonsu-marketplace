@@ -1,4 +1,4 @@
-# ADR 0021: 세 호스트 공용 작업 로그 worklog
+# ADR 0022: 세 호스트 공용 작업 로그 worklog
 
 - 날짜: 2026-10-05
 - 상태: 채택
@@ -27,7 +27,7 @@ Claude Code는 실패 전용 hook(`PostToolUseFailure`, `StopFailure`)이 있다
 - 기록은 호스트별로 구현한다. Claude Code와 Codex는 hook 정의를 따로 둔다(이벤트 집합이 다르다).
   Codex 실패는 `Stop` 시점에 rollout에서, Claude Code의 SessionStart hook 출력은 첫 `Stop`에서
   transcript로 보충한다. omp는 extension 하나로 기록한다.
-- **omp 배포 정책 예외**: 기본 5개 묶음은 유지한다. omp 카탈로그에 opt-in 패키지를 허용하고,
+- **omp 배포 정책 예외**: 기본 6개 묶음은 유지한다. omp 카탈로그에 opt-in 패키지를 허용하고,
   그 패키지에 한해 runtime extension을 허용한다. 현재 opt-in 패키지는 worklog뿐이며 hook은
   배포하지 않는다.
 - 기록 도구는 컨텍스트를 주입하지 않고, 결과를 바꾸지 않으며, 실패해도 작업을 막지 않는다
@@ -46,7 +46,7 @@ Claude Code는 실패 전용 hook(`PostToolUseFailure`, `StopFailure`)이 있다
 
 - 실제 호스트가 hook·extension을 로드하는지, Codex hook 신뢰가 업데이트 뒤에 유지되는지는 단위
   테스트로 확인할 수 없으며 호스트별 실행으로 따로 확인한다([evals/worklog](../../evals/worklog/README.md)).
-- omp 생성기는 opt-in 패키지에 `package.json`과 `extension/`을 생성한다. 기본 5개 패키지에는
+- omp 생성기는 opt-in 패키지에 `package.json`과 `extension/`을 생성한다. 기본 6개 패키지에는
   여전히 hook·extension이 없다.
 - 설치하면 모든 프로젝트에서 기록하므로 끄는 방법(`SONSU_WORKLOG=off`, 프로젝트 `disabled` 파일)과
   프롬프트 발췌 끄기(`SONSU_WORKLOG_PROMPTS=off`)를 README에 둔다.

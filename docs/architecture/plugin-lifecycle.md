@@ -52,10 +52,10 @@ Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-
 생성합니다. memory-manager의 정리·승격 스킬만 Claude의 수동 호출 제한을 적용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
 Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 
-## ompは基本5件とopt-inのworklog(runtime extension含む)を配布する
+## omp는 기본 6개와 opt-in Worklog를 배포한다
 
-`python3 scripts/render-omp-compat.py` はCodex catalogの順序を保ち、基本5件の `workflow`、
-`fluent-korean`、`fluent-english`、`fluent-japanese`、`design` と、opt-inの `worklog` を
+`python3 scripts/render-omp-compat.py` はCodex catalogの順序を保ち、基本6件の `workflow`、
+`fluent-korean`、`fluent-english`、`fluent-japanese`、`design`、`career` と、opt-inの `worklog` を
 `.omp-plugin/marketplace.json` に生成します。Codex・Claude Codeの配布対象と元パッケージは変更しません。
 worklogは基本構成に含めず、必要な利用者だけが個別にインストールします。
 
@@ -66,6 +66,7 @@ worklogは基本構成に含めず、必要な利用者だけが個別にイン�
 | Fluent English | `./plugins/fluent-english` |
 | Fluent Japanese | `./plugins/fluent-japanese` |
 | Design | `./plugins/design/omp` |
+| Career | `./plugins/career` |
 | Worklog(opt-in) | `./plugins/worklog/omp` |
 
 Design・Workflowのomp専用パッケージは、必要なskills・references・assets・scripts・
@@ -78,10 +79,10 @@ Fluent KoreanはCodex単一呼び出しのスキル・参考資料・ライセ�
 Designのnative tool前提も保持します。Japaneseはomp既存のmodel・effort・並列実行方針を使い、
 fullモードの三つのレビュー観点も同じ呼び出し内で確認します。
 
-Worklogは[ADR 0021](../decisions/0021-add-worklog-plugin.md)によるopt-inの例外です。専用パッケージに
+Worklogは[ADR 0022](../decisions/0022-add-worklog-plugin.md)によるopt-inの例外です。専用パッケージに
 診断スキルと記録スクリプトに加え、runtime extension `extension/worklog.ts` とそれを宣言する
 `package.json` を生成します。runtime extensionを配布するのはopt-inパッケージだけで、hookは配布しません。
-基本5件のパッケージにはhook・runtime extensionを含めない方針を維持します。
+基本6件のパッケージにはhook・runtime extensionを含めない方針を維持します。
 Worklogのextensionはツール結果とセッションイベントをローカルJSONLに記録し、診断スキルは読み取り専用です。
 
 生成先の `references/continuity.md` はomp標準のtodo・sessionによる継続を案内します。
@@ -92,9 +93,10 @@ isolation・同時実行数は既存のomp設定を使い、カスタムロー�
 | 責任 | 担当 | 配布 |
 | --- | --- | --- |
 | 開発実行・task・todo・session・review・メモリ | omp標準 | ホスト機能 |
-| Git・チケット・PR操作の権限と成果物 | Workflow | 基本5件 |
-| 言語別の文章品質・保護規則 | Fluent Korean・English・Japanese | 基本5件 |
-| UI・prototype・handoff品質とnative tool前提 | Design | 基本5件 |
+| Git・チケット・PR操作の権限と成果物 | Workflow | 基本6件 |
+| 言語別の文章品質・保護規則 | Fluent Korean・English・Japanese | 基本6件 |
+| UI・prototype・handoff品質とnative tool前提 | Design | 基本6件 |
+| 経歴原本・応募書類・面接準備 | Career | 基本6件 |
 | 生の作業イベントの記録と診断 | Worklog | opt-in |
 | 外部調査・製品探索・文章構成 | Research・Product・Writing | 選択候補。基本catalogには追加しない |
 

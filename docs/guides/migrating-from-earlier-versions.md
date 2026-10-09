@@ -18,7 +18,7 @@ for plugin in engineering writing research prompting product design-patterns mem
 ```sh
 omp plugin marketplace remove sonsu-marketplace
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install --force "$plugin@sonsu-marketplace"; done
 ```
 
 이전 preset 때문에 추가한 `skills.ignoredSkills`, `task.disabledAgents`, `task.agentModelOverrides`

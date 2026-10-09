@@ -6,10 +6,11 @@
       "writing"
     ],
     "entry_skill": "writing:write-developer-blog",
-    "must_return_flow_pseudocode": true,
+    "must_return_flow_pseudocode": false,
     "must_ask_for_material_author_decisions": true,
     "must_not_invent_first_person_experience": true,
-    "must_not_return_unsupported_draft": true
+    "must_not_return_unsupported_draft": true,
+    "must_not_expose_flow_pseudocode": true
   },
   {
     "id": "blog-til-sufficient",
@@ -176,5 +177,17 @@
     "must_address_strongest_counterargument": true,
     "must_state_scope_and_limits": true,
     "must_not_invent_author_opinion_beyond_supplied_material": true
+  },
+  {
+    "id": "blog-plan-only",
+    "prompt": "CI 캐시를 켜서 평균 빌드 시간이 14분에서 6분으로 줄어든 경험으로 개발자 블로그 글을 기획해 줘. 캐시 키는 package-lock.json 해시이고, 의존성이 바뀐 첫 빌드는 여전히 14분 정도 걸린다. 본문은 아직 쓰지 말고 글의 흐름만 정해 줘.",
+    "installed_plugins": [
+      "writing"
+    ],
+    "entry_skill": "writing:write-developer-blog",
+    "must_return_flow_pseudocode": true,
+    "must_return_all_six_flow_fields": true,
+    "must_not_return_draft": true,
+    "must_not_invent_first_person_experience": true
   }
 ]

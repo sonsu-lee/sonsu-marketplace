@@ -248,12 +248,12 @@ class CodexPackagingTests(unittest.TestCase):
             self.assertFalse(generated_manifest.exists())
             self.assertEqual(subprocess.run(command + ["--check"], capture_output=True).returncode, 0)
 
-    def test_omp_catalog_exposes_default_five_and_optin_worklog(self):
+    def test_omp_catalog_exposes_default_six_and_optin_worklog(self):
         codex = json.loads(CATALOG.read_text(encoding="utf-8"))
         omp = json.loads((ROOT / ".omp-plugin/marketplace.json").read_text(encoding="utf-8"))
         self.assertEqual(omp["name"], codex["name"])
         self.assertEqual([entry["name"] for entry in omp["plugins"]],
-                         ["workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design", "worklog"])
+                         ["workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design", "career", "worklog"])
         for entry in omp["plugins"]:
             with self.subTest(plugin=entry["name"]):
                 suffix = "/omp" if entry["name"] in ("workflow", "design", "fluent-korean", "worklog") else ""
@@ -300,7 +300,7 @@ class CodexPackagingTests(unittest.TestCase):
                     self.assertIn("main", companion)
 
     def omp_fixture(self, root):
-        names = ("workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design")
+        names = ("workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design", "career")
         catalog_path = root / ".agents/plugins/marketplace.json"
         catalog_path.parent.mkdir(parents=True)
         catalog_path.write_text(json.dumps({"name": "fixture", "plugins": [

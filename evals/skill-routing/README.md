@@ -1,6 +1,6 @@
 # 스킬 라우팅 평가
 
-`cases.json`은 Engineering, Workflow, Research, Prompting, Product, Writing과 언어별 Fluent
+`cases.json`은 Engineering, Workflow, Research, Prompting, Product, Writing, Career와 언어별 Fluent
 플러그인을 함께 또는 각각 설치했을 때의 기대 라우팅을 정의합니다. 직접 산출물 요청,
 비슷하지만 다른 요청, runtime 조합과 단독 설치 사례를 포함합니다.
 
@@ -21,7 +21,8 @@ assignee에서 검증하고 다른 assignee를 유지해야 합니다. `all`은 
 명시한 사례에서만 허용합니다.
 
 Writing은 공통 구성을 담당합니다. 영어 Fluent는 일상·기술 문장의 작성·윤문·검토에, 일본어 Fluent는 작성·윤문과 문서 진단에 적용합니다. 한국어 Fluent는
-기존 글의 AI 티·번역투 윤문이나 진단 요청에 적용합니다. Workflow는 자체 양식과
+한국어 산출물을 새로 쓸 때 생성 규칙을 적용하고 기존 글의 AI 티·번역투 윤문이나 진단 요청도 처리합니다.
+일반 대화 답변·단순 맞춤법 교정·번역에는 자동 적용하지 않습니다. Workflow는 자체 양식과
 운영 절차에 적합한 지침을 적용합니다. 분리·조합 사례의 기대값은 실제 native 라우팅 결과와
 구분하며, [명시적 지침 적용 검사](../writing/README.md)만으로 자동 선택을 통과했다고 하지 않습니다.
 일상 메시지와 기술 설명의 선택 경계를 각 언어별로 확인하는 사례도 포함합니다.
@@ -82,17 +83,18 @@ label·type·status 값이 아닙니다. 기본 양식은 변경·추가·정리
 `must_not_classify_readiness`는 준비 상태 분류를 강제하지 않는지 확인합니다.
 `must_ask_for_problem_context`는 문제 자체를 특정할 수 없을 때 핵심 질문을 반환하는지 검사합니다.
 `must_preserve_preference_vs_agreement`와 `must_not_invent_implementation`은 선호·합의의 강도를
-보존하고 요청에 없는 구현을 만들지 않는지, `must_not_add_completion_checklist`와
+보존하고 요청에 없는 구현을 만들지 않는지, `must_derive_completion_from_body`는 완료조건을 쓴 경우 본문의 목적·범위에서
+도출된 결과이며 새 요구사항·활동 나열·방법을 묶는 조건·팀 공통 절차를 담지 않는지 검사합니다. 일반 작업의 `완료조건`은 권장 항목이라 합의된 조건이 없는 사례에서는 필수·생략 어느 쪽으로도 판정하지 않습니다.
 `must_not_add_empty_optional_sections`는 불필요한 항목을 붙이지 않는지 확인합니다. `expected_template_source`는 team과 unverified 등의
 출처 확인을 검사합니다. `must_not_apply_bundled_template`은 대상 버그 양식 조회가 `unverified`일 때 번들 양식을 선택하지 않는지 검사합니다. `must_preserve_*`는 실제 초안·수정 payload에서 해당 내용이 유지되는지,
 `expected_child_count`와 `must_map_parent_and_child_keys`는 사용자가 지정한 분해 경계와 게시 전
 부모·자식 참조를 실제 초안에서 확인합니다. `must_limit_update_to_content`는 식별자 이외의 변경 field가 요청한 제목·본문에 한정되는지 검사합니다.
-`must_preserve_req_ids`는 PRD에서 나눈 각 티켓의 `참고`에 해당 REQ ID가 보존되는지 검사합니다.
+`must_preserve_req_ids`는 PRD에서 나눈 각 티켓의 허용된 출처·링크 필드(기본형의 `전제·유의사항`, 사용자·팀 양식의 대응 필드 또는 허용된 자유 서술 필드)에 해당 REQ ID가 보존되는지 검사합니다. 본문에 허용 위치가 없어 인계 메모에만 남긴 경우는 티켓 반영 성공으로 판정하지 않습니다.
 
 `expected_required_headings`와 `expected_omitted_headings`는 완성된 기본형에서 필요한 항목과 생략할
 항목을 검사하며, 고정된 팀 양식에는 적용하지 않습니다. `expected_headerless`는 제목 없는 경량형 본문을, `expected_output_language`는 본문 언어를, `expected_commit_language`와 `must_not_add_ai_trailer`는 커밋 메시지의 언어와 AI trailer 부재를 검사합니다. `must_preserve_actual_and_expected`,
 `must_preserve_request_response`, `must_include_reproduction_media`는 버그의 동작·요청·응답·제공 자료
-보존을 확인합니다. `must_not_repeat_expected_behavior`는 같은 기대 동작을 현상과 참고에 반복하지 않는지,
+보존을 확인합니다. `must_not_repeat_expected_behavior`는 같은 기대 동작을 현상·참고·완료조건에 반복하지 않는지,
 `must_not_invent_reproduction_steps_or_media`와 `must_not_invent_reproduction_media`는 없는 재현 단계·자료를 만들거나 빈 항목을 채우지 않는지 확인합니다.
 `must_not_require_visual_media`, `must_not_split_investigation`,
 `must_not_invent_deliverable_format`은 자료 유형·티켓 분리·조사 산출물을 임의로 강제하지 않는지,
