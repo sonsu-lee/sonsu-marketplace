@@ -25,12 +25,12 @@ codex plugin add engineering@sonsu-marketplace
 ```
 
 다른 플러그인은 [아래 표](#플러그인)의 설치 이름으로 바꿔 설치하세요.
-13개를 모두 설치하려면 다음 명령을 실행합니다.
+14개를 모두 설치하려면 다음 명령을 실행합니다.
 
 ```sh
 for plugin in \
   engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design worklog
+  writing research prompting product memory-manager design-patterns design career worklog
 do
   codex plugin add "$plugin@sonsu-marketplace"
 done
@@ -62,12 +62,12 @@ claude plugin marketplace add sonsu-lee/sonsu-marketplace
 claude plugin install engineering@sonsu-marketplace
 ```
 
-[아래 표](#플러그인)의 13개를 모두 설치하려면 다음 명령을 실행합니다.
+[아래 표](#플러그인)의 14개를 모두 설치하려면 다음 명령을 실행합니다.
 
 ```sh
 for plugin in \
   engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design worklog
+  writing research prompting product memory-manager design-patterns design career worklog
 do
   claude plugin install "$plugin@sonsu-marketplace"
 done
@@ -89,11 +89,11 @@ Codex connector와 Claude Code MCP 연결은 별도로 설정하며, Figma 작�
 
 ### omp
 
-omp에는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design` 기본 5개와
+omp에는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design`, `career` 기본 6개와
 선택 설치용 `worklog`를 `.omp-plugin/marketplace.json`으로 배포합니다. 개발 실행·task·todo·session·review와 메모리는
 omp 순정 기능이 맡습니다. 로컬 변경 검증은 [개발 가이드](docs/guides/adding-a-plugin.md)의 분리 환경에서 진행합니다.
 
-마켓플레이스를 등록하고 5개를 설치합니다. 모델·effort·메모리·isolation·동시성은 기존 omp
+마켓플레이스를 등록하고 6개를 설치합니다. 모델·effort·메모리·isolation·동시성은 기존 omp
 설정을 사용하며 별도 역할 override를 추가하지 않습니다. 자동 업데이트 설정도 유지합니다.
 아래 YAML은 자동 업데이트를 새로 선택한 경우에만 `~/.omp/agent/config.yml`의 기존
 `marketplace:` 항목과 합칩니다.
@@ -101,7 +101,7 @@ omp 순정 기능이 맡습니다. 로컬 변경 검증은 [개발 가이드](do
 <!-- omp-preset:start -->
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
@@ -110,7 +110,7 @@ marketplace:
 ```
 <!-- omp-preset:end -->
 
-작업 로그가 필요하면 기본 5개와 별도로 opt-in 패키지 `worklog`를 설치합니다. 도구 결과와 세션 이벤트를 로컬 JSONL로 기록하는 runtime extension과 읽기 전용 진단 스킬을 제공하며, omp용 hook은 포함하지 않습니다.
+작업 로그가 필요하면 기본 6개와 별도로 opt-in 패키지 `worklog`를 설치합니다. 도구 결과와 세션 이벤트를 로컬 JSONL로 기록하는 runtime extension과 읽기 전용 진단 스킬을 제공하며, omp용 hook은 포함하지 않습니다.
 
 ```sh
 omp plugin install worklog@sonsu-marketplace
@@ -133,21 +133,22 @@ Design의 품질 계약·프로필과 native tool 전제는 유지합니다. Jap
 병렬 정책을 유지하며 full 모드의 세 검토 관점은 같은 호출 안에서 확인합니다.
 
 `design`, `workflow`, `fluent-korean`, `worklog`는 생성된 `./plugins/<name>/omp`를 배포 원본으로 쓰고,
-English·Japanese는 기존 `./plugins/<name>`을 씁니다. 기본 5개에는 독자 runtime extension,
+English·Japanese·Career는 기존 `./plugins/<name>`을 씁니다. 기본 6개에는 독자 runtime extension,
 hook, evidence gate, `task-continuity.py`를 포함하지 않으며, opt-in Worklog만 runtime extension을 제공합니다. 작업 연속성은 omp의 todo·session으로
 관리하며 `.sonsu`에 새 기록을 쓰지 않습니다. 자세한 내용은 [배포 생명주기](docs/architecture/plugin-lifecycle.md)를 참고하세요.
 
 | 책임 | 담당 | 배포 |
 | --- | --- | --- |
 | 개발 실행·task·todo·session·review | omp 순정 기능 | 호스트 기능 |
-| Git·티켓·PR 권한과 산출물 | Workflow | 기본 5개 |
-| 언어별 문장 품질·보호 규칙 | Fluent Korean·English·Japanese | 기본 5개 |
-| UI·prototype·handoff 품질과 native tool 전제 | Design | 기본 5개 |
+| Git·티켓·PR 권한과 산출물 | Workflow | 기본 6개 |
+| 언어별 문장 품질·보호 규칙 | Fluent Korean·English·Japanese | 기본 6개 |
+| UI·prototype·handoff 품질과 native tool 전제 | Design | 기본 6개 |
+| 개발자 경력 원본·지원 서류·면접 준비 | Career | 기본 6개 |
 | 원시 작업 이벤트 기록과 진단 | Worklog | opt-in |
 | 외부 조사·제품 탐색·글 구성 | Research·Product·Writing | 선택 후보. 기본 카탈로그에 추가하지 않음 |
 
 Research·Product·Writing을 추가하려면 필요한 도메인과 현재 native tool 계약을 별도로 확인합니다.
-Engineering의 omp 프로필은 직접 설치한 기존 호출자를 위해 보존하며 기본 5개의 설정에는 적용하지 않습니다.
+Engineering의 omp 프로필은 직접 설치한 기존 호출자를 위해 보존하며 기본 6개의 설정에는 적용하지 않습니다.
 
 #### 이전 omp 구성에서 이동
 
@@ -165,7 +166,7 @@ for plugin in engineering writing research prompting product design-patterns mem
 ```sh
 omp plugin marketplace remove sonsu-marketplace
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install --force "$plugin@sonsu-marketplace"; done
 ```
 
 이전 preset 때문에 추가한 `skills.ignoredSkills`, `task.disabledAgents`, `task.agentModelOverrides`
@@ -175,7 +176,7 @@ for plugin in workflow fluent-korean fluent-english fluent-japanese design; do o
 
 ## 플러그인
 
-다음은 Codex·Claude Code용 전체 목록입니다. omp 기본 배포는 위 5개이며 Worklog만 opt-in으로 추가 설치할 수 있습니다.
+다음은 Codex·Claude Code용 전체 목록입니다. omp 기본 배포는 위 6개이며 Worklog만 opt-in으로 추가 설치할 수 있습니다.
 
 | 플러그인 | 용도 | 설치 이름 |
 | --- | --- | --- |
@@ -191,6 +192,7 @@ for plugin in workflow fluent-korean fluent-english fluent-japanese design; do o
 | [Memory Manager](plugins/memory-manager/README.md) | Codex·Claude Code가 공유하는 로컬 메모리의 회상·수집·정리 | `memory-manager` |
 | [Design](plugins/design/README.md) | 일반·운영 UI의 신규 설계·재설계·감사, 디자인 레퍼런스 검색과 Figma 또는 코드 경로 | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | 실제 설계 forces에 맞는 패턴 선택과 기존 적용 검토 | `design-patterns` |
+| [Career](plugins/career/README.md) | 개발자 경력 원본 정리, 미국식 resume·履歴書·職務経歴書 작성, 면접 준비·모의면접·회고 | `career` |
 | [Worklog](plugins/worklog/README.md) | Claude Code·Codex·omp 작업의 실패·중단·교정 로그와 진단 | `worklog` |
 
 각 플러그인은 독립적으로 사용할 수 있습니다. 포함된 스킬과 상세 사용법은 위 링크에서 확인하세요.
@@ -215,6 +217,7 @@ Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR�
 | Memory Manager | “`$memory-capture` 이 결정을 현재 프로젝트 기억으로 저장해 줘.” |
 | Design | “새 모바일 가입 흐름을 Figma에서 만들고, 이 운영 화면을 코드에서 재설계해 줘.” 또는 “로그인 화면 레퍼런스를 출처와 함께 찾아 줘.” |
 | Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
+| Career | “이 JD에 맞춰 1페이지 영문 resume를 만들고, 다음 주 1차 면접 기준으로 모의면접을 해 줘.” |
 
 호스트는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
 Memory Manager는 관련 작업에서 `$memory-recall`이 선택될 수 있고, 명시적 저장 요청에는

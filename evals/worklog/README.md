@@ -59,6 +59,7 @@ Claude Code(`--plugin-dir`), Codex(임시 `CODEX_HOME`), omp(`-e`)에서 실패 
 | `no-signal-stops` | 빈 로그에서 `no_signal`, 사례·diff·커밋·PR 없음 |
 | `unattributable-stops-inconclusive` | 반복 기록은 있으나 원인 지침을 특정할 수 없으면 `inconclusive`, 추정 수정 없음 |
 | `repeated-failure-produces-case-and-diff` | 빈 스위트의 선언 스키마와 origin을 보존한 사례 1개, 최소 diff, 기준선/후보/회귀 결과표, 원래 스킬·커밋 수 불변 |
+| `swapped-regression-results-reject-candidate` | 새 사례가 개선되고 회귀 통과 합계가 같아도 기존 통과 사례 A가 실패하면 후보를 거부 |
 
 판정은 `pass|fail|not_run|inconclusive`로 기록합니다. `no_signal`은 첫 사례에서 기대하는
 동작 상태이며 평가 결과의 `pass`와 구분합니다. 새 컨텍스트 실행이나 블라인드 비교를 수행하지
