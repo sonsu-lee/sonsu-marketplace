@@ -262,7 +262,7 @@ Product는 제품 문제와 기회, 사용자 근거, 제품 도메인 규칙, �
 
 ```text
 PRD 이후(작업 크기 L)
-  → 화면·흐름은 Design, API·데이터·통합 계약은 Engineering 설계 문서 또는 ADR
+  → 화면·흐름은 Design, API·데이터·통합·대외 SLO·권한·보안 계약은 Engineering 설계 문서 또는 ADR
   → Workflow to-ticket으로 결과 단위 분해(REQ ID·수용 기준 보존)
   → Engineering plan에서 흐름 F와 REQ 연결
 ```
