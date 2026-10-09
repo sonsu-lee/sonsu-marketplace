@@ -83,8 +83,8 @@ label·type·status 값이 아닙니다. 기본 양식은 변경·추가·정리
 `must_not_classify_readiness`는 준비 상태 분류를 강제하지 않는지 확인합니다.
 `must_ask_for_problem_context`는 문제 자체를 특정할 수 없을 때 핵심 질문을 반환하는지 검사합니다.
 `must_preserve_preference_vs_agreement`와 `must_not_invent_implementation`은 선호·합의의 강도를
-보존하고 요청에 없는 구현을 만들지 않는지, `must_derive_completion_from_body`는 완료조건이 본문의 목적·범위에서
-도출된 확인 가능한 결과이며 새 요구사항·활동 나열·파일별 수정 목록을 담지 않는지,
+보존하고 요청에 없는 구현을 만들지 않는지, `must_derive_completion_from_body`는 완료조건을 쓴 경우 본문의 목적·범위에서
+도출된 결과이며 새 요구사항·활동 나열·방법을 묶는 조건·팀 공통 절차를 담지 않는지 검사합니다. 일반 작업의 `완료조건`은 권장 항목이라 합의된 조건이 없는 사례에서는 필수·생략 어느 쪽으로도 판정하지 않습니다.
 `must_not_add_empty_optional_sections`는 불필요한 항목을 붙이지 않는지 확인합니다. `expected_template_source`는 team과 unverified 등의
 출처 확인을 검사합니다. `must_not_apply_bundled_template`은 대상 버그 양식 조회가 `unverified`일 때 번들 양식을 선택하지 않는지 검사합니다. `must_preserve_*`는 실제 초안·수정 payload에서 해당 내용이 유지되는지,
 `expected_child_count`와 `must_map_parent_and_child_keys`는 사용자가 지정한 분해 경계와 게시 전

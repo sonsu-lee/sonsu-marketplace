@@ -2058,8 +2058,7 @@
       "expected_required_headings": [
         "배경·목적",
         "방향성·범위",
-        "전제·유의사항",
-        "완료조건"
+        "전제·유의사항"
       ]
     },
     {
@@ -2077,8 +2076,7 @@
       "expected_template": "default",
       "expected_required_headings": [
         "배경·목적",
-        "방향성·범위",
-        "완료조건"
+        "방향성·범위"
       ],
       "expected_omitted_headings": [
         "전제·유의사항"
@@ -2199,8 +2197,7 @@
       "expected_required_headings": [
         "배경·목적",
         "방향성·범위",
-        "전제·유의사항",
-        "완료조건"
+        "전제·유의사항"
       ],
       "must_preserve_preference_vs_agreement": true,
       "must_summarize_external_decisions": true,

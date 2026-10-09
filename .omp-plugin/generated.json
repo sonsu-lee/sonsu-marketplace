@@ -134,18 +134,18 @@
     "plugins/workflow/omp/skills/to-pr/references/github.md": "cc760f48d5da960ff09355f2b474d43de11b8819ebd0031f31cff70f2e8549c7",
     "plugins/workflow/omp/skills/to-pr/references/media-attachments.md": "4a57231b73f4d096f0fc8827621aa538dfe374710504659d7bf1ebecc71ee7ae",
     "plugins/workflow/omp/skills/to-pr/references/pr-template.md": "a2a50772a6b9cb490e06398f96765b7ee98ade49a65985123d990bbc618a1e9a",
-    "plugins/workflow/omp/skills/to-pr/references/pr-writing.md": "6ebd41a01b72759d9acb62cc88b0a8a4f7c88bb844d232f352de7be9c61baf42",
+    "plugins/workflow/omp/skills/to-pr/references/pr-writing.md": "c4dc08a1d76680aa7fb348cd760f6e1be0a9e0434d2df0a24c7748e35baf8260",
     "plugins/workflow/omp/skills/to-pr/references/stacked-prs.md": "a86622c57dd116143fe64e4c177c4e68380399a4c7bb053e0cbe4699fa7b6486",
     "plugins/workflow/omp/skills/to-pr/references/ticket-linking.md": "d8b1e79981bdfb54c070951253a85e0dd26aafd09cfe55d80d971b8718cedb87",
     "plugins/workflow/omp/skills/to-pr/references/visual-evidence.md": "01c1e06642cee2c1de06ada936a1aaece0e43d0acf4045e89de1c36207e8ca74",
     "plugins/workflow/omp/skills/to-ticket/SKILL.md": "21235570f73a0caf50a4a19bf0cd28b01add96a463f81b6a530eee4b14330263",
     "plugins/workflow/omp/skills/to-ticket/agents/openai.yaml": "52aea0c6afce3cea638a48af79674d9fee4ede5e9b9755160c0ec3ca204d8298",
-    "plugins/workflow/omp/skills/to-ticket/assets/templates/bug.md": "f35b1fe7e42f9364b23b38fdf9dcd3163850992909473b7d6e68700366583305",
-    "plugins/workflow/omp/skills/to-ticket/assets/templates/default.md": "00540e8e948a98efe901f4bd47e4257bb93bec13cbe5ce4a2dfc149f4e5840e0",
-    "plugins/workflow/omp/skills/to-ticket/assets/templates/investigation.md": "5319ba9edc0a93d48bf21ae3ee2c4a821d97142ffa356934787297f09e62fe60",
+    "plugins/workflow/omp/skills/to-ticket/assets/templates/bug.md": "31991e3a2d9adfc43d6fe38c37c1cf12e51104741242515c97c6339705f2ba4c",
+    "plugins/workflow/omp/skills/to-ticket/assets/templates/default.md": "64ca98fbf186bc7be2b55f3bd46bb197c165bcb469fdfdaab8928a3874f2821b",
+    "plugins/workflow/omp/skills/to-ticket/assets/templates/investigation.md": "caea1514f996a887692ba28239358410f1afa01364b5e68e28271019c87a5903",
     "plugins/workflow/omp/skills/to-ticket/references/github.md": "9d619d094b8d12ccc06f823c74891ea88df6fc7eb7c07a86cdae3ffc1e5444ef",
     "plugins/workflow/omp/skills/to-ticket/references/linear.md": "729bfd697d3324457754877b5f10b15eedb118a8d43856cf664461ac6f8af329",
     "plugins/workflow/omp/skills/to-ticket/references/media-attachments.md": "2e734b6199a1f8126b15249b0b37da3b57a746e3d492d16db938d118271fb455",
-    "plugins/workflow/omp/skills/to-ticket/references/ticket-writing.md": "f19aed759c891d1aaf2e5c2f652575484a5195372e9afaba7e8e82fd9491adfe"
+    "plugins/workflow/omp/skills/to-ticket/references/ticket-writing.md": "31abb18e4c389210e300439bca627f236fe17aa9f2c5024e1087fc94864fe912"
   }
 }
