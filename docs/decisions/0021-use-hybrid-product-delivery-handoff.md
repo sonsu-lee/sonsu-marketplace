@@ -22,8 +22,8 @@ Product는 승인된 제품 합의를 PRD로 바꾸는 데서 끝났고, PRD가 
 - [인계 계약](../../plugins/product/references/delivery-handoff.md)이 작업 크기를 S/M/L로
   판정한다. S는 PRD 없이 티켓이나 구현으로, M은 PRD-lite와 구현 계획으로, L은 전체 PRD →
   필요한 외부 설계 → 티켓 분해 → 구현 계획으로 간다.
-- PRD가 있을 때만 REQ ID를 티켓의 `참고`와 Engineering 계획의 흐름 표 `요구사항` 열에
-  보존한다. PRD가 없는 작업에는 ID를 만들지 않는다.
+- PRD나 다른 승인된 요구 출처의 기존 ID를 티켓의 출처 필드와 Engineering 계획의 흐름 표
+  `요구사항` 열에 보존한다. 출처에 없는 ID를 인계 과정에서 만들지 않는다.
 - PRD 템플릿에 품질 기대(NFR), 우선순위(P1/P2), 위험(RISK) 행을 둔다. 근거 없는 수치는 OPEN
   항목으로 남긴다.
 - 외부 계약(API·데이터·통합)이 바뀌는 기능만 Engineering `brainstorming`의
@@ -48,7 +48,7 @@ Product는 승인된 제품 합의를 PRD로 바꾸는 데서 끝났고, PRD가 
 ## 결과
 
 - 크기 판정은 판단을 돕는 기준이며 자동 검사로 강제하지 않는다. 경계 사례는 사람이 정한다.
-- REQ 추적은 PRD가 있는 작업에서만 확인할 수 있다.
+- ID 추적은 출처에 ID가 있는 작업에서 확인하고, ID가 없는 작업은 실제 요구 출처로 추적한다.
 - 각 플러그인은 다른 플러그인의 설치를 전제로 하지 않는다. 담당 스킬이 없으면 다음 산출물을
   대화로 안내한다.
 - 행동 평가는 [product-delivery-handoff](../../evals/product-delivery-handoff/README.md)에 두며
