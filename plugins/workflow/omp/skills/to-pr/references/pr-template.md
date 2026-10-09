@@ -4,7 +4,7 @@ PR title과 body를 작성하기 전에 읽는다. 대상 저장소의 유효한
 
 ## 양식 조회 결과를 해석한다
 
-[`pr_context.py`](../../../scripts/pr_context.py)의 `templates`가 대상 저장소 default branch 기준의 양식 후보를 알려 준다. 도구가 GitHub 공식 위치(`.github/`, 저장소 root, `docs/`의 `pull_request_template` 파일과 `PULL_REQUEST_TEMPLATE/` 디렉터리)와 우선순위를 대소문자 구분 없이 적용하고, `candidates`를 그 순서로 돌려준다.
+[`pr_context.py`](../../../scripts/pr_context.py)의 `templates`가 대상 저장소 default branch 기준의 양식 후보를 알려 준다. 도구는 GitHub 공식 위치(`.github/`, 저장소 root, `docs/`의 `pull_request_template` 파일과 `PULL_REQUEST_TEMPLATE/` 디렉터리)에서 대소문자 구분 없이 후보를 찾는다. `candidates`에는 PR 기본 본문이 되는 단일 `pull_request_template` 파일을 `.github/`, 저장소 root, `docs/` 순서로 먼저 두고, `template=` query로만 고르는 `PULL_REQUEST_TEMPLATE/` 디렉터리 양식을 같은 위치 순서로 그 뒤에 둔다.
 
 | `templates.status` | 해석 |
 |---|---|
@@ -33,7 +33,7 @@ gh api --hostname <host> "repos/<source.repository>/contents/<path>?ref=<source.
 
 1. 사용자가 정확한 양식 path나 이름을 지정했으면 그 파일이 default branch에 존재하는지 확인하여 사용한다.
 2. `CONTRIBUTING`, 저장소 문서나 양식 자체가 change type·경로별 선택 규칙을 제공하면 실제 diff에 맞는 파일을 사용한다.
-3. 공식 위치 우선순위로 결정되는 단일 기본 template이 있으면 사용한다.
+3. `candidates`에 단일 `pull_request_template` 파일이 있으면 그중 첫 후보를 기본 template으로 사용한다.
 4. 여러 양식 전용 디렉터리의 후보 중 하나가 실제 변경 유형에 명확히 대응하면 그 근거를 기록하고 사용한다.
 5. 유효한 후보가 하나뿐이면 그 파일을 사용한다.
 6. 여러 후보가 동등하게 맞고 저장소 근거로 고를 수 없으면 가능한 제목, 변경 요약과 후보 목록까지 준비한 뒤, 최종 본문 확정이나 publish 전에 사용자에게 양식 선택을 요청한다. 후보를 합치거나 fallback으로 바꾸지 않는다.

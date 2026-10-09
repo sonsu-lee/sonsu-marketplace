@@ -146,6 +146,7 @@ python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
 python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v
 python3 -B -m unittest discover -s evals/worklog -p 'test_*.py' -v
+python3 -B -m unittest discover -s plugins/workflow/tests -p 'test_*.py' -v
 python3 scripts/validate_refactor_inventory.py check
 python3 -B -m unittest discover -s evals/refactor-inventory -p 'test_*.py' -v
 git diff --check

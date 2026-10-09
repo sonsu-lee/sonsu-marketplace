@@ -20,6 +20,9 @@ REMOTE_URL = (
     re.compile(r"^ssh://git@([^/]+)/([^/]+)/(.+?)(\.git)?$"),
     re.compile(r"^https://([^/]+)/([^/]+)/(.+?)(\.git)?/?$"),
 )
+URL_CREDENTIALS = re.compile(r"^(https?://)[^/]*@", re.IGNORECASE)
+LOCAL_TIMEOUT = 120
+NETWORK_TIMEOUT = 30
 TEMPLATE = (
     re.compile(r"^(\.github/|docs/)?pull_request_template\.(md|txt)$", re.IGNORECASE),
     re.compile(r"^(\.github/|docs/)?pull_request_template/[^/]+\.(md|txt)$", re.IGNORECASE),
@@ -30,12 +33,14 @@ class LocalFailure(Exception):
     """로컬 필수 조건 실패. 메시지를 stderr에 쓰고 2로 종료한다."""
 
 
-def run(args, cwd=None, env=None):
+def run(args, cwd=None, env=None, timeout=LOCAL_TIMEOUT):
     try:
-        return subprocess.run(args, cwd=cwd, env=env, capture_output=True, text=True, errors="surrogateescape",
-                              check=False)
+        return subprocess.run(args, cwd=cwd, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True,
+                              errors="surrogateescape", timeout=timeout, check=False)
     except FileNotFoundError:
         return subprocess.CompletedProcess(args, 127, "", f"{args[0]}: command not found")
+    except subprocess.TimeoutExpired:
+        return subprocess.CompletedProcess(args, 124, "", f"{args[0]}: timed out after {timeout}s")
 
 
 def first_line(result):
@@ -47,9 +52,11 @@ def first_line(result):
 
 
 def template_candidates(paths):
+    """기본 본문이 되는 단일 파일을 위치 순서로 먼저, `PULL_REQUEST_TEMPLATE/` 양식을 그 뒤에 둔다."""
     def order(path):
         lower = path.lower()
-        return (0 if lower.startswith(".github/") else 2 if lower.startswith("docs/") else 1, path)
+        location = 0 if lower.startswith(".github/") else 2 if lower.startswith("docs/") else 1
+        return ("pull_request_template/" in lower, location, lower, path)
 
     return sorted((path for path in paths if any(pattern.match(path) for pattern in TEMPLATE)), key=order)
 
@@ -82,13 +89,21 @@ class Collector:
 
         expected_failure가 실패 메시지에 들어 있으면 판정 결과로 보고 errors에 남기지 않는다.
         """
-        result = run(args, cwd=self.root, env=env)
+        result = run(args, cwd=self.root, env=env, timeout=NETWORK_TIMEOUT)
         if result.returncode:
             message = first_line(result)
             if not (expected_failure and expected_failure in message):
                 self.errors.append({"step": " ".join(args[:3]), "message": message})
             return None, message
         return result, None
+
+    def git_network_env(self):
+        """원격 git이 자격 증명이나 SSH host key 확인을 묻지 않고 실패하게 한다. 사용자 SSH 명령 설정은 유지한다."""
+        env = dict(os.environ, GIT_TERMINAL_PROMPT="0")
+        if not (os.environ.get("GIT_SSH_COMMAND") or os.environ.get("GIT_SSH")
+                or self.git_out("config", "core.sshCommand")):
+            env["GIT_SSH_COMMAND"] = "ssh -o BatchMode=yes"
+        return env
 
     def gh_json(self, github, endpoint, expected_failure=None):
         result, error = self.online_step(["gh", "api", endpoint, "--hostname", github["host"]],
@@ -168,7 +183,8 @@ class Collector:
                 name = remotes[0] if remotes else None
         if name is None:
             return None
-        return {"name": name, "url": self.git_out("config", "--get", f"remote.{name}.url") or None}
+        url = self.git_out("config", "--get", f"remote.{name}.url") or None
+        return {"name": name, "url": URL_CREDENTIALS.sub(r"\1", url) if url else None}
 
     def github(self, remote):
         """remote url에서 GitHub 대상을 정한다. SSH 별칭은 ssh -G로 실제 host를 찾는다."""
@@ -195,7 +211,7 @@ class Collector:
             else:
                 unresolved = True
         return {"host": host, "owner": owner, "name": name, "url": None, "visibility": None,
-                "default_branch": None}, unresolved
+                "default_branch": None, "parent": None}, unresolved
 
     # ------------------------------------------------------------ 범위
 
@@ -219,6 +235,9 @@ class Collector:
                     break
         if sha is None:
             self.blockers.add("base-unresolved")
+        elif branch and resolved in (f"refs/heads/{branch}", f"refs/remotes/{remote['name']}/{branch}" if remote
+                                     else None):
+            self.blockers.add("head-equals-base")  # 같은 branch: 미push commit이 있어도 PR 대상이 아니다.
         return {"ref": ref, "source": source, "resolved": resolved, "sha": sha}
 
     def range(self, base, head, requested_base):
@@ -315,11 +334,12 @@ class Collector:
         return {"status": "unverified", "source": None, "candidates": []}
 
     def existing_prs(self, github, branch):
-        if self.offline or not github or not branch:
+        """push 대상 저장소의 같은 branch에서 열린 PR을 찾는다. fork는 PR이 parent에 있을 수 있어 확인하지 않는다."""
+        if self.offline or not github or not branch or github["parent"]:
             return {"status": "unverified", "items": []}
         result, _ = self.online_step([
             "gh", "pr", "list", "--repo", f"{github['host']}/{github['owner']}/{github['name']}", "--head", branch,
-            "--state", "open", "--json", "number,url,isDraft,baseRefName,headRefOid",
+            "--state", "open", "--json", "number,url,isDraft,baseRefName,headRefOid,isCrossRepository",
         ])
         try:
             items = json.loads(result.stdout) if result else None
@@ -328,6 +348,8 @@ class Collector:
             items = None
         if not isinstance(items, list):
             return {"status": "unverified", "items": []}
+        # --head는 owner를 구분하지 않아 다른 fork의 같은 이름 branch PR도 돌려준다.
+        items = [item for item in items if isinstance(item, dict) and item.get("isCrossRepository") is not True]
         if items:
             self.blockers.add("existing-pr")
         return {"status": "checked", "items": [
@@ -353,7 +375,7 @@ class Collector:
         if not self.offline and github:
             env = dict(os.environ, GH_HOST=github["host"])
             view, _ = self.online_step(["gh", "repo", "view", f"{github['owner']}/{github['name']}", "--json",
-                                        "name,owner,url,visibility,defaultBranchRef"], env=env)
+                                        "name,owner,url,visibility,defaultBranchRef,isFork,parent"], env=env)
             try:
                 data = json.loads(view.stdout) if view else None
             except json.JSONDecodeError:
@@ -362,13 +384,17 @@ class Collector:
                 github["url"] = data.get("url")
                 github["visibility"] = data.get("visibility")
                 default_branch = (data.get("defaultBranchRef") or {}).get("name") or None
+                if data.get("isFork") is True:
+                    parent = data.get("parent") or {}
+                    github["parent"] = {"owner": (parent.get("owner") or {}).get("login"), "name": parent.get("name")}
             else:
                 repo_view_failed = True
             user, _ = self.gh_json(github, "user")
             if isinstance(user, dict):
                 auth_login = user.get("login")
         if not self.offline and remote and head["branch"]:
-            listing, _ = self.online_step(["git", "ls-remote", remote["name"], f"refs/heads/{head['branch']}"])
+            listing, _ = self.online_step(["git", "ls-remote", remote["name"], f"refs/heads/{head['branch']}"],
+                                          env=self.git_network_env())
             if listing is None:
                 ls_remote_failed = True
             elif listing.stdout.strip():
@@ -386,7 +412,7 @@ class Collector:
         existing = self.existing_prs(github, head["branch"])
 
         unverified = set()
-        if github is None or host_unresolved or repo_view_failed:
+        if github is None or host_unresolved or repo_view_failed or github["parent"]:
             unverified.add("github-repository")
         if auth_login is None:
             unverified.add("auth")
@@ -429,7 +455,9 @@ def main():
     except LocalFailure as error:
         print(error, file=sys.stderr)
         return 2
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    # UTF-8이 아닌 경로는 surrogate로 남아 있으므로 JSON의 \udcXX escape로 바꿔 항상 유효한 UTF-8을 쓴다.
+    text = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    sys.stdout.buffer.write(text.encode("utf-8", "backslashreplace"))
     return 0
 
 
