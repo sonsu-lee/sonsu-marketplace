@@ -6,6 +6,7 @@
     {
       "path": "plugins/design/skills/audit-interface/SKILL.md",
       "sha256": "67f1fa264db2217d8650a65c9e690b1c4368a2f0b0aa61f8aba689f08967519f",
+      "sources": {},
       "problem": "기존 UI를 감사하면서 수정 권한을 넘거나 screenshot만으로 동작·구조 검증을 완료했다고 판단하기 쉽습니다.",
       "outcome": "정확한 대상·관찰·사용자 영향·gate·severity·최소 수정 방향을 가진 읽기 전용 finding을 제공합니다.",
       "ai_judgment": "실제 과업에서 정보·상태·권한·접근성 결함의 영향과 증거의 한계를 판단합니다.",
@@ -59,6 +60,9 @@
     {
       "path": "plugins/design/skills/design-interface/SKILL.md",
       "sha256": "3efa5cd3fd5df6db3e7747aec1be47e7a181448c0538b8e21e7142e3a73ce477",
+      "sources": {
+        "plugins/design/references/design-quality.md": "77e352d1929954b17438b70e3a3b62555bb649c59cfdfbfefaac177a50895add"
+      },
       "problem": "새 UI가 과업과 정보 요구보다 특정 스타일이나 도구 중심으로 설계되기 쉽습니다.",
       "outcome": "기존 디자인 시스템과 제품 규칙에 맞춘 명세·시안·Figma 또는 동작하는 구현과 범위별 검증을 제공합니다.",
       "ai_judgment": "핵심 과업·정보 우선순위·표현·상태·환경, 레퍼런스 차용 범위와 도구 경로를 판단합니다.",
@@ -117,6 +121,10 @@
     {
       "path": "plugins/design/skills/find-references/SKILL.md",
       "sha256": "2a5003d25af45b3818848f7b3b611ad646d56acb8635e06eccb9fb6bdc5cb152",
+      "sources": {
+        "plugins/design/references/continuity.md": "ad786777820f4d5d8dbfffa43ce48248da83ee75454f04b92b6110fa5ef1d5a7",
+        "plugins/design/references/reference-search.md": "edf7ed2f6cfd7f674d9e790804eedf5c73e70593253d03d9d1c94e08e32dcd2e"
+      },
       "problem": "이미지를 확인하지 않은 검색 결과나 서로 다른 제품의 요소를 섞으면 설계에 쓸 근거가 불분명해집니다.",
       "outcome": "관찰한 사례의 출처·관련성·primary·차용 범위 또는 no_verified_match 결과를 제공합니다.",
       "ai_judgment": "쿼리의 탐색 축, 후보의 과업 적합성, primary 선정과 차용할 요소를 판단합니다.",
@@ -173,6 +181,7 @@
     {
       "path": "plugins/design/skills/redesign-interface/SKILL.md",
       "sha256": "fa60689bad6cbf117f45e4efc16e5337f0094fe0e6e1f5312601f7d9f4656988",
+      "sources": {},
       "problem": "기존 화면을 보기 좋게 바꾸면서 값·단위·권한·상태·동작을 누락하거나 레퍼런스의 제품 의미를 가져올 위험이 있습니다.",
       "outcome": "보존·변경 조건을 추적한 개선 화면과 주요 전후 차이·퇴보 여부·실제 검증 범위를 제공합니다.",
       "ai_judgment": "현재 문제의 원인, 보존할 의미, 변경할 표현과 정보 자산의 재구성 방법을 판단합니다.",
@@ -230,6 +239,54 @@
     }
   ],
   "scripts": [
+    {
+      "path": "plugins/design/figma-plugin/scripts/build.mjs",
+      "sha256": "d5c8863698b28954a0894ece3b883169ce605bd547ff0168e2506e80883aa3a2",
+      "role": "esbuild로 src/code.ts를 Figma plugin용 IIFE dist/code.js로 묶고 src/ui.html을 dist에 복사합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "manifest가 가리키는 저장소 포함 build 결과를 재현하는 유일한 경로이며 packaging 테스트가 직접 실행합니다. 모델 판단이 없는 결정론적 build 단계입니다."
+    },
+    {
+      "path": "plugins/design/figma-plugin/src/code.ts",
+      "sha256": "64e9927ff8d5a58a20609b60584f9ba8971ca0f3fef3e86100a574c1a8394565",
+      "role": "Figma plugin main thread 진입점으로 UI 메시지를 검사해 preview·apply 요청을 engine에 전달하고 결과를 UI로 돌려줍니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "agent 경로인 use_figma와 별개로 사용자가 직접 실행하는 companion의 메시지 경계이며 형식이 틀린 요청을 invalid 결과로 닫는 역할이 분명합니다."
+    },
+    {
+      "path": "plugins/design/figma-plugin/src/contracts.ts",
+      "sha256": "878f38356b42ee458c54316c9dc8672a3fa546001e9ea69b8dda5565f55dce85",
+      "role": "version 1 operation plan, 정규화한 node snapshot, preview receipt와 결과·reason code 타입을 정의합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "engine·adapter·진입점이 같은 allowlist 계약을 공유하는 단일 타입 정의입니다."
+    },
+    {
+      "path": "plugins/design/figma-plugin/src/engine.ts",
+      "sha256": "6f5661b8e2c8fbc2cae177c355160dbd8862630fd92d685f9a162b07938ad2c6",
+      "role": "allowlist JSON plan을 엄격하게 파싱하고 selection 점검·Auto Layout 감사·preview receipt 발급·expected state 기반 apply를 수행합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "unknown field 거부와 receipt 대조 같은 결정론적 실행 계약을 Figma API와 분리해 테스트할 수 있게 합니다. 모델이 대신할 판단이 아닙니다."
+    },
+    {
+      "path": "plugins/design/figma-plugin/src/figma-adapter.ts",
+      "sha256": "9fc7fbf2cd138019820785d34b8973982f83ec33433d56b64c33b673a2ddc0fd",
+      "role": "Figma Plugin API로 selection·node를 정규화해 읽고, 현재 상태가 기대값과 같을 때만 이름 변경·icon instance 교체를 적용합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "host API 의존을 NodePort 구현 하나에 모아 engine을 Figma 없이 검증할 수 있게 유지합니다."
+    },
+    {
+      "path": "plugins/design/figma-plugin/src/ports.ts",
+      "sha256": "38a92adb657d1efd215b203ceae728c3a25ba37621c2a2e6a34593bcf04b04c0",
+      "role": "engine이 Figma host에 요구하는 NodePort 인터페이스와 조건부 변경 결과 값을 정의합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "engine과 Figma API 사이의 최소 경계로 테스트가 Figma 없이 대체 구현을 주입할 수 있게 합니다."
+    },
     {
       "path": "plugins/design/scripts/validate_operations_contracts.py",
       "sha256": "3b31907e42d1981a6fde53561cd47a9b9b5118cab8a7b53fc5280f3e15e00782",

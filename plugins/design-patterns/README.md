@@ -26,9 +26,15 @@ omp plugin install design-patterns@sonsu-marketplace
 | 필드 | 값 |
 | --- | --- |
 | `Decision` | `no-pattern` |
-| `Baseline` | 기본값이 있는 데이터 객체 하나 |
-| `Rejected` | Builder. 생성 단계나 조립 순서가 없다. |
+| `Scope` | 설정값 세 개를 읽는 로더 함수 |
+| `Observed forces` | 필드 세 개와 기본값만 있고 생성 단계나 조립 순서가 없다 |
+| `Baseline` | 기본값이 있는 데이터 객체 하나로 충분하다 |
+| `Candidates` | 없음. `object-oriented-builder`는 decision-ready 항목이 아니다 |
+| `Selected` | none |
+| `Rejected` | Builder. 생성 단계나 조립 순서가 없다 |
+| `Implementation shape` | 기본값을 둔 설정 데이터 객체와 로더 함수 하나 |
 | `Verification` | 누락·잘못된 값의 table test |
+| `Sources` | 현재 설정 로더 코드; `catalog/decision-ready.json` |
 
 ## 카탈로그
 

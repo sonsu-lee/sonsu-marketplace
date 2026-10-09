@@ -12,7 +12,7 @@
 | 플러그인 | 판정 | 대상 | omp 현재 | omp 제안 | 스킬 수 | 문서 지적 수 | 근거 |
 |---|---|---|---|---|---|---|---|
 | engineering | keep |  | not-distributed | not-distributed | 17 | 1 | 호스트별 실행 계약과 내용 주소 기반 품질 근거는 고유하다. PR 리뷰 진입점은 review 하나로 합쳤고 계획 구조 검사와 PR snapshot 수집은 validate_plan.py·pr_review_snapshot.py로 도구화해 판단과 수집을 분리했다. |
-| workflow | new-tool |  | default | default | 9 | 26 | 독립적인 전달 업무와 안전 계약은 유지한다. to-pr의 Git·GitHub 상태 수집은 pr_context.py로 분리했고, 남은 to-pr 첨부 manifest 검사와 inspect-prs의 페이지 수집·상태 정규화를 읽기 전용 도구로 분리한다. |
+| workflow | new-tool |  | default | default | 9 | 24 | 독립적인 전달 업무와 안전 계약은 유지한다. to-pr의 Git·GitHub 상태 수집은 pr_context.py로 분리했고, 남은 to-pr 첨부 manifest 검사와 inspect-prs의 페이지 수집·상태 정규화를 읽기 전용 도구로 분리한다. |
 | fluent-korean | keep |  | default | default | 2 | 14 | Codex 단일 호출과 Claude 다단계 스킬을 유지하고 공통 규칙을 정리하는 방향이 맞습니다. 기계 단계는 기존 스크립트를 재사용하며 미포함 commit-ko·평가 의존성 및 상위 프로젝트 홍보 도구를 번들에서 줄일 수 있습니다. |
 | fluent-english | new-tool |  | default | default | 1 | 5 | 독립적인 영어 작성·윤문 지침을 유지하면서 수치 기반 voice calibration과 보호 문자열 대조를 코드에 맡깁니다. |
 | fluent-japanese | new-tool |  | default | default | 1 | 6 | 독립 도메인과 기존 검사 도구를 유지하고 점수 산식 계산을 도구화하며, 배포에 없는 코퍼스 전용 연구 도구는 정리합니다. |
@@ -29,6 +29,7 @@
 
 | 경로 | 판정 | 대상 | 근거 |
 |---|---|---|---|
+| plugins/engineering/skills/debug/condition-based-waiting-example.ts | to-reference | plugins/engineering/skills/debug/condition-based-waiting.md | `~/threads` 경로의 Lace 타입을 import하므로 이 패키지에서 실행하거나 타입 검사할 수 없다. 실행 도구가 아니라 조건 기반 대기의 구현 형태를 보여 주는 자료이므로 필요한 부분만 reference 예시로 옮긴다. |
 | plugins/workflow/skills/inspect-prs/SKILL.md | new-tool |  | 조회 결과 해석은 독립 과업으로 유지하고, 페이지 수집·필드 정규화·head 변경 감지는 반복 가능한 읽기 전용 수집기로 옮긴다. |
 | plugins/workflow/skills/to-pr/SKILL.md | new-tool |  | Git 상태·양식 탐색·stack ancestry·게시 전 재확인은 pr_context.py가 수집하고 PR 경계·글쓰기·승인·게시 판단은 스킬에 남았다. 첨부 manifest의 파일·digest·필수 필드 검사는 아직 문서 절차이므로 validator로 분리한다. |
 | plugins/fluent-korean/scripts/build_social_preview_v2.py | delete |  | v2.3 생성기와 동일한 출력 파일을 쓰는 이전 홍보 자산 도구이며 이 패키지에는 assets나 홍보 이미지 생성 과업이 없습니다. |
@@ -63,7 +64,7 @@
 | 플러그인 | negative-definition | history | duplicate-rule | missing-example | structure | internal-detail |
 |---|---|---|---|---|---|---|
 | engineering | 0 | 0 | 1 | 0 | 0 | 0 |
-| workflow | 3 | 2 | 6 | 8 | 7 | 0 |
+| workflow | 2 | 1 | 6 | 8 | 7 | 0 |
 | fluent-korean | 3 | 2 | 3 | 2 | 2 | 2 |
 | fluent-english | 1 | 1 | 1 | 1 | 1 | 0 |
 | fluent-japanese | 0 | 1 | 1 | 1 | 2 | 1 |
@@ -84,18 +85,19 @@
 3. `plugins/engineering/scripts/sdd-review-package`: `merge` → `review-package`
 4. Fluent Korean 스크립트 6개(`build_social_preview_v2*.py`, `check_commit_lexicon_ids.py`, `commit_msg_lint.py`, `eval_baseline.py`, `make_thumbnail.py`): `delete`
 5. `plugins/fluent-japanese/skills/fluent-japanese/scripts/calibrate.py`: `delete`
-6. Engineering 도구 후보 2건: `plan` 참조 validator, `review` PR snapshot script
-7. Workflow 도구 후보 2건: `to-pr` 첨부 manifest validator, `inspect-prs` 수집 script
-8. Fluent English 도구 후보 2건, Worklog `worklog-improve` validator 2건
-9. Fluent Japanese 점수 산식 script, Research 증거 원장 validator, Product PRD validator: 각 1건
-10. Engineering 문서 재작성: `doc_findings` 41건
-11. Workflow 문서 재작성: `doc_findings` 26건
-12. Product 22건, Design 15건, Fluent Korean 14건 문서 재작성
-13. Prompting·Memory Manager 각 10건, Research 8건, Writing·Worklog 각 7건, Fluent Japanese 6건, Fluent English 5건 문서 재작성
-14. Design Patterns 문서 재작성: `doc_findings` 1건(`language-realization.md`)
+6. `plugins/engineering/skills/debug/condition-based-waiting-example.ts`: `to-reference` → `condition-based-waiting.md`의 예시
+7. Engineering 도구 후보 2건: `plan` 참조 validator, `review` PR snapshot script
+8. Workflow 도구 후보 2건: `to-pr` 첨부 manifest validator, `inspect-prs` 수집 script
+9. Fluent English 도구 후보 2건, Worklog `worklog-improve` validator 2건
+10. Fluent Japanese 점수 산식 script, Research 증거 원장 validator, Product PRD validator: 각 1건
+11. Engineering 문서 재작성: `doc_findings` 41건
+12. Workflow 문서 재작성: `doc_findings` 24건
+13. Product 22건, Design 15건, Fluent Korean 14건 문서 재작성
+14. Prompting·Memory Manager 각 10건, Research 8건, Writing·Worklog 각 7건, Fluent Japanese 6건, Fluent English 5건 문서 재작성
+15. Design Patterns 문서 재작성: `doc_findings` 1건(`language-realization.md`)
 
 ## 참고 구현
 
-- `oxc-config`(`/Users/sonsu/dev/projects/oxc-config`): 규칙을 설정과 계약 테스트로 고정하고 결정 근거는 `docs/rule-ledger.md`에 둔다.
+- [sonsu-lee/oxc-config](https://github.com/sonsu-lee/oxc-config): 규칙을 설정과 계약 테스트로 고정하고 결정 근거는 [`docs/rule-ledger.md`](https://github.com/sonsu-lee/oxc-config/blob/main/docs/rule-ledger.md)에 둔다.
 - [antfu/skills](https://github.com/antfu/skills): 짧은 SKILL.md와 references로 구성하고 `GENERATION.md`에 원본 SHA를 둔다.
 - [wrtnlabs/evidence](https://github.com/wrtnlabs/evidence): 요구사항 연결의 누락은 검사하고 근거의 진위는 리뷰한다.
