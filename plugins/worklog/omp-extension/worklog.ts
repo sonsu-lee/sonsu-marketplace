@@ -125,7 +125,19 @@ function projectIdentity(cwd: string): string {
 	return location;
 }
 
+function requireSafePath(path: string): void {
+	for (let current = path; ; current = dirname(current)) {
+		try {
+			if (lstatSync(current).isSymbolicLink()) throw new Error("unsafe_path");
+		} catch (error) {
+			if (errorCode(error) !== "ENOENT") throw error;
+		}
+		if (dirname(current) === current) break;
+	}
+}
+
 function ensureDir(path: string): void {
+	requireSafePath(path);
 	mkdirSync(path, { recursive: true, mode: 0o700 });
 	if (lstatSync(path).isSymbolicLink()) throw new Error("unsafe_path");
 }
@@ -136,6 +148,7 @@ function disabled(projectDir: string): boolean {
 
 // Remove date directories older than the retention period at most once per 24 hours.
 function prune(hostDir: string, now: Date): void {
+	requireSafePath(hostDir);
 	const stateDir = join(hostDir, ".state");
 	const marker = join(stateDir, "last-prune");
 	try {
@@ -211,7 +224,14 @@ export default function worklog(pi: ExtensionAPI) {
 				if (errorCode(error) !== "EEXIST") throw error;
 				const state = JSON.parse(readFileSync(statePath, "utf8"));
 				if (typeof state.date !== "string" || !DATE_RE.test(state.date)) throw new Error("invalid_session_date");
-				current.date = state.date;
+				const cutoff = new Date(Date.now() - RETENTION_DAYS * DAY_MS).toISOString().slice(0, 10);
+				if (state.date >= cutoff) {
+					current.date = state.date;
+				} else {
+					const temporary = `${statePath}.${process.pid}.tmp`;
+					writeFileSync(temporary, `${JSON.stringify({ date: current.date })}\n`, { mode: 0o600 });
+					renameSync(temporary, statePath);
+				}
 			}
 			current.stateSaved = true;
 		}
@@ -233,7 +253,7 @@ export default function worklog(pi: ExtensionAPI) {
 		appendFileSync(join(day, `${current.sessionId}.jsonl`), `${JSON.stringify(record)}\n`, { mode: 0o600 });
 	}
 
-	pi.on("session_start", (_event, ctx) => {
+	function startSession(ctx: unknown, source: string): void {
 		try {
 			session = null;
 			const current = open(ctx);
@@ -249,12 +269,16 @@ export default function worklog(pi: ExtensionAPI) {
 				agent_kind: typeof agent?.kind === "string" ? agent.kind : null,
 			};
 			if (current.generated) data.session_id_source = "generated";
-			write(current, "session_start", "session_start", data);
+			write(current, "session_start", source, data);
 			prune(join(current.projectDir, HOST), new Date());
 		} catch {
 			// Fail open: logging must never affect the session.
 		}
-	});
+	}
+
+	pi.on("session_start", (_event, ctx) => startSession(ctx, "session_start"));
+	pi.on("session_switch", (_event, ctx) => startSession(ctx, "session_switch"));
+	pi.on("session_branch", (_event, ctx) => startSession(ctx, "session_branch"));
 
 	pi.on("tool_result", (event, ctx) => {
 		try {

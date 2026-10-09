@@ -148,9 +148,9 @@
     "plugins/workflow/omp/skills/to-ticket/references/media-attachments.md": "2e734b6199a1f8126b15249b0b37da3b57a746e3d492d16db938d118271fb455",
     "plugins/workflow/omp/skills/to-ticket/references/ticket-writing.md": "fae77469392d7a595ebed22c80b016bd6b3776c91e6594fac88e625b7fa3b25d",
     "plugins/worklog/omp/.claude-plugin/plugin.json": "284ea8764a5e3fc7508b3e888a6978909eaeb547dc18d987e395f7a65ff04df8",
-    "plugins/worklog/omp/extension/worklog.ts": "ea42bafb733a12864c6817493f3bca20a48f96cbb66f8dd53a754979ea0fad96",
+    "plugins/worklog/omp/extension/worklog.ts": "da9ba1ebc7984e461bb3968f67ea43fe5713646254e7a0c050fb323435491d32",
     "plugins/worklog/omp/package.json": "0cff0b3636417dfab18a0ea330398ed014f2d3f0ec8f72792003721999433426",
-    "plugins/worklog/omp/scripts/worklog.py": "f2f9d60a87addd025f7a9b06903a28023567e9a8d14ae552a58d4122c70bd527",
+    "plugins/worklog/omp/scripts/worklog.py": "7cf0c0eb16a37cd90e7333324ac798c4aef9e9dc42d5921476d9010d73d54ae3",
     "plugins/worklog/omp/skills/worklog-diagnose/SKILL.md": "514c83c3f2ad42b8b2b6b8711c2092cac6194f93271f35608051bb551f3c78a1",
     "plugins/worklog/omp/skills/worklog-improve/SKILL.md": "4be729ae4dc94026753f0f1bfec561154c114252f50c442f2abe5221398fcc37"
   }

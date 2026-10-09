@@ -17,9 +17,18 @@
 - 두 hook 정의 파일의 호스트별 이벤트 집합과 `--host` 인자
 - `clusters`의 경로·hex·UUID·숫자 정규화, 세션 2개 이상 조건, 빈 결과·기간·최소 건수,
   count/last_ts 정렬, 최대 5개 예시와 원본 위치 연결
+- 로그 하위 symlink를 통한 외부 기록 차단, hook command의 비밀 치환, 만료 세션 재개 시 날짜 갱신과 offset 보존
 
 ```sh
 python3 -B -m unittest discover -s evals/worklog -p 'test_*.py' -v
+```
+
+`test_omp.mjs`는 Node.js 22.6+의 TypeScript 실행 기능으로 정본 extension의 이벤트 핸들러를
+호출합니다. 새 세션·재개·분기의 ID와 transcript 연결, symlink 대상의 기록·삭제 차단,
+만료 세션의 날짜 갱신을 임시 디렉터리에서 확인합니다.
+
+```sh
+node --experimental-strip-types --test evals/worklog/test_omp.mjs
 ```
 
 ## Fixture

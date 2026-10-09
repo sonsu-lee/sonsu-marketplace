@@ -42,7 +42,7 @@ worklog hook을 신뢰하세요. 플러그인을 업데이트한 뒤에는 `/hoo
 | 경로 | `<root>/<project_key>/<host>/<YYYY-MM-DD>/<session_id>.jsonl` |
 | `<root>` | `SONSU_WORKLOG_HOME`(절대 경로), 없으면 `~/.sonsu/worklog`. symlink 조상이 있으면 쓰지 않음 |
 | `<host>` | `claude`, `codex`, `omp` |
-| 날짜 | 그 세션의 첫 기록 시점(UTC). 한 세션의 기록은 한 파일에 모임 |
+| 날짜 | 세션의 첫 기록 시점(UTC). 보존 기간이 지난 세션을 재개하면 현재 날짜의 새 파일로 기록 |
 | `project_key` | memory-manager `project_key()`와 같은 값. Git 공통 디렉터리(Git 밖이면 현재 디렉터리)의 실제 경로 sha256 앞 20 hex |
 | 프로젝트 표지 | `<root>/<project_key>/project.json`에 `{"identity", "created"}`를 한 번 기록 |
 | `session_id` | `[A-Za-z0-9._-]{1,128}`가 아니면 sha256 앞 32 hex, 없으면 `unknown` |
@@ -90,7 +90,7 @@ worklog hook을 신뢰하세요. 플러그인을 업데이트한 뒤에는 `/hoo
 
 - 도구 출력 전문과 프롬프트 전문. 실패 메시지는 첫 의미 줄, 입력은 명령이나 파일 경로의
   앞부분, 프롬프트는 160자 발췌만 남깁니다.
-- 비밀값. `excerpt`·`error`·`input_excerpt`·`reason`·`error_details`에서 memory-manager와 같은
+- 비밀값. `excerpt`·`error`·`input_excerpt`·`reason`·`error_details`·hook `command`에서 memory-manager와 같은
   비밀 정규식에 맞는 부분을 `[redacted]`로 바꿉니다. 정규식이 모든 비밀을 찾는다고 보장하지는
   않으므로 로그 디렉터리는 개인 파일로 다룹니다(디렉터리 0700, 파일 0600).
 
@@ -103,9 +103,12 @@ worklog hook을 신뢰하세요. 플러그인을 업데이트한 뒤에는 `/hoo
 - 보존 기간은 90일입니다. 세션 시작 때 그 프로젝트·호스트의 날짜 디렉터리 중 90일이 지난 것을
   지우며, 24시간에 한 번만 정리하고 시각을 `<host>/.state/last-prune`에 남깁니다.
   세션 상태와 잠금 파일은 지우지 않습니다. 진행 중인 기록의 잠금과 rollout 읽기 위치를 보존하기 위해서입니다.
+  만료된 날짜는 재개 시 현재 날짜로 바꾸고 시작 메타데이터를 다시 남깁니다. rollout 읽기 위치는 유지합니다.
   `python3 scripts/worklog.py prune [--days 90]`은 모든 호스트를 즉시 정리합니다.
 - 로그가 가리키는 Claude Code transcript는 Claude Code 설정 `cleanupPeriodDays`(기본 30일)에 따라
   먼저 지워질 수 있습니다. 이때 진단은 "원문 없음"으로 보고합니다.
+- 로그 경로의 어느 디렉터리 성분이든 symlink이면 기록·보존 정리를 거부합니다. omp의 새 세션·재개·분기
+  이벤트에서는 세션 ID와 transcript 연결을 새로 읽습니다.
 
 ## 조회
 
