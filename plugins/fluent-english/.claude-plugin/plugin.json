@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "fluent-english",
   "displayName": "Fluent English",
-  "version": "0.1.0-beta.1",
+  "version": "0.2.0",
   "description": "영어 일상 메시지와 기술 문서를 독자·목적에 맞춰 작성·윤문·검토한다.",
   "author": {
     "name": "sonsu",

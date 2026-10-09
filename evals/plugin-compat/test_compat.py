@@ -392,11 +392,12 @@ class CodexPackagingTests(unittest.TestCase):
                               "humanize-finalizer", "claude-opus", "Task("):
                 self.assertNotIn(forbidden, text)
             source = korean / "codex/skills/fluent-korean"
-            original = (source / "SKILL.md").read_text()
-            rules = original.split("## 윤문 철칙", 1)[1].split("## 파일·정량 윤문 절차", 1)[0]
+            header = (source / "references/quick-rules.header.md").read_text()
+            projected_header = (skill.parent / "references/quick-rules.header.md").read_text()
+            rules = header.split("## 공통 보존 규칙", 1)[1].split("**과윤문 가드", 1)[0]
             for rule in rules.splitlines():
-                if rule and not rule.startswith("5."):
-                    self.assertIn(rule, text)
+                if rule:
+                    self.assertIn(rule, projected_header)
             self.assertIn("30% 이상", text)
             self.assertIn("50% 이상", text)
             self.assertIn("01_input.txt", text)
@@ -480,6 +481,15 @@ class CodexPackagingTests(unittest.TestCase):
             self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
             self.assertIn("error:", result.stderr)
 
+    def test_omp_korean_projection_fails_when_target_text_is_missing(self):
+        spec = importlib.util.spec_from_file_location("render_omp_compat", ROOT / "scripts/render-omp-compat.py")
+        renderer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(renderer)
+        source = (ROOT / "plugins/fluent-korean/codex/skills/fluent-korean/SKILL.md").read_bytes()
+        self.assertIn("(OMP)", renderer.omp_korean_skill(source).decode())
+        missing = source.replace("8. **응답**:".encode(), "8. **답변**:".encode())
+        with self.assertRaisesRegex(ValueError, "projection target"):
+            renderer.omp_korean_skill(missing)
 
     def test_omp_continuity_has_no_removed_extension_claim(self):
         template = (ROOT / "shared/task-continuity/continuity.md.tmpl").read_text()

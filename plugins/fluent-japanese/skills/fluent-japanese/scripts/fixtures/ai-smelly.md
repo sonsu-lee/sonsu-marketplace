@@ -1,5 +1,5 @@
 <!--
-2026-07 コーパス校正後の期待値（scripts/calibrate.py によるコーパス実測を反映した再設計）:
+lint.py の期待値:
   `uv run scripts/lint.py scripts/fixtures/ai-smelly.md --json`
     → 25件 (forbidden_phrase:8, antithesis_repetition:5, low_burstiness:1,
        english_syntax_inanimate_subject:2, inanimate_subject_morph:1,
@@ -7,12 +7,7 @@
   `--experimental` を付けると EXPERIMENTAL_CATEGORIES も出力され 33件
     （上記に加えて paragraph_lead_conjunction:4, english_syntax_cleft_because:1,
       boilerplate_heading:1, high_bold_density:1, numbered_phase_structure:1）。
-  旧設計の期待値（35/0）はコーパス校正で前提が誤りと判明した検出器
-  （nested_attributive 削除、nominal_ending 反転等）を含んでいたため崩れている。
-  2026-07 Phase 3 で low_specificity（段落単位の具体性/一般論臭検出器、
-  corpus/reports/archive/sweep_low_specificity.md で校正）を新設し、一般論だけの段落を
-  1つ追記して発火を確認した（既存の「このように、リモートワークには…」段落でも
-  1件発火していたため、合計2件になっている）。
+  low_specificity は一般論だけの2段落で発火する。
 -->
 
 # AIっぽい文章のサンプル

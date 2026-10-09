@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "fluent-english",
-  "manifest_sha256": "31fb6b75cb02865c044c1f6f0d325659eba53ccc8d63e57697a6c07ef9382b36",
+  "manifest_sha256": "51dc06b0425d290fe92506e733d49de8717aa3b984603f6c49aab941b10baef0",
   "problem": "영어 업무·기술 글을 다듬을 때 획일적인 AI 문체로 바뀌거나 원래의 의미와 목소리를 잃습니다.",
   "outcome": "독자와 목적에 맞고 사실·필자의 목소리를 보존한 영어 글을 제공합니다.",
   "omp": {
@@ -9,28 +9,28 @@
     "proposal": "default",
     "reason": "영어 메시지·문서 작성은 넓게 쓰이는 과업이고 영어 문체 판단은 omp의 검색·리뷰·세션 기능과 다른 도메인 지식입니다."
   },
-  "verdict": "new-tool",
+  "verdict": "keep",
   "verdict_target": "",
-  "reason": "독립적인 영어 작성·윤문 지침을 유지하면서 수치 기반 voice calibration과 보호 문자열 대조를 코드에 맡깁니다.",
+  "reason": "독립적인 영어 작성·윤문 지침을 유지하고, 수치 기반 voice calibration과 보호 문자열 대조는 읽기 전용 도구로 분리했습니다. 도구 출력은 문맥 판단의 입력으로만 사용합니다.",
   "skills": [
     {
       "path": "plugins/fluent-english/skills/fluent-english/SKILL.md",
-      "sha256": "366f0724139375576ed38539b4cf85d8973d403e129dcf30fc1743dd6d518f81",
+      "sha256": "8ad7851d90969ff73d8782fc3ab99523aa1b38fd9d5b68315b9e359d21c8df90",
       "problem": "영어 글이 독자·장르에 맞지 않게 획일화되거나 가벼운 교정에서 필자의 어조·유보·사실을 잃는 문제를 다룹니다.",
       "outcome": "요청에 맞는 영어 초안·윤문본 또는 구체적 검토 결과와 필요한 변경 설명을 반환합니다.",
       "ai_judgment": "독자·관계·목적에 맞는 어조, light-edit의 수정 필요성, 장르별 예외와 근거를 넘지 않는 구체성을 판단합니다.",
       "mechanical": [
         {
           "step": "원문·샘플·윤문본의 문장 길이, 축약형·인칭·유보 표현과 문장부호 빈도를 같은 규칙으로 집계하고 전후 차이를 반환합니다.",
-          "location": "plugins/fluent-english/skills/fluent-english/references/voice-and-context.md:100-120",
-          "existing_tool": null,
-          "proposal": "script"
+          "location": "plugins/fluent-english/skills/fluent-english/references/voice-and-context.md:100-108",
+          "existing_tool": "plugins/fluent-english/scripts/voice_profile.py",
+          "proposal": "none"
         },
         {
           "step": "코드·인용·링크 대상·frontmatter의 전후 문자열 차이를 찾아 사람이 판단할 위치를 반환합니다.",
-          "location": "plugins/fluent-english/skills/fluent-english/SKILL.md:57",
-          "existing_tool": null,
-          "proposal": "validator"
+          "location": "plugins/fluent-english/skills/fluent-english/references/voice-and-context.md:139-140",
+          "existing_tool": "plugins/fluent-english/scripts/validate_preservation.py",
+          "proposal": "none"
         }
       ],
       "unique_value": "영어 장르별 신호와 예외, light-edit에서 정상적인 필자 선택을 보존하는 규칙, 문체 프로필의 전후 비교를 결합합니다.",
@@ -44,38 +44,29 @@
           "note": "검토 형식은 유사하지만 omp 코드 리뷰가 영어 편집·문체 보존을 대체하지는 않습니다."
         }
       ],
-      "verdict": "new-tool",
+      "verdict": "keep",
       "verdict_target": "",
-      "reason": "영어 작성·교정은 유지하고 수작업으로 지시한 빈도·전후 수치 비교와 보호 문자열 대조만 결정론적 도구로 분리할 가치가 있습니다. 도구 출력은 수정 명령이 아니라 문맥 판단의 입력으로 사용합니다.",
-      "doc_findings": [
-        {
-          "kind": "structure",
-          "location": "plugins/fluent-english/skills/fluent-english/SKILL.md:69-100",
-          "note": "핵심 절차 뒤에 별도 편집 원칙·금지 목록이 길게 이어집니다. 절차·결과·예시·경계·참고 순서로 정리할 필요가 있습니다."
-        },
-        {
-          "kind": "missing-example",
-          "location": "plugins/fluent-english/skills/fluent-english/SKILL.md:33-41",
-          "note": "개별 문장 대조는 있으나 요청한 장르·편집 강도와 최종 결과를 함께 보이는 완결 예시가 없습니다."
-        },
-        {
-          "kind": "negative-definition",
-          "location": "plugins/fluent-english/skills/fluent-english/SKILL.md:83-90",
-          "note": "사실·뉘앙스·범위 보존이 여러 Do not 문장으로 정의되어 있습니다. 보존할 내용을 행동형으로 묶고 실제 권한 경계만 경계 절에 남길 수 있습니다."
-        },
-        {
-          "kind": "duplicate-rule",
-          "location": "plugins/fluent-english/skills/fluent-english/references/preflight.md:19-30",
-          "note": "대시·결말·고정 표현 규칙이 SKILL.md 61–67행과 다시 서술됩니다. 정본 규칙을 링크하고 체크리스트에는 확인 행동을 남길 수 있습니다."
-        },
-        {
-          "kind": "history",
-          "location": "plugins/fluent-english/skills/fluent-english/references/sources.md:31-33",
-          "note": "날짜별 refresh 경위가 실행 참고 자료에 들어 있습니다. 출처는 UPSTREAM.md로, 변경 이유는 결정 문서로 분리해야 합니다."
-        }
-      ],
-      "example": "weak"
+      "reason": "영어 작성·교정 판단은 스킬에 두고, 빈도·전후 수치 비교와 보호 문자열 대조는 결정론적 도구로 제공합니다. 스킬은 도구 결과를 수정 명령이 아닌 판단 입력으로 해석하게 합니다.",
+      "doc_findings": [],
+      "example": "present"
     }
   ],
-  "scripts": []
+  "scripts": [
+    {
+      "path": "plugins/fluent-english/scripts/validate_preservation.py",
+      "sha256": "aa9aae4a1b02e83a06ee2a15d8542855e8dbeb0977a3e22b20856368af0f24e5",
+      "role": "윤문 전후 Markdown의 frontmatter, 코드, 인용, 링크 대상 문자열을 비교하고 차이 위치를 JSON으로 반환합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "보호 문자열 대조는 명령으로 판정할 수 있고, 허용 여부와 의미 보존 판단은 스킬 절차에 남깁니다."
+    },
+    {
+      "path": "plugins/fluent-english/scripts/voice_profile.py",
+      "sha256": "2e3dedc2b81133d6de2e7a424395876d0c12823a4903e8c7b854b021deafed4d",
+      "role": "원문·윤문본·선택 샘플에 같은 어휘 규칙을 적용해 문장 길이와 voice marker 빈도, 전후 차이를 JSON으로 반환합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "voice calibration의 반복 집계를 일관되게 계산하고, 차이의 정당성은 brief와 문맥으로 판단합니다."
+    }
+  ]
 }

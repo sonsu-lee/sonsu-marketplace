@@ -16,11 +16,11 @@ Run this before delivery.
 
 ## Anti-slop check
 
-- No chatbot framing remains.
-- No generic "in conclusion" ending remains unless the genre requires it.
-- No decorative emoji or mechanical bold-label bullets remain unless appropriate.
-- No em dashes or en dashes remain in strict de-AI rewrites, except en dashes in numeric and date ranges. End the sentence or use a comma; do not swap the dash for a colon or parentheses. Exempt literary and editorial long-form where dashes are the writer's voice — see Dash dependence in `ai-writing-patterns.md`.
-- No repeated 'not X but Y'/'not just X but Y' scaffold remains; single contrast used once is not a tell — see Binary contrast in `structures-and-phrases.md`.
+- Remove chatbot framing that addresses a chat user instead of the reader.
+- End without a generic “in conclusion” unless the genre requires it.
+- Use decorative emoji and mechanical bold-label bullets only where the medium expects them.
+- For strict passes, confirm the dash and ending rules in [Strict passes](voice-and-context.md#strict-passes) and [Dash dependence](ai-writing-patterns.md#dash-dependence).
+- Keep a single binary contrast where it states a real distinction; revise repeated scaffolds under [Binary contrast](structures-and-phrases.md#binary-contrast).
 - No vague "experts say" claim remains without a named source.
 - No promotional language remains in neutral copy.
 - No sentence names a feeling where it could name a mechanism, a number, or a date.

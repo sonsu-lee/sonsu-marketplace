@@ -9,13 +9,13 @@ This skill is a new synthesis informed by these public sources:
 - `Leonxlnx/taste-skill`: https://github.com/Leonxlnx/taste-skill
   Context-first brief reading, explicit quality dials, anti-default discipline, and pre-flight matrices.
 - `cursor/plugins` (`pstack/skills/unslop`): https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md
-  Abstract metaphor nouns, the mechanism-not-mood rule and its swap test, colon-as-connector, the redundancy reading of inline-header bullets, and the reminder that voiceless prose is its own tell. That last one came from its "Adding soul" section, which PR #329 removed on 2026-09-07; the credit is to the earlier version. The same PR added the over-compression rule.
+  Abstract metaphor nouns, the mechanism-not-mood rule and its swap test, colon-as-connector, the redundancy reading of inline-header bullets, the reminder that voiceless prose is its own tell, and the over-compression rule.
 - `Wikipedia:Signs of AI writing`: https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
   Observed patterns in AI-generated prose, especially significance inflation, vague attribution, promotional tone, formulaic structure, and overused vocabulary.
 
-## Corpus and detection research (2023–2025)
+## Corpus and detection research
 
-These informed the 2026-06-15 refresh: confidence tiers, era stamping, the nominalisation and present-participle patterns, and the false-positive guardrails.
+These support the confidence tiers, era stamping, the nominalisation and present-participle patterns, and the false-positive guardrails.
 
 - Kobak et al., "Delving into LLM-assisted writing in biomedical publications through excess vocabulary": https://arxiv.org/abs/2406.07016
   Measured excess word usage across over 15M PubMed abstracts (2010–2024); the source of the "delve" and excess-vocabulary evidence.
@@ -28,9 +28,9 @@ These informed the 2026-06-15 refresh: confidence tiers, era stamping, the nomin
 - Liang et al., "GPT detectors are biased against non-native English writers", Patterns 2023: https://arxiv.org/abs/2304.02819
   Documented misclassification of non-native English writing; the basis for the false-positive guardrails and the anti-detector-evasion stance.
 
-## 2026-09-01 research refresh
+## Style, hedging, and dash research
 
-These informed the hedging re-scope, the corrected dash and fingerprint entries, the detector-bias update, and the Tier 1 promotion of binary contrast.
+These support the hedging scope, the dash and fingerprint entries, detector-bias cautions, and the Tier 1 binary-contrast entry.
 
 - Jiang and Hyland, "Rhetorical distinctions", English for Specific Purposes 79, 2025.
   ChatGPT essays show significantly less interactional metadiscourse (hedges, boosters, attitude markers) than human essays; the basis for treating stance hedges and intensifiers as human signals.
@@ -85,9 +85,9 @@ These informed the hedging re-scope, the corrected dash and fingerprint entries,
 - Wikipedia:Signs of AI writing, fetched 2026-09-01.
   Current vocabulary eras, the spaced-dash note, the Grok entries, and the "signs of human writing" list.
 
-## 2026-09-22 research refresh
+## Detector bias, voice drift, and artefact research
 
-These informed the corrected dash and fingerprint entries, the new leaked artefacts, the detector-bias and short-text guardrails, the new human signals, the change-note rule, the scope-word preflight check, and the eval additions (split-contrast check, `mattr` and `sentence_length_sd`, the `ranking-claims` fixture, and the human corpus). Leaked system prompts are unofficial; items marked second-hand were not read directly.
+These support the dash and fingerprint entries, leaked-artefact checks, detector-bias and short-text guardrails, human signals, the change-note rule, the scope-word preflight check, and the evaluation checks (split contrast, `mattr`, `sentence_length_sd`, the `ranking-claims` fixture, and the human corpus). Leaked system prompts are unofficial; items marked second-hand were not read directly.
 
 - Chambers and Kelley, "The misclassification of autistic writing as AI-generated", arXiv 2607.14729, 2026 (preprint).
   About 33,000 Reddit posts, one detector: posts from autism communities flagged 25% more often, 50% at matched length, with no lower perplexity or burstiness.
@@ -125,4 +125,4 @@ These informed the corrected dash and fingerprint entries, the new leaked artefa
 - Wikipedia:Signs of AI writing, fetched 2026-09-22 (revision 1376018375), and its talk page.
   The em-dash historical-indicator notice, elegant variation moved to historical indicators, false ranges dropped, change notes that list what was preserved, mixed register as an ineffective indicator, the new tracking parameters and Grok and Perplexity markup, markdown pipe tables, curly quotes by vendor, and the commit-speak preamble.
 
-Use these sources as diagnostic inspiration. Do not copy upstream examples or prose into user deliverables. When maintaining this skill, keep `SKILL.md` concise and move detailed pattern lists into references.
+Use these sources as diagnostic inspiration and write deliverables from the brief and source text. Keep `SKILL.md` concise and place detailed pattern lists in references.

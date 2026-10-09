@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "fluent-japanese",
-  "manifest_sha256": "0e4f3ed852e0de1b52772d4d28755b687836ba5a80943cc4d32634e0f78d28b3",
+  "manifest_sha256": "88458d3703e882c9f7d6d7c05977538c469f820eed51e677c3790581368f574a",
   "problem": "일본어 업무·기술 문장의 반복 문체와 읽기 부담을 줄이되 사실과 고유한 표현을 보존해야 합니다.",
   "outcome": "문서 유형별 일본어 작성·윤문과 근거 있는 진단을 기계 검출 및 문맥 리뷰로 수행합니다.",
   "omp": {
@@ -9,46 +9,46 @@
     "proposal": "default",
     "reason": "일상·업무 일본어의 문장 개선과 언어 전용 lint는 omp 기본 기능이 제공하지 않습니다. 무거운 semantic 실행만 별도 선택 경로로 유지합니다."
   },
-  "verdict": "new-tool",
+  "verdict": "keep",
   "verdict_target": "",
-  "reason": "독립 도메인과 기존 검사 도구를 유지하고 점수 산식 계산을 도구화하며, 배포에 없는 코퍼스 전용 연구 도구는 정리합니다.",
+  "reason": "독립 도메인과 기존 검사 도구를 유지합니다. 진단 점수 산식은 score.py로 계산하고, 코퍼스가 없는 연구 도구 calibrate.py는 패키지에서 제거했습니다.",
   "skills": [
     {
       "path": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md",
-      "sha256": "e048191e9b39357b4d7f0d065772e9d4130120667dcbdb9e864c762869cb5165",
+      "sha256": "93e84a483929e72602345fe5cc6563a1bd1bcf37ed3e0f61cc468a75eb266e60",
       "problem": "일본어 업무 글이 번역투·반복 구조로 읽기 어렵거나 문서 진단이 표현을 일괄 삭제하는 교정으로 흐르는 문제를 다룹니다.",
       "outcome": "목적에 맞는 일본어 문서·윤문본 또는 근거가 있는 자연도 진단을 반환하며 기계 신호와 문맥 판단을 구분합니다.",
       "ai_judgment": "독자·주요 메시지·문서 유형, finding별 수정·보존, 읽기 부담과 사실 보존, full 진단의 점수 조정을 판단합니다.",
       "mechanical": [
         {
           "step": "장르별 표층 패턴과 이전 결과 대비 resolved·new·persisting을 수집합니다.",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:77-87",
+          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:31-44",
           "existing_tool": "plugins/fluent-japanese/skills/fluent-japanese/scripts/lint.py",
           "proposal": "none"
         },
         {
           "step": "구조 리뷰에 쓸 제목과 문단 첫 문장을 줄 번호와 함께 추출합니다.",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:97-108",
+          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:39",
           "existing_tool": "plugins/fluent-japanese/skills/fluent-japanese/scripts/outline.py",
           "proposal": "none"
         },
         {
           "step": "전문 용어 후보의 첫 등장·횟수·설명 힌트를 수집합니다.",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:95",
+          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:42",
           "existing_tool": "plugins/fluent-japanese/skills/fluent-japanese/scripts/terms.py",
           "proposal": "none"
         },
         {
-          "step": "exp 요청에서 문장 임베딩의 인접 유사도·반복 신호를 측정합니다. 모델 다운로드를 수반하는 선택 경로입니다.",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:89",
+          "step": "full에서 문장 임베딩의 인접 유사도·반복 신호를 측정합니다. 모델 다운로드를 수반하는 선택 경로입니다.",
+          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:43",
           "existing_tool": "plugins/fluent-japanese/skills/fluent-japanese/scripts/semantic.py",
           "proposal": "none"
         },
         {
           "step": "lint severity별 건수와 문서 길이로 기계 기본 점수·구간·100자 미만 판정 및 조정 후 범위 제한을 계산합니다.",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/references/diagnose.md:13-37",
-          "existing_tool": "plugins/fluent-japanese/skills/fluent-japanese/scripts/lint.py",
-          "proposal": "script"
+          "location": "plugins/fluent-japanese/skills/fluent-japanese/references/diagnose.md:13-47",
+          "existing_tool": "plugins/fluent-japanese/skills/fluent-japanese/scripts/score.py",
+          "proposal": "none"
         }
       ],
       "unique_value": "일본어 형태소 기반 lint와 문서형·가독성 리뷰를 결합하고 finding을 고칠지 남길지 판단하는 대장을 사용합니다.",
@@ -66,56 +66,17 @@
           "note": "새 글의 소재 수집은 호스트 검색을 사용하고 확보한 사실의 문장화를 이 스킬이 담당합니다."
         }
       ],
-      "verdict": "new-tool",
+      "verdict": "keep",
       "verdict_target": "",
-      "reason": "기존 lint·outline·terms의 기계/판단 분리는 적절합니다. diagnose.md의 명시적인 점수 산식은 lint JSON을 입력으로 계산하는 도구로 옮기고 구조·가독성 평가는 모델 판단으로 남길 수 있습니다.",
-      "doc_findings": [
-        {
-          "kind": "structure",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:3",
-          "note": "description에 다수의 예시 요청·모드·예외가 한 문장처럼 길게 연결되어 있습니다. 목적과 발동 조건 한 문장 및 혼동 경계 한 문장으로 줄일 수 있습니다."
-        },
-        {
-          "kind": "structure",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:15-39",
-          "note": "절차 전 설계 철학·실측 소요 시간·호출 모드가 길고 결과 형식은 score 참고 자료에만 있습니다. 절차·결과를 앞에서 찾을 수 있게 구성해야 합니다."
-        },
-        {
-          "kind": "missing-example",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:145-147",
-          "note": "예시 절이 외부 링크만 제공하고 본문에는 실제 입력·결과가 없습니다. 명령 코드 블록만으로 완결 예시를 대신할 수 없습니다."
-        },
-        {
-          "kind": "internal-detail",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:139",
-          "note": "6축의 90점·92점 합격 상수를 본문과 eval-rubric.md가 각각 선언합니다. 본문에는 평가 실행과 결과별 행동을 남기고 수치는 정본 참고 자료에 모을 수 있습니다."
-        },
-        {
-          "kind": "history",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/references/revision-guide.md:42-57",
-          "note": "교정 지침 표에 재교정 연월과 삭제된 탐지기의 경위가 남아 있습니다. 현재 적용 기준과 연구·변경 기록을 분리할 필요가 있습니다."
-        },
-        {
-          "kind": "duplicate-rule",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/references/manual-checklist.md:21-27",
-          "note": "수동 체크리스트의 체언 종결 다용 지적은 revision-guide.md의 체언 종결 부재 신호와 방향이 다릅니다. 동일 관점의 현재 판정 기준을 한 곳에서 관리해야 합니다."
-        }
-      ],
-      "example": "weak"
+      "reason": "lint·outline·terms·score가 기계 신호와 점수 산식을 결정론적으로 계산하고, finding 채택·구조·가독성 판단과 점수 조정은 모델이 맡는 분리가 적절합니다.",
+      "doc_findings": [],
+      "example": "present"
     }
   ],
   "scripts": [
     {
-      "path": "plugins/fluent-japanese/skills/fluent-japanese/scripts/calibrate.py",
-      "sha256": "7409007f511524fafe7eaf026f8d693a0829d0bc0845b9e35092ea61deb411d8",
-      "role": "코퍼스를 읽어 lint 탐지기의 분포·임계값 sweep·길이별 결과를 Markdown과 JSON으로 저장합니다.",
-      "verdict": "delete",
-      "verdict_target": "",
-      "reason": "고정된 plugins/fluent-japanese/corpus를 전제로 하지만 현재 패키지에는 corpus가 없고 문서 작성 경로에서도 호출하지 않습니다. [추론] 상위 프로젝트 연구 도구로 남기고 배포 패키지에서는 제외할 수 있습니다."
-    },
-    {
       "path": "plugins/fluent-japanese/skills/fluent-japanese/scripts/lint.py",
-      "sha256": "1ae8e1465217cc9896dca0ff764da19baa1c383a72eac20d07c37e45e812aeb8",
+      "sha256": "d7d85fa7b950f707dcaa70aca6ddc8cd8655e2fbc745ddcec0aa7ab122a3e295",
       "role": "일본어 표층 패턴·문장 통계를 검출하고 baseline 차이와 선택적 읽기 부담 신호를 JSON 또는 텍스트로 반환합니다.",
       "verdict": "keep",
       "verdict_target": "",
@@ -123,11 +84,19 @@
     },
     {
       "path": "plugins/fluent-japanese/skills/fluent-japanese/scripts/outline.py",
-      "sha256": "0756b3250bd02474b580f566971db7886319cc3737e3e24215ae9cedf52f219b",
+      "sha256": "ad9ff435fdb7f014721401c261aba4760ac24148b2e7ed4a3f5df1a71bc934c9",
       "role": "Markdown 구조를 구분해 제목·문단 첫 문장·목록 위치와 제목 통계를 추출합니다.",
       "verdict": "keep",
       "verdict_target": "",
       "reason": "문맥 리뷰의 입력을 결정론적으로 만들며 일본어 제목 형태소 통계도 제공하므로 일반 파일 검색과 구별됩니다."
+    },
+    {
+      "path": "plugins/fluent-japanese/skills/fluent-japanese/scripts/score.py",
+      "sha256": "296bf9ccde440f0790915ee0b7186c88f45b770fede903e8036bde87cf201c8d",
+      "role": "lint JSON과 대상 문서 길이로 기계 기본 점수·조정 범위·최종 점수·구간과 100자 미만 판정을 계산합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "diagnose.md의 명시적 산식을 결정론적으로 계산하고 판단 조정 폭만 모델 입력으로 받아 같은 입력에 같은 점수를 냅니다."
     },
     {
       "path": "plugins/fluent-japanese/skills/fluent-japanese/scripts/semantic.py",

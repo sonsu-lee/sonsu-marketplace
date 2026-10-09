@@ -43,7 +43,7 @@
     },
     {
       "path": "scripts/render-omp-compat.py",
-      "sha256": "575e657f4138ef1a99ca7a9269685f7daf379120a2e159570505401d6d1a1dd5",
+      "sha256": "61280b265c67daf07997d16fb8c374d03b9fbd39201b00c934bf25741fcda702",
       "role": "omp 기본·opt-in 카탈로그를 만들고 독립 패키지의 스킬·도구·라이선스·호스트 지침과 허용된 runtime extension을 생성한다.",
       "verdict": "keep",
       "verdict_target": "",
