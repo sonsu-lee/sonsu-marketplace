@@ -50,7 +50,7 @@ Workflow의 `git-workflow`는 `branch`, `commit`, `push`, `review-commit`으로 
 
 ## 플러그인 경계
 
-Engineering, Workflow, Research, Prompting, Product, Design, Design Patterns, Memory Manager, Writing과 Fluent Languages는
+Engineering, Workflow, Research, Prompting, Product, Design, Design Patterns, Memory Manager, Writing, Career와 Fluent Languages는
 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
 Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
@@ -93,6 +93,11 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 제품 가설의 실행 전 검증 방법·계측·판정 기준 설계 | `product:design-product-test` |
 | 실행된 제품 검증을 사전 기준으로 판정 | `product:assess-product-test` |
 | 승인된 제품 합의를 PRD로 변환 | `product:to-prd` |
+| 경력 사실·수치·스토리·조건의 원본 정리·정정·철회 | `career:career-inventory` |
+| 미국식 resume·履歴書·職務経歴書(조건부 スキルシート) 작성·JD 맞춤·검토 | `career:write-career-documents` |
+| 회사·라운드별 면접 준비, 면접관 체크리스트, HR 기본 질문 답변, 제출 서류 심층 질문, 자료 기반 곤란한 질문, 프로덕트 분석 | `career:prepare-interview` |
+| 모의면접(coaching·rehearsal·deep-dive·FE system design, 면접관 체크리스트 판정) | `career:mock-interview` |
+| 실제 면접 기록·분류·환류 | `career:interview-retro` |
 
 
 Memory Manager의 회상은 관련 맥락에만 적용합니다. 수집은 명시적 기억 의도와 검증된 후보에
@@ -189,7 +194,7 @@ Fluent는 구성 단계에서 제외한 참고 내용을 다시 추가하지 않
 
 Workflow는 Writing·Fluent 설치와 관계없이 티켓·PR·커밋의 경량형·서식 밀도·서두·어조 최소 규칙([문장 형식 기준](../../plugins/workflow/references/tracker-prose.md))을 적용합니다.
 
-한국어 산출물을 새로 쓸 때는 Writing의 구성과 함께 설치된 Fluent Korean의 생성 규칙을 적용합니다. 일반 대화 답변에는 적용하지 않습니다.
+한국어 산출물을 새로 쓸 때는 Writing의 구성과 함께 설치된 Fluent Korean의 생성 규칙을 적용합니다. 일반 대화 답변·단순 맞춤법 교정·번역에는 자동 적용하지 않습니다.
 
 ## Prompting 조합
 
@@ -284,6 +289,38 @@ Product와 다른 플러그인의 경계는 다음과 같습니다.
 Product만 설치된 환경에서도 현재 대화와 제공 자료를 바탕으로 각 작업을 완료할 수 있어야
 합니다. 외부 근거나 구현이 함께 요청되면 Research 또는 Engineering을 runtime에서 조합하며
 manifest dependency를 추가하지 않습니다.
+
+## Career 조합
+
+Career는 개발자 이직을 위한 경력 원본, 지원 서류, 면접 준비·모의면접·회고를 담당합니다.
+스킬은 작업 단계가 아니라 사용자가 직접 요청한 산출물과 현재 작업 공간의 상태를 기준으로 선택합니다.
+다섯 스킬은 [작업 공간 계약](../../plugins/career/references/workspace.md)과
+[근거 규칙](../../plugins/career/references/evidence-rules.md)을 함께 따릅니다.
+
+```text
+경력 원본에서 지원·면접까지 진행
+  → career-inventory로 사실·스토리·조건을 확인 상태와 함께 정리
+  → write-career-documents로 resume·履歴書·職務経歴書를 작성하고 JD에 맞춤
+  → prepare-interview로 회사·라운드별 준비, HR 기본 질문, 곤란한 질문을 준비
+  → mock-interview로 연습하고 질문 은행 상태를 갱신
+  → interview-retro로 실제 면접을 기록·분류
+  → 다음 라운드를 다시 prepare-interview로 준비
+```
+
+위 흐름은 가능한 조합 예시이며 고정된 pipeline이 아닙니다. 사용자는 기존 서류 검토, 회사와 무관한
+곤란한 질문 점검, 끝난 면접의 회고부터 직접 시작할 수 있습니다. 각 Career 스킬은 자기 결과를
+독립적으로 완성하며, 근거가 필요한데 경력 원본이 없으면 `career-inventory`를 안내합니다.
+
+Career와 다른 플러그인의 경계는 다음과 같습니다.
+
+- 일반 문장 윤문은 Fluent가 담당합니다. 지원 서류의 문장은 Career가 쓰고, 이어서 다듬기를
+  요청하면 Fluent를 runtime에서 조합합니다.
+- 여러 출처의 회사 조사와 교차 검증은 Research가 담당합니다.
+- 업무 문서·README는 Writing이 담당합니다.
+- 면접관용 평가표나 채용 설계는 어느 플러그인도 담당하지 않습니다.
+
+Career만 설치된 환경에서도 각 작업을 완료할 수 있어야 합니다. 윤문이나 다중 출처 조사가 함께
+요청되면 Fluent 또는 Research를 runtime에서 조합하며 manifest dependency를 추가하지 않습니다.
 
 ## Design의 Figma 경로
 
