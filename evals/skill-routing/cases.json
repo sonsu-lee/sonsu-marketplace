@@ -458,7 +458,8 @@
       "must_include_reproduction_section": true,
       "expected_required_headings": [
         "현상",
-        "재현 정보"
+        "재현 정보",
+        "완료조건"
       ],
       "expected_omitted_headings": [
         "참고"
@@ -679,12 +680,12 @@
       "id": "workflow-alone-does-not-install-fluent",
       "prompt": "고객이 CSV 한글 깨짐을 보고했어. 접수용 한국어 티켓 초안을 만들어 줘.",
       "expected_template": "bug",
-      "expected_required_headings": [
-        "현상"
-      ],
+      "expected_required_headings": [],
       "expected_omitted_headings": [
+        "현상",
         "재현 정보",
-        "참고"
+        "참고",
+        "완료조건"
       ],
       "must_not_add_empty_optional_sections": true,
       "must_not_classify_readiness": true,
@@ -700,7 +701,8 @@
       "expected_mode": "draft",
       "must_not_select": [
         "workflow:ticket-lifecycle"
-      ]
+      ],
+      "expected_headerless": true
     },
     {
       "id": "restored-incident-does-not-close-problem",
@@ -2049,14 +2051,14 @@
       "expected_mode": "draft",
       "expected_template": "default",
       "must_preserve_preference_vs_agreement": true,
-      "must_not_add_completion_checklist": true,
+      "must_derive_completion_from_body": true,
       "must_not_add_empty_optional_sections": true,
       "must_not_invent_implementation": true,
       "must_not_classify_readiness": true,
       "expected_required_headings": [
-        "문제",
-        "원하는 결과",
-        "참고"
+        "배경·목적",
+        "방향성·범위",
+        "전제·유의사항"
       ]
     },
     {
@@ -2073,13 +2075,13 @@
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
       "expected_required_headings": [
-        "문제",
-        "원하는 결과"
+        "배경·목적",
+        "방향성·범위"
       ],
       "expected_omitted_headings": [
-        "참고"
+        "전제·유의사항"
       ],
-      "must_not_add_completion_checklist": true,
+      "must_derive_completion_from_body": true,
       "must_not_invent_implementation": true
     },
     {
@@ -2104,7 +2106,8 @@
       },
       "expected_required_headings": [
         "현상",
-        "재현 정보"
+        "재현 정보",
+        "완료조건"
       ],
       "expected_omitted_headings": [
         "참고"
@@ -2129,7 +2132,8 @@
       "expected_template": "bug",
       "expected_required_headings": [
         "현상",
-        "재현 정보"
+        "재현 정보",
+        "완료조건"
       ],
       "expected_omitted_headings": [
         "참고"
@@ -2191,9 +2195,9 @@
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
       "expected_required_headings": [
-        "문제",
-        "원하는 결과",
-        "참고"
+        "배경·목적",
+        "방향성·범위",
+        "전제·유의사항"
       ],
       "must_preserve_preference_vs_agreement": true,
       "must_summarize_external_decisions": true,
@@ -2213,8 +2217,9 @@
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
       "expected_required_headings": [
-        "문제",
-        "원하는 결과"
+        "배경·목적",
+        "방향성·범위",
+        "완료조건"
       ],
       "must_preserve_whole_completion": true,
       "must_not_invent_implementation": true
@@ -3195,9 +3200,7 @@
       ],
       "prompt": "오늘 약속에 10분 정도 늦을 것 같아. 친구에게 보낼 자연스러운 한국어 메시지 한 문장만 써 줘.",
       "expected_sequence": [
-        "writing:writing"
-      ],
-      "must_not_select": [
+        "writing:writing",
         "fluent-korean:fluent-korean"
       ],
       "must_not_install_plugins": true
@@ -3210,9 +3213,7 @@
       ],
       "prompt": "`cacheKey`를 바꾸면 기존 캐시 항목을 다시 찾지 못한다는 사실만으로 한국어 기술 설명을 두 문장으로 작성해 줘. 코드 식별자는 그대로 둬.",
       "expected_sequence": [
-        "writing:writing"
-      ],
-      "must_not_select": [
+        "writing:writing",
         "fluent-korean:fluent-korean"
       ],
       "must_not_install_plugins": true
@@ -3449,6 +3450,101 @@
       "must_not_assume_plugin_dependency": true
     },
     {
+      "id": "commit-message-defaults-to-english",
+      "prompt": "변경 사항으로 커밋 메시지 만들어 줘. 저장소에 커밋 규칙 문서는 없어.",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:commit"
+      ],
+      "expected_commit_language": "en",
+      "must_not_add_ai_trailer": true
+    },
+    {
+      "id": "pr-short-fix-uses-headerless-body",
+      "prompt": "README 오타 하나 고친 현재 브랜치로 PR 초안 써 줘.",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-pr"
+      ],
+      "expected_mode": "draft",
+      "expected_headerless": true,
+      "expected_output_language": "en"
+    },
+    {
+      "id": "ticket-language-follows-japanese-space",
+      "prompt": "대상 GitHub 저장소의 최근 이슈 세 개는 모두 일본어로 쓰여 있어. 로그인 버튼이 Safari에서 반응하지 않는다는 버그 티켓 초안 써 줘.",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "expected_sequence": [
+        "workflow:to-ticket"
+      ],
+      "expected_template": "bug",
+      "expected_output_language": "ja",
+      "expected_action": "create",
+      "expected_mode": "draft"
+    },
+    {
+      "id": "korean-chat-answer-does-not-select-fluent",
+      "installed_plugins": [
+        "writing",
+        "fluent-korean"
+      ],
+      "prompt": "파이썬 리스트 컴프리헨션이 뭔지 간단히 설명해 줘.",
+      "expected_sequence": [],
+      "must_not_select": [
+        "fluent-korean:fluent-korean"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "prd-to-tickets-preserves-req-ids",
+      "prompt": "승인된 PRD docs/product/todos.md 발췌입니다. REQ-001(P1): 완료 항목 숨김. 수용 기준: 토글을 켜면 완료 항목이 사라지고 끄면 다시 보입니다. REQ-002(P1): 제목 검색. 수용 기준: 검색어를 입력하면 제목에 그 문자열이 있는 항목만 보입니다. REQ-003(P2): 숨김 설정 유지. 수용 기준: 새로고침 후 마지막 토글 상태가 유지됩니다. 이 PRD를 Linear 티켓 초안으로 나눠 줘.",
+      "installed_plugins": ["product", "workflow"],
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "must_preserve_req_ids": true,
+      "must_not_invent_cause_or_acceptance": true
+    },
+    {
+      "id": "one-sentence-change-skips-prd",
+      "prompt": "설정 화면 버튼 라벨 '저장'을 '저장하기'로 바꿔 줘.",
+      "installed_plugins": ["product", "engineering"],
+      "expected_sequence": [],
+      "must_not_select": ["product:to-prd", "product:product-discovery"]
+    },
+    {
+      "id": "diagnose-recent-failures-routes-to-worklog",
+      "prompt": "어제 Codex에서 테스트가 계속 실패했던 원인을 작업 로그로 정리해 줘.",
+      "installed_plugins": ["worklog"],
+      "expected_sequence": ["worklog:worklog-diagnose"]
+    },
+    {
+      "id": "memory-request-does-not-select-worklog",
+      "prompt": "이 결정 기억해 둬: 이 저장소 커밋 메시지는 영어로 쓴다.",
+      "installed_plugins": ["worklog", "memory-manager"],
+      "expected_sequence": ["memory-manager:memory-capture"],
+      "must_not_select": ["worklog:worklog-diagnose"]
+    },
+    {
+      "id": "improve-requires-explicit-request",
+      "prompt": "최근에 실패 많았지? 어떤 게 있었는지만 정리해 줘.",
+      "installed_plugins": ["worklog"],
+      "expected_sequence": ["worklog:worklog-diagnose"],
+      "must_not_select": ["worklog:worklog-improve"]
+    },
+    {
+      "id": "improve-from-failures-explicit",
+      "prompt": "작업 로그에서 반복된 실패로 평가 사례를 만들고 스킬 수정안을 수정 전후로 비교해 줘.",
+      "installed_plugins": ["worklog"],
+      "expected_sequence": ["worklog:worklog-improve"]
+    },
+    {
       "id": "career-inventory-from-old-resume",
       "installed_plugins": [
         "career",
@@ -3619,6 +3715,49 @@
         "fluent-english:fluent-english",
         "career:mock-interview"
       ]
+    },
+    {
+      "id": "korean-translation-does-not-select-fluent",
+      "installed_plugins": [
+        "writing",
+        "fluent-korean"
+      ],
+      "prompt": "다음 영어 문장을 한국어로 번역해 줘: Changing `cacheKey` prevents existing cache entries from being found.",
+      "expected_sequence": [
+        "writing:writing"
+      ],
+      "must_not_select": [
+        "fluent-korean:fluent-korean"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "korean-spelling-does-not-select-fluent",
+      "installed_plugins": [
+        "writing",
+        "fluent-korean"
+      ],
+      "prompt": "이 문장은 맞춤법만 고쳐 줘. 문체는 바꾸지 마: 내일 회의에서 뵈요.",
+      "expected_sequence": [
+        "writing:writing"
+      ],
+      "must_not_select": [
+        "fluent-korean:fluent-korean"
+      ],
+      "must_not_install_plugins": true
+    },
+    {
+      "id": "korean-blog-draft-with-fluent-installed",
+      "installed_plugins": [
+        "writing",
+        "fluent-korean"
+      ],
+      "prompt": "다음 사실만으로 짧은 한국어 개발자 블로그 초안을 써 줘. CI 캐시를 켠 뒤 평균 빌드 시간이 14분에서 6분으로 줄었다. 캐시 키는 package-lock.json 해시이고 의존성이 바뀐 첫 빌드는 약 14분 걸린다.",
+      "expected_sequence": [
+        "writing:write-developer-blog",
+        "fluent-korean:fluent-korean"
+      ],
+      "must_not_install_plugins": true
     }
   ]
 }

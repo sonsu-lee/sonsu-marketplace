@@ -13,6 +13,8 @@
 5. 적용 가능한 상태와 복구·안전 동작을 정한 뒤, `outcome_plan`에 scenario·metric·참가자 기준·목표 인원·protocol을 결과 관찰 전에 고정한다.
 6. 아래 DESIGN.md 공통 절차와 현재 산출물 범위의 DQ gate를 평가하고, 뒤 단계는 `not_run`으로 남긴다.
 
+입력에 이번 평가와 관련된 합의된 SUCCESS 또는 실제 성공 기준 출처가 있으면 신호·측정 방법·기준·근거와 선택한 `metric_targets`·`outcome_plan`의 관계를 기존 `rationale`이나 명세 참조에 남긴다. 같은 사용자 결과·측정 범위를 평가하면서 합의된 기준을 임의로 바꾸지 않는다. 별도의 사용성 지표는 평가 범위와 한계를 구분하며, 이번 평가 밖의 사업 지표를 필수 metric으로 만들거나 계측 구현·새 목표값·없는 ID를 추가하지 않는다.
+
 외부 레퍼런스를 찾거나 사용했으면 Design 플러그인의 레퍼런스 검색 계약에 따라 선택적
 `extensions.references`에 공급자·쿼리·레퍼런스 카드를 기록한다. 카드의 `task_ids`는 계약의
 task scenario를 가리킨다. 레퍼런스는 구성·표현의 근거일 뿐 DQ gate 통과나 사용자 결과의 근거가 아니다.
@@ -120,6 +122,8 @@ Figma scope를 주장하면 같은 receipt로 node·capability·resize·prototyp
 ## 근거와 상태
 
 `passed`, `failed`, `blocked`, `inconclusive`, `not_run`, `not_applicable`, `accepted_risk`를 구분한다. 증거가 없으면 점수를 추정하지 않는다. `accepted_risk`는 사람이 현재 revision의 위험을 명시적으로 수용한 별도 상태이며 통과가 아니다. Contract digest가 다르면 결과를 본 뒤 기준을 바꾼 것으로 취급하고 report를 거부한다.
+
+관련 성공 기준과 잠근 metric·outcome 범위의 대응 근거도 대조한다. DQ 통과를 평가하지 않은 제품 성공의 근거로 쓰지 않으며, 평가 밖의 SUCCESS는 관련 맥락과 미검증 상태를 유지한다.
 
 Report의 evidence와 artifact locator는 report 디렉터리 안의 실제 비어 있지 않은 파일이어야 한다.
 평가·metric·outcome에는 잠긴 contract 이후의 시각과 평가한 artifact revision을 남긴다. 각

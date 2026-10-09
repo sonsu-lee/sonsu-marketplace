@@ -1,0 +1,23 @@
+{
+  "name": "worklog",
+  "version": "0.2.0",
+  "description": "Claude Code·Codex·omp 작업의 도구 실패·중단·사용자 교정을 공용 로그로 남기고 진단합니다.",
+  "author": {
+    "name": "sonsu",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Worklog",
+    "shortDescription": "세 호스트 공용 작업 로그와 진단",
+    "longDescription": "세 호스트의 hook과 extension이 도구 실패·중단·API 오류·사용자 교정을 프로젝트별 로컬 JSONL로 남기고, 진단 스킬이 그 기록과 원문 transcript로 원인 후보를 정리합니다.",
+    "developerName": "sonsu",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": "$worklog-diagnose 최근 실패를 정리해 줘."
+  }
+}

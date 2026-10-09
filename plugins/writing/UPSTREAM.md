@@ -67,3 +67,23 @@ Julia Evans의 [어려움에서 주제 찾기](https://jvns.ca/blog/2021/05/24/b
 고정된 제목 수·단계 수, SEO 지표나 생산성 효과를 보편적인 규칙으로 채택하지 않았다. 로컬
 스킬의 네 가지 골격, 흐름 의사코드와 evidence 상태는 사용자 요구와 이 저장소의 검증 경계를
 종합한 지침이다.
+
+## 문서 유형·제목·퇴고 점검의 출처 (2026-10-05)
+
+[문서 유형](skills/writing/references/document-types.md)의 네 갈래 구분은 [Diátaxis](https://diataxis.fr/)의
+개념을, 사내 문서 골격은 [Barbara Minto의 피라미드 원칙](https://www.barbaraminto.com/concept)과
+[Design Docs at Google](https://www.industrialempathy.com/posts/design-docs-at-google/)을 참고했다.
+[제목과 리드](references/headings.md)는 [Julia Evans의 제목 메모](https://mastodon.social/@b0rk/109523706267869949)와
+[Google Technical Writing One](https://developers.google.com/tech-writing/one)(CC BY 4.0)의 개념을 번안했다.
+[퇴고 점검](references/revision.md)의 혼란 패턴은 [Julia Evans의 글](https://jvns.ca/blog/confusing-explanations/)에서 골랐다.
+[토스 테크니컬 라이팅 가이드](https://technical-writing.dev/)는 링크만 두며 번안하지 않았다(CC BY-NC-SA).
+모든 문장은 직접 썼고 외부 문장을 복사하지 않았다.
+
+## README 표준 구성의 출처 (2026-10-05)
+
+[GitHub의 README 안내](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes)에서
+용도·시작 방법·도움·기여 안내를 입구에 두고 긴 설명은 상세 문서로 분리하는 원칙을 참고했다.
+[standard-readme 명세](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)(MIT)의
+절 순서와 선택 항목을 [README 지침](skills/writing/references/readme.md)에 맞게 번안했다.
+외부 문장·양식을 복사하지 않았으며 제외 목록과 갱신 기준은 README 누적을 막기 위한 로컬 정책이다.
+프로젝트 관례와 사용자 지정 양식이 우선하며, 명세를 그대로 준수한다고 주장하지 않는다.

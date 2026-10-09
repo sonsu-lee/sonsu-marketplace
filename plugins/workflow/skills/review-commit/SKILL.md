@@ -16,7 +16,7 @@ Git 객체가 없어도 요청 없이 fetch하지 않으며 현재 index·worktr
 - 변경 목적에 필요한 파일과 hunk만 포함되었는지 확인한다.
 - 비밀, 생성물, 대용량 파일, 의도하지 않은 삭제와 binary를 확인한다.
 - validation과 문서가 변경 위험에 맞는지 확인한다.
-- 제안한 Conventional Commit 메시지가 실제 diff와 일치하는지 확인한다.
+- 제안한 커밋 메시지가 실제 diff와 일치하고 [커밋 메시지 기준](../../references/commit-message.md)의 언어·제목·본문·trailer 규칙을 지키는지 확인한다.
 
 ## 기존 commit을 검토한다
 

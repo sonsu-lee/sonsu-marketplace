@@ -26,6 +26,8 @@
 dependency를 선언하지 않습니다. 기술 설계, 코드 구현, Git delivery와 외부 상태 변경은 이
 플러그인의 책임이 아닙니다.
 
+PRD 이후 설계·티켓·구현 계획으로 넘길 때 작업 크기별로 필요한 산출물은 [인계 계약](references/delivery-handoff.md)을 따릅니다.
+
 ## 설치
 
 마켓플레이스를 등록한 뒤 다음 명령으로 설치합니다.
@@ -38,6 +40,8 @@ codex plugin add product@sonsu-marketplace
 수 있습니다. 플러그인판을 격리 검증한 뒤 실제 사용 환경에서는 기존 복사본을 discovery
 경로에서 제외합니다.
 
+외부 연동·데이터·운영 결정은 [선택형 질문 목록](skills/product-discovery/references/operational-questions.md)으로 관련 항목만 점검합니다. 모든 질문의 답이나 구현 세부사항을 PRD의 선행 조건으로 만들지 않습니다.
+
 ## 컴팩션 후 작업 재개
 
 [작업 연속성 참고 자료](references/continuity.md)는 여러 단계로 이어지는 작업의 계약·진행·근거 위치를
@@ -49,5 +53,3 @@ codex plugin add product@sonsu-marketplace
 읽고 수동으로 재개할 수 있습니다. helper는 Python 3.9+와 POSIX(macOS/Linux) 환경을 사용합니다.
 [기록 형식·운영 계약](../../docs/reference/task-continuity.md)과
 [검증 범위](../../evals/task-continuity/README.md)를 참고하세요.
-
-외부 연동·데이터·운영 결정은 [선택형 질문 목록](skills/product-discovery/references/operational-questions.md)으로 관련 항목만 점검합니다. 모든 질문의 답이나 구현 세부사항을 PRD의 선행 조건으로 만들지 않습니다.

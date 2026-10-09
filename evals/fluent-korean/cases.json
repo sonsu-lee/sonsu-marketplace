@@ -900,6 +900,73 @@
           "생성 방식이나 목적 추가"
         ]
       }
+    },
+    {
+      "id": "D01-draft-blog-paragraph",
+      "families": [
+        "C",
+        "D"
+      ],
+      "mode": "draft",
+      "prompt": "아래 사실 세 개만 사용해 개발 블로그에 넣을 한국어 단락 하나를 새로 써 주세요.",
+      "evidence": "빌드 캐시를 켠 뒤 CI 평균 시간이 14분에서 6분으로 줄었다. 캐시 키는 `package-lock.json` 해시를 쓴다. 의존성이 바뀌면 첫 빌드는 다시 14분 정도 걸린다.",
+      "expectations": {
+        "protected_literals": [
+          "14분",
+          "6분",
+          "package-lock.json"
+        ],
+        "exact_code_blocks": [],
+        "required_headings": [],
+        "ordered_markers": [],
+        "required_counts": {},
+        "must_preserve": [
+          "CI 시간이 줄었다",
+          "의존성이 바뀌면 첫 빌드가 다시 느리다"
+        ],
+        "must_not_introduce": [
+          "결론적으로",
+          "시사하는 바가 크다",
+          "크게 세 가지로 나눌 수 있다",
+          "다음과 같은",
+          "이모지"
+        ]
+      },
+      "expected_action": "generate"
+    },
+    {
+      "id": "D02-draft-ticket-body",
+      "families": [
+        "C",
+        "D",
+        "E"
+      ],
+      "mode": "draft",
+      "prompt": "아래 사실만 사용해 한국어 버그 티켓 본문을 새로 써 주세요. 원인은 추정하지 마세요.",
+      "evidence": "iOS 17 Safari에서 결제 버튼을 눌러도 반응이 없다. Chrome과 Android에서는 정상이다. 2026-10-01 배포 이후 고객 문의가 5건 들어왔다.",
+      "expectations": {
+        "protected_literals": [
+          "iOS 17",
+          "Safari",
+          "2026-10-01",
+          "5건"
+        ],
+        "exact_code_blocks": [],
+        "required_headings": [],
+        "ordered_markers": [],
+        "required_counts": {},
+        "must_preserve": [
+          "Safari에서 결제 버튼이 반응하지 않는다",
+          "다른 환경에서는 정상이다"
+        ],
+        "must_not_introduce": [
+          "원인 확정",
+          "결론적으로",
+          "이모지",
+          "어조 혼재"
+        ]
+      },
+      "expected_action": "generate"
     }
   ]
 }

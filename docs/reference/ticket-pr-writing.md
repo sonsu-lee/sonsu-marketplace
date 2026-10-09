@@ -17,18 +17,23 @@ Workflow의 티켓·PR 작성 규칙과 기본형의 정본은 플러그인 파�
 | PR 경계와 stack | [stacked-prs.md](../../plugins/workflow/skills/to-pr/references/stacked-prs.md) |
 | 티켓 연결과 status effect | [ticket-linking.md](../../plugins/workflow/skills/to-pr/references/ticket-linking.md) |
 | 시각 자료와 첨부 | [visual-evidence.md](../../plugins/workflow/skills/to-pr/references/visual-evidence.md), [media-attachments.md](../../plugins/workflow/skills/to-pr/references/media-attachments.md) |
+| 커밋 메시지 언어·제목·본문·trailer | [commit-message.md](../../plugins/workflow/references/commit-message.md) |
+| 티켓·PR·커밋 공통 문장 형식(경량형·서식 밀도·서두·어조·제목·AI 사용 표기) | [tracker-prose.md](../../plugins/workflow/references/tracker-prose.md) |
 
 ## 설계 결정
 
 - Workflow는 Linear와 GitHub Issues를 지원하며, 티켓·PR 기본형은 두 tracker에 공통으로 적용한다.
-- 티켓은 문제·원하는 결과·합의된 제약을 전달하고, 이미 합의된 제약이 아닌 원인 분석·해결 방법·작업 순서·검증 방법은 작업자가 정한다.
+- 티켓은 작업 지시 목록이 아니라 목적·방향·필요한 맥락·완료조건을 공유하는 문서다. 일반 작업 기본형은 배경·목적 / 방향성·범위 / 전제·유의사항 / 완료조건으로 구성하고, 버그·조사형은 유형별 제목을 유지한 채 같은 의미를 담는다. 이미 합의된 제약이 아닌 원인 분석·해결 방법·작업 순서·검증 방법은 작업자가 정한다.
 - PR은 리뷰어와 이후 history 독자가 알아야 할 것만 설명한다. 한 티켓에는 여러 PR이 연결될 수 있으며 각 PR은 자기 변경과 확인 결과만 설명한다.
 - 대상 공간의 양식이 내부 기본형보다 우선하며, 조회하지 못한 상태는 양식 부재와 구분한다.
-- 기본형에 완료조건 체크리스트를 강제하지 않고, 모르는 값을 채우기 위해 빈 항목이나 반복적인 `미확인` 문구를 만들지 않는다.
+- 완료조건은 수용 여부를 같은 기준으로 판단하게 돕는 항목이며 작업을 묶어 두는 검수 목록이 아니다. 일반 작업에서는 권장 항목으로 두고 본문의 목적·범위에서 도출한 결과·상태만 짧게 쓴다. 팀 공통 완료 기준은 넣지 않는다. 방법을 묶는 조건(구현·테스트 케이스·검증 절차), 수치, 검수 단계는 합의됐거나 안전·호환성에 필수일 때만 넣고, 티켓 고유의 요구사항은 자동 검증 여부와 관계없이 남긴다. 완료조건·팀 공통 완료 기준·실제 검증 근거는 서로 다른 정보다. 모르는 값을 채우려고 빈 항목이나 반복적인 `미확인` 문구를 만들지 않는다.
 - 티켓은 독립적으로 우선순위를 정하거나 담당·완료 여부를 판단할 결과가 있을 때만 나눈다. Terraform처럼 앞 단계의 merge와 apply 뒤에 다음 변경을 진행해야 한다면 같은 티켓의 순차 PR로 추적할 수 있다.
 - 부분 PR은 비종결 관계로 연결하고, 완료 표현은 그 PR의 병합 자체가 티켓의 전체 결과를 충족할 때만 쓴다. [Linear는 한 이슈에 여러 PR을 연결하고 비종결 관계를 지원한다](https://linear.app/docs/github).
 - 티켓 연결 채널은 PR 본문이며 티켓 연동을 이유로 branch 이름에 티켓 ID를 넣지 않는다. [Linear 연동](https://linear.app/docs/github), [GitHub Issues 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
 - 제품 화면·상호작용 변경은 마킹한 스크린샷이나 timestamp caption 영상을 PR 본문에 둔다. 사용자 요청이나 대상 PR 양식의 요구가 우선한다. VRT 결과 링크는 리뷰어가 PR 밖으로 이동해야 하고 변경 위치를 표시하지 않으므로 본문 자료를 대체하지 않는다.
+- 티켓·PR·커밋의 언어는 사용자 지정과 저장소·대상 공간의 명시 규칙을 먼저 따르고, 근거가 없으면 마지막 단계로 영어를 쓴다. 대화 언어는 근거로 쓰지 않는다.
+- AI 사용 표기는 저장소가 요구할 때만 그 형식대로 넣고, 요구가 없으면 AI용 trailer나 서명을 붙이지 않는다.
+- 배경과 변경을 한 문단으로 설명할 수 있는 PR과, 배경·목적과 완료 상태를 한 문단으로 설명할 수 있는 작은 티켓은 제목 없는 경량형을 허용한다.
 
 ## 외부 근거
 
@@ -38,6 +43,20 @@ Workflow의 티켓·PR 작성 규칙과 기본형의 정본은 플러그인 파�
 “Cancelling a File Copy dialog crashes File Manager”를 좋은 제목의 예로 제시한다.
 발생 조건·동작과 문제가 생기는 대상을 함께 알려 주기 때문이다. 재현 절차와 실제·기대 결과를
 구분하는 구조도 참고한다. 버그 보고 지침이므로 기능 제안·조사 티켓에 재현 절차를 강제하는 근거는 아니다.
+
+### 완료조건과 검증 근거
+
+다음 출처의 개념 구분을 참고해 이 저장소의 경량 작성 정책을 정했다. 원문 양식·역할·회의 절차를 그대로 도입하거나 보편 표준으로 강제하지 않는다.
+
+- [Scrum Guide 2020의 Definition of Done](https://scrumguides.org/scrum-guide.html#commitment-definition-of-done)은 Increment의 제품 품질 상태에 대한 공통 정의다. 티켓마다 복제할 CI 체크리스트가 아니다.
+- [GOV.UK의 사용자 스토리 작성 안내](https://www.gov.uk/service-manual/agile-delivery/writing-user-stories#acceptance-criteria)는 수용 기준을 사용자 필요를 충족했는지 확인하는 결과로 설명한다. 결과 중심 완료조건의 근거로 쓰고, 긴 체크리스트를 강제하는 근거로 쓰지 않는다.
+- [Agile Alliance의 Acceptance Testing](https://agilealliance.org/glossary/acceptance-testing/)은 실행 가능한 인수 테스트가 요구사항의 정본인 팀도 다룬다. 정본이 있으면 결과를 요약하고 참조하며 같은 내용을 복제하지 않는다.
+- [Given–When–Then](https://agilealliance.org/glossary/given-when-then/)은 맥락·행동·관찰 결과를 쓰는 도구다. 모든 티켓의 강제 문법으로 삼지 않는다.
+- Matt Wynne의 [Example Mapping](https://cucumber.io/blog/bdd/example-mapping-introduction/)은 규칙·예시·질문을 나눈다. 결과를 모르는 상황은 조건을 창작하지 않고 질문으로 남긴다.
+- [Linear Method](https://linear.app/method/write-issues-not-user-stories)는 분명한 결과가 있는 짧은 이슈를 권한다. 완료조건을 짧게 유지하고 작은 작업에서 생략을 허용하는 근거다.
+- Don Wells의 [Spike Solution](http://www.extremeprogramming.org/rules/spike.html)은 특정 기술 문제의 불확실성을 줄이는 탐색이다. 조사의 완료를 원하는 결론이나 제품 배포 성공으로 고정하지 않는다.
+
+CI 통과는 그 검사가 다룬 조건·리비전·환경 범위의 근거다. 완료조건을 없애거나 확인하지 않은 전체 동작을 완료로 판단하는 근거는 아니다. 이 구분은 중복 수동 검수를 줄이기 위한 것이며 새 readiness gate나 상태 전이 권한을 만들지 않는다.
 
 ### PR 설명
 
@@ -66,6 +85,17 @@ CL은 Google의 코드 변경 단위이며 이 저장소 PR 양식과 같지는 
 
 [stacked PR 규칙](../../plugins/workflow/skills/to-pr/references/stacked-prs.md)의 약 400줄 기준은 Cisco 팀을 대상으로 한 [SmartBear 연구](https://smartbear.com/learn/code-review/best-practices-for-peer-code-review/)의 “한 번의 리뷰에서 200–400줄을 넘기면 결함 발견 능력이 떨어진다”는 관찰을 PR 크기 기준으로 차용한 값이다. [Google의 Small CLs 지침](https://google.github.io/eng-practices/review/developer/small-cls.html)도 100줄은 대체로 적당하고 1000줄은 대체로 크다고 보며, 작은 변경이 롤백하기 쉽고 리팩터링은 기능 변경과 분리하되 작은 정리는 같은 CL에 둬도 된다고 설명한다.
 
+### 커밋 메시지와 AI 사용 공개
+
+- [Git SubmittingPatches](https://github.com/git/git/blob/master/Documentation/SubmittingPatches): 본문에 문제, 택한 방식의 이유, 버린 대안을 쓴다.
+- [Linux kernel의 AI coding assistant 지침](https://docs.kernel.org/process/coding-assistants.html): AI는 `Signed-off-by`를 붙이지 않고 `Assisted-by:`로 사용을 밝힌다.
+- [How to Write a Git Commit Message](https://cbea.ms/git-commit/): 명령형 제목, 제목 길이 제한, 본문에 무엇과 왜를 쓰는 관례를 정리한다.
+- [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): description` 제목과 `BREAKING CHANGE` footer 형식의 명세다.
+- [GitHub squash merge 기본 제목 변경 공지](https://github.blog/changelog/2022-05-11-default-to-pr-titles-for-squash-merge-commit-messages/): squash 병합 시 PR 제목이 기본 커밋 제목이 된다.
+- [Kubernetes PR 템플릿](https://github.com/kubernetes/kubernetes/blob/master/.github/PULL_REQUEST_TEMPLATE.md): PR 본문에 AI 사용 공개 칸을 둔 저장소 사례다.
+- [LLVM AI Tool Policy](https://github.com/llvm/llvm-project/blob/main/llvm/docs/AIToolPolicy.md): 저장소가 AI 도구 사용 공개 방식을 정책으로 정한 사례다.
+- [Linear Method: Write issues not user stories](https://linear.app/method/write-issues-not-user-stories): 이슈 설명은 필요한 만큼만 쓴다.
+
 ## 변경 절차
 
-규칙이나 기본형을 바꾸면 정본 파일, 이 문서의 결정·근거와 [라우팅 평가 사례](../../evals/skill-routing/cases.json)를 함께 대조한다. 정적 형식 검사와 사례 정의는 실제 tracker 자동화·미디어 게시 성공의 증거가 아니므로, 원격 작업에서는 결과를 다시 읽는다.
+규칙이나 기본형을 바꾸면 정본 파일, 이 문서의 결정·근거와 [라우팅 평가 사례](../../evals/skill-routing/cases.json)와 [Workflow 작성 사례](../../evals/writing/workflow-cases.json)를 함께 대조한다. 정적 형식 검사와 사례 정의는 실제 tracker 자동화·미디어 게시 성공의 증거가 아니므로, 원격 작업에서는 결과를 다시 읽는다.

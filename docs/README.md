@@ -81,6 +81,7 @@
 - [현재 독립 스킬 중심 플러그인 경계 결정](decisions/0015-independent-skills.md)
 - [마켓플레이스 요구사항](product/marketplace-requirements.md)
 - [플러그인 개발·수정·추가 가이드](guides/adding-a-plugin.md)
+- [이전 버전에서 이동하기](guides/migrating-from-earlier-versions.md)
 - [플러그인 매니페스트 참조](reference/plugin-manifest.md)
 - [플러그인별 라이선스와 출처](reference/licenses-and-sources.md)
 - [컴팩션 전후 작업 연속성 계약](reference/task-continuity.md)

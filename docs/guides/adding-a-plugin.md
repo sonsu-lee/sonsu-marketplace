@@ -15,6 +15,7 @@ cd sonsu-marketplace
 
 Codex 데스크톱 앱은 이 저장소의 `.agents/plugins/marketplace.json`을 발견합니다.
 하지만 같은 이름의 Git 등록본이 있으면 로컬 플러그인 변경이 가려질 수 있습니다.
+로컬 카탈로그와 Git 등록본이 모두 표시돼도 로컬 변경이 로드됐다는 뜻은 아닙니다.
 Codex CLI에서 현재 체크아웃을 시험할 때는 Git 등록본이 없는 별도 설정에서 로컬 경로를
 명시적으로 등록합니다. 저장소 루트에서 다음 명령을 실행하세요.
 
@@ -36,6 +37,7 @@ claude plugin marketplace list
 
 GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용합니다. 실제 등록·설치
 검증은 기존 사용자 설정과 분리된 환경에서 진행하세요.
+설치·업데이트 뒤에는 Codex의 새 작업 또는 Claude Code의 새 세션에서 최신 스킬을 확인합니다.
 omp는 이름 있는 profile로 기존 사용자 설정과 분리합니다. profile은 마켓플레이스 등록, 설치 플러그인,
 설정과 인증을 `~/.omp/profiles/<name>/`에 따로 둡니다. 저장소 루트에서 다음을 실행합니다.
 
@@ -81,10 +83,13 @@ omp plugin list
    버전, 라이선스와 포함 범위를 기록합니다.
 4. `.agents/plugins/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
 5. `python3 scripts/render-claude-compat.py`로 Claude Code catalog와 plugin manifest를 생성합니다.
-6. `python3 scripts/render-omp-compat.py`로 omp catalog와 Design·Workflow·Fluent Korean 전용 패키지를 생성합니다.
-   omp 배포는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design`, `career` 6개로 고정합니다.
+6. `python3 scripts/render-omp-compat.py`로 omp catalog와 Design·Workflow·Fluent Korean·Worklog 전용 패키지를 생성합니다.
+   omp 기본 배포는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design`, `career` 6개로 고정합니다.
    Codex catalog에 추가해도 omp 배포 대상은 늘어나지 않습니다. 대상을 바꾸려면 배포 정책을 명시적으로 변경하고
    `scripts/render-omp-compat.py`의 `OMP_PLUGINS`와 `evals/plugin-compat/test_compat.py`의 omp 목록을 함께 갱신합니다.
+   예외로 [ADR 0022](../decisions/0022-add-worklog-plugin.md)에 따라 `worklog`를 opt-in 패키지로 catalog에
+   추가합니다. opt-in 패키지는 사용자가 직접 설치할 때만 쓰이며, 생성기의 `OMP_OPTIN_PLUGINS`와
+   `RUNTIME_EXTENSIONS`에 등록된 경우에만 catalog 항목과 runtime extension을 생성합니다.
 
 ```json
 {
@@ -107,7 +112,9 @@ omp plugin list
 
 omp 생성기는 필요한 스킬·참고 자료·asset·스크립트·Figma companion·라이선스를 동봉하고
 스크립트 실행 권한을 유지합니다. 독자 hook, evidence gate, `task-continuity.py`, runtime extension은
-포함하지 않으며 연속성 자료를 omp 순정 todo·session 안내로 바꿉니다.
+포함하지 않으며 연속성 자료를 omp 순정 todo·session 안내로 바꿉니다. 예외로 opt-in 패키지 `worklog`는
+`omp-extension/worklog.ts`를 `extension/worklog.ts`로 복사하고 이를 선언하는 `package.json`을 생성합니다.
+hook은 opt-in 패키지에도 포함하지 않습니다.
 Design의 품질 계약·프로필, Workflow의 권한, English·Japanese 스킬은 유지합니다.
 Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude agent와 다중 호출·strict 모드에 의존하지 않습니다.
 개발 실행·task·todo·session·review는 omp 순정 기능을 사용합니다. Research·Product·Writing은 선택 후보로
@@ -122,7 +129,7 @@ Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude
 배포 대상 플러그인의 변경을 게시할 때는 해당 플러그인의 카탈로그 버전도 올립니다.
 `marketplace.autoUpdate: auto` 업데이트는 omp 시작 시 오래된 카탈로그를 가져오는 것이 전제이며
 같은 버전의 캐시를 실행 중에 바꾸는 기능은 아닙니다. 이전 구성의 제거와 설정 정리는
-[README](../../README.md#omp)를 참고하세요. 정리 뒤 세션을 재시작해 이전 hook·agent를 해제합니다.
+[이전 버전에서 이동하기](migrating-from-earlier-versions.md#이전-omp-구성에서-이동)를 참고하세요. 정리 뒤 세션을 재시작해 이전 hook·agent를 해제합니다.
 
 ## 검증
 
@@ -139,6 +146,7 @@ claude plugin validate . --strict
 python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
 python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v
+python3 -B -m unittest discover -s evals/worklog -p 'test_*.py' -v
 git diff --check
 ```
 
