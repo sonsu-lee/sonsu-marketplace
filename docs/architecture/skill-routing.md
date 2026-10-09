@@ -193,7 +193,7 @@ Fluent는 구성 단계에서 제외한 참고 내용을 다시 추가하지 않
 공통 언어 코어나 생성기가 없습니다. Writing과 Workflow 사이에서도 지침을 생성·복사하지 않습니다. 상세 조합 계약은
 [Workflow의 작성 지침 함께 적용하기](../../plugins/workflow/references/writing-composition.md)를 참고합니다.
 
-Workflow는 Writing·Fluent 설치와 관계없이 티켓·PR·커밋의 경량형·서식 밀도·서두·어조 최소 규칙([문장 형식 기준](../../plugins/workflow/references/tracker-prose.md))을 적용합니다.
+Workflow는 Writing·Fluent 설치와 관계없이 티켓·PR에 필요한 사실·조건·이유를 보존하고 불필요한 내용을 구별하는 [공통 작성 기준](../../plugins/workflow/references/tracker-prose.md)을 적용합니다. 제목·분량·특정 서두를 품질 기준으로 삼지 않으며, Writing·Fluent 적용 후에도 Workflow가 최종 내용·연결·권한 계약을 대조합니다.
 
 한국어 산출물을 새로 쓸 때는 Writing의 구성과 함께 설치된 Fluent Korean의 생성 규칙을 적용합니다. 일반 대화 답변·단순 맞춤법 교정·번역에는 자동 적용하지 않습니다.
 

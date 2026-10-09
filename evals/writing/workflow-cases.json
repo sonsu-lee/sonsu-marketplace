@@ -36,9 +36,9 @@
     "entry_skill": "workflow:commit"
   },
   {
-    "id": "workflow-commit-repo-requires-assisted-by",
+    "id": "workflow-commit-omit-ai-attribution",
     "skill": "commit",
-    "prompt": "staged 변경으로 커밋 메시지를 만들어 줘. 커밋은 하지 마. 이 커밋은 AI 도구의 도움을 받아 작성했어. 저장소의 CONTRIBUTING.md 원문 중 커밋 관련 부분은 다음 한 줄이다: \"Add an `Assisted-by:` trailer for AI-assisted commits.\" 다른 커밋 규칙 문서는 없다. staged diff: docs/install.md의 설치 명령에서 패키지 이름 오타 `sonsu-clii`를 `sonsu-cli`로 고친다.",
+    "prompt": "staged 변경으로 커밋 메시지를 만들어 줘. 커밋은 하지 마. AI 도움을 받았지만 Assisted-by, AI Co-authored-by나 도구 서명은 넣고 싶지 않아. 저장소의 CONTRIBUTING.md에는 \"Add an `Assisted-by:` trailer for AI-assisted commits.\"라고 적혀 있어. 다른 커밋 규칙 문서는 없다. staged diff: docs/install.md의 설치 명령에서 패키지 이름 오타 `sonsu-clii`를 `sonsu-cli`로 고친다.",
     "installed_plugins": [
       "workflow"
     ],
@@ -124,5 +124,75 @@
       "workflow"
     ],
     "entry_skill": "workflow:to-ticket"
+  },
+  {
+    "id": "workflow-ticket-four-intents",
+    "skill": "to-ticket",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\n작성 중 목록을 새로고침하면 입력이 사라져 사용자가 다시 작성해야 한다. 새로고침 후에도 미저장 입력이 남아야 한다. 현재 입력은 페이지 메모리에만 있다. 합의된 방향은 목록 최신화보다 입력 보존을 우선하는 것이며 저장 기술은 미정이다.",
+    "installed_plugins": ["workflow"],
+    "entry_skill": "workflow:to-ticket"
+  },
+  {
+    "id": "workflow-pr-ticket-context-not-copy",
+    "skill": "to-pr",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, branch: fix/stable-search-order, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다. 브랜치명에는 티켓 ID를 넣지 않는다.\n확인된 Linear 티켓 ENG-123(https://linear.app/example/issue/ENG-123)은 검색 페이지 경계의 누락·중복을 함께 해결하는 작업이다. 이번 diff는 같은 생성 시각의 항목 정렬에 ID를 보조 기준으로 추가해 순서를 고정한다. 누락 문제는 이 PR 범위가 아니다. 검증된 관계는 contribute이며 PR 본문에서 Linear 공식 문법으로 연결한다. CI 412개 통과, 브랜치·작성자·상태는 UI에 보인다. 화면 변경은 없다.",
+    "installed_plugins": ["workflow"],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-pr-static-marked-compact",
+    "skill": "to-pr",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n저장 버튼 라벨만 `저장`에서 `저장하기`로 바꿨다. 행동을 명확히 표현하려는 변경이며 동작은 같다. 현재 head의 변경부가 마킹된 안전한 after 이미지와 caption은 이미 준비되어 있다. baseline 비교는 필요하지 않다. 영상은 없다.",
+    "installed_plugins": ["workflow"],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-pr-dynamic-video-only",
+    "skill": "to-pr",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n저장 성공 응답 뒤에만 완료 알림을 표시하도록 변경했다. 최종 레이아웃·문구는 같다. 준비된 실제 화면 녹화는 저장 클릭→대기→성공 알림의 짧은 한 흐름이다. FFmpeg/ffprobe와 검사 환경을 사용할 수 있다.",
+    "installed_plugins": ["workflow"],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-pr-mixed-media",
+    "skill": "to-pr",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n오류가 난 폼 필드로 포커스를 이동하는 동작과, 오류 문구의 줄바꿈·필드별 배치를 함께 바꿨다. 리뷰어는 포커스 이동 순서와 정적 문구의 세부 배치를 각각 판단해야 한다. 녹화와 마킹을 위한 기존 도구를 사용할 수 있다.",
+    "installed_plugins": ["workflow"],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-pr-ffmpeg-missing",
+    "skill": "to-pr",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n전환 타이밍 변경으로 동작 영상이 필수다. 실제 녹화 원본은 있으나 FFmpeg/ffprobe가 없고 대체 검사·인코딩 도구도 없다. 환경은 macOS이며 Homebrew는 설치되어 있다. 설치 승인은 없다.",
+    "installed_plugins": ["workflow"],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-pr-marking-tool-missing",
+    "skill": "to-pr",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n정적 레이아웃 변경이다. 원본 스크린샷은 있지만 신뢰할 수 있는 변경부 마킹, DOM 접근, visual diff 도구가 없고 이미지 편집 도구도 없다. 설치 승인은 없다.",
+    "installed_plugins": ["workflow"],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-pr-final-diff-over-old-description",
+    "skill": "to-pr",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n티켓은 보조 창에서 Quick Fix 메뉴가 선택 전에 닫히는 문제다. 이전 초안은 `domFocus`를 `getFocus`로 교체했다고 설명한다. 최종 head의 실제 diff는 `this._list.domFocus();` 한 줄 삭제이며 기존 `this._list.getFocus();` 호출은 그대로다. 원인은 불필요한 DOM focus 이동이다. UI 확인·미디어는 아직 없다.",
+    "installed_plugins": ["workflow"],
+    "entry_skill": "workflow:to-pr"
+  },
+  {
+    "id": "workflow-ticket-required-details-not-cut",
+    "skill": "to-ticket",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\n주문 계산 규칙을 변경한다. 반올림 방식이 달라 회계 시스템과 새 주문 금액이 맞지 않는 것이 문제다. 합의 사항: 기존 주문은 재계산하지 않는다. 새 규칙은 전환 시점 이후 생성된 주문에만 적용한다. 부분 환불도 주문 생성 시점의 규칙을 따른다. 전환 전후 모두 같은 주문의 조회 금액이 달라지면 안 된다. 구형 모바일 앱의 응답 필드 형식은 유지한다. 전환 시각은 아직 미정이며 임의로 정하지 않는다.",
+    "installed_plugins": ["workflow"],
+    "entry_skill": "workflow:to-ticket"
+  },
+  {
+    "id": "workflow-pr-explain-behavior-not-slogan",
+    "skill": "to-pr",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n입력 메모는 `중복 결제 방지와 안정성 개선`이다. 확인된 원인은 결제 요청이 타임아웃 나면 성공 여부를 알 수 없어 재시도하면서 중복 결제가 생기는 것이다. 최종 diff는 같은 주문의 재시도에 동일한 idempotency key를 사용하도록 바꾼다. 결제사의 중복 요청 처리 기능을 이용하고 있으며 자동 재시도 횟수는 바꾸지 않았다. UI 변경은 없다.",
+    "installed_plugins": ["workflow"],
+    "entry_skill": "workflow:to-pr"
   }
 ]

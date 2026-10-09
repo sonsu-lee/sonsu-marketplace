@@ -42,11 +42,13 @@ attachments[].remote_url
 attachments[].deletion_locator
 ```
 
-화면과 파일에 secret, token, cookie, 개인정보·개인 email, 고객 정보·실제 고객 data, 내부 URL·hostname, notification과 다른 application의 내용, 제한된 보안 정보와 불필요한 local path가 없는지 확인한다. 안전하게 제거할 수 없으면 업로드하지 않는다. 애니메이션 GIF를 포함한 이미지는 [시각 증거 규칙](visual-evidence.md#첨부-이미지에-마킹한다)에 따라 변경 위치가 마킹된 사본만 첨부한다. GitHub CLI는 이미지를 마킹하지 않으므로 annotation은 upload 전에 이미지에 반영해야 한다. 비디오에는 마킹 대신 무엇을 언제 확인할지 설명하는 caption과 필요한 timestamp를 PR body에 두며, 비디오의 `annotation_status`는 이 caption이 준비됐는지로 판정한다.
+화면과 파일에 secret, token, cookie, 개인정보·개인 email, 고객 정보·실제 고객 data, 내부 URL·hostname, notification과 다른 application의 내용, 제한된 보안 정보와 불필요한 local path가 없는지 확인한다. 안전하게 제거할 수 없으면 업로드하지 않는다. 애니메이션 GIF를 포함한 이미지는 [시각 증거 규칙](visual-evidence.md#첨부-이미지에-마킹한다)에 따라 변경 위치가 마킹된 사본만 첨부한다. GitHub CLI는 이미지를 마킹하지 않으므로 annotation은 upload 전에 반영해야 한다. 비디오는 실제 애플리케이션 동작을 녹화한 자료를 사용한다. 마킹 대신 볼 지점의 caption을 두고 여러 구간 중 특정 시점을 찾아야 할 때만 timestamp를 붙인다. 비디오의 `annotation_status`는 이 caption이 준비됐는지로 판정하며 이미지 마커를 요구하지 않는다.
 
 업로드 전에 신뢰할 수 있는 decoder로 실제 content type, decode 가능 여부와 확장자의 일치를 확인한다. GIF의 모든 frame과 비디오의 전체 영상·audio track을 검토하여 민감정보가 없는지도 확인한다. EXIF·GPS·XMP, SVG metadata와 video container 메타데이터 같은 embedded metadata도 최종 첨부 사본에서 확인한다. 민감하거나 불필요한 metadata가 있으면 정제한 별도 사본을 만들고 다시 검사한다. 전체 내용이나 metadata를 신뢰할 수 있게 검사하지 못하면 각각 `sensitive_data_check` 또는 `embedded_metadata_check`를 `inconclusive`로 기록하고 업로드하지 않는다.
 
-영상이 있으면 크기와 관계없이 `command -v ffmpeg ffprobe`로 검사·압축 도구를 확인한다. 없으면 필요한 이유와 함께 설치를 제안한다. macOS는 `brew install ffmpeg`, 그 밖에는 OS 패키지 관리자의 설치 명령을 제시한다. image library, codec, `ffmpeg`, 메타데이터 도구나 player는 사용자 승인 없이 설치하지 않는다.
+영상이 있으면 크기와 관계없이 `command -v ffmpeg ffprobe`로 검사·인코딩 도구를 확인한다. 이미 제공된 동등 도구로 필요한 검사·변환을 수행할 수 있으면 그것을 사용한다. 도구가 없으면 필요한 이유와 환경별 설치 방법을 제안한다. macOS에 Homebrew가 있으면 `brew install ffmpeg`, 다른 환경에서는 확인된 OS 패키지 관리자의 설치 방법을 안내한다.
+
+캡처·마킹·image library·codec·메타데이터 도구·player에도 같은 원칙을 적용한다. 프로젝트가 지정한 도구가 있으면 그 설치 방법을, 없으면 작업 환경에서 필요한 기능을 제공하는 최소 도구를 제안한다. 설치·업그레이드·`npx --yes` 다운로드를 승인 없이 실행하지 않는다. 설치 제안은 PR 본문 밖에 두고 도구·실행 환경이 없는 상태를 검사나 자료 준비 완료로 보고하지 않는다. 동작 증거가 필수이면 도구 부재를 이유로 스크린샷으로 조용히 대체하지 않는다.
 
 ## GitHub CLI 지원을 감지한다
 
@@ -73,7 +75,7 @@ GitHub Draft PR의 가용성은 저장소 visibility와 plan에 따라 다르다
 
 최종 첨부 사본이 위에서 정한 상한을 넘으면 첨부를 포기하지 않고 압축한 사본을 만든다. 플랜을 확인하지 못한 영상의 상한은 10 MB다. 원본은 `source_path`에 남기고, 같은 manifest 항목의 `local_path`·`mime_type`·`file_size`·`width`·`height`·`codec`·`duration`·`sha256`을 압축 사본 기준으로 갱신한다. 영상을 단계별로 나눌 때만 새 항목을 만든다.
 
-1. 영상은 먼저 변경을 보여 주는 구간만 남긴다. 앞뒤 대기·로딩 시간을 잘라내면 크기와 리뷰 시간이 함께 줄어든다.
+1. 영상은 변경을 보여 주는 구간만 남긴다. 판단과 무관한 앞뒤 대기만 자르고, 변경의 핵심인 로딩·전환 타이밍은 보존한다.
 2. `ffmpeg`로 H.264로 다시 인코딩한다. 음성이 변경 설명에 필요할 때만 `-an` 대신 `-map '0:a:0?' -c:a aac -b:a 96k`를 쓴다.
 
    ```sh
@@ -86,17 +88,17 @@ GitHub Draft PR의 가용성은 저장소 visibility와 plan에 따라 다르다
 3. 사용자가 설치를 원하지 않으면 macOS에서는 `avconvert --source input.mov --output output.mov --start <초> --duration <초> --preset Preset1280x720`으로 구간 자르기와 해상도 낮추기만 시도한다. bitrate를 지정할 수 없어 상한 안에 들어온다는 보장이 없고, `PresetMediumQuality` 이하는 568×320 수준으로 줄어 UI 글자를 읽기 어렵다. 아래 재검사를 할 도구가 없으면 결과는 `inconclusive`이며 업로드하지 않는다.
 4. 이미지는 긴 변을 2560px 이하로 줄인다. macOS에서는 `sips -Z 2560`을 쓸 수 있다. 그래도 크면 사진성 화면만 JPEG 품질 85로 바꾸고, 글자 중심 UI는 PNG를 유지한다.
 
-압축 사본은 다시 검사한다. 크기가 상한 이하이고 영상이 H.264(`avc1`)·`yuv420p`로 decode되며 길이가 의도한 구간과 맞아야 한다. caption의 timestamp와 이미지 marker 위치의 프레임을 직접 열어 marker와 UI 글자를 읽을 수 있는지도 확인한다. 민감정보·embedded metadata 검사와 SHA-256 기록도 새 사본 기준으로 다시 한다.
+압축 사본은 다시 검사한다. 크기가 상한 이하이고 영상이 H.264(`avc1`)·`yuv420p`로 decode되며 길이가 의도한 구간과 맞아야 한다. 영상은 caption이 가리키는 볼 지점의 대표 프레임을 직접 열어 UI 글자를 읽을 수 있는지 확인한다. timestamp가 있으면 그 시점도 대조하며, 없다고 판독 검사를 생략하거나 timestamp를 새로 강제하지 않는다. 이미지는 marker와 변경부가 읽히는지 확인한다. 민감정보·embedded metadata 검사와 SHA-256 기록도 새 사본 기준으로 다시 한다.
 
-읽을 수 있는 품질로 상한을 맞출 수 없으면 변경 단계별로 영상을 나누거나, 단계별로 마킹한 스크린샷으로 바꾼다.
+읽을 수 있는 품질로 상한을 맞추기 어려우면 동작을 보존하는 짧은 클립으로 나눈다. 그것도 불가하면 미완료와 필요한 조건을 본문 밖에 알린다. 이미지로 같은 판단을 할 수 있는 정적 변경만 마킹 스크린샷으로 대체하며, 동작 증거가 필수인 경우 용량 문제로 정적 이미지 대체 완료를 주장하지 않는다.
 
 ## 기본 흐름에서는 로컬 경로를 body에 노출하지 않는다
 
 GitHub CLI는 body가 같은 로컬 파일을 참조하면 그 위치의 destination을 upload URL로 바꿀 수 있다. 하지만 여러 upload 중 일부만 성공해도 PR을 생성하므로 실패한 파일의 local path가 body에 남을 수 있다. `to-pr`의 기본 흐름에서는 local reference를 body에 쓰지 않는다.
 
-대신 [선택한 템플릿](pr-template.md)의 시각 자료 항목에 각 marker와 video에서 확인할 내용을 설명한다. body가 참조하지 않은 attachment는 flag 순서대로 끝에 추가되므로 manifest의 `display_order`와 `--attach` 순서를 일치시킨다. 여러 파일이면 설명에도 `Attachment 1`, `Video 3`처럼 같은 번호를 붙여 각 파일과 caption이 일대일로 대응하게 한다.
+대신 각 이미지의 marker와 영상에서 볼 지점을 설명한다. 외부 양식의 지정 위치를 우선하며 기본형은 해당 설명 바로 뒤, 여러 자료를 구분할 때만 화면 자료 묶음에 둔다. body가 참조하지 않은 attachment는 flag 순서대로 끝에 추가되므로 manifest의 `display_order`와 `--attach` 순서를 일치시킨다. 여러 파일이면 설명에도 `Attachment 1`, `Video 3`처럼 같은 번호를 붙여 파일과 caption을 대응시킨다.
 
-첨부 후에는 아래 게시 절차에 따라 확인된 URL을 지정 항목에 배치하고, 본문 끝의 중복 attachment와 local placeholder가 제거됐는지 재조회한다.
+첨부 후 아래 게시 절차에 따라 확인된 URL을 계획한 설명 뒤나 지정 항목에 배치하고, 본문 끝의 중복 attachment와 local placeholder가 제거됐는지 재조회한다.
 
 이미지 인자는 shell 해석을 피하도록 전체를 quote하고 `--attach '/absolute/path/annotated-after.png#Marker 1 shows the changed navigation state'`처럼 alt text를 붙인다. 비디오는 alt text를 지원하지 않으므로 `#` 뒤의 설명을 주지 않는다. 비디오는 append되면 bare URL로 기록되어 player로 표시된다.
 
@@ -108,7 +110,7 @@ GitHub CLI는 body가 같은 로컬 파일을 참조하면 그 위치의 destina
 
 `draft` 모드에서는 업로드하지 않는다. 사용자가 visual evidence가 포함된 새 PR 게시를 요청했고 final manifest와 body가 확정된 `publish` 모드에서만 GitHub native attachment를 실행한다. 이 승인은 검토한 manifest의 GitHub attachment만 포함하며 외부 storage, 다른 파일 또는 publish 시작 전에 이미 존재하던 PR의 수정으로 확대하지 않는다.
 
-`target_pr_state`는 `to-pr`의 기본 Draft 정책과 GitHub 규칙에 따라 publish 전에 확정하고 upload 결과에 따라 바꾸지 않는다. `required_for_ready`도 publish 전에 확정한다. 사용자가 명시적으로 요청했거나 PR 양식·`CONTRIBUTING`이 요구한 파일, 화면 변경 PR의 마킹 스크린샷·caption 영상, 또는 PR이 주장하는 화면 동작을 입증하는 유일한 증거는 필수다. 접근 가능한 VRT 산출물이 있어도 본문 자료는 필수로 남는다. 없어도 PR의 주장과 검증 결과가 완전한 보조 diff, 추가 viewport나 대체 recording만 선택으로 둘 수 있다. 불명확하면 필수로 취급한다. 필수 항목 하나라도 annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded 메타데이터 검사를 완료하지 못하면 PR 생성 명령 자체를 실행하지 않는다.
+`target_pr_state`는 기본 Draft 정책과 GitHub 규칙에 따라 publish 전에 확정하고 upload 결과에 따라 바꾸지 않는다. `required_for_ready`도 사전에 확정한다. 사용자·PR 양식·`CONTRIBUTING`이 요구한 파일과 [필요 정보에 따라 선택한](visual-evidence.md#필요성을-판정한다) 화면 증거는 필수다. 정적 변경은 마킹 이미지, 동적 변경은 caption 영상, 서로 다른 정보가 필요할 때만 둘 다 선택한다. 접근 가능한 VRT가 있어도 본문 증거를 생략하지 않는다. 주장을 판단하는 데 없어도 되는 보조 diff·추가 viewport·대체 recording만 선택으로 둘 수 있으며 불명확하면 필수로 취급한다. 필수 항목 하나라도 annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded 메타데이터 검사를 완료하지 못하면 PR 생성 명령 자체를 실행하지 않는다.
 
 Draft PR을 만들기 전에 전체 manifest의 로컬 파일 identity를 비교한다. realpath, hard link나 symbolic link를 통해 같은 underlying file을 가리키는 항목이 둘 이상이면, 각 파일을 별도 명령으로 올리더라도 중복으로 보고 upload를 시작하지 않는다. 내용 hash만 같은 서로 다른 파일은 자동으로 같은 파일이라고 단정하지 않는다.
 
@@ -119,7 +121,7 @@ Draft PR을 만들기 전에 전체 manifest의 로컬 파일 identity를 비교
 3. 실행 직전에 한 파일의 size와 SHA-256을 manifest와 다시 대조한다. 달라졌으면 중단한다.
 4. 필수 파일부터 manifest 순서대로 `gh pr edit`에 검증한 PR URL과 한 파일의 `--attach` 인자만 전달한다. `--body`나 `--body-file`을 함께 전달하지 않는다.
 5. 파일 하나를 추가할 때마다 실제 body를 다시 읽어 고유한 remote URL과 render 형태를 확인하고 `upload_status`를 갱신한다. 다음 파일은 확인이 끝난 뒤에만 처리한다.
-6. 저장소 template의 visual section이 본문 끝이 아니면 확인한 remote URL을 그 section에 배치한 완성 body를 `gh pr edit --body-file`로 다시 기록한다. body를 재조회하여 append된 중복 URL이 없고 각 attachment가 지정된 위치와 예상한 순서로 렌더링될 때만 `body_status: verified`로 둔다. 본문 끝이 visual section이면 append 결과의 순서와 render 형태를 확인하여 같은 상태로 둔다.
+6. 계획한 첨부 위치가 본문 끝이 아니면 확인된 URL을 해당 설명 뒤 또는 외부 양식의 지정 항목에 배치한 body를 `gh pr edit --body-file`로 기록한다. 재조회하여 append된 중복 URL이 없고 각 attachment가 계획한 위치·순서로 렌더링될 때만 `body_status: verified`로 둔다. 원래 위치가 본문 끝이면 append 결과의 순서·render 형태를 확인해 같은 상태로 둔다.
 7. 필수 항목이 모두 `upload_status: uploaded`, `body_status: verified`일 때만 다음 단계로 진행한다. 하나라도 `failed`, `not_attempted`, `missing`, `wrong_render`, `unknown` 또는 `inconclusive`이면 Draft 상태를 유지한다.
 8. 사용자가 ready PR을 명시한 경우에만 unresolved local path와 placeholder가 없고 이미지 alt text·marker 설명, 비디오의 caption·순서와 bare URL 단독 문단까지 확인한다. native stack의 층이라면 [stack 연결 검증](stacked-prs.md#native-stack으로-게시하고-검증한다)까지 끝난 뒤 전환한다. `gh pr ready` 직전에 PR을 다시 읽어 `isDraft: true`, 저장소, base, head와 `headRefOid`가 manifest에 고정한 값과 같은지 확인한다. `headRefOid`가 달라졌으면 시각 증거를 현재 변경의 증거로 사용하지 않고 Draft 상태를 유지한다. 모두 통과했을 때만 ready로 전환하고, 이후 `isDraft: false`와 같은 `headRefOid`를 다시 확인한다. 상태 미지정 또는 Draft 요청이면 전환하지 않는다.
 

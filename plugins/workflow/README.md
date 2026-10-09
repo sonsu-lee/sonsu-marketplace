@@ -20,9 +20,11 @@ codex plugin add workflow@sonsu-marketplace
 
 티켓 작성·lifecycle과 PR의 티켓 연결은 Linear와 GitHub Issues를 지원합니다.
 
-티켓은 [티켓 작성 지침](skills/to-ticket/references/ticket-writing.md)으로 사용자 지정 양식과 대상 저장소·팀·프로젝트의 양식·필수 필드를 확인하고, 작업의 목적·방향·필요한 맥락·완료조건이 드러나게 내용을 구성합니다. 대상 양식이 없다고 확인된 경우에는 이 플러그인의 일반·버그·조사 기본형을 사용합니다. 일반 기본형은 배경·목적, 방향성·범위, 전제·유의사항, 완료조건으로 구성합니다. 버그 기본형은 현상과 완료조건을 필수로, 확인된 환경·재현 단계·자료는 필요할 때만 재현 정보로 담습니다. 미디어 게시는 프로바이더별 첨부 규칙으로 처리합니다.
+티켓은 [티켓 작성 지침](skills/to-ticket/references/ticket-writing.md)으로 사용자 지정 양식과 대상 저장소·팀·프로젝트의 필수 필드를 확인합니다. 현재 문제·영향, 원하는 결과, 구현할 때 지켜야 할 기존 동작·제약·합의된 선택 기준을 설명하며 결과와 수용 조건은 본문에 한 번 남깁니다. 대상 양식이 없다고 확인된 경우 일반·버그·조사 기본형으로 필요한 정보를 구성하되 제목이나 분량을 강제하지 않습니다. 버그는 확인된 발생 조건·실제 동작·기대 동작·재현 자료를, 조사는 결정에 쓸 근거와 확인 범위를 보존합니다. 미디어 게시는 프로바이더별 첨부 규칙으로 처리합니다.
 
-PR은 [주제·의존 관계 기준](skills/to-pr/references/stacked-prs.md)으로 단일 PR, 독립 PR 또는 GitHub native stacked PR의 경계를 정합니다. [PR 템플릿 규칙](skills/to-pr/references/pr-template.md)으로 적용 양식을 확인하고, [PR 작성 지침](skills/to-pr/references/pr-writing.md)으로 각 PR의 실제 변경을 설명합니다. Workflow는 diff·티켓·검증 근거 수집, 원격 양식 확인, 연결 문법과 게시·첨부·상태 결과 검증을 담당합니다. 임시로 작성한 본문은 적용 양식이나 게시 조건이 확정됐다는 뜻이 아닙니다.
+PR은 [주제·의존 관계 기준](skills/to-pr/references/stacked-prs.md)으로 단일 PR, 독립 PR 또는 GitHub native stacked PR의 경계를 정합니다. [PR 템플릿 규칙](skills/to-pr/references/pr-template.md)으로 양식을 확인하고, [PR 작성 지침](skills/to-pr/references/pr-writing.md)으로 왜 바꿨는지, 실제 동작과 처리 방식이 어떻게 달라졌는지, 검토·배포에 필요한 제약을 설명합니다. 정적 세부사항은 마킹 이미지, 상호작용·시간 흐름은 실제 영상으로 보여 주며 서로 다른 판단에 필요할 때만 두 매체를 함께 씁니다. Workflow는 사실·최종 diff·검증 근거 수집과 원격 양식·연결 문법·게시·첨부 결과 확인을 담당합니다. 초안이나 준비 계획은 실제 게시·검사·재생 완료가 아닙니다.
+
+티켓 연동 때문에 브랜치명에 ID를 넣지 않습니다. Linear는 [공식 magic word와 확인된 URL](skills/to-pr/references/ticket-linking.md#linear)로 PR 본문에서 연결하며, 일부 기여·전체 해결·단순 관련을 구분합니다. AI attribution과 도구 서명도 자동으로 넣지 않으며, 사용자의 제외 요청과 외부 필수 규칙이 충돌하면 메시지 밖에서 알립니다.
 
 티켓·PR·커밋의 작성 기준과 기본 양식은 이 플러그인에서 직접 관리합니다([커밋 메시지 기준](references/commit-message.md), [문장 형식 기준](references/tracker-prose.md)). Writing은 정보 선별·문서 배치와 문장·문단
 구성을, Fluent Languages는 한국어·일본어·영어 표현을 맡습니다. 현재 제공되는 스킬만

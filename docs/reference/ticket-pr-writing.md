@@ -18,22 +18,22 @@ Workflow의 티켓·PR 작성 규칙과 기본형의 정본은 플러그인 파�
 | 티켓 연결과 status effect | [ticket-linking.md](../../plugins/workflow/skills/to-pr/references/ticket-linking.md) |
 | 시각 자료와 첨부 | [visual-evidence.md](../../plugins/workflow/skills/to-pr/references/visual-evidence.md), [media-attachments.md](../../plugins/workflow/skills/to-pr/references/media-attachments.md) |
 | 커밋 메시지 언어·제목·본문·trailer | [commit-message.md](../../plugins/workflow/references/commit-message.md) |
-| 티켓·PR·커밋 공통 문장 형식(경량형·서식 밀도·서두·어조·제목·AI 사용 표기) | [tracker-prose.md](../../plugins/workflow/references/tracker-prose.md) |
+| 티켓·PR 정보 선택·설명과 공통 문장 형식·AI 사용 표기 | [tracker-prose.md](../../plugins/workflow/references/tracker-prose.md) |
 
 ## 설계 결정
 
 - Workflow는 Linear와 GitHub Issues를 지원하며, 티켓·PR 기본형은 두 tracker에 공통으로 적용한다.
-- 티켓은 작업 지시 목록이 아니라 목적·방향·필요한 맥락·완료조건을 공유하는 문서다. 일반 작업 기본형은 배경·목적 / 방향성·범위 / 전제·유의사항 / 완료조건으로 구성하고, 버그·조사형은 유형별 제목을 유지한 채 같은 의미를 담는다. 이미 합의된 제약이 아닌 원인 분석·해결 방법·작업 순서·검증 방법은 작업자가 정한다.
-- PR은 리뷰어와 이후 history 독자가 알아야 할 것만 설명한다. 한 티켓에는 여러 PR이 연결될 수 있으며 각 PR은 자기 변경과 확인 결과만 설명한다.
+- 티켓은 문제·영향·원하는 결과와 지켜야 할 기존 동작·제약·합의된 선택 기준을 전달한다. 일반·버그·조사 기본형은 담을 정보를 안내하며 고정 제목이나 분량을 강제하지 않는다. 합의되지 않은 원인·구현 방법·작업 순서를 새로 정하지 않는다.
+- PR은 실제 바뀐 동작과 그 이유, 검토·배포에 필요한 조건을 설명한다. 티켓 배경·코드 목록·플랫폼 UI와 CI 상태를 의미 없이 재보고하지 않는다. 검증 수행은 유지하되 수용 여부를 판단하는 데 새 정보를 주는 관찰·재현 조건만 본문에 남긴다.
 - 대상 공간의 양식이 내부 기본형보다 우선하며, 조회하지 못한 상태는 양식 부재와 구분한다.
-- 완료조건은 수용 여부를 같은 기준으로 판단하게 돕는 항목이며 작업을 묶어 두는 검수 목록이 아니다. 일반 작업에서는 권장 항목으로 두고 본문의 목적·범위에서 도출한 결과·상태만 짧게 쓴다. 팀 공통 완료 기준은 넣지 않는다. 방법을 묶는 조건(구현·테스트 케이스·검증 절차), 수치, 검수 단계는 합의됐거나 안전·호환성에 필수일 때만 넣고, 티켓 고유의 요구사항은 자동 검증 여부와 관계없이 남긴다. 완료조건·팀 공통 완료 기준·실제 검증 근거는 서로 다른 정보다. 모르는 값을 채우려고 빈 항목이나 반복적인 `미확인` 문구를 만들지 않는다.
+- 완료를 판단할 결과와 합의된 수용 조건은 본문에 한 번 남기며 별도 완료조건 제목·검수 목록을 기본으로 만들지 않는다. 서로 다른 실패를 구분할 때는 결과 위치의 목록을 사용한다. 자동 검증 예정인 동작이나 요청 산출물인 테스트는 보존하고 팀 공통 절차는 복제하지 않는다. 조건·공통 완료 기준·실제 검증 근거는 구분하며, 필요한 미정 값은 만들지 않는다.
 - 티켓은 독립적으로 우선순위를 정하거나 담당·완료 여부를 판단할 결과가 있을 때만 나눈다. Terraform처럼 앞 단계의 merge와 apply 뒤에 다음 변경을 진행해야 한다면 같은 티켓의 순차 PR로 추적할 수 있다.
 - 부분 PR은 비종결 관계로 연결하고, 완료 표현은 그 PR의 병합 자체가 티켓의 전체 결과를 충족할 때만 쓴다. [Linear는 한 이슈에 여러 PR을 연결하고 비종결 관계를 지원한다](https://linear.app/docs/github).
-- 티켓 연결 채널은 PR 본문이며 티켓 연동을 이유로 branch 이름에 티켓 ID를 넣지 않는다. [Linear 연동](https://linear.app/docs/github), [GitHub Issues 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
-- 제품 화면·상호작용 변경은 마킹한 스크린샷이나 timestamp caption 영상을 PR 본문에 둔다. 사용자 요청이나 대상 PR 양식의 요구가 우선한다. VRT 결과 링크는 리뷰어가 PR 밖으로 이동해야 하고 변경 위치를 표시하지 않으므로 본문 자료를 대체하지 않는다.
+- 티켓 연결 채널은 PR 본문이며 브랜치명·PR 제목에 연동용 ID를 추가하지 않는다. Linear는 공식 magic word와 확인된 issue URL을 기본으로 쓰고 부분 기여·전체 해결·단순 관련의 상태 효과를 구분한다. [Linear 연동](https://linear.app/docs/github), [GitHub Issues 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
+- 정적 상태는 마킹 이미지, 동작·시간 흐름은 실제 영상으로 보여 주며 각기 다른 판단에 필요할 때만 둘 다 쓴다. 영상 caption은 볼 지점을 설명하고 timestamp는 필요한 경우에만 쓴다. 도구 부재·용량 문제로 동작 증거를 정적 이미지로 대체 완료하지 않는다. 사용자·외부 양식의 요구를 지키며 VRT 링크만으로 본문 자료를 대체하지 않는다.
 - 티켓·PR·커밋의 언어는 사용자 지정과 저장소·대상 공간의 명시 규칙을 먼저 따르고, 근거가 없으면 마지막 단계로 영어를 쓴다. 대화 언어는 근거로 쓰지 않는다.
-- AI 사용 표기는 저장소가 요구할 때만 그 형식대로 넣고, 요구가 없으면 AI용 trailer나 서명을 붙이지 않는다.
-- 배경과 변경을 한 문단으로 설명할 수 있는 PR과, 배경·목적과 완료 상태를 한 문단으로 설명할 수 있는 작은 티켓은 제목 없는 경량형을 허용한다.
+- AI attribution과 도구 서명은 자동으로 추가하지 않고 사용자 명시 요청에 한해 확인된 값으로 작성한다. 외부 필수 공개 항목과 충돌하면 구조는 보존하되 임의로 채우거나 거짓 값을 넣지 않고 본문 밖에서 알린다. 필수 조건을 충족하기 전에는 게시하지 않는다.
+- 제목·목록은 내용을 구분해 읽는 데 사용한다. 경량형은 필요한 내용을 억지로 항목에 나누지 않는다는 뜻이며, 짧음·제목 없음·특정 서두의 부재를 품질 기준으로 삼지 않는다.
 
 ## 외부 근거
 
@@ -46,14 +46,14 @@ Workflow의 티켓·PR 작성 규칙과 기본형의 정본은 플러그인 파�
 
 ### 완료조건과 검증 근거
 
-다음 출처의 개념 구분을 참고해 이 저장소의 경량 작성 정책을 정했다. 원문 양식·역할·회의 절차를 그대로 도입하거나 보편 표준으로 강제하지 않는다.
+다음 출처의 개념 구분을 참고해 결과의 의미를 한 번 보존하는 작성 정책을 정했다. 원문 양식·역할·회의 절차를 그대로 도입하거나 보편 표준으로 강제하지 않는다.
 
 - [Scrum Guide 2020의 Definition of Done](https://scrumguides.org/scrum-guide.html#commitment-definition-of-done)은 Increment의 제품 품질 상태에 대한 공통 정의다. 티켓마다 복제할 CI 체크리스트가 아니다.
 - [GOV.UK의 사용자 스토리 작성 안내](https://www.gov.uk/service-manual/agile-delivery/writing-user-stories#acceptance-criteria)는 수용 기준을 사용자 필요를 충족했는지 확인하는 결과로 설명한다. 결과 중심 완료조건의 근거로 쓰고, 긴 체크리스트를 강제하는 근거로 쓰지 않는다.
 - [Agile Alliance의 Acceptance Testing](https://agilealliance.org/glossary/acceptance-testing/)은 실행 가능한 인수 테스트가 요구사항의 정본인 팀도 다룬다. 정본이 있으면 결과를 요약하고 참조하며 같은 내용을 복제하지 않는다.
 - [Given–When–Then](https://agilealliance.org/glossary/given-when-then/)은 맥락·행동·관찰 결과를 쓰는 도구다. 모든 티켓의 강제 문법으로 삼지 않는다.
 - Matt Wynne의 [Example Mapping](https://cucumber.io/blog/bdd/example-mapping-introduction/)은 규칙·예시·질문을 나눈다. 결과를 모르는 상황은 조건을 창작하지 않고 질문으로 남긴다.
-- [Linear Method](https://linear.app/method/write-issues-not-user-stories)는 분명한 결과가 있는 짧은 이슈를 권한다. 완료조건을 짧게 유지하고 작은 작업에서 생략을 허용하는 근거다.
+- [Linear Method](https://linear.app/method/write-issues-not-user-stories)는 구체적인 결과와 작업에 필요한 맥락을 권한다. 필요한 조건을 생략하거나 모든 티켓의 분량을 줄이라는 근거로 쓰지 않는다.
 - Don Wells의 [Spike Solution](http://www.extremeprogramming.org/rules/spike.html)은 특정 기술 문제의 불확실성을 줄이는 탐색이다. 조사의 완료를 원하는 결론이나 제품 배포 성공으로 고정하지 않는다.
 
 CI 통과는 그 검사가 다룬 조건·리비전·환경 범위의 근거다. 완료조건을 없애거나 확인하지 않은 전체 동작을 완료로 판단하는 근거는 아니다. 이 구분은 중복 수동 검수를 줄이기 위한 것이며 새 readiness gate나 상태 전이 권한을 만들지 않는다.
@@ -88,7 +88,7 @@ CL은 Google의 코드 변경 단위이며 이 저장소 PR 양식과 같지는 
 ### 커밋 메시지와 AI 사용 공개
 
 - [Git SubmittingPatches](https://github.com/git/git/blob/master/Documentation/SubmittingPatches): 본문에 문제, 택한 방식의 이유, 버린 대안을 쓴다.
-- [Linux kernel의 AI coding assistant 지침](https://docs.kernel.org/process/coding-assistants.html): AI는 `Signed-off-by`를 붙이지 않고 `Assisted-by:`로 사용을 밝힌다.
+- [Linux kernel의 AI coding assistant 지침](https://docs.kernel.org/process/coding-assistants.html): AI는 `Signed-off-by`를 붙이지 않고 `Assisted-by:`로 사용을 밝히는 외부 정책 사례다. 이 저장소의 자동 표기 규칙으로 도입하지 않으며, 대상 정책과 사용자 요청이 충돌하면 충돌로 보고한다.
 - [How to Write a Git Commit Message](https://cbea.ms/git-commit/): 명령형 제목, 제목 길이 제한, 본문에 무엇과 왜를 쓰는 관례를 정리한다.
 - [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): description` 제목과 `BREAKING CHANGE` footer 형식의 명세다.
 - [GitHub squash merge 기본 제목 변경 공지](https://github.blog/changelog/2022-05-11-default-to-pr-titles-for-squash-merge-commit-messages/): squash 병합 시 PR 제목이 기본 커밋 제목이 된다.
