@@ -6,6 +6,9 @@
     {
       "path": "plugins/career/skills/career-inventory/SKILL.md",
       "sha256": "8db050ec473da7800f9f801d8ce1cc96b908b6a1c08682bffad45a4f61f4708d",
+      "sources": {
+        "plugins/career/references/workspace.md": "42cf4fe59abf4b951070d788a0c896f756092fddfe439bfb81f7b5638a35624a"
+      },
       "problem": "기존 서류의 주장을 확인 없이 재사용하면 수치 근거·개인 기여·철회 상태가 불분명해집니다.",
       "outcome": "O/P/F/S/R ID와 출처·확인 상태·공개 범위를 가진 경력 원본과 STAR+R 스토리를 만듭니다.",
       "ai_judgment": "사용자 경험에서 사실·내 몫·팀 몫을 분리하고 필요한 질문과 방어 가능한 스토리를 판단합니다.",
@@ -59,6 +62,7 @@
     {
       "path": "plugins/career/skills/interview-retro/SKILL.md",
       "sha256": "cc6a5c6b3efecd0aefeb5c3b451049c1f2c75fa5507b9bb25fdaafee13631b8d",
+      "sources": {},
       "problem": "면접에서 받은 질문을 기억으로만 남기면 준비 범위와 전달력의 갭을 구분하거나 반복 취약점을 추적하기 어렵습니다.",
       "outcome": "실제 질문·답변 기록, A/B/C 분류, 질문 은행 갱신과 다음 준비 조치를 제공합니다.",
       "ai_judgment": "같은 의도의 질문인지, 준비 범위·전달 갭인지와 사실 정정·철회 제안이 필요한지 판단합니다.",
@@ -106,6 +110,9 @@
     {
       "path": "plugins/career/skills/mock-interview/SKILL.md",
       "sha256": "beee41608495588065e93178fa02d44e56f6c1e73bec28f9d41dcd544232df6a",
+      "sources": {
+        "plugins/career/skills/mock-interview/references/evaluation-rubric.md": "4f4ec45d1e57609819a7405e76a9819fcab4217b5b845b7eed7eb6f6156d26c7"
+      },
       "problem": "준비한 답변도 실제 질문·꼬리질문에서 근거와 개인 기여를 설명하지 못할 수 있습니다.",
       "outcome": "한 질문씩 진행한 세션 기록과 근거·라운드 기준에 따른 평가, 다음 연습 과제를 제공합니다.",
       "ai_judgment": "꼬리질문의 맥락, 답변의 사실성·설명 깊이·해결 대응과 체크리스트 충족도를 판단합니다.",
@@ -153,6 +160,9 @@
     {
       "path": "plugins/career/skills/prepare-interview/SKILL.md",
       "sha256": "e3eae23a02c384ce1536f7217cafee3715add411ec4613259acc3866d7c342a8",
+      "sources": {
+        "plugins/career/references/risk-probes.md": "a34fb13340ea04ba66dff31d21bbf6b90017d116ce9cfd0574e481e39602987c"
+      },
       "problem": "회사·라운드·JD와 경력 근거가 연결되지 않으면 준비할 질문과 방어하기 어려운 주장을 놓칩니다.",
       "outcome": "회사별 준비 자료·제품 관찰·답변·위험 질문·직전 요약과 다음 연습 계획을 제공합니다.",
       "ai_judgment": "JD와 경험의 실질적 일치, 회사 과제, 관찰 기반 개선안과 질문·답변 방향을 판단합니다.",
@@ -215,6 +225,9 @@
     {
       "path": "plugins/career/skills/write-career-documents/SKILL.md",
       "sha256": "56de6b891391568f043aecde2790f5b69980f042f73aecbc87f200a9852d08ce",
+      "sources": {
+        "plugins/career/skills/write-career-documents/references/us-resume.md": "3e1881ae61fd10c101096c7cd5f2121cd4f60d0980da5818915a859b5c05ec98"
+      },
       "problem": "JD에 맞춰 서류를 고치다가 확인되지 않은 수치·인접 경험을 넣거나 기술 경력을 중복 계산하기 쉽습니다.",
       "outcome": "근거 주석과 시장별 형식을 갖춘 지원 서류, JD 대응표와 검토 결과를 제공합니다.",
       "ai_judgment": "사용 가능한 사실, 강조 순서, 실제 JD 일치, 개인 기여와 문서 독자의 이해를 판단합니다.",
