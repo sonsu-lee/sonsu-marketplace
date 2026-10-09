@@ -118,7 +118,7 @@ omp plugin upgrade
 
 ## 貢献
 
-ローカル環境・変更・検証手順は[プラグイン開発ガイド](docs/guides/adding-a-plugin.md)、不具合報告や改善提案は[GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues)を参照してください。詳細ガイドは韓国語、ompのライフサイクル節は日本語で管理しています。
+ローカル環境・変更・検証手順は[プラグイン開発ガイド](docs/guides/adding-a-plugin.md)、不具合報告や改善提案は[GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues)を参照してください。詳細ガイドは韓国語で管理しています。
 
 ## ライセンス
 

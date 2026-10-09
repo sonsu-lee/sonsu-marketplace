@@ -350,6 +350,51 @@ class WorklogTests(unittest.TestCase):
         self.assertEqual(json.loads(self.cli("clusters", "--days", "0")), [])
         self.assertIn("8 Bash|failed <path> <id> after N attempts", self.cli("clusters", "--format", "text"))
 
+    def test_symlinked_host_never_writes_outside_log_root(self):
+        project = self.project_dir()
+        project.mkdir(parents=True)
+        outside = self.root / "outside"
+        outside.mkdir()
+        (outside / "important.txt").write_text("keep")
+        (project / "claude").symlink_to(outside, target_is_directory=True)
+        result = subprocess.run([sys.executable, "-B", str(SCRIPT), "hook", "--host", "claude"],
+                                input=json.dumps(self.event("SessionStart")), text=True,
+                                capture_output=True, env=self.env)
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("WorklogError", result.stderr)
+        self.assertEqual(sorted(p.name for p in outside.iterdir()), ["important.txt"])
+        self.assertEqual((outside / "important.txt").read_text(), "keep")
+
+    def test_transcript_hook_command_redacts_secrets(self):
+        transcript = self.root / "claude.jsonl"
+        transcript.write_text(json.dumps({
+            "type": "attachment",
+            "attachment": {"type": "hook_success", "hookEvent": "SessionStart",
+                           "hookName": "SessionStart:startup",
+                           "command": "API_TOKEN=example-sensitive-value ./session-start.sh", "stdout": "ok"},
+        }) + "\n")
+        self.hook("claude", self.event("SessionStart", transcript_path=str(transcript)))
+        self.hook("claude", self.event("Stop", transcript_path=str(transcript)))
+        [load] = [r for r in self.records("claude") if r["event"] == "context_load"]
+        self.assertEqual(load["data"]["command"], "[redacted] ./session-start.sh")
+        self.assertNotIn("example-sensitive-value", json.dumps(self.records("claude")))
+
+    def test_expired_session_resumes_in_current_date_without_resetting_offset(self):
+        project = self.project_dir()
+        state_dir = project / "codex/.state"
+        state_dir.mkdir(parents=True)
+        old = (datetime.now(timezone.utc).date() - timedelta(days=91)).isoformat()
+        state_path = state_dir / "session-1.json"
+        state_path.write_text(json.dumps({"date": old, "rollout_offset": 123}))
+        self.hook("codex", self.event("SessionStart", source="resume", transcript_path="rollout.jsonl"))
+        [record] = self.records("codex")
+        self.assertEqual(record["event"], "session_start")
+        state = json.loads(state_path.read_text())
+        self.assertEqual(state["date"], datetime.now(timezone.utc).date().isoformat())
+        self.assertEqual(state["rollout_offset"], 123)
+        self.assertFalse((project / "codex" / old).exists())
+
     def test_hooks_json_event_sets_per_host(self):
         expected = {
             "hooks/hooks.json": ("codex", {
