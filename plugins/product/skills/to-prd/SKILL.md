@@ -63,11 +63,13 @@ description: 현재 대화, 승인된 탐색 결과, issue와 기존 문서에 �
 
 ## PRD를 작성하거나 갱신한다
 
-변환할 수 있다고 판정한 뒤 [인계 계약](../../references/delivery-handoff.md)으로 문서 크기를 정한다.
-M 작업의 PRD-lite는 문제·기대 결과·REQ·수용 기준을 본문으로 작성한다. 대상 사용자와 범위는
+변환할 수 있다고 판정한 뒤 새 문서는 [인계 계약](../../references/delivery-handoff.md)으로 크기를 정한다.
+기존 PRD를 부분 갱신할 때는 변경 크기로 문서 전체를 lite/full로 다시 분류하지 않는다. 기존 형식과 영향받지 않는 내용·ID·metadata를 보존하고 합의된 변경 부분만 수정한다. 전체 재구성이 명시적으로 요청된 경우에만 형식을 바꾼다.
+새 M 작업의 PRD-lite는 문제·기대 결과·REQ·수용 기준을 본문으로 작성한다. 대상 사용자와 범위는
 문제에, 행위자·조건·관찰 가능한 결과는 REQ와 수용 기준에 필요한 만큼 담는다. 근거·미결정은
 해당 항목 옆에 남기고 승인·안전·metadata 계약은 공통으로 적용한다. 전체 PRD 템플릿과 아래의
-추가 필드는 lite에 강제하지 않으며, 우선순위·품질 기대 등 이미 합의된 내용은 관련 항목에 보존한다.
+추가 본문 필드는 lite에 강제하지 않으며, 우선순위·품질 기대 등 이미 합의된 내용은 관련 항목에 보존한다.
+파일로 작성하는 lite와 전체 PRD의 metadata는 [공통 문서 계약](references/document-contract.md#metadata)을 따른다.
 
 전체 PRD는 [PRD 품질 기준](references/prd-quality-bar.md)을 읽고
 [PRD 템플릿](assets/prd-template.md)을 출발점으로 사용한다. 관련 없는 항목과 모든

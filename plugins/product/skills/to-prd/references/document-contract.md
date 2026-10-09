@@ -11,6 +11,10 @@ PRD 파일을 만들거나 갱신하기 전에 읽는다.
 - 경로가 symlink라면 해석된 대상이 허용 범위 안에 있는지 확인한다.
 - 관련 PRD, 도메인 문서와 ADR은 근거로 읽을 수 있지만 별도의 요청 없이 함께 수정하지 않는다.
 
+## Metadata
+
+lite와 전체 PRD 파일 모두 저장소의 기존 metadata 관례를 따른다. 관례가 없으면 [PRD 템플릿](../assets/prd-template.md)의 frontmatter를 재사용해 `id`, `title`, `status`, `workflow_status`, `revision`, `owners`, `sources`를 둔다. 본문이 lite라는 이유로 이 metadata를 생략하지 않는다. 자리표시자를 실제 값으로 바꾸고 기존 ID를 보존하며, 새 ID는 기존 문서와 중복되지 않게 정한다. 확인되지 않은 담당자를 만들지 않고 `owners`는 빈 목록으로 둘 수 있다. `sources`에는 실제 요구 출처를 기록하며 파일 경로가 없는 대화 요청도 출처로 식별한다. 상태·승인은 아래 승인 기준을 따른다.
+
 ## 근거와 승인
 
 - 코드와 테스트는 현재 구현의 근거이지 제품 의도나 승인 근거가 아니다.
