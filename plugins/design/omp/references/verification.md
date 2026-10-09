@@ -13,9 +13,8 @@
 6. DQ7에서 proposal/Figma/code에 맞는 provenance, structure/readback/runtime evidence를 연결한다.
 7. DQ8에서 사전 등록 outcome metric과 low/medium/high 위험에 맞는 사용자 증거를 확인한다.
 
-DQ1–DQ6은 작성자가 아닌 독립 평가자 2명이 0–4점으로 판정한다. 두 점수의 최솟값이 3
-이상이어야 하고 차이가 1보다 크면 `inconclusive`다. open critical finding과 hard check 실패는
-다른 점수로 상쇄할 수 없다.
+독립 평가자·점수·판정 보류·필수 gate의 통과 조건은
+[차원별 합격](design-quality.md#차원별-합격)을 따른다.
 
 레퍼런스를 잠근 작업은 결과를 primary와 나란히 놓고 `borrow`만 반영했는지, `do_not_borrow`·브랜드
 자산·레퍼런스의 실제 수치와 문구를 옮기지 않았는지 확인한다. 레퍼런스와 닮았다는 것은 어느 gate의
@@ -27,3 +26,27 @@ DQ1–DQ6은 작성자가 아닌 독립 평가자 2명이 0–4점으로 판정�
 
 실패는 원인이 있는 계약·정보·표현·상태·실행·outcome 단계로 돌린다. 결과 파일/미리보기,
 주요 결정·전후 차이, gate별 실제 근거와 `not_run`을 분리해 전달한다.
+
+## 구조 검증 명령
+
+기존 계약·보고서 또는 작성한 결과에 다음 명령을 실행한다. 읽기 전용 감사는 기존 파일만
+검사하고 부재·오류를 finding으로 남긴다.
+
+```bash
+python3 <design-plugin-root>/scripts/validate_design_quality.py contract <contract.json>
+python3 <design-plugin-root>/scripts/validate_design_quality.py report <report.json> <contract.json>
+```
+
+`OK: contract`·`OK: report`와 종료 코드 `0`은 구조 검사 통과다. `ERROR:`와 종료 코드 `1`이면
+표시한 오류를 수정한 뒤 다시 검사한다. 구조 검사 결과와 실제 화면·동작·사용자 결과의 근거는
+구분한다. `DESIGN.md` 검사 명령·상태별 행동은 [공통 절차](design-quality.md#designmd-공통-절차)를 따른다.
+
+운영 화면은 확장 계약과 runtime 이미지 근거도 검사한다.
+
+```bash
+python3 <design-plugin-root>/scripts/validate_operations_contracts.py contract <contract.json>
+python3 <design-plugin-root>/scripts/validate_operations_contracts.py report <report.json> <contract.json>
+```
+
+`Validation passed.`와 종료 코드 `0`이면 구조·파일 검사 통과다. 종료 코드 `1`이면 출력된
+오류 목록을 처리한다. 실제 실행을 확인하지 못한 항목은 미확인 상태로 유지한다.

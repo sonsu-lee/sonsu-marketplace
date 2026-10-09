@@ -19,7 +19,7 @@
     },
     {
       "path": "scripts/render-claude-compat.py",
-      "sha256": "ad71d1b471d806e89a517223ce9ed1dc60529fdd584103cd299fe87789691f8e",
+      "sha256": "fc8f509563dbba698529664a77c101a5be417be99c496392c0f514fa111789b0",
       "role": "Codex 카탈로그·manifest에서 Claude 카탈로그·manifest와 Memory Manager·Worklog의 호스트 전용 패키지를 생성한다.",
       "verdict": "keep",
       "verdict_target": "",

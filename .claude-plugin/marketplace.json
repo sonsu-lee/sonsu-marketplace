@@ -45,35 +45,35 @@
       "name": "writing",
       "source": "./plugins/writing",
       "description": "독자·목적·근거에 맞춰 업무 문서와 개발자 블로그의 정보를 선별하고, 문서 배치와 글의 흐름을 다듬는다.",
-      "version": "0.4.0-beta.2",
+      "version": "0.5.0-beta.1",
       "category": "Productivity"
     },
     {
       "name": "research",
       "source": "./plugins/research",
       "description": "Exa·Perplexity 목적별 공개 검색과 근거 중심의 사실 검증·비교·코드 조사를 제공합니다.",
-      "version": "0.7.0-sonsu.13",
+      "version": "0.8.0",
       "category": "Productivity"
     },
     {
       "name": "prompting",
       "source": "./plugins/prompting",
       "description": "Codex, ChatGPT, OpenAI API와 Claude Code·Anthropic API 모델에서 바로 사용할 수 있는 간결한 프롬프트를 작성합니다.",
-      "version": "0.4.7",
+      "version": "0.5.0",
       "category": "Productivity"
     },
     {
       "name": "product",
       "source": "./plugins/product",
       "description": "제품 기회를 탐색하고, 근거를 종합하고, 제품 도메인을 모델링하고, 검증을 설계·판정하며, 승인된 결정을 PRD로 변환합니다.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "category": "Productivity"
     },
     {
       "name": "memory-manager",
       "source": "./plugins/memory-manager/claude",
       "description": "Codex와 Claude Code가 공유하는 로컬 Markdown 메모리를 회상, 수집, 정리하고 절차 초안으로 승격합니다.",
-      "version": "0.2.4",
+      "version": "0.3.0",
       "category": "Productivity"
     },
     {
@@ -87,14 +87,14 @@
       "name": "design",
       "source": "./plugins/design",
       "description": "웹·앱·운영 UI를 Figma 또는 코드에서 설계·재설계·감사하고 디자인 레퍼런스를 찾으며 Google DESIGN.md와 DQ0–DQ8로 검증합니다.",
-      "version": "0.6.2",
+      "version": "0.7.0",
       "category": "Developer Tools"
     },
     {
       "name": "worklog",
       "source": "./plugins/worklog/claude",
       "description": "Claude Code·Codex·omp 작업의 도구 실패·중단·사용자 교정을 공용 로그로 남기고 진단합니다.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "category": "Developer Tools"
     }
   ]

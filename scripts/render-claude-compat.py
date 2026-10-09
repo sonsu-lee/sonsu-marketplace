@@ -16,6 +16,7 @@ CLAUDE_ROOT_PACKAGES = {
         "skills": ("memory-recall", "memory-capture", "memory-maintain", "memory-promote"),
         "manual_skills": {"memory-maintain", "memory-promote"},
         "files": {"scripts/memory_store.py": "scripts/memory_store.py",
+                  "references/store-contract.md": "references/store-contract.md",
                   "hooks/capture.py": "hooks/capture.py",
                   "hooks/hooks.json": "hooks/hooks.json"},
     },
@@ -23,6 +24,9 @@ CLAUDE_ROOT_PACKAGES = {
         "skills": ("worklog-diagnose", "worklog-improve"),
         "manual_skills": {"worklog-improve"},
         "files": {"scripts/worklog.py": "scripts/worklog.py",
+                  "scripts/validate_improvement.py": "scripts/validate_improvement.py",
+                  "skills/worklog-improve/references/evaluation.md":
+                      "skills/worklog-improve/references/evaluation.md",
                   "hooks/claude-hooks.json": "hooks/hooks.json"},
     },
 }
@@ -136,7 +140,8 @@ def main():
         generated_manifest = generated_root / ".claude-plugin/plugin.json"
         if generated_manifest.is_file() or generated_manifest.is_symlink():
             managed.add(generated_manifest)
-        for directory in (generated_root / "skills", generated_root / "scripts", generated_root / "hooks"):
+        for directory in (generated_root / "skills", generated_root / "scripts", generated_root / "hooks",
+                          generated_root / "references"):
             if directory.is_dir():
                 managed.update(path for path in directory.rglob("*")
                                if (path.is_file() or path.is_symlink()) and

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "writing",
-  "manifest_sha256": "970e65c8fe5e2bafc42df9a25d77222125948f533edd5a4bfda7c6590338e61b",
+  "manifest_sha256": "41306af89a72ed5e3c2f070ba6961c5f7f7d3c73c59db2c5560d1816d6cb6686",
   "problem": "언어별 윤문만으로는 업무 문서의 배치·편집 범위와 개발자 글의 저자성·기술 근거를 관리하기 어렵습니다.",
   "outcome": "정확한 정보·보존 계약과 읽는 목적에 맞는 업무 문서 또는 개발자 블로그를 만듭니다.",
   "omp": {
@@ -15,20 +15,20 @@
   "skills": [
     {
       "path": "plugins/writing/skills/write-developer-blog/SKILL.md",
-      "sha256": "7dc00448ec76635167ed7297e784902d986c4140ddbcd616ac8766b26ae55eb3",
+      "sha256": "4951cb1077b102a8366c0cc9d247c4f6e914965f8c0ec0b02f12227e7746ceb3",
       "problem": "개발자 글에서 저자의 실제 경험과 기술 사실이 섞이거나, 근거 없이 성공·인과관계를 단정하는 문제를 다룹니다.",
       "outcome": "독자 문제와 확인된 근거를 연결한 기획·본문·국소 수정 또는 위치가 있는 검토 결과를 반환합니다.",
       "ai_judgment": "글의 핵심 답, 절 순서, 저자 정보의 충분성, 기술 주장의 근거 수준과 검증 필요성을 판단합니다.",
       "mechanical": [
         {
           "step": "허용된 로컬 test·build·CLI에서 명령, 종료 코드와 실제 출력을 수집합니다.",
-          "location": "plugins/writing/skills/write-developer-blog/SKILL.md:63-71",
+          "location": "plugins/writing/skills/write-developer-blog/SKILL.md:25",
           "existing_tool": null,
           "proposal": "existing-cli"
         },
         {
           "step": "작성 범위와 보호 문자열의 전후 차이를 기존 diff 도구로 대조합니다.",
-          "location": "plugins/writing/skills/write-developer-blog/SKILL.md:95-101",
+          "location": "plugins/writing/skills/write-developer-blog/SKILL.md:64-65",
           "existing_tool": null,
           "proposal": "existing-cli"
         }
@@ -50,36 +50,26 @@
       ],
       "verdict": "keep",
       "verdict_target": "",
-      "reason": "기획·초안·수정·감사라는 직접 요청 과업과 저자성·기술 증거 계약이 있어 일반 윤문과 구별됩니다.",
+      "reason": "기획·초안·수정·감사라는 직접 요청 과업과 저자성·기술 증거 계약이 있어 일반 윤문과 구별됩니다. SKILL.md를 절차·결과·예시·경계 구조로 정리하고 흐름과 본문을 채운 예시를 추가했습니다.",
       "doc_findings": [
         {
-          "kind": "structure",
-          "location": "plugins/writing/skills/write-developer-blog/SKILL.md:11-25",
-          "note": "요청 유형별 결과와 절차가 여러 동작형 제목에 흩어져 있어 절차·결과·예시·경계 순서로 묶을 필요가 있습니다."
-        },
-        {
-          "kind": "missing-example",
-          "location": "plugins/writing/skills/write-developer-blog/SKILL.md:43-50",
-          "note": "흐름 의사코드의 필드 설명만 있고 실제 입력에서 채운 흐름과 본문 또는 finding 결과가 없습니다."
-        },
-        {
           "kind": "duplicate-rule",
-          "location": "plugins/writing/references/continuity.md:18-32",
-          "note": "호스트 세션 식별·복구와 이전 이름 처리 규칙이 도메인 작성 지침에 들어 있습니다. omp에서는 세션 기능을 사용하고 마이그레이션 설명은 이관하는 편이 맞습니다."
+          "location": "plugins/writing/references/continuity.md:18-30",
+          "note": "호스트 세션 식별·복구 규칙이 도메인 작성 지침과 함께 생성된다. 생성물이며 패키지 밖 문서를 링크할 수 없으므로 정본 shared/task-continuity/continuity.md.tmpl의 구성으로 다룬다."
         }
       ],
-      "example": "weak"
+      "example": "present"
     },
     {
       "path": "plugins/writing/skills/writing/SKILL.md",
-      "sha256": "9ce0fae496f54b8bdbad7069175b6ba5bbcb6c4f43953c5cc4ccf9c6b7ae16fd",
+      "sha256": "bdde1d4e45f52b6d8bbf3bd0e12191ff128c43f782a1138bf763472fb3839eeb",
       "problem": "업무 문서에서 독자에게 필요한 정보가 묻히거나 부분 수정이 문서 구조·보호 문자열까지 바꾸는 문제를 다룹니다.",
       "outcome": "독자와 목적에 맞게 구성하고 지정된 편집 범위·양식·사실을 유지한 문서나 메시지를 반환합니다.",
       "ai_judgment": "정보 선별, 문서 유형, 기존 문서 갱신 위치, 문장과 문단의 관계, 양식과 언어 스킬의 적용 범위를 판단합니다.",
       "mechanical": [
         {
           "step": "기존 검색 도구로 담당 문서와 링크 목적지를 찾고 존재 여부를 확인합니다.",
-          "location": "plugins/writing/skills/writing/SKILL.md:30-42",
+          "location": "plugins/writing/skills/writing/SKILL.md:21-24",
           "existing_tool": null,
           "proposal": "existing-cli"
         },
@@ -115,30 +105,9 @@
       ],
       "verdict": "keep",
       "verdict_target": "",
-      "reason": "문서 갱신 위치와 편집 범위라는 독립 판단이 있으며 언어별 Fluent나 omp 검색·세션만으로 같은 계약을 제공하지 않습니다.",
-      "doc_findings": [
-        {
-          "kind": "structure",
-          "location": "plugins/writing/skills/writing/SKILL.md:12-28",
-          "note": "절차가 번호 목록 하나로 정리되지 않았으며 독립 결과·예시·경계 절이 없습니다."
-        },
-        {
-          "kind": "missing-example",
-          "location": "plugins/writing/skills/writing/SKILL.md:77-88",
-          "note": "본문에는 대표 입력과 완성 결과가 없습니다. composition.md의 국소 예시를 활용해 본문에도 짧은 사례를 둘 수 있습니다."
-        },
-        {
-          "kind": "history",
-          "location": "plugins/writing/references/continuity.md:30-32",
-          "note": "이전 스킬 이름과 통합 전 플러그인 기록의 처리 절차는 마이그레이션 문서가 맡아야 합니다."
-        },
-        {
-          "kind": "internal-detail",
-          "location": "plugins/writing/skills/writing/SKILL.md:61-68",
-          "note": "호스트별 plugin:skill 표기와 다른 스킬의 상세 자동 선택 조건이 작성 절차에 섞여 있습니다. 라우팅 참고 자료로 모으는 편이 읽기 쉽습니다."
-        }
-      ],
-      "example": "missing"
+      "reason": "문서 갱신 위치와 편집 범위라는 독립 판단이 있으며 언어별 Fluent나 omp 검색·세션만으로 같은 계약을 제공하지 않습니다. SKILL.md를 번호 절차·결과·예시·경계 구조로 정리하고 호스트별 표기와 다른 스킬 선택 조건은 references/collaboration.md로 모았습니다.",
+      "doc_findings": [],
+      "example": "present"
     }
   ],
   "scripts": []

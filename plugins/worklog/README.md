@@ -1,20 +1,8 @@
 # Worklog
 
-Claude Code·Codex·omp 작업에서 일어난 도구 실패, 중단, API 오류, 사용자 교정을 프로젝트별
-로컬 JSONL 로그로 남기고, `worklog-diagnose` 스킬로 그 기록과 원문 transcript를 대조해 원인
-후보를 정리합니다. 세 호스트가 같은 로그 계약(`worklog-v1`)과 같은 저장 위치를 씁니다.
+Claude Code·Codex·omp 작업의 도구 실패·중단·API 오류·사용자 교정을 프로젝트별 로컬 JSONL로 기록하고, 원문 transcript와 대조해 원인을 진단하거나 명시적으로 요청한 지침 수정안을 평가합니다.
 
-- **기록**: Claude Code와 Codex는 plugin hook이, omp는 runtime extension이 기록합니다.
-  기록 도구는 컨텍스트를 주입하지 않고, hook stdout에 아무것도 쓰지 않으며, 실패해도 작업을
-  막지 않습니다(fail-open).
-- **진단**: `worklog-diagnose`는 로그와 transcript를 읽기만 하고 파일을 수정하지 않습니다.
-- **조회 도구**: `scripts/worklog.py`의 `where`, `summary`, `failures`, `clusters`, `prune`. Python 3.9+
-  표준 라이브러리만 사용합니다.
-- **개선안 비교**: 명시적으로 요청한 `worklog-improve`가 평가 사례와 최소 diff를 만들고,
-  임시 worktree에서 수정 전후를 비교합니다. 원래 작업 디렉터리의 지침에 자동 적용하지 않습니다.
-
-memory-manager는 사람이 승인한 지식을, worklog는 가공하지 않은 작업 이벤트를 다룹니다.
-두 플러그인은 서로 의존하지 않습니다([ADR 0022](../../docs/decisions/0022-add-worklog-plugin.md)).
+기록은 Claude Code와 Codex에서는 plugin hook이, omp에서는 runtime extension이 맡습니다. 기록 도구는 컨텍스트를 주입하지 않고 hook stdout을 비워 두며, 실패해도 작업을 계속 진행합니다(fail-open). memory-manager는 사람이 승인한 지식을, worklog는 가공하지 않은 작업 이벤트를 다루며 두 플러그인은 서로 독립적입니다([ADR 0022](../../docs/decisions/0022-add-worklog-plugin.md)).
 
 ## 설치
 
@@ -26,16 +14,34 @@ claude plugin install worklog@sonsu-marketplace
 omp plugin install worklog@sonsu-marketplace
 ```
 
-omp에서는 기본 5개 묶음에 들어 있지 않은 opt-in 패키지이므로 필요한 경우에만 직접 설치합니다.
-omp 패키지는 진단·개선 스킬과 `extension/worklog.ts`를 함께 담고 hook은 담지 않습니다.
-Claude Code 배포본은 `scripts/render-claude-compat.py`가 내부 `claude/`에 생성하며,
-`hooks/claude-hooks.json`을 Claude용 `hooks/hooks.json`으로 복사합니다. 생성물은 직접 고치지
-않습니다.
+omp에서는 opt-in 패키지이므로 필요할 때 직접 설치합니다. omp 패키지는 두 스킬과 `extension/worklog.ts`를 담습니다. Claude Code 배포본은 `scripts/render-claude-compat.py`가 내부 `claude/`에 생성하며 `hooks/claude-hooks.json`을 Claude용 `hooks/hooks.json`으로 복사합니다. 정본을 고친 뒤 생성기로 갱신합니다.
 
-Codex는 plugin hook을 사용자가 `/hooks`에서 신뢰해야 실행합니다. 설치 뒤 `/hooks`에서
-worklog hook을 신뢰하세요. 플러그인을 업데이트한 뒤에는 `/hooks`에서 다시 신뢰해야 할 수 있습니다.
+Codex는 사용자가 `/hooks`에서 신뢰한 plugin hook만 실행합니다. 설치 뒤와 업데이트 뒤에 `/hooks`에서 worklog hook을 신뢰합니다.
 
-## 로그 계약 `worklog-v1`
+## 스킬
+
+| 스킬 | 사용할 때 | 결과 |
+| --- | --- | --- |
+| [`worklog-diagnose`](skills/worklog-diagnose/SKILL.md) | 최근 실패·중단·교정의 원인을 알고 싶을 때 | 근거 위치가 붙은 타임라인, 실패별 원인 후보, 다음 확인 사항 |
+| [`worklog-improve`](skills/worklog-improve/SKILL.md) | 반복 실패를 평가 사례로 고정하고 지침 수정안을 비교해 달라고 명시적으로 요청할 때 | 사례, 최소 diff, 기준선·후보·회귀 판정과 사람 검토용 인계 |
+
+`worklog-improve`는 Claude Code에서 수동 호출 전용(`disable-model-invocation: true`)으로 배포하며, Codex·omp에서도 같은 명시적 요청 조건으로 사용합니다. 평가 사례와 비식별 fixture만 원래 작업 디렉터리에 추가하고 후보 diff는 임시 worktree에서 비교합니다. 단계별 상한과 통과 조건은 [평가와 인계](skills/worklog-improve/references/evaluation.md)와 `scripts/validate_improvement.py`가 정본이며, 이 저장소의 생성·검사·게시 인계는 [운영 절차](../../docs/runbooks/improving-skills-from-worklog.md)를 따릅니다.
+
+## 사용 예시
+
+요청: "이번 주에 반복된 권한 거부가 무엇 때문인지 정리해 줘."
+
+`worklog-diagnose`가 `summary --days 7`과 `failures`로 `permission_denied` 레코드를 찾고 transcript의 해당 `tool_use_id` 주변을 읽어 다음처럼 보고합니다.
+
+```text
+- 09:14 claude permission_denied Write .env [worklog: <log>:22] [transcript: <path> toolu_7]
+  원인 후보: 환경·권한(높음) — 프로젝트 권한 설정이 .env 쓰기를 거부했다.
+- 다음에 확인할 것: 해당 쓰기가 작업에 필요했는지와 프로젝트 권한 설정
+```
+
+## 구성
+
+### 로그 계약 `worklog-v1`
 
 | 항목 | 값 |
 | --- | --- |
@@ -80,13 +86,9 @@ worklog hook을 신뢰하세요. 플러그인을 업데이트한 뒤에는 `/hoo
 | Codex | rollout | `Stop`마다 지난번 위치 이후의 완성된 줄에서 `status: failed`인 `item_completed`를 `tool_result failed`로 기록. `host_version`은 rollout 첫 줄의 `cli_version` |
 | omp | extension | `session_start`, `tool_result`, `agent_end`(→ `stop`), `session_shutdown`(→ `session_end`) |
 
-`user_prompt`의 `correction_hint`는 프롬프트가 다음 정규식에 맞으면(대소문자 무시) `true`입니다.
+`user_prompt`의 `correction_hint`는 프롬프트에 "아니야", "다시 해", "wrong", "undo" 같은 한국어·영어 교정 표현이 있으면 `true`입니다. 표현 목록은 `scripts/worklog.py`의 `CORRECTION_RE`에 있습니다. 표현 일치만 보는 신호이므로 실제 교정 여부는 transcript로 확인합니다.
 
-```text
-(아니(?:야|라|요|고)|그게 아니|그거 말고|다시 해|잘못|틀렸|되돌려|원래대로|wrong|that's not|not what i|undo|revert)
-```
-
-### 기록하지 않는 것
+#### 기록하지 않는 것
 
 - 도구 출력 전문과 프롬프트 전문. 실패 메시지는 첫 의미 줄, 입력은 명령이나 파일 경로의
   앞부분, 프롬프트는 160자 발췌만 남깁니다.
@@ -94,7 +96,7 @@ worklog hook을 신뢰하세요. 플러그인을 업데이트한 뒤에는 `/hoo
   비밀 정규식에 맞는 부분을 `[redacted]`로 바꿉니다. 정규식이 모든 비밀을 찾는다고 보장하지는
   않으므로 로그 디렉터리는 개인 파일로 다룹니다(디렉터리 0700, 파일 0600).
 
-## 끄기와 보존
+### 끄기와 보존
 
 - `SONSU_WORKLOG`가 `off`·`0`·`false`이면 아무것도 쓰지 않습니다.
 - `<root>/<project_key>/disabled` 파일이 있으면 그 프로젝트는 쓰지 않습니다. 경로는
@@ -110,7 +112,7 @@ worklog hook을 신뢰하세요. 플러그인을 업데이트한 뒤에는 `/hoo
 - 로그 경로의 어느 디렉터리 성분이든 symlink이면 기록·보존 정리를 거부합니다. omp의 새 세션·재개·분기
   이벤트에서는 세션 ID와 transcript 연결을 새로 읽습니다.
 
-## 조회
+### 조회
 
 ```sh
 python3 scripts/worklog.py where
@@ -136,30 +138,7 @@ python3 scripts/worklog.py prune [--days 90]
 `<id>`로 치환 → 숫자열을 `N`으로 치환 → 공백 합치기 → 120자 자르기 순입니다. 프롬프트 발췌를
 끄면 교정 signature 본문이 비어 있으므로, 묶음만 보고 같은 원인이라고 판단하지 않습니다.
 
-## 명시적으로 요청하는 개선 루프
-
-`worklog-improve`는 자동 진단의 다음 단계가 아닙니다. 사용자가 평가 사례·수정안 비교를
-명시적으로 요청했을 때만 한 묶음을 처리합니다. Claude Code에서는 수동 호출 전용
-(`disable-model-invocation: true`)으로 배포하고, Codex·omp에서도 같은 요청 조건을 지킵니다.
-
-1. 반복 신호를 고르고 transcript로 저장소 안의 원인 지침을 특정합니다. 신호가 없으면
-   `no_signal`, 지침을 특정할 수 없으면 `inconclusive`로 끝냅니다.
-2. 기존 `evals/<plugin>/cases.json`의 스키마로 사례 하나를 추가하고
-   `origin: worklog:<host>:<session_id>:<ts>`를 남깁니다. 빈 스위트도 선언된 스키마를 따릅니다.
-   스위트가 없으면 로그 프로젝트 디렉터리의 `improve/<case-id>.json`에 저장합니다.
-3. 현재 지침으로 3회 기준선을 실행합니다. 관찰자와 별도인 새 컨텍스트 제안자가 항목 단위
-   최소 diff를 만듭니다. 순증가 15줄을 넘으면 사용자 승인을 기다립니다.
-4. 임시 worktree에서 후보를 3회, 같은 스킬의 기존 회귀 사례 최대 5개를 비교합니다. 실행자는
-   기대 항목을 보지 않습니다. 결정적 검사 후 새 컨텍스트 비교자가 무작위 A/B를 판정합니다.
-5. 수정 후 2/3 이상이면서 기준선보다 높고, 기준선에서 통과한 모든 회귀 사례가 후보에서도 통과해야 합니다. 후보는
-   최대 3개이며 결과표·사례·diff를 사람이 검토하도록 넘깁니다.
-
-사례·비식별 fixture 작성은 허용하지만 후보 diff는 원래 작업 디렉터리에 적용하지 않습니다.
-커밋·PR은 따로 요청받았을 때만 Workflow로 넘깁니다. 각 단계의 상한과 중단 조건은
-[스킬](skills/worklog-improve/SKILL.md), 이 저장소의 생성·검사·게시 인계 절차는
-[운영 절차](../../docs/runbooks/improving-skills-from-worklog.md)에 있습니다.
-
-## 알려진 한계
+### 알려진 한계
 
 - Claude Code의 보안 샌드박스 차단은 `PostToolUseFailure`로 오지 않습니다(로컬 실험).
 - Claude Code에는 사용자 중단을 알리는 hook 이벤트가 없어 `interrupt`를 기록하지 않습니다.
@@ -169,4 +148,12 @@ python3 scripts/worklog.py prune [--days 90]
 - transcript·rollout 형식은 호스트가 안정 인터페이스로 약속하지 않았습니다. 형식이 바뀌면
   해당 보조 기록만 빠지고 hook 기록은 계속됩니다.
 
-검증 방법은 [evals/worklog](../../evals/worklog/README.md)에 있습니다.
+## 검증
+
+```sh
+python3 -B -m unittest discover -s evals/worklog -p 'test_*.py' -v
+python3 -B -m unittest -v plugins/worklog/tests/test_validate_improvement.py
+node --experimental-strip-types --test evals/worklog/test_omp.mjs
+```
+
+실제 호스트 확인과 개선 루프 행동 사례는 [evals/worklog](../../evals/worklog/README.md)에 있습니다.

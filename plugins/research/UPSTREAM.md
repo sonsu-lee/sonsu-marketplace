@@ -83,3 +83,12 @@ UTF-8 LF로 연결하되 마지막 LF는 붙이지 않습니다. 이 바이트�
 - 전역 `AGENTS.md` 복사 지침을 제거하고 플러그인 단독·Exa 전용 스킬 동시 설치를 전역 지침 없는 조건에서 평가합니다.
 
 변경된 파일의 구체적인 차이는 기준선 commit과 현재 버전 사이의 Git diff로 추적합니다.
+
+## 공급자 기능 근거
+
+[도구 라우팅](skills/research/references/tool-routing.md#기능-근거와-선택의-한계)의 공급자별 기능 연결은 `2026-10-02`에 다음 공식 문서와 당시 노출된 도구의 입력·출력을 확인한 결과입니다.
+
+- [Exa Search](https://exa.ai/docs/reference/search)
+- [Exa Contents](https://exa.ai/docs/contents/quickstart)
+- [Perplexity Search](https://docs.perplexity.ai/api-reference/search-post)
+- [Perplexity Agent Web Search](https://docs.perplexity.ai/docs/agent-api/tools/web-search)

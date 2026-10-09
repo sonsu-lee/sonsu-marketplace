@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "design",
   "displayName": "Design",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "웹·앱·운영 UI를 Figma 또는 코드에서 설계·재설계·감사하고 디자인 레퍼런스를 찾으며 Google DESIGN.md와 DQ0–DQ8로 검증합니다.",
   "author": {
     "name": "sonsu",

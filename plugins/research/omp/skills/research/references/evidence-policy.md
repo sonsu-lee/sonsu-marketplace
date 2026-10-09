@@ -44,6 +44,39 @@ limitations | conflicts | confidence | verified
 
 복사된 주장과 동일 보도자료 재게시물을 독립 증거로 세지 않는다. 공통 원출처를 추적해 하나의 증거 계열로 합친다.
 
+### 검사기 입력
+
+[`validate_evidence_ledger.py`](../../../scripts/validate_evidence_ledger.py)는 위 원장을 다음 JSON으로 받아 형식만 검사한다. 주장 하나에 출처가 여럿이면 `evidence` 항목을 여러 개 둔다.
+
+```json
+{
+  "claims": [{"claim_id": "C1", "claim": "주장", "claim_kind": "fact", "coverage_status": "supported"}],
+  "evidence": [{
+    "claim_id": "C1",
+    "source": {"url": "https://example.org/doc", "title": "문서 제목", "author_or_org": "발행 기관"},
+    "source_identity": {"kind": "public_url", "value": "https://example.org/doc"},
+    "access_scope": "public",
+    "version_or_content_hash": "v2",
+    "reopen_method": "canonical URL 열기",
+    "published_or_updated": "2026-01-10",
+    "locator": "제2절 첫 문단",
+    "support_relation": "direct",
+    "source_role": "공식 문서",
+    "independence": "벤더 자료",
+    "limitations": "",
+    "conflicts": "",
+    "confidence": "medium",
+    "verified": true
+  }]
+}
+```
+
+- `claim_id`는 claims 안에서 하나만 둔다. 각 evidence의 `claim_id`는 claims에 있어야 하고 `supported`, `partial`, `contradicted` 주장에는 evidence가 하나 이상 연결되어야 한다.
+- enum은 이 문서의 원장 정의와 [모순과 신뢰도](#모순과-신뢰도)의 `high | medium | low`를 따른다. `source_identity.kind`는 `public_url | connector_item_id | repository_commit_path | local_path_content_hash`다.
+- `locator`는 비어 있지 않은 정확한 구절·표·그림·데이터 셀·`file:symbol`이다. 날짜·버전 필드 세 개 중 하나 이상을 채운다.
+- `source.url`은 공개 출처에서 canonical URL을, 비공개·로컬 출처에서 `null`을 허용한다. `limitations`, `conflicts`는 빈 문자열을 허용하고 `verified`는 boolean이다.
+- 검사 결과는 형식과 연결만 판정한다. 원문 지지 여부·권위·독립성·신뢰도는 [인용 감사](#인용-감사)로 판단한다.
+
 ## 논문과 벤치마크
 
 - arXiv와 최종 학회판을 같은 연구 계열로 묶고 어느 버전을 사용했는지 밝힌다.
