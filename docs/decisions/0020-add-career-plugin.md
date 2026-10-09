@@ -1,7 +1,7 @@
 # ADR 0020: Career 플러그인 추가와 omp 기본 배포 포함
 
 - 날짜: 2026-10-07
-- 상태: 채택
+- 상태: 대체됨([ADR 0023](0023-remove-career-plugin.md))
 - 관련 결정: [ADR 0015](0015-independent-skills.md)
 
 ## 배경
@@ -15,8 +15,8 @@
 독립 플러그인 `career`를 추가하고 omp 기본 배포에도 포함한다.
 
 - 스킬은 `career-inventory`, `write-career-documents`, `prepare-interview`, `mock-interview`,
-  `interview-retro` 다섯 개다. 다섯 스킬은 공통 [작업 공간 계약](../../plugins/career/references/workspace.md)과
-  [근거 규칙](../../plugins/career/references/evidence-rules.md)을 따른다.
+  `interview-retro` 다섯 개다. 다섯 스킬은 공통 작업 공간 계약(`plugins/career/references/workspace.md`)과
+  근거 규칙(`plugins/career/references/evidence-rules.md`)을 따른다.
 - 서류는 미국식 영문 resume를 중심에 두고 일본 기업용 履歴書·職務経歴書를 같은 경력 원본에서 만든다.
   スキルシート는 사용자 요청, 응모 안내의 제출 요구, SES·フリーランス 案件 지원 중 하나에 해당할 때만 만든다.
 - 기술 면접은 경험 심층과 프론트엔드 시스템 설계를 포함하고, 알고리즘 문제 풀이와 채점은 제외한다.
@@ -37,7 +37,7 @@
 - omp 기본 배포에 비격리 6번째 플러그인으로 추가한다. `./plugins/career`를 그대로 배포하며 hook과
   task continuity를 포함하지 않는다. 재개 상태는 사용자 작업 공간 파일이 담당한다.
 - MIT 라이선스 외부 저장소 4개는 관점만 참고하고 파일이나 문구는 복사하지 않는다. 출처와 고정 revision은
-  [UPSTREAM.md](../../plugins/career/UPSTREAM.md)에 기록한다.
+  `plugins/career/UPSTREAM.md`에 기록한다.
 
 ## 대안
 
@@ -54,7 +54,7 @@
 - omp 배포 개수가 5개에서 6개로 바뀌어 배포 정책 문서, `scripts/render-omp-compat.py`,
   `evals/plugin-compat/test_compat.py`를 함께 갱신한다. Engineering·continuity 문서의 "기본 5개"
   문구는 omp 기본 배포에 Engineering이 없다는 뜻이므로 그대로 둔다.
-- 행동 평가는 [evals/career](../../evals/career/README.md)의 사례로 정의하며 실행 전까지 `not_run`이다.
+- 행동 평가는 `evals/career/README.md`의 사례로 정의하며 실행 전까지 `not_run`이다.
 - 개인 데이터는 사용자 작업 공간에만 두고 저장소에는 가상 fixture만 둔다.
 
 ## 다시 볼 때

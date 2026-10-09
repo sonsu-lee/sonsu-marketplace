@@ -26,7 +26,7 @@ claude plugin install worklog@sonsu-marketplace
 omp plugin install worklog@sonsu-marketplace
 ```
 
-omp에서는 기본 6개 묶음에 들어 있지 않은 opt-in 패키지이므로 필요한 경우에만 직접 설치합니다.
+omp에서는 기본 5개 묶음에 들어 있지 않은 opt-in 패키지이므로 필요한 경우에만 직접 설치합니다.
 omp 패키지는 진단·개선 스킬과 `extension/worklog.ts`를 함께 담고 hook은 담지 않습니다.
 Claude Code 배포본은 `scripts/render-claude-compat.py`가 내부 `claude/`에 생성하며,
 `hooks/claude-hooks.json`을 Claude용 `hooks/hooks.json`으로 복사합니다. 생성물은 직접 고치지
