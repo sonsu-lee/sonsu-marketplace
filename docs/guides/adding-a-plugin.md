@@ -87,9 +87,8 @@ omp plugin list
    omp 기본 배포는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design`, `career` 6개로 고정합니다.
    Codex catalog에 추가해도 omp 배포 대상은 늘어나지 않습니다. 대상을 바꾸려면 배포 정책을 명시적으로 변경하고
    `scripts/render-omp-compat.py`의 `OMP_PLUGINS`와 `evals/plugin-compat/test_compat.py`의 omp 목록을 함께 갱신합니다.
-   예외로 [ADR 0022](../decisions/0022-add-worklog-plugin.md)에 따라 `worklog`를 opt-in 패키지로 catalog에
-   추가합니다. opt-in 패키지는 사용자가 직접 설치할 때만 쓰이며, 생성기의 `OMP_OPTIN_PLUGINS`와
-   `RUNTIME_EXTENSIONS`에 등록된 경우에만 catalog 항목과 runtime extension을 생성합니다.
+   opt-in 패키지는 `OMP_OPTIN_PLUGINS`에 등록하면 카탈로그에 추가되며 사용자가 직접 설치합니다. 현재 대상은 `worklog`([ADR 0022](../decisions/0022-add-worklog-plugin.md))와 `design-patterns`입니다.
+   runtime extension이 있는 플러그인만 `RUNTIME_EXTENSIONS`에도 등록합니다.
 
 ```json
 {
@@ -147,6 +146,8 @@ python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
 python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v
 python3 -B -m unittest discover -s evals/worklog -p 'test_*.py' -v
+python3 scripts/validate_refactor_inventory.py check
+python3 -B -m unittest discover -s evals/refactor-inventory -p 'test_*.py' -v
 git diff --check
 ```
 

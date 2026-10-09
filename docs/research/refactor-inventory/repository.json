@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "scripts": [
+    {
+      "path": "scripts/madia_media.py",
+      "sha256": "36ef96097f440913d0e22e09c45c69dc8659da5f6856a40d8d3ccc3cd998f4cb",
+      "role": "Madia 공개 영상의 메타데이터·자막·프레임·contact sheet를 로컬 캐시에 준비하고 중복·시리즈 후보를 계산한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "yt-dlp·ffmpeg 호출뿐 아니라 자막 우선순위, 영상 길이별 추출 간격, 차단 상태와 후보 그룹화를 함께 제공하므로 일반 미디어 CLI 한 개로 대체되지 않는다. 연구용 캐시와 저장소의 분석 근거를 분리하는 도구로 유지한다."
+    },
+    {
+      "path": "scripts/render-agent-policy.py",
+      "sha256": "0739bde83ef2a5bc2e0e6e66241886d6f79e93d8cf60165cfdced2d33f9cd3ef",
+      "role": "공유 역할·모델 정책에서 Codex·Claude 에이전트와 호스트별 프로필 참고 자료를 만들고 Git 권한·브랜치 규칙을 Engineering과 Workflow에 배포한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "공유 정책을 여러 독립 패키지에 일관되게 투영하고 --check로 생성물 차이를 찾는다. omp 순정 에이전트 사용 정책과 Codex·Claude 호환 산출물이 구분되어 있어 호스트 기능 중복을 이유로 생성기 전체를 제거할 수 없다."
+    },
+    {
+      "path": "scripts/render-claude-compat.py",
+      "sha256": "ad71d1b471d806e89a517223ce9ed1dc60529fdd584103cd299fe87789691f8e",
+      "role": "Codex 카탈로그·manifest에서 Claude 카탈로그·manifest와 Memory Manager·Worklog의 호스트 전용 패키지를 생성한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "Codex 메타데이터를 정본으로 삼아 버전·설명 중복 편집을 줄이고 Claude의 수동 호출 정책·hook 경로를 반영한다. 유지해야 하는 Claude 배포 경로의 결정론적 변환기다."
+    },
+    {
+      "path": "scripts/render-continuity.py",
+      "sha256": "00e7de390619e1489b67140ed93701a7901a731b099a2653d59e15e99379c5c1",
+      "role": "공유 연속성 프로필·템플릿·helper에서 플러그인별 참고 자료와 SessionStart hook을 생성하며 Engineering의 Stop 관찰 hook도 연결한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "Codex·Claude 독립 설치본의 연속성 구현을 한 정본에서 복제하고 차이를 검사한다. omp에서는 별도 생성기가 checkpoint helper를 제외하므로 순정 세션 기능과의 중복은 호스트별 배포 경계에서 처리한다."
+    },
+    {
+      "path": "scripts/render-design-quality.py",
+      "sha256": "0799ba5e0a42b7e8f6414b7ccb19c46e659aa3fc75efd791c65e68251484ea5c",
+      "role": "공유 디자인 품질 계약·스키마·검증기와 Madia 방법론을 Design 독립 패키지에 복제하고 관리 대상의 낡은 생성물을 제거한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "사용자 패키지의 자급형 실행과 shared 정본의 단일 편집을 함께 보장한다. 현재 배포 대상이 Design 하나여도 정본과 배포본의 경계·검사 역할이 남아 있다."
+    },
+    {
+      "path": "scripts/render-omp-compat.py",
+      "sha256": "87423f1b12af69c50868f74fa5bf00a1dacb80c329b06a9cf99ff9a0047b5a28",
+      "role": "omp 기본·opt-in 카탈로그를 만들고 독립 패키지의 스킬·도구·라이선스·호스트 지침과 허용된 runtime extension을 생성한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "Codex 메타데이터를 재사용하면서 omp에 불필요한 checkpoint·품질 관찰 helper를 제외하고 순정 연속성 지침을 제공한다. 생성물 소유권·권한·경로 검사를 포함하는 배포 계약으로 일반 복사 명령과 구별된다."
+    },
+    {
+      "path": "scripts/update_madia_design_catalog.py",
+      "sha256": "74fd04f147aafb3a58b73463ba34e8d420c8848e784f803c3604930f349e604d",
+      "role": "공개 영상 목록을 수집해 Madia 카탈로그·요약을 갱신하고 검증된 분석·큐레이션 병합과 신뢰도 재계산을 수행한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "발견 목록 갱신, 분석 근거 병합, 큐레이션 적용과 읽기 전용 --check가 구분되어 있다. 수집 이후 연구 기록의 일관된 반영을 담당하므로 미디어 추출기나 입력 검증기와 합칠 필요가 없다."
+    },
+    {
+      "path": "scripts/validate_design_terminology.py",
+      "sha256": "3c2e63711f397aec63a3d64816634046b069e4c88a8fdbec6e115e3397948406",
+      "role": "디자인 용어 원장의 ID·관계·출처·채택 상태와 카탈로그 관찰 근거를 검사하고 명시된 옵션에서 고아 링크를 정리한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "용어 원장은 영상 카탈로그와 다른 필드·상태 계약을 가지며 공통 ID·출처 판정은 기존 카탈로그 검증기를 재사용한다. 별도 입력 계약과 선택적 정리 명령을 유지하는 편이 책임이 분명하다."
+    },
+    {
+      "path": "scripts/validate_madia_design_catalog.py",
+      "sha256": "e79f5f9a08e993d565baa2f096754a604d8cafe354f501c77e256ff9d5063397",
+      "role": "Madia 카탈로그·영상 분석 bundle·verification 기록의 필드, 출처 연결, 분석 영수증, 코더 신뢰도와 승격 게이트를 검사한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "형식 검사에 더해 실제 근거 파일 연결과 상태 간 제약을 판정하므로 JSON 파서만으로 대체할 수 없다. 영상 해석의 진위 판단과 분리해 기계적으로 확인할 연구 계약을 소유한다."
+    },
+    {
+      "path": "scripts/validate_refactor_inventory.py",
+      "sha256": "89619eaf8e415538db7b414ea8ffc30e3678bc049f2e5acf83addf81651d962f",
+      "role": "카탈로그·스킬·스크립트·공유 자산·평가 단위를 열거하고 인벤토리의 누락·중복·해시·위치·판정 필드와 보고서 일치를 검사한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "조사 의미의 타당성은 사람이 판단하되 실제 단위 누락과 낡은 기록은 scan·check·report로 재현 가능하게 판정한다. omp 생성물 소유권 목록과 달리 원본·평가·판정 기록 전체를 연결한다."
+    }
+  ],
+  "shared": [
+    {
+      "path": "shared/agent-policy",
+      "role": "호스트별 역할 프로필·프롬프트 차이와 공통 Git 전달 권한·브랜치 명명 규칙의 정본을 보관한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "Engineering·Prompting·Workflow에 배포하는 공통 규칙을 한곳에서 관리한다. omp 순정 설정 상속과 다른 호스트의 역할별 모델 정책을 분리해 보존하는 정본 위치가 적절하다."
+    },
+    {
+      "path": "shared/design-quality",
+      "role": "디자인 판단·품질 계약, DQ·레퍼런스 스키마, DESIGN.md 어댑터·검증기와 연구 출처 정본을 보관한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "신규 설계·재설계·감사가 동일한 계약과 검증기를 사용하며 Design 패키지에는 생성기로 배포한다. 화면의 의미 판단과 결정론적 형식·증거 연결 검사를 분리하는 공통 구현이다."
+    },
+    {
+      "path": "shared/omp-runtime",
+      "role": "omp 순정 todo·세션 기록을 쓰는 연속성 지침과 기존 디자인 기록을 읽기 전용으로 대조하는 재개 지침을 제공한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "별도 runtime 구현이 아니라 Codex·Claude용 checkpoint 지침을 omp 패키지에서 대체하는 얇은 호스트별 자료다. 독자 상태 저장을 추가하지 않고 기존 산출물·권한을 보존하는 배포 경계를 명시한다."
+    },
+    {
+      "path": "shared/task-continuity",
+      "role": "플러그인별 연속성 프로필, 공통 참고 자료 템플릿과 로컬 checkpoint 저장·SessionStart 복구 helper의 정본을 제공한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "Codex·Claude 배포본이 동일한 세션·worktree 격리와 복구 구현을 사용하도록 유지한다. omp에서는 순정 연속성 지침으로 대체하므로 이 정본의 유지가 omp에 독자 checkpoint를 다시 배포한다는 뜻은 아니다."
+    }
+  ],
+  "evals": [
+    {"path": "evals/career", "covers": ["career"], "role": "가상 경력 작업 공간에서 다섯 Career 스킬의 사실 추적·공개 범위·철회 주장 배제·질문 은행 환류·미실행 표시를 평가한다."},
+    {"path": "evals/design-patterns", "covers": ["design-patterns"], "role": "패턴 선택·불필요 판정·근거 부족·분산 보장과 읽기 전용 패턴 리뷰를 평가하고 일반 구현 요청을 가로채지 않는 라우팅 대조군을 둔다."},
+    {"path": "evals/design-quality", "covers": ["design", "repository"], "role": "Design 품질 계약·보고서·DESIGN.md 검증과 허위 통과 방지를 검사한다. 저장소의 Madia 카탈로그 수집·병합·미디어 처리·용어 원장 도구도 단위 테스트한다."},
+    {"path": "evals/design-reference-search", "covers": ["design"], "role": "레퍼런스 세트 형식·출처 추적과 선택 행동을 평가하고 고정 후보 풀 검색 지표, 설계 효용, 호출 비용을 서로 다른 증거 층으로 구분한다."},
+    {"path": "evals/engineering-quality-gates", "covers": ["engineering"], "role": "변경 위험에 따른 checks·independent·red-team 정책, 고정 artifact, finding 처리·재검토·누적 라운드와 승인 경계의 행동 계약을 평가한다."},
+    {"path": "evals/figma-interaction-contract", "covers": ["design"], "role": "Design Figma prototype의 실제 reaction·상태 동선·전이 추적과 official MCP·수동 companion의 쓰기 권한 및 readback·playback 증거 구분을 평가한다."},
+    {"path": "evals/figma-quality-contract", "covers": ["design"], "role": "Figma 산출물의 정보·시나리오 추적, Auto Layout·크기 관계, 기존 component·variable 재사용과 screenshot·구조·playback 증거의 독립성을 평가한다."},
+    {"path": "evals/fluent-comparison", "covers": ["fluent-korean", "fluent-english", "fluent-japanese"], "role": "스킬 없음·분리 전·당시 독립 Fluent 스킬을 동일 입력에서 비교한 역사적 protocol·runner·결과를 보관한다. 외부 원본으로 교체된 현행 스킬 품질의 통과 근거는 아니다."},
+    {"path": "evals/fluent-english", "covers": ["fluent-english"], "role": "영어 라우팅·작성·윤문에서 literal·구조·의미·편집 범위 보존과 과잉 교정 반례를 다루는 사례를 보관한다. 보관된 실행 결과는 자체 제작 스킬 snapshot이며 현행 외부 원본 품질과 구분한다."},
+    {"path": "evals/fluent-japanese", "covers": ["fluent-japanese"], "role": "일본어 라우팅·의미 보존·경어·수식 관계와 문어·한일 번역의 고정 사례 및 두 snapshot 비교 runner를 보관한다. 과거 자체 제작 스킬 결과를 현행 패키지 검증으로 재사용하지 않는다."},
+    {"path": "evals/fluent-korean", "covers": ["fluent-korean"], "role": "한국어 생성·윤문·수정 없는 반환에서 보호 문자열·의미·범위·자연스러움과 생성 규칙을 평가하는 고정 사례를 제공한다. 보관된 과거 결과와 현행 외부 원본의 새 실행을 구분한다."},
+    {"path": "evals/fluent-multilingual", "covers": ["fluent-korean", "fluent-english", "fluent-japanese"], "role": "세 언어의 윤문·수정 없는 진단·문체 샘플 반영·의미 보존과 영어·일본어 새 작성을 공통 사례로 평가한다. 과거 Fluent Languages·분리 패키지 실행의 적용 범위를 별도로 기록한다."},
+    {"path": "evals/javascript-typescript-review", "covers": ["engineering"], "role": "Engineering의 JavaScript·TypeScript 리뷰가 실제 caller·도메인 계약에서 finding과 no-finding을 구분하는지 평가하고 satisfies의 정적·실행 시 의미를 compiler fixture로 고정한다."},
+    {"path": "evals/language-style", "covers": ["repository"], "role": "한국어 기술 설명문 문체 후보를 고정한 screen·confirm 입력, 격리 실행, 보존 검사와 블라인드 사람 평가로 비교하는 저장소 연구 도구다. 현행 배포 플러그인 전체를 검증하는 suite와 구분한다."},
+    {"path": "evals/marketplace-v2", "covers": ["engineering", "repository"], "role": "격리된 native Codex에서 Engineering의 일반·집중 리뷰 라우팅과 기계적 변경·동작 구현 절차를 평가한다. reviewer 모델·인원 통제 비교와 실행기 격리·출력 한계·근거 보존 계약도 검사한다."},
+    {"path": "evals/memory-manager", "covers": ["memory-manager"], "role": "임시 메모리 저장소에서 저장·검색·프로젝트 및 worktree 격리·명시적 삭제·색인·symlink 경계를 검사하고 별도 사례로 관련 요청의 회상·비관련 요청의 미회상을 평가한다."},
+    {"path": "evals/operations-ui", "covers": ["design"], "role": "운영 화면의 신규·재설계·읽기 전용 감사 라우팅과 산출물 모드별 DQ 범위, 상태 coverage, runtime·사용자 증거 및 미결정·수정 라운드 계약을 평가한다."},
+    {"path": "evals/plugin-compat", "covers": ["repository"], "role": "Codex·Claude·omp 카탈로그와 manifest·독립 패키지·호스트별 호출 정책·hook·생성물의 정합성을 검사하는 저장소 전체 배포 계약 테스트다."},
+    {"path": "evals/product-delivery-handoff", "covers": ["engineering", "workflow", "product"], "role": "작업 크기에 따른 PRD 생략·PRD-lite·전체 인계와 요구 출처·REQ ID를 티켓 및 Engineering 계획에 보존하는지 평가하고 미확인 품질 수치·추론을 구분한다."},
+    {"path": "evals/refactor-inventory", "covers": ["repository"], "role": "임시 카탈로그·스킬·스크립트·공유 자산·평가 fixture로 인벤토리 누락·해시 변경·필드·위치·호스트 상태·보고서 불일치와 단일 플러그인 검사 격리를 검증한다."},
+    {"path": "evals/review-principles", "covers": ["engineering"], "role": "Engineering 리뷰의 실제 문제·조건부 위험·선택적 개선 구분, 읽기 전용 범위, 일반·집중 리뷰 분기와 독립 검토 미실행의 정직한 보고를 평가한다."},
+    {"path": "evals/skill-expansion", "covers": ["engineering", "workflow", "product", "design"], "role": "독립 스킬의 자동 선택·직접 호출·산출물 경계와 PR 실패 처리, 정보 자산·제품 및 티켓 질문을 평가한다. native 발견·모의 다음 행동·실제 UI 및 외부 쓰기 증거를 구분한다."},
+    {"path": "evals/skill-routing", "covers": ["engineering", "workflow", "fluent-korean", "fluent-english", "fluent-japanese", "writing", "research", "prompting", "product", "memory-manager", "design", "career", "worklog"], "role": "카탈로그 플러그인의 단독·조합 설치에서 근접 요청의 스킬 선택과 책임 경계를 평가한다. 검색 공급자 자격, 티켓·PR 의도 및 권한, 언어별 적용 범위와 native 선택 attribution을 별도 기대값으로 다룬다."},
+    {"path": "evals/task-continuity", "covers": ["repository", "engineering", "workflow", "writing", "research", "prompting", "product", "design"], "role": "공유 checkpoint helper의 격리·무쓰기·stale·history·손상 경계와 등록 프로필의 로더 발견을 검사한다. 별도 행동 사례로 재개 시 현재 산출물·권한·외부 상태 대조를 평가하며 실제 컴팩션 hook 관찰과 구분한다."},
+    {"path": "evals/ui-design-figma-routing", "covers": ["design"], "role": "Design·공식 Figma·FigJam·draw.io가 함께 또는 일부만 제공될 때 최종 산출물에 맞는 설계·감사·prototype·다이어그램 경로와 단일 canvas writer 경계를 평가한다."},
+    {"path": "evals/worklog", "covers": ["worklog"], "role": "격리된 로그 저장소에서 호스트별 실패 수집·중복 제거·비밀 치환·보존 기간·군집화와 omp 이벤트 핸들러를 검사한다. 별도 개선 루프 사례로 원인 귀속·최소 변경·기준선 및 회귀 비교의 채택 판단을 평가한다."},
+    {"path": "evals/writing", "covers": ["workflow", "fluent-korean", "fluent-english", "fluent-japanese", "writing"], "role": "Writing의 구성·문서 배치·개발자 블로그 근거, Fluent의 표현 범위와 Workflow의 티켓·PR 양식을 단독·조합 조건에서 평가한다. 확인되지 않은 양식·검증·저자 경험을 만들어내지 않는지 사례별로 판정한다."}
+  ]
+}

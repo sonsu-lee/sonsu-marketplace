@@ -52,12 +52,12 @@ Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-
 생성합니다. memory-manager의 정리·승격 스킬과 worklog의 개선 스킬에는 Claude의 수동 호출 제한을 적용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
 Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 
-## omp는 기본 6개와 opt-in Worklog를 배포한다
+## omp는 기본 6개와 opt-in Worklog·Design Patterns를 배포한다
 
 `python3 scripts/render-omp-compat.py`는 Codex catalog의 순서를 유지하며 기본 6개인 `workflow`,
-`fluent-korean`, `fluent-english`, `fluent-japanese`, `design`, `career`와 opt-in `worklog`를
+`fluent-korean`, `fluent-english`, `fluent-japanese`, `design`, `career`와 opt-in `worklog`·`design-patterns`를
 `.omp-plugin/marketplace.json`에 생성합니다. Codex·Claude Code 배포 대상과 원본 패키지는 바꾸지 않습니다.
-Worklog는 기본 구성에 포함하지 않고 필요한 사용자만 별도로 설치합니다.
+Worklog·Design Patterns는 기본 구성에 포함하지 않고 필요한 사용자만 별도로 설치합니다.
 
 | 플러그인 | omp catalog의 source |
 | --- | --- |
@@ -65,6 +65,7 @@ Worklog는 기본 구성에 포함하지 않고 필요한 사용자만 별도로
 | Fluent Korean | `./plugins/fluent-korean/omp` |
 | Fluent English | `./plugins/fluent-english` |
 | Fluent Japanese | `./plugins/fluent-japanese` |
+| Design Patterns(opt-in) | `./plugins/design-patterns` |
 | Design | `./plugins/design/omp` |
 | Career | `./plugins/career` |
 | Worklog(opt-in) | `./plugins/worklog/omp` |
@@ -98,6 +99,7 @@ Worklog extension은 도구 결과와 세션 이벤트를 로컬 JSONL로 기록
 | UI·prototype·handoff 품질과 native tool 전제 | Design | 기본 6개 |
 | 경력 원본·지원 서류·면접 준비 | Career | 기본 6개 |
 | 원시 작업 이벤트 기록과 진단 | Worklog | opt-in |
+| 설계 패턴 선택·검토 | Design Patterns | opt-in |
 | 외부 조사·제품 탐색·글 구성 | Research·Product·Writing | 기본 catalog에 추가하지 않는 선택 후보 |
 
 Research·Product·Writing을 추가하려면 필요한 도메인과 현재 native tool 계약을 별도로 확인합니다.

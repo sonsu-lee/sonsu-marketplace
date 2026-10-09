@@ -1,26 +1,27 @@
 # PR 템플릿 선택과 작성 규칙
 
-PR title과 body를 작성하기 전에 읽는다. 대상 repository의 유효한 템플릿을 우선하고, 없으면 owner의 account-level default template을 확인한다. 번들 기본 템플릿의 적용 조건은 [기본 템플릿 적용 조건](#기본-템플릿-적용-조건을-확인한다)을 따른다.
+PR title과 body를 작성하기 전에 읽는다. 대상 저장소의 유효한 템플릿을 우선하고, 없으면 owner의 account-level default template을 쓴다. 번들 기본 템플릿은 [기본 템플릿 적용 조건](#기본-템플릿-적용-조건을-확인한다)을 따른다.
 
-## 저장소 템플릿을 먼저 찾는다
+## 양식 조회 결과를 해석한다
 
-GitHub에서 실제로 적용되는 템플릿은 target repository의 default branch를 기준으로 확인한다. current feature branch에만 추가되거나 수정된 템플릿을 현재 PR의 기본 템플릿이라고 간주하지 않는다. 사용자가 해당 변경본을 사용하라고 명시한 경우는 예외다.
+[`pr_context.py`](../../../scripts/pr_context.py)의 `templates`가 대상 저장소 default branch 기준의 양식 후보를 알려 준다. 도구가 GitHub 공식 위치(`.github/`, 저장소 root, `docs/`의 `pull_request_template` 파일과 `PULL_REQUEST_TEMPLATE/` 디렉터리)와 우선순위를 대소문자 구분 없이 적용하고, `candidates`를 그 순서로 돌려준다.
 
-다음 공식 위치에서 대소문자를 구분하지 않는 `pull_request_template` 파일과 여러 템플릿 디렉터리를 찾는다. `.md`와 `.txt`처럼 GitHub가 PR template로 사용하는 text 파일을 대상으로 한다. 같은 종류의 파일이 여러 공식 위치에 있으면 GitHub의 `.github`, 저장소 root, `docs` 순서를 적용한다.
+| `templates.status` | 해석 |
+|---|---|
+| `found` | 대상 저장소의 템플릿이다. account-level default와 합치지 않는다. |
+| `account-default` | 대상 저장소에 템플릿이 없어 공개 owner `.github` 저장소의 기본 템플릿을 쓴다. |
+| `none` | 두 곳 모두 템플릿이 없음을 확인했다. [기본 템플릿](#기본-템플릿-적용-조건을-확인한다)을 쓸 수 있다. |
+| `local-only`, `unverified` | 원격 양식을 확인하지 못했다. 기본 양식으로 확정하지 않는다. |
 
-```text
-.github/pull_request_template.md
-pull_request_template.md
-docs/pull_request_template.md
+사용자가 확인된 조회 결과로 양식 상태나 양식 본문을 제공했으면 그 상태를 같은 표로 해석한다.
 
-.github/PULL_REQUEST_TEMPLATE/*
-PULL_REQUEST_TEMPLATE/*
-docs/PULL_REQUEST_TEMPLATE/*
+선택한 후보의 본문은 다음 명령으로 읽는다. 읽기에 실패하면 `unverified`로 다룬다.
+
+```bash
+gh api --hostname <host> "repos/<source.repository>/contents/<path>?ref=<source.ref>"
 ```
 
-target repository에서 유효한 PR template을 찾지 못했으면 base 저장소 owner의 public `.github` 저장소 default branch에서 같은 위치와 우선순위로 account-level default template을 확인한다. target repository에 자체 template이 있으면 account-level default와 합치지 않는다.
-
-로컬 default branch ref가 최신인지 확인할 수 없으면 현재 인증 범위 안의 GitHub API나 browser로 default branch의 파일을 읽는다. 이를 위해 fetch, checkout, branch 전환이나 working tree 변경을 수행하지 않는다. target repository나 account-level default의 원격 상태를 확인할 수 없으면 템플릿이 없다고 단정하거나 스킬 기본 템플릿으로 대체하지 않고 `unverified`로 보고한다.
+현재 feature branch에만 추가·수정된 템플릿은 사용자가 그 변경본을 쓰라고 명시한 경우에만 사용한다.
 
 공식 참고: [GitHub PR template 만들기](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository), [PR template 개요](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/about-issue-and-pull-request-templates), [account-level default community health file](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file)
 
@@ -35,7 +36,7 @@ target repository에서 유효한 PR template을 찾지 못했으면 base 저장
 3. 공식 위치 우선순위로 결정되는 단일 기본 template이 있으면 사용한다.
 4. 여러 양식 전용 디렉터리의 후보 중 하나가 실제 변경 유형에 명확히 대응하면 그 근거를 기록하고 사용한다.
 5. 유효한 후보가 하나뿐이면 그 파일을 사용한다.
-6. 여러 후보가 동등하게 맞고 저장소 근거로 선택할 수 없으면 임의로 합치거나 fallback으로 대체하지 않는다. 가능한 제목, 변경 요약과 후보 목록까지 준비한 뒤 최종 본문 확정이나 publish 전에 사용자에게 양식 선택을 요청한다.
+6. 여러 후보가 동등하게 맞고 저장소 근거로 고를 수 없으면 가능한 제목, 변경 요약과 후보 목록까지 준비한 뒤, 최종 본문 확정이나 publish 전에 사용자에게 양식 선택을 요청한다. 후보를 합치거나 fallback으로 바꾸지 않는다.
 
 선택한 source 저장소, 양식 path, 기준 default branch와 확인한 ref를 기록한다.
 
@@ -46,12 +47,12 @@ target repository에서 유효한 PR template을 찾지 못했으면 base 저장
 1. 사용자가 PR 언어를 명시했으면 그 언어를 사용한다.
 2. repository의 `CONTRIBUTING`, `AGENTS.md`·`CLAUDE.md`, PR 지침이나 일관된 최근 PR 관례가 언어를 정하면 따른다.
 3. 연결할 기준 티켓, 승인된 specification이나 제품 문서가 명확한 주 언어를 사용하면 그 언어를 따른다.
-4. 근거가 없으면 영어를 사용한다. 대화 언어와 결과 보고 언어는 PR 언어의 근거가 아니다.
+4. 근거가 없으면 영어를 사용한다. 대화 언어와 결과 보고 언어는 PR 언어의 근거로 쓰지 않는다.
 
-저장소 template에 이미 있는 제목, checklist와 고정 안내 문구는 번역하지 않는다. 채워 넣는 내용만 결정된 PR 언어로 작성한다. template이 특정 언어로 전체 작성을 요구하면 그 지시를 따른다. 코드, 명령어, 로그, identifier, ticket ID와 URL은 번역하지 않는다. 다른 언어 플러그인이나 스킬이 설치되었다고 가정하지 않는다.
+저장소 template에 이미 있는 제목, checklist와 고정 안내 문구는 원문 그대로 두고, 채워 넣는 내용만 결정된 PR 언어로 쓴다. template이 특정 언어로 전체 작성을 요구하면 그 지시를 따른다. 코드, 명령어, 로그, identifier, ticket ID와 URL은 원문을 유지한다. 언어 판단은 다른 언어 플러그인이나 스킬 없이 이 규칙으로 한다.
 
 고정 제목이 한국어나 일본어라는 사실만으로 자유 설명의 언어를 정하지 않는다. 전체 작성 언어를 요구하는 지침이나 위의 언어 근거가 없으면 고정 제목은 원문대로 보존하고 자유 설명은 영어로 쓴다.
 
 ## 기본 템플릿 적용 조건을 확인한다
 
-target repository와 owner의 account-level default에 유효한 PR template이 모두 없다고 확인된 경우에만 번들 [PR 기본 양식](../assets/templates/pull-request.md)을 사용한다. 저장소나 account-level template을 확인하지 못한 `unverified` 상태에서는 임시 문구가 준비됐더라도 기본형으로 최종 본문을 확정하지 않는다. 확인된 사실로 준비 가능한 설명만 작성하고, 양식 확인 상태와 남은 게시 조건을 본문 밖에서 알린다. 확인된 변경 요약과 미확인 사항은 전달할 수 있지만, 양식 부재나 게시 준비 완료로 표현하지 않는다.
+대상 저장소와 owner의 account-level default 모두에 유효한 PR template이 없다고 확인된 경우(`templates.status: none`)에 번들 [PR 기본 양식](../assets/templates/pull-request.md)을 사용한다. `local-only`·`unverified` 상태에서는 확인된 사실로 준비 가능한 설명만 임시 초안으로 쓰고, 양식 확인 상태와 남은 게시 조건을 본문 밖에서 알린다. 이때 확인된 변경 요약과 미확인 사항은 전달하되 양식 부재나 게시 준비 완료로 표현하지 않는다.

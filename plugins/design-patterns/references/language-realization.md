@@ -1,7 +1,7 @@
 # Language와 framework realization
 
-카탈로그의 구조를 class diagram으로 직역하지 않습니다. 먼저 필요한 guarantee를 고정하고 해당
-언어와 framework가 이미 제공하는 가장 작은 표현을 선택합니다.
+필요한 guarantee를 먼저 고정하고, 해당 언어와 framework가 이미 제공하는 가장 작은 표현으로
+카탈로그의 구조를 실현합니다.
 
 ## 판단 순서
 

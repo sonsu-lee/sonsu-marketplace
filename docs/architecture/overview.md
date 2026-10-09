@@ -37,7 +37,7 @@ Claude Code: 저장소 루트
   → skills, hooks와 지원되는 구성 요소
 omp: 저장소 루트
   → .omp-plugin/marketplace.json
-  → plugins/{workflow,design,fluent-korean,worklog}/omp 또는 plugins/{fluent-english,fluent-japanese,career}
+  → plugins/{workflow,design,fluent-korean,worklog}/omp 또는 plugins/{fluent-english,fluent-japanese,career,design-patterns}
   → skills와 필요한 동봉 자료(opt-in Worklog는 runtime extension도 포함)
 ```
 

@@ -1,30 +1,60 @@
 ---
 name: select-design-patterns
-description: 실제 코드나 설계에서 반복 문제, 충돌하는 forces와 필요한 보장이 확인되어 named design pattern 선택이 필요한 경우에 사용한다. 일반 구현, 사소한 분기, 단순 리팩터링과 원칙 설명에는 사용하지 않는다.
+description: 실제 코드나 설계에서 반복 문제, 충돌하는 forces와 필요한 보장을 확인해 named design pattern의 필요 여부와 형태를 결정할 때 사용한다. 일반 구현이나 원칙 설명 요청은 대상이 아니다.
 ---
 
 # Design pattern 선택
 
-패턴 이름보다 현재 문제와 보장을 먼저 고정한다. 실제 코드·계약·운영 제약을 읽을 수 있으면 확인하고,
-요청 문구만으로 반복성이나 분산 시스템 보장을 추측하지 않는다. 패턴 선택 자체는 파일 수정 권한이 아니다.
+현재 코드·계약·운영 제약에서 문제와 필요한 보장을 확인하고 그 보장을 가장 작게 제공하는 해법을 고른다. 직접 해법이나 플랫폼 기능이 충분하면 `no-pattern`을 결과로 낸다.
 
-## 판단
+## 절차
 
-1. [`../../references/pattern-vs-principle.md`](../../references/pattern-vs-principle.md)로 pattern,
-   principle, idiom, framework 기능과 직접 해법을 구분한다.
-2. [`../../catalog/index.json`](../../catalog/index.json)에서 관련 family만 고르고 해당 family 파일과
-   [`../../catalog/decision-ready.json`](../../catalog/decision-ready.json)의 같은 ID를 읽는다.
-3. 반복 문제, forces, 표준 기능, baseline 한계, 필요한 guarantee, 수용할 cost와 검증 방법을 확인한다.
-4. 추천은 `decision-ready` 항목으로 제한한다. 최대 3개 후보에서 primary는 기본 1개이며 supporting은
-   primary의 보장에 필요할 때만 선택한다. indexed 이름만 일치하면 `insufficient-evidence`다.
-5. [`../../references/selection-contract.md`](../../references/selection-contract.md)의 형식으로 결과를 낸다.
+1. 읽을 수 있는 코드·계약·운영 제약을 확인한다. 요청 문구로만 주어진 반복성과 분산 보장은 미확인 사실로 기록한다. 사용자가 확인된 사실로 제공한 근거는 근거로 사용한다.
+2. [`../../references/pattern-vs-principle.md`](../../references/pattern-vs-principle.md)로 문제의 종류를 구분하고 baseline 해법을 먼저 적는다.
+3. [`../../catalog/index.json`](../../catalog/index.json)에서 관련 family를 고르고, family 파일과 [`../../catalog/decision-ready.json`](../../catalog/decision-ready.json)에서 같은 ID를 읽는다.
+4. 다음 항목을 확인한다.
+   - 반복 문제
+   - forces
+   - 표준 기능
+   - baseline 한계
+   - 필요한 guarantee
+   - 수용할 cost
+   - 검증 방법
 
-외부 설명을 추가로 확인하거나 catalog 성숙도를 변경할 때에는
-[`../../references/source-policy.md`](../../references/source-policy.md)를 읽는다.
+   분산·메시징 문제는 delivery, ordering, consistency, idempotency, recovery를 각각 확인하고, 확인하지 못한 항목은 빠진 사실로 기록한다.
+5. 패턴은 `decision-ready` 항목에서 고른다.
+   - 후보는 최대 3개다.
+   - primary는 0–1개다.
+   - supporting은 primary의 보장에 필요할 때만 둔다.
+   - indexed 이름만 일치하면 `insufficient-evidence`로 판정한다.
+6. 패턴 이름을 identifier에 넣는 것은 의도가 더 분명해질 때만 제안한다.
+   - 언어별 구현은 [`../../references/language-realization.md`](../../references/language-realization.md)를 따른다.
+   - 관계는 [`../../references/relationship-types.md`](../../references/relationship-types.md)를 따른다.
 
-직접 해법이나 플랫폼 기능이 충분하면 `no-pattern`이 정상 결과다. 패턴 이름을 class에 붙이는 것은
-의도를 더 명확하게 할 때만 제안한다. 언어별 구현은 [`../../references/language-realization.md`](../../references/language-realization.md),
-관계 해석은 [`../../references/relationship-types.md`](../../references/relationship-types.md)를 따른다.
+## 결과
 
-분산·메시징 패턴은 delivery, ordering, consistency, idempotency, recovery를 모두 확인한다.
-확인되지 않은 항목을 “기본 보장”으로 간주하지 않는다.
+[`../../references/selection-contract.md`](../../references/selection-contract.md) 형식으로 쓴다.
+
+## 예시
+
+입력:
+
+> 외부 결제 API 장애 때 요청마다 30초 timeout까지 대기해 worker가 고갈된다. 장애 중에는 즉시 실패하고, 복구되면 자동으로 다시 호출해야 한다.
+
+결과:
+
+```text
+Decision: use
+Selected: cloud-resilience-circuit-breaker
+Baseline: timeout 단축 — 장애가 이어지는 동안 호출 비용은 줄지 않음
+Implementation shape: 사용 중인 HTTP client나 resilience 라이브러리의 breaker 정책
+Verification: 연속 실패 후 즉시 실패, half-open 시험 호출 성공 후 정상 호출 복귀
+```
+
+## 경계
+
+- 선택 결과는 파일 수정 권한이 아니다.
+
+## 참고 자료
+
+- 외부 설명을 확인하거나 성숙도를 바꿀 때는 [`../../references/source-policy.md`](../../references/source-policy.md)를 읽는다.
