@@ -50,3 +50,4 @@ Considered, Consequences와 Revisit When을 포함합니다.
 - [ADR 0018: UI 디자인 플러그인 통합](0018-consolidate-ui-design.md)
 - [ADR 0019: Design 레퍼런스 검색 스킬 추가](0019-add-design-reference-search.md)
 - [ADR 0020: Career 플러그인 추가](0020-add-career-plugin.md)
+- [ADR 0021: 요구사항·설계·티켓·계획 하이브리드 인계](0021-use-hybrid-product-delivery-handoff.md)

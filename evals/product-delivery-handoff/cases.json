@@ -1,0 +1,114 @@
+{
+  "schema_version": "product-delivery-handoff-v1",
+  "cases": [
+    {
+      "id": "size-s-skips-prd",
+      "prompt": "설정 화면의 '저장' 버튼 라벨을 '저장하기'로 바꿔 줘. 다른 동작은 그대로야.",
+      "installed_plugins": [
+        "product",
+        "engineering"
+      ],
+      "entry_skill": "product:product-discovery",
+      "expected": [
+        "작업 크기를 S로 판정한다.",
+        "PRD나 PRD 후보를 만들지 않는다.",
+        "REQ ID를 만들지 않는다.",
+        "다음 단계로 바로 티켓 또는 구현을 안내한다."
+      ]
+    },
+    {
+      "id": "size-m-prd-lite",
+      "prompt": "할 일 목록 화면에서 완료한 항목을 숨기는 토글을 추가하고 싶어. 서버 API와 저장 데이터는 바뀌지 않아. 다음에 무엇을 만들어야 하는지 정리해 줘.",
+      "installed_plugins": [
+        "product",
+        "engineering"
+      ],
+      "entry_skill": "product:product-discovery",
+      "expected": [
+        "작업 크기를 M으로 판정한다.",
+        "문제·기대 결과·REQ·수용 기준만 담은 PRD-lite를 다음 산출물로 제시한다.",
+        "외부 설계 문서나 티켓 분해를 필수 단계로 요구하지 않는다.",
+        "PRD-lite 다음 단계로 구현 계획을 안내한다."
+      ]
+    },
+    {
+      "id": "size-l-full-handoff",
+      "prompt": "결제 수단에 계좌 이체를 추가하려고 해. 외부 PG사 API 연동과 주문 데이터 스키마 변경이 필요하고, 웹과 앱 결제 화면이 모두 바뀌어. 어떤 순서로 무엇을 만들어야 해?",
+      "installed_plugins": [
+        "product"
+      ],
+      "entry_skill": "product:product-discovery",
+      "expected": [
+        "작업 크기를 L로 판정한다.",
+        "전체 PRD → 외부 설계(화면·흐름, API·데이터 설계 문서나 ADR) → 티켓 분해 → 구현 계획 순서를 제시한다.",
+        "Engineering·Design·Workflow 플러그인이 설치되어 있다고 가정하지 않고 다음 산출물을 대화로 안내한다."
+      ]
+    },
+    {
+      "id": "prd-to-plan-req-column",
+      "prompt": "승인된 PRD 발췌야.\n\n### REQ-001: 사용자가 완료한 항목을 숨길 수 있다\n- 우선순위: P1\n- 수용 기준: 토글을 켜면 완료 항목이 목록에서 사라지고, 끄면 다시 보인다.\n\n### REQ-002: 숨김 설정이 다음 방문에도 유지된다\n- 우선순위: P2\n- 수용 기준: 새로고침 후에도 마지막 토글 상태가 유지된다.\n\n이 PRD로 구현 계획을 세워 줘.",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "entry_skill": "engineering:plan",
+      "expected": [
+        "흐름 대응 표 헤더가 `| 흐름 | 요구사항 |`로 시작한다.",
+        "흐름 표에 `REQ-001`과 `REQ-002`가 모두 있다.",
+        "`Requirements source`에 다루는 REQ ID 목록이 있다.",
+        "REQ-001의 P1과 REQ-002의 P2를 요구사항 셀 또는 Requirements source에 보존하며, 라벨만으로 P2를 구현 범위에서 제외하지 않는다."
+      ]
+    },
+    {
+      "id": "nfr-without-number-becomes-open",
+      "prompt": "승인된 제품 합의를 PRD로 만들어 줘. 문제: 검색 결과가 늦게 떠서 사용자가 이탈한다. 대상: 모바일 웹 사용자. 기대 결과: 검색이 빠르게 느껴져야 한다. 범위: 상품 검색 결과 화면. 구체적인 응답 시간 목표는 아직 정하지 않았다.",
+      "installed_plugins": [
+        "product"
+      ],
+      "entry_skill": "product:to-prd",
+      "expected": [
+        "검색 성능 체감 기대를 품질 기대 표 또는 PRD-lite의 관련 요구사항 옆에 보존한다.",
+        "응답 시간 수치를 지어내지 않는다.",
+        "수치 목표를 OPEN 항목으로 남기고 관련 품질 기대가 그 OPEN ID를 가리킨다. 표 형식을 필수로 요구하지 않는다."
+      ]
+    },
+    {
+      "id": "evidence-tags-in-plan",
+      "prompt": "이 저장소에서 설정 파일 로더에 YAML 지원을 추가하는 구현 계획을 세워 줘. 지금은 JSON만 읽어.",
+      "installed_plugins": [
+        "engineering"
+      ],
+      "entry_skill": "engineering:plan",
+      "expected": [
+        "접근 선택의 근거에 `[사용자 결정]`, `[제공 자료: 대화 발췌 또는 파일 위치]`, `[저장소: 경로:줄]`, `[공식문서: URL]`, `[실험: …]`, `[논문/실무자: URL]` 중 실제 출처에 맞는 종류가 붙어 있다. 제공 자료 태그만으로 내용의 검증·대표성·합의·승인을 주장하지 않는다.",
+        "근거 없는 판단이 있다면 `[추론]`으로 표시한다. 모든 판단에 근거가 있으면 추론이나 `[추론]` 태그를 추가하도록 요구하지 않는다. 근거 종류의 태그는 앞 기준을 따른다.",
+        "`[추론]`만으로 정한 결정이 없으며, 추론이 실제로 있을 때 필요한 확인 작업이나 미결정 항목으로 남긴다."
+      ]
+    },
+    {
+      "id": "size-m-writes-prd-lite",
+      "prompt": "승인된 단일 기능 변경을 PRD-lite 초안으로 써 줘. 대상은 할 일 목록 사용자이고, 완료 항목이 섞여 진행 중인 일을 찾기 어려운 문제를 해결하려고 해. 완료 항목 숨기기 토글을 켜면 완료 항목만 사라지고 끄면 다시 보여야 해. 서버 API·저장 데이터·다른 화면은 그대로야. 파일은 쓰지 마.",
+      "installed_plugins": [
+        "product"
+      ],
+      "entry_skill": "product:to-prd",
+      "expected": [
+        "문제·기대 결과·REQ·수용 기준으로 PRD-lite 본문을 작성한다.",
+        "전체 PRD의 품질 기대·성공 신호·준비 상태 표를 필수 절로 추가하지 않는다.",
+        "주어지지 않은 우선순위나 NFR ID를 만들지 않는다."
+      ]
+    },
+    {
+      "id": "non-prd-tickets-preserve-source",
+      "prompt": "승인된 요구사항 메모 docs/notes/search.md를 티켓 초안으로 나눠 줘. PRD나 REQ ID는 없어. 메모 내용: 검색어가 비어 있으면 전체 상품이 보이고, 검색어를 넣으면 상품명에 그 문자열이 있는 상품만 보여야 해. 파일이나 원격 티켓은 만들지 마.",
+      "installed_plugins": [
+        "workflow"
+      ],
+      "entry_skill": "workflow:to-ticket",
+      "expected": [
+        "합의된 동작을 티켓의 원하는 결과에 보존한다.",
+        "참고에 실제 요구 출처 docs/notes/search.md를 남긴다.",
+        "REQ ID나 PRD 링크를 새로 만들지 않는다."
+      ]
+    }
+  ]
+}

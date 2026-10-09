@@ -88,6 +88,7 @@ label·type·status 값이 아닙니다. 기본 양식은 변경·추가·정리
 출처 확인을 검사합니다. `must_not_apply_bundled_template`은 대상 버그 양식 조회가 `unverified`일 때 번들 양식을 선택하지 않는지 검사합니다. `must_preserve_*`는 실제 초안·수정 payload에서 해당 내용이 유지되는지,
 `expected_child_count`와 `must_map_parent_and_child_keys`는 사용자가 지정한 분해 경계와 게시 전
 부모·자식 참조를 실제 초안에서 확인합니다. `must_limit_update_to_content`는 식별자 이외의 변경 field가 요청한 제목·본문에 한정되는지 검사합니다.
+`must_preserve_req_ids`는 PRD에서 나눈 각 티켓의 허용된 출처·링크 필드(기본형의 `참고`, 사용자·팀 양식의 대응 필드 또는 허용된 자유 서술 필드)에 해당 REQ ID가 보존되는지 검사합니다. 본문에 허용 위치가 없어 인계 메모에만 남긴 경우는 티켓 반영 성공으로 판정하지 않습니다.
 
 `expected_required_headings`와 `expected_omitted_headings`는 완성된 기본형에서 필요한 항목과 생략할
 항목을 검사하며, 고정된 팀 양식에는 적용하지 않습니다. `expected_headerless`는 제목 없는 경량형 본문을, `expected_output_language`는 본문 언어를, `expected_commit_language`와 `must_not_add_ai_trailer`는 커밋 메시지의 언어와 AI trailer 부재를 검사합니다. `must_preserve_actual_and_expected`,
