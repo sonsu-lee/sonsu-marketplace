@@ -12,9 +12,9 @@ import stat
 ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
 OMP_PLUGINS = {"workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design"}
-OMP_OPTIN_PLUGINS = {"worklog", "design-patterns"}
+OMP_OPTIN_PLUGINS = {"writing", "research", "prompting", "product", "worklog", "design-patterns"}
 RUNTIME_EXTENSIONS = {"worklog": "omp-extension/worklog.ts"}
-ISOLATED = {"workflow", "design", "fluent-korean", "worklog"}
+ISOLATED = {"workflow", "design", "fluent-korean", "writing", "research", "prompting", "product", "worklog"}
 MANIFEST_FIELDS = ("version", "description", "author", "homepage", "repository", "license", "keywords")
 COPY_ROOTS = ("skills", "references", "assets", "scripts", "figma-plugin")
 SKIP_PARTS = {"__pycache__", "node_modules", ".git"}
@@ -152,12 +152,21 @@ def isolated_outputs(root, plugin_root, manifest, outputs, modes):
                    if path.name in (".app.json", "THIRD_PARTY_NOTICES.md") or
                    path.name.startswith(("LICENSE", "NOTICE", "UPSTREAM")) or
                    "LICENSE" in path.name)
+    if manifest["name"] == "research":
+        # Direct provider adapters read opt-in markers from the installed package root.
+        sources.append(plugin_root / "README.md")
     for source in sources:
         relative = source.relative_to(plugin_root)
         if relative.as_posix() in SKIP_FILES:
             continue
         require_safe(source, root)
         data = source.read_bytes()
+        if manifest["name"] == "prompting" and relative.as_posix() in (
+                "references/model-profiles.md", "references/claude-model-profiles.md"):
+            data = ("# omp에서 대상 모델 프로필 읽기\n\n"
+                    "이 자료는 사용자가 지정한 Codex·Claude 대상 프롬프트를 작성할 때만 참고한다. "
+                    "아래 모델·effort·인원·역할 호출 정책을 현재 omp 실행에 적용하지 않는다. "
+                    "omp의 모델 선택·위임·세션 설정은 현재 호스트 정책을 따른다.\n\n").encode("utf-8") + data
         if manifest["name"] == "fluent-korean" and relative.parts[0] == "codex":
             relative = Path(*relative.parts[1:])
             if relative == Path("skills/fluent-korean/SKILL.md"):

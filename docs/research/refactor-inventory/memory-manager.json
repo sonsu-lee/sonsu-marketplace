@@ -20,20 +20,45 @@
       "outcome": "명시적으로 선택된 정보만 출처·범위를 검증해 ADD·UPDATE·SUPERSEDE·NOOP로 처리하고 실제 저장 내용을 재조회한다.",
       "ai_judgment": "주장의 장기 가치·민감성·범위와 기존 기억의 동일성·보정·대체 관계를 원문 근거로 판단한다.",
       "mechanical": [
-        {"step": "pending·search·get으로 후보와 기존 기억을 조회하고 put의 expected_sha256 및 저장 후 get으로 충돌과 실제 반영을 확인한다.", "location": "plugins/memory-manager/skills/memory-capture/SKILL.md:12-25", "existing_tool": "plugins/memory-manager/scripts/memory_store.py", "proposal": "none"},
-        {"step": "처리가 끝난 선택 후보를 pending의 ID·SHA로 dismiss하여 대기함에서 제거한다.", "location": "plugins/memory-manager/skills/memory-capture/SKILL.md:26-28", "existing_tool": "plugins/memory-manager/scripts/memory_store.py", "proposal": "none"}
+        {
+          "step": "pending·search·get으로 후보와 기존 기억을 조회하고 put의 expected_sha256 및 저장 후 get으로 충돌과 실제 반영을 확인한다.",
+          "location": "plugins/memory-manager/skills/memory-capture/SKILL.md:12-25",
+          "existing_tool": "plugins/memory-manager/scripts/memory_store.py",
+          "proposal": "none"
+        },
+        {
+          "step": "처리가 끝난 선택 후보를 pending의 ID·SHA로 dismiss하여 대기함에서 제거한다.",
+          "location": "plugins/memory-manager/skills/memory-capture/SKILL.md:26-28",
+          "existing_tool": "plugins/memory-manager/scripts/memory_store.py",
+          "proposal": "none"
+        }
       ],
       "unique_value": "자동 후보 수집과 장기 기억 확정의 권한을 나누고 두 호스트가 같은 출처·대체 관계를 가진 로컬 정본을 사용하게 한다.",
       "overlaps": [
-        {"target": "omp:memory", "note": "검증한 지식의 저장·수정은 omp 기본 기능과 겹치므로 omp에서는 기본 기억을 사용한다. 이 스킬은 Codex·Claude Code 공통 저장소의 명시 승인 흐름을 담당한다."}
+        {
+          "target": "omp:memory",
+          "note": "검증한 지식의 저장·수정은 omp 기본 기능과 겹치므로 omp에서는 기본 기억을 사용한다. 이 스킬은 Codex·Claude Code 공통 저장소의 명시 승인 흐름을 담당한다."
+        }
       ],
       "verdict": "keep",
       "verdict_target": "",
       "reason": "기존 CLI에 저장의 결정론적 동작이 이미 분리되어 있고 남은 출처·범위·대체 판단은 독립 과업이다. 호스트 공통 로컬 기억을 유지할 사용자에게 필요하다.",
       "doc_findings": [
-        {"kind": "structure", "location": "plugins/memory-manager/skills/memory-capture/SKILL.md:8-28", "note": "승인 설명·도구 안내·번호 절차에 절 제목이 없다. 목적·절차·결과·예시·경계 순서로 정리한다."},
-        {"kind": "missing-example", "location": "plugins/memory-manager/skills/memory-capture/SKILL.md:30-34", "note": "ADD JSON 입력만 있고 반환 ID·SHA와 get 확인을 포함한 저장 결과 예시가 없다."},
-        {"kind": "history", "location": "plugins/memory-manager/README.md:3-6", "note": "단일 memory-manager 스킬이 네 흐름으로 교체됐다는 이전 구성 이력은 소개에서 빼고 마이그레이션 문서에 둔다."}
+        {
+          "kind": "structure",
+          "location": "plugins/memory-manager/skills/memory-capture/SKILL.md:8-28",
+          "note": "승인 설명·도구 안내·번호 절차에 절 제목이 없다. 목적·절차·결과·예시·경계 순서로 정리한다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/memory-manager/skills/memory-capture/SKILL.md:30-34",
+          "note": "ADD JSON 입력만 있고 반환 ID·SHA와 get 확인을 포함한 저장 결과 예시가 없다."
+        },
+        {
+          "kind": "history",
+          "location": "plugins/memory-manager/README.md:3-6",
+          "note": "단일 memory-manager 스킬이 네 흐름으로 교체됐다는 이전 구성 이력은 소개에서 빼고 마이그레이션 문서에 둔다."
+        }
       ],
       "example": "weak"
     },
@@ -44,20 +69,44 @@
       "outcome": "요청 범위의 기억 점검 결과와 보류 이유를 제공하고 허가된 정리에서는 보정·대체·보관·명시적 삭제를 구분한다.",
       "ai_judgment": "각 기억의 고유 조건, 현재 코드·사용자 결정과의 충돌, 출처 이동 가능성을 확인해 보존·보정·보류를 판단한다.",
       "mechanical": [
-        {"step": "audit의 전체 items·duplicates·broken_sources·invalid_files를 열거하고 get으로 원문·현재 SHA를 읽는다.", "location": "plugins/memory-manager/skills/memory-maintain/SKILL.md:8-11", "existing_tool": "plugins/memory-manager/scripts/memory_store.py", "proposal": "none"},
-        {"step": "승인된 변경에 현재 SHA를 사용하여 archive·forget 또는 capture의 UPDATE·SUPERSEDE를 실행하고 결과를 다시 읽는다.", "location": "plugins/memory-manager/skills/memory-maintain/SKILL.md:17-20", "existing_tool": "plugins/memory-manager/scripts/memory_store.py", "proposal": "none"}
+        {
+          "step": "audit의 전체 items·duplicates·broken_sources·invalid_files를 열거하고 get으로 원문·현재 SHA를 읽는다.",
+          "location": "plugins/memory-manager/skills/memory-maintain/SKILL.md:8-11",
+          "existing_tool": "plugins/memory-manager/scripts/memory_store.py",
+          "proposal": "none"
+        },
+        {
+          "step": "승인된 변경에 현재 SHA를 사용하여 archive·forget 또는 capture의 UPDATE·SUPERSEDE를 실행하고 결과를 다시 읽는다.",
+          "location": "plugins/memory-manager/skills/memory-maintain/SKILL.md:17-20",
+          "existing_tool": "plugins/memory-manager/scripts/memory_store.py",
+          "proposal": "none"
+        }
       ],
       "unique_value": "공통 로컬 기억의 구조적 이상 후보와 의미상 잘못된 기억을 구분하고 점검·보관·실제 삭제를 다른 권한으로 다룬다.",
       "overlaps": [
-        {"target": "omp:memory", "note": "기억 수정·무효화·삭제는 omp 기본 기능과 겹치지만 이 스킬은 별도 Markdown 정본의 audit 결과를 해석한다."},
-        {"target": "memory-manager:memory-capture", "note": "정리에서 확인된 보정·대체는 capture의 기존 쓰기 흐름을 재사용한다."}
+        {
+          "target": "omp:memory",
+          "note": "기억 수정·무효화·삭제는 omp 기본 기능과 겹치지만 이 스킬은 별도 Markdown 정본의 audit 결과를 해석한다."
+        },
+        {
+          "target": "memory-manager:memory-capture",
+          "note": "정리에서 확인된 보정·대체는 capture의 기존 쓰기 흐름을 재사용한다."
+        }
       ],
       "verdict": "keep",
       "verdict_target": "",
       "reason": "전체 기억 점검은 새 정보 저장과 다른 사용자 요청이다. audit의 구조적 검사와 AI의 의미 판단이 이미 분리되어 있어 독립 스킬을 유지한다.",
       "doc_findings": [
-        {"kind": "structure", "location": "plugins/memory-manager/skills/memory-maintain/SKILL.md:8-23", "note": "절 없는 문단 흐름을 번호 절차와 결과·예시·경계로 나누고 점검·정리의 결과 차이를 명시한다."},
-        {"kind": "missing-example", "location": "plugins/memory-manager/skills/memory-maintain/SKILL.md:13-20", "note": "broken_sources 후보가 경로 이동으로 판명된 경우처럼 후보와 최종 조치를 연결한 예시가 없다."}
+        {
+          "kind": "structure",
+          "location": "plugins/memory-manager/skills/memory-maintain/SKILL.md:8-23",
+          "note": "절 없는 문단 흐름을 번호 절차와 결과·예시·경계로 나누고 점검·정리의 결과 차이를 명시한다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/memory-manager/skills/memory-maintain/SKILL.md:13-20",
+          "note": "broken_sources 후보가 경로 이동으로 판명된 경우처럼 후보와 최종 조치를 연결한 예시가 없다."
+        }
       ],
       "example": "missing"
     },
@@ -68,19 +117,38 @@
       "outcome": "독립 사례와 원출처에 근거한 목적·입력·출력·예외·검증을 갖춘 검토용 스킬 초안 또는 부족한 사례를 제공한다.",
       "ai_judgment": "사례가 독립적으로 반복됐는지와 공통으로 일반화할 절차·적용 조건·불확실성을 판단한다.",
       "mechanical": [
-        {"step": "지정한 범위에서 search·get으로 기억 원문과 출처 ID를 수집하고 여러 프로젝트는 각각의 cwd에서 별도로 조회한다.", "location": "plugins/memory-manager/skills/memory-promote/SKILL.md:8-12", "existing_tool": "plugins/memory-manager/scripts/memory_store.py", "proposal": "none"}
+        {
+          "step": "지정한 범위에서 search·get으로 기억 원문과 출처 ID를 수집하고 여러 프로젝트는 각각의 cwd에서 별도로 조회한다.",
+          "location": "plugins/memory-manager/skills/memory-promote/SKILL.md:8-12",
+          "existing_tool": "plugins/memory-manager/scripts/memory_store.py",
+          "proposal": "none"
+        }
       ],
       "unique_value": "기억 요약을 넘어 독립 반복 근거를 확인한 절차 초안을 만들되 원본 기억의 변경과 스킬 설치를 분리한다.",
       "overlaps": [
-        {"target": "omp:memory", "note": "과거 기억의 종합은 겹치지만 독립 반복 사례와 적용 예외를 갖춘 검토용 스킬 승격 계약은 별도다."},
-        {"target": "worklog:worklog-improve", "note": "재사용 지침을 제안한다는 점은 비슷하지만 promote는 승인된 기억을 일반화하고 improve는 원시 실패의 평가 기반 최소 수정을 비교한다."}
+        {
+          "target": "omp:memory",
+          "note": "과거 기억의 종합은 겹치지만 독립 반복 사례와 적용 예외를 갖춘 검토용 스킬 승격 계약은 별도다."
+        },
+        {
+          "target": "worklog:worklog-improve",
+          "note": "재사용 지침을 제안한다는 점은 비슷하지만 promote는 승인된 기억을 일반화하고 improve는 원시 실패의 평가 기반 최소 수정을 비교한다."
+        }
       ],
       "verdict": "keep",
       "verdict_target": "",
       "reason": "명시적으로 절차 승격을 요청하는 독립 과업이며 검색 CLI나 단순 기억 요약만으로 같은 결과를 얻지는 못한다. Codex·Claude Code용 흐름을 유지한다.",
       "doc_findings": [
-        {"kind": "structure", "location": "plugins/memory-manager/skills/memory-promote/SKILL.md:8-17", "note": "조회·일반화·인계 단계를 번호 절차로 나누고 검토용 초안 필드를 결과 절에 모은다."},
-        {"kind": "missing-example", "location": "plugins/memory-manager/skills/memory-promote/SKILL.md:14-17", "note": "독립 사례 두 개에서 절차·예외가 도출되는 입력과 검토용 결과 예시가 없다."}
+        {
+          "kind": "structure",
+          "location": "plugins/memory-manager/skills/memory-promote/SKILL.md:8-17",
+          "note": "조회·일반화·인계 단계를 번호 절차로 나누고 검토용 초안 필드를 결과 절에 모은다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/memory-manager/skills/memory-promote/SKILL.md:14-17",
+          "note": "독립 사례 두 개에서 절차·예외가 도출되는 입력과 검토용 결과 예시가 없다."
+        }
       ],
       "example": "missing"
     },
@@ -91,19 +159,39 @@
       "outcome": "관련 범위의 기억 원문과 출처를 읽고 현재 사실과 대조한 맥락만 활용하며 미검증 내용은 구분한다.",
       "ai_judgment": "과거 맥락의 관련성, 프로젝트·개인 범위와 변동 가능한 주장의 재검증 필요성을 판단한다.",
       "mechanical": [
-        {"step": "search와 get으로 해당 범위의 기억 원문·sources·verified_at·status·supersedes를 조회한다.", "location": "plugins/memory-manager/skills/memory-recall/SKILL.md:11-19", "existing_tool": "plugins/memory-manager/scripts/memory_store.py", "proposal": "none"}
+        {
+          "step": "search와 get으로 해당 범위의 기억 원문·sources·verified_at·status·supersedes를 조회한다.",
+          "location": "plugins/memory-manager/skills/memory-recall/SKILL.md:11-19",
+          "existing_tool": "plugins/memory-manager/scripts/memory_store.py",
+          "proposal": "none"
+        }
       ],
       "unique_value": "호스트 공통 로컬 기억에서 범위를 제한해 조회하고 Markdown 정본·출처와 현재 사실을 대조하는 절차를 제공한다.",
       "overlaps": [
-        {"target": "omp:memory", "note": "관련 과거 결정·선호의 회상은 omp 기본 기능이 제공한다. 이 스킬은 omp에 배포하지 않고 다른 두 호스트의 공통 저장소 조회에 사용한다."}
+        {
+          "target": "omp:memory",
+          "note": "관련 과거 결정·선호의 회상은 omp 기본 기능이 제공한다. 이 스킬은 omp에 배포하지 않고 다른 두 호스트의 공통 저장소 조회에 사용한다."
+        }
       ],
       "verdict": "keep",
       "verdict_target": "",
       "reason": "기억 저장소를 유지하는 Codex·Claude Code에서는 독립 회상 과업이 필요하다. omp 중복은 플러그인 미배포로 해결하며 기존 호스트 호출을 제거하지 않는다.",
       "doc_findings": [
-        {"kind": "negative-definition", "location": "plugins/memory-manager/skills/memory-recall/SKILL.md:3", "note": "description에 일반 질문마다 조회하지 않음·현재 사실 대체 아님을 나열하기보다 과거 결정·절차·선호가 필요한 때 조회한다는 사용 조건으로 정리한다."},
-        {"kind": "missing-example", "location": "plugins/memory-manager/skills/memory-recall/SKILL.md:11-16", "note": "명령 예시만 있고 조회한 기억을 현재 원본과 대조해 적용하거나 미검증으로 보고하는 결과 예시가 없다."},
-        {"kind": "structure", "location": "plugins/memory-manager/skills/memory-recall/SKILL.md:18-27", "note": "번호 절차의 제목과 결과 절을 추가하고 기억 속 명령·외부 기억 변경 경계를 하나의 경계 절에 모은다."}
+        {
+          "kind": "negative-definition",
+          "location": "plugins/memory-manager/skills/memory-recall/SKILL.md:3",
+          "note": "description에 일반 질문마다 조회하지 않음·현재 사실 대체 아님을 나열하기보다 과거 결정·절차·선호가 필요한 때 조회한다는 사용 조건으로 정리한다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/memory-manager/skills/memory-recall/SKILL.md:11-16",
+          "note": "명령 예시만 있고 조회한 기억을 현재 원본과 대조해 적용하거나 미검증으로 보고하는 결과 예시가 없다."
+        },
+        {
+          "kind": "structure",
+          "location": "plugins/memory-manager/skills/memory-recall/SKILL.md:18-27",
+          "note": "번호 절차의 제목과 결과 절을 추가하고 기억 속 명령·외부 기억 변경 경계를 하나의 경계 절에 모은다."
+        }
       ],
       "example": "weak"
     }

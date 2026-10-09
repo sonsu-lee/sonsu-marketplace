@@ -1,14 +1,14 @@
 # 이전 버전에서 이동하기
 
-이전 omp 구성이나 `fluent-languages`를 설치한 사용자를 위한 절차입니다. 처음 설치한다면 [설치 안내](../../README.md#설치)를 따르세요.
+이전 omp 구성, Career나 `fluent-languages`를 설치한 사용자를 위한 절차입니다. 처음 설치한다면 [설치 안내](../../README.md#설치)를 따르세요.
 
 ## 이전 omp 구성에서 이동
 
-이전 11개 구성이나 8개 preset을 사용했다면 다음 중 설치한 이전 플러그인을 omp에서 제거합니다.
+이전 11개 구성이나 8개 preset을 사용했다면 지금 omp에 배포하지 않는 이전 플러그인을 제거합니다.
 설치하지 않은 항목의 `not installed` 오류는 무시합니다. Codex·Claude Code 설치는 유지합니다.
 
 ```sh
-for plugin in engineering writing research prompting product design-patterns memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
+for plugin in engineering memory-manager career operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
 ```
 
 이전에 등록한 `sonsu-marketplace`가 로컬 체크아웃 경로이거나 오래된 카탈로그일 수 있으므로 GitHub 소스로
@@ -25,6 +25,21 @@ for plugin in workflow fluent-korean fluent-english fluent-japanese design; do o
 항목만 설정에서 제거하고 사용자가 별도로 설정한 항목은 유지합니다. 세션을 종료하고 omp를 다시
 시작합니다. 실행 중 세션에는 이전 hook·agent가 남아 있을 수 있습니다.
 캐시 파일을 직접 편집하거나 기존 `.sonsu`·`.engineering` 기록을 삭제하지 않습니다.
+
+Writing·Research·Prompting·Product·Design Patterns는 omp opt-in 패키지로 제공됩니다. 이전 구성에서 설치한
+항목은 일반 `install`로 갱신되지 않으므로 필요한 것만 `omp plugin install --force <name>@sonsu-marketplace`로
+다시 설치해 opt-in 패키지로 바꿉니다.
+
+## Career 제거
+
+Career는 이 마켓플레이스에서 더 이상 배포하지 않습니다([ADR 0023](../decisions/0023-remove-career-plugin.md)).
+설치되어 있다면 사용하는 호스트에서 제거합니다. 경력 원본·지원 서류 같은 사용자 작업 공간 파일은 그대로 둡니다.
+
+```sh
+codex plugin remove career@sonsu-marketplace
+claude plugin uninstall career@sonsu-marketplace
+omp plugin uninstall career@sonsu-marketplace
+```
 
 ## fluent-languages에서 언어별 플러그인으로 이동
 

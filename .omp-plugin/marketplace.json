@@ -35,6 +35,34 @@
       "category": "Productivity"
     },
     {
+      "name": "writing",
+      "source": "./plugins/writing/omp",
+      "description": "독자·목적·근거에 맞춰 업무 문서와 개발자 블로그의 정보를 선별하고, 문서 배치와 글의 흐름을 다듬는다.",
+      "version": "0.4.0-beta.2",
+      "category": "Productivity"
+    },
+    {
+      "name": "research",
+      "source": "./plugins/research/omp",
+      "description": "Exa·Perplexity 목적별 공개 검색과 근거 중심의 사실 검증·비교·코드 조사를 제공합니다.",
+      "version": "0.7.0-sonsu.13",
+      "category": "Productivity"
+    },
+    {
+      "name": "prompting",
+      "source": "./plugins/prompting/omp",
+      "description": "Codex, ChatGPT, OpenAI API와 Claude Code·Anthropic API 모델에서 바로 사용할 수 있는 간결한 프롬프트를 작성합니다.",
+      "version": "0.4.7",
+      "category": "Productivity"
+    },
+    {
+      "name": "product",
+      "source": "./plugins/product/omp",
+      "description": "제품 기회를 탐색하고, 근거를 종합하고, 제품 도메인을 모델링하고, 검증을 설계·판정하며, 승인된 결정을 PRD로 변환합니다.",
+      "version": "0.4.0",
+      "category": "Productivity"
+    },
+    {
       "name": "design-patterns",
       "source": "./plugins/design-patterns",
       "description": "실제 설계 힘과 보장에 근거해 디자인 패턴을 선택하거나 기존 패턴 사용을 검토합니다.",

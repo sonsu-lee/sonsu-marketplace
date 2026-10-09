@@ -36,7 +36,7 @@ claude plugin list
 
 ### omp
 
-基本5件をインストールし、Worklog・Design Patternsは必要な場合だけ追加します。自動更新を新たに有効にする場合だけ、下のYAMLを `~/.omp/agent/config.yml` の既存の `marketplace:` 項目に統合してください。
+基本5件をインストールし、Writing・Research・Prompting・Product・Design Patterns・Worklogの6件は必要な場合だけ追加します。自動更新を新たに有効にする場合だけ、下のYAMLを `~/.omp/agent/config.yml` の既存の `marketplace:` 項目に統合してください。
 
 <!-- omp-preset:start -->
 ```sh
@@ -52,6 +52,10 @@ marketplace:
 
 ```sh
 # 任意でインストール
+omp plugin install writing@sonsu-marketplace
+omp plugin install research@sonsu-marketplace
+omp plugin install prompting@sonsu-marketplace
+omp plugin install product@sonsu-marketplace
 omp plugin install worklog@sonsu-marketplace
 omp plugin install design-patterns@sonsu-marketplace
 omp plugin list
@@ -59,7 +63,7 @@ omp plugin list
 
 ## プラグイン
 
-各プラグインは独立して使え、詳しい使い方はリンク先で確認できます（Codex・Claude Codeは全13件、ompは基本5件とopt-inのWorklog・Design Patterns）。
+各プラグインは独立して使え、詳しい使い方はリンク先で確認できます（Codex・Claude Codeは全13件、ompは基本5件とopt-in 6件の計11件）。
 
 | プラグイン | 用途 | インストール名 |
 | --- | --- | --- |

@@ -253,10 +253,12 @@ class CodexPackagingTests(unittest.TestCase):
         omp = json.loads((ROOT / ".omp-plugin/marketplace.json").read_text(encoding="utf-8"))
         self.assertEqual(omp["name"], codex["name"])
         self.assertEqual([entry["name"] for entry in omp["plugins"]],
-                         ["workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design-patterns", "design", "worklog"])
+                         ["workflow", "fluent-korean", "fluent-english", "fluent-japanese",
+                          "writing", "research", "prompting", "product", "design-patterns", "design", "worklog"])
         for entry in omp["plugins"]:
             with self.subTest(plugin=entry["name"]):
-                suffix = "/omp" if entry["name"] in ("workflow", "design", "fluent-korean", "worklog") else ""
+                suffix = "/omp" if entry["name"] in (
+                    "workflow", "design", "fluent-korean", "writing", "research", "prompting", "product", "worklog") else ""
                 self.assertEqual(entry["source"], f"./plugins/{entry['name']}{suffix}")
                 package = ROOT / entry["source"]
                 manifest = json.loads((package / ".claude-plugin/plugin.json").read_text())
@@ -274,7 +276,7 @@ class CodexPackagingTests(unittest.TestCase):
                     self.assertFalse((package / forbidden).exists(), forbidden)
 
     def test_omp_isolated_skills_resolve_local_resources(self):
-        for name in ("workflow", "design", "fluent-korean", "worklog"):
+        for name in ("workflow", "design", "fluent-korean", "writing", "research", "prompting", "product", "worklog"):
             package = ROOT / "plugins" / name / "omp"
             with tempfile.TemporaryDirectory() as directory:
                 installed = Path(directory).resolve() / name
@@ -298,6 +300,33 @@ class CodexPackagingTests(unittest.TestCase):
                     companion = json.loads((installed / "figma-plugin/manifest.json").read_text())
                     self.assertTrue((installed / "figma-plugin/src").is_dir())
                     self.assertIn("main", companion)
+
+    def test_omp_domain_optins_use_native_continuity_and_preserve_resources(self):
+        continuity = (ROOT / "shared/omp-runtime/continuity.md").read_bytes()
+        for name in ("writing", "research", "prompting", "product"):
+            source = ROOT / "plugins" / name
+            package = source / "omp"
+            with self.subTest(plugin=name):
+                self.assertEqual((package / "references/continuity.md").read_bytes(), continuity)
+                for forbidden in ("hooks", "agents", ".codex", "scripts/task-continuity.py",
+                                  "scripts/evidence-gates.py", "package.json", "extension"):
+                    self.assertFalse((package / forbidden).exists(), forbidden)
+                for skill in (source / "skills").glob("*/SKILL.md"):
+                    self.assertEqual((package / skill.relative_to(source)).read_bytes(), skill.read_bytes())
+                for script in source.rglob("scripts/*.py"):
+                    if "omp" in script.relative_to(source).parts or script.name == "task-continuity.py":
+                        continue
+                    generated = package / script.relative_to(source)
+                    self.assertEqual(generated.read_bytes(), script.read_bytes())
+                    self.assertEqual(generated.stat().st_mode & 0o777, script.stat().st_mode & 0o777)
+        research = ROOT / "plugins/research"
+        self.assertEqual((research / "omp/README.md").read_bytes(), (research / "README.md").read_bytes())
+        prompting = ROOT / "plugins/prompting"
+        for name in ("model-profiles.md", "claude-model-profiles.md"):
+            original = (prompting / "references" / name).read_text()
+            generated = (prompting / "omp/references" / name).read_text()
+            self.assertTrue(generated.endswith(original))
+            self.assertIn("현재 omp 실행에 적용하지 않는다", generated)
 
     def omp_fixture(self, root):
         names = ("workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design")
@@ -450,6 +479,7 @@ class CodexPackagingTests(unittest.TestCase):
                                     cwd=installed, capture_output=True, text=True)
             self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
             self.assertIn("error:", result.stderr)
+
 
     def test_omp_continuity_has_no_removed_extension_claim(self):
         template = (ROOT / "shared/task-continuity/continuity.md.tmpl").read_text()

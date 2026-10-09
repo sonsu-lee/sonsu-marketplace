@@ -1,0 +1,11 @@
+{
+  "name": "research",
+  "version": "0.7.0-sonsu.13",
+  "description": "Exa·Perplexity 목적별 공개 검색과 근거 중심의 사실 검증·비교·코드 조사를 제공합니다.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "homepage": "https://github.com/sonsu-lee/skills/tree/main/skills/research",
+  "repository": "https://github.com/sonsu-lee/skills"
+}

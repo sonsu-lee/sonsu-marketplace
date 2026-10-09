@@ -16,10 +16,10 @@
 | fluent-korean | keep |  | default | default | 2 | 14 | Codex 단일 호출과 Claude 다단계 스킬을 유지하고 공통 규칙을 정리하는 방향이 맞습니다. 기계 단계는 기존 스크립트를 재사용하며 미포함 commit-ko·평가 의존성 및 상위 프로젝트 홍보 도구를 번들에서 줄일 수 있습니다. |
 | fluent-english | new-tool |  | default | default | 1 | 5 | 독립적인 영어 작성·윤문 지침을 유지하면서 수치 기반 voice calibration과 보호 문자열 대조를 코드에 맡깁니다. |
 | fluent-japanese | new-tool |  | default | default | 1 | 6 | 독립 도메인과 기존 검사 도구를 유지하고 점수 산식 계산을 도구화하며, 배포에 없는 코퍼스 전용 연구 도구는 정리합니다. |
-| writing | keep |  | not-distributed | opt-in | 2 | 7 | 두 스킬은 업무 문서 편집과 기술 아티클 작성이라는 독립 과업을 갖습니다. Fluent와 경계가 명시되어 있어 플러그인 전체를 통합할 이유는 부족합니다. |
-| research | new-tool |  | not-distributed | opt-in | 1 | 8 | 원문이 주장을 지지하는지와 상충 자료의 의미를 판단하는 독립 과업은 유지합니다. 증거 원장의 필드·식별자·상태 누락은 검사기로 분리하고, 이미 구현된 코드 검색 cache를 중복 구현하지 않습니다. |
-| prompting | keep |  | not-distributed | opt-in | 1 | 10 | 프롬프트 자체를 요청한 사용자에게 복사 가능한 결과를 제공하는 독립 과업입니다. 실행 에이전트 정책과 일반 문체 규칙의 중복은 줄이되, 제품별 입력·API 설정 구분과 의미 보존 계약은 유지합니다. |
-| product | new-tool |  | not-distributed | opt-in | 7 | 22 | 일곱 과업은 탐색·발산·근거 종합·도메인·실험·문서 작성이라는 별도 결과를 냅니다. PRD의 ID·링크·metadata 검사는 판단 절차에서 분리할 수 있습니다. |
+| writing | keep |  | opt-in | opt-in | 2 | 7 | 두 스킬은 업무 문서 편집과 기술 아티클 작성이라는 독립 과업을 갖습니다. Fluent와 경계가 명시되어 있어 플러그인 전체를 통합할 이유는 부족합니다. |
+| research | new-tool |  | opt-in | opt-in | 1 | 8 | 원문이 주장을 지지하는지와 상충 자료의 의미를 판단하는 독립 과업은 유지합니다. 증거 원장의 필드·식별자·상태 누락은 검사기로 분리하고, 이미 구현된 코드 검색 cache를 중복 구현하지 않습니다. |
+| prompting | keep |  | opt-in | opt-in | 1 | 10 | 프롬프트 자체를 요청한 사용자에게 복사 가능한 결과를 제공하는 독립 과업입니다. 실행 에이전트 정책과 일반 문체 규칙의 중복은 줄이되, 제품별 입력·API 설정 구분과 의미 보존 계약은 유지합니다. |
+| product | new-tool |  | opt-in | opt-in | 7 | 22 | 일곱 과업은 탐색·발산·근거 종합·도메인·실험·문서 작성이라는 별도 결과를 냅니다. PRD의 ID·링크·metadata 검사는 판단 절차에서 분리할 수 있습니다. |
 | memory-manager | keep |  | not-distributed | not-distributed | 4 | 10 | omp 기본 기억과 겹친다는 이유로 다른 호스트가 공유하는 로컬 저장소까지 제거할 수는 없다. Markdown 정본·출처·범위·SHA 기반 변경 계약은 기존 도구와 함께 유지하고 omp에서는 미배포한다. |
 | design-patterns | keep |  | opt-in | opt-in | 2 | 1 | 독립적인 선택·검토 과업과 카탈로그 기반 판단 계약이 있다. 기계적 스키마·snapshot·관계 검사는 이미 validate_catalog.py가 맡으므로 새 조정 계층을 만들 필요가 없다. |
 | design | keep |  | default | default | 4 | 15 | 네 진입점의 쓰기 권한과 결과가 다르고 공통 계약·검증기는 이미 reference와 shared 원본으로 분리되어 있습니다. 문서 구성과 반복 규칙을 줄이는 정리가 우선입니다. |
