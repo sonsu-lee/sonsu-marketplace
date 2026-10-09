@@ -131,8 +131,22 @@ class PrContextTest(unittest.TestCase):
 
     def test_existing_pr_blocks(self):
         responses = [response("pr list", [{"number": 7, "url": "https://github.com/o/r/pull/7", "isDraft": True,
-                                           "baseRefName": "main", "headRefOid": "abc"}])] + default_responses()
-        self.assertIn("existing-pr", self.assert_ok(responses=responses)["blockers"])
+                                           "baseRefName": "main", "headRefOid": "abc",
+                                           "headRepositoryOwner": {"login": "o"}, "isCrossRepository": False}])]
+        data = self.assert_ok(responses=responses + default_responses())
+        self.assertIn("existing-pr", data["blockers"])
+        self.assertEqual(data["existing_prs"]["items"][0]["head_owner"], "o")
+        self.assertIs(data["existing_prs"]["items"][0]["is_cross_repository"], False)
+
+    def test_fork_pr_with_same_branch_name_does_not_block(self):
+        responses = [response("pr list", [{"number": 9, "url": "https://github.com/o/r/pull/9", "isDraft": False,
+                                           "baseRefName": "main", "headRefOid": "def",
+                                           "headRepositoryOwner": {"login": "forker"}, "isCrossRepository": True}])]
+        data = self.assert_ok(responses=responses + default_responses())
+        self.assertEqual(data["blockers"], [])
+        self.assertEqual(data["existing_prs"]["status"], "checked")
+        item = data["existing_prs"]["items"][0]
+        self.assertEqual((item["number"], item["head_owner"], item["is_cross_repository"]), (9, "forker", True))
 
     def test_offline_makes_no_gh_calls(self):
         data = self.assert_ok("--offline")
@@ -152,6 +166,29 @@ class PrContextTest(unittest.TestCase):
         blockers = self.assert_ok()["blockers"]
         self.assertIn("head-equals-base", blockers)
         self.assertIn("empty-range", blockers)
+
+    def test_local_base_branch_ahead_of_remote(self):
+        self.git(self.clone, "checkout", "-q", "main")
+        self.commit(self.clone, "local.txt", "local\n", "Local main commit")
+        data = self.assert_ok("--offline")
+        self.assertEqual(data["base"]["resolved"], "refs/remotes/origin/main")
+        self.assertEqual(len(data["range"]["commits"]), 1)
+        self.assertIn("head-equals-base", data["blockers"])
+
+    def test_feature_tracking_default_branch_is_not_base(self):
+        self.git(self.clone, "branch", "-q", "--set-upstream-to=origin/main", "feature")
+        data = self.assert_ok("--offline")
+        self.assertEqual(data["head"]["upstream"], "origin/main")
+        self.assertEqual(data["blockers"], [])
+
+    def test_does_not_rewrite_index(self):
+        readme = self.clone / "README.md"
+        stat = readme.stat()
+        os.utime(readme, ns=(stat.st_atime_ns, stat.st_mtime_ns + 5_000_000_000))
+        index = self.clone / ".git/index"
+        before = index.stat().st_mtime_ns
+        self.assert_ok("--offline")
+        self.assertEqual(index.stat().st_mtime_ns, before)
 
     def test_base_precedence(self):
         self.git(self.clone, "config", "branch.feature.gh-merge-base", "main")

@@ -35,7 +35,7 @@ GitHub Issues closing keyword는 non-default base의 자동 종료 근거로 사
 
 ## Native stack으로 게시하고 검증한다
 
-1. publish 직전에 각 층의 head SHA, 원격 ref, PR 부재, `target_pr_state`, payload와 필수 미디어 준비 상태를 다시 확인한다. 한 층이라도 필수 조건이 부족하면 stack 게시를 시작하지 않는다.
+1. publish 직전에 각 층에서 [생성 전 재확인](github.md#생성하고-검증한다)에 따라 `pr_context.py`를 다시 실행하고 고정한 head SHA·원격 ref·PR 부재와 대조한다. `target_pr_state`, payload와 필수 미디어 준비 상태도 확인한다. 한 층이라도 필수 조건이 부족하면 stack 게시를 시작하지 않는다.
 2. 승인된 기존 remote에 각 branch를 정확한 refspec으로 일반 push하고 SHA를 재조회한다. push 결과가 불명확하면 원격 ref를 조회하며 같은 작업을 무작정 재시도하지 않는다.
 3. 아래 층부터 `gh pr create --head <branch> --base <trunk-or-lower-branch> --title <title> --body-file <file> --draft`로 새 Draft PR을 만든다. 미디어가 있으면 [첨부 절차](media-attachments.md#draft-pr을-먼저-만들고-한-파일씩-첨부한다)에 따라 그 층에 첨부하고 필수 자료를 검증한다. 명시된 Ready 전환은 stack 연결 뒤로 미룬다. 생성마다 URL과 원격 제목·본문·base·head·Draft 상태를 재조회한다.
 4. 모든 새 PR이 정확한 chain이면 `gh stack link --base <trunk> <bottom-pr-url> ... <top-pr-url>`로 native stack을 만든다. 인자에는 검증한 PR URL만 넣는다. 연결 실패나 응답 불명은 원격 stack membership과 각 PR의 base·head를 먼저 조회한다. 새 PR 생성·link를 처음부터 반복하지 않는다.

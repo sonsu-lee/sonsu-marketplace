@@ -55,7 +55,7 @@ description: 현재 Git 변경을 주제별 단일 PR 또는 GitHub native stack
 3. **양식과 언어.** [PR 템플릿 규칙](references/pr-template.md)으로 `templates` 결과를 해석해 양식을 고르고 출력 언어를 정한다.
 4. **본문.** [PR 작성 지침](references/pr-writing.md)에 따라 전체 diff와 현재 검증 근거로 제목·본문을 쓴다. commit 제목이나 `--fill` 결과는 참고만 한다. Writing·Fluent를 함께 쓸 때는 [작성 지침 함께 적용하기](../../references/writing-composition.md)에 따라 적용 양식과 확인 상태, 출력 언어, 근거·편집 범위와 보호할 연결 문법을 전달한다. 양식이 확인되기 전의 초안은 임시 초안으로 보고한다.
 5. **티켓 연결.** 티켓 ID나 URL이 있거나 사용자가 연동을 요청하면 [티켓 연결 규칙](references/ticket-linking.md)을 따른다. 기존 branch 이름의 ID는 가장 낮은 신뢰도의 hint로만 쓰고, provider는 확인된 근거로 정한다. 지원하지 않는 tracker 연결이 필수이면 연결 없는 PR로 바꾸지 않고 범위를 알린다. 티켓 intent와 PR event의 status effect를 나누고, native automation이 처리하는 transition은 automation에 맡긴다.
-6. **시각 증거.** 사용자가 screenshot을 요청했거나 diff가 제품 화면·상호작용을 바꾸거나 저장소 규칙이 요구하면 [시각 증거 규칙](references/visual-evidence.md)을 따른다. 로컬 이미지·비디오를 넣을 때는 [미디어 첨부 규칙](references/media-attachments.md)도 따른다. UI와 무관한 변경은 스크린샷 섹션 없이 쓴다.
+6. **시각 증거.** 사용자가 screenshot을 요청했거나 diff가 제품 화면·상호작용을 바꾸거나 저장소 규칙이 요구하면 [시각 증거 규칙](references/visual-evidence.md)을 따른다. 로컬 이미지·비디오를 넣을 때는 [미디어 첨부 규칙](references/media-attachments.md)도 따르고, Draft PR 생성 전과 파일별 upload 직전에 `../../scripts/validate_attachment_manifest.py`로 [manifest를 검사한다](references/media-attachments.md#manifest를-검사한다). 종료 코드 0은 로컬 파일·기록 검사만 통과했다는 뜻이며 `manual_checks`의 내용 확인은 별도로 끝낸다. UI와 무관한 변경은 스크린샷 섹션 없이 쓴다.
 7. **게시.** `publish`에서만 실행한다. 직전에 `pr_context.py`를 다시 실행해 head SHA, remote ref와 같은 head의 기존 PR 부재를 재확인하고, 양식 출처·언어·티켓 연결·검증 상태·`target_pr_state`·필수 미디어가 현재 요청과 맞는지 대조한다. 단일 PR과 독립 PR은 [GitHub 게시 절차](references/github.md#생성하고-검증한다)를, native stack은 [stacked PR 게시 절차](references/stacked-prs.md#native-stack으로-게시하고-검증한다)를 따른다.
 8. **결과 확인.** PR과 미디어를 다시 읽어 최종 payload와 대조하고, 가능하면 canonical ticket도 다시 읽어 link와 status effect를 확인한다.
 
@@ -71,10 +71,10 @@ description: 현재 Git 변경을 주제별 단일 PR 또는 GitHub native stack
 
 ```json
 {"blockers": ["existing-pr"],
- "existing_prs": {"status": "checked", "items": [{"number": 42, "url": "https://github.com/o/r/pull/42", "is_draft": true}]}}
+ "existing_prs": {"status": "checked", "items": [{"number": 42, "url": "https://github.com/o/r/pull/42", "is_draft": true, "is_cross_repository": false}]}}
 ```
 
-같은 head의 PR #42가 이미 있다. URL과 현재 상태를 보고하고 새 PR은 만들지 않는다.
+같은 저장소 head의 PR #42가 이미 있다. URL과 현재 상태를 보고하고 새 PR은 만들지 않는다.
 
 ```json
 {"templates": {"status": "local-only", "source": null, "candidates": []},
@@ -86,6 +86,7 @@ description: 현재 Git 변경을 주제별 단일 PR 또는 GitHub native stack
 ## 경계
 
 - branch·worktree·commit 생성, branch rename, commit rewrite, rebase·squash, force push, merge는 각 담당 스킬이나 사용자의 별도 Git 작업으로 넘긴다.
+- 필요한 객체나 ref가 로컬에 없거나 오래되었으면 사용자 요청 없이 fetch·checkout·branch 전환을 하지 않고 그 상태를 blocker로 보고한다.
 - publish 시작 전에 존재하던 PR은 수정하지 않는다. 현재 publish 흐름에서 방금 만든 PR의 stack 연결, 검토한 미디어 첨부, 필수 첨부 검증 뒤 사용자가 명시한 ready 전환만 담당하며 이때 제목·티켓·reviewer·label과 다른 본문 내용은 유지한다.
 - 코드 구현, 일반적인 작업 완료, 티켓 작성, code review 또는 push 요청만으로는 이 스킬을 시작하지 않는다.
 

@@ -14,7 +14,7 @@ GitHub PR payload를 작성하거나 새 PR을 게시할 때 읽는다. 여러 P
 | merge base부터 head까지의 commit과 diff | `range` |
 | 저장소 root, linked worktree, 진행 중인 Git 작업과 staged·unstaged·untracked 변경 | `repository.worktree`, `working_tree` |
 | 적용할 PR 양식 | `templates` ([PR 템플릿 규칙](pr-template.md)) |
-| 같은 head의 open·draft PR | `existing_prs` |
+| 같은 저장소 head branch의 open·draft PR. fork의 같은 이름 branch PR은 `items`에 `is_cross_repository: true`로만 남는다. | `existing_prs` |
 
 `range`에 관련 없는 commit이나 파일이 있으면 포함 범위를 그대로 두고 보고한다. `working_tree`의 미커밋 변경은 원격 PR diff에 들어가지 않으므로 별도로 보고한다. `CONTRIBUTING`·기존 PR 관례는 직접 읽는다.
 
@@ -28,8 +28,9 @@ stack의 위층은 `--base refs/heads/<아래 branch>`로 실행한다. 이때 `
 | `operation-in-progress` | merge·rebase·cherry-pick·revert·bisect가 진행 중이다. |
 | `base-unresolved`, `no-merge-base` | base를 해석하지 못했거나 head와 공통 조상이 없다. |
 | `base-not-ancestor` | stack 위층이 아래 branch의 현재 head를 포함하지 않는다. |
-| `head-equals-base`, `empty-range` | PR로 보낼 commit이 없다. |
-| `existing-pr` | 같은 head의 PR이 이미 있다. |
+| `head-equals-base` | head와 base가 같은 branch(로컬 branch와 그 remote-tracking ref 포함)이거나 같은 commit이다. |
+| `empty-range` | PR로 보낼 commit이 없다. |
+| `existing-pr` | 같은 저장소 head branch의 PR이 이미 있다. |
 
 PR에 새 branch가 필요하면 이름을 제안만 하고 생성·rename은 사용자의 별도 Git 작업으로 넘긴다. 이름을 제안할 때는 [공통 이름 규칙](../../../references/branch-naming.md)을 읽는다. `unverified`에 있는 항목은 확인하지 못한 상태로 보고하고 그 항목에 기대는 결정을 확정하지 않는다.
 
