@@ -769,7 +769,7 @@
       "expected_sequence": [
         "workflow:branch"
       ],
-      "expected_branch_name": "feat/search-filter",
+      "expected_branch_name": "feature/search-filter",
       "installed_plugins": [
         "workflow"
       ]

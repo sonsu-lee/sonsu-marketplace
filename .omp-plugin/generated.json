@@ -103,7 +103,7 @@
     "plugins/workflow/omp/.claude-plugin/plugin.json": "c2e868d715ceabe37c515f9d1d1e6310405d7dc9920f0834aa62642a8d7d5d50",
     "plugins/workflow/omp/UPSTREAM.md": "d3af5b2fa29b3364315606050d13fd86cbcb212f7ecba5b97eca99ad4c6532d0",
     "plugins/workflow/omp/WRITING_LICENSE.md": "2e6ab9dcc884ebc57eb4b0551093a0d2cccf186b32ff495b781c50a0c2bab6b1",
-    "plugins/workflow/omp/references/branch-naming.md": "ef3d424f6abb4472399f5d97e23f4c324b1cc5425444580ddaf1a1b3e41f32e0",
+    "plugins/workflow/omp/references/branch-naming.md": "ee1b96bc3e1259006ab71a0ee937e360c1ae1d7f671b42e5594383be43fadebd",
     "plugins/workflow/omp/references/commit-message.md": "e776976080095e0e5b5ad984cf695583f8bb37b323c96f4160fa9a1a1022e3ae",
     "plugins/workflow/omp/references/continuity.md": "d7a15cb5cc0d0742d36272de2f45a1c60f8b3d45ce26aa9353368b179e63d5aa",
     "plugins/workflow/omp/references/delivery-authority.md": "09dcb8f4355528134fea1e36dbde243c871b6ac109cbb95d0216f26dbc6c6a47",
