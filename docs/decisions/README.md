@@ -55,3 +55,4 @@ Considered, Consequences와 Revisit When을 포함합니다.
 - [ADR 0023: Career 플러그인 제거](0023-remove-career-plugin.md)
 - [ADR 0024: Writing·Research·Prompting·Product의 omp 선택 배포](0024-distribute-writing-research-prompting-product-to-omp.md)
 - [ADR 0025: Engineering 리뷰 진입점 통합](0025-merge-engineering-review-entry-points.md)
+- [ADR 0026: Design Patterns를 omp opt-in 패키지로 배포](0026-ship-design-patterns-as-omp-opt-in.md)

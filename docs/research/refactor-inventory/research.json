@@ -16,6 +16,14 @@
     {
       "path": "plugins/research/skills/research/SKILL.md",
       "sha256": "459842d6e0bd539ca1512fb810ac5f4f2fea4eef788df27fa50f67d5cd73613d",
+      "sources": {
+        "plugins/research/README.md": "46d63e32c5877458a6808b5749710fab8ad94d3508167662f2c8fb1f47a31b60",
+        "plugins/research/references/continuity.md": "b939df2b0cde727e3710d0f137117eaa3ee3148d726b46a646b6df3479673f2c",
+        "plugins/research/skills/research/references/code-research.md": "883f148f8a707fbea62e85e5e43795e47bbb86015ec69734b0f51df788755838",
+        "plugins/research/skills/research/references/code-search.md": "2892a04ed4bf69b632bcfa9b5d1198689b76c9133250c6b0922b0580c10f5270",
+        "plugins/research/skills/research/references/evidence-policy.md": "09e3efb8fc64bc38bb6cabc118a4497fce17bf3944ccf6543ad5e7db2d35daee",
+        "plugins/research/skills/research/references/tool-routing.md": "4796a91bbcfadc39a910b52072409efd54f371dcc5c5680495a5008135d0333b"
+      },
       "problem": "단순 검색부터 문헌·코드 조사까지 근거 수준이 다른 자료가 섞여 검색 요약을 사실로 확정하거나 불완전한 목록을 전수 결과로 제시하기 쉽습니다.",
       "outcome": "조사 범위와 핵심 주장별 근거를 연결하고, 인용 감사 후 결론·신뢰도·상충·한계를 담은 답변이나 수정 보고서를 반환합니다.",
       "ai_judgment": "질문을 검증 가능한 주장으로 나누고, 출처 독립성·직접 지지 여부·반증의 영향을 판단합니다. 코드의 호출 경로와 실패 의미, 추가 탐색이 결론을 바꿀 가능성도 모델이 판단합니다.",

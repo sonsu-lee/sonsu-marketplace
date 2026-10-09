@@ -34,6 +34,7 @@ class FixtureRepository:
         for name, skill in (("demo", "alpha"), ("other", "gamma")):
             write_json(root / f"plugins/{name}/.codex-plugin/plugin.json", {"name": name, "skills": "./skills/"})
             write(root / f"plugins/{name}/skills/{skill}/SKILL.md", f"---\nname: {skill}\n---\n\n# {skill}\n\n본문\n")
+            write(root / f"plugins/{name}/skills/{skill}/references/guide.md", "# 안내\n\n세부 규칙\n")
         write(root / "plugins/demo/scripts/tool.py", "print('tool')\n")
         write(root / "plugins/demo/scripts/task-continuity.py", "# generated\n")
         write(root / "plugins/demo/scripts/design_md.mjs", "// generated\n")
@@ -46,9 +47,11 @@ class FixtureRepository:
         return self.root / relative
 
     def skill_entry(self, path, **overrides):
+        guide = (Path(path).parent / "references/guide.md").as_posix()
         entry = {
             "path": path,
             "sha256": digest(self.path(path)),
+            "sources": {guide: digest(self.path(guide))},
             "problem": "문제",
             "outcome": "결과",
             "ai_judgment": "판단",
@@ -58,7 +61,8 @@ class FixtureRepository:
             "verdict": "keep",
             "verdict_target": "",
             "reason": "근거",
-            "doc_findings": [{"kind": "structure", "location": f"{path}:5", "note": "지적"}],
+            "doc_findings": [{"kind": "structure", "location": f"{path}:5", "note": "지적"},
+                             {"kind": "history", "location": f"{guide}:3", "note": "이력"}],
             "example": "missing",
         }
         entry.update(overrides)
@@ -123,6 +127,11 @@ class ValidateRefactorInventoryTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn(f"violation: {code} {where}", result.stdout)
 
+    def assert_reported(self, result, code, where):
+        """traceback 없이 violation으로 보고했는지 확인한다."""
+        self.assertNotIn("Traceback", result.stderr)
+        self.assert_violation(result, code, where)
+
     def test_complete_inventory_passes(self):
         result = self.run_tool("check")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -136,6 +145,46 @@ class ValidateRefactorInventoryTest(unittest.TestCase):
         with self.repo.path("plugins/demo/skills/alpha/SKILL.md").open("a", encoding="utf-8") as file:
             file.write("추가\n")
         self.assert_violation(self.run_tool("check"), "stale", "plugins/demo/skills/alpha/SKILL.md")
+
+    def test_reference_changed_after_inventory_is_stale(self):
+        with self.repo.path("plugins/demo/skills/alpha/references/guide.md").open("a", encoding="utf-8") as file:
+            file.write("추가\n")
+        self.assert_violation(self.run_tool("check"), "stale", "plugins/demo/skills/alpha/references/guide.md")
+
+    def test_location_file_needs_source_digest(self):
+        self.repo.edit_inventory("demo", lambda data: data["skills"][0]["sources"].clear())
+        self.assert_violation(self.run_tool("check"), "invalid-field", "demo.json.skills[0].sources")
+
+    def test_source_digest_needs_location(self):
+        self.repo.edit_inventory("demo", lambda data: data["skills"][0]["doc_findings"].pop())
+        self.assert_violation(self.run_tool("check"), "invalid-field",
+                              "demo.json.skills[0].sources.plugins/demo/skills/alpha/references/guide.md")
+
+    def test_tool_outside_scripts_without_entry_is_missing(self):
+        write(self.repo.path("plugins/demo/skills/alpha/find.sh"), "#!/bin/sh\n")
+        self.assert_violation(self.run_tool("check"), "missing-entry", "plugins/demo/skills/alpha/find.sh")
+
+    def test_malformed_entries_report_violations(self):
+        cases = {
+            "skill path missing": ("demo", lambda data: data["skills"][0].pop("path"), "demo.json.skills[0].path"),
+            "script path missing": ("demo", lambda data: data["scripts"][0].pop("path"), "demo.json.scripts[0].path"),
+            "skill path list": ("demo", lambda data: data["skills"][0].update(path=["a"]), "demo.json.skills[0].path"),
+            "verdict list": ("demo", lambda data: data["skills"][0].update(verdict=["keep"]),
+                             "demo.json.skills[0].verdict"),
+            "example list": ("demo", lambda data: data["skills"][0].update(example=["present"]),
+                             "demo.json.skills[0].example"),
+            "omp current list": ("demo", lambda data: data["omp"].update(current=["default"]),
+                                 "demo.json.omp.current"),
+            "proposal list": ("demo", lambda data: data["skills"][0]["mechanical"][0].update(proposal=["script"]),
+                              "demo.json.skills[0].mechanical[0].proposal"),
+            "covers list item": ("repository", lambda data: data["evals"][0].update(covers=[["demo"]]),
+                                 "repository.json.evals[0].covers"),
+        }
+        for name, (inventory, change, where) in cases.items():
+            with self.subTest(name):
+                self.repo.write_inventory()
+                self.repo.edit_inventory(inventory, change)
+                self.assert_reported(self.run_tool("check"), "invalid-field", where)
 
     def test_location_beyond_file_length(self):
         self.repo.edit_inventory("demo", lambda data: data["skills"][0]["mechanical"][0].update(
@@ -184,10 +233,27 @@ class ValidateRefactorInventoryTest(unittest.TestCase):
             "plugins/demo/skills/beta/SKILL.md",
         ])
 
-    def test_scan_excludes_generated_scripts(self):
+    def test_scan_enumerates_tools_outside_generated_trees(self):
+        for path in ("plugins/demo/omp/scripts/copy.py", "plugins/demo/claude/hooks/capture.py",
+                     "plugins/demo/tests/check.sh", "plugins/demo/app/tests/run.js", "plugins/demo/app/dist/code.js",
+                     "plugins/demo/app/node_modules/x/index.js", "plugins/demo/app/src/code.test.ts",
+                     "plugins/demo/skills/alpha/references/test_metrics.py", "plugins/demo/skills/alpha/notes.md"):
+            write(self.repo.path(path), "x\n")
+        write(self.repo.path("plugins/demo/hooks/capture.py"), "x\n")
+        write(self.repo.path("plugins/demo/app/scripts/build.mjs"), "x\n")
+        write(self.repo.path("plugins/demo/app/src/code.ts"), "x\n")
+        write(self.repo.path("plugins/demo/skills/alpha/run"), "#!/bin/sh\n")
+        write(self.repo.path("plugins/demo/skills/alpha/references/metrics.py"), "x\n")
         result = self.run_tool("scan")
         scripts = [script["path"] for script in json.loads(result.stdout)["plugins"][0]["scripts"]]
-        self.assertEqual(scripts, ["plugins/demo/scripts/tool.py"])
+        self.assertEqual(scripts, [
+            "plugins/demo/app/scripts/build.mjs",
+            "plugins/demo/app/src/code.ts",
+            "plugins/demo/hooks/capture.py",
+            "plugins/demo/scripts/tool.py",
+            "plugins/demo/skills/alpha/references/metrics.py",
+            "plugins/demo/skills/alpha/run",
+        ])
 
     def test_recorded_omp_state_must_match_render_constants(self):
         self.repo.edit_inventory("demo", lambda data: data["omp"].update(current="default"))

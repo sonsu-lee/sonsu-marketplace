@@ -16,6 +16,7 @@
     {
       "path": "plugins/fluent-korean/codex/skills/fluent-korean/SKILL.md",
       "sha256": "e295d55cf69b0ae8aa0554bdaa1671d2dbb23c2e2d754c41c1aca26e4e3a57ee",
+      "sources": {},
       "problem": "한국어 생성·윤문에서 번역투를 줄이면서 사실·의무·가능성·기술 문자열을 보존해야 하며 Codex에는 단일 호출 경로가 필요합니다.",
       "outcome": "한국어 새 글, 요청 구간의 국소 윤문·진단 또는 변경 요약을 갖춘 파일 기반 윤문 결과를 제공합니다.",
       "ai_judgment": "장르와 격식, 실제 표현 문제, quick-rules 적용 여부, 의미·서법 보존과 최소 수정 범위를 판단합니다.",
@@ -53,6 +54,11 @@
     {
       "path": "plugins/fluent-korean/skills/fluent-korean/SKILL.md",
       "sha256": "e8f3e1844937964b81ad7ddc5981760ed7cfa7611a0c0daa31c549b4b8dc49d2",
+      "sources": {
+        "plugins/fluent-korean/skills/fluent-korean/references/ai-tell-taxonomy.md": "bce04483eff12a94e7e3570395f22813a164fd9d797528626d16896950fe49ab",
+        "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md": "df150338873906d3c1785d0b15b016053fbfb3ee521e7cb55a34a2d19352811b",
+        "plugins/fluent-korean/skills/fluent-korean/references/quick-rules.footer.md": "a5468d492216c90b349bbe0c74926b6660ca28bd946b8d8c470d1ed8b419cbf3"
+      },
       "problem": "한국어 파일 윤문에서 과도한 재작성·서법 손실·각주·수치 훼손을 통제하면서 필요한 수준의 진단과 검증을 수행해야 합니다.",
       "outcome": "light·standard·heavy별 윤문본과 진단·결정론적 게이트 결과를 반환하고 필요하면 검토를 보류합니다.",
       "ai_judgment": "지배적인 표현 패턴, 장르·격식, 문맥상 보존할 앵커와 한계, 게이트 경고의 의미 및 국소 수정 방향을 판단합니다.",
@@ -134,6 +140,22 @@
     }
   ],
   "scripts": [
+    {
+      "path": "plugins/fluent-korean/codex/skills/fluent-korean/references/metrics.py",
+      "sha256": "266800507fb67b97d9019b5f8a23a7566012b5582f06240971ae30b3a1541b17",
+      "role": "쉼표·결론 전환·한자어 접미사·어휘 다양도 등 v1.6 정량 지표 8개와 장르별 기준선 z-score·위험 등급을 계산합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "omp 단일 호출 패키지가 Codex references를 복사해 verify_change_rate.py의 metrics_v2 의존성을 해석하므로 필요합니다. Codex plugin cache가 upstream symlink를 보존하지 않아 Claude 경로와 같은 내용을 일반 파일로 둡니다."
+    },
+    {
+      "path": "plugins/fluent-korean/codex/skills/fluent-korean/references/metrics_v2.py",
+      "sha256": "342af920b7bc9ef15ebf7596e6e2c0bb57154179ccaf46727ef1ba7c4465a0f7",
+      "role": "v1.6 지표를 그대로 다시 내보내고 post-editese 3축·번역투 신호 14개와 변경률 게이트 기준 함수 change_rate를 제공합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "omp 패키지의 verify_change_rate.py가 이 사본의 change_rate를 import합니다. Claude 경로 사본과 같은 내용이며 Codex 배포 루트에 일반 파일로 있어야 합니다."
+    },
     {
       "path": "plugins/fluent-korean/scripts/build_calibration.py",
       "sha256": "dcd6ac5b5191e3aeb46a878d4a55400d912510536248928ab6fda30a7de07947",
@@ -245,6 +267,22 @@
       "verdict": "keep",
       "verdict_target": "",
       "reason": "Claude 다단계 경로에서 구조·의미 보존을 보조하는 통합 게이트로 실제 절차에 연결되어 있습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/skills/fluent-korean/references/metrics.py",
+      "sha256": "266800507fb67b97d9019b5f8a23a7566012b5582f06240971ae30b3a1541b17",
+      "role": "쉼표·결론 전환·한자어 접미사·어휘 다양도 등 v1.6 정량 지표 8개와 장르별 기준선 z-score·위험 등급을 계산합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "metrics_v2.py가 import해 8개 지표와 내부 함수를 그대로 다시 내보내고 prepare_monolith_input.py의 fallback으로도 쓰입니다. upstream이 회귀 방지를 위해 v1.6 함수를 v2에서 재정의하지 않도록 분리했으므로 합치면 고정 upstream과의 대조만 어려워집니다."
+    },
+    {
+      "path": "plugins/fluent-korean/skills/fluent-korean/references/metrics_v2.py",
+      "sha256": "342af920b7bc9ef15ebf7596e6e2c0bb57154179ccaf46727ef1ba7c4465a0f7",
+      "role": "v1.6 지표를 그대로 다시 내보내고 post-editese 3축·번역투 신호 14개와 변경률 게이트 기준 함수 change_rate를 제공합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "verify_gates·verify_change_rate·restore_modality·prepare_monolith_input이 공통으로 import하는 지표·변경률 계산의 단일 출처입니다."
     }
   ]
 }

@@ -16,6 +16,9 @@
     {
       "path": "plugins/memory-manager/skills/memory-capture/SKILL.md",
       "sha256": "173cf3e829c648f7a10c1325a88acdf235c65a431fddd9eb58ff8184e03888f7",
+      "sources": {
+        "plugins/memory-manager/README.md": "7db93408bb8c9f682f8ac4e6d675f6def627c8cf286a875d98bb32ec90e58e1f"
+      },
       "problem": "자동 수집 후보나 기존 호스트 기억을 승인된 사실처럼 저장하거나 오래된 주장을 근거 없이 덮어쓸 수 있다.",
       "outcome": "명시적으로 선택된 정보만 출처·범위를 검증해 ADD·UPDATE·SUPERSEDE·NOOP로 처리하고 실제 저장 내용을 재조회한다.",
       "ai_judgment": "주장의 장기 가치·민감성·범위와 기존 기억의 동일성·보정·대체 관계를 원문 근거로 판단한다.",
@@ -65,6 +68,7 @@
     {
       "path": "plugins/memory-manager/skills/memory-maintain/SKILL.md",
       "sha256": "987bd21b6818d3cb997c31fc007e6b7d510daebf9b282ea2d9b27a2d0cafa3ed",
+      "sources": {},
       "problem": "기억의 중복·충돌·낡은 주장·깨진 출처를 찾더라도 기계적인 후보만으로 삭제하면 고유 조건과 근거가 사라질 수 있다.",
       "outcome": "요청 범위의 기억 점검 결과와 보류 이유를 제공하고 허가된 정리에서는 보정·대체·보관·명시적 삭제를 구분한다.",
       "ai_judgment": "각 기억의 고유 조건, 현재 코드·사용자 결정과의 충돌, 출처 이동 가능성을 확인해 보존·보정·보류를 판단한다.",
@@ -113,6 +117,7 @@
     {
       "path": "plugins/memory-manager/skills/memory-promote/SKILL.md",
       "sha256": "f85bd9adf10d3062d3bc8753ad1c9ba91f8cdd02b6c5535432a3ed79be09a628",
+      "sources": {},
       "problem": "반복된 기억에서 재사용 가능한 절차를 얻으려 할 때 같은 대화의 복제나 프로젝트별 조건을 일반 규칙으로 오인할 수 있다.",
       "outcome": "독립 사례와 원출처에 근거한 목적·입력·출력·예외·검증을 갖춘 검토용 스킬 초안 또는 부족한 사례를 제공한다.",
       "ai_judgment": "사례가 독립적으로 반복됐는지와 공통으로 일반화할 절차·적용 조건·불확실성을 판단한다.",
@@ -155,6 +160,7 @@
     {
       "path": "plugins/memory-manager/skills/memory-recall/SKILL.md",
       "sha256": "340ab8119f963781508ff9a68705cf96dbcca22a63bdf9b1a2b52b6184ba5da5",
+      "sources": {},
       "problem": "현재 작업과 관련된 과거 결정·선호를 찾더라도 검색 요약이나 오래된 주장을 현재 사실·지시로 받아들일 수 있다.",
       "outcome": "관련 범위의 기억 원문과 출처를 읽고 현재 사실과 대조한 맥락만 활용하며 미검증 내용은 구분한다.",
       "ai_judgment": "과거 맥락의 관련성, 프로젝트·개인 범위와 변동 가능한 주장의 재검증 필요성을 판단한다.",
@@ -197,6 +203,14 @@
     }
   ],
   "scripts": [
+    {
+      "path": "plugins/memory-manager/hooks/capture.py",
+      "sha256": "f5977a448131019987c8e07a61d230b4895e17ef16702f8baedab9e2066e75e9",
+      "role": "host hook 이벤트에서 민감 내용과 cwd를 확인하고 memory_store의 stage_hook으로 후보 대기함에만 기록하며 3초 예산 안에서 fail-open으로 끝낸다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "장기 기억 확정 없이 후보 수집만 하는 hook 경계이며 저장·잠금 로직은 memory_store.py를 재사용한다. host를 막지 않는 시간 예산과 진단 문구만 담당하므로 현재 분리가 적절하다."
+    },
     {
       "path": "plugins/memory-manager/scripts/memory_store.py",
       "sha256": "8bb2b8c09fd3af5bf49ab693fb91e94ba4be90ecefcdaa419f7c1d6bb1923435",
