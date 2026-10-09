@@ -12,6 +12,8 @@ Engineering 계획의 REQ 추적과 근거 표기를 행동으로 확인한다. 
 | ID | 확인하는 것 |
 | --- | --- |
 | `size-s-skips-prd` | 한 문장 변경에 PRD를 만들지 않는다 |
+| `size-m-writes-prd-lite` | M 작업의 실제 초안이 PRD-lite 구조를 따른다 |
+| `non-prd-tickets-preserve-source` | PRD 없는 요구 출처에 REQ ID나 PRD 링크를 만들지 않는다 |
 | `size-m-prd-lite` | 한 기능 안 변경은 PRD-lite와 구현 계획으로 간다 |
 | `size-l-full-handoff` | 외부 계약 변경은 전체 PRD → 외부 설계 → 티켓 → 계획으로 간다 |
 | `prd-to-plan-req-column` | 계획의 흐름 표에 `요구사항` 열과 REQ ID가 있다 |
