@@ -3519,6 +3519,19 @@
       "must_not_select": ["product:to-prd", "product:product-discovery"]
     },
     {
+      "id": "diagnose-recent-failures-routes-to-worklog",
+      "prompt": "어제 Codex에서 테스트가 계속 실패했던 원인을 작업 로그로 정리해 줘.",
+      "installed_plugins": ["worklog"],
+      "expected_sequence": ["worklog:worklog-diagnose"]
+    },
+    {
+      "id": "memory-request-does-not-select-worklog",
+      "prompt": "이 결정 기억해 둬: 이 저장소 커밋 메시지는 영어로 쓴다.",
+      "installed_plugins": ["worklog", "memory-manager"],
+      "expected_sequence": ["memory-manager:memory-capture"],
+      "must_not_select": ["worklog:worklog-diagnose"]
+    },
+    {
       "id": "career-inventory-from-old-resume",
       "installed_plugins": [
         "career",

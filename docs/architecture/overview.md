@@ -15,7 +15,7 @@ Sonsu MarketplaceはCodex・Claude Code・ompのプラグインを一つのリ�
 | `.agents/plugins/marketplace.json` | 마켓플레이스 식별자와 제공할 플러그인을 등록 |
 | `plugins/<name>/.codex-plugin/plugin.json` | 개별 플러그인의 메타데이터와 구성 요소 진입점 정의 |
 | `.claude-plugin/marketplace.json`, `plugins/<name>/.claude-plugin/plugin.json` | Codex 정본에서 생성한 Claude Code 배포 메타데이터 |
-| `.omp-plugin/marketplace.json` | omp向け6件のカタログ。Codex catalogから対象だけを生成 |
+| `.omp-plugin/marketplace.json` | omp 기본 6개와 opt-in Worklog 카탈로그. Codex catalog에서 대상만 생성 |
 | `plugins/{design,workflow,fluent-korean}/omp/` | 独自runtimeを含まない、生成済みのomp専用パッケージ |
 | `plugins/<name>/skills/` | 플러그인이 제공하는 스킬 보관 |
 | `plugins/<name>/UPSTREAM.md` | 업스트림 기준 commit, 포함 범위와 로컬 차이 기록 |
@@ -37,20 +37,22 @@ Claude Code: 저장소 루트
   → skills, hooks와 지원되는 구성 요소
 omp: リポジトリルート
   → .omp-plugin/marketplace.json
-  → plugins/{workflow,design,fluent-korean}/omp または plugins/{fluent-english,fluent-japanese,career}
-  → skillsと必要な同梱資料
+  → plugins/{workflow,design,fluent-korean,worklog}/omp または plugins/{fluent-english,fluent-japanese,career}
+  → skillsと必要な同梱資料(opt-inのworklogはruntime extensionも)
 ```
 
 CodexとClaude Codeは、ほとんどのパッケージで共通のスキル・hook・scriptをそれぞれのローダーで読み込みます。
-`memory-manager`의 정본은 `plugins/memory-manager/`이며 Claude Code 배포본은 내부
-`plugins/memory-manager/claude/`에 생성합니다. 스킬·script·hook의 수정은 정본에서만 하고
+`memory-manager`와 `worklog`의 정본은 각각 `plugins/<name>/`이며 Claude Code 배포본은 내부
+`plugins/<name>/claude/`에 생성합니다. 스킬·script·hook의 수정은 정본에서만 하고
 `scripts/render-claude-compat.py`로 배포본을 갱신합니다. Codex 전용 connector 선언은 이식하지 않습니다. 구성과
 검증 절차는 [플러그인 개발 가이드](../guides/adding-a-plugin.md)에 있습니다.
 
-omp向けはWorkflow、Fluent Korean、Fluent English、Fluent Japanese、Design、Careerの6件に限ります。
+omp向けの基本構成はWorkflow、Fluent Korean、Fluent English、Fluent Japanese、Design、Careerの6件です。
+これに加えて、作業ログのWorklogをopt-inで個別にインストールできます([ADR 0022](../decisions/0022-add-worklog-plugin.md))。
 開発実行・task・todo・session・review・メモリはomp標準の機能を使い、カスタムロールの設定を追加しません。
-`scripts/render-omp-compat.py` がDesign・Workflow・Fluent Koreanの専用パッケージを生成します。
-独自runtime extension、hook、evidence gate、`task-continuity.py` は配布しません。
+`scripts/render-omp-compat.py` がDesign・Workflow・Fluent Korean・Worklogの専用パッケージを生成します。
+基本6件には独自runtime extension、hook、evidence gate、`task-continuity.py` を配布しません。
+runtime extensionはopt-inのWorklogだけが同梱し、hookはどのomp配布にも含めません。
 Fluent KoreanはCodexの単一呼び出しスキルと参考資料を投影し、現在のホストモデルを使います。
 Claude Codeの多段階・strictモードや固定Opusエージェントはomp配布に含めません。
 元パッケージのCodex・Claude Code向けファイル、English・Japaneseのスキル、Designの品質契約とプロファイル、
@@ -65,6 +67,7 @@ Workflowの権限境界は維持します。生成先の継続資料は `.sonsu`
 | UI・prototype・handoff品質とnative tool前提 | Design |
 | 경력 원본·지원 서류·면접 준비 | Career |
 | 必要に応じた調査・製品探索・文章構成 | Research・Product・Writing。基本配布に追加しない選択候補 |
+| 作業ログの記録・読み取り専用の診断 | Worklog。opt-inで個別にインストール |
 
 Engineeringのompプロファイルは直接インストールした選択・legacy利用者のgate・実行・独立レビューが
 参照するため保持します。基本6件の設定には使わず、独自セッションID注入やStop hookも提供しません。

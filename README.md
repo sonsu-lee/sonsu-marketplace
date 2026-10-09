@@ -25,12 +25,12 @@ codex plugin add engineering@sonsu-marketplace
 ```
 
 다른 플러그인은 [아래 표](#플러그인)의 설치 이름으로 바꿔 설치하세요.
-13개를 모두 설치하려면 다음 명령을 실행합니다.
+14개를 모두 설치하려면 다음 명령을 실행합니다.
 
 ```sh
 for plugin in \
   engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design career
+  writing research prompting product memory-manager design-patterns design career worklog
 do
   codex plugin add "$plugin@sonsu-marketplace"
 done
@@ -62,12 +62,12 @@ claude plugin marketplace add sonsu-lee/sonsu-marketplace
 claude plugin install engineering@sonsu-marketplace
 ```
 
-[아래 표](#플러그인)의 13개를 모두 설치하려면 다음 명령을 실행합니다.
+[아래 표](#플러그인)의 14개를 모두 설치하려면 다음 명령을 실행합니다.
 
 ```sh
 for plugin in \
   engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design career
+  writing research prompting product memory-manager design-patterns design career worklog
 do
   claude plugin install "$plugin@sonsu-marketplace"
 done
@@ -89,8 +89,8 @@ Codex connector와 Claude Code MCP 연결은 별도로 설정하며, Figma 작�
 
 ### omp
 
-omp에는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design`, `career` 6개만
-`.omp-plugin/marketplace.json`으로 배포합니다. 개발 실행·task·todo·session·review와 메모리는
+omp에는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design`, `career` 기본 6개와
+선택 설치용 `worklog`를 `.omp-plugin/marketplace.json`으로 배포합니다. 개발 실행·task·todo·session·review와 메모리는
 omp 순정 기능이 맡습니다. 로컬 변경 검증은 [개발 가이드](docs/guides/adding-a-plugin.md)의 분리 환경에서 진행합니다.
 
 마켓플레이스를 등록하고 6개를 설치합니다. 모델·effort·메모리·isolation·동시성은 기존 omp
@@ -110,6 +110,12 @@ marketplace:
 ```
 <!-- omp-preset:end -->
 
+작업 로그가 필요하면 기본 6개와 별도로 opt-in 패키지 `worklog`를 설치합니다. 도구 결과와 세션 이벤트를 로컬 JSONL로 기록하는 runtime extension과 읽기 전용 진단 스킬을 제공하며, omp용 hook은 포함하지 않습니다.
+
+```sh
+omp plugin install worklog@sonsu-marketplace
+```
+
 `marketplace.autoUpdate: auto`는 omp 시작 시 24시간보다 오래된 카탈로그의 갱신을 가능한 범위에서
 시도합니다. 설치한 플러그인의 자동 업데이트에는 카탈로그의 해당 플러그인 버전 증가가 필요합니다.
 `main`을 상시 감시하거나 실행 중 세션에 변경을 바로 적용하는 설정은 아닙니다. 새 버전을 바로 받으려면
@@ -126,9 +132,9 @@ omp plugin upgrade
 Design의 품질 계약·프로필과 native tool 전제는 유지합니다. Japanese도 omp의 기존 model·effort와
 병렬 정책을 유지하며 full 모드의 세 검토 관점은 같은 호출 안에서 확인합니다.
 
-`design`, `workflow`, `fluent-korean`은 생성된 `./plugins/<name>/omp`를 배포 원본으로 쓰고,
-English·Japanese·Career는 기존 `./plugins/<name>`을 씁니다. omp 배포에는 독자 runtime extension,
-hook, evidence gate, `task-continuity.py`를 포함하지 않습니다. 작업 연속성은 omp의 todo·session으로
+`design`, `workflow`, `fluent-korean`, `worklog`는 생성된 `./plugins/<name>/omp`를 배포 원본으로 쓰고,
+English·Japanese·Career는 기존 `./plugins/<name>`을 씁니다. 기본 6개에는 독자 runtime extension,
+hook, evidence gate, `task-continuity.py`를 포함하지 않으며, opt-in Worklog만 runtime extension을 제공합니다. 작업 연속성은 omp의 todo·session으로
 관리하며 `.sonsu`에 새 기록을 쓰지 않습니다. 자세한 내용은 [배포 생명주기](docs/architecture/plugin-lifecycle.md)를 참고하세요.
 
 | 책임 | 담당 | 배포 |
@@ -138,6 +144,7 @@ hook, evidence gate, `task-continuity.py`를 포함하지 않습니다. 작업 �
 | 언어별 문장 품질·보호 규칙 | Fluent Korean·English·Japanese | 기본 6개 |
 | UI·prototype·handoff 품질과 native tool 전제 | Design | 기본 6개 |
 | 개발자 경력 원본·지원 서류·면접 준비 | Career | 기본 6개 |
+| 원시 작업 이벤트 기록과 진단 | Worklog | opt-in |
 | 외부 조사·제품 탐색·글 구성 | Research·Product·Writing | 선택 후보. 기본 카탈로그에 추가하지 않음 |
 
 Research·Product·Writing을 추가하려면 필요한 도메인과 현재 native tool 계약을 별도로 확인합니다.
@@ -169,7 +176,7 @@ for plugin in workflow fluent-korean fluent-english fluent-japanese design caree
 
 ## 플러그인
 
-다음은 Codex·Claude Code용 전체 목록입니다. omp 배포는 위 6개로 제한합니다.
+다음은 Codex·Claude Code용 전체 목록입니다. omp 기본 배포는 위 6개이며 Worklog만 opt-in으로 추가 설치할 수 있습니다.
 
 | 플러그인 | 용도 | 설치 이름 |
 | --- | --- | --- |
@@ -186,6 +193,7 @@ for plugin in workflow fluent-korean fluent-english fluent-japanese design caree
 | [Design](plugins/design/README.md) | 일반·운영 UI의 신규 설계·재설계·감사, 디자인 레퍼런스 검색과 Figma 또는 코드 경로 | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | 실제 설계 forces에 맞는 패턴 선택과 기존 적용 검토 | `design-patterns` |
 | [Career](plugins/career/README.md) | 개발자 경력 원본 정리, 미국식 resume·履歴書·職務経歴書 작성, 면접 준비·모의면접·회고 | `career` |
+| [Worklog](plugins/worklog/README.md) | Claude Code·Codex·omp 작업의 실패·중단·교정 로그와 진단 | `worklog` |
 
 각 플러그인은 독립적으로 사용할 수 있습니다. 포함된 스킬과 상세 사용법은 위 링크에서 확인하세요.
 

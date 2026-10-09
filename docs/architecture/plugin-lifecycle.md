@@ -1,7 +1,7 @@
 # 플러그인 생명주기
 
 - Status: Current
-- Last reviewed: 2026-09-29
+- Last reviewed: 2026-10-05
 
 ## 흐름
 
@@ -47,15 +47,17 @@ Engineering은 [독립 플러그인 결정](../decisions/0009-maintain-engineeri
 
 Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-compat.py`로
 `.claude-plugin/marketplace.json` 및 각 패키지 manifest를 생성합니다. 대부분의 스킬·hook·script는
-같은 패키지 파일을 사용합니다. `memory-manager`는 네 스킬과 저장 스크립트·훅을 별도 Claude
-패키지에 생성합니다. 정리·승격 스킬만 Claude의 수동 호출 제한을 적용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
+같은 패키지 파일을 사용합니다. `memory-manager`는 네 스킬과 저장 스크립트·훅을, `worklog`는 진단
+스킬과 기록 스크립트, Claude 전용 hook 정의(`hooks/claude-hooks.json`)를 별도 Claude 패키지에
+생성합니다. memory-manager의 정리·승격 스킬만 Claude의 수동 호출 제한을 적용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
 Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 
-## ompは6件だけを配布する
+## omp는 기본 6개와 opt-in Worklog를 배포한다
 
-`python3 scripts/render-omp-compat.py` はCodex catalogの順序を保ち、`workflow`、
-`fluent-korean`、`fluent-english`、`fluent-japanese`、`design`、`career` の6件だけを
+`python3 scripts/render-omp-compat.py` はCodex catalogの順序を保ち、基本6件の `workflow`、
+`fluent-korean`、`fluent-english`、`fluent-japanese`、`design`、`career` と、opt-inの `worklog` を
 `.omp-plugin/marketplace.json` に生成します。Codex・Claude Codeの配布対象と元パッケージは変更しません。
+worklogは基本構成に含めず、必要な利用者だけが個別にインストールします。
 
 | プラグイン | omp catalogのsource |
 | --- | --- |
@@ -65,6 +67,7 @@ Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 | Fluent Japanese | `./plugins/fluent-japanese` |
 | Design | `./plugins/design/omp` |
 | Career | `./plugins/career` |
+| Worklog(opt-in) | `./plugins/worklog/omp` |
 
 Design・Workflowのomp専用パッケージは、必要なskills・references・assets・scripts・
 figma-plugin・ライセンスを元パッケージから生成し、他のプラグインに依存せずに使える形にします。
@@ -73,6 +76,11 @@ omp runtime extensionは含めません。元パッケージのhook・継続ス�
 Fluent KoreanはCodex単一呼び出しのスキル・参考資料・ライセンスを専用パッケージに生成します。
 品質不変式を保持し、現在のホストモデルを使います。Claude Codeの多段階・strictモード、固定Opusエージェントを
 要求しません。English・Japaneseのスキル、Designの品質契約・プロファイル、Workflowの操作権限境界は保持します。
+
+Worklogは[ADR 0022](../decisions/0022-add-worklog-plugin.md)によるopt-inの例外です。専用パッケージに
+診断スキルと記録スクリプトに加え、runtime extension `extension/worklog.ts` とそれを宣言する
+`package.json` を生成します。runtime extensionを配布するのはopt-inパッケージだけで、hookは配布しません。
+基本6件のパッケージにはhook・runtime extensionを含めない方針を維持します。
 
 生成先の `references/continuity.md` はomp標準のtodo・sessionによる継続を案内します。
 `.sonsu` への継続記録、復元hookやセッションID転送を独自に追加しません。
