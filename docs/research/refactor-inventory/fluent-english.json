@@ -16,6 +16,11 @@
     {
       "path": "plugins/fluent-english/skills/fluent-english/SKILL.md",
       "sha256": "366f0724139375576ed38539b4cf85d8973d403e129dcf30fc1743dd6d518f81",
+      "sources": {
+        "plugins/fluent-english/skills/fluent-english/references/preflight.md": "bf542bb76d74d23029ae8259cac4d7210e33d1404ee7d09249ea67a1fce5962d",
+        "plugins/fluent-english/skills/fluent-english/references/sources.md": "59a42a40226ad18ae8a4946801f7a4d88de646a19547b486b5dcdd6159104212",
+        "plugins/fluent-english/skills/fluent-english/references/voice-and-context.md": "a39c1915eaa730e38ed3bdc8382e48e5c3c52f2c19225defba1c45ed6ccc42b3"
+      },
       "problem": "영어 글이 독자·장르에 맞지 않게 획일화되거나 가벼운 교정에서 필자의 어조·유보·사실을 잃는 문제를 다룹니다.",
       "outcome": "요청에 맞는 영어 초안·윤문본 또는 구체적 검토 결과와 필요한 변경 설명을 반환합니다.",
       "ai_judgment": "독자·관계·목적에 맞는 어조, light-edit의 수정 필요성, 장르별 예외와 근거를 넘지 않는 구체성을 판단합니다.",

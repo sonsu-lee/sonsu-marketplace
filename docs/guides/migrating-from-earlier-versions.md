@@ -6,9 +6,10 @@
 
 이전 11개 구성이나 8개 preset을 사용했다면 다음 중 설치한 이전 플러그인을 omp에서 제거합니다.
 설치하지 않은 항목의 `not installed` 오류는 무시합니다. Codex·Claude Code 설치는 유지합니다.
+`design-patterns`는 opt-in 패키지로 계속 제공하므로 제거 목록에 없습니다.
 
 ```sh
-for plugin in engineering writing research prompting product design-patterns memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
+for plugin in engineering writing research prompting product memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
 ```
 
 이전에 등록한 `sonsu-marketplace`가 로컬 체크아웃 경로이거나 오래된 카탈로그일 수 있으므로 GitHub 소스로
@@ -20,6 +21,8 @@ omp plugin marketplace remove sonsu-marketplace
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
 for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
 ```
+
+`design-patterns`를 계속 쓰려면 다시 등록한 뒤 `omp plugin install --force design-patterns@sonsu-marketplace`로 갱신합니다.
 
 이전 preset 때문에 추가한 `skills.ignoredSkills`, `task.disabledAgents`, `task.agentModelOverrides`
 항목만 설정에서 제거하고 사용자가 별도로 설정한 항목은 유지합니다. 세션을 종료하고 omp를 다시

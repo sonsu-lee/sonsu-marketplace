@@ -48,7 +48,7 @@ Codex와 Claude Code는 대부분의 패키지에서 공통 스킬·hook·script
 검증 절차는 [플러그인 개발 가이드](../guides/adding-a-plugin.md)에 있습니다.
 
 omp 기본 구성은 Workflow, Fluent Korean, Fluent English, Fluent Japanese, Design 5개입니다.
-작업 로그용 Worklog는 opt-in으로 별도 설치할 수 있습니다([ADR 0022](../decisions/0022-add-worklog-plugin.md)).
+작업 로그용 Worklog([ADR 0022](../decisions/0022-add-worklog-plugin.md))와 설계 패턴 선택·검토용 Design Patterns([ADR 0026](../decisions/0026-ship-design-patterns-as-omp-opt-in.md))는 opt-in으로 별도 설치할 수 있습니다.
 개발 실행·task·todo·session·review·메모리는 omp 순정 기능을 쓰며, 커스텀 역할 설정을 추가하지 않습니다.
 `scripts/render-omp-compat.py`가 Design·Workflow·Fluent Korean·Worklog의 전용 패키지를 생성합니다.
 기본 5개에는 독자 runtime extension, hook, evidence gate, `task-continuity.py`를 배포하지 않습니다.
@@ -67,6 +67,7 @@ Workflow의 권한 경계는 유지합니다. 생성된 연속성 자료는 `.so
 | UI·prototype·handoff 품질과 native tool 전제 | Design |
 | 필요할 때 쓰는 조사·제품 탐색·글 구성 | Research·Product·Writing. 기본 배포에 추가하지 않는 선택 후보 |
 | 작업 로그 기록·읽기 전용 진단 | Worklog. opt-in으로 별도 설치 |
+| 설계 패턴 선택·기존 적용 검토 | Design Patterns. opt-in으로 별도 설치 |
 
 Engineering의 omp 프로필은 직접 설치해 선택한 legacy 사용자의 gate·실행·독립 리뷰가 참조하므로
 보존합니다. 기본 5개 설정에는 쓰지 않으며, 독자 세션 ID 주입이나 Stop hook도 제공하지 않습니다.

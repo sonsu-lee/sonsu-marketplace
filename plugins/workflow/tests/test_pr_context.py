@@ -1,4 +1,5 @@
 """pr_context.py가 PR 게시 판단에 필요한 상태를 정확히 수집하는지 확인한다."""
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -16,7 +17,7 @@ IDENTITY = {
     "GIT_COMMITTER_NAME": "Test", "GIT_COMMITTER_EMAIL": "test@example.com",
 }
 REPO_VIEW = {"name": "r", "owner": {"login": "o"}, "url": "https://github.com/o/r", "visibility": "PUBLIC",
-             "defaultBranchRef": {"name": "main"}}
+             "defaultBranchRef": {"name": "main"}, "isFork": False, "parent": None}
 FAKE_COMMAND = textwrap.dedent("""\
     #!{python}
     import json, os, sys
@@ -131,8 +132,26 @@ class PrContextTest(unittest.TestCase):
 
     def test_existing_pr_blocks(self):
         responses = [response("pr list", [{"number": 7, "url": "https://github.com/o/r/pull/7", "isDraft": True,
-                                           "baseRefName": "main", "headRefOid": "abc"}])] + default_responses()
+                                           "baseRefName": "main", "headRefOid": "abc",
+                                           "isCrossRepository": False}])] + default_responses()
         self.assertIn("existing-pr", self.assert_ok(responses=responses)["blockers"])
+
+    def test_cross_repository_pr_with_same_branch_name_does_not_block(self):
+        responses = [response("pr list", [{"number": 8, "url": "https://github.com/o/r/pull/8", "isDraft": False,
+                                           "baseRefName": "main", "headRefOid": "def",
+                                           "isCrossRepository": True}])] + default_responses()
+        data = self.assert_ok(responses=responses)
+        self.assertNotIn("existing-pr", data["blockers"])
+        self.assertEqual(data["existing_prs"], {"status": "checked", "items": []})
+        self.assertIn("isCrossRepository", self.gh_log.read_text(encoding="utf-8"))
+
+    def test_fork_leaves_target_and_existing_prs_unverified(self):
+        fork = dict(REPO_VIEW, isFork=True, parent={"id": "x", "name": "r", "owner": {"id": "y", "login": "up"}})
+        data = self.assert_ok(responses=[response("repo view o/r", fork)] + default_responses())
+        self.assertEqual(data["repository"]["github"]["parent"], {"owner": "up", "name": "r"})
+        self.assertEqual(data["existing_prs"], {"status": "unverified", "items": []})
+        self.assertEqual(data["unverified"], ["github-repository", "existing-prs"])
+        self.assertNotIn("pr list", self.gh_log.read_text(encoding="utf-8"))
 
     def test_offline_makes_no_gh_calls(self):
         data = self.assert_ok("--offline")
@@ -152,6 +171,24 @@ class PrContextTest(unittest.TestCase):
         blockers = self.assert_ok()["blockers"]
         self.assertIn("head-equals-base", blockers)
         self.assertIn("empty-range", blockers)
+
+    def test_unpushed_commit_on_base_branch(self):
+        self.git(self.clone, "checkout", "-q", "main")
+        self.commit(self.clone, "c.txt", "c\n", "Add c")
+        data = self.assert_ok()
+        self.assertEqual(len(data["range"]["commits"]), 1)
+        self.assertIn("head-equals-base", data["blockers"])
+
+    def test_non_utf8_path_is_escaped(self):
+        name = os.fsdecode(b"caf\xe9.txt")
+        blob = self.git(self.clone, "hash-object", "-w", "a.txt").stdout.strip()
+        self.git(self.clone, "update-index", "--add", "--cacheinfo", f"100644,{blob},{name}")
+        self.git(self.clone, "commit", "-q", "-m", "Add non-UTF-8 path")
+        result = subprocess.run([sys.executable, str(SCRIPT), "--repo", str(self.clone), "--offline"],
+                                env=self.env, capture_output=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads(result.stdout.decode("utf-8"))
+        self.assertIn(name, [item["path"] for item in data["range"]["files"]])
 
     def test_base_precedence(self):
         self.git(self.clone, "config", "branch.feature.gh-merge-base", "main")
@@ -246,6 +283,15 @@ class PrContextTest(unittest.TestCase):
         self.assertEqual(data["repository"]["github"]["host"], "github.com")
         self.assertEqual(data["repository"]["github"]["owner"], "o")
 
+    def test_https_credentials_are_removed(self):
+        self.point_origin(self.clone, "https://x-access-token:ghp_SECRET123@github.com/o/r.git")
+        result, data = self.run_tool()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(data["repository"]["remote"]["url"], "https://github.com/o/r.git")
+        self.assertEqual(data["repository"]["github"]["host"], "github.com")
+        self.assertNotIn("SECRET", result.stdout)
+        self.assertNotIn("SECRET", self.gh_log.read_text(encoding="utf-8"))
+
     def test_not_a_repository(self):
         plain = self.tmp / "plain"
         plain.mkdir()
@@ -270,6 +316,28 @@ class PrContextTest(unittest.TestCase):
         self.assertIsNone(data["head"]["remote_sha"])
         self.assertEqual(data["templates"]["status"], "local-only")
         self.assertEqual(data["unverified"], ["github-repository", "auth", "templates", "existing-prs"])
+
+
+class HelperTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location("pr_context", SCRIPT)
+        cls.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.module)
+
+    def test_single_templates_precede_directory_templates(self):
+        paths = [".github/PULL_REQUEST_TEMPLATE/bug.md", "docs/pull_request_template.md",
+                 ".github/pull_request_template/feature.md", "pull_request_template.md",
+                 ".github/pull_request_template.md"]
+        self.assertEqual(self.module.template_candidates(paths), [
+            ".github/pull_request_template.md", "pull_request_template.md", "docs/pull_request_template.md",
+            ".github/PULL_REQUEST_TEMPLATE/bug.md", ".github/pull_request_template/feature.md",
+        ])
+
+    def test_timeout_is_failure_result(self):
+        result = self.module.run([sys.executable, "-c", "import time; time.sleep(5)"], timeout=0.2)
+        self.assertEqual(result.returncode, 124)
+        self.assertIn("timed out", result.stderr)
 
 
 if __name__ == "__main__":

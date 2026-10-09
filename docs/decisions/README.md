@@ -53,3 +53,4 @@ Considered, Consequences와 Revisit When을 포함합니다.
 - [ADR 0021: 요구사항·설계·티켓·계획 하이브리드 인계](0021-use-hybrid-product-delivery-handoff.md)
 - [ADR 0022: 세 호스트 공용 작업 로그 worklog](0022-add-worklog-plugin.md)
 - [ADR 0023: Career 플러그인 제거](0023-remove-career-plugin.md)
+- [ADR 0026: Design Patterns를 omp opt-in 패키지로 배포](0026-ship-design-patterns-as-omp-opt-in.md)

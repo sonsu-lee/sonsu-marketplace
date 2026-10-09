@@ -16,6 +16,12 @@
     {
       "path": "plugins/prompting/skills/prompt-builder/SKILL.md",
       "sha256": "efbe1b3f167ec57ad50047fbc5131171c3a7dd3e2bba5600794b7e663c79d663",
+      "sources": {
+        "plugins/prompting/README.md": "9bfb64c037a9c3ff23d4632964696fa8f4dc9516a2a1c863347c7723a2468545",
+        "plugins/prompting/references/continuity.md": "0bc49b2beb756ac7ee12ca73eacf13f352fde982ad5fcc2f8de7f88fc7084328",
+        "plugins/prompting/skills/prompt-builder/references/claude-prompt-guidance.md": "64cdc2985df766b7582acaef507b636f4d15a3318101b139cecaaa164a1074f4",
+        "plugins/prompting/skills/prompt-builder/references/openai-prompt-guidance.md": "45b5e930b2e19a18d57e21d898d1515cac548cab37514dc14a391fe43027bbca"
+      },
       "problem": "장황하거나 모호한 프롬프트를 줄이는 과정에서 필수 성공 조건과 권한 경계가 사라지고, 제품별 설정을 자연어 지시로 잘못 표현할 수 있습니다.",
       "outcome": "대상 surface의 입력 칸별로 완결된 fenced block을 제공하고, 실제 사용에 필요한 API control만 별도로 반환합니다.",
       "ai_judgment": "요청의 필수 의미와 불필요한 설명을 구분하고, 산출물을 바꾸는 누락 정보만 질문합니다. 모델·제품별 차이 중 실제 동작에 영향을 주는 지시와 예시를 고르고 중복을 줄입니다.",
