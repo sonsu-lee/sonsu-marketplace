@@ -1,4 +1,4 @@
-# ADR 0023: Design Patterns를 omp opt-in 패키지로 배포
+# ADR 0026: Design Patterns를 omp opt-in 패키지로 배포
 
 - 날짜: 2026-10-10
 - 상태: 채택
