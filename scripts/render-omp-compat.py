@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Codex のメタデータから omp 専用のカタログと独立パッケージを生成する。"""
+"""Codex 메타데이터에서 omp 전용 카탈로그와 독립 패키지를 생성한다."""
 
 import argparse
 import hashlib
@@ -59,7 +59,7 @@ def fingerprint(data):
 
 
 def owned_package(package):
-    """旧生成器の完全な manifest だけを削除対象とする。"""
+    """이전 생성기가 만든 완전한 manifest만 삭제 대상으로 삼는다."""
     try:
         data = read_json(package)
     except (OSError, ValueError):
@@ -240,7 +240,7 @@ def rendered_outputs(root):
     outputs[root / ".omp-plugin/marketplace.json"] = encode({
         "name": codex["name"],
         "owner": {"name": "sonsu-lee", "url": "https://github.com/sonsu-lee"},
-        "description": "omp 用の Sonsu プラグイン",
+        "description": "omp용 Sonsu 플러그인",
         "plugins": omp_entries,
     })
     for path in outputs:

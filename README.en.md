@@ -118,7 +118,7 @@ omp plugin upgrade
 
 ## Contributing
 
-See the [plugin development guide](docs/guides/adding-a-plugin.md) for local setup, changes, and validation; report bugs or suggest improvements in [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues). Detailed guides are maintained in Korean, with the omp lifecycle section in Japanese.
+See the [plugin development guide](docs/guides/adding-a-plugin.md) for local setup, changes, and validation; report bugs or suggest improvements in [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues). Detailed guides are maintained in Korean.
 
 ## License
 

@@ -5,8 +5,8 @@
 
 ## 목적
 
-Sonsu MarketplaceはCodex・Claude Code・ompのプラグインを一つのリポジトリで管理し、
-アップストリームの出典とローカル変更を追跡するマーケットプレイスです。
+Sonsu Marketplace는 Codex·Claude Code·omp 플러그인을 한 저장소에서 관리하고, 업스트림 출처와 로컬 변경을
+추적하는 마켓플레이스입니다.
 
 ## 구성 요소
 
@@ -16,7 +16,7 @@ Sonsu MarketplaceはCodex・Claude Code・ompのプラグインを一つのリ�
 | `plugins/<name>/.codex-plugin/plugin.json` | 개별 플러그인의 메타데이터와 구성 요소 진입점 정의 |
 | `.claude-plugin/marketplace.json`, `plugins/<name>/.claude-plugin/plugin.json` | Codex 정본에서 생성한 Claude Code 배포 메타데이터 |
 | `.omp-plugin/marketplace.json` | omp 기본 6개와 opt-in Worklog 카탈로그. Codex catalog에서 대상만 생성 |
-| `plugins/{design,workflow,fluent-korean}/omp/` | 独自runtimeを含まない、生成済みのomp専用パッケージ |
+| `plugins/{design,workflow,fluent-korean}/omp/` | 독자 runtime을 포함하지 않는, 생성된 omp 전용 패키지 |
 | `plugins/<name>/skills/` | 플러그인이 제공하는 스킬 보관 |
 | `plugins/<name>/UPSTREAM.md` | 업스트림 기준 commit, 포함 범위와 로컬 차이 기록 |
 | `scripts/` | 공유 정책·연속성 참조 생성 등 저장소 유지보수 도구 |
@@ -35,45 +35,45 @@ Claude Code: 저장소 루트
   → .claude-plugin/marketplace.json
   → plugins/<name>/.claude-plugin/plugin.json
   → skills, hooks와 지원되는 구성 요소
-omp: リポジトリルート
+omp: 저장소 루트
   → .omp-plugin/marketplace.json
-  → plugins/{workflow,design,fluent-korean,worklog}/omp または plugins/{fluent-english,fluent-japanese,career}
-  → skillsと必要な同梱資料(opt-inのworklogはruntime extensionも)
+  → plugins/{workflow,design,fluent-korean,worklog}/omp 또는 plugins/{fluent-english,fluent-japanese,career}
+  → skills와 필요한 동봉 자료(opt-in Worklog는 runtime extension도 포함)
 ```
 
-CodexとClaude Codeは、ほとんどのパッケージで共通のスキル・hook・scriptをそれぞれのローダーで読み込みます。
+Codex와 Claude Code는 대부분의 패키지에서 공통 스킬·hook·script를 각자의 로더로 읽습니다.
 `memory-manager`와 `worklog`의 정본은 각각 `plugins/<name>/`이며 Claude Code 배포본은 내부
 `plugins/<name>/claude/`에 생성합니다. 스킬·script·hook의 수정은 정본에서만 하고
 `scripts/render-claude-compat.py`로 배포본을 갱신합니다. Codex 전용 connector 선언은 이식하지 않습니다. 구성과
 검증 절차는 [플러그인 개발 가이드](../guides/adding-a-plugin.md)에 있습니다.
 
-omp向けの基本構成はWorkflow、Fluent Korean、Fluent English、Fluent Japanese、Design、Careerの6件です。
-これに加えて、作業ログのWorklogをopt-inで個別にインストールできます([ADR 0022](../decisions/0022-add-worklog-plugin.md))。
-開発実行・task・todo・session・review・メモリはomp標準の機能を使い、カスタムロールの設定を追加しません。
-`scripts/render-omp-compat.py` がDesign・Workflow・Fluent Korean・Worklogの専用パッケージを生成します。
-基本6件には独自runtime extension、hook、evidence gate、`task-continuity.py` を配布しません。
-runtime extensionはopt-inのWorklogだけが同梱し、hookはどのomp配布にも含めません。
-Fluent KoreanはCodexの単一呼び出しスキルと参考資料を投影し、現在のホストモデルを使います。
-Claude Codeの多段階・strictモードや固定Opusエージェントはomp配布に含めません。
-元パッケージのCodex・Claude Code向けファイル、English・Japaneseのスキル、Designの品質契約とプロファイル、
-Workflowの権限境界は維持します。生成先の継続資料は `.sonsu` へ書き込まず、omp標準のtodo・sessionを案内します。
-生成物やインストールキャッシュの手編集は行いません。
+omp 기본 구성은 Workflow, Fluent Korean, Fluent English, Fluent Japanese, Design, Career 6개입니다.
+작업 로그용 Worklog는 opt-in으로 별도 설치할 수 있습니다([ADR 0022](../decisions/0022-add-worklog-plugin.md)).
+개발 실행·task·todo·session·review·메모리는 omp 순정 기능을 쓰며, 커스텀 역할 설정을 추가하지 않습니다.
+`scripts/render-omp-compat.py`가 Design·Workflow·Fluent Korean·Worklog의 전용 패키지를 생성합니다.
+기본 6개에는 독자 runtime extension, hook, evidence gate, `task-continuity.py`를 배포하지 않습니다.
+runtime extension은 opt-in Worklog에만 포함하고, hook은 모든 omp 배포에서 제외합니다.
+Fluent Korean은 Codex의 단일 호출 스킬과 참고 자료를 투영하고 현재 호스트 모델을 사용합니다.
+Claude Code의 다중 호출·strict 모드와 고정 Opus 에이전트는 omp 배포에 포함하지 않습니다.
+원본 패키지의 Codex·Claude Code용 파일, English·Japanese 스킬, Design의 품질 계약과 프로필,
+Workflow의 권한 경계는 유지합니다. 생성된 연속성 자료는 `.sonsu`에 쓰지 않고 omp 순정 todo·session을 안내합니다.
+생성물과 설치 캐시는 손으로 편집하지 않습니다.
 
-| ompでの責任 | 担当 |
+| omp에서의 책임 | 담당 |
 | --- | --- |
-| 開発実行・task・todo・session・review | omp標準 |
-| Git・チケット・PRの操作権限と成果物 | Workflow |
-| 言語別の文章品質・保護規則 | Fluent Korean・English・Japanese |
-| UI・prototype・handoff品質とnative tool前提 | Design |
+| 개발 실행·task·todo·session·review | omp 순정 기능 |
+| Git·티켓·PR 작업 권한과 산출물 | Workflow |
+| 언어별 문장 품질·보호 규칙 | Fluent Korean·English·Japanese |
+| UI·prototype·handoff 품질과 native tool 전제 | Design |
 | 경력 원본·지원 서류·면접 준비 | Career |
-| 必要に応じた調査・製品探索・文章構成 | Research・Product・Writing。基本配布に追加しない選択候補 |
-| 作業ログの記録・読み取り専用の診断 | Worklog。opt-inで個別にインストール |
+| 필요할 때 쓰는 조사·제품 탐색·글 구성 | Research·Product·Writing. 기본 배포에 추가하지 않는 선택 후보 |
+| 작업 로그 기록·읽기 전용 진단 | Worklog. opt-in으로 별도 설치 |
 
-Engineeringのompプロファイルは直接インストールした選択・legacy利用者のgate・実行・独立レビューが
-参照するため保持します。基本6件の設定には使わず、独自セッションID注入やStop hookも提供しません。
+Engineering의 omp 프로필은 직접 설치해 선택한 legacy 사용자의 gate·실행·독립 리뷰가 참조하므로
+보존합니다. 기본 6개 설정에는 쓰지 않으며, 독자 세션 ID 주입이나 Stop hook도 제공하지 않습니다.
 
-`main` への公開は既存のインストールへの反映を意味しません。公開・自動更新の条件と
-セッション再起動は[配布のライフサイクル](plugin-lifecycle.md)を参照してください。
+`main`에 공개해도 기존 설치에 바로 반영되지는 않습니다. 공개·자동 업데이트 조건과 세션 재시작은
+[배포 생명주기](plugin-lifecycle.md)를 참고하세요.
 
 마켓플레이스 등록은 저장소의 파일을 변경하거나 커밋하는 작업과 별개입니다. 호스트에
 등록하거나 설치하는 작업도 각각 외부 상태 변경이므로 사용자가 요청한 범위에서만 수행합니다.
