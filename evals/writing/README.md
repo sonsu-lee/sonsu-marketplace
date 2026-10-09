@@ -33,7 +33,7 @@ Writing에서 Workflow로 지침·양식을 복사하는 생성기는 없다.
 
 - [`cases.json`](cases.json): 19개. 과거 Fluent 사례를 일부 재분류했으며, 새 배포 스킬의
   모델 동작 판정은 다시 실행해야 한다.
-- [`workflow-cases.json`](workflow-cases.json): Workflow 단독 8개.
+- [`workflow-cases.json`](workflow-cases.json): Workflow 단독 14개.
 - [`composition-cases.json`](composition-cases.json): 10개. Writing+Fluent 6개, Workflow+Fluent 2개,
   Workflow+Writing 1개, 세 플러그인 함께 1개.
 - [`developer-blog-cases.json`](developer-blog-cases.json): Writing의 개발자 블로그 명시 적용 14개.
@@ -65,6 +65,12 @@ opaque ID로 바꾼다. `installed_plugins`와 `entry_skill`은 명시적 적용
 | workflow-pr-lightweight | 제목 없는 영어 한 문단으로 쓰고 "This PR"로 시작하지 않는다. |
 | workflow-ticket-japanese-space | 대상 공간 관례에 따라 일본어 본문으로 쓴다. |
 | workflow-pr-no-ci-rerunnable-checks | CI가 없어도 `make test`·`make lint` 통과와 테스트 개수를 `검증`에 쓰지 않고, Safari 수동 확인과 Firefox 미확인만 남긴다. |
+| workflow-ticket-ac-single-outcome | 바뀔 상태만으로 완료가 분명하므로 완료조건을 생략하거나 한 줄로 쓰고, lint·테스트·리뷰 항목이나 같은 뜻의 체크박스를 붙이지 않는다. |
+| workflow-ticket-ac-agreed-conditions | 세 합의 조건(숨김·재표시·데이터 불변)을 완료조건에 모두 보존하고, 팀 공통 CI·리뷰 절차는 티켓 조건으로 복제하지 않는다. |
+| workflow-ticket-ac-automated-requirement | 자동 검증 예정이어도 자기 주문만 조회·타인 주문 404 기대 동작을 보존하고, CI 통과만으로 완료라고 쓰지 않으며 같은 수동 재검수를 요구하지 않는다. |
+| workflow-ticket-ac-undefined-quality | 임의의 응답 시간·브라우저·커버리지 수치를 만들지 않고, 필요한 결정(목표 시간·회귀 범위)을 미정 사항으로 남긴다. |
+| workflow-ticket-ac-investigation | 조사 결과(원인 후보·근거·확인 범위)를 보존하고 원인 확정·특정 해결책·배포를 종료조건으로 강제하지 않는다. 판단 불가 종료 허용 여부를 임의로 정하지 않는다. |
+| workflow-ticket-ac-test-deliverable | 요청 산출물인 회귀 테스트와 합의된 검사 내용(RFC 5987 인코딩 확인)을 완료조건에 보존하며, 공통 절차 제외를 이유로 지우지 않는다. |
 | writing-fluent-* | 대응하는 단독 사례의 의미·형식 계약을 유지한다. 영어는 일상·기술 문장의 작성·윤문·검토에, 일본어는 작성·윤문과 문서 진단에 적용한다. 한국어는 새 글의 생성 규칙과 기존 글의 AI 티·번역투 윤문에 적용한다. |
 | workflow-fluent-* | Writing 없이 Workflow 양식과 Fluent 표현을 함께 적용하고 고정 제목·연결 문법·미검증 상태를 보존한다. |
 | workflow-writing-unverified | Fluent 없이 구성 지침을 적용하고 Workflow의 양식 확정 경계를 유지한다. |

@@ -458,7 +458,8 @@
       "must_include_reproduction_section": true,
       "expected_required_headings": [
         "현상",
-        "재현 정보"
+        "재현 정보",
+        "완료조건"
       ],
       "expected_omitted_headings": [
         "참고"
@@ -683,7 +684,8 @@
       "expected_omitted_headings": [
         "현상",
         "재현 정보",
-        "참고"
+        "참고",
+        "완료조건"
       ],
       "must_not_add_empty_optional_sections": true,
       "must_not_classify_readiness": true,
@@ -2049,14 +2051,14 @@
       "expected_mode": "draft",
       "expected_template": "default",
       "must_preserve_preference_vs_agreement": true,
-      "must_not_add_completion_checklist": true,
+      "must_derive_completion_from_body": true,
       "must_not_add_empty_optional_sections": true,
       "must_not_invent_implementation": true,
       "must_not_classify_readiness": true,
       "expected_required_headings": [
-        "문제",
-        "원하는 결과",
-        "참고"
+        "배경·목적",
+        "방향성·범위",
+        "전제·유의사항"
       ]
     },
     {
@@ -2073,13 +2075,13 @@
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
       "expected_required_headings": [
-        "문제",
-        "원하는 결과"
+        "배경·목적",
+        "방향성·범위"
       ],
       "expected_omitted_headings": [
-        "참고"
+        "전제·유의사항"
       ],
-      "must_not_add_completion_checklist": true,
+      "must_derive_completion_from_body": true,
       "must_not_invent_implementation": true
     },
     {
@@ -2104,7 +2106,8 @@
       },
       "expected_required_headings": [
         "현상",
-        "재현 정보"
+        "재현 정보",
+        "완료조건"
       ],
       "expected_omitted_headings": [
         "참고"
@@ -2129,7 +2132,8 @@
       "expected_template": "bug",
       "expected_required_headings": [
         "현상",
-        "재현 정보"
+        "재현 정보",
+        "완료조건"
       ],
       "expected_omitted_headings": [
         "참고"
@@ -2191,9 +2195,9 @@
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
       "expected_required_headings": [
-        "문제",
-        "원하는 결과",
-        "참고"
+        "배경·목적",
+        "방향성·범위",
+        "전제·유의사항"
       ],
       "must_preserve_preference_vs_agreement": true,
       "must_summarize_external_decisions": true,
@@ -2213,8 +2217,9 @@
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
       "expected_required_headings": [
-        "문제",
-        "원하는 결과"
+        "배경·목적",
+        "방향성·범위",
+        "완료조건"
       ],
       "must_preserve_whole_completion": true,
       "must_not_invent_implementation": true
