@@ -71,9 +71,9 @@ git push -u origin "$FEATURE_BRANCH"
 
 승인된 기준점을 대상으로 코드 호스팅 도구로 PR을 만들고 저장소 템플릿·관례를 따른다. 원격 저장소 상태와 URL을 읽어 확인해 보고한다. 푸시가 거부되면 원인을 확인하고 강제 푸시 권한을 추정하지 않는다. PR 후에는 피드백 반영을 위해 작업 공간을 유지한다.
 
-기준 티켓이 있으면 provider·canonical URL과 이번 PR의 `complete`·`contribute`·`relate` 의도를 확인해 PR 본문에서 연결한다. 연결을 위해 branch 이름이나 PR 제목에 ID를 추가하지 않는다. GitHub Issues는 자동 링크되는 `#123` 또는 `owner/repository#123`을 쓰고, Linear는 `Part of [ENG-123](<canonical URL>)`처럼 magic word 뒤의 ID에 확인된 URL을 링크한다. URL을 확인할 수 없으면 추측해 만들지 않는다.
+기준 티켓이 있으면 provider·canonical URL과 이번 PR의 `complete`·`contribute`·`relate` 의도를 확인해 PR 본문에서 연결한다. 연결을 위해 branch 이름이나 PR 제목에 ID를 추가하지 않는다. GitHub Issues는 자동 링크되는 `#123` 또는 `owner/repository#123`을 쓰고, Linear는 [공식 문법](https://linear.app/docs/github#magic-words)의 `magic word + 확인된 issue URL`을 쓴다. 예: `Part of https://linear.app/<workspace>/issue/ENG-123`. URL을 확인할 수 없으면 추측해 만들지 않는다.
 
-티켓의 완료 조건을 모두 충족하는 PR에만 provider의 종결 문법을 쓴다. 부분 PR이나 merge 뒤 release·deployment 등 남은 작업이 있으면 `Part of` 등 비종결 표현을 사용한다. 현재 repository·team 설정에서 제목·기존 branch·포함 commit의 종료 신호와 PR 이벤트 자동화가 이 의도와 충돌해 티켓을 조기 완료시킬 수 있으면 게시를 보류한다. 게시 뒤 PR과 기준 티켓을 다시 읽어 연결과 상태 효과를 별도로 확인한다. 자동화를 상태 변경의 단일 소유자로 두고, 실제 효과를 확인할 수 없으면 `unknown`으로 보고하며 직접 상태를 바꾸지 않는다.
+티켓의 완료 조건을 모두 충족하는 PR에만 provider의 종결 문법을 쓴다. 부분 PR이나 merge 뒤 release·deployment 등 남은 작업이 있으면 GitHub Issues에는 `Refs #123` 같은 일반 참조를, Linear에는 `Part of`와 확인된 URL을 사용한다. Linear의 단순 관련은 `Related to`와 URL로 표현하며 상태 변경을 의도하지 않는다. 현재 repository·team 설정에서 제목·기존 branch·포함 commit의 종료 신호와 PR 이벤트 자동화가 이 의도와 충돌해 티켓을 조기 완료시킬 수 있으면 게시를 보류한다. 게시 뒤 PR과 기준 티켓을 다시 읽어 연결과 상태 효과를 별도로 확인한다. 자동화를 상태 변경의 단일 소유자로 두고, 실제 효과를 확인할 수 없으면 `unknown`으로 보고하며 직접 상태를 바꾸지 않는다.
 
 ### 현재 상태 보존
 

@@ -455,15 +455,6 @@
       "id": "bug-intake-without-cause",
       "prompt": "Windows 11 Chrome에서 CSV를 다운로드하면 한글 이름이 깨진다는 고객 보고가 있어. 원인과 정확한 재현 절차는 아직 몰라. 버그 티켓 초안을 한국어로 작성해 줘.",
       "expected_template": "bug",
-      "must_include_reproduction_section": true,
-      "expected_required_headings": [
-        "현상",
-        "재현 정보",
-        "완료조건"
-      ],
-      "expected_omitted_headings": [
-        "참고"
-      ],
       "must_not_classify_readiness": true,
       "must_not_invent_cause_or_acceptance": true,
       "installed_plugins": [
@@ -680,13 +671,6 @@
       "id": "workflow-alone-does-not-install-fluent",
       "prompt": "고객이 CSV 한글 깨짐을 보고했어. 접수용 한국어 티켓 초안을 만들어 줘.",
       "expected_template": "bug",
-      "expected_required_headings": [],
-      "expected_omitted_headings": [
-        "현상",
-        "재현 정보",
-        "참고",
-        "완료조건"
-      ],
       "must_not_add_empty_optional_sections": true,
       "must_not_classify_readiness": true,
       "must_not_assume_plugin_dependency": true,
@@ -701,8 +685,7 @@
       "expected_mode": "draft",
       "must_not_select": [
         "workflow:ticket-lifecycle"
-      ],
-      "expected_headerless": true
+      ]
     },
     {
       "id": "restored-incident-does-not-close-problem",
@@ -2054,12 +2037,7 @@
       "must_derive_completion_from_body": true,
       "must_not_add_empty_optional_sections": true,
       "must_not_invent_implementation": true,
-      "must_not_classify_readiness": true,
-      "expected_required_headings": [
-        "배경·목적",
-        "방향성·범위",
-        "전제·유의사항"
-      ]
+      "must_not_classify_readiness": true
     },
     {
       "id": "general-ticket-without-reference-material",
@@ -2074,13 +2052,6 @@
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
-      "expected_required_headings": [
-        "배경·목적",
-        "방향성·범위"
-      ],
-      "expected_omitted_headings": [
-        "전제·유의사항"
-      ],
       "must_derive_completion_from_body": true,
       "must_not_invent_implementation": true
     },
@@ -2104,15 +2075,6 @@
           "available": true
         }
       },
-      "expected_required_headings": [
-        "현상",
-        "재현 정보",
-        "완료조건"
-      ],
-      "expected_omitted_headings": [
-        "참고"
-      ],
-      "must_include_reproduction_section": true,
       "must_preserve_actual_and_expected": true,
       "must_include_reproduction_media": true,
       "must_not_repeat_expected_behavior": true
@@ -2130,14 +2092,6 @@
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "bug",
-      "expected_required_headings": [
-        "현상",
-        "재현 정보",
-        "완료조건"
-      ],
-      "expected_omitted_headings": [
-        "참고"
-      ],
       "must_preserve_actual_and_expected": true,
       "must_preserve_request_response": true,
       "must_not_require_visual_media": true,
@@ -2156,7 +2110,6 @@
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "bug",
-      "must_include_reproduction_section": true,
       "must_not_split_investigation": true,
       "must_not_invent_reproduction_media": true,
       "must_not_repeat_expected_behavior": true
@@ -2174,10 +2127,6 @@
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "investigation",
-      "expected_required_headings": [
-        "확인할 질문",
-        "남길 결과"
-      ],
       "must_not_invent_deliverable_format": true,
       "must_not_invent_implementation": true
     },
@@ -2194,11 +2143,6 @@
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
-      "expected_required_headings": [
-        "배경·목적",
-        "방향성·범위",
-        "전제·유의사항"
-      ],
       "must_preserve_preference_vs_agreement": true,
       "must_summarize_external_decisions": true,
       "must_not_invent_implementation": true
@@ -2216,11 +2160,6 @@
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "expected_template": "default",
-      "expected_required_headings": [
-        "배경·목적",
-        "방향성·범위",
-        "완료조건"
-      ],
       "must_preserve_whole_completion": true,
       "must_not_invent_implementation": true
     },
@@ -2244,6 +2183,42 @@
       "must_limit_update_to_content": true
     },
     {
+      "id": "pr-required-ai-disclosure-without-consent",
+      "prompt": "한국어 PR 초안만 작성해 줘. 게시나 조회는 하지 마. 실패 응답까지 캐시하던 것을 성공 응답만 캐시하도록 바꿨어. AI 도움을 받았지만 공개 표기는 요청하지 않았어. 아래의 필수 양식은 보존해 줘.",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-pr"],
+      "expected_mode": "draft",
+      "expected_remote_action": "none",
+      "fixture": {
+        "base": "main",
+        "head": "abc123",
+        "existing_pr": "absent",
+        "repository_template": "## 이유\n\n## 변경\n\n## AI 사용 공개\n<!-- 필수: AI 사용 여부와 도구명 -->",
+        "repository_policy": "AI 사용 여부와 도구명 공개는 필수이며 생략을 허용하지 않는다."
+      },
+      "must_preserve_template_headings": true,
+      "must_report_conflict": true,
+      "must_not_add_ai_attribution": true,
+      "must_not_claim_publication_ready": true
+    },
+    {
+      "id": "ticket-required-ai-disclosure-without-consent",
+      "prompt": "한국어 GitHub Issue 초안만 작성해 줘. 게시나 조회는 하지 마. 다운로드한 CSV에서 한글이 깨지고 원문대로 보여야 해. 원인·환경·재현 단계는 미확인이야. AI 도움을 받았지만 공개 표기는 요청하지 않았어. 아래의 필수 양식은 보존해 줘.",
+      "installed_plugins": ["workflow"],
+      "expected_sequence": ["workflow:to-ticket"],
+      "expected_action": "create",
+      "expected_mode": "draft",
+      "expected_remote_action": "none",
+      "fixture": {
+        "repository_template": "## 현상\n\n## 기대 동작\n\n## AI 사용 공개\n<!-- 필수: AI 사용 여부와 도구명 -->",
+        "repository_policy": "AI 사용 여부와 도구명 공개는 필수이며 생략을 허용하지 않는다."
+      },
+      "must_preserve_template_headings": true,
+      "must_report_conflict": true,
+      "must_not_add_ai_attribution": true,
+      "must_not_claim_publication_ready": true
+    },
+    {
       "id": "pr-default-form-keeps-non-ci-notes",
       "installed_plugins": [
         "workflow"
@@ -2265,16 +2240,6 @@
         "ci_coverage": "unit tests",
         "related_ticket": "none"
       },
-      "expected_required_headings": [
-        "배경",
-        "변경 사항",
-        "검증"
-      ],
-      "expected_omitted_headings": [
-        "참고",
-        "관련 작업",
-        "스크린샷 및 영상"
-      ],
       "must_preserve_manual_verification": true,
       "must_not_claim_ci_success": true,
       "must_keep_publication_procedure_outside_body": true,
@@ -2302,17 +2267,9 @@
         "related_ticket": "none",
         "media": "no captures yet"
       },
-      "expected_required_headings": [
-        "배경",
-        "변경 사항",
-        "스크린샷 및 영상"
-      ],
       "must_not_claim_media_uploaded": true,
       "must_report_missing_required_media": true,
       "must_keep_publication_procedure_outside_body": true,
-      "expected_omitted_headings": [
-        "참고"
-      ],
       "must_only_state_missing_media_in_body": true
     },
     {
@@ -2333,11 +2290,6 @@
         "visual_regression": "accessible current-head actual and diff artifacts cover the changed 390px state",
         "related_ticket": "none"
       },
-      "expected_required_headings": [
-        "배경",
-        "변경 사항",
-        "스크린샷 및 영상"
-      ],
       "must_report_missing_required_media": true,
       "must_not_claim_media_uploaded": true,
       "must_not_repeat_ci_checks": true
@@ -2360,11 +2312,6 @@
         "related_ticket": "https://linear.app/example/issue/ENG-123",
         "remaining_work": "apply confirmation and second PR"
       },
-      "expected_required_headings": [
-        "배경",
-        "변경 사항",
-        "관련 작업"
-      ],
       "expected_ticket_intent": "contribute",
       "must_use_nonclosing_ticket_reference": true,
       "must_not_claim_ticket_complete": true,
@@ -3471,7 +3418,6 @@
         "workflow:to-pr"
       ],
       "expected_mode": "draft",
-      "expected_headerless": true,
       "expected_output_language": "en"
     },
     {

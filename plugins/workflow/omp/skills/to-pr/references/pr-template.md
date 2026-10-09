@@ -24,7 +24,7 @@ target repository에서 유효한 PR template을 찾지 못했으면 base 저장
 
 공식 참고: [GitHub PR template 만들기](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository), [PR template 개요](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/about-issue-and-pull-request-templates), [account-level default community health file](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file)
 
-`CONTRIBUTING`, `AI_POLICY.md`, `AGENTS.md`에 PR 본문 요구(AI 사용 공개 등)가 있으면 양식의 필수 항목과 같이 다룬다.
+`CONTRIBUTING`, `AI_POLICY.md`, `AGENTS.md`의 PR 본문 요구는 양식의 필수 항목과 같이 확인한다. 다만 AI 공개 요구는 [공통 AI 사용 표기 규칙](../../../references/tracker-prose.md#ai-사용-표기)에 따라 작성 권한과 충돌을 처리하며 자동으로 채우지 않는다.
 
 ## 관련 템플릿 하나를 선택한다
 
@@ -49,6 +49,8 @@ target repository에서 유효한 PR template을 찾지 못했으면 base 저장
 4. 근거가 없으면 영어를 사용한다. 대화 언어와 결과 보고 언어는 PR 언어의 근거가 아니다.
 
 저장소 template에 이미 있는 제목, checklist와 고정 안내 문구는 번역하지 않는다. 채워 넣는 내용만 결정된 PR 언어로 작성한다. template이 특정 언어로 전체 작성을 요구하면 그 지시를 따른다. 코드, 명령어, 로그, identifier, ticket ID와 URL은 번역하지 않는다. 다른 언어 플러그인이나 스킬이 설치되었다고 가정하지 않는다.
+
+고정 제목이 한국어나 일본어라는 사실만으로 자유 설명의 언어를 정하지 않는다. 전체 작성 언어를 요구하는 지침이나 위의 언어 근거가 없으면 고정 제목은 원문대로 보존하고 자유 설명은 영어로 쓴다.
 
 ## 기본 템플릿 적용 조건을 확인한다
 
