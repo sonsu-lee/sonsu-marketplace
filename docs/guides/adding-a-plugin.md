@@ -15,6 +15,7 @@ cd sonsu-marketplace
 
 Codex 데스크톱 앱은 이 저장소의 `.agents/plugins/marketplace.json`을 발견합니다.
 하지만 같은 이름의 Git 등록본이 있으면 로컬 플러그인 변경이 가려질 수 있습니다.
+로컬 카탈로그와 Git 등록본이 모두 표시돼도 로컬 변경이 로드됐다는 뜻은 아닙니다.
 Codex CLI에서 현재 체크아웃을 시험할 때는 Git 등록본이 없는 별도 설정에서 로컬 경로를
 명시적으로 등록합니다. 저장소 루트에서 다음 명령을 실행하세요.
 
@@ -36,6 +37,7 @@ claude plugin marketplace list
 
 GitHub 소스와 로컬 경로는 같은 `sonsu-marketplace` 식별자를 사용합니다. 실제 등록·설치
 검증은 기존 사용자 설정과 분리된 환경에서 진행하세요.
+설치·업데이트 뒤에는 Codex의 새 작업 또는 Claude Code의 새 세션에서 최신 스킬을 확인합니다.
 omp는 이름 있는 profile로 기존 사용자 설정과 분리합니다. profile은 마켓플레이스 등록, 설치 플러그인,
 설정과 인증을 `~/.omp/profiles/<name>/`에 따로 둡니다. 저장소 루트에서 다음을 실행합니다.
 
@@ -127,7 +129,7 @@ Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude
 배포 대상 플러그인의 변경을 게시할 때는 해당 플러그인의 카탈로그 버전도 올립니다.
 `marketplace.autoUpdate: auto` 업데이트는 omp 시작 시 오래된 카탈로그를 가져오는 것이 전제이며
 같은 버전의 캐시를 실행 중에 바꾸는 기능은 아닙니다. 이전 구성의 제거와 설정 정리는
-[README](../../README.md#omp)를 참고하세요. 정리 뒤 세션을 재시작해 이전 hook·agent를 해제합니다.
+[이전 버전에서 이동하기](migrating-from-earlier-versions.md#이전-omp-구성에서-이동)를 참고하세요. 정리 뒤 세션을 재시작해 이전 hook·agent를 해제합니다.
 
 ## 검증
 

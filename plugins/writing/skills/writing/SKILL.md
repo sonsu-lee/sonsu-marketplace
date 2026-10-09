@@ -50,7 +50,7 @@ Workflow가 맡으며, 각 플러그인은 단독으로 쓰거나 필요한 지�
 
 | 작성 대상 | 참고 자료 |
 | --- | --- |
-| README | [처음 읽는 사람의 이해와 실행](references/readme.md) |
+| README | [표준 구성·제외 항목·갱신 기준](references/readme.md) |
 | 코드·API 주석 | [호출 계약, 이유와 유지보수 정보](references/comments.md) |
 | 동료에게 보낼 요청·보고·인계 | [메시지의 요청과 맥락](references/messages.md) |
 

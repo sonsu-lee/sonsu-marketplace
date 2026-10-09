@@ -31,7 +31,7 @@ Writing에서 Workflow로 지침·양식을 복사하는 생성기는 없다.
 
 ## 명시적 지침 적용 사례
 
-- [`cases.json`](cases.json): 19개. 과거 Fluent 사례를 일부 재분류했으며, 새 배포 스킬의
+- [`cases.json`](cases.json): 20개. 과거 Fluent 사례를 일부 재분류했으며, 새 배포 스킬의
   모델 동작 판정은 다시 실행해야 한다.
 - [`workflow-cases.json`](workflow-cases.json): Workflow 단독 14개.
 - [`composition-cases.json`](composition-cases.json): 10개. Writing+Fluent 6개, Workflow+Fluent 2개,
@@ -54,6 +54,7 @@ opaque ID로 바꾼다. `installed_plugins`와 `entry_skill`은 명시적 적용
 | ja-fixed-pr | 지정 제목·순서·marker·Part of 행과 실기 미확인을 보존한다. |
 | ja-meaning | Fluent만으로 미기록·실제 행위자 불명·배정된 A의 실행 미확인을 구분한다. |
 | en-readme | 용도·전제·명령·결과, Python 3.9+, 원문 명령, 종료값 0/1과 입력 무변경을 보존한다. |
+| en-readme-standard-scope | 제목·한 줄 설명·설치·사용·구성 요소·문서/도움·기여·라이선스 순서를 지키고 라이선스를 마지막에 둔다. 첫 사용 명령·확인된 출력·입력 무변경을 보존하며 Logcount는 목적과 링크 한 행/줄로 소개한다. 상세 구조·이전 절차·옵션·조합·평가·로컬 실험을 복제하지 않고 담당 문서로 연결한다. |
 | en-comments | Fluent만으로 signature와 최초 일치·없으면 None·대소문자 구분을 모두 유지한다. |
 | ja-message | 조사 요청·어제 한 번·원인 미확인을 보존하고 기한·해결책을 만들지 않는다. |
 | ko-summary | 실행용 절차가 아닌 개요로 원본 링크·조건·복구 의미를 보존한다. |

@@ -76,18 +76,32 @@ omp runtime extensionは含めません。元パッケージのhook・継続ス�
 Fluent KoreanはCodex単一呼び出しのスキル・参考資料・ライセンスを専用パッケージに生成します。
 品質不変式を保持し、現在のホストモデルを使います。Claude Codeの多段階・strictモード、固定Opusエージェントを
 要求しません。English・Japaneseのスキル、Designの品質契約・プロファイル、Workflowの操作権限境界は保持します。
+Designのnative tool前提も保持します。Japaneseはomp既存のmodel・effort・並列実行方針を使い、
+fullモードの三つのレビュー観点も同じ呼び出し内で確認します。
 
 Worklogは[ADR 0022](../decisions/0022-add-worklog-plugin.md)によるopt-inの例外です。専用パッケージに
 診断スキルと記録スクリプトに加え、runtime extension `extension/worklog.ts` とそれを宣言する
 `package.json` を生成します。runtime extensionを配布するのはopt-inパッケージだけで、hookは配布しません。
 基本6件のパッケージにはhook・runtime extensionを含めない方針を維持します。
+Worklogのextensionはツール結果とセッションイベントをローカルJSONLに記録し、診断スキルは読み取り専用です。
 
 生成先の `references/continuity.md` はomp標準のtodo・sessionによる継続を案内します。
 `.sonsu` への継続記録、復元hookやセッションID転送を独自に追加しません。
-開発実行・task・todo・session・reviewはomp標準、Workflow・言語3件・Design・Careerはドメイン契約を担当します。
-Research・Product・Writingは必要に応じた選択候補として扱い、基本catalogには追加しません。
-カスタムロール用の `task.agentModelOverrides` も要求しません。Engineeringのompモデルプロファイルは
-直接インストールした選択・legacy利用者の既存consumer向けに保持し、基本構成から切り離します。
+スキルは `/skill:commit` のようにプラグイン接頭辞なしで呼び出します。model・effort・memory・
+isolation・同時実行数は既存のomp設定を使い、カスタムロールの `task.agentModelOverrides` は追加しません。
+
+| 責任 | 担当 | 配布 |
+| --- | --- | --- |
+| 開発実行・task・todo・session・review・メモリ | omp標準 | ホスト機能 |
+| Git・チケット・PR操作の権限と成果物 | Workflow | 基本6件 |
+| 言語別の文章品質・保護規則 | Fluent Korean・English・Japanese | 基本6件 |
+| UI・prototype・handoff品質とnative tool前提 | Design | 基本6件 |
+| 経歴原本・応募書類・面接準備 | Career | 基本6件 |
+| 生の作業イベントの記録と診断 | Worklog | opt-in |
+| 外部調査・製品探索・文章構成 | Research・Product・Writing | 選択候補。基本catalogには追加しない |
+
+Research・Product・Writingを追加する場合は、必要なドメインと現在のnative tool契約を別途確認します。
+Engineeringのompモデルプロファイルは直接インストールした既存利用者向けに保持し、基本構成には適用しません。
 
 生成物は直接編集しません。生成器は `--check` で内容・実行権限の鮮度と不要な旧生成物を確認し、
 通常実行では自身が生成したと確認できる旧extensionの `package.json`・`extension.ts` だけを整理します。
@@ -98,12 +112,15 @@ Research・Product・Writingは必要に応じた選択候補として扱い、�
 生成・検証・コミットと、GitHubへの公開、利用環境への反映は別の操作です。
 ローカル変更だけで既存のGitHub登録先やインストール済みパッケージが更新されたとは扱いません。
 
-利用者は `~/.omp/agent/config.yml` の `marketplace.autoUpdate` を `auto` に設定できます。
+自動更新の既存設定は維持します。新たに自動更新を選ぶ場合だけ、READMEのYAMLを
+`~/.omp/agent/config.yml` の既存の `marketplace:` 項目へ統合し、`marketplace.autoUpdate` を `auto` にします。
 ompは起動時に24時間より古いカタログの更新を可能な範囲で試みます。インストール済みプラグインを
 自動更新するには、配布するカタログ内の対象プラグインのバージョンを上げる必要があります。
 同じバージョンのまま `main` を変更しても自動更新の条件にはなりません。常時監視やホットリロードでもありません。
+新しいバージョンをすぐに反映する場合は `omp plugin marketplace update sonsu-marketplace` の後に
+`omp plugin upgrade` を実行します。
 
-旧構成のアンインストールと不要設定の除去は[READMEの移行手順](../../README.md#omp)に従います。
+旧構成のアンインストールと不要設定の除去は[移行ガイド](../guides/migrating-from-earlier-versions.md#이전-omp-구성에서-이동)に従います。
 整理後はセッションを終了してompを再起動し、読み込み済みの旧hook・agentを外します。
 
 ## 검증

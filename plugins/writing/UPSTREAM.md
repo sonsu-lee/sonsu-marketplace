@@ -78,3 +78,12 @@ Julia Evans의 [어려움에서 주제 찾기](https://jvns.ca/blog/2021/05/24/b
 [퇴고 점검](references/revision.md)의 혼란 패턴은 [Julia Evans의 글](https://jvns.ca/blog/confusing-explanations/)에서 골랐다.
 [토스 테크니컬 라이팅 가이드](https://technical-writing.dev/)는 링크만 두며 번안하지 않았다(CC BY-NC-SA).
 모든 문장은 직접 썼고 외부 문장을 복사하지 않았다.
+
+## README 표준 구성의 출처 (2026-10-05)
+
+[GitHub의 README 안내](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes)에서
+용도·시작 방법·도움·기여 안내를 입구에 두고 긴 설명은 상세 문서로 분리하는 원칙을 참고했다.
+[standard-readme 명세](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)(MIT)의
+절 순서와 선택 항목을 [README 지침](skills/writing/references/readme.md)에 맞게 번안했다.
+외부 문장·양식을 복사하지 않았으며 제외 목록과 갱신 기준은 README 누적을 막기 위한 로컬 정책이다.
+프로젝트 관례와 사용자 지정 양식이 우선하며, 명세를 그대로 준수한다고 주장하지 않는다.

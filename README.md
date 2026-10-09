@@ -3,100 +3,40 @@
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
 개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex·Claude Code·omp 플러그인 모음입니다.
-필요한 플러그인만 골라 설치하고, 사용하는 코딩 에이전트에 평소처럼 작업을 요청하세요.
-
-[설치](#설치) · [플러그인](#플러그인) · [사용 예시](#사용-예시) · [문서](docs/README.md)
 
 ## 설치
 
 ### Codex
 
-`codex plugin` 명령을 지원하는 Codex CLI에서 GitHub 마켓플레이스를 한 번 등록합니다.
-이미 등록했다면 이 단계는 생략하세요.
+`codex plugin`을 지원하는 CLI에서 한 번 등록하고 필요한 플러그인 하나 또는 전체를 설치합니다. 목록에 설치 상태가 표시되면 새 Codex 작업을 시작하세요.
 
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
-```
-
-필요한 플러그인만 설치합니다. 예를 들어 개발 작업에는 Engineering을 사용할 수 있습니다.
-
-```sh
+# 하나만 설치
 codex plugin add engineering@sonsu-marketplace
-```
-
-다른 플러그인은 [아래 표](#플러그인)의 설치 이름으로 바꿔 설치하세요.
-14개를 모두 설치하려면 다음 명령을 실행합니다.
-
-```sh
-for plugin in \
-  engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design career worklog
-do
-  codex plugin add "$plugin@sonsu-marketplace"
-done
-```
-
-등록된 소스와 각 플러그인의 설치 상태를 확인한 뒤 새 Codex 작업을 시작하세요.
-
-```sh
+# 전체 설치 시 위 단일 설치 대신 실행
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design career worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
 codex plugin marketplace list
 codex plugin list --marketplace sonsu-marketplace
 ```
 
-Codex 데스크톱 앱에서 이 저장소를 열면 `.agents/plugins/marketplace.json`의 로컬 카탈로그도
-표시될 수 있습니다. 같은 이름의 Git 등록본이 있으면 로컬 플러그인 변경이 가려질 수 있으므로,
-두 항목이 보인다는 사실만으로 로컬 변경이 적용됐다고 판단하지 마세요. 현재 체크아웃은
-Git 등록본이 없는 환경에서 [로컬 등록 절차](docs/guides/adding-a-plugin.md#로컬-개발-환경)로 시험하세요.
-
 ### Claude Code
 
-Claude Code CLI에서는 GitHub 마켓플레이스를 한 번 등록합니다. 이미 등록했다면 생략하세요.
+마켓플레이스는 한 번만 등록하고 필요한 플러그인 하나 또는 전체를 설치합니다. 목록에서 설치 상태를 확인한 뒤 새 세션을 시작하세요.
 
 ```sh
 claude plugin marketplace add sonsu-lee/sonsu-marketplace
-```
-
-필요한 플러그인만 설치합니다. 예를 들어 Engineering을 설치하려면 다음과 같이 실행합니다.
-
-```sh
+# 하나만 설치
 claude plugin install engineering@sonsu-marketplace
-```
-
-[아래 표](#플러그인)의 14개를 모두 설치하려면 다음 명령을 실행합니다.
-
-```sh
-for plugin in \
-  engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design career worklog
-do
-  claude plugin install "$plugin@sonsu-marketplace"
-done
-```
-
-등록된 마켓플레이스와 설치 상태를 확인하세요.
-
-```sh
+# 전체 설치 시 위 단일 설치 대신 실행
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design career worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
 claude plugin marketplace list
 claude plugin list
 ```
 
-현재 체크아웃을 시험할 때에는 저장소 루트에서 `claude plugin marketplace add "$(pwd -P)"`로
-로컬 경로를 등록합니다. GitHub 소스와 이름이 `sonsu-marketplace`로 같으므로 사용할 소스
-하나를 선택하세요.
-스킬은 `/engineering:review`처럼 호출합니다. 설치·업데이트 후 새 세션에서 확인하세요.
-Codex connector와 Claude Code MCP 연결은 별도로 설정하며, Figma 작업에는 현재 호스트의
-공식 Figma 도구 연결이 필요합니다.
-
 ### omp
 
-omp에는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design`, `career` 기본 6개와
-선택 설치용 `worklog`를 `.omp-plugin/marketplace.json`으로 배포합니다. 개발 실행·task·todo·session·review와 메모리는
-omp 순정 기능이 맡습니다. 로컬 변경 검증은 [개발 가이드](docs/guides/adding-a-plugin.md)의 분리 환경에서 진행합니다.
-
-마켓플레이스를 등록하고 6개를 설치합니다. 모델·effort·메모리·isolation·동시성은 기존 omp
-설정을 사용하며 별도 역할 override를 추가하지 않습니다. 자동 업데이트 설정도 유지합니다.
-아래 YAML은 자동 업데이트를 새로 선택한 경우에만 `~/.omp/agent/config.yml`의 기존
-`marketplace:` 항목과 합칩니다.
+기본 6개를 설치하며 Worklog는 선택 사항입니다. 자동 업데이트를 새로 선택할 때만 아래 YAML을 `~/.omp/agent/config.yml`의 기존 `marketplace:` 항목과 합치세요.
 
 <!-- omp-preset:start -->
 ```sh
@@ -110,73 +50,15 @@ marketplace:
 ```
 <!-- omp-preset:end -->
 
-작업 로그가 필요하면 기본 6개와 별도로 opt-in 패키지 `worklog`를 설치합니다. 도구 결과와 세션 이벤트를 로컬 JSONL로 기록하는 runtime extension과 읽기 전용 진단 스킬을 제공하며, omp용 hook은 포함하지 않습니다.
-
 ```sh
+# 선택 설치
 omp plugin install worklog@sonsu-marketplace
+omp plugin list
 ```
-
-`marketplace.autoUpdate: auto`는 omp 시작 시 24시간보다 오래된 카탈로그의 갱신을 가능한 범위에서
-시도합니다. 설치한 플러그인의 자동 업데이트에는 카탈로그의 해당 플러그인 버전 증가가 필요합니다.
-`main`을 상시 감시하거나 실행 중 세션에 변경을 바로 적용하는 설정은 아닙니다. 새 버전을 바로 받으려면
-카탈로그를 갱신한 뒤 설치한 플러그인을 업그레이드합니다.
-
-```sh
-omp plugin marketplace update sonsu-marketplace
-omp plugin upgrade
-```
-
-스킬은 `/skill:commit`처럼 플러그인 접두어 없이 호출합니다. 기본 구성에는 역할별 모델 설정을
-추가하지 않습니다. Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude Code의 다중 호출·strict 모드와
-고정 Opus agent를 배포하지 않습니다. English·Japanese의 기존 스킬, Workflow의 commit·push·PR 권한 경계,
-Design의 품질 계약·프로필과 native tool 전제는 유지합니다. Japanese도 omp의 기존 model·effort와
-병렬 정책을 유지하며 full 모드의 세 검토 관점은 같은 호출 안에서 확인합니다.
-
-`design`, `workflow`, `fluent-korean`, `worklog`는 생성된 `./plugins/<name>/omp`를 배포 원본으로 쓰고,
-English·Japanese·Career는 기존 `./plugins/<name>`을 씁니다. 기본 6개에는 독자 runtime extension,
-hook, evidence gate, `task-continuity.py`를 포함하지 않으며, opt-in Worklog만 runtime extension을 제공합니다. 작업 연속성은 omp의 todo·session으로
-관리하며 `.sonsu`에 새 기록을 쓰지 않습니다. 자세한 내용은 [배포 생명주기](docs/architecture/plugin-lifecycle.md)를 참고하세요.
-
-| 책임 | 담당 | 배포 |
-| --- | --- | --- |
-| 개발 실행·task·todo·session·review | omp 순정 기능 | 호스트 기능 |
-| Git·티켓·PR 권한과 산출물 | Workflow | 기본 6개 |
-| 언어별 문장 품질·보호 규칙 | Fluent Korean·English·Japanese | 기본 6개 |
-| UI·prototype·handoff 품질과 native tool 전제 | Design | 기본 6개 |
-| 개발자 경력 원본·지원 서류·면접 준비 | Career | 기본 6개 |
-| 원시 작업 이벤트 기록과 진단 | Worklog | opt-in |
-| 외부 조사·제품 탐색·글 구성 | Research·Product·Writing | 선택 후보. 기본 카탈로그에 추가하지 않음 |
-
-Research·Product·Writing을 추가하려면 필요한 도메인과 현재 native tool 계약을 별도로 확인합니다.
-Engineering의 omp 프로필은 직접 설치한 기존 호출자를 위해 보존하며 기본 6개의 설정에는 적용하지 않습니다.
-
-#### 이전 omp 구성에서 이동
-
-이전 11개 구성이나 8개 preset을 사용했다면 다음 중 설치한 이전 플러그인을 omp에서 제거합니다.
-설치하지 않은 항목의 `not installed` 오류는 무시합니다. Codex·Claude Code 설치는 유지합니다.
-
-```sh
-for plugin in engineering writing research prompting product design-patterns memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
-```
-
-이전에 등록한 `sonsu-marketplace`가 로컬 체크아웃 경로이거나 오래된 카탈로그일 수 있으므로 GitHub 소스로
-다시 등록합니다. 마켓플레이스 등록을 제거해도 설치된 플러그인은 제거되지 않습니다. 이미 설치한
-`workflow`·`fluent-korean`·`design`은 일반 `install`로 갱신되지 않으므로 `--force`로 다시 설치합니다.
-
-```sh
-omp plugin marketplace remove sonsu-marketplace
-omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install --force "$plugin@sonsu-marketplace"; done
-```
-
-이전 preset 때문에 추가한 `skills.ignoredSkills`, `task.disabledAgents`, `task.agentModelOverrides`
-항목만 설정에서 제거하고 사용자가 별도로 설정한 항목은 유지합니다. 세션을 종료하고 omp를 다시
-시작합니다. 실행 중 세션에는 이전 hook·agent가 남아 있을 수 있습니다.
-캐시 파일을 직접 편집하거나 기존 `.sonsu`·`.engineering` 기록을 삭제하지 않습니다.
 
 ## 플러그인
 
-다음은 Codex·Claude Code용 전체 목록입니다. omp 기본 배포는 위 6개이며 Worklog만 opt-in으로 추가 설치할 수 있습니다.
+각 플러그인은 독립적으로 사용하며 링크에서 상세 사용법을 확인할 수 있습니다(Codex·Claude Code: 전체 14개, omp: 기본 6개와 opt-in Worklog).
 
 | 플러그인 | 용도 | 설치 이름 |
 | --- | --- | --- |
@@ -195,15 +77,9 @@ for plugin in workflow fluent-korean fluent-english fluent-japanese design caree
 | [Career](plugins/career/README.md) | 개발자 경력 원본 정리, 미국식 resume·履歴書·職務経歴書 작성, 면접 준비·모의면접·회고 | `career` |
 | [Worklog](plugins/worklog/README.md) | Claude Code·Codex·omp 작업의 실패·중단·교정 로그와 진단 | `worklog` |
 
-각 플러그인은 독립적으로 사용할 수 있습니다. 포함된 스킬과 상세 사용법은 위 링크에서 확인하세요.
-
-글을 작성할 때 Writing은 정보 선별·배치와 구성을, 언어별 Fluent는 요청한 출력 언어의 표현을,
-Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR의 리뷰 결과 게시를 담당합니다. 함께 쓰는 방법은
-[스킬 라우팅 문서](docs/architecture/skill-routing.md)를 참고하세요.
-
 ## 사용 예시
 
-관련 플러그인을 설치한 뒤 Codex 또는 Claude Code에 다음과 같이 요청할 수 있습니다.
+관련 플러그인을 설치한 뒤 Codex 또는 Claude Code에 요청하세요(직접 호출 예: Claude Code `/engineering:review`, omp `/skill:commit`).
 
 | 플러그인 | 요청 예시 |
 | --- | --- |
@@ -220,59 +96,30 @@ Workflow는 티켓·PR 생성의 양식과 게시를, Engineering은 기존 PR�
 | Career | “이 JD에 맞춰 1페이지 영문 resume를 만들고, 다음 주 1차 면접 기준으로 모의면접을 해 줘.” |
 
 호스트는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
-Memory Manager는 관련 작업에서 `$memory-recall`이 선택될 수 있고, 명시적 저장 요청에는
-`$memory-capture`를 사용합니다. 정리와 스킬 초안은 `$memory-maintain`, `$memory-promote`로
-명시적으로 요청합니다. Claude Code 호출은 `/memory-manager:memory-capture`처럼 씁니다.
-
-Research의 Exa·Perplexity 연동은 선택 사항이며, 사용 가능한 web·browser·connector와 로컬 자료로도 조사할 수 있습니다.
-Design의 Figma 캔버스 작업에는 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
-Design의 레퍼런스 검색은 Mobbin·Refero 같은 MCP가 연결되어 있으면 사용하고, 없으면 호스트 웹 검색을 사용합니다.
-설정과 도구 요구사항은 각 플러그인의 문서를 참고하세요.
 
 ## 업데이트
 
-Codex에서는 등록된 Git 마켓플레이스의 최신 snapshot을 가져옵니다.
-
 ```sh
 codex plugin marketplace upgrade sonsu-marketplace
-```
-
-업데이트 후 새 Codex 작업을 시작해 최신 스킬 목록을 불러오세요.
-
-Claude Code에서는 다음 명령으로 catalog와 설치한 플러그인을 갱신하고 새 세션을 시작합니다.
-
-```sh
 claude plugin marketplace update sonsu-marketplace
 claude plugin update engineering@sonsu-marketplace
+omp plugin marketplace update sonsu-marketplace
+omp plugin upgrade
 ```
 
-이전 `fluent-languages` 설치본이 있으면 언어 스킬의 적용 범위가 겹치므로 먼저 제거하고 필요한
-언어 플러그인을 설치하세요. 새 스킬 ID는 `fluent-korean:fluent-korean`,
-`fluent-english:fluent-english`, `fluent-japanese:fluent-japanese`입니다. 영어는 일상·기술 문장의 작성·윤문·검토에, 일본어는 작성·윤문과 문서 진단에 사용할 수 있습니다. 한국어는 새 글의 생성 규칙과 기존 글의 AI 티·번역투 윤문에 적용합니다. 기존 작업 연속성 기록은 자동 이전되지 않으며
-[수동 복구 절차](docs/reference/task-continuity.md)에 따라 확인합니다.
+[이전 omp 구성·fluent-languages에서 이동](docs/guides/migrating-from-earlier-versions.md)
 
-```sh
-codex plugin remove fluent-languages@sonsu-marketplace
-codex plugin add fluent-korean@sonsu-marketplace
-codex plugin add fluent-english@sonsu-marketplace
-codex plugin add fluent-japanese@sonsu-marketplace
-```
+## 문서
 
-Claude Code에서는 `claude plugin uninstall fluent-languages@sonsu-marketplace` 후 필요한 언어
-플러그인을 `claude plugin install <name>@sonsu-marketplace`로 설치합니다. 다른 마켓플레이스의
-동명 스킬이나 standalone `prompt-builder`, `product-discovery`, `to-prd`도 중복되지 않도록 확인하세요.
+- [문서 안내](docs/README.md)
+- [스킬 조합과 라우팅](docs/architecture/skill-routing.md)
+- [플러그인 배포 생명주기](docs/architecture/plugin-lifecycle.md)
+- [플러그인별 라이선스와 출처](docs/reference/licenses-and-sources.md)
 
-## 개발 및 기여
+## 기여
 
-로컬 개발 환경, 플러그인 수정·추가와 검증 절차는
-[플러그인 개발 가이드](docs/guides/adding-a-plugin.md)에 있습니다.
+[플러그인 개발 가이드](docs/guides/adding-a-plugin.md)에서 로컬 환경·수정·검증 절차를 확인하고, 버그와 제안은 [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues)에 남겨 주세요.
 
-- [아키텍처 개요](docs/architecture/overview.md) — 저장소 구성과 로딩 경계
-- [업스트림 업데이트 런북](docs/runbooks/updating-upstream-plugin.md) — 원본과 로컬 변경을 구분해 갱신하는 절차
-- [평가 도구](evals) — 언어 출력, 스킬 라우팅과 플러그인 품질 검증
-- [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues) — 버그 보고와 개선 제안
+## 라이선스
 
-## 라이선스와 출처
-
-저장소 전체에 공통으로 적용되는 라이선스는 현재 선언하지 않았습니다. 사용하려는 플러그인의
-조건과 원문 고지는 [플러그인별 라이선스와 출처](docs/reference/licenses-and-sources.md)에서 확인하세요.
+저장소 전체에 공통으로 적용되는 라이선스는 현재 선언하지 않았습니다. 사용하려는 플러그인의 조건과 원문 고지는 [라이선스와 출처](docs/reference/licenses-and-sources.md)에서 확인하세요.

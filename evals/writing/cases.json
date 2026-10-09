@@ -150,5 +150,13 @@
       "writing"
     ],
     "entry_skill": "writing:writing"
+  },
+  {
+    "id": "en-readme-standard-scope",
+    "prompt": "Write an English README for the following small plugin collection using only these facts. Return the README, not a plan or a report; do not run commands or change files. Project: Log Tools, local log inspection plugins. Requires Python 3.11+. Install from the repository root with `python3 -m pip install -r requirements.txt`. First use: `python3 logpeek.py app.log ERROR`; the provided file prints `ERROR disk full` and exits 0, and the input file is not changed. Components: Logpeek finds literal matches (plugins/logpeek/README.md); the newly added Logcount counts lines (plugins/logcount/README.md). Existing documents already own the details: docs/architecture.md describes Reader and Formatter and package generation; docs/migration.md contains old-version commands; CHANGELOG.md has release history; docs/options.md lists all flags; docs/troubleshooting.md covers failures after first use; docs/composition.md explains combining plugins; docs/decisions/0001-streaming.md explains the design choice; evals/README.md records evaluation results; CONTRIBUTING.md covers local experiments and contributions; docs/README.md is the documentation index and help entry. LICENSE declares MIT. Keep the README focused on getting started. Do not copy the architecture, migration steps, full flags, evaluation results, component usage details, or local experiment warnings into it; link to their existing owners where useful.",
+    "installed_plugins": [
+      "writing"
+    ],
+    "entry_skill": "writing:writing"
   }
 ]

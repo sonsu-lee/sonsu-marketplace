@@ -3,97 +3,40 @@
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
 A collection of Codex, Claude Code, and omp plugins for development, research, product planning, and writing.
-Install the plugins you need, then work with your coding agent as usual.
-
-[Installation](#installation) · [Plugins](#plugins) · [Usage examples](#usage-examples) · [Documentation](docs/README.md)
 
 ## Installation
 
 ### Codex
 
-Register the GitHub marketplace once using a Codex CLI version that supports `codex plugin`.
-Skip this step if it is already registered.
+Register once with a CLI that supports `codex plugin`, then install one plugin or all plugins. When the list shows the installation status, start a new Codex task.
 
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
-```
-
-Install only the plugins you need. For example, use Engineering for software development:
-
-```sh
+# Install one plugin
 codex plugin add engineering@sonsu-marketplace
-```
-
-For another plugin, use its installation name from the [table below](#plugins).
-To install all 14 plugins, run:
-
-```sh
-for plugin in \
-  engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design career worklog
-do
-  codex plugin add "$plugin@sonsu-marketplace"
-done
-```
-
-Check the registered sources and each plugin's installation status, then start a new Codex task:
-
-```sh
+# To install all, use this instead of the single install above
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design career worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
 codex plugin marketplace list
 codex plugin list --marketplace sonsu-marketplace
 ```
 
-When you open this repository in the Codex desktop app, its local catalog at
-`.agents/plugins/marketplace.json` may also appear. A registered Git source with the same name
-can hide local plugin changes, so seeing both entries does not confirm that the local copy is
-loaded. Test the checkout without the Git source using the [local setup steps](docs/guides/adding-a-plugin.md#로컬-개발-환경).
-
 ### Claude Code
 
-Register the GitHub marketplace once. Skip this step if it is already registered:
+Register the marketplace once, then install one plugin or all plugins. Check the installation status in the list and start a new session.
 
 ```sh
 claude plugin marketplace add sonsu-lee/sonsu-marketplace
-```
-
-Install only the plugins you need. For example, to install Engineering:
-
-```sh
+# Install one plugin
 claude plugin install engineering@sonsu-marketplace
-```
-
-To install all 14 plugins from the [table below](#plugins), run:
-
-```sh
-for plugin in \
-  engineering workflow fluent-korean fluent-english fluent-japanese \
-  writing research prompting product memory-manager design-patterns design career worklog
-do
-  claude plugin install "$plugin@sonsu-marketplace"
-done
-```
-
-Check the registered marketplaces and installed plugins:
-
-```sh
+# To install all, use this instead of the single install above
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design career worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
 claude plugin marketplace list
 claude plugin list
 ```
 
-To test a local checkout, run `claude plugin marketplace add "$(pwd -P)"` from the repository
-root. Both sources use the name `sonsu-marketplace`, so choose the one you intend to use.
-Invoke skills as `/engineering:review`. Start a new session after installation or update. Codex connectors and
-Claude Code MCP connections require separate configuration.
-
 ### omp
 
-The omp catalog, `.omp-plugin/marketplace.json`, distributes six default plugins: `workflow`, `fluent-korean`,
-`fluent-english`, `fluent-japanese`, `design`, and `career`, plus the opt-in `worklog` package. Native omp features own development execution,
-task, todo, session, review, and memory. Test local changes in the isolated environment described in the
-[development guide](docs/guides/adding-a-plugin.md).
-
-Register the marketplace, install the six plugins, and merge the YAML into the existing `marketplace:`
-section of `~/.omp/agent/config.yml`.
+Install the default six plugins; Worklog is optional. Only if you choose to enable automatic updates, merge the YAML below into the existing `marketplace:` section of `~/.omp/agent/config.yml`.
 
 <!-- omp-preset:start -->
 ```sh
@@ -107,73 +50,15 @@ marketplace:
 ```
 <!-- omp-preset:end -->
 
-For a work log, install `worklog` separately from the default six. Its runtime extension records tool results and session events as local JSONL, and its diagnosis skill is read-only. The omp package contains no hooks.
-
 ```sh
+# Optional install
 omp plugin install worklog@sonsu-marketplace
+omp plugin list
 ```
-
-`marketplace.autoUpdate: auto` attempts to refresh catalogs older than 24 hours at omp startup.
-Automatic updates of installed plugins require a version increase for that plugin in the catalog.
-This setting does not continuously watch `main` or reload changes into an active session. To pick up a new
-version immediately, refresh the catalog and upgrade the installed plugins.
-
-```sh
-omp plugin marketplace update sonsu-marketplace
-omp plugin upgrade
-```
-
-Invoke skills without a plugin prefix, for example `/skill:commit`. The default configuration requires
-no custom role model overrides. Fluent Korean uses a single call with the current host model; its omp
-package does not provide Claude Code's multistep or strict mode, or fixed Opus agents. Existing English
-and Japanese skills, Workflow's commit/push/PR authority boundaries, and Design's quality
-contracts, profiles, and native tool prerequisites remain in place.
-
-Design, Workflow, Fluent Korean, and Worklog use generated `./plugins/<name>/omp` packages. English, Japanese, and Career
-use their existing `./plugins/<name>` packages. The default six contain no custom runtime extension,
-hook, evidence gate, or `task-continuity.py`; only opt-in Worklog includes a runtime extension. Native todo and session features handle continuity without
-new `.sonsu` records. See the [distribution lifecycle](docs/architecture/plugin-lifecycle.md).
-
-| Responsibility | Owner | Distribution |
-| --- | --- | --- |
-| Development execution, task, todo, session, review | Native omp | Host features |
-| Git, ticket, and PR authority and artifacts | Workflow | Default six plugins |
-| Language quality and preservation rules | Fluent Korean, English, Japanese | Default six plugins |
-| UI, prototype, and handoff quality; native tool prerequisites | Design | Default six plugins |
-| Career record, application documents, and interview prep | Career | Default six plugins |
-| Raw work events and diagnosis | Worklog | Opt-in |
-| External research, product exploration, writing structure | Research, Product, Writing | Optional candidates, excluded from the default catalog |
-
-Before adding Research, Product, or Writing, verify the required domain and current native tool contract.
-Engineering's omp profiles remain available for existing direct installations and do not configure the default six plugins.
-
-#### Migrating from an earlier omp configuration
-
-If you used the earlier eleven-plugin configuration or eight-plugin preset, uninstall any installed
-plugins from the following list in omp. Ignore `not installed` errors for plugins you never installed.
-Keep Codex and Claude Code installations in place.
-
-```sh
-for plugin in engineering writing research prompting product design-patterns memory-manager operations-ui interface-design figma-workflow; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
-```
-
-The existing `sonsu-marketplace` registration may point to a local checkout or hold a stale catalog, so
-register the GitHub source again. Removing the marketplace does not uninstall its plugins. A plain `install`
-does not update the already installed `workflow`, `fluent-korean`, and `design`, so reinstall with `--force`.
-
-```sh
-omp plugin marketplace remove sonsu-marketplace
-omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install --force "$plugin@sonsu-marketplace"; done
-```
-
-Remove only the `skills.ignoredSkills`, `task.disabledAgents`, and `task.agentModelOverrides` entries added
-for the old preset. Preserve unrelated user settings. End the session and restart omp to unload old hooks
-and agents. Do not edit cache files manually or delete existing `.sonsu` or `.engineering` records.
 
 ## Plugins
 
-The following is the full Codex and Claude Code catalog. omp distributes the six plugins above by default; Worklog is available as an opt-in install.
+Each plugin works independently; follow its link for details (Codex and Claude Code: all 14; omp: the default six and opt-in Worklog).
 
 | Plugin | Purpose | Installation name |
 | --- | --- | --- |
@@ -192,16 +77,9 @@ The following is the full Codex and Claude Code catalog. omp distributes the six
 | [Career](plugins/career/README.md) | Developer career record, US-style resume, rirekisho and shokumu keirekisho drafting, interview prep, mock interviews, and retros | `career` |
 | [Worklog](plugins/worklog/README.md) | Log and diagnose failures, interruptions, and user corrections across Claude Code, Codex, and omp | `worklog` |
 
-Each plugin can be used independently. Follow the links above for included skills and detailed usage instructions.
-
-Writing selects and places information and organizes the text, each Fluent plugin handles its language's
-expression, Workflow handles templates and publication for new tickets and PRs, and Engineering publishes
-review results on existing PRs. See the
-[skill routing documentation](docs/architecture/skill-routing.md) for how to use them together.
-
 ## Usage examples
 
-After installing the relevant plugin, try requests like these in Codex:
+After installing the relevant plugin, make a request in Codex or Claude Code (direct invocation examples: Claude Code `/engineering:review`, omp `/skill:commit`).
 
 | Plugin | Example request |
 | --- | --- |
@@ -218,58 +96,30 @@ After installing the relevant plugin, try requests like these in Codex:
 | Career | “Build a one-page English resume tailored to this JD, then run a mock interview for next week's first-round interview.” |
 
 The host selects skills based on your request and the descriptions of installed skills.
-Memory Manager may select `$memory-recall` for relevant work and uses `$memory-capture` for explicit
-save requests. Invoke `$memory-maintain` or `$memory-promote` explicitly for cleanup or a skill draft.
-Claude Code uses names such as `/memory-manager:memory-capture`.
-
-Research's Exa and Perplexity integrations are optional. It can also use available web tools, browsers, connectors, and local materials.
-Design canvas work requires the official Figma MCP connection and the tool's prerequisite skills for canvas operations.
-Design reference search uses a connected MCP such as Mobbin or Refero when available and falls back to the host's web search.
-See each plugin's documentation for setup and tool requirements.
 
 ## Updates
 
-In Codex, fetch the latest snapshot of the registered Git marketplace:
-
 ```sh
 codex plugin marketplace upgrade sonsu-marketplace
-```
-
-Start a new Codex task after an update to load the latest skills.
-
-In Claude Code, update the marketplace and each installed plugin, then start a new session:
-
-```sh
 claude plugin marketplace update sonsu-marketplace
 claude plugin update engineering@sonsu-marketplace
+omp plugin marketplace update sonsu-marketplace
+omp plugin upgrade
 ```
 
-If the previous `fluent-languages` plugin is installed, remove it before installing the language plugins
-to avoid overlapping language guidance. The new skill IDs are `fluent-korean:fluent-korean`,
-`fluent-english:fluent-english`, and `fluent-japanese:fluent-japanese`. English supports drafting, editing, and review; Japanese supports drafting, editing, and document scoring for everyday and technical prose. Korean applies drafting rules to new text and targets AI-sounding or translationese passages in existing text. Existing continuity records are preserved; [recover ongoing work manually](docs/reference/task-continuity.md).
+[Migrate from earlier omp configurations or fluent-languages](docs/guides/migrating-from-earlier-versions.md) (Korean)
 
-```sh
-codex plugin remove fluent-languages@sonsu-marketplace
-codex plugin add fluent-korean@sonsu-marketplace
-codex plugin add fluent-english@sonsu-marketplace
-codex plugin add fluent-japanese@sonsu-marketplace
-```
+## Documentation
 
-In Claude Code, run `claude plugin uninstall fluent-languages@sonsu-marketplace`, then install the
-languages you need with `claude plugin install <name>@sonsu-marketplace`. Also check for duplicate
-skills from other marketplaces or standalone copies of `prompt-builder`, `product-discovery`, or `to-prd`.
+- [Documentation index](docs/README.md)
+- [Skill composition and routing](docs/architecture/skill-routing.md)
+- [Plugin distribution lifecycle](docs/architecture/plugin-lifecycle.md)
+- [Licenses and sources by plugin](docs/reference/licenses-and-sources.md)
 
-## Development and contributing
+## Contributing
 
-The [plugin development guide](docs/guides/adding-a-plugin.md) covers local setup, modifying and adding
-plugins, and validation. The detailed guides below are maintained in Korean.
+See the [plugin development guide](docs/guides/adding-a-plugin.md) for local setup, changes, and validation; report bugs or suggest improvements in [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues). Detailed guides are maintained in Korean, with the omp lifecycle section in Japanese.
 
-- [Architecture overview](docs/architecture/overview.md) — Repository structure and loading boundaries
-- [Upstream update runbook](docs/runbooks/updating-upstream-plugin.md) — Update upstream content while keeping local changes separate
-- [Evaluation tools](evals) — Validate language output, skill routing, and plugin quality
-- [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues) — Bug reports and improvement suggestions
+## License
 
-## Licenses and sources
-
-No license is currently declared for the repository as a whole. Check the terms and original notices for
-each plugin in [Licenses and sources by plugin](docs/reference/licenses-and-sources.md) (Korean).
+No license is currently declared for the repository as a whole. Check each plugin’s terms and original notices in [Licenses and sources](docs/reference/licenses-and-sources.md) (Korean).
