@@ -20,8 +20,8 @@ CLAUDE_ROOT_PACKAGES = {
                   "hooks/hooks.json": "hooks/hooks.json"},
     },
     "worklog": {
-        "skills": ("worklog-diagnose",),
-        "manual_skills": set(),
+        "skills": ("worklog-diagnose", "worklog-improve"),
+        "manual_skills": {"worklog-improve"},
         "files": {"scripts/worklog.py": "scripts/worklog.py",
                   "hooks/claude-hooks.json": "hooks/hooks.json"},
     },

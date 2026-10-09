@@ -101,7 +101,7 @@
       "name": "worklog",
       "source": "./plugins/worklog/claude",
       "description": "Claude Code·Codex·omp 작업의 도구 실패·중단·사용자 교정을 공용 로그로 남기고 진단합니다.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "category": "Developer Tools"
     }
   ]

@@ -3532,6 +3532,19 @@
       "must_not_select": ["worklog:worklog-diagnose"]
     },
     {
+      "id": "improve-requires-explicit-request",
+      "prompt": "최근에 실패 많았지? 어떤 게 있었는지만 정리해 줘.",
+      "installed_plugins": ["worklog"],
+      "expected_sequence": ["worklog:worklog-diagnose"],
+      "must_not_select": ["worklog:worklog-improve"]
+    },
+    {
+      "id": "improve-from-failures-explicit",
+      "prompt": "작업 로그에서 반복된 실패로 평가 사례를 만들고 스킬 수정안을 수정 전후로 비교해 줘.",
+      "installed_plugins": ["worklog"],
+      "expected_sequence": ["worklog:worklog-improve"]
+    },
+    {
       "id": "career-inventory-from-old-resume",
       "installed_plugins": [
         "career",

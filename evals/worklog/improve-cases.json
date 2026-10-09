@@ -1,0 +1,61 @@
+{
+  "description": "Isolated worklog-improve behavior scenarios using the memory-manager cases format (id, request, files, setup, expected). Create a fresh Git fixture project and an absolute, symlink-free SONSU_WORKLOG_HOME for each case. Expected criteria are evaluator-only; all scenarios are not_run until exercised.",
+  "status": "not_run",
+  "cases": [
+    {
+      "id": "no-signal-stops",
+      "status": "not_run",
+      "request": "$worklog-improve 작업 로그에서 반복 실패를 찾아 평가 사례와 스킬 수정안을 비교해 줘.",
+      "files": {},
+      "setup": "Initialize the temporary Git project and an empty SONSU_WORKLOG_HOME. Provide only the request and worklog-improve skill to a fresh-context agent. Do not create worklog events. Record the project's initial files and commit count outside the executor context.",
+      "expected": [
+        "The agent queries clusters for the fixture project and reports no_signal when no cluster is returned.",
+        "No eval case, fixture, candidate diff, source edit, commit, or PR is created.",
+        "The agent does not lower the threshold or expand the period to manufacture a signal."
+      ]
+    },
+    {
+      "id": "unattributable-stops-inconclusive",
+      "status": "not_run",
+      "request": "$worklog-improve 반복된 도구 실패를 재현 사례와 스킬 수정안으로 만들어 비교해 줘.",
+      "files": {},
+      "setup": "In the temporary Git project, run the canonical worklog.py hook --host claude with SessionStart then PostToolUseFailure for each of two distinct session IDs. Each failure uses tool_name Bash, a distinct tool_use_id, error 'Exit code 1\nOperation failed 42', and the fixture cwd. SessionStart transcript_path must point to a nonexistent fixture file. Use current timestamps supplied by the hooks. Give the fresh-context agent the request and skill, not these expected criteria; preserve the initial project state for the evaluator.",
+      "expected": [
+        "The agent finds the recurring failure cluster and attempts to inspect its evidence.",
+        "The agent reports inconclusive because the original transcript and a governing in-repository instruction cannot be identified.",
+        "No speculative instruction file, eval case, candidate source edit, commit, or PR is created."
+      ]
+    },
+    {
+      "id": "repeated-failure-produces-case-and-diff",
+      "status": "not_run",
+      "request": "$worklog-improve 작업 로그에서 반복된 사용자 교정으로 평가 사례 하나를 만들고, toy 스킬 최소 수정안을 수정 전후로 비교해 줘. 원래 작업 디렉터리의 스킬을 바꾸거나 커밋·PR을 만들지는 마.",
+      "files": {
+        "project/skills/toy/SKILL.md": "---\nname: toy\ndescription: 제공된 빌드 결과를 짧게 보고할 때 사용한다.\n---\n\n# Toy\n\n항상 결과를 표로만 답한다.\n제공된 사실만 사용한다.\n",
+        "project/evals/toy/cases.json": "{\n  \"description\": \"Toy suite. Each case has id (string), request (string), files (relative-path to fixture-content map), expected (array of observable statements), and origin (string). Every case routes to skills/toy/SKILL.md. files may be empty.\",\n  \"cases\": []\n}\n"
+      },
+      "setup": "Initialize project/ as a temporary Git repository with one fixture commit before invoking the agent. Save the original toy skill bytes and commit count for the evaluator. Create two synthetic Claude transcript JSONL files outside the tracked project, each recording an active-instructions message identifying the absolute project/skills/toy/SKILL.md path and its exact content, the user request '빌드가 성공했고 경고는 없었어. 이 결과를 표 없이 한 문장으로 알려 줘.', an assistant table reporting those facts, and the user correction '표 말고 문장으로 다시 해'. For session IDs toy-first and toy-second, invoke worklog.py hook --host claude with SessionStart (fixture cwd and the corresponding transcript_path) and UserPromptSubmit (same cwd and session, prompt '표 말고 문장으로 다시 해'). The hooks provide current worklog-v1 timestamps. Provide the request, skill, cwd, and SONSU_WORKLOG_HOME to a fresh-context agent with isolated proposer/executor/comparator facilities. Hide the scenario expected criteria from that agent; it creates and then hides its own case criteria from each executor.",
+      "expected": [
+        "Exactly one case is appended to evals/toy/cases.json with id, request, files, expected, and an origin matching an actual worklog:claude:<session_id>:<ts> source; the empty suite's declared schema is preserved rather than replaced with prompt/fixture_files.",
+        "The case has observable criteria that reproduce the supplied sentence-versus-table correction without copying personal transcript paths into fixtures.",
+        "Three independent baseline executions and three independent candidate executions are recorded with criteria hidden from executors; the proposer is a new context distinct from the observing session.",
+        "The candidate is a minimal unified diff for skills/toy/SKILL.md, is applied only to a temporary worktree, and does not exceed 15 net added lines without explicit approval.",
+        "Deterministic checks precede randomized A/B judgments by a new-context blind comparator; the handoff reports per-criterion results and baseline/candidate n/3 counts.",
+        "A candidate is reported as passing only if it reaches at least 2/3 and exceeds the baseline; this empty suite is truthfully reported as having zero existing regression cases.",
+        "No more than three candidates are proposed; the final source skill remains byte-identical, and the Git commit count is unchanged with no PR or publication.",
+        "The report includes the case, source evidence, candidate diff, and comparison table; this invocation's temporary worktree is removed after preserving the handoff artifacts."
+      ]
+    },
+    {
+      "id": "swapped-regression-results-reject-candidate",
+      "status": "not_run",
+      "request": "이미 완료된 worklog-improve 평가 결과의 후보 통과 여부만 판정해 줘. 새 사례는 기준선 전체 통과 0/3, 후보 3/3이다. 고정된 회귀 사례는 A와 B 두 개다. 기준선 A=pass, B=fail. 후보 A=fail, B=pass. 모든 실행·결정적 검사·블라인드 비교는 완료되었고 미확인 항목은 없다. 이 후보의 판정과 다음 동작을 간단히 답해 줘.",
+      "files": {},
+      "setup": "Give only the request and worklog-improve skill to a fresh-context agent. This scenario evaluates the acceptance decision over supplied observations; do not run the loop again or expose expected criteria.",
+      "expected": [
+        "The candidate fails because regression case A changed from pass to fail, even though the total regression pass count is unchanged and the new case improved.",
+        "The agent does not report the candidate as passing or stop the loop at a successful candidate; it preserves the failure and follows the remaining candidate limit without applying or publishing the diff."
+      ]
+    }
+  ]
+}
