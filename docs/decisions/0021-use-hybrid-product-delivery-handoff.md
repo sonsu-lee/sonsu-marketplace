@@ -26,9 +26,9 @@ Product는 승인된 제품 합의를 PRD로 바꾸는 데서 끝났고, PRD가 
   `요구사항` 열에 보존한다. 출처에 없는 ID를 인계 과정에서 만들지 않는다.
 - PRD 템플릿에 품질 기대(NFR), 우선순위(P1/P2), 위험(RISK) 행을 둔다. 근거 없는 수치는 OPEN
   항목으로 남긴다.
-- 외부 계약(API·데이터·통합)이 바뀌는 기능만 Engineering `brainstorming`의
+- 외부 계약(API·데이터·통합·대외 SLO)이나 권한·보안 계약이 바뀌는 기능은 Engineering `brainstorming`의
   [기능 설계 문서 템플릿](../../plugins/engineering/skills/brainstorming/design-doc-template.md)으로
-  영속 설계 문서를 남긴다. 내부 구현만 바뀌면 계획에 둔다.
+  영속 설계 문서를 남기거나 기존 문서를 갱신한다. 계약을 유지한 내부 구현만 바뀌면 계획에 둔다.
 - `plan`, `brainstorming`, `to-prd`는 선택과 판단의 근거에 종류(`[사용자 결정]`,
   `[저장소: 경로:줄]`, `[공식문서: URL]`, `[실험: …]`, `[논문/실무자: URL]`)를 붙이고, 근거
   없는 판단은 `[추론]`으로 표시해 결정 근거로 쓰지 않는다.
