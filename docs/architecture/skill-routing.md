@@ -194,6 +194,8 @@ Fluent는 구성 단계에서 제외한 참고 내용을 다시 추가하지 않
 
 Workflow는 Writing·Fluent 설치와 관계없이 티켓·PR·커밋의 경량형·서식 밀도·서두·어조 최소 규칙([문장 형식 기준](../../plugins/workflow/references/tracker-prose.md))을 적용합니다.
 
+한국어 산출물을 새로 쓸 때는 Writing의 구성과 함께 설치된 Fluent Korean의 생성 규칙을 적용합니다. 일반 대화 답변·단순 맞춤법 교정·번역에는 자동 적용하지 않습니다.
+
 ## Prompting 조합
 
 Prompting은 사용자가 실제로 사용할 프롬프트 산출물을 요청했을 때 선택합니다. 프롬프트를

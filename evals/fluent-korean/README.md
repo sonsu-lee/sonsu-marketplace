@@ -17,7 +17,7 @@
 
 ## 사례 형식
 
-`schema_version`은 `fluent-korean-review-cases-v1`이다. `mode`는 `generation` 또는 `editing`, `expected_action`은 `generate`·`edit`·`keep`이다. `keep`은 본문을 그대로 반환해야 하는 사례이며 응답 마지막 줄바꿈 차이만 무시한다. `edit`은 지정된 문제를 고쳤는지 확인한다.
+`schema_version`은 `fluent-korean-review-cases-v1`이다. `mode`는 `generation`·`editing`·`draft`, `expected_action`은 `generate`·`edit`·`keep`이다. `keep`은 본문을 그대로 반환해야 하는 사례이며 응답 마지막 줄바꿈 차이만 무시한다. `edit`은 지정된 문제를 고쳤는지 확인한다. `draft`는 한국어 산출물을 새로 쓸 때 `drafting-rules.md` 생성 규칙이 적용됐는지 보는 사례이며, 윤문 절차 없이 `must_not_introduce`의 패턴이 없는지 확인한다.
 
 `expectations`에는 보호 문자열·코드 블록·제목·순서·횟수와 의미 보존·추가 금지 사항을 기록한다. 문자열 일치는 자동 확인할 수 있지만 의미 보존과 교정 필요성은 출력과 원문을 직접 대조해야 한다.
 

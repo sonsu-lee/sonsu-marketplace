@@ -172,7 +172,7 @@ The following is the full Codex and Claude Code catalog. omp distributes only th
 | --- | --- | --- |
 | [Engineering](plugins/engineering/README.md) | Design, implement, verify, simplify, and review software changes | `engineering` |
 | [Workflow](plugins/workflow) | Work with Git branches, commits, pushes, tickets, and GitHub PRs | `workflow` |
-| [Fluent Korean](plugins/fluent-korean) | Edit AI-sounding everyday and technical Korean with `im-not-ai` as a source | `fluent-korean` |
+| [Fluent Korean](plugins/fluent-korean) | Apply drafting rules to new Korean text and edit AI-sounding or translationese passages in existing Korean text with `im-not-ai` as a source | `fluent-korean` |
 | [Fluent English](plugins/fluent-english) | Draft, edit, and review everyday and technical English with `better-writing` as a source | `fluent-english` |
 | [Fluent Japanese](plugins/fluent-japanese) | Draft and edit everyday and technical Japanese; score documents with `natural-japanese` as a source | `fluent-japanese` |
 | [Writing](plugins/writing) | Select information, choose where it belongs, and organize writing for the reader and purpose | `writing` |
@@ -238,7 +238,7 @@ claude plugin update engineering@sonsu-marketplace
 
 If the previous `fluent-languages` plugin is installed, remove it before installing the language plugins
 to avoid overlapping language guidance. The new skill IDs are `fluent-korean:fluent-korean`,
-`fluent-english:fluent-english`, and `fluent-japanese:fluent-japanese`. English supports drafting, editing, and review; Japanese supports drafting, editing, and document scoring for everyday and technical prose. Korean targets AI-sounding or translationese passages in existing text. Existing continuity records are preserved; [recover ongoing work manually](docs/reference/task-continuity.md).
+`fluent-english:fluent-english`, and `fluent-japanese:fluent-japanese`. English supports drafting, editing, and review; Japanese supports drafting, editing, and document scoring for everyday and technical prose. Korean applies drafting rules to new text and targets AI-sounding or translationese passages in existing text. Existing continuity records are preserved; [recover ongoing work manually](docs/reference/task-continuity.md).
 
 ```sh
 codex plugin remove fluent-languages@sonsu-marketplace

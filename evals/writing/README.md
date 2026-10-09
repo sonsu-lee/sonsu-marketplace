@@ -36,7 +36,7 @@ Writing에서 Workflow로 지침·양식을 복사하는 생성기는 없다.
 - [`workflow-cases.json`](workflow-cases.json): Workflow 단독 8개.
 - [`composition-cases.json`](composition-cases.json): 10개. Writing+Fluent 6개, Workflow+Fluent 2개,
   Workflow+Writing 1개, 세 플러그인 함께 1개.
-- [`developer-blog-cases.json`](developer-blog-cases.json): Writing의 개발자 블로그 명시 적용 10개.
+- [`developer-blog-cases.json`](developer-blog-cases.json): Writing의 개발자 블로그 명시 적용 14개.
 
 각 사례의 `installed_plugins`를 해당 실행의 유일한 관련 inventory로 취급한다. 고정한 패키지에서
 `entry_skill`과 실제 필요한 참조를 읽고 요청을 수행한다. 제공된 양식·조회 결과는 테스트 fixture이며
@@ -65,22 +65,22 @@ opaque ID로 바꾼다. `installed_plugins`와 `entry_skill`은 명시적 적용
 | workflow-pr-lightweight | 제목 없는 영어 한 문단으로 쓰고 "This PR"로 시작하지 않는다. |
 | workflow-ticket-japanese-space | 대상 공간 관례에 따라 일본어 본문으로 쓴다. |
 | workflow-pr-no-ci-rerunnable-checks | CI가 없어도 `make test`·`make lint` 통과와 테스트 개수를 `검증`에 쓰지 않고, Safari 수동 확인과 Firefox 미확인만 남긴다. |
-| writing-fluent-* | 대응하는 단독 사례의 의미·형식 계약을 유지한다. 영어는 일상·기술 문장의 작성·윤문·검토에, 일본어는 작성·윤문과 문서 진단에 적용한다. 한국어는 기존 글의 AI 티·번역투 윤문 요청에만 적용한다. |
+| writing-fluent-* | 대응하는 단독 사례의 의미·형식 계약을 유지한다. 영어는 일상·기술 문장의 작성·윤문·검토에, 일본어는 작성·윤문과 문서 진단에 적용한다. 한국어는 새 글의 생성 규칙과 기존 글의 AI 티·번역투 윤문에 적용한다. |
 | workflow-fluent-* | Writing 없이 Workflow 양식과 Fluent 표현을 함께 적용하고 고정 제목·연결 문법·미검증 상태를 보존한다. |
 | workflow-writing-unverified | Fluent 없이 구성 지침을 적용하고 Workflow의 양식 확정 경계를 유지한다. |
 | all-three-ja-fixed-pr | Workflow가 정한 양식 안에서 Writing·일본어 Fluent를 중복·순환 없이 적용한다. |
 
 ### 개발자 블로그 사례
 
-개발자 블로그 사례는 `writing:write-developer-blog`를 명시적으로 적용한다. 본문 전에 나타나는
-흐름 의사코드와 실제 초안, 근거 상태, 사용한 명령·출력을 함께 보관한다. 흐름 의사코드의 제목이나
+개발자 블로그 사례는 `writing:write-developer-blog`를 명시적으로 적용한다. 반환된 흐름 의사코드와
+실제 초안, 근거 상태, 사용한 명령·출력을 함께 보관한다. 흐름 의사코드의 제목이나
 문장 자체를 고정 문자열로 비교하지 않고 독자·문제·핵심 답·전개·근거·결말이 서로 연결되는지
-읽어서 판정한다. 다만 여섯 필드는 이름이 공개 출력 계약이므로 본문 작성 사례에서 각각의 값이
-제시됐는지 확인한다.
+읽어서 판정한다. `plan` 사례는 여섯 필드 이름과 값을 확인하고, `draft` 사례는 흐름을 요청받지 않았으면 응답 어디에도 흐름 의사코드나 계획 필드가 없는지 확인한다.
 
 | 사례 | 생성 후 확인할 계약 |
 | --- | --- |
-| blog-author-gap | 1인칭 경험·선택 이유를 만들지 않고 가능한 각도, 흐름과 필요한 질문에서 멈춘다. |
+| blog-author-gap | 1인칭 경험·선택 이유를 만들지 않고 필요한 질문에서 멈추며, 요청하지 않은 흐름은 노출하지 않는다. |
+| blog-plan-only | 여섯 흐름 필드의 이름과 값을 반환하고 본문은 작성하지 않는다. |
 | blog-til-sufficient | 짧은 흐름과 TIL 초안을 같은 응답에 제공하며 저자가 제공한 실행을 `observer: author`, 현재 작업 재실행을 `false`로 남기고 미확인 버전과 구분한다. |
 | blog-debug-counterevidence | 격리 fixture에서 허용된 명령만 실행하고 예상·관찰을 나눈다. 결과가 최초 `.strip()` 가설과 다르면 실제 동작에 맞춰 논지를 바꾼다. |
 | blog-decision-tradeoff | 선택 기준·대안·기각 이유·부담한 비용·현재 상태·재검토 조건을 보존한다. |
@@ -90,6 +90,9 @@ opaque ID로 바꾼다. `installed_plugins`와 `entry_skill`은 명시적 적용
 | blog-writing-standalone | Research·Fluent·Engineering을 설치하지 않고 Writing만으로 관찰·추론·미실행을 구분한다. |
 | blog-revise-scoped | 지정 문장과 필요한 연결만 수정하고 제목·나머지 문단·코드·링크·주장 순서를 보존한다. |
 | blog-audit-read-only | 원문을 재작성하지 않고 현재 흐름을 기준으로 위치·근거·영향·최소 수정 방향이 있는 finding을 반환한다. |
+| blog-howto-steps-verified | 단계마다 확인할 출력을 두고, 실행하지 않은 단계는 `not_run`으로 남기며 흐름 의사코드를 노출하지 않는다. |
+| blog-retrospective-blameless | 시간순 관찰과 확인한 원인·가설을 구분하고 개인을 탓하지 않으며 흐름 의사코드를 노출하지 않는다. |
+| blog-opinion-counterargument | 주장 한 문장, 가장 강한 반론과 응답, 적용 범위와 한계를 담고 제공 자료 밖의 의견을 만들지 않으며 흐름 의사코드를 노출하지 않는다. |
 
 `blog-debug-counterevidence`의 파일은 실행별 임시 디렉터리에 배치하고 source repository 밖에서
 `allowed_command`만 실행한다. 원출력, exit code와 임시 경로를 기록하고 실행 뒤 임시 디렉터리를
