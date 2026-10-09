@@ -6,8 +6,8 @@
 
 ## 배경
 
-Design Patterns는 Codex와 Claude Code에만 배포되었다. omp 기본 묶음은 6개로 고정되어 있고,
-[ADR 0022](0022-add-worklog-plugin.md)가 허용한 opt-in 패키지는 worklog 하나였다. 플러그인 감사
+Design Patterns는 Codex와 Claude Code에만 배포되었다. omp 기본 묶음은 고정되어 있고, Design Patterns는
+[ADR 0022](0022-add-worklog-plugin.md)가 허용한 opt-in 패키지에도 들어 있지 않았다. 플러그인 감사
 ([refactor-assessment](../research/refactor-assessment.md))에서 Design Patterns의 decision-ready
 카탈로그와 관계·성숙도 계약은 omp 기본 리뷰·검색이 제공하지 않는 도메인 자료로 판정되었다. 반면
 설계 패턴 선택·검토는 명시적으로 요청할 때만 쓰는 작업이라 모든 omp 사용자에게 설치할 근거는 없다.
@@ -16,7 +16,7 @@ Design Patterns는 Codex와 Claude Code에만 배포되었다. omp 기본 묶음
 
 - `design-patterns`를 `OMP_OPTIN_PLUGINS`에 추가한다. omp 카탈로그에 등록되고 사용자가
   `omp plugin install design-patterns@sonsu-marketplace`로 직접 설치한다.
-- 기본 6개 묶음은 바꾸지 않는다.
+- omp 기본 묶음은 바꾸지 않는다.
 - 별도 omp 패키지를 생성하지 않고 `plugins/design-patterns/`를 그대로 읽게 한다. runtime extension과
   hook은 배포하지 않는다.
 
