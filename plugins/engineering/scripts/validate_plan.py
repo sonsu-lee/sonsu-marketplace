@@ -5,8 +5,8 @@ Usage: validate_plan.py PLAN --root REPOSITORY
 Prints JSON: status, plan, root, flows, tasks, mappings, files, errors.
 Exit 0: structurally valid; 1: plan findings; 2: input/CLI error (argparse
 usage errors use stderr). Does not run commands or judge approval, requirements,
-verification quality, or readiness. Create paths may be absent; Modify paths
-must be files; Verify paths must exist or have an explicit Create declaration.
+verification quality, or readiness. Create paths may be absent; Modify and Verify
+paths must be existing files or have an explicit Create declaration.
 """
 
 import argparse
@@ -16,8 +16,9 @@ import re
 import sys
 
 
-FLOW = re.compile(r"(?<![\w-])F[1-9][0-9]*(?![\w-])")
-TASK = re.compile(r"\bTask\s+([1-9][0-9]*)\b")
+# ASCII boundaries: Korean particles such as `F9에서` and `Task 7의` still reference IDs.
+FLOW = re.compile(r"(?<![\w-])F[1-9][0-9]*(?![\w-])", re.ASCII)
+TASK = re.compile(r"\bTask\s+([1-9][0-9]*)\b", re.ASCII)
 FLOW_DEF = re.compile(r"^FLOW (F[1-9][0-9]*):\s*\S")
 TASK_DEF = re.compile(r"^#{1,6}\s+Task ([1-9][0-9]*):\s*\S")
 HEADER = ["흐름", "요구사항", "입력과 결과", "파일과 책임", "작업과 의존 관계", "검증과 이유"]
@@ -75,13 +76,14 @@ def validate(text, root):
             continue
 
         # IDs in prose and inline ID code are references; file paths are not.
-        prose = re.sub(r"`[^`]*[./\\][^`]*`", "", line)
+        prose = re.sub(r"`([^`]*)`", lambda span: "" if re.search(r"[./\\]", span.group(1)) else span.group(0), line)
         references.extend(("flow", value, line_no) for value in FLOW.findall(prose))
         references.extend(("task", value, line_no) for value in TASK.findall(prose))
         heading = TASK_DEF.match(line)
         if heading:
             task_id = heading.group(1)
-            current = {"id": task_id, "line": line_no, "flows": [], "flow_fields": 0, "files": []}
+            depth = len(line) - len(line.lstrip("#"))
+            current = {"id": task_id, "line": line_no, "depth": depth, "flows": [], "flow_fields": 0, "files": []}
             if task_id in tasks:
                 error("duplicate_task", line_no, f"Task {task_id} already defined at line {tasks[task_id]['line']}")
             else:
@@ -93,9 +95,14 @@ def validate(text, root):
             error("invalid_task", line_no, "Expected heading Task <positive integer>: description")
             current = None
             in_files = False
-        if re.match(r"^#{1,6}\s", line):
+        heading_match = re.match(r"^(#{1,6})\s", line)
+        if heading_match:
+            heading_depth = len(heading_match.group(1))
             in_files = False
             table = False
+            # A same-or-higher level heading ends the task; deeper headings stay inside it.
+            if current is not None and heading_depth <= current["depth"]:
+                current = None
 
         flow_field = re.match(r"^\*\*Flows:\*\*\s*(.*)$", line)
         if flow_field and current is None:
@@ -207,10 +214,8 @@ def validate(text, root):
         if "resolved" not in entry:
             continue
         resolved = Path(entry["resolved"])
-        if entry["action"] == "Modify" and not entry["exists"]:
-            error("missing_file", entry["line"], f"Modify requires an existing file: {entry['path']}")
-        elif entry["action"] == "Verify" and not entry["exists"] and resolved not in creates:
-            error("missing_file", entry["line"], f"Verify requires an existing file or explicit Create declaration: {entry['path']}")
+        if entry["action"] in ("Modify", "Verify") and not entry["exists"] and resolved not in creates:
+            error("missing_file", entry["line"], f"{entry['action']} requires an existing file or explicit Create declaration: {entry['path']}")
         entry["planned_new"] = resolved in creates
         del entry["resolved"]
     return {"status": "invalid" if errors else "valid", "flows": list(flows),

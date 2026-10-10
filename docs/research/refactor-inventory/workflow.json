@@ -81,7 +81,7 @@
       "path": "plugins/workflow/skills/inspect-prs/SKILL.md",
       "sha256": "3c85bb7dcdc87a1f922755ef980150d7ca4cbef4bbeda75b39f68fcc40aa8fb5",
       "sources": {
-        "plugins/workflow/references/pr-inspection.md": "1fdd50c84b309485a93cc6fb3274688481ce9bdc8467f620c9fe69fcac4096c9"
+        "plugins/workflow/references/pr-inspection.md": "a58b037795cbc848a7e03e3f27daa4d6f4fa2ce42ace0438b26410e854f7c66d"
       },
       "problem": "PR 목록의 불완전한 페이지나 오래된 head의 리뷰를 현재 CI·병합 준비 상태로 오인하기 쉽다.",
       "outcome": "조회 시점과 head가 연결된 PR별 CI·리뷰·미해결 대화·병합 상태 및 누락 범위를 읽기 전용으로 보고한다.",
@@ -372,7 +372,7 @@
     },
     {
       "path": "plugins/workflow/scripts/inspect_prs.py",
-      "sha256": "9725e300b1d168707504327eba835751bc7fdb39deb287c0d5faa98b366f41e1",
+      "sha256": "04702d26aa2e50782f287339a8c5d5348de5b9caffdadeaa710fff3206e9eecc",
       "role": "inspect-prs와 repair-pr가 쓸 PR·reviews·check runs·statuses·reviewThreads 페이지를 수집·정규화하고 head·조회 시점과 부분 실패를 JSON으로 기록한다.",
       "verdict": "keep",
       "verdict_target": "",

@@ -77,7 +77,7 @@ git worktree add "$TASK_WORKTREE_PATH" -b "$BRANCH_NAME"
 결과: 이미 연결된 워크트리이므로 생성을 생략하고 현재 경로·브랜치와 기준 검사 결과를 보고한다.
 
 대조: 두 Git 경로가 같은 일반 체크아웃에 관련 없는 미커밋 변경이 있고 승인된 구현의 격리가 필요하다.
-기존 `.worktrees/`가 Git에서 제외됨을 확인한 뒤 `git worktree add .worktrees/fix-report-export -b fix/report-export`를 실행하고 기존 변경을 보존했다고 보고한다.
+기존 `.worktrees/`가 Git에서 제외됨을 확인한 뒤 `git worktree add .worktrees/fix/report-export -b fix/report-export`를 실행하고 기존 변경을 보존했다고 보고한다.
 
 ## 경계
 

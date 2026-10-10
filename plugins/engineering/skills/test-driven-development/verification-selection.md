@@ -39,7 +39,7 @@
 
 `one_time_reproduction`은 재현 명령, 구현 전 결과, 수정 후 `observed_result`, 남는 자동
 검사 공백을 계획 또는 결과 보고에 남긴다. `existing_check`는 기존 검사를 변경 전후에 실행한다.
-`extend_existing_test`와 `new_test_file`은 아래 RED–GREEN–REFACTOR를 따른다. 새 테스트가
+`extend_existing_test`와 `new_test_file`은 [RED–GREEN–REFACTOR](test-cycle.md)를 따른다. 새 테스트가
 기존 단언을 반복하거나 구현 내부만 확인하면 `fault_example`을 잡는 관찰 결과로 다시 설계한다.
 선택한 자동 검사를 실행할 도구·환경이 없으면 `blocked`와 부족한 조건을 기록하고, 근거 없이
 `one_time_reproduction`으로 바꾸지 않는다.

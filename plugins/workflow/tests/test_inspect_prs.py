@@ -130,7 +130,7 @@ class InspectPrsTest(unittest.TestCase):
             elif args[0] == "pr":
                 self.assertEqual(args[args.index("--repo") + 1], f"{HOST}/{REPO}")
             else:
-                self.assertEqual(args, ["auth", "status", "--hostname", HOST])
+                self.assertEqual(args, ["auth", "status", "--active", "--hostname", HOST])
 
     def test_all_rest_lists_are_paginated_and_status_history_is_retained(self):
         replies = default_responses()
@@ -163,11 +163,12 @@ class InspectPrsTest(unittest.TestCase):
         replies = default_responses()
         replies["threads:31:first"] = connection([{"id": "T1", "isResolved": False, "isOutdated": True}], more=True, cursor="threads-next")
         replies["threads:31:threads-next"] = connection([{"id": "T2", "isResolved": True}])
-        replies["comments:T1:first"] = connection([{"id": "C1", "databaseId": 501, "body": "Inspect this", "commit": {"oid": HEAD}}],
+        replies["comments:T1:first"] = connection([{"id": "C1", "fullDatabaseId": "4194331938", "body": "Inspect this",
+                                                    "commit": {"oid": HEAD}}],
                                                   more=True, cursor="comments-next", comments=True)
-        replies["comments:T1:comments-next"] = connection([{"id": "C2", "databaseId": 502}], comments=True)
+        replies["comments:T1:comments-next"] = connection([{"id": "C2", "fullDatabaseId": "502"}], comments=True)
         replies["comments:T2:first"] = connection([], comments=True)
-        for endpoint in ("issues/31/reactions", "pulls/comments/501/reactions", "pulls/comments/502/reactions"):
+        for endpoint in ("issues/31/reactions", "pulls/comments/4194331938/reactions", "pulls/comments/502/reactions"):
             replies[f"{PREFIX}/{endpoint}?per_page=100&page=1"] = response([{"id": i, "content": "+1"} for i in range(100)])
             replies[f"{PREFIX}/{endpoint}?per_page=100&page=2"] = response([{"id": 101, "content": "eyes"}])
         process, data, _ = self.run_tool(replies, extra=("--include-reactions",))

@@ -73,8 +73,10 @@ def repository_arg(value):
 def target(args, root):
     if args.pr and args.pr.startswith("https://"):
         host, repo, number = repository_url(args.pr, pr=True)
-        if args.repository and repository_arg(args.repository) != (host, repo):
-            raise Failure("PR URL and --repository disagree")
+        if args.repository:
+            given_host, given_repo = repository_arg(args.repository)
+            if (given_host, given_repo.lower()) != (host, repo.lower()):
+                raise Failure("PR URL and --repository disagree")
         return host, repo, number
     if args.repository:
         host, repo = repository_arg(args.repository)
@@ -136,26 +138,28 @@ def ids(items):
     return sorted(set(values))
 
 
-def collect(root, host, repo, number):
+def collect(root, host, repo, number, before=None):
     endpoint = f"repos/{repo}/pulls/{number}"
     first = metadata(api(root, host, endpoint), host, repo, number)
     reviews = ids(api(root, host, f"{endpoint}/reviews?per_page=100", pages=True))
     comments = ids(api(root, host, f"{endpoint}/comments?per_page=100", pages=True))
-    if run(["git", "rev-parse", "--is-shallow-repository"], root) != "false":
-        raise Failure("shallow history cannot establish an exact merge base; prepare full history separately")
-    fixed = {}
-    for side in ("base", "head"):
-        sha = first[side]["sha"]
-        resolved = run(["git", "rev-parse", "--verify", f"{sha}^{{commit}}"], root)
-        if resolved != sha:
-            raise Failure(f"local {side} commit does not match GitHub SHA")
-        fixed[side] = sha
-    bases = run(["git", "merge-base", "--all", fixed["base"], fixed["head"]], root).splitlines()
-    if len(bases) != 1 or not SHA.fullmatch(bases[0]):
-        raise Failure("an unambiguous exact merge base is required")
-    fixed["merge_base"] = bases[0]
+    fixed = {side: first[side]["sha"] for side in ("base", "head")}
+    fixed["merge_base"] = None
+    # A closed PR or moved SHA is a change even when the new commits are not fetched locally.
+    moved = before is not None and any(before["fixed_shas"][side] != fixed[side] for side in ("base", "head"))
+    if first["state"] == "open" and not moved:
+        if run(["git", "rev-parse", "--is-shallow-repository"], root) != "false":
+            raise Failure("shallow history cannot establish an exact merge base; prepare full history separately")
+        for side in ("base", "head"):
+            resolved = run(["git", "rev-parse", "--verify", f"{fixed[side]}^{{commit}}"], root)
+            if resolved != fixed[side]:
+                raise Failure(f"local {side} commit does not match GitHub SHA")
+        bases = run(["git", "merge-base", "--all", fixed["base"], fixed["head"]], root).splitlines()
+        if len(bases) != 1 or not SHA.fullmatch(bases[0]):
+            raise Failure("an unambiguous exact merge base is required")
+        fixed["merge_base"] = bases[0]
     last = metadata(api(root, host, endpoint), host, repo, number)
-    return {**first, "merge_base": bases[0], "fixed_shas": fixed,
+    return {**first, "merge_base": fixed["merge_base"], "fixed_shas": fixed,
             "existing_review_ids": reviews, "existing_inline_comment_ids": comments,
             "collection_stable": first == last, "observed_after": last}
 
@@ -203,12 +207,13 @@ def main():
         before = load_snapshot(args.against) if args.command == "compare" else None
         identity = ((before["host"], before["repository"], before["number"])
                     if before else target(args, root))
-        snapshot = collect(root, *identity)
+        snapshot = collect(root, *identity, before=before)
         changed = not snapshot["collection_stable"] or snapshot["state"] != "open"
         result = {"schema_version": 1, "snapshot": snapshot}
         if before:
             changed_fields = [key for key in ("base", "head", "merge_base")
-                              if before["fixed_shas"][key] != snapshot["fixed_shas"][key]]
+                              if snapshot["fixed_shas"][key] is not None
+                              and before["fixed_shas"][key] != snapshot["fixed_shas"][key]]
             if before["state"] != snapshot["state"]:
                 changed_fields.append("state")
             changed = changed or bool(changed_fields)

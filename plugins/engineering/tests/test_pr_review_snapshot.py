@@ -156,6 +156,12 @@ class PrReviewSnapshotTest(unittest.TestCase):
         self.assertEqual(data["comparison"]["before"]["fixed_shas"]["head"], self.head_sha)
         self.assertEqual(data["comparison"]["after"]["fixed_shas"]["head"], self.moved_head)
 
+        self.gh([self.pr(head="a" * 40)])
+        result, data = self.run_tool("compare", "--against", str(before))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertEqual(data["comparison"]["changed_fields"], ["head"])
+        self.assertIsNone(data["snapshot"]["merge_base"])
+
     def test_compare_flags_closed_pr_and_rejects_unstable_snapshot(self):
         before = self.tmp / "before.json"
         self.capture(before)
@@ -192,6 +198,11 @@ class PrReviewSnapshotTest(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn("disagree", data["error"])
         self.assertEqual(self.calls(), [])
+
+        self.gh([self.pr()])
+        result, data = self.run_tool("capture", URL, "--repository", "GitHub.com/Acme/Catalog")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(data["snapshot"]["repository"], "acme/catalog")
 
         self.gh([self.pr(base_repo="acme/other")])
         result, data = self.run_tool("capture", URL)
