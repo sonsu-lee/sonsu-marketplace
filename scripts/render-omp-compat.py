@@ -139,6 +139,31 @@ def omp_korean_quick_rules(data):
     return text.encode("utf-8")
 
 
+def omp_research_readme(data):
+    """직접 adapter의 opt-in marker와 공급자 안내는 유지하고 설치·연속성·저장소 검증 안내만 omp로 바꾼다."""
+    text = data.decode("utf-8")
+    install = text.index("```bash\n", text.index("## 설치\n"))
+    install_end = text.index("```\n", install + len("```bash\n")) + len("```\n")
+    text = text[:install] + "```bash\nomp plugin install research@sonsu-marketplace\n```\n" + text[install_end:]
+    resume = text.index("\n\n", text.index("### 작업 연속성\n")) + 2
+    resume_end = text.index("\n\n", resume)
+    text = (text[:resume] + "[작업 연속성 참고 자료](references/continuity.md)에 따라 omp 순정 todo와 세션 기록으로 "
+            "진행을 관리합니다. 이 패키지는 hook, 연속성 실행기와 `.sonsu` 기록을 포함하지 않습니다." + text[resume_end:])
+    # Repository test commands do not apply to the installed package.
+    checks = text.index("## 검증\n")
+    following = text.find("\n## ", checks)
+    text = text[:checks].rstrip("\n") + "\n" + (text[following:] if following != -1 else "")
+    return text.encode("utf-8")
+
+
+def omp_target_profile(data):
+    """Codex·Claude 실행 프로필을 대상 프롬프트 참고 자료로만 읽게 한다."""
+    notice = ("> omp에서는 이 자료를 사용자가 지정한 Codex·Claude 대상 프롬프트를 작성할 때만 참고한다. "
+              "아래 모델·effort·인원·역할 호출 정책을 현재 omp 실행에 적용하지 않는다. "
+              "omp의 모델 선택·위임·세션 설정은 현재 호스트 정책을 따른다.\n\n")
+    return notice.encode("utf-8") + data
+
+
 def isolated_outputs(root, plugin_root, manifest, outputs, modes):
     destination = plugin_root / "omp"
     sources = []
@@ -164,10 +189,16 @@ def isolated_outputs(root, plugin_root, manifest, outputs, modes):
         data = source.read_bytes()
         if manifest["name"] == "prompting" and relative.as_posix() in (
                 "references/model-profiles.md", "references/claude-model-profiles.md"):
-            data = ("# omp에서 대상 모델 프로필 읽기\n\n"
-                    "이 자료는 사용자가 지정한 Codex·Claude 대상 프롬프트를 작성할 때만 참고한다. "
-                    "아래 모델·effort·인원·역할 호출 정책을 현재 omp 실행에 적용하지 않는다. "
-                    "omp의 모델 선택·위임·세션 설정은 현재 호스트 정책을 따른다.\n\n").encode("utf-8") + data
+            data = omp_target_profile(data)
+        if manifest["name"] == "research" and relative == Path("README.md"):
+            data = omp_research_readme(data)
+        if manifest["name"] == "writing" and relative == Path("UPSTREAM.md"):
+            link = "[검증 범위](../../evals/writing/README.md)"
+            text = data.decode("utf-8")
+            if text.count(link) != 1:
+                raise ValueError(f"writing UPSTREAM: expected one {link!r}")
+            # The eval guide stays in the repository, so the installed package names it as a path.
+            data = text.replace(link, "검증 범위(저장소의 `evals/writing/README.md`)").encode("utf-8")
         if manifest["name"] == "fluent-korean" and relative.parts[0] == "codex":
             relative = Path(*relative.parts[1:])
             if relative == Path("skills/fluent-korean/SKILL.md"):

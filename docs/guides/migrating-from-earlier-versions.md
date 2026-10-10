@@ -21,14 +21,15 @@ omp plugin marketplace add sonsu-lee/sonsu-marketplace
 for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
 ```
 
+Writing·Research·Prompting·Product·Design Patterns는 이제 omp opt-in 패키지로 제공됩니다. 이전 구성에서
+설치한 항목은 일반 `install`로 갱신되지 않으며, 그중 Writing·Research·Prompting·Product는 hook과 연속성
+실행기가 포함된 원본 패키지입니다. 계속 쓸 항목은 `omp plugin install --force <name>@sonsu-marketplace`로
+다시 설치하고, 쓰지 않을 항목은 `omp plugin uninstall <name>@sonsu-marketplace`로 제거합니다.
+
 이전 preset 때문에 추가한 `skills.ignoredSkills`, `task.disabledAgents`, `task.agentModelOverrides`
 항목만 설정에서 제거하고 사용자가 별도로 설정한 항목은 유지합니다. 세션을 종료하고 omp를 다시
 시작합니다. 실행 중 세션에는 이전 hook·agent가 남아 있을 수 있습니다.
 캐시 파일을 직접 편집하거나 기존 `.sonsu`·`.engineering` 기록을 삭제하지 않습니다.
-
-Writing·Research·Prompting·Product·Design Patterns는 omp opt-in 패키지로 제공됩니다. 이전 구성에서 설치한
-항목은 일반 `install`로 갱신되지 않으므로 필요한 것만 `omp plugin install --force <name>@sonsu-marketplace`로
-다시 설치해 opt-in 패키지로 바꿉니다.
 
 ## Career 제거
 

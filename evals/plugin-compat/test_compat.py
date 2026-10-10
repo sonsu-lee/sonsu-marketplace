@@ -281,17 +281,20 @@ class CodexPackagingTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as directory:
                 installed = Path(directory).resolve() / name
                 shutil.copytree(package, installed)
-                for subtree in ("skills", "references"):
-                    for document in (installed / subtree).rglob("*.md"):
-                        prose = re.sub(r"(?ms)^```[^\n]*\n.*?^```\s*$|`[^`\n]+`", "", document.read_text())
-                        for target in re.findall(r"!?\[[^]]+\]\(([^)]+)\)", prose):
-                            target = target.split("#", 1)[0]
-                            if not target or re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", target):
-                                continue
-                            with self.subTest(document=document.relative_to(installed), link=target):
-                                resolved = (document.parent / target).resolve()
-                                self.assertTrue(resolved.is_relative_to(installed))
-                                self.assertTrue(resolved.exists())
+                # Design's UPSTREAM records predate omp packaging and keep repository-relative links.
+                documents = [*(path for path in installed.glob("*.md")
+                               if not (name == "design" and path.name.startswith("UPSTREAM"))),
+                             *(path for subtree in ("skills", "references") for path in (installed / subtree).rglob("*.md"))]
+                for document in documents:
+                    prose = re.sub(r"(?ms)^```[^\n]*\n.*?^```\s*$|`[^`\n]+`", "", document.read_text())
+                    for target in re.findall(r"!?\[[^]]+\]\(([^)]+)\)", prose):
+                        target = target.split("#", 1)[0]
+                        if not target or re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", target):
+                            continue
+                        with self.subTest(document=document.relative_to(installed), link=target):
+                            resolved = (document.parent / target).resolve()
+                            self.assertTrue(resolved.is_relative_to(installed))
+                            self.assertTrue(resolved.exists())
                 if name == "design":
                     for script in ("scripts/design_md.mjs", "scripts/validate_design_quality.py",
                                    "scripts/validate_operations_contracts.py",
@@ -320,7 +323,10 @@ class CodexPackagingTests(unittest.TestCase):
                     self.assertEqual(generated.read_bytes(), script.read_bytes())
                     self.assertEqual(generated.stat().st_mode & 0o777, script.stat().st_mode & 0o777)
         research = ROOT / "plugins/research"
-        self.assertEqual((research / "omp/README.md").read_bytes(), (research / "README.md").read_bytes())
+        marker = re.compile(r"<!-- research-provider-opt-in:v1:start -->.*?<!-- research-provider-opt-in:v1:end -->", re.S)
+        generated_readme = (research / "omp/README.md").read_text()
+        self.assertEqual(marker.findall(generated_readme), marker.findall((research / "README.md").read_text()))
+        self.assertEqual(len(marker.findall(generated_readme)), 1)
         prompting = ROOT / "plugins/prompting"
         for name in ("model-profiles.md", "claude-model-profiles.md"):
             original = (prompting / "references" / name).read_text()

@@ -5,8 +5,6 @@
 ## 설치
 
 ```bash
-codex plugin add research@sonsu-marketplace
-claude plugin install research@sonsu-marketplace
 omp plugin install research@sonsu-marketplace
 ```
 
@@ -60,13 +58,6 @@ python3 skills/research/scripts/code_search_cache.py lookup --db /absolute/path/
 
 ### 작업 연속성
 
-여러 단계 작업은 [작업 연속성 참고 자료](references/continuity.md)에 따라 `.sonsu/continuity/`에 진행과 근거 위치를 기록하고 컴팩션·재개 후 현재 상태와 대조합니다. 포함된 `SessionStart` hook은 CLI의 `/hooks`에서 검토·신뢰한 뒤 실행되며, 사용할 수 없으면 참고 자료의 `read` 단계부터 수동으로 재개합니다. helper는 Python 3.9+와 POSIX(macOS/Linux)를 사용합니다. [기록 형식](../../docs/reference/task-continuity.md)과 [검증 범위](../../evals/task-continuity/README.md)를 참고하세요.
+[작업 연속성 참고 자료](references/continuity.md)에 따라 omp 순정 todo와 세션 기록으로 진행을 관리합니다. 이 패키지는 hook, 연속성 실행기와 `.sonsu` 기록을 포함하지 않습니다.
 
 출처와 로컬 변경 범위는 [`UPSTREAM.md`](UPSTREAM.md)에 있습니다.
-
-## 검증
-
-```bash
-python3 -B -m unittest discover -s plugins/research/tests -p 'test_*.py' -v
-python3 -B -m unittest plugins/research/skills/research/scripts/tests/test_code_search_cache.py -v
-```
