@@ -1,114 +1,63 @@
 # Engineering
 
-Codex와 Claude Code에서 설계·구현·디버깅·코드 품질·독립 리뷰를 수행하는 플러그인입니다. Quality Engineering의
-8개 품질 스킬을 통합하고 PR 리뷰의 워크트리 실행·결과 게시를 제공하는 3.0.6이며, 일반 코드 리뷰도 `engineering:review`로 진입합니다.
-기존 `quality-engineering:` 별칭과 별도 패키지는 제공하지 않습니다.
+Codex와 Claude Code에서 설계·계획·구현·디버깅·코드 품질·독립 리뷰를 현재 리비전의 검증 근거와 연결해 수행합니다.
 
-## omp 기본 구성과 직접 설치
-
-omp 기본 5개 플러그인 구성에서는 개발 실행·task·todo·session·review를 omp 순정 기능이 맡으며
-Engineering을 설치하거나 역할별 모델 설정을 추가하지 않습니다. 기존 [omp 모델 프로필](references/omp-model-profiles.md)과
-[실행 참고](references/omp-tools.md)는 Engineering을 직접 설치한 선택·legacy 호출자를 위해 유지합니다.
-관리형 gate는 관측한 native session-ID 증거가 있을 때만 명시적으로 선택합니다.
-
-## 실행 경계
-
-- 기계적 변경은 결정론적 변환·소비 검사로 처리합니다.
-- 동작 변경은 필요한 검사와 현재 호스트의 `general_review` 프로필 5개 독립 리뷰를 적용합니다.
-- 고위험 설계·상태·권한·복구 경계는 별도 `red_team` 프로필을 추가합니다.
-- PR 외 일반 리뷰 요청도 5개 새 문맥이 기본이며 전체 개발 계획·소스 수정을 요구하지 않습니다.
-  관점 하나의 집중 리뷰와 국소 수정 재검토는 `focused_review` 프로필 1개가 기본입니다.
-
-root가 위험과 작업 경계를 판단하고 필요한 수만큼 작업자를 할당합니다. 직접 실행과 위임은
-같은 수명주기를 사용합니다. 병렬 작성은 별도 worktree, 통합은 순차 실행입니다. worker는
-추가 할당을 root에 요청합니다. 현재 호스트의 기본 실행·세션·하위 에이전트 기능을 재사용합니다.
-
-## 진입점
-
-| 작업 | 스킬 |
-| --- | --- |
-| 범위와 설계 | `brainstorming` |
-| 의존성과 검증 계획 | `plan` |
-| 직접/위임 실행 | `execute-plan` |
-| 원인 진단 | `debug` |
-| 일반 코드 리뷰 | `review` |
-| PR 심층·다중 리뷰 | `review-pr` (기본 새 검토자 1명/라운드, 사용자 지정 우선) |
-| 개발 단계의 독립 리뷰 | `review` |
-| 도메인을 타입·상태에 반영 | `domain-shaped-code` |
-| 현재 코드 단순화 | `simplify-code` |
-| 복잡성·유지보수·실패·운영성 리뷰 | `review-overengineering`, `review-maintainability`, `review-failure-modes`, `review-operability` |
-| 넓은 삭제 가능성 감사 | `audit-overengineering` |
-| 피드백 검증 | `address-review` |
-| 작업 공간·브랜치 완료 | `worktree`, `finish-branch` |
-| 스킬 작성 | `write-skill` |
-
-스킬의 [공통 코드 품질](references/code-quality.md)은 일반 구현과 작업자 brief에도 적용합니다.
-확정한 도메인 타입으로 불가능한 경로를 제거하고 실제 신뢰 경계에서 검증합니다. 이미 보장한
-내부 경로의 중복 가드와 현재 요구 없는 fallback/추상화를 추가하지 않습니다.
-
-라우팅 자체는 각 스킬의 `description`이 담당합니다. [독립 리뷰 실행](references/independent-review.md),
-[위임](references/delegation.md), [완료 근거 확인](references/verification.md)과
-[작업 연속성](references/continuity.md)은 필요한 공개 스킬이 읽는 내부 자료입니다.
-연계할 작업이 없으면 별도 절차로 호출하지 않습니다.
-
-PR URL이나 번호를 대상으로 한 일반 리뷰 요청은 `review`가 담당합니다. 명시적인 PR 심층·다중 리뷰는
-`review-pr`가 담당합니다. 두 PR 경로는 호스트의 `pr_review` 설정으로 라운드당 1명을 새 세션·
-워크트리에서 실행하고 이전 대화·finding을 입력에서 제외합니다. Codex는 Luna xhigh,
-Claude Code는 Opus 5.5 medium을 요청하고 memory 주입·생성을 차단합니다. omp는 순정
-reviewer의 기존 모델·effort·memory·isolation·동시성 설정을 유지하며 실제 격리 상태를 기록합니다.
-판단이 막힐 때 근거를 확보하거나 상위 설정을 선택하며 상위 모델 전체 리뷰를 자동 추가하지 않습니다.
-검증한 문제를 이미 승인된 범위에서 수정한 뒤 전체 PR을 새 세션에서 다시 검토하고, 미해결이
-없으며 필요한 검사가 통과하면 종료합니다. 리뷰만 요청한 작업은 검증한 지적을 보고하고 끝냅니다.
-현재 검토 SHA의 통합 `COMMENT` 결과를 게시·재조회하며 로컬 수정과 원격 head를 구분합니다.
-직접 스킬 지정·모델·인원·로컬 전용·게시 금지 요청이 우선합니다. commit·push·merge와 개발
-DAG 게이트 권한은 별도입니다. PR 외 일반 리뷰·개발 게이트의 5인·라운드 상한은 유지합니다.
-
-`Selected model is at capacity`는 원인 미상의 Codex 일시 실행 오류로 기록하고 같은 설정으로
-재시도합니다. 이 문자열만으로 로컬 슬롯·계정 한도·모델 미지원이나 실제 서버 전체 장애를
-확정하지 않습니다. [PR 실행·게시 계약](references/pr-review-execution.md)에 재시도 상한,
-SHA 변경·불명확한 게시 응답·기존 댓글 중복 처리와 실행 한계를 정리했습니다.
-
-## 실행 정책과 프로그램 제어
-
-[품질 게이트](references/quality-gates.md)는 위험·측정·반환을,
-[실행 계약](references/agent-execution.md)은 작업자·문맥·통합을,
-[Codex 모델 프로필](references/model-profiles.md)과 [Claude Code 모델 프로필](references/claude-model-profiles.md)은
-호스트별 모델·effort 요청값을 정의합니다. Claude Code의 기본 역할 agent는 Sonnet `high`, Opus `medium`을 명시합니다.
-effort를 명시하지 않은 지원 모델의 하위 에이전트만 메인 세션의 `/effort`를 상속합니다.
-모델 표는 운영 기본값이며 사용자 지정을 우선합니다. 프로필 출처·날짜·평가 상태를 보존합니다.
-
-[관리형 게이트 CLI](references/evidence-gates.md)는 등록한 DAG의
-진입·완료, 검사·리뷰 근거 최신성과 의존성을 검사합니다. `Stop` hook은 관찰만 합니다.
-임의 도구 호출 전체를 차단하거나 리뷰 의미의 정확성을 증명하지 않습니다.
-설계/계획은 고정 문서 패키지, 구현/통합은 전체 workspace snapshot을 사용합니다.
-
-공유 정책 원본은 `shared/agent-policy`, 연속성 원본은 `shared/task-continuity`입니다.
-각 패키지에 필요한 사본을 생성하므로 Engineering 단독 설치로 동작합니다. 실행 시 다른
-플러그인 파일 경로나 설치를 전제하지 않습니다. 변경과 [전달 권한](references/delivery-authority.md)은
-별개이며 Git 작업·PR 생성과 제목/본문 작성은 요청한 범위에서 Workflow와 연결합니다.
-기존 PR의 통합 리뷰 게시·재조회는 Engineering의 PR 리뷰 계약이 소유합니다.
-
-### Codex 기본 모델 전환
-
-marketplace 소스 저장소에서 지정된 6개 Codex 역할을 한 번에 전환하고 Engineering·Prompting의
-프로필 사본을 다시 생성합니다. 선택한 값은 `shared/agent-policy/profiles.json`에 저장되어
-다음 일반 생성에서도 유지됩니다.
+## 설치
 
 ```bash
-python3 scripts/render-agent-policy.py --codex-primary-model gpt-6-astra
-# GPT-6.1 Sol로 전환
+codex plugin add engineering@sonsu-marketplace
+claude plugin install engineering@sonsu-marketplace
+```
+
+omp 기본 구성에서는 개발 실행·task·todo·session·review를 omp 순정 기능이 맡습니다. Engineering을 직접 설치한 omp 호출자는 [omp 모델 프로필](references/omp-model-profiles.md)과 [실행 참고](references/omp-tools.md)를 사용하며, 관리형 gate는 관측한 native session-ID 증거가 있을 때만 명시적으로 선택합니다.
+
+## 스킬
+
+| 스킬 | 사용할 때 | 결과 |
+| --- | --- | --- |
+| `brainstorming` | 구현 전에 범위와 설계 경계를 정할 때 | 작업 경로·설계 선택·문서 영향 |
+| `plan` | 여러 흐름·파일·검증을 조정할 때 | 의사코드·대응표·작업·검증 계획 |
+| `execute-plan` | 승인된 계획을 직접 또는 위임으로 실행할 때 | 현재 근거로 닫은 unit과 전체 작업 |
+| `test-driven-development` | 동작 변경이나 자동 검사 추가 전에 검증 방식을 정할 때 | `verification_mode`와 RED·GREEN 결과 |
+| `debug` | 실패·오류의 원인을 찾을 때 | 원인·수정·회귀 검증 |
+| `review` | 코드·diff·PR을 일반·심층·다중 리뷰할 때 | 근거 있는 finding과 PR 게시 결과 |
+| `review-overengineering`, `review-maintainability`, `review-failure-modes`, `review-operability` | 한 관점의 집중 리뷰를 요청할 때 | 해당 관점의 finding |
+| `audit-overengineering` | 저장소 범위의 삭제 가능성을 감사할 때 | 순위화한 제거 후보 |
+| `domain-shaped-code` | 도메인 계약을 타입·상태에 반영할 때 | 신뢰 경계 검증과 좁은 도메인 표현 |
+| `simplify-code` | 현재 코드를 단순화할 때 | 보장을 유지한 단순화 |
+| `address-review` | 받은 리뷰 지적을 검증·처리할 때 | 수정·기각·비차단·확인 필요 상태 |
+| `worktree`, `finish-branch` | 작업 공간을 준비하거나 브랜치를 마무리할 때 | 격리 공간 또는 통합·보존 결과 |
+| `write-skill` | 스킬을 작성·수정하고 검증할 때 | 수정된 계약과 확인 상태 |
+
+PR URL이나 번호를 대상으로 한 리뷰는 `review`가 맡고, 심층·다중 리뷰는 같은 스킬의 요청 옵션입니다. [공통 코드 품질](references/code-quality.md)은 일반 구현과 작업자 brief에도 적용합니다.
+
+## 사용 예시
+
+요청: “`feature/export` 변경을 리뷰해 줘. PR은 아직 없어.”
+
+`review`가 `scripts/review-package range <base> <head>`로 입력을 고정하고 현재 호스트의 `general_review` 새 검토자 5명 결과를 통합합니다. 결과는 위치·근거·조건과 영향·최소 수정이 연결된 finding 목록이며, 확인 범위와 실행하지 못한 검토를 함께 보고합니다.
+
+## 구성
+
+| 영역 | 정본 |
+| --- | --- |
+| 위험·측정·반환 | [품질 게이트](references/quality-gates.md) |
+| 작업자·문맥·통합 | [실행 계약](references/agent-execution.md), [위임](references/delegation.md) |
+| 일반·집중 독립 리뷰 | [독립 리뷰 실행](references/independent-review.md), [공통 리뷰 기준](references/review-criteria.md) |
+| PR 리뷰 실행·게시 | [PR 실행·게시 계약](references/pr-review-execution.md) |
+| 호스트별 모델·effort | [Codex](references/model-profiles.md), [Claude Code](references/claude-model-profiles.md), [omp](references/omp-model-profiles.md) |
+| DAG 진입·완료·근거 최신성 | [관리형 게이트 CLI](references/evidence-gates.md) |
+| 완료 근거·연속성·전달 권한 | [완료 근거](references/verification.md), [연속성](references/continuity.md), [전달 권한](references/delivery-authority.md) |
+
+`Stop` hook은 관찰만 합니다. 공유 정책 원본은 `shared/agent-policy`, 연속성 원본은 `shared/task-continuity`이며 패키지 사본은 생성기로 만들어 Engineering 단독 설치로 동작합니다. Git 작업·PR 생성과 본문 작성은 Workflow가, 기존 PR의 통합 리뷰 게시·재조회는 Engineering의 PR 리뷰 계약이 맡습니다.
+
+Codex 기본 모델은 marketplace 소스 저장소에서 다음 명령으로 6개 역할(`implementation`, `complex_design`, `senior_review`, `adjudication`, `complex_adjudication`, `red_team`)을 한 번에 전환합니다. 선택값은 `shared/agent-policy/profiles.json`에 저장되며 나머지 역할 설정과 Claude Code·omp 정책은 유지됩니다. `--check`는 읽기 전용이며 전환 옵션과 함께 쓰지 않습니다.
+
+```bash
 python3 scripts/render-agent-policy.py --codex-primary-model gpt-6.1-sol
 ```
 
-현재 전환 대상은 `implementation`, `complex_design`, `senior_review`, `adjudication`,
-`complex_adjudication`, `red_team`입니다. 대상 역할은 현재 모델과 관계없이 전환하며,
-나머지 역할의 개별 모델 설정과 effort·인원, Claude Code·omp 정책은 유지합니다.
-`--check`는 읽기 전용이며 전환 옵션과 함께 사용할 수 없습니다.
-정본은 생성물 갱신이 모두 끝난 뒤 원자적으로 교체합니다. 도중에 쓰기가 실패하면 기존
-정본이 유지되며, 쓰기 오류를 해결한 뒤 일반 생성 명령으로 사본을 정본에 맞춰 복구할 수 있습니다.
-릴리스할 때 정책 version·확인 날짜와 Engineering·Prompting 패키지 버전을 갱신하고,
-호환 메타데이터도 재생성합니다. 설치본에는 marketplace 업데이트 후 새 작업부터 적용합니다.
-이 명령은 배포·설치 캐시·현재 root의 모델 설정을 변경하지 않습니다.
+정본은 생성물 갱신이 모두 끝난 뒤 원자적으로 교체됩니다. 릴리스할 때 정책 version·확인 날짜와 Engineering·Prompting 패키지 버전을 갱신하고 호환 메타데이터를 재생성합니다. 이 명령은 배포·설치 캐시·현재 root의 모델 설정을 바꾸지 않습니다.
 
 ## 검증
 
@@ -117,13 +66,10 @@ python3 scripts/render-agent-policy.py --check
 python3 scripts/render-claude-compat.py --check
 python3 scripts/render-omp-compat.py --check
 python3 scripts/render-continuity.py --check
-python3 -m unittest discover -s plugins/engineering/tests -p 'test_*.py'
-python3 -m unittest discover -s evals/task-continuity -p 'test_*.py'
-python3 -m unittest discover -s evals/plugin-compat -p 'test_*.py'
+python3 -B -m unittest discover -s plugins/engineering/tests -p 'test_*.py'
+bash plugins/engineering/tests/review-package.test.sh
+python3 -B -m unittest discover -s evals/task-continuity -p 'test_*.py'
+python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py'
 ```
 
-실제 모델 동작과 native 스킬 선택은 [marketplace-v2 평가](../../evals/marketplace-v2/README.md)에
-별도로 기록합니다. 기존 v1 evidence와 ADR은 이력으로 보존하며 새 정책의 통과로 자동 이관하지 않습니다.
-설치 캐시·사용자 설정을 소스 변경만으로 갱신하지 않습니다.
-
-라이선스와 포함 출처는 [LICENSE](LICENSE), [UPSTREAM.md](UPSTREAM.md)를 확인하세요.
+실제 모델 동작과 native 스킬 선택은 [marketplace-v2 평가](../../evals/marketplace-v2/README.md)에 기록합니다. 라이선스와 포함 출처는 [LICENSE](LICENSE), [UPSTREAM.md](UPSTREAM.md)를 확인하세요.

@@ -4,6 +4,16 @@
 전이만 나타내고, 금지된 경로를 처음부터 표현할 수 없게 만들 때 사용한다. 아직 확인되지 않은
 variant, abstraction과 extension point를 미래 가능성만으로 추가하지 않는다.
 
+## 공통 우선순위
+
+1. 확인된 제품·도메인 계약
+2. correctness, security, data integrity, accessibility와 compatibility
+3. 실제 실행 흐름을 읽는 사람의 이해 비용
+4. 단순성과 제거 가능한 코드
+5. 아직 확인되지 않은 확장 가능성
+
+뒤 순위 때문에 앞 순위를 희생하지 않는다.
+
 ## 신뢰 경계에서 보증을 만든다
 
 사용자 입력, 네트워크 응답, 환경 변수, 파일, 데이터베이스 역직렬화와 외부 라이브러리 결과는
@@ -12,8 +22,8 @@ variant, abstraction과 extension point를 미래 가능성만으로 추가하�
 
 다음 경우에는 경계 안에서도 검사를 유지한다.
 
-- mutable state나 외부 호출자가 불변식을 깨뜨릴 수 있다.
-- 별도 entry point가 최초 trust boundary를 우회할 수 있다.
+- mutable state나 다른 호출자가 불변식을 깨뜨릴 수 있다.
+- trust boundary가 명확하지 않거나 별도 entry point가 최초 경계를 우회할 수 있다.
 - 실패를 더 가까운 책임 경계에서 구분해야 복구하거나 올바르게 보고할 수 있다.
 
 검사를 줄일 때에는 실제 경계·mutable 경로·대체 entry point를 먼저 확인한다. 타입 선언만으로

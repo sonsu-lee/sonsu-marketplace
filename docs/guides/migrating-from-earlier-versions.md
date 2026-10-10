@@ -42,6 +42,18 @@ claude plugin uninstall career@sonsu-marketplace
 omp plugin uninstall career@sonsu-marketplace
 ```
 
+## Engineering 리뷰 진입점 변경
+
+PR 리뷰는 `review` 하나로 요청합니다. 이전 `$review-pr` 요청은 `$review`에 PR 번호나 URL과
+원하는 깊이(심층·다중)를 함께 적으면 같은 동작을 합니다.
+
+`sdd-review-package PLAN BASE HEAD` 대신 정본 도구에 출력 경로를 직접 넘깁니다.
+
+```sh
+out_dir=$(mktemp -d "$(sdd-workspace PLAN)/review-BASE..HEAD.XXXXXX")
+review-package range BASE HEAD "$out_dir/package.diff"
+```
+
 ## fluent-languages에서 언어별 플러그인으로 이동
 
 이전 `fluent-languages` 설치본이 있으면 언어 스킬의 적용 범위가 겹치므로 먼저 제거하고 필요한

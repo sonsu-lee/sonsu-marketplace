@@ -13,8 +13,8 @@
 # .gitignore at .engineering/sdd/ keeps every plan's workspace out of
 # `git status` and out of accidental commits without modifying any tracked file.
 #
-# Single source of truth for the workspace location, so task-brief and
-# review-package cannot drift to different directories.
+# Single source of truth for the workspace location; task-brief and callers
+# that pass an OUTFILE to review-package use this same directory.
 #
 # Usage: sdd-workspace PLAN_FILE
 set -euo pipefail

@@ -11,7 +11,7 @@
 
 | 플러그인 | 판정 | 대상 | omp 현재 | omp 제안 | 스킬 수 | 문서 지적 수 | 근거 |
 |---|---|---|---|---|---|---|---|
-| engineering | new-tool |  | not-distributed | not-distributed | 18 | 41 | 호스트별 실행 계약과 내용 주소 기반 품질 근거는 고유하지만 PR 상태 고정과 계획 연결 검사에는 산문으로 남은 결정론적 단계가 있다. 기존 게이트·패키지 도구를 재사용하고 그 두 공백만 도구화한다. |
+| engineering | keep |  | not-distributed | not-distributed | 17 | 1 | 호스트별 실행 계약과 내용 주소 기반 품질 근거는 고유하다. PR 리뷰 진입점은 review 하나로 합쳤고 계획 구조 검사와 PR snapshot 수집은 validate_plan.py·pr_review_snapshot.py로 도구화해 판단과 수집을 분리했다. |
 | workflow | new-tool |  | default | default | 9 | 24 | 독립적인 전달 업무와 안전 계약은 유지한다. to-pr의 Git·GitHub 상태 수집은 pr_context.py로 분리했고, 남은 to-pr 첨부 manifest 검사와 inspect-prs의 페이지 수집·상태 정규화를 읽기 전용 도구로 분리한다. |
 | fluent-korean | keep |  | default | default | 2 | 14 | Codex 단일 호출과 Claude 다단계 스킬을 유지하고 공통 규칙을 정리하는 방향이 맞습니다. 기계 단계는 기존 스크립트를 재사용하며 미포함 commit-ko·평가 의존성 및 상위 프로젝트 홍보 도구를 번들에서 줄일 수 있습니다. |
 | fluent-english | new-tool |  | default | default | 1 | 5 | 독립적인 영어 작성·윤문 지침을 유지하면서 수치 기반 voice calibration과 보호 문자열 대조를 코드에 맡깁니다. |
@@ -29,11 +29,7 @@
 
 | 경로 | 판정 | 대상 | 근거 |
 |---|---|---|---|
-| plugins/engineering/scripts/sdd-review-package | merge | plugins/engineering/scripts/review-package | 현재 구현은 호환 서명과 기본 출력 위치를 위한 wrapper다. 호출자가 정본의 range와 명시 OUTFILE을 쓰도록 전환하면 별도 포장 진입점이 필요 없다. |
 | plugins/engineering/skills/debug/condition-based-waiting-example.ts | to-reference | plugins/engineering/skills/debug/condition-based-waiting.md | `~/threads` 경로의 Lace 타입을 import하므로 이 패키지에서 실행하거나 타입 검사할 수 없다. 실행 도구가 아니라 조건 기반 대기의 구현 형태를 보여 주는 자료이므로 필요한 부분만 reference 예시로 옮긴다. |
-| plugins/engineering/skills/plan/SKILL.md | new-tool |  | 명시된 Flow·Task ID와 파일 참조 누락은 기계적으로 검사할 수 있다. 의미적 적합성 리뷰는 유지하고 구조적 누락 검사만 도구화한다. |
-| plugins/engineering/skills/review-pr/SKILL.md | merge | engineering:review | 현재 review의 PR 경로도 같은 pr-review-execution.md와 같은 기본 1명·새 세션·게시 계약을 쓴다. 심층·다중은 review의 요청 옵션으로 합치면 두 진입점의 실행 중복을 줄일 수 있다. |
-| plugins/engineering/skills/review/SKILL.md | new-tool |  | PR 대상 상태·merge base·고정 SHA·게시 전후 동일성 확인이 산문으로 남아 있다. 기존 패키지 도구 위에 읽기 전용 PR snapshot 수집 도구를 제공하면 판단과 수집을 분리할 수 있다. |
 | plugins/workflow/skills/inspect-prs/SKILL.md | new-tool |  | 조회 결과 해석은 독립 과업으로 유지하고, 페이지 수집·필드 정규화·head 변경 감지는 반복 가능한 읽기 전용 수집기로 옮긴다. |
 | plugins/workflow/skills/to-pr/SKILL.md | new-tool |  | Git 상태·양식 탐색·stack ancestry·게시 전 재확인은 pr_context.py가 수집하고 PR 경계·글쓰기·승인·게시 판단은 스킬에 남았다. 첨부 manifest의 파일·digest·필수 필드 검사는 아직 문서 절차이므로 validator로 분리한다. |
 | plugins/fluent-korean/scripts/build_social_preview_v2.py | delete |  | v2.3 생성기와 동일한 출력 파일을 쓰는 이전 홍보 자산 도구이며 이 패키지에는 assets나 홍보 이미지 생성 과업이 없습니다. |
@@ -53,8 +49,6 @@
 
 | 스킬 | 위치 | 단계 | 제안 | 기존 도구 |
 |---|---|---|---|---|
-| plugins/engineering/skills/plan/SKILL.md | plugins/engineering/skills/plan/SKILL.md:181-185 | 계획의 Flow·Task ID 참조, 중복·누락, 선언한 파일 경로 존재를 검사하는 validator를 제공한다. | validator | - |
-| plugins/engineering/skills/review/SKILL.md | plugins/engineering/references/pr-review-execution.md:27-40 | gh·git으로 PR host·repository·base/head·merge base·기존 리뷰 ID를 읽기 전용 JSON으로 수집하고 게시 전후 SHA를 대조한다. | script | - |
 | plugins/workflow/skills/inspect-prs/SKILL.md | plugins/workflow/references/pr-inspection.md:7-31 | gh REST·GraphQL의 PR·reviews·check runs·statuses·reviewThreads 페이지를 모두 수집해 head와 조회 시점을 붙이고 부분 실패를 구조화한다. | script | - |
 | plugins/workflow/skills/to-pr/SKILL.md | plugins/workflow/skills/to-pr/references/media-attachments.md:111-119 | 첨부 manifest의 파일 존재·regular file identity·크기·SHA-256·형식과 필수 필드 누락을 검사하고 중복 underlying file을 표시한다. 화면의 민감정보·annotation 적절성은 별도 판단으로 남긴다. | validator | - |
 | plugins/fluent-english/skills/fluent-english/SKILL.md | plugins/fluent-english/skills/fluent-english/references/voice-and-context.md:100-120 | 원문·샘플·윤문본의 문장 길이, 축약형·인칭·유보 표현과 문장부호 빈도를 같은 규칙으로 집계하고 전후 차이를 반환합니다. | script | - |
@@ -69,7 +63,7 @@
 
 | 플러그인 | negative-definition | history | duplicate-rule | missing-example | structure | internal-detail |
 |---|---|---|---|---|---|---|
-| engineering | 1 | 2 | 14 | 16 | 8 | 0 |
+| engineering | 0 | 0 | 1 | 0 | 0 | 0 |
 | workflow | 2 | 1 | 6 | 8 | 7 | 0 |
 | fluent-korean | 3 | 2 | 3 | 2 | 2 | 2 |
 | fluent-english | 1 | 1 | 1 | 1 | 1 | 0 |

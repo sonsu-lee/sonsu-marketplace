@@ -42,6 +42,7 @@ Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering
 | `using-git-worktrees` | `worktree` |
 | `finishing-a-development-branch` | `finish-branch` |
 | `writing-skills` | `write-skill` |
+| `review-pr` | `review` (PR 경로의 심층·다중 요청 옵션) |
 | `using-engineering-skills`, `requesting-code-review`, `verification-before-completion`, `dispatching-parallel-agents`, `subagent-driven-development` | README 라우팅과 `references/`의 공통 절차 |
 
 Workflow의 `git-workflow`는 `branch`, `commit`, `push`, `review-commit`으로 나뉘었습니다.
@@ -72,7 +73,7 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 | 기존 ticket의 작업 시작·review·완료 상태, 담당자와 native relation 변경 | `workflow:ticket-lifecycle` |
 | PR 상태·CI·리뷰·미해결 대화 조회 | `workflow:inspect-prs` |
 | 지정 PR의 충돌·리뷰 지적·CI 실패 처리 | `workflow:repair-pr` |
-| 독립된 PR 심층·다중 리뷰 또는 명시적 호출 | `engineering:review-pr` |
+| GitHub PR 일반·심층·다중 리뷰 | `engineering:review` (PR 경로, 기본 `pr_review` 새 검토자 1명/라운드) |
 | 일반·운영 UI의 새 화면·흐름 설계, Figma 또는 코드 | `design:design-interface` |
 | 일반·운영 UI의 기존 화면·흐름 재설계, Figma 또는 코드 | `design:redesign-interface` |
 | 기존 코드·화면·Figma의 읽기 전용 감사 | `design:audit-interface` |
@@ -117,10 +118,10 @@ Figma가 정본이면 native 화면·prototype을 완성하고 사용자에게 �
 담당합니다. Mobbin·Refero 같은 전용 MCP나 Research 플러그인이 없어도 host 웹 검색으로
 대체하거나 `no_verified_match`를 보고하며, MCP 서버나 플러그인을 자동 설치하지 않습니다.
 
-PR URL만으로 심층 리뷰를 시작하지 않고, 일반 리뷰와 명시적인 심층·다중 리뷰를 구분합니다.
-리뷰 의도는 요청과 기존 문맥에서 확인하며, 문맥 없는 URL 단독 입력에 리뷰·게시를 추가하지 않습니다.
-두 PR 리뷰 경로 모두 리뷰어별 별도 세션·워크트리에서 병렬 검토한 뒤 원인별로 중복을 제거해
-해당 PR에 `COMMENT` 리뷰를 게시합니다. 로컬 전용·게시 금지 요청은 우선합니다.
+PR URL만으로 심층 리뷰를 시작하지 않습니다. PR 리뷰는 `review`의 PR 경로 하나이며 심층·다중은
+그 경로의 요청 옵션입니다. 리뷰 의도는 요청과 기존 문맥에서 확인하며, 문맥 없는 URL 단독 입력에
+리뷰·게시를 추가하지 않습니다. 라운드마다 새 세션·워크트리의 검토자(기본 1명, 사용자 지정 인원은
+병렬)가 검토한 뒤 원인별로 중복을 제거해 해당 PR에 `COMMENT` 리뷰를 게시합니다. 로컬 전용·게시 금지 요청은 우선합니다.
 [PR 실행·게시 계약](../../plugins/engineering/references/pr-review-execution.md)이 SHA 고정,
 Codex 일시 오류 재시도, 기존 댓글 중복과 게시 결과 재조회를 소유합니다.
 
@@ -210,8 +211,8 @@ Prompting만 설치된 환경에서도 Codex, ChatGPT와 OpenAI API용 프롬프
 ## 코드 품질과 리뷰
 
 일반 리뷰, 도메인 타입·상태, 단순화, 유지보수·실패·운영성은 Engineering 내부의 전문 스킬입니다.
-일반 리뷰와 개발 단계의 독립 전체 리뷰는 `review`, 특정 관점은 해당 focused 스킬,
-독립 PR 심층·다중 리뷰는 `review-pr`가 맡습니다. 리뷰 패키징과 결과 수집은
+일반 리뷰, 개발 단계의 독립 전체 리뷰와 GitHub PR의 일반·심층·다중 리뷰는 `review`, 특정 관점은
+해당 focused 스킬이 맡습니다. 리뷰 패키징과 결과 수집은
 [독립 리뷰 실행 절차](../../plugins/engineering/references/independent-review.md)를 공유합니다.
 판단 기준은 패키지의 공통 references를 재사용합니다.
 

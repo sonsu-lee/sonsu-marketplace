@@ -1,6 +1,6 @@
 ---
 name: execute-plan
-description: 승인된 여러 단계의 작업을 직접 또는 하위 에이전트로 실행·통합하거나 기존 계획을 재개할 때 사용한다
+description: 승인된 여러 단계의 작업을 직접 또는 하위 에이전트로 실행·통합하거나 기존 계획을 재개할 때 사용한다.
 ---
 
 # 계획 실행
@@ -9,7 +9,9 @@ description: 승인된 여러 단계의 작업을 직접 또는 하위 에이전
 있으며 작업별 커밋은 선행 조건이 아니다. 주 조정자는 [연속성 참고 자료](../../references/continuity.md)에
 안정적인 task ID·현재 근거·다음 작업을 기록한다.
 
-## 준비
+## 절차
+
+### 준비
 
 현재 승인과 작업 공간을 확인한다. 목표 → 동작 흐름 → 작업·의존성 → 검사·통과 조건이
 연결돼야 한다. 이미 승인된 내부 선택은 계속하고 새 계약 결정에 의존하는 작업만 보류한다.
@@ -20,7 +22,7 @@ description: 승인된 여러 단계의 작업을 직접 또는 하위 에이전
 있는 작업은 [병렬 위임 경계](../../references/delegation.md)에 따라 실행 묶음과 담당자를
 정하고, 직접 처리할 작업은 의존성·공유 자원·조정 비용 중 실제 이유를 남긴다.
 
-## 실행·통합
+### 실행·통합
 
 1. `ready`로 현재 선행 조건을 확인하고 `enter`로 작업 진입을 기록한다.
 2. 적격 실행 묶음은 root가 [실행 계약](../../references/agent-execution.md)에
@@ -41,29 +43,53 @@ description: 승인된 여러 단계의 작업을 직접 또는 하위 에이전
    증거가 아니므로 `status`의 유효 상태를 확인한다.
 6. root가 작업 결과를 순차 통합하고 최종 workspace에서 통합 unit의 필수 검사·리뷰를 수행한다.
 
-임의 도구 호출까지 gate가 막는 것은 아니다. 등록한 unit의 진입·완료를 우회하지 않는다.
+등록한 unit의 진입·완료는 gate 명령으로 기록한다. gate가 임의 도구 호출까지 막지는 않는다.
 호스트 세션 완료와 품질 완료를 구분한다. 정상 작업이 실패하면 원인을 고치며 환경 부재는
 `blocked`, 근거 부족은 `inconclusive`로 남긴다.
 
-## 수정과 재개
+### 수정과 재개
 
 지적은 [address-review](../address-review/SKILL.md)로 검증한다. 유효한 지적만
 가장 가까운 구현·계획·설계·검증 단계에서 수정한다. 원인 불명은 debug으로
 보낸다. 집중 수정 brief는 [fix-implementer-prompt.md](fix-implementer-prompt.md)를 사용한다.
 원 구현자 재개 또는 새 문맥 선택은 반례·문맥·가용성으로 판단한다.
 
-일반 전체 리뷰는 호스트의 `general_review` 프로필 5개로 한 라운드다. 국소 수정은 이전 전체 근거와 새 `focused_review`
-프로필 1개를 연결한다. 계약·설계·의존 경계 변화나 영향 불명확성은 전체 리뷰를 다시 연다.
-고위험 unit만 별도 `red_team` 프로필을 거친다. 최대 5라운드는 작업·게이트에 누적하며
-세션·담당자·정책 재분류로 초기화하지 않는다. 같은 입력의 검증을 형식적으로 반복하지 않는다.
+리뷰 인원·집중 재리뷰·red-team 적용과 누적 라운드는
+[품질 게이트의 독립 리뷰와 수정](../../references/quality-gates.md#독립-리뷰와-수정)과
+[독립 리뷰 실행 절차](../../references/independent-review.md)를 따른다. 같은 입력의 검증을
+형식적으로 반복하지 않는다.
 
 계약 변경은 의존 unit의 근거를 다시 검토한다. 이미 유효한 독립 작업은 보존한다. 사용자
 목표 변경은 해당 결정을 확인하지만 기존 승인 안의 계획·구현 보완에는 새 승인을 요구하지 않는다.
 
-## 완료
+### 완료
 
 등록한 모든 필수 unit이 현재 근거로 충족되면 [완료 근거 확인](../../references/verification.md)에
-따라 실제 주장과 검사·리뷰의 리비전을 대조하고 `close`한다. `accepted_risk`는 사람의 명시된
-결정으로 별도 보고하며 통과로 바꾸지 않는다. 변경 결과·실제 검사·독립 리뷰·red-team 적용 여부·
-미실행·미해결·근거 한계를 보고한다. [전달 권한](../../references/delivery-authority.md)에 따라
-승인된 Git/외부 작업만 수행하고 미승인이라면 검증된 diff 상태로 전달한다.
+따라 실제 주장과 검사·리뷰의 리비전을 대조하고 `close`한다.
+
+## 결과
+
+변경 결과·실제 검사·독립 리뷰·red-team 적용 여부·미실행·미해결·근거 한계를 보고한다.
+`accepted_risk`는 사람의 명시된 결정으로 별도 보고하며 통과로 바꾸지 않는다.
+
+## 예시
+
+승인된 계획에 `parse-config` → `render-report` 두 unit이 있고 `render-report`는 앞 unit을
+필요로 한다. `ready --task-id report-export`가 `parse-config`만 진입 가능하다고 보여 주면
+`enter --task-id report-export --unit parse-config --request-id parse-enter-1`로 작업을 시작한다.
+구현 뒤 `run --task-id report-export --unit parse-config --check tests`의 결과와 필수 리뷰를
+현재 snapshot에 연결하고 `complete-unit ... --request-id parse-complete-1`을 요청한다.
+완료 응답 뒤 `status`가 유효하다고 표시할 때만 다음 `ready`에서 `render-report`로 진행한다.
+
+## 경계
+
+- [전달 권한](../../references/delivery-authority.md)에 따라 승인된 Git/외부 작업만 수행하고,
+  미승인이라면 검증된 diff 상태로 전달한다.
+- 등록한 unit의 진입·완료를 우회하거나 과거 idempotent 응답을 현재 유효성으로 사용하지 않는다.
+
+## 참고 자료
+
+- [품질 게이트](../../references/quality-gates.md), [관리형 게이트](../../references/evidence-gates.md)
+- [독립 리뷰 실행 절차](../../references/independent-review.md), [실행 계약](../../references/agent-execution.md)
+- [병렬 위임 경계](../../references/delegation.md), [위임 절차](../../references/subagent-development.md)
+- [집중 수정 brief](fix-implementer-prompt.md), [작업 연속성](../../references/continuity.md)
