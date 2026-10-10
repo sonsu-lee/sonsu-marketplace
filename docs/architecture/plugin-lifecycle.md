@@ -52,12 +52,13 @@ Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-
 생성합니다. memory-manager의 정리·승격 스킬과 worklog의 개선 스킬에는 Claude의 수동 호출 제한을 적용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
 Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 
-## omp는 기본 5개와 opt-in Worklog·Design Patterns를 배포한다
+## omp는 기본 5개와 opt-in 6개를 배포한다
 
 `python3 scripts/render-omp-compat.py`는 Codex catalog의 순서를 유지하며 기본 5개인 `workflow`,
-`fluent-korean`, `fluent-english`, `fluent-japanese`, `design`과 opt-in `worklog`·`design-patterns`를
+`fluent-korean`, `fluent-english`, `fluent-japanese`, `design`과 opt-in 6개인
+`writing`, `research`, `prompting`, `product`, `design-patterns`, `worklog`를
 `.omp-plugin/marketplace.json`에 생성합니다. Codex·Claude Code 배포 대상과 원본 패키지는 바꾸지 않습니다.
-Worklog·Design Patterns는 기본 구성에 포함하지 않고 필요한 사용자만 별도로 설치합니다.
+opt-in 플러그인은 기본 구성에 포함하지 않고 필요한 사용자만 별도로 설치합니다.
 
 | 플러그인 | omp catalog의 source |
 | --- | --- |
@@ -65,11 +66,15 @@ Worklog·Design Patterns는 기본 구성에 포함하지 않고 필요한 사�
 | Fluent Korean | `./plugins/fluent-korean/omp` |
 | Fluent English | `./plugins/fluent-english` |
 | Fluent Japanese | `./plugins/fluent-japanese` |
+| Writing(opt-in) | `./plugins/writing/omp` |
+| Research(opt-in) | `./plugins/research/omp` |
+| Prompting(opt-in) | `./plugins/prompting/omp` |
+| Product(opt-in) | `./plugins/product/omp` |
 | Design Patterns(opt-in) | `./plugins/design-patterns` |
 | Design | `./plugins/design/omp` |
 | Worklog(opt-in) | `./plugins/worklog/omp` |
 
-Design·Workflow의 omp 전용 패키지는 필요한 skills·references·assets·scripts·figma-plugin·라이선스를
+Design·Workflow·Writing·Research·Prompting·Product의 omp 전용 패키지는 필요한 skills·references·assets·scripts·figma-plugin·라이선스를
 원본 패키지에서 생성해 다른 플러그인 없이 쓸 수 있게 합니다. 스크립트의 실행 권한은 복사할 때 유지합니다.
 독자 hook, evidence gate, `task-continuity.py`, omp runtime extension은 포함하지 않습니다. 원본 패키지의
 hook·연속성 스크립트는 Codex·Claude Code용으로 남깁니다. Fluent Korean은 Codex 단일 호출 경로의
@@ -78,6 +83,11 @@ Claude Code의 다중 호출·strict 모드와 고정 Opus 에이전트를 요�
 Design의 품질 계약·프로필, Workflow의 작업 권한 경계는 유지합니다.
 Design의 native tool 전제도 유지합니다. Japanese는 omp의 기존 model·effort·병렬 실행 정책을 쓰며
 full 모드의 세 검토 관점도 같은 호출 안에서 확인합니다.
+
+Writing·Research·Prompting·Product는 [ADR 0024](../decisions/0024-distribute-writing-research-prompting-product-to-omp.md)에 따라
+도메인 산출물이 필요한 사용자에게 선택 배포합니다. Research는 현재 노출된 읽기 전용 검색·원문 도구를 쓰며
+공급자 연결을 자동 설치하지 않습니다. 직접 API adapter의 opt-in marker를 위해 패키지 README도 동봉합니다.
+Prompting의 Codex·Claude 모델 프로필은 작성 대상 프롬프트의 참고 자료이며 omp 실행 모델·역할 설정과 분리합니다.
 
 Worklog는 [ADR 0022](../decisions/0022-add-worklog-plugin.md)에 따른 opt-in 예외입니다. 전용 패키지에는
 진단·개선 스킬과 기록 스크립트, runtime extension `extension/worklog.ts`와 이를 선언하는 `package.json`을
@@ -98,9 +108,11 @@ Worklog extension은 도구 결과와 세션 이벤트를 로컬 JSONL로 기록
 | UI·prototype·handoff 품질과 native tool 전제 | Design | 기본 5개 |
 | 원시 작업 이벤트 기록과 진단 | Worklog | opt-in |
 | 설계 패턴 선택·검토 | Design Patterns | opt-in |
-| 외부 조사·제품 탐색·글 구성 | Research·Product·Writing | 기본 catalog에 추가하지 않는 선택 후보 |
+| 주장별 근거 감사와 고정 버전 코드 조사 | Research | opt-in |
+| 제품 탐색·실험 설계·판정과 PRD | Product | opt-in |
+| 문서 체계·글 구성과 개발자 글 작성 | Writing | opt-in |
+| 다른 모델·제품에 전달할 프롬프트 작성 | Prompting | opt-in |
 
-Research·Product·Writing을 추가하려면 필요한 도메인과 현재 native tool 계약을 별도로 확인합니다.
 Engineering의 omp 모델 프로필은 직접 설치한 기존 사용자를 위해 보존하며 기본 구성에는 적용하지 않습니다.
 
 생성물은 직접 편집하지 않습니다. 생성기는 `--check`로 내용·실행 권한의 최신 여부와 불필요한 이전 생성물을

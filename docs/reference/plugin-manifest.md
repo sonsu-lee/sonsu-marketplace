@@ -29,8 +29,8 @@ manifest에 포함하지 않습니다. `claude plugin validate . --strict`와 �
 `hooks/hooks.json`으로 복사합니다.
 
 omp 배포는 `python3 scripts/render-omp-compat.py`로 생성합니다. 카탈로그에는 기본 5개인 Workflow,
-Fluent Korean·English·Japanese, Design과 opt-in Worklog·Design Patterns를 등록합니다. English·Japanese·Design Patterns는
-원본 패키지를 참조하고, Design·Workflow·Fluent Korean·Worklog는 `plugins/<name>/omp`에 독립 배포용 사본을 생성합니다.
+Fluent Korean·English·Japanese, Design과 opt-in Writing·Research·Prompting·Product·Design Patterns·Worklog 6개를 등록합니다.
+English·Japanese·Design Patterns는 원본 패키지를 참조하고, Design·Workflow·Fluent Korean·Writing·Research·Prompting·Product·Worklog는 `plugins/<name>/omp`에 독립 배포용 사본을 생성합니다.
 Fluent Korean의 `skills/fluent-korean/SKILL.md`와 참고 자료는 Codex 단일 호출 경로에서 생성하며
 현재 호스트 모델을 사용합니다. 기본 `skills/` discovery로 발견되고 Claude agent·고정 Opus·다중 호출·
 strict 모드를 요구하지 않습니다.
@@ -38,6 +38,9 @@ strict 모드를 요구하지 않습니다.
 extension, `task-continuity.py`, evidence gate를 포함하지 않고 원본 Codex·Claude Code용 패키지는 유지합니다.
 예외로 opt-in Worklog에는 `package.json`과 runtime extension `extension/worklog.ts`를 포함하며 hook은
 포함하지 않습니다. 생성 파일의 소유 정보는 `.omp-plugin/generated.json`으로 관리합니다.
+Writing·Research·Prompting·Product 사본도 hook·연속성 실행기 대신 omp 순정 todo·session 안내를 사용합니다.
+Research는 직접 API adapter의 opt-in marker를 읽을 수 있도록 패키지 README를 동봉합니다.
+Prompting의 Codex·Claude 모델 프로필은 대상 프롬프트 참고용이며 현재 omp 모델·역할 설정에 적용하지 않습니다.
 
 ## 현재 사용하는 필드
 

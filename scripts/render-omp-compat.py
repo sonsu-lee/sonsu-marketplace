@@ -12,9 +12,9 @@ import stat
 ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
 OMP_PLUGINS = {"workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design"}
-OMP_OPTIN_PLUGINS = {"worklog", "design-patterns"}
+OMP_OPTIN_PLUGINS = {"writing", "research", "prompting", "product", "worklog", "design-patterns"}
 RUNTIME_EXTENSIONS = {"worklog": "omp-extension/worklog.ts"}
-ISOLATED = {"workflow", "design", "fluent-korean", "worklog"}
+ISOLATED = {"workflow", "design", "fluent-korean", "writing", "research", "prompting", "product", "worklog"}
 MANIFEST_FIELDS = ("version", "description", "author", "homepage", "repository", "license", "keywords")
 COPY_ROOTS = ("skills", "references", "assets", "scripts", "figma-plugin")
 SKIP_PARTS = {"__pycache__", "node_modules", ".git"}
@@ -138,6 +138,37 @@ def omp_korean_quick_rules(data):
     return text.encode("utf-8")
 
 
+def omp_research_readme(data):
+    """직접 adapter의 opt-in marker와 공급자 안내는 유지하고 설치·연속성 안내만 omp로 바꾼다."""
+    text = data.decode("utf-8")
+    start = text.index("\n", text.index("# Research")) + 1
+    end = text.index("## 선택적 공급자 설정")
+    intro = ("\n단일 공개 웹 검색부터 여러 출처의 조사, 사실 확인, 문헌 검토와 외부 코드 사례 조사까지\n"
+             "담당하는 omp opt-in 패키지입니다. 특정 검색 공급자가 없어도 현재 host에 이미 제공된 web, browser,\n"
+             "connector와 로컬 자료를 사용해 가능한 범위에서 독립적으로 동작합니다.\n\n"
+             "```sh\nomp plugin install research@sonsu-marketplace\n```\n\n")
+    text = text[:start] + intro + text[end:]
+    managed = "Codex가 관리하는 공급자는"
+    if text.count(managed) != 1:
+        raise ValueError(f"research README: expected one {managed!r}")
+    text = text.replace(managed, "호스트가 관리하는 공급자는")
+    resume = text.index("## 컴팩션 후 작업 재개")
+    following = text.find("\n## ", resume)
+    text = (text[:resume] + "## 컴팩션 후 작업 재개\n\n"
+            "[작업 연속성 참고 자료](references/continuity.md)에 따라 omp 순정 todo와 세션 기록으로\n"
+            "진행을 관리합니다. 이 패키지는 hook, 연속성 실행기와 `.sonsu` 기록을 포함하지 않습니다.\n"
+            + (text[following:] if following != -1 else ""))
+    return text.encode("utf-8")
+
+
+def omp_target_profile(data):
+    """Codex·Claude 실행 프로필을 대상 프롬프트 참고 자료로만 읽게 한다."""
+    notice = ("> omp에서는 이 자료를 사용자가 지정한 Codex·Claude 대상 프롬프트를 작성할 때만 참고한다. "
+              "아래 모델·effort·인원·역할 호출 정책을 현재 omp 실행에 적용하지 않는다. "
+              "omp의 모델 선택·위임·세션 설정은 현재 호스트 정책을 따른다.\n\n")
+    return notice.encode("utf-8") + data
+
+
 def isolated_outputs(root, plugin_root, manifest, outputs, modes):
     destination = plugin_root / "omp"
     sources = []
@@ -152,12 +183,27 @@ def isolated_outputs(root, plugin_root, manifest, outputs, modes):
                    if path.name in (".app.json", "THIRD_PARTY_NOTICES.md") or
                    path.name.startswith(("LICENSE", "NOTICE", "UPSTREAM")) or
                    "LICENSE" in path.name)
+    if manifest["name"] == "research":
+        # Direct provider adapters read opt-in markers from the installed package root.
+        sources.append(plugin_root / "README.md")
     for source in sources:
         relative = source.relative_to(plugin_root)
         if relative.as_posix() in SKIP_FILES:
             continue
         require_safe(source, root)
         data = source.read_bytes()
+        if manifest["name"] == "prompting" and relative.as_posix() in (
+                "references/model-profiles.md", "references/claude-model-profiles.md"):
+            data = omp_target_profile(data)
+        if manifest["name"] == "research" and relative == Path("README.md"):
+            data = omp_research_readme(data)
+        if manifest["name"] == "writing" and relative == Path("UPSTREAM.md"):
+            link = "[검증 범위](../../evals/writing/README.md)"
+            text = data.decode("utf-8")
+            if text.count(link) != 1:
+                raise ValueError(f"writing UPSTREAM: expected one {link!r}")
+            # The eval guide stays in the repository, so the installed package names it as a path.
+            data = text.replace(link, "검증 범위(저장소의 `evals/writing/README.md`)").encode("utf-8")
         if manifest["name"] == "fluent-korean" and relative.parts[0] == "codex":
             relative = Path(*relative.parts[1:])
             if relative == Path("skills/fluent-korean/SKILL.md"):

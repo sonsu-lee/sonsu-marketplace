@@ -83,11 +83,12 @@ omp plugin list
    버전, 라이선스와 포함 범위를 기록합니다.
 4. `.agents/plugins/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
 5. `python3 scripts/render-claude-compat.py`로 Claude Code catalog와 plugin manifest를 생성합니다.
-6. `python3 scripts/render-omp-compat.py`로 omp catalog와 Design·Workflow·Fluent Korean·Worklog 전용 패키지를 생성합니다.
+6. `python3 scripts/render-omp-compat.py`로 omp catalog와 `ISOLATED`에 등록한 플러그인의 전용 패키지를 생성합니다.
    omp 기본 배포는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design` 5개로 고정합니다.
    Codex catalog에 추가해도 omp 배포 대상은 늘어나지 않습니다. 대상을 바꾸려면 배포 정책을 명시적으로 변경하고
    `scripts/render-omp-compat.py`의 `OMP_PLUGINS`와 `evals/plugin-compat/test_compat.py`의 omp 목록을 함께 갱신합니다.
-   opt-in 패키지는 `OMP_OPTIN_PLUGINS`에 등록하면 카탈로그에 추가되며 사용자가 직접 설치합니다. 현재 대상은 `worklog`([ADR 0022](../decisions/0022-add-worklog-plugin.md))와 `design-patterns`([ADR 0026](../decisions/0026-ship-design-patterns-as-omp-opt-in.md))입니다.
+   opt-in 패키지는 `OMP_OPTIN_PLUGINS`에 등록하면 카탈로그에 추가되며 사용자가 직접 설치합니다. 현재 대상은 `writing`, `research`, `prompting`, `product`([ADR 0024](../decisions/0024-distribute-writing-research-prompting-product-to-omp.md)), `design-patterns`([ADR 0026](../decisions/0026-ship-design-patterns-as-omp-opt-in.md)), `worklog`([ADR 0022](../decisions/0022-add-worklog-plugin.md))입니다.
+   원본의 hook·연속성 실행기를 제외해야 하는 패키지는 `ISOLATED`에도 등록해 `plugins/<name>/omp` 사본과 omp 순정 연속성 안내를 생성합니다.
    runtime extension이 있는 플러그인만 `RUNTIME_EXTENSIONS`에도 등록합니다.
 
 ```json
@@ -116,8 +117,8 @@ omp 생성기는 필요한 스킬·참고 자료·asset·스크립트·Figma com
 hook은 opt-in 패키지에도 포함하지 않습니다.
 Design의 품질 계약·프로필, Workflow의 권한, English·Japanese 스킬은 유지합니다.
 Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude agent와 다중 호출·strict 모드에 의존하지 않습니다.
-개발 실행·task·todo·session·review는 omp 순정 기능을 사용합니다. Research·Product·Writing은 선택 후보로
-문서화하며 기본 5개 배포에 추가하지 않습니다. Engineering의 omp 프로필은 직접 설치한 기존 consumer용으로
+개발 실행·task·todo·session·review는 omp 순정 기능을 사용합니다. Research·Product·Writing·Prompting은
+기본 5개와 분리해 opt-in으로 배포합니다. Engineering의 omp 프로필은 직접 설치한 기존 consumer용으로
 보존하고 기본 5개 설정에는 추가하지 않습니다. omp 대응을 위해 기존 Codex·Claude Code hook이나 연속성 자료를
 변경하지 않습니다.
 
