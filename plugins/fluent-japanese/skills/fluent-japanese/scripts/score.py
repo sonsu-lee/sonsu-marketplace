@@ -63,7 +63,7 @@ def main():
     mechanical = score = band = None
     if not too_short:
         penalty = sum(counts[key] * weight for key, weight in WEIGHTS.items())
-        mechanical = max(100 - penalty * (1000 / max(characters, 1000)), 20)
+        mechanical = max(100 - penalty * 1000 / max(characters, 1000), 20)
         score = min(max(mechanical + args.adjustment, 0), 100)
         band = next(label for minimum, label in BANDS if score >= minimum)
     print(json.dumps({

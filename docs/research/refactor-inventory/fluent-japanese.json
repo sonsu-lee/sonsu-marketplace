@@ -15,9 +15,9 @@
   "skills": [
     {
       "path": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md",
-      "sha256": "93e84a483929e72602345fe5cc6563a1bd1bcf37ed3e0f61cc468a75eb266e60",
+      "sha256": "1169da1c4d0e3165b4fe7bdd78dd06ae0e89292a4a7ab780d210b29055944f75",
       "sources": {
-        "plugins/fluent-japanese/skills/fluent-japanese/references/diagnose.md": "fc471df37001fcad7ba7264bd0779648c3bd9003fdc3829121c96b04a48d8b6d"
+        "plugins/fluent-japanese/skills/fluent-japanese/references/diagnose.md": "21aef309717f0adf609ec2cad323380cecb106b86cd04f40ac57328cc3e5f22e"
       },
       "problem": "일본어 업무 글이 번역투·반복 구조로 읽기 어렵거나 문서 진단이 표현을 일괄 삭제하는 교정으로 흐르는 문제를 다룹니다.",
       "outcome": "목적에 맞는 일본어 문서·윤문본 또는 근거가 있는 자연도 진단을 반환하며 기계 신호와 문맥 판단을 구분합니다.",
@@ -25,25 +25,25 @@
       "mechanical": [
         {
           "step": "장르별 표층 패턴과 이전 결과 대비 resolved·new·persisting을 수집합니다.",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:31-44",
+          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:30-43",
           "existing_tool": "plugins/fluent-japanese/skills/fluent-japanese/scripts/lint.py",
           "proposal": "none"
         },
         {
           "step": "구조 리뷰에 쓸 제목과 문단 첫 문장을 줄 번호와 함께 추출합니다.",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:39",
+          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:38",
           "existing_tool": "plugins/fluent-japanese/skills/fluent-japanese/scripts/outline.py",
           "proposal": "none"
         },
         {
           "step": "전문 용어 후보의 첫 등장·횟수·설명 힌트를 수집합니다.",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:42",
+          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:41",
           "existing_tool": "plugins/fluent-japanese/skills/fluent-japanese/scripts/terms.py",
           "proposal": "none"
         },
         {
           "step": "full에서 문장 임베딩의 인접 유사도·반복 신호를 측정합니다. 모델 다운로드를 수반하는 선택 경로입니다.",
-          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:43",
+          "location": "plugins/fluent-japanese/skills/fluent-japanese/SKILL.md:42",
           "existing_tool": "plugins/fluent-japanese/skills/fluent-japanese/scripts/semantic.py",
           "proposal": "none"
         },
@@ -95,7 +95,7 @@
     },
     {
       "path": "plugins/fluent-japanese/skills/fluent-japanese/scripts/score.py",
-      "sha256": "296bf9ccde440f0790915ee0b7186c88f45b770fede903e8036bde87cf201c8d",
+      "sha256": "242774ac21639244271f4688eaf2e0fb7243893df52238eb1c917c27fb0a045b",
       "role": "lint JSON과 대상 문서 길이로 기계 기본 점수·조정 범위·최종 점수·구간과 100자 미만 판정을 계산합니다.",
       "verdict": "keep",
       "verdict_target": "",

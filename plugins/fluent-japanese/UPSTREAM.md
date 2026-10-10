@@ -16,5 +16,6 @@ Local supporting changes:
 
 - `skills/fluent-japanese/scripts/score.py` and the package-level `tests/test_score.py` compute the score formula from `references/diagnose.md`; the reference documents the command and output fields.
 - `skills/fluent-japanese/scripts/calibrate.py` is not packaged because it requires the upstream research corpus, which is not distributed.
-- `references/revision-guide.md`, `references/manual-checklist.md`, `scripts/lint.py` comments, and fixture headers describe current behavior; calibration history remains in the pinned upstream commit.
+- `references/revision-guide.md`, `references/manual-checklist.md`, `references/forbidden-patterns.md`, `references/readability-antipatterns.md`, `references/translationese.md`, `scripts/lint.py` and `scripts/outline.py` comments, and fixture headers describe current behavior; calibration history remains in the pinned upstream commit.
+- `references/diagnose.md` and `references/doctypes/slide.md` point to the restructured `SKILL.md` steps.
 - Four supporting files have an extra blank line at EOF removed for the repository diff check.
