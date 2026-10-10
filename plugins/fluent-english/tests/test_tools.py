@@ -56,6 +56,13 @@ class VoiceProfileTest(ToolCase):
         self.assertEqual(data["profiles"]["before"]["contractions"]["count"], 0)
         self.assertEqual(data["before_minus_sample"]["contractions"]["count"]["delta"], -1)
 
+    def test_hedges_match_across_line_breaks(self):
+        before = self.write("before.txt", "I\nthink so. I  think so. Sort\nof. PROBABLY.")
+        after = self.write("after.txt", "I think so. I think so. Sort of. Probably.")
+        result = self.run_tool("voice_profile.py", "--before", before, "--after", after)
+        delta = json.loads(result.stdout)["after_minus_before"]["hedges"]["count"]
+        self.assertEqual(delta["delta"], 0)
+
     def test_invalid_input_exits_two(self):
         before = self.root / "missing.txt"
         after = self.root / "bad.txt"
@@ -167,6 +174,38 @@ Intro paragraph
                                        "--after", self.write("after.md", before.replace("old_code", "new_code")))
                 self.assertEqual(result.returncode, 1, result.stdout)
                 self.assertIn("code", {item["kind"] for item in json.loads(result.stdout)["differences"]})
+
+    def compare(self, before, after):
+        result = self.run_tool("validate_preservation.py", "--before", self.write("before.md", before),
+                               "--after", self.write("after.md", after))
+        return result.returncode, json.loads(result.stdout)
+
+    def test_list_item_fence_and_quote_are_protected(self):
+        before = "- > Approved: ship on Friday.\n\n1. ```sh\n   pip install tool\n   ```\n\nThis are prose.\n\n```\nlater\n```\n"
+        for old, new in (("Friday", "Monday"), ("pip install", "pip uninstall")):
+            with self.subTest(old=old):
+                self.assertEqual(self.compare(before, before.replace(old, new))[0], 1)
+        self.assertEqual(self.compare(before, before.replace("This are", "This is"))[0], 0)
+
+    def test_single_quotes_with_apostrophes_are_protected(self):
+        for before, after in (("He said 'it's fine' today.\n", "He said 'it's okay' today.\n"),
+                              ("She said ‘we’re ready’ today.\n", "She said ‘we’re set’ today.\n")):
+            with self.subTest(before=before):
+                code, data = self.compare(before, after)
+                self.assertEqual((code, data["differences"][0]["kind"]), (1, "quote"))
+
+    def test_footnote_definition_is_prose(self):
+        code, data = self.compare("Text[^1].\n\n[^1]: This are a note.\n", "Text[^1].\n\n[^1]: This is a note.\n")
+        self.assertEqual(code, 0, data)
+
+    def test_bare_urls_are_protected_without_trailing_punctuation(self):
+        for old, new in (("https://x.test/a", "https://x.test/b"), ("www.y.test/a", "www.y.test/b")):
+            with self.subTest(old=old):
+                before = f"Go to {old}. Then (see {old})."
+                code, data = self.compare(before, before.replace(old, new, 1))
+                self.assertEqual((code, data["differences"][0]["kind"]), (1, "link_target"))
+        code, data = self.compare("Open https://x.test/a.", "Open https://x.test/a!")
+        self.assertEqual(code, 0, data)
 
     def test_invalid_input_exits_two(self):
         before = self.write("before.md", "text")

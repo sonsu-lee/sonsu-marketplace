@@ -17,7 +17,7 @@
       "path": "plugins/fluent-english/skills/fluent-english/SKILL.md",
       "sha256": "8ad7851d90969ff73d8782fc3ab99523aa1b38fd9d5b68315b9e359d21c8df90",
       "sources": {
-        "plugins/fluent-english/skills/fluent-english/references/voice-and-context.md": "6cc477ab80a71d41b8aab1441d855c666595d1d5f92a1798a748b98167e34e75"
+        "plugins/fluent-english/skills/fluent-english/references/voice-and-context.md": "cf5acf06006ca7fd687cc7cef41a79e56f134e5bb218ea1abfb00ad05b84eee0"
       },
       "problem": "영어 글이 독자·장르에 맞지 않게 획일화되거나 가벼운 교정에서 필자의 어조·유보·사실을 잃는 문제를 다룹니다.",
       "outcome": "요청에 맞는 영어 초안·윤문본 또는 구체적 검토 결과와 필요한 변경 설명을 반환합니다.",
@@ -57,7 +57,7 @@
   "scripts": [
     {
       "path": "plugins/fluent-english/scripts/validate_preservation.py",
-      "sha256": "aa9aae4a1b02e83a06ee2a15d8542855e8dbeb0977a3e22b20856368af0f24e5",
+      "sha256": "a8a85bbcabefa83022c28dcabc6a385186cf595a7c8c776b6c1986bb36a05ef6",
       "role": "윤문 전후 Markdown의 frontmatter, 코드, 인용, 링크 대상 문자열을 비교하고 차이 위치를 JSON으로 반환합니다.",
       "verdict": "keep",
       "verdict_target": "",
@@ -65,7 +65,7 @@
     },
     {
       "path": "plugins/fluent-english/scripts/voice_profile.py",
-      "sha256": "2e3dedc2b81133d6de2e7a424395876d0c12823a4903e8c7b854b021deafed4d",
+      "sha256": "78bfcdfd1a86f354ed76651d549f84a6c47aa5bf63cb3bf7cb73b2ff0ed365b1",
       "role": "원문·윤문본·선택 샘플에 같은 어휘 규칙을 적용해 문장 길이와 voice marker 빈도, 전후 차이를 JSON으로 반환합니다.",
       "verdict": "keep",
       "verdict_target": "",

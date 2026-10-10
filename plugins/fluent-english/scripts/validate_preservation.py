@@ -5,7 +5,8 @@ CLI: validate_preservation.py --before PATH --after PATH
 JSON includes ordered protected spans and differences with 1-based lines.
 Exit 0: extracted strings match; 1: differences; 2: usage/read/encoding error.
 This lexical check covers frontmatter, fenced/indented/inline code, blockquotes,
-paired inline quotes, Markdown link/image destinations and reference labels.
+paired inline quotes, Markdown link/image destinations, reference labels,
+angle-bracket autolinks, and bare http(s)/www URLs.
 A match does not prove semantic preservation or cover arbitrary HTML/MDX.
 """
 
@@ -79,6 +80,11 @@ def extract(text):
             while items and width < items[-1]:
                 items.pop()
         base = items[-1] if items else 0
+        # A list item can open with a fence or blockquote; re-read its content at the item's column.
+        if marker and marker[2] and width - base <= 3 and re.match(r"`{3,}|~{3,}|>", stripped[len(marker[0]):]):
+            items.append(width + len(marker[1]) + len(marker[2]))
+            width = base = items[-1]
+            stripped = stripped[len(marker[0]):]
         fence = re.match(r"(`{3,}|~{3,})", stripped) if width - base <= 3 else None
         if not paragraph and width - base >= 4:
             i += 1
@@ -119,7 +125,7 @@ def extract(text):
 
     source = "".join(masked)
     # Reference definitions retain the label, destination, and optional title.
-    for match in re.finditer(r"(?m)^ {0,3}\[[^\]\n]+\]:[^\n]*(?:\n[ \t]+[\"'(][^\n]*)?", source):
+    for match in re.finditer(r"(?m)^ {0,3}\[(?!\^)[^\]\n]+\]:[^\n]*(?:\n[ \t]+[\"'(][^\n]*)?", source):
         add("link_target", match.start(), match.end())
     source = "".join(masked)
     for match in re.finditer(r"\]\(", source):
@@ -146,13 +152,17 @@ def extract(text):
     for match in re.finditer(r"<(?:[A-Za-z][A-Za-z0-9+.-]*:[^<>\s]+|[^<>\s@]+@[^<>\s@]+)>", source):
         add("link_target", match.start(), match.end())
     source = "".join(masked)
+    # GFM renders bare http(s) and www URLs as links; trailing punctuation stays prose.
+    for match in re.finditer(r"(?<![\w/])(?:https?://|www\.)[^\s<>]*[^\s<>.,:;!?\"')\]]", source):
+        add("link_target", match.start(), match.end())
+    source = "".join(masked)
     # Shortcut reference labels resolve through a definition in this document.
-    labels = {m[1].casefold() for m in re.finditer(r"(?m)^ {0,3}\[([^\]\n]+)\]:", text)}
+    labels = {m[1].casefold() for m in re.finditer(r"(?m)^ {0,3}\[(?!\^)([^\]\n]+)\]:", text)}
     for match in re.finditer(r"\[([^\]\n]+)\](?![\[(])", source):
         if match[1].casefold() in labels:
             add("link_target", match.start(1), match.end(1))
     source = "".join(masked)
-    for match in re.finditer(r'''(?<![\w\\])(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|“[^”]*”|‘[^’]*’)(?!\w)''', source):
+    for match in re.finditer(r'''(?<![\w\\])(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\]|(?<=\w)'(?=\w))*'|“[^”]*”|‘(?:[^’]|(?<=\w)’(?=\w))*’)(?!\w)''', source):
         add("quote", match.start(), match.end())
     # Sort by source location, including multiple spans on the same line.
     for kind in spans:
