@@ -50,6 +50,59 @@ attachments[].deletion_locator
 
 캡처·마킹·image library·codec·메타데이터 도구·player에도 같은 원칙을 적용한다. 프로젝트가 지정한 도구가 있으면 그 설치 방법을, 없으면 작업 환경에서 필요한 기능을 제공하는 최소 도구를 제안한다. 설치·업그레이드·`npx --yes` 다운로드를 승인 없이 실행하지 않는다. 설치 제안은 PR 본문 밖에 두고 도구·실행 환경이 없는 상태를 검사나 자료 준비 완료로 보고하지 않는다. 동작 증거가 필수이면 도구 부재를 이유로 스크린샷으로 조용히 대체하지 않는다.
 
+## manifest를 검사한다
+
+[`validate_attachment_manifest.py`](../../../scripts/validate_attachment_manifest.py)는 manifest와 로컬 파일을 읽기만 한다. 파일을 고치거나 upload하지 않고 decoder도 실행하지 않는다. `to-pr` SKILL.md가 있는 실제 디렉터리에서 실행한다.
+
+```bash
+../../scripts/validate_attachment_manifest.py --manifest <manifest.json> --phase pre-create [--video-plan unknown|free|paid] [--paid-video-eligible]
+../../scripts/validate_attachment_manifest.py --manifest <manifest.json> --phase pre-upload --attachment-order <display_order> [video 옵션]
+```
+
+manifest는 UTF-8 JSON object다. 위 operation 필드와 각 `attachments[]` 필드가 모두 있어야 하며, 값이 없을 때는 `null`을 쓴다. 중복 key와 `NaN`·`Infinity`는 입력 오류다.
+
+| 필드 | 값 |
+|---|---|
+| `repository`, `base`, `head` | 비어 있지 않은 문자열. `repository`는 `owner/repository` |
+| `head_ref_oid` | 40자 또는 64자 Git object ID |
+| `pr_url` | `pre-create`는 `null`, `pre-upload`는 같은 `repository`의 `https://<host>/<owner>/<repository>/pull/<number>` |
+| `target_pr_state` | `draft` 또는 `ready` |
+| `source_path`, `local_path` | 제어 문자가 없는 절대 경로. `local_path` basename에는 `#`가 없다 |
+| `purpose`, `body_section`, `alt_text_or_caption` | 비어 있지 않은 문자열 |
+| `display_order`, `file_size`, `width`, `height` | 양의 정수. `display_order`는 manifest 안에서 고유하다 |
+| `required_for_ready` | boolean |
+| `kind`, `mime_type` | 확장자와 일치하는 쌍: `.png` `image/png`, `.jpg`·`.jpeg` `image/jpeg`, `.gif` `image/gif`, `.webp` `image/webp`, `.svg` `image/svg+xml`, `.mp4` `video/mp4`, `.mov` `video/quicktime`, `.webm` `video/webm` |
+| `duration`, `codec` | video는 양수 초와 decoder가 보고한 codec. image는 `null` 또는 같은 형식의 값 |
+| `sha256` | 64자 hex |
+| `annotation_status` | `not_checked`, `verified`, `failed`, `inconclusive` |
+| `annotation_method` | 마킹 또는 caption 방법 문자열, 아직 없으면 `null` |
+| `sensitive_data_check`, `embedded_metadata_check` | `not_checked`, `passed`, `failed`, `inconclusive` |
+| `upload_status`, `body_status` | [실패와 부분 성공](#실패와-부분-성공을-복구한다)의 상태 값 |
+| `provider`, `deletion_locator` | 문자열 또는 `null` |
+| `remote_url` | HTTPS URL 또는 `null` |
+
+도구가 판정하는 항목은 다음과 같다.
+
+- 필수 필드, 형식, 확장자 기준의 `kind`·`mime_type` 일치
+- `local_path`가 symbolic link를 따라간 결과로 존재하는 비어 있지 않은 regular file인지
+- 실제 크기와 `file_size`, 실제 SHA-256과 `sha256`의 일치. hash 중 파일이 바뀌면 실패한다.
+- 크기 상한: image는 `10 × 1024²` bytes. video는 `unknown`·`free` plan과 eligibility 미확인 `paid`가 10,000,000 bytes, `--video-plan paid --paid-video-eligible`이 100,000,000 bytes다. 둘 다 CLI의 `100 × 1024²` bytes 상한 안이다.
+- 경로가 달라도 device와 inode가 같으면 `duplicate-file`이다. symbolic link, hard link와 같은 경로 반복이 여기에 해당한다. 내용만 같은 서로 다른 파일은 통과한다.
+- `pre-create`: `pr_url`이 `null`이고 모든 항목이 `upload_status: not_started`, `body_status: not_checked`, `remote_url`·`deletion_locator: null`인지. 필수 항목은 기록된 `annotation_status: verified`, `annotation_method`, `sensitive_data_check: passed`, `embedded_metadata_check: passed`가 있어야 한다. 모든 파일을 hash한다.
+- `pre-upload`: `pr_url`이 같은 저장소의 PR이고, `--attachment-order`로 지정한 항목이 `not_started`이며 기록된 검토 상태를 통과했는지. upload 순서는 `required_for_ready: true` 항목을 먼저, 같은 그룹 안에서는 `display_order` 순으로 정하며 지정 항목보다 앞선 항목은 모두 `uploaded`여야 한다. 모든 파일의 identity·크기를 다시 보고, 지정한 파일만 hash한다.
+
+`--paid-video-eligible`은 paid plan과 [GitHub의 큰 비디오 조건](#github-cli-지원을-감지한다)을 사람이 확인한 뒤에만 붙인다.
+
+출력은 `schema_version`, `phase`, `status`, `errors`, `checked_files`, `manual_checks`를 담은 JSON이다. `errors[]`는 `field`, `code`, `message`를 갖는다. `checked_files[]`는 `field`, `display_order`, `realpath`, `device`, `inode`, `file_size`, `limit_bytes`, `sha256`을 갖고, hash하지 않은 파일의 `sha256`은 `null`이다.
+
+| exit | `status` | 행동 |
+|---|---|---|
+| 0 | `passed` | 로컬 판정만 통과했다. `manual_checks`의 decoder·내용·권한·원격 재조회를 마친 뒤 다음 단계로 간다. |
+| 1 | `blocked` | `errors`를 고치고 영향받은 manifest 필드를 다시 기록한 뒤 같은 phase를 다시 실행한다. 그 전에는 PR 생성이나 upload를 하지 않는다. |
+| 2 | `input-error` 또는 출력 없음 | manifest나 CLI 인자를 고친다. 출력이 없으면 stderr의 argparse 오류다. |
+
+exit 0도 실제 content type, decode·재생 가능 여부, annotation 품질, 민감정보와 embedded metadata가 안전하다는 뜻이 아니다. 도구는 확장자와 사람이 기록한 검토 상태만 대조한다. decoder 결과와 내용 검토는 위 규칙대로 직접 수행하고 그 결과를 manifest에 기록한다.
+
 ## GitHub CLI 지원을 감지한다
 
 GitHub native attachment를 기본으로 사용한다. 실행 직전에 `gh --version`, `gh pr create --help`, `gh pr edit --help`와 `gh pr ready --help`를 확인하고, 실제로 사용할 명령의 도움말에 필요한 flag가 있을 때만 CLI attachment를 사용한다. `--attach`는 GitHub CLI `2.99.0`에서 추가됐지만 배포판의 backport나 지연을 고려하여 help output을 최종 기준으로 삼는다. 현재 CLI가 지원하지 않아도 자동으로 설치하거나 upgrade하지 않는다.
@@ -112,13 +165,13 @@ GitHub CLI는 body가 같은 로컬 파일을 참조하면 그 위치의 destina
 
 `target_pr_state`는 기본 Draft 정책과 GitHub 규칙에 따라 publish 전에 확정하고 upload 결과에 따라 바꾸지 않는다. `required_for_ready`도 사전에 확정한다. 사용자·PR 양식·`CONTRIBUTING`이 요구한 파일과 [필요 정보에 따라 선택한](visual-evidence.md#필요성을-판정한다) 화면 증거는 필수다. 정적 변경은 마킹 이미지, 동적 변경은 caption 영상, 서로 다른 정보가 필요할 때만 둘 다 선택한다. 접근 가능한 VRT가 있어도 본문 증거를 생략하지 않는다. 주장을 판단하는 데 없어도 되는 보조 diff·추가 viewport·대체 recording만 선택으로 둘 수 있으며 불명확하면 필수로 취급한다. 필수 항목 하나라도 annotation, 실제 content type·MIME·decode, 전체 내용의 민감정보 검사와 embedded 메타데이터 검사를 완료하지 못하면 PR 생성 명령 자체를 실행하지 않는다.
 
-Draft PR을 만들기 전에 전체 manifest의 로컬 파일 identity를 비교한다. realpath, hard link나 symbolic link를 통해 같은 underlying file을 가리키는 항목이 둘 이상이면, 각 파일을 별도 명령으로 올리더라도 중복으로 보고 upload를 시작하지 않는다. 내용 hash만 같은 서로 다른 파일은 자동으로 같은 파일이라고 단정하지 않는다.
+Draft PR을 만들기 전에 전체 manifest의 로컬 파일 identity를 비교한다. realpath, hard link나 symbolic link를 통해 같은 underlying file을 가리키는 항목이 둘 이상이면, 각 파일을 별도 명령으로 올리더라도 중복으로 보고 upload를 시작하지 않는다. 내용 hash만 같은 서로 다른 파일은 자동으로 같은 파일이라고 단정하지 않는다. 이 비교와 필수 항목의 기록 상태 확인은 [manifest 검사](#manifest를-검사한다)를 `--phase pre-create`로 실행해 수행하며, exit 0일 때만 다음 순서를 시작한다.
 
 미디어가 있는 publish는 다음 순서를 지킨다.
 
 1. multiline body를 임시 파일에 기록한다. 로컬 검토용 attachment placeholder를 실제 caption·순서 설명으로 바꾸거나 제거하여 local path와 placeholder가 없는 final body를 만든 뒤, `--attach` 없이 `gh pr create --draft --body-file ...`를 실행한다.
 2. 응답 URL을 다시 읽어 현재 흐름에서 생성한 정확한 PR인지, Draft인지, 저장소·base·head와 `headRefOid`가 고정한 값과 같은지 확인한다. 실패나 응답 불명확이면 같은 create를 반복하지 않고 같은 head의 PR을 먼저 조회한다.
-3. 실행 직전에 한 파일의 size와 SHA-256을 manifest와 다시 대조한다. 달라졌으면 중단한다.
+3. 실행 직전에 [manifest 검사](#manifest를-검사한다)를 `--phase pre-upload --attachment-order <display_order>`로 실행하여 한 파일의 size와 SHA-256을 manifest와 다시 대조하고 identity와 순서를 확인한다. exit 0이 아니거나 파일이 달라졌으면 중단한다.
 4. 필수 파일부터 manifest 순서대로 `gh pr edit`에 검증한 PR URL과 한 파일의 `--attach` 인자만 전달한다. `--body`나 `--body-file`을 함께 전달하지 않는다.
 5. 파일 하나를 추가할 때마다 실제 body를 다시 읽어 고유한 remote URL과 render 형태를 확인하고 `upload_status`를 갱신한다. 다음 파일은 확인이 끝난 뒤에만 처리한다.
 6. 계획한 첨부 위치가 본문 끝이 아니면 확인된 URL을 해당 설명 뒤 또는 외부 양식의 지정 항목에 배치한 body를 `gh pr edit --body-file`로 기록한다. 재조회하여 append된 중복 URL이 없고 각 attachment가 계획한 위치·순서로 렌더링될 때만 `body_status: verified`로 둔다. 원래 위치가 본문 끝이면 append 결과의 순서·render 형태를 확인해 같은 상태로 둔다.

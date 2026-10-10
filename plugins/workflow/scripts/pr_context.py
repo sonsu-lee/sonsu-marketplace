@@ -34,6 +34,8 @@ class LocalFailure(Exception):
 
 
 def run(args, cwd=None, env=None, timeout=LOCAL_TIMEOUT):
+    if args[0] == "git":  # git status가 index를 새로 쓰거나 index.lock을 잡지 않게 한다.
+        env = dict(os.environ if env is None else env, GIT_OPTIONAL_LOCKS="0")
     try:
         return subprocess.run(args, cwd=cwd, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True,
                               errors="surrogateescape", timeout=timeout, check=False)
@@ -235,16 +237,16 @@ class Collector:
                     break
         if sha is None:
             self.blockers.add("base-unresolved")
-        elif branch and resolved in (f"refs/heads/{branch}", f"refs/remotes/{remote['name']}/{branch}" if remote
-                                     else None):
-            self.blockers.add("head-equals-base")  # 같은 branch: 미push commit이 있어도 PR 대상이 아니다.
         return {"ref": ref, "source": source, "resolved": resolved, "sha": sha}
 
-    def range(self, base, head, requested_base):
+    def range(self, base, head, requested_base, remote):
         state = {"merge_base": None, "commits": [], "files": [], "added": 0, "deleted": 0}
         if not (base["sha"] and head["sha"]):
             return state
-        if base["sha"] == head["sha"]:
+        branch = head["branch"]
+        same_branch = branch is not None and base["resolved"] in (
+            f"refs/heads/{branch}", f"refs/remotes/{remote['name']}/{branch}" if remote else None)
+        if same_branch or base["sha"] == head["sha"]:
             self.blockers.add("head-equals-base")
         merge_base = self.git_out("merge-base", base["sha"], head["sha"])
         if not merge_base:
@@ -334,12 +336,16 @@ class Collector:
         return {"status": "unverified", "source": None, "candidates": []}
 
     def existing_prs(self, github, branch):
-        """push 대상 저장소의 같은 branch에서 열린 PR을 찾는다. fork는 PR이 parent에 있을 수 있어 확인하지 않는다."""
+        """push 대상 저장소의 같은 branch에서 열린 PR을 찾는다. fork는 PR이 parent에 있을 수 있어 확인하지 않는다.
+
+        --head는 branch 이름만 비교하므로 다른 fork의 같은 이름 branch PR은 items에 남기되 blocker에서 뺀다.
+        """
         if self.offline or not github or not branch or github["parent"]:
             return {"status": "unverified", "items": []}
         result, _ = self.online_step([
             "gh", "pr", "list", "--repo", f"{github['host']}/{github['owner']}/{github['name']}", "--head", branch,
-            "--state", "open", "--json", "number,url,isDraft,baseRefName,headRefOid,isCrossRepository",
+            "--state", "open", "--json",
+            "number,url,isDraft,baseRefName,headRefOid,headRepositoryOwner,isCrossRepository",
         ])
         try:
             items = json.loads(result.stdout) if result else None
@@ -348,15 +354,16 @@ class Collector:
             items = None
         if not isinstance(items, list):
             return {"status": "unverified", "items": []}
-        # --head는 owner를 구분하지 않아 다른 fork의 같은 이름 branch PR도 돌려준다.
-        items = [item for item in items if isinstance(item, dict) and item.get("isCrossRepository") is not True]
-        if items:
-            self.blockers.add("existing-pr")
-        return {"status": "checked", "items": [
+        entries = [
             {"number": item.get("number"), "url": item.get("url"), "is_draft": item.get("isDraft"),
-             "base": item.get("baseRefName"), "head_sha": item.get("headRefOid")}
-            for item in items
-        ]}
+             "base": item.get("baseRefName"), "head_sha": item.get("headRefOid"),
+             "head_owner": (item.get("headRepositoryOwner") or {}).get("login"),
+             "is_cross_repository": item.get("isCrossRepository")}
+            for item in items if isinstance(item, dict)
+        ]
+        if any(entry["is_cross_repository"] is not True for entry in entries):
+            self.blockers.add("existing-pr")
+        return {"status": "checked", "items": entries}
 
     # ------------------------------------------------------------ 전체
 
@@ -407,7 +414,7 @@ class Collector:
             github["default_branch"] = default_branch
 
         base = self.base(args.base, head["branch"], remote, default_branch)
-        commit_range = self.range(base, head, args.base)
+        commit_range = self.range(base, head, args.base, remote)
         templates = self.templates(github, remote, default_branch)
         existing = self.existing_prs(github, head["branch"])
 

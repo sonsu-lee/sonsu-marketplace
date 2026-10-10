@@ -5,37 +5,35 @@ description: 요청한 변경만 staging해 새 commit을 만들거나 Conventio
 
 # 커밋 준비와 생성
 
-이 스킬은 현재 대화와 실제 Git 상태를 바탕으로 단독 실행한다. 다른 플러그인이나
-스킬의 설치·선행 실행을 요구하지 않는다. [전달 권한](../../references/delivery-authority.md)을
-따르며, 사용자 요청에 없는 Git 쓰기나 원격 작업은 수행하지 않는다. 여러 단계의 작업이나
-외부 쓰기는 필요할 때 [연속성 기록](../../references/continuity.md)을 사용한다.
+실제 diff에서 독립적으로 설명하고 되돌릴 수 있는 변경을 골라 메시지 또는 새 commit으로 전달한다. 메시지 제안은 읽기 전용으로 완료한다.
 
-메시지 제안은 읽기 전용으로 완료한다. commit 생성 시 [Git 안전 규칙](../../references/git-safety.md)을 읽고 정확한 hunk·staged diff와 검사 근거를 확인한다. commit 후 HEAD와 남은 변경을 다시 읽는다. push는 별도 요청이 있을 때만 수행한다.
+## 절차
 
-## 원자성을 확인한다
+1. [전달 권한](../../references/delivery-authority.md)과 [Git 안전 규칙](../../references/git-safety.md)으로 요청 범위를 확인한다. HEAD, index, worktree와 전체 diff를 읽는다.
+2. 요청한 변경과 필요한 테스트·문서를 한 목적의 단위로 묶는다. 관계없는 수정·생성 파일·삭제, 비밀·대용량 파일·의도하지 않은 binary를 구분한다. 같은 파일의 다른 목적 변경은 hunk 단위로 분리하고 안전한 분리가 어려우면 충돌 범위를 알린 뒤 commit 전에 멈춘다.
+3. [커밋 메시지 기준](../../references/commit-message.md)에 맞춰 언어·제목·본문·footer·AI 사용 표기를 정한다. 확인된 구현 효과·실행한 검증·확인된 티켓 상태만 기록한다.
+4. 생성 승인이 있으면 HEAD·index·worktree·대상 diff를 재확인하고 승인된 경로 또는 hunk만 stage한다. staged diff·포함 경로·최종 메시지를 확인한 뒤 repository의 hook과 signing 정책을 유지해 새 commit을 만든다.
+5. 새 commit의 SHA·부모·tree·메시지·포함 경로를 다시 읽고 남은 worktree·index 변경을 구분한다. 실패 응답이 불명확하면 HEAD 이동 여부를 먼저 확인한다. 여러 단계 작업은 [연속성 기록](../../references/continuity.md)에 남긴다.
 
-하나의 commit에는 독립적으로 설명하고 되돌릴 수 있는 한 가지 목적만 담는다. 전체 diff를 읽고 다음을 구분한다.
+## 결과
 
-- 요청한 변경
-- 해당 변경에 필요한 테스트와 문서
-- 관계없는 수정, 생성 파일과 삭제
-- 비밀, 생성물, 대용량 파일과 의도하지 않은 binary
+메시지 제안 또는 생성된 SHA와 포함 범위, 실제 검사 결과, 남은 변경을 보고한다. hook·signing 실패는 원인과 현재 HEAD를 함께 보고한다.
 
-관계없는 변경이 같은 파일에 섞여 있으면 경로 전체를 stage하지 않고 요청된 hunk만 다룬다. 안전하게 분리할 수 없으면 commit 전에 충돌하는 범위를 알리고 멈춘다. 기존 staged 변경을 자동으로 unstage하지 않는다.
+## 예시
 
-## Conventional Commit을 작성한다
+입력: “재시도 간격 오타만 커밋해 줘. 같은 파일의 로그 문구 수정은 남겨 둬.”
 
-메시지 언어·제목·본문·footer·AI 사용 표기는 [커밋 메시지 기준](../../references/commit-message.md)을 따른다.
+결과: 승인된 간격 수정 hunk와 관련 테스트만 stage하고 `fix: correct retry interval`로 커밋한다. 확인한 SHA·포함 경로와 남겨 둔 로그 문구 변경을 따로 보고한다.
 
-구현하지 않은 효과, 실행하지 않은 테스트와 확인하지 않은 티켓 상태를 메시지에 넣지 않는다.
+## 경계
 
-## 생성하고 확인한다
+- 기존 staged 변경을 자동으로 unstage하거나 관계없는 변경을 포함하지 않는다.
+- hook·signing 실패를 우회하지 않는다. 기존 commit의 amend·rewrite는 수행하지 않는다.
+- push·PR 생성은 각각 별도 승인과 담당 절차로 처리한다.
 
-1. `HEAD`, index, worktree와 대상 diff를 다시 확인한다.
-2. 승인된 경로 또는 hunk만 stage한다.
-3. staged diff, 포함 경로와 최종 메시지를 확인한다.
-4. repository의 hook과 signing 정책을 유지한 채 새 commit을 만든다.
-5. 새 commit의 SHA, 부모, tree, 메시지와 포함 경로를 다시 읽는다.
-6. worktree와 index에 남은 변경을 commit 범위와 구분한다.
+## 참고 자료
 
-hook 또는 signing이 실패하면 우회하지 않는다. 실패 결과가 불명확하면 `HEAD`가 이미 이동했는지 확인하기 전에는 commit을 다시 실행하지 않는다. 기존 commit의 amend나 rewrite는 수행하지 않는다.
+- [커밋 메시지 기준](../../references/commit-message.md)
+- [Git 안전 규칙](../../references/git-safety.md)
+- [전달 권한](../../references/delivery-authority.md)
+- [작업 연속성](../../references/continuity.md)

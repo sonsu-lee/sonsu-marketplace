@@ -12,7 +12,7 @@
 | 플러그인 | 판정 | 대상 | omp 현재 | omp 제안 | 스킬 수 | 문서 지적 수 | 근거 |
 |---|---|---|---|---|---|---|---|
 | engineering | keep |  | not-distributed | not-distributed | 17 | 1 | 호스트별 실행 계약과 내용 주소 기반 품질 근거는 고유하다. PR 리뷰 진입점은 review 하나로 합쳤고 계획 구조 검사와 PR snapshot 수집은 validate_plan.py·pr_review_snapshot.py로 도구화해 판단과 수집을 분리했다. |
-| workflow | new-tool |  | default | default | 9 | 24 | 독립적인 전달 업무와 안전 계약은 유지한다. to-pr의 Git·GitHub 상태 수집은 pr_context.py로 분리했고, 남은 to-pr 첨부 manifest 검사와 inspect-prs의 페이지 수집·상태 정규화를 읽기 전용 도구로 분리한다. |
+| workflow | keep |  | default | default | 9 | 0 | 독립적인 전달 업무와 안전 계약은 유지한다. to-pr의 Git·GitHub 상태 수집은 pr_context.py, 첨부 manifest 검사는 validate_attachment_manifest.py, inspect-prs의 페이지 수집·상태 정규화는 inspect_prs.py로 분리해 모든 도구 제안을 처리했다. |
 | fluent-korean | keep |  | default | default | 2 | 14 | Codex 단일 호출과 Claude 다단계 스킬을 유지하고 공통 규칙을 정리하는 방향이 맞습니다. 기계 단계는 기존 스크립트를 재사용하며 미포함 commit-ko·평가 의존성 및 상위 프로젝트 홍보 도구를 번들에서 줄일 수 있습니다. |
 | fluent-english | new-tool |  | default | default | 1 | 5 | 독립적인 영어 작성·윤문 지침을 유지하면서 수치 기반 voice calibration과 보호 문자열 대조를 코드에 맡깁니다. |
 | fluent-japanese | new-tool |  | default | default | 1 | 6 | 독립 도메인과 기존 검사 도구를 유지하고 점수 산식 계산을 도구화하며, 배포에 없는 코퍼스 전용 연구 도구는 정리합니다. |
@@ -30,8 +30,6 @@
 | 경로 | 판정 | 대상 | 근거 |
 |---|---|---|---|
 | plugins/engineering/skills/debug/condition-based-waiting-example.ts | to-reference | plugins/engineering/skills/debug/condition-based-waiting.md | `~/threads` 경로의 Lace 타입을 import하므로 이 패키지에서 실행하거나 타입 검사할 수 없다. 실행 도구가 아니라 조건 기반 대기의 구현 형태를 보여 주는 자료이므로 필요한 부분만 reference 예시로 옮긴다. |
-| plugins/workflow/skills/inspect-prs/SKILL.md | new-tool |  | 조회 결과 해석은 독립 과업으로 유지하고, 페이지 수집·필드 정규화·head 변경 감지는 반복 가능한 읽기 전용 수집기로 옮긴다. |
-| plugins/workflow/skills/to-pr/SKILL.md | new-tool |  | Git 상태·양식 탐색·stack ancestry·게시 전 재확인은 pr_context.py가 수집하고 PR 경계·글쓰기·승인·게시 판단은 스킬에 남았다. 첨부 manifest의 파일·digest·필수 필드 검사는 아직 문서 절차이므로 validator로 분리한다. |
 | plugins/fluent-korean/scripts/build_social_preview_v2.py | delete |  | v2.3 생성기와 동일한 출력 파일을 쓰는 이전 홍보 자산 도구이며 이 패키지에는 assets나 홍보 이미지 생성 과업이 없습니다. |
 | plugins/fluent-korean/scripts/build_social_preview_v2_3.py | delete |  | 상위 프로젝트 imnotai.kr 홍보물 제작 도구로 한국어 생성·윤문 실행에 쓰이지 않습니다. 현재 패키지의 산출물 계약과 무관합니다. |
 | plugins/fluent-korean/scripts/check_commit_lexicon_ids.py | delete |  | 고정 입력 extras/skills/commit-ko/references/commit-lexicon.md가 현재 플러그인에 포함되지 않습니다. 함께 배포되지 않는 opt-in 스킬의 검사기를 런타임 번들에 유지할 이유가 없습니다. |
@@ -49,8 +47,6 @@
 
 | 스킬 | 위치 | 단계 | 제안 | 기존 도구 |
 |---|---|---|---|---|
-| plugins/workflow/skills/inspect-prs/SKILL.md | plugins/workflow/references/pr-inspection.md:7-31 | gh REST·GraphQL의 PR·reviews·check runs·statuses·reviewThreads 페이지를 모두 수집해 head와 조회 시점을 붙이고 부분 실패를 구조화한다. | script | - |
-| plugins/workflow/skills/to-pr/SKILL.md | plugins/workflow/skills/to-pr/references/media-attachments.md:111-119 | 첨부 manifest의 파일 존재·regular file identity·크기·SHA-256·형식과 필수 필드 누락을 검사하고 중복 underlying file을 표시한다. 화면의 민감정보·annotation 적절성은 별도 판단으로 남긴다. | validator | - |
 | plugins/fluent-english/skills/fluent-english/SKILL.md | plugins/fluent-english/skills/fluent-english/references/voice-and-context.md:100-120 | 원문·샘플·윤문본의 문장 길이, 축약형·인칭·유보 표현과 문장부호 빈도를 같은 규칙으로 집계하고 전후 차이를 반환합니다. | script | - |
 | plugins/fluent-english/skills/fluent-english/SKILL.md | plugins/fluent-english/skills/fluent-english/SKILL.md:57 | 코드·인용·링크 대상·frontmatter의 전후 문자열 차이를 찾아 사람이 판단할 위치를 반환합니다. | validator | - |
 | plugins/fluent-japanese/skills/fluent-japanese/SKILL.md | plugins/fluent-japanese/skills/fluent-japanese/references/diagnose.md:13-37 | lint severity별 건수와 문서 길이로 기계 기본 점수·구간·100자 미만 판정 및 조정 후 범위 제한을 계산합니다. | script | plugins/fluent-japanese/skills/fluent-japanese/scripts/lint.py |
@@ -64,7 +60,7 @@
 | 플러그인 | negative-definition | history | duplicate-rule | missing-example | structure | internal-detail |
 |---|---|---|---|---|---|---|
 | engineering | 0 | 0 | 1 | 0 | 0 | 0 |
-| workflow | 2 | 1 | 6 | 8 | 7 | 0 |
+| workflow | 0 | 0 | 0 | 0 | 0 | 0 |
 | fluent-korean | 3 | 2 | 3 | 2 | 2 | 2 |
 | fluent-english | 1 | 1 | 1 | 1 | 1 | 0 |
 | fluent-japanese | 0 | 1 | 1 | 1 | 2 | 1 |
