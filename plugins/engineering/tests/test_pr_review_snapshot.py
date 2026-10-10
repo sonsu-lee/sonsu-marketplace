@@ -156,6 +156,12 @@ class PrReviewSnapshotTest(unittest.TestCase):
         self.assertEqual(data["comparison"]["before"]["fixed_shas"]["head"], self.head_sha)
         self.assertEqual(data["comparison"]["after"]["fixed_shas"]["head"], self.moved_head)
 
+        self.gh([self.pr(head="a" * 40)])
+        result, data = self.run_tool("compare", "--against", str(before))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertEqual(data["comparison"]["changed_fields"], ["head"])
+        self.assertIsNone(data["snapshot"]["merge_base"])
+
     def test_compare_flags_closed_pr_and_rejects_unstable_snapshot(self):
         before = self.tmp / "before.json"
         self.capture(before)

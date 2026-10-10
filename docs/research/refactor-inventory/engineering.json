@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "engineering",
-  "manifest_sha256": "00f6245f183b0ed645d5398314c5fd34e3c515860199541d291cf77cefe8378e",
+  "manifest_sha256": "e21fbdef8b718f1b2696417b75d10d8989bcbe57cd889fbf19a0b1f65b7d8f9a",
   "problem": "설계·계획·구현·리뷰의 책임과 검증 근거가 흩어져 변경 완료 여부와 전달 권한을 혼동하기 쉽다.",
   "outcome": "계약에서 구현·검사·독립 리뷰까지 연결하고 현재 리비전의 완료 근거와 미해결 사항을 제공한다.",
   "omp": {
@@ -325,7 +325,7 @@
       "mechanical": [
         {
           "step": "고정 diff·파일 목록을 리뷰 패키지로 수집하고 caller·test는 코드 탐색 도구로 확인한다.",
-          "location": "plugins/engineering/skills/review-failure-modes/SKILL.md:15-17",
+          "location": "plugins/engineering/skills/review-failure-modes/SKILL.md:18-20",
           "existing_tool": "plugins/engineering/scripts/review-package",
           "proposal": "none"
         }
@@ -505,7 +505,7 @@
     },
     {
       "path": "plugins/engineering/skills/worktree/SKILL.md",
-      "sha256": "1c06466e3387021086c10d80974833f31292275fe57a266bda3d844b9fca133d",
+      "sha256": "519c1cd41a89e16ce05ebfe1f3092b4efc04cd24ef7c9e9db960a0340288fff6",
       "sources": {},
       "problem": "기존 격리 상태·소유권·미커밋 변경을 모른 채 작업 공간을 새로 만들거나 정리할 위험이 있다.",
       "outcome": "사용자 선호에 맞는 격리 공간과 실제 환경·기준 검사 결과를 제공한다.",
@@ -593,7 +593,7 @@
     },
     {
       "path": "plugins/engineering/scripts/pr_review_snapshot.py",
-      "sha256": "a6d2f4edcb7dea5a3911afe892b1dfddddc55f23b7a3a267da3ab47a48b02ef1",
+      "sha256": "df93229ae3c1e6eb94f01d3d1825983b46e3ce22464a253829d4638ad12cd446",
       "role": "PR host·repository·state·base/head·merge base·고정 SHA·기존 리뷰와 인라인 댓글 ID를 읽기 전용으로 수집하고 저장한 snapshot과 현재 상태를 대조한다.",
       "verdict": "keep",
       "verdict_target": "",
@@ -633,7 +633,7 @@
     },
     {
       "path": "plugins/engineering/scripts/validate_plan.py",
-      "sha256": "548600ecb673eafd43fc0b6541bb97b7550ce8d4b7e976ec0d1c1b3892c24bc8",
+      "sha256": "3182a4f9bb81fdce38a9438b6c53484ca1d8190bdefd6d644dcba4eca4f5ca76",
       "role": "계획의 FLOW·Task ID, 흐름 대응표, 파일 선언의 중복·누락·참조·경로 존재를 검사해 JSON으로 보고한다.",
       "verdict": "keep",
       "verdict_target": "",
