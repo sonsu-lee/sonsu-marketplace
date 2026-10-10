@@ -24,8 +24,8 @@ GitHub Issues closing keyword는 non-default base의 자동 종료 근거로 사
 
 ## 게시 전 chain을 고정한다
 
-1. 같은 저장소에 속한 정확한 trunk, branch 순서와 선형 ancestry를 확인한다. 각 층의 commit·diff 범위는 [GitHub PR 규칙](github.md#저장소-상태를-확인한다)으로 확인한다. 위 branch가 아래 branch의 변경을 포함하지 않거나 각 층에 다른 주제가 섞이면 게시를 멈추고 필요한 Git 작업을 보고한다. cross-fork stack은 만들지 않는다.
-2. 각 branch의 원격 ref와 같은 head의 기존 PR을 조회한다. 이 절차는 **모든 층이 새 PR**일 때 사용한다. publish 시작 전에 존재하던 PR이 끼어 있으면 이 스킬에서 base나 stack membership을 수정하지 않고 현재 관계와 필요한 별도 작업을 보고한다.
+1. 각 층에서 [`pr_context.py`](../../../scripts/pr_context.py)를 `--head <branch> --base refs/heads/<아래 branch>`로 실행한다. 하단 층은 `--base <trunk>`를 쓴다. 모든 층의 `repository.github`의 `host`, `owner`, `name`이 같은지 확인한다. 다르거나 어느 층이든 `github`가 `null`이거나 `github.parent`가 있으면 cross-fork·대상 불명 stack으로 보고 게시를 멈춘다. 각 층의 `range`, `head.remote_sha`, `existing_prs`를 확인한다. `base-not-ancestor`가 있으면 게시를 멈춘다. 상태 필드의 의미는 [GitHub PR 규칙](github.md#상태를-수집한다)에 있다.
+2. 위 branch가 아래 branch의 변경을 포함하지 않거나 각 층에 다른 주제가 섞이면 게시를 멈추고 필요한 Git 작업을 보고한다. 이 절차는 **모든 층이 새 PR**일 때 사용한다. publish 시작 전에 존재하던 PR이 끼어 있으면 그 PR의 base나 stack membership은 그대로 두고 현재 관계와 필요한 별도 작업을 보고한다.
 3. 각 층의 최종 제목·본문·양식·ticket reference·검증 상태·시각 자료를 준비한다. `target_pr_state`는 모든 층에 기본 Draft를 적용하고, 사용자가 stack 전체 또는 특정 층의 Ready를 명시한 경우에만 해당 층을 Ready로 정한다.
 4. 설치된 `gh stack link --help`, 인증 주체, 저장소·remote, GitHub stack 기능과 권한을 읽기 전용으로 확인한다. `GET /repos/{owner}/{repo}/stacks`는 조회 경로지만, 빈 목록만으로 생성 권한까지 단정하지 않는다. native stack을 사용할 수 없으면 일반 종속 PR로 조용히 대체하지 않는다.
 

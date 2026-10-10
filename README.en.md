@@ -36,7 +36,7 @@ claude plugin list
 
 ### omp
 
-Install the default six plugins; Worklog is optional. Only if you choose to enable automatic updates, merge the YAML below into the existing `marketplace:` section of `~/.omp/agent/config.yml`.
+Install the default six plugins; Worklog and Design Patterns are optional. Only if you choose to enable automatic updates, merge the YAML below into the existing `marketplace:` section of `~/.omp/agent/config.yml`.
 
 <!-- omp-preset:start -->
 ```sh
@@ -53,12 +53,13 @@ marketplace:
 ```sh
 # Optional install
 omp plugin install worklog@sonsu-marketplace
+omp plugin install design-patterns@sonsu-marketplace
 omp plugin list
 ```
 
 ## Plugins
 
-Each plugin works independently; follow its link for details (Codex and Claude Code: all 14; omp: the default six and opt-in Worklog).
+Each plugin works independently; follow its link for details (Codex and Claude Code: all 14; omp: the default six and opt-in Worklog and Design Patterns).
 
 | Plugin | Purpose | Installation name |
 | --- | --- | --- |

@@ -29,7 +29,7 @@ manifest에 포함하지 않습니다. `claude plugin validate . --strict`와 �
 `hooks/hooks.json`으로 복사합니다.
 
 omp 배포는 `python3 scripts/render-omp-compat.py`로 생성합니다. 카탈로그에는 기본 6개인 Workflow,
-Fluent Korean·English·Japanese, Design, Career와 opt-in Worklog를 등록합니다. English·Japanese·Career는
+Fluent Korean·English·Japanese, Design, Career와 opt-in Worklog·Design Patterns를 등록합니다. English·Japanese·Career·Design Patterns는
 원본 패키지를 참조하고, Design·Workflow·Fluent Korean·Worklog는 `plugins/<name>/omp`에 독립 배포용 사본을 생성합니다.
 Fluent Korean의 `skills/fluent-korean/SKILL.md`와 참고 자료는 Codex 단일 호출 경로에서 생성하며
 현재 호스트 모델을 사용합니다. 기본 `skills/` discovery로 발견되고 Claude agent·고정 Opus·다중 호출·

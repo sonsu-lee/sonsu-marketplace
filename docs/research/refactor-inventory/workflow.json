@@ -1,0 +1,496 @@
+{
+  "schema_version": 1,
+  "plugin": "workflow",
+  "manifest_sha256": "481cff867d3094146cc6f2fee47964bb0563bd4ca29f20d955df2fdcd07ff718",
+  "problem": "Git 변경과 티켓·PR을 전달할 때 사용자 승인, 정확한 대상, 실제 반영 상태와 작성 근거가 섞여 잘못된 쓰기나 완료 보고가 발생할 수 있다.",
+  "outcome": "브랜치·커밋·push·티켓·PR의 독립 작업을 승인 범위 안에서 수행하고, 초안·원격 반영·검증·미확인을 구분해 전달한다.",
+  "omp": {
+    "current": "default",
+    "proposal": "default",
+    "reason": "omp의 리뷰·세션 기능과 달리 Git 전달 권한, tracker별 내용·상태 변경, PR 양식과 게시 계약을 제공하므로 기본 배포를 유지한다. 연속성 기록만 omp의 todo·session을 사용한다."
+  },
+  "verdict": "new-tool",
+  "verdict_target": "",
+  "reason": "독립적인 전달 업무와 안전 계약은 유지한다. to-pr의 Git·GitHub 상태 수집은 pr_context.py로 분리했고, 남은 to-pr 첨부 manifest 검사와 inspect-prs의 페이지 수집·상태 정규화를 읽기 전용 도구로 분리한다.",
+  "skills": [
+    {
+      "path": "plugins/workflow/skills/branch/SKILL.md",
+      "sha256": "573cc318886736daf36eca9a44442f58e6942f7102a0c45fc166f5ed6efb2231",
+      "sources": {},
+      "problem": "작업 목적과 저장소 규칙에 맞는 브랜치 이름을 고르고 기존 변경·worktree를 보존하며 생성해야 한다.",
+      "outcome": "근거 있는 이름 제안 또는 명시적으로 승인된 새 브랜치와 확인된 HEAD를 제공한다.",
+      "ai_judgment": "사용자 지정과 저장소 규칙의 우선순위, 변경 목적을 드러내는 이름, dirty 변경의 이동 영향을 판단한다.",
+      "mechanical": [
+        {
+          "step": "git rev-parse, show-ref, worktree list로 base·동명 ref·checkout 점유 상태를 조회하고 git check-ref-format으로 이름 문법을 확인한다.",
+          "location": "plugins/workflow/skills/branch/SKILL.md:27-35",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "이름 제안과 실제 생성 권한을 분리하고 티켓 연결 때문에 기존 branch를 바꾸지 않는 작업 계약을 제공한다.",
+      "overlaps": [
+        {
+          "target": "external:git",
+          "note": "ref 검사·생성은 Git이 수행하며 이름의 의미와 사용자 승인 범위는 스킬이 판단한다."
+        },
+        {
+          "target": "workflow:to-pr",
+          "note": "티켓 ID를 branch에 추가하지 않는 규칙을 공유하지만 새 branch 생성과 PR 게시는 독립 과업이다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "단독 이름 제안·생성 요청이 있고 CLI가 대신하지 않는 명명·권한 판단이 있으므로 유지한다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/workflow/skills/branch/SKILL.md:19-25",
+          "note": "티켓 ID와 기존 이름 보존 규칙이 공통 branch-naming.md:4-16과 반복된다. 정본 링크와 필요한 행동만 남긴다."
+        },
+        {
+          "kind": "structure",
+          "location": "plugins/workflow/skills/branch/SKILL.md:15-37",
+          "note": "주제별 제목과 말미 경계 대신 번호 절차·결과·예시·경계 순서로 구성한다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/workflow/skills/branch/SKILL.md:27-37",
+          "note": "이름 제안 요청과 실제 생성 요청 각각의 대표 입력·결과가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/workflow/skills/commit/SKILL.md",
+      "sha256": "408d374717392936ecd5ef3c8a2cf6a3aedb74957b440af13cd0345be563414b",
+      "sources": {},
+      "problem": "관계없는 변경이 섞인 작업 트리에서 요청된 범위만 원자적 커밋으로 전달해야 한다.",
+      "outcome": "실제 diff를 설명하는 Conventional Commit 메시지 또는 승인 범위만 포함한 새 commit과 남은 변경 내역을 제공한다.",
+      "ai_judgment": "목적별 원자성, hunk의 관련성, 메시지의 이유·부작용과 검증 근거의 정확성을 판단한다.",
+      "mechanical": [
+        {
+          "step": "git status와 diff --cached로 index·worktree를 구분하고 commit 뒤 show·rev-parse로 SHA·부모·tree·포함 경로를 조회한다.",
+          "location": "plugins/workflow/skills/commit/SKILL.md:32-39",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "메시지 작성, hunk 단위 승인 범위와 hook·signing 보존을 하나의 커밋 전달 계약으로 묶는다.",
+      "overlaps": [
+        {
+          "target": "workflow:review-commit",
+          "note": "원자성·메시지·검증 근거를 공유하지만 commit은 승인된 쓰기까지 수행한다."
+        },
+        {
+          "target": "external:git",
+          "note": "staging과 commit 생성은 Git이 담당하며 포함할 변경과 메시지 의미는 모델 판단이다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "쓰기 권한이 없는 검토와 실제 커밋 생성은 다른 사용자 과업이므로 공통 기준만 공유하고 독립 스킬을 유지한다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/workflow/skills/commit/SKILL.md:8-11",
+          "note": "branch와 같은 단독 실행·권한·연속성 설명이 반복된다. 공통 reference에 의미를 두고 필요한 링크만 남긴다."
+        },
+        {
+          "kind": "negative-definition",
+          "location": "plugins/workflow/skills/commit/SKILL.md:30",
+          "note": "넣지 않을 내용을 열거하는 대신 확인된 구현 효과·검증·티켓 상태만 메시지에 기록하는 행동으로 쓴다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/workflow/skills/commit/SKILL.md:26-39",
+          "note": "reference에는 메시지 예시가 있지만 SKILL.md에는 요청·선택 범위·결과가 연결된 대표 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/workflow/skills/inspect-prs/SKILL.md",
+      "sha256": "496415a3be316758a20c4022b36beea680dd7fd901792567d76efc570be78f53",
+      "sources": {
+        "plugins/workflow/references/pr-inspection.md": "1b10ea917215b279825fe06d6a906a330a0a3f0e48bb5ec8ddf748c7f3b4e271"
+      },
+      "problem": "PR 목록의 불완전한 페이지나 오래된 head의 리뷰를 현재 CI·병합 준비 상태로 오인하기 쉽다.",
+      "outcome": "조회 시점과 head가 연결된 PR별 CI·리뷰·미해결 대화·병합 상태 및 누락 범위를 읽기 전용으로 보고한다.",
+      "ai_judgment": "사용자가 필요한 상세 범위, 상태 간 불일치의 의미와 현재 변경에 관련된 리뷰 근거를 해석한다.",
+      "mechanical": [
+        {
+          "step": "gh REST·GraphQL의 PR·reviews·check runs·statuses·reviewThreads 페이지를 모두 수집해 head와 조회 시점을 붙이고 부분 실패를 구조화한다.",
+          "location": "plugins/workflow/references/pr-inspection.md:7-31",
+          "existing_tool": null,
+          "proposal": "script"
+        }
+      ],
+      "unique_value": "빈 check·skipped·pending·조회 실패와 실제 성공을 구분하고 리뷰가 어느 commit에 속하는지 연결한다.",
+      "overlaps": [
+        {
+          "target": "workflow:repair-pr",
+          "note": "복구의 입력도 동일한 PR 관찰을 요구하므로 조회 도구를 공유할 수 있다. 복구 실행은 이 스킬의 결과가 아니다."
+        },
+        {
+          "target": "external:gh",
+          "note": "개별 상태 조회는 가능하지만 다중 API 페이지 완전성과 head별 근거 통합은 현재 문서 절차가 맡는다."
+        }
+      ],
+      "verdict": "new-tool",
+      "verdict_target": "",
+      "reason": "조회 결과 해석은 독립 과업으로 유지하고, 페이지 수집·필드 정규화·head 변경 감지는 반복 가능한 읽기 전용 수집기로 옮긴다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/workflow/skills/inspect-prs/SKILL.md:3",
+          "note": "description의 자동 선택·직접 호출 설명을 본문으로 옮기고 과업과 사용 시점을 중심으로 한 문장 및 필요한 경계 문장으로 줄인다."
+        },
+        {
+          "kind": "negative-definition",
+          "location": "plugins/workflow/skills/inspect-prs/SKILL.md:24-30",
+          "note": "성공으로 합치지 않음·승인 아님·빈 결과로 보고하지 않음을 상태별 보고 행동으로 표현한다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/workflow/skills/inspect-prs/SKILL.md:22-31",
+          "note": "결과 표 지시는 있지만 특정 PR 입력과 미확인 CI를 보존한 결과 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/workflow/skills/push/SKILL.md",
+      "sha256": "8892f3d8f4a2567bc7bfaa0341552982ba7a48b46433556b3e1355f65b84a192",
+      "sources": {},
+      "problem": "현재 commit을 다른 remote나 ref로 보내거나 불명확한 응답 뒤 잘못 재시도할 위험이 있다.",
+      "outcome": "정확한 source·destination으로 일반 push하고 실제 원격 SHA와 미확인 결과를 보고한다.",
+      "ai_judgment": "요청에서 전송 대상을 해소하고 저장소 규칙·upstream의 적용과 non-fast-forward 시 필요한 별도 작업을 판단한다.",
+      "mechanical": [
+        {
+          "step": "git rev-parse·remote 조회·ls-remote로 local SHA와 destination ref를 확인하고 일반 push 후 동일 ref를 다시 읽는다.",
+          "location": "plugins/workflow/skills/push/SKILL.md:13-17",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "push 요청만으로 branch·commit·PR·권한 변경까지 실행하지 않는 전달 경계를 제공한다.",
+      "overlaps": [
+        {
+          "target": "external:git push",
+          "note": "실제 전송은 기존 CLI로 충분하며 스킬은 요청 해석과 안전한 대상 고정을 담당한다."
+        },
+        {
+          "target": "workflow:to-pr",
+          "note": "PR publish에 필요한 일반 push도 같은 안전 계약을 사용하지만 push만 원하는 요청을 독립적으로 처리한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "간단한 CLI를 다시 감싸는 새 도구보다 독립 push 요청의 권한·대상·결과 계약을 짧게 유지하는 편이 맞다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/workflow/skills/push/SKILL.md:13-16",
+          "note": "git-safety.md:13-19의 대상 고정·재조회 규칙을 반복한다. 공통 규칙 링크와 push의 실행 흐름을 구분한다."
+        },
+        {
+          "kind": "structure",
+          "location": "plugins/workflow/skills/push/SKILL.md:13-19",
+          "note": "번호 목록을 절차로 명명하고 결과와 경계를 별도 절에 모은다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/workflow/skills/push/SKILL.md:13-17",
+          "note": "사용자가 지정한 remote/ref와 실제 반영 SHA를 연결하는 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/workflow/skills/repair-pr/SKILL.md",
+      "sha256": "cd6f2517fde86cf22210e5d9d87053667ed3a61178e7c5f057128cd4ba21ae56",
+      "sources": {
+        "plugins/workflow/skills/repair-pr/references/remote-results.md": "35c487efd86ac665fef6f5b404c66b8064a472bef5a9cb062888ec2b4d619888"
+      },
+      "problem": "PR 충돌·리뷰 지적·실패 CI를 복구하면서 다른 작업 트리 변경과 승인되지 않은 원격 작업까지 건드릴 수 있다.",
+      "outcome": "확인된 원인만 최소 수정·검증하고 해결·기각·추가 확인 필요 및 실제 원격 반영을 구분한다.",
+      "ai_judgment": "충돌의 올바른 의미, 리뷰 지적의 현재 유효성, CI의 독립 원인과 연쇄 실패, 안전한 최소 수정 범위를 판단한다.",
+      "mechanical": [
+        {
+          "step": "git status·rev-parse·worktree와 gh PR 조회로 수정 대상과 격리 상태를 고정하고 정확한 run/job의 CI 로그를 읽는다.",
+          "location": "plugins/workflow/skills/repair-pr/SKILL.md:13-23",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        },
+        {
+          "step": "승인된 push 뒤 gh로 원격 head·check·thread 상태를 재조회하여 local validation과 별도 필드로 보고한다.",
+          "location": "plugins/workflow/skills/repair-pr/references/remote-results.md:27-33",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "리뷰 수용 여부와 충돌·CI 원인 판단을 실제 PR head·격리 공간·원격 대화 해결 조건에 연결한다.",
+      "overlaps": [
+        {
+          "target": "workflow:inspect-prs",
+          "note": "PR 상태 수집은 공유하지만 repair-pr은 사용자가 요청한 복구와 관련 검증을 수행한다."
+        },
+        {
+          "target": "omp:review",
+          "note": "코드 근거 검토는 겹치지만 리뷰 에이전트의 판단만으로 승인된 복구·push·thread 결과 관리가 대체되지는 않는다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "PR 맥락의 복구는 일반 코드 리뷰와 다른 실행 과업이며 원인 판단과 수정 책임을 독립적으로 유지할 가치가 있다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/workflow/skills/repair-pr/SKILL.md:11-64",
+          "note": "범위·충돌·리뷰·CI·전달에 흩어진 절을 번호 절차와 결과·경계로 재배치하고 세부 원격 조건은 기존 reference에 둔다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/workflow/skills/repair-pr/SKILL.md:36-43",
+          "note": "수정 필요·근거로 기각·추가 확인 필요 분류에 대표 입력과 판단 결과 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/workflow/skills/review-commit/SKILL.md",
+      "sha256": "275f4645d162a32223138675511caa6263cb1923390bcbc4a725ef539006d9a3",
+      "sources": {},
+      "problem": "커밋 후보나 기존 commit의 범위·원자성·메시지가 실제 diff와 맞는지 쓰기 없이 검토해야 한다.",
+      "outcome": "revision과 비교 범위를 고정한 커밋 전달상의 문제 목록 또는 문제 없음과 검증 한계를 제공한다.",
+      "ai_judgment": "변경 목적별 원자성, 위험에 맞는 검증, 메시지와 diff의 의미 일치를 판단한다.",
+      "mechanical": [
+        {
+          "step": "git diff·status로 후보의 staged·unstaged·untracked를 구분하고 git show로 지정 commit의 부모·tree·diff·메시지를 읽는다.",
+          "location": "plugins/workflow/skills/review-commit/SKILL.md:13-25",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "코드 결함 일반 리뷰가 아니라 Git 전달 단위와 메시지·검증 근거의 품질을 읽기 전용으로 확인한다.",
+      "overlaps": [
+        {
+          "target": "workflow:commit",
+          "note": "커밋 원자성과 공통 메시지 기준을 재사용하되 검토 요청에는 staging·commit을 실행하지 않는다."
+        },
+        {
+          "target": "omp:review",
+          "note": "근거 있는 finding 형식은 공유하지만 commit의 메시지·원자성·전달 범위에 특화된 기준을 추가한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "명시적인 읽기 전용 커밋 검토는 생성 요청과 독립적이며 omp 일반 리뷰를 그대로 호출하는 것보다 좁고 구체적인 계약이 있다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/workflow/skills/review-commit/SKILL.md:13-27",
+          "note": "후보·기존 commit 분기를 절차에 넣고 말미 보고 문장을 결과 절로 분리한다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/workflow/skills/review-commit/SKILL.md:27",
+          "note": "원자성 문제의 위치·근거 또는 문제 없음의 출력 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/workflow/skills/ticket-lifecycle/SKILL.md",
+      "sha256": "3201a723ef71f38da937a17902954a8274e7338eb4d77f19e902d825bbec1cbf",
+      "sources": {},
+      "problem": "티켓 내용 수정과 상태·담당자·관계 변경을 혼동하거나 provider별 방향·automation 효과를 잘못 적용할 수 있다.",
+      "outcome": "검증된 canonical 티켓의 요청 operation만 적용하고 applied·unapplied·unknown·no-op과 실제 변경 전후 상태를 보고한다.",
+      "ai_judgment": "자연어 의도와 관계 방향, tracker 정책에 맞는 상태 전이, native automation과 직접 변경의 책임을 판단한다.",
+      "mechanical": [
+        {
+          "step": "현재 tracker API에서 티켓·사용자·상태 option·relation ID를 조회하고 operation 전후 필드가 목표값과 일치하는지 대조한다.",
+          "location": "plugins/workflow/skills/ticket-lifecycle/SKILL.md:51-68",
+          "existing_tool": null,
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "티켓 내용 쓰기와 lifecycle 권한을 분리하고 duplicate·blocking 방향 및 PR automation의 중복 전이를 통제한다.",
+      "overlaps": [
+        {
+          "target": "workflow:to-ticket",
+          "note": "같은 canonical 티켓과 readback 상태를 사용하지만 제목·본문 수정 성공을 lifecycle 완료로 취급하지 않는다."
+        },
+        {
+          "target": "external:GitHub Issues·Linear API",
+          "note": "필드 조회와 변경은 기존 API가 제공하며 자연어 의도·전이 정책 매핑은 스킬에 남는다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "tracker마다 다른 상태·관계 의미와 사용자의 변경 의도를 조합하는 독립 과업이다. 현재 도구 schema가 달라지는 API 쓰기를 새 고정 CLI로 재구현할 근거는 부족하다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/workflow/skills/ticket-lifecycle/SKILL.md:8-20",
+          "note": "목적·절차보다 연속성 지침이 먼저 나오며 operation·결과·경계를 번호 절차 중심으로 다시 묶을 필요가 있다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/workflow/skills/ticket-lifecycle/SKILL.md:22-42",
+          "note": "코드 블록은 operation 스키마만 보여 준다. 특정 unblock 요청이 방향을 보존한 no-op 또는 applied로 끝나는 입력·결과 예시가 필요하다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/workflow/skills/ticket-lifecycle/SKILL.md:59",
+          "note": "to-ticket의 후속 lifecycle 계약을 링크한 뒤 선행 조건을 다시 길게 반복한다. 인계 필드와 결과별 행동을 한 정본에 둔다."
+        }
+      ],
+      "example": "weak"
+    },
+    {
+      "path": "plugins/workflow/skills/to-pr/SKILL.md",
+      "sha256": "4d39c24d2cb84bcdb620d867135aa7f7d91fe767c30e5506e1e3248159e768c0",
+      "sources": {
+        "plugins/workflow/references/continuity.md": "30e3ef8519e68cccf7681193f1fb09d3daeaf5973312230e87b2d7dbcd704d98",
+        "plugins/workflow/skills/to-pr/references/github.md": "af904c7425105d4f16307c3d07e2f6232573f982bd2d7bdbc0c5792de29a1739",
+        "plugins/workflow/skills/to-pr/references/media-attachments.md": "9cf7307aec5ec501d3cc7abd545647fcb9532bedb82b18731af4eda2d12cb9d8",
+        "plugins/workflow/skills/to-pr/references/pr-template.md": "90908f0a832465a790fdceb01ef22a868e83e3d184478532341b8d8872e421db",
+        "plugins/workflow/skills/to-pr/references/stacked-prs.md": "7f6990eb9d9310dab94e969d90b6a021e5599eec30c96668483e6a7e233a58f0"
+      },
+      "problem": "현재 Git 변경을 PR로 전달할 때 대상·양식·ticket intent·미디어·Draft 상태와 실제 게시 결과를 일관되게 확인하기 어렵다.",
+      "outcome": "주제별 단일 또는 native stacked PR의 근거 있는 초안·게시 payload와 단계별 실제 반영 결과를 제공한다.",
+      "ai_judgment": "주제·의존성에 맞는 PR 경계, 본문에 필요한 변경 이유, 적용 양식·언어, 티켓 완료 의도와 시각 증거의 필요성을 판단한다.",
+      "mechanical": [
+        {
+          "step": "Git·gh로 저장소·worktree·진행 중 작업·working tree·remote·인증·head·base·merge base·commit/diff 범위·기존 PR을 읽기 전용 JSON으로 수집한다.",
+          "location": "plugins/workflow/skills/to-pr/references/github.md:5-37",
+          "existing_tool": "plugins/workflow/scripts/pr_context.py",
+          "proposal": "none"
+        },
+        {
+          "step": "GitHub default branch tree와 public owner .github의 공식 경로를 우선순위대로 탐색해 PR 양식 후보와 found·account-default·none·local-only·unverified 상태를 반환한다.",
+          "location": "plugins/workflow/skills/to-pr/references/pr-template.md:5-28",
+          "existing_tool": "plugins/workflow/scripts/pr_context.py",
+          "proposal": "none"
+        },
+        {
+          "step": "각 stack 층의 정확한 저장소·branch·base·head를 수집하고 선형 ancestry, 원격 ref 및 기존 PR 유무를 검사한다.",
+          "location": "plugins/workflow/skills/to-pr/references/stacked-prs.md:27",
+          "existing_tool": "plugins/workflow/scripts/pr_context.py",
+          "proposal": "none"
+        },
+        {
+          "step": "publish 직전에 같은 상태 수집기를 다시 실행해 head SHA·remote ref·기존 PR 부재를 이전 입력과 대조한다.",
+          "location": "plugins/workflow/skills/to-pr/references/github.md:67",
+          "existing_tool": "plugins/workflow/scripts/pr_context.py",
+          "proposal": "none"
+        },
+        {
+          "step": "첨부 manifest의 파일 존재·regular file identity·크기·SHA-256·형식과 필수 필드 누락을 검사하고 중복 underlying file을 표시한다. 화면의 민감정보·annotation 적절성은 별도 판단으로 남긴다.",
+          "location": "plugins/workflow/skills/to-pr/references/media-attachments.md:111-119",
+          "existing_tool": null,
+          "proposal": "validator"
+        }
+      ],
+      "unique_value": "원격 없는 draft 준비와 GitHub Draft 상태를 구별하고 양식 미확인, ticket status effect, 미디어 부분 성공과 native stack 연결을 별도 계약으로 다룬다.",
+      "overlaps": [
+        {
+          "target": "workflow:push",
+          "note": "publish 요청에 포함되는 일반 push는 겹치지만 PR 경계·양식·티켓·미디어 판단은 별도 가치다."
+        },
+        {
+          "target": "omp:session",
+          "note": "연속성 기록은 omp 기본 세션 기능으로 대체할 수 있으나 PR 작성·게시 계약은 대체되지 않는다."
+        },
+        {
+          "target": "external:gh",
+          "note": "PR 생성·조회와 개별 GitHub 정보는 제공하지만 안전한 입력 수집과 결과의 의미 해석은 문서에 남아 있다."
+        }
+      ],
+      "verdict": "new-tool",
+      "verdict_target": "",
+      "reason": "Git 상태·양식 탐색·stack ancestry·게시 전 재확인은 pr_context.py가 수집하고 PR 경계·글쓰기·승인·게시 판단은 스킬에 남았다. 첨부 manifest의 파일·digest·필수 필드 검사는 아직 문서 절차이므로 validator로 분리한다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/workflow/skills/to-pr/references/stacked-prs.md:38",
+          "note": "native stack 게시 직전 재확인을 pr_context.py 재실행 없이 다시 나열한다. github.md의 생성 전 재확인 절차와 같은 필드 대조로 연결한다."
+        },
+        {
+          "kind": "history",
+          "location": "plugins/workflow/references/continuity.md:30-32",
+          "note": "이전 공개 스킬 이름과 통합 전 플러그인의 기록 이동 안내는 현재 작업 절차에서 분리해 마이그레이션 문서로 옮긴다."
+        }
+      ],
+      "example": "present"
+    },
+    {
+      "path": "plugins/workflow/skills/to-ticket/SKILL.md",
+      "sha256": "e55b4a4277d918e1ac06efe1edade36b45cf627a9929b893a12e2d118600b82c",
+      "sources": {
+        "plugins/workflow/skills/to-ticket/references/media-attachments.md": "6af67400c1138e4c04bfb28411f56c9f5479fdd8684af47d9d094ec17ca43555"
+      },
+      "problem": "요청을 티켓으로 옮기며 미정 구현을 확정하거나 기존 본문의 결정·출처를 잃고 내용 수정 권한을 상태 변경까지 확대할 수 있다.",
+      "outcome": "적용 양식과 합의된 범위·완료조건을 보존한 티켓 초안 또는 정확한 생성·제목·본문 수정 및 필드별 실제 반영 상태를 제공한다.",
+      "ai_judgment": "독립 완료 단위의 티켓 분해, 사용자 의도의 create/revise·draft/publish 구분, 필요한 맥락·완료조건·기존 결정의 보존을 판단한다.",
+      "mechanical": [
+        {
+          "step": "GitHub·Linear 조회 API로 정확한 티켓·양식·필드·revision marker를 읽고 쓰기 전후 요청 필드와 보존 필드를 대조한다.",
+          "location": "plugins/workflow/skills/to-ticket/SKILL.md:59-69",
+          "existing_tool": null,
+          "proposal": "none"
+        },
+        {
+          "step": "첨부 파일의 크기와 SHA-256을 준비한 사본과 대조하고 업로드·연결·본문 반영의 응답 ID와 URL을 기록한다.",
+          "location": "plugins/workflow/skills/to-ticket/references/media-attachments.md:22-30",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "티켓의 목적·방향·완료조건을 보존하면서 tracker별 내용 갱신과 lifecycle 인계의 선행 조건을 분리한다.",
+      "overlaps": [
+        {
+          "target": "workflow:ticket-lifecycle",
+          "note": "canonical 대상과 반영 상태를 공유하되 제목·본문 수정과 상태·담당자·관계 변경은 다른 승인 범위다."
+        },
+        {
+          "target": "external:GitHub Issues·Linear API",
+          "note": "조회·게시 API는 기존 도구를 쓰고 작업 단위·요구 보존·양식 선택 판단은 스킬이 담당한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "일반 글쓰기나 tracker API만으로 대체되지 않는 티켓 범위·완료조건·부분 수정 보존 계약이 있어 유지한다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/workflow/skills/to-ticket/SKILL.md:10-29",
+          "note": "목적 뒤 연속성 설명 대신 번호 절차를 시작하고 create/revise 분기와 결과·경계를 명확히 분리한다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/workflow/skills/to-ticket/SKILL.md:59-75",
+          "note": "reference의 작성 예시와 별개로 SKILL.md에는 기존 본문 수정 요청과 applied/no-op 결과의 대표 예시가 없다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/workflow/skills/to-ticket/SKILL.md:69-71",
+          "note": "내용 수정 성공에 의존하는 lifecycle 인계 조건을 ticket-lifecycle과 함께 설명한다. 단일 인계 계약으로 유지하고 소비 측에서는 링크와 입력 필드만 읽도록 한다."
+        }
+      ],
+      "example": "missing"
+    }
+  ],
+  "scripts": [
+    {
+      "path": "plugins/workflow/scripts/pr_context.py",
+      "sha256": "b6d0184bdc3027dcf60438a5ce2eedfb8a48b68440781ce50a5456689b44b9ca",
+      "role": "to-pr가 쓸 저장소·head·base·commit 범위·작업 트리·PR 양식·기존 PR 상태와 blocker·미확인 항목을 읽기 전용 JSON으로 수집한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "명령으로 판정 가능한 상태 수집을 스킬 본문에서 분리하고 plugins/workflow/tests/test_pr_context.py가 blocker·미확인·양식 판정을 고정한다."
+    }
+  ]
+}

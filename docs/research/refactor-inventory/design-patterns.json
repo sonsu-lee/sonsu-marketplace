@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "plugin": "design-patterns",
+  "manifest_sha256": "f948b194518e41994bb15ac2047d9e54895ea3dacc4b1a98aeca49db36b86ee3",
+  "problem": "패턴 이름이나 익숙한 구조만으로 설계를 선택하면 현재 제약에 없는 추상화를 추가하거나 필요한 보장을 놓친다.",
+  "outcome": "실제 forces·baseline·보장·비용을 근거로 패턴 선택 또는 기존 사용의 결함을 판단한다.",
+  "omp": {
+    "current": "opt-in",
+    "proposal": "opt-in",
+    "reason": "정규화된 decision-ready 카탈로그·관계·성숙도 계약은 omp 기본 리뷰와 검색이 제공하지 않는 도메인 자료다. 명시적인 설계 패턴 선택·검토에 쓰이므로 필요 사용자만 설치하는 opt-in이 적합하다."
+  },
+  "verdict": "keep",
+  "verdict_target": "",
+  "reason": "독립적인 선택·검토 과업과 카탈로그 기반 판단 계약이 있다. 기계적 스키마·snapshot·관계 검사는 이미 validate_catalog.py가 맡으므로 새 조정 계층을 만들 필요가 없다.",
+  "skills": [
+    {
+      "path": "plugins/design-patterns/skills/review-pattern-usage/SKILL.md",
+      "sha256": "431dafb6db6e062fe6023121d37ba94498b7eca46130481373a80417bce75ffa",
+      "sources": {
+        "plugins/design-patterns/README.md": "fc135ebd0cb458268dd0e5dd17c2f2f2cb81d2d31597eb5ae6d2b95d1ce8f7b2"
+      },
+      "problem": "기존 패턴 구현이 이름만 맞고 필요한 guarantee·scope·실패 비용을 충족하지 않을 수 있다.",
+      "outcome": "발생 조건·실제 동작·필요 보장·최소 수정을 갖춘 finding 또는 finding 없음을 제공한다.",
+      "ai_judgment": "현재 코드·계약의 실제 보장과 비용을 카탈로그 scope·forces에 대조하고 유효한 결함만 선별한다.",
+      "mechanical": [
+        {
+          "step": "카탈로그 ID·성숙도·필수 필드·원천 snapshot·overlay와 cross-family 관계의 구조적 정합성을 검사한다.",
+          "location": "plugins/design-patterns/README.md:45-50",
+          "existing_tool": "plugins/design-patterns/scripts/validate_catalog.py",
+          "proposal": "none"
+        },
+        {
+          "step": "선택한 pattern ID의 family 항목과 decision-ready overlay를 JSON 조회로 함께 읽는다.",
+          "location": "plugins/design-patterns/skills/review-pattern-usage/SKILL.md:13",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "패턴 이름이 아니라 required guarantee·scope·baseline 비용을 판정 기준으로 삼고 검토자가 패턴을 강요하지 않게 한다.",
+      "overlaps": [
+        {
+          "target": "omp:review",
+          "note": "일반 코드 리뷰와 검토 행위는 겹치지만 정규화 카탈로그의 패턴별 보장·scope 계약은 별도다."
+        },
+        {
+          "target": "engineering:review-overengineering",
+          "note": "추가 보장 없는 복잡성을 찾는 기준은 공유하지만 패턴별 비용·성숙도·관계의 자료가 다르다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "명시적인 패턴 사용 검토는 독립 과업이며 기본 reviewer에 도메인 판정 자료를 더한다.",
+      "doc_findings": [],
+      "example": "present"
+    },
+    {
+      "path": "plugins/design-patterns/skills/select-design-patterns/SKILL.md",
+      "sha256": "bc6854f427aedd05bd5c18c80366758615822aa5a5974a0d70851460881d3ec1",
+      "sources": {
+        "plugins/design-patterns/README.md": "fc135ebd0cb458268dd0e5dd17c2f2f2cb81d2d31597eb5ae6d2b95d1ce8f7b2",
+        "plugins/design-patterns/references/language-realization.md": "b1ad92e46ebaab7bc45758a586bee55906e83dee170c8d41da95fb91a63fd4d5"
+      },
+      "problem": "문제와 제약보다 패턴 이름을 먼저 고르면 불필요한 구조나 검증되지 않은 분산 보장을 선택한다.",
+      "outcome": "use·no-pattern·insufficient-evidence 결정과 baseline·후보·선택·구현 형태·검증 근거를 제공한다.",
+      "ai_judgment": "반복 문제와 충돌 forces가 실제로 있는지, 직접 해법·플랫폼 기능보다 패턴의 추가 보장이 비용을 정당화하는지 판단한다.",
+      "mechanical": [
+        {
+          "step": "카탈로그 ID·성숙도·필수 필드·원천 snapshot·overlay와 cross-family 관계의 구조적 정합성을 검사한다.",
+          "location": "plugins/design-patterns/README.md:45-50",
+          "existing_tool": "plugins/design-patterns/scripts/validate_catalog.py",
+          "proposal": "none"
+        },
+        {
+          "step": "선택한 pattern ID의 family 항목과 decision-ready overlay를 JSON 조회로 함께 읽는다.",
+          "location": "plugins/design-patterns/skills/select-design-patterns/SKILL.md:14",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "성숙도가 확인된 항목만 추천하고 no-pattern과 근거 부족을 정식 결과로 제공한다.",
+      "overlaps": [
+        {
+          "target": "omp:web-search",
+          "note": "원천 자료 검색은 겹치지만 추천 가능한 성숙도와 보장·비용의 정규화 계약은 카탈로그가 제공한다."
+        },
+        {
+          "target": "engineering:domain-shaped-code",
+          "note": "최소 표현과 framework 재사용 원칙은 공유하지만 선택 결과는 구현 권한을 주지 않는다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "패턴의 필요 여부와 최소 구현 형태를 고르는 독립 과업이며 일반 구현·원칙 설명과 라우팅 경계가 있다.",
+      "doc_findings": [
+        {
+          "kind": "negative-definition",
+          "location": "plugins/design-patterns/references/language-realization.md:10-19",
+          "note": "framework lifecycle 중복 구현과 라이브러리 이름만으로 구현 완료를 주장하는 경우를 금지형으로 쓴다. 확인할 lifecycle 소유자와 설정된 보장을 먼저 기록하는 행동으로 바꾼다."
+        }
+      ],
+      "example": "present"
+    }
+  ],
+  "scripts": [
+    {
+      "path": "plugins/design-patterns/scripts/validate_catalog.py",
+      "sha256": "7c5458e5da721bb15f37fa0863d64a7d804f5f53ce863ab23aeda8e21ce7dcff",
+      "role": "카탈로그의 스키마·승인 snapshot·출처 매핑·overlay·성숙도·ID 및 cross-family 관계 누락을 검증한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "판단 내용의 진실성은 모델 리뷰로 남기고 정해진 카탈로그 계약만 표준 라이브러리로 결정론적으로 검사한다."
+    }
+  ]
+}

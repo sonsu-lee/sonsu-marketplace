@@ -10,7 +10,7 @@
       "name": "workflow",
       "source": "./plugins/workflow/omp",
       "description": "Git·티켓·PR 작성과 PR 상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
-      "version": "0.15.0",
+      "version": "0.16.0",
       "category": "Developer Tools"
     },
     {
@@ -33,6 +33,13 @@
       "description": "일본어 일상 메시지와 기술 문서의 설명문을 작성·윤문하고, 문서의 자연스러움을 진단한다. 기술 문서의 구성·Markdown 정리는 범위 밖이다.",
       "version": "0.1.0-beta.2",
       "category": "Productivity"
+    },
+    {
+      "name": "design-patterns",
+      "source": "./plugins/design-patterns",
+      "description": "실제 설계 힘과 보장에 근거해 디자인 패턴을 선택하거나 기존 패턴 사용을 검토합니다.",
+      "version": "0.2.0",
+      "category": "Developer Tools"
     },
     {
       "name": "design",

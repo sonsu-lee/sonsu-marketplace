@@ -14,7 +14,7 @@
 | `conflicts-with` | 함께 적용하면 guarantee나 ownership이 충돌 |
 | `supersedes` | 현재 catalog 정책에서 target을 대체 |
 
-관계만으로 supporting pattern을 자동 선택하지 않습니다. `commonly-composed-with`도 현재 forces와
-검증 가능한 guarantee가 있을 때만 조합합니다. 같은 이름을 하나의 전역 패턴으로 합치지 않고
-family-prefixed ID와 `same-name-different-scope`로 구분합니다. 서로 다른 family에서 정규화한 이름이
-같으면 모든 pair 중 적어도 한 방향에 이 관계를 명시해야 하며 validator가 누락을 거부합니다.
+supporting pattern은 현재 forces와 검증 가능한 guarantee를 확인한 뒤 선택합니다.
+`commonly-composed-with`도 이 조건을 충족할 때 조합합니다. 같은 이름은 family-prefixed ID와
+`same-name-different-scope`로 scope를 구분합니다. 서로 다른 family에서 정규화한 이름이 같으면
+모든 pair 중 적어도 한 방향에 이 관계를 명시하며 validator로 누락을 확인합니다.

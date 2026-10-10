@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "plugin": "design",
+  "manifest_sha256": "ee2360c923d9f15604ba7c79f413b24680379783ebe65854100e713238831edc",
+  "skills": [
+    {
+      "path": "plugins/design/skills/audit-interface/SKILL.md",
+      "sha256": "67f1fa264db2217d8650a65c9e690b1c4368a2f0b0aa61f8aba689f08967519f",
+      "sources": {},
+      "problem": "기존 UI를 감사하면서 수정 권한을 넘거나 screenshot만으로 동작·구조 검증을 완료했다고 판단하기 쉽습니다.",
+      "outcome": "정확한 대상·관찰·사용자 영향·gate·severity·최소 수정 방향을 가진 읽기 전용 finding을 제공합니다.",
+      "ai_judgment": "실제 과업에서 정보·상태·권한·접근성 결함의 영향과 증거의 한계를 판단합니다.",
+      "mechanical": [
+        {
+          "step": "기존 DESIGN.md와 DQ contract·report 구조를 검사하고 부재·오류를 finding으로 남깁니다.",
+          "location": "plugins/design/skills/audit-interface/SKILL.md:12-16",
+          "existing_tool": "plugins/design/scripts/validate_design_quality.py",
+          "proposal": "none"
+        },
+        {
+          "step": "Operations 계약·보고서 및 runtime 이미지 파일의 형식과 경계를 검사합니다.",
+          "location": "plugins/design/skills/audit-interface/SKILL.md:39-40",
+          "existing_tool": "plugins/design/scripts/validate_operations_contracts.py",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "비파괴 관찰과 산출물별 증거를 고정하여 개선 구현 없이 UI 품질을 판단합니다.",
+      "overlaps": [
+        {
+          "target": "omp:browser",
+          "note": "화면·focus·route 관찰은 기본 브라우저가 수행하지만 finding의 사용자 영향과 DQ 판단은 남습니다."
+        },
+        {
+          "target": "omp:review",
+          "note": "일반 코드 리뷰와 달리 화면·Figma·사용자 과업의 근거를 평가합니다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "수정 없는 감사는 설계·재설계와 권한 및 산출물이 다른 독립 과업입니다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/design/skills/audit-interface/SKILL.md:8-40",
+          "note": "번호 절차는 있으나 절차·결과·예시·경계·참고 자료 제목이 없어 결과 형식과 제약이 본문에 섞입니다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/design/skills/audit-interface/SKILL.md:30-40",
+          "note": "검증 명령만 있고 실제 관찰에서 finding과 미확인 상태를 작성한 예시가 없습니다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/design/skills/audit-interface/SKILL.md:15-18",
+          "note": "독립 평가자 수와 요구사항 추적 규칙을 공통 design-quality.md·verification.md와 반복합니다."
+        }
+      ],
+      "example": "weak"
+    },
+    {
+      "path": "plugins/design/skills/design-interface/SKILL.md",
+      "sha256": "3efa5cd3fd5df6db3e7747aec1be47e7a181448c0538b8e21e7142e3a73ce477",
+      "sources": {
+        "plugins/design/references/design-quality.md": "77e352d1929954b17438b70e3a3b62555bb649c59cfdfbfefaac177a50895add"
+      },
+      "problem": "새 UI가 과업과 정보 요구보다 특정 스타일이나 도구 중심으로 설계되기 쉽습니다.",
+      "outcome": "기존 디자인 시스템과 제품 규칙에 맞춘 명세·시안·Figma 또는 동작하는 구현과 범위별 검증을 제공합니다.",
+      "ai_judgment": "핵심 과업·정보 우선순위·표현·상태·환경, 레퍼런스 차용 범위와 도구 경로를 판단합니다.",
+      "mechanical": [
+        {
+          "step": "DESIGN.md 형식과 잠긴 design-decision-contract-v1·report의 구조를 검증합니다.",
+          "location": "plugins/design/skills/design-interface/SKILL.md:30-40",
+          "existing_tool": "plugins/design/scripts/validate_design_quality.py",
+          "proposal": "none"
+        },
+        {
+          "step": "운영 화면의 확장 계약과 runtime 증거 파일을 검증합니다.",
+          "location": "plugins/design/skills/design-interface/SKILL.md:30",
+          "existing_tool": "plugins/design/scripts/validate_operations_contracts.py",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "사용자 질문부터 정보·표현·상태와 실제 결과까지 연결하고 Figma·코드 산출물의 완료 범위를 구분합니다.",
+      "overlaps": [
+        {
+          "target": "design:redesign-interface",
+          "note": "제작·검증 절차는 공유하지만 신규 설계에는 기존 동작 inventory와 preserve/change 계약이 없습니다."
+        },
+        {
+          "target": "omp:subagents",
+          "note": "독립 DQ 평가자는 기본 위임 기능으로 실행하며 평가 기준은 이 플러그인이 제공합니다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "신규 화면 설계는 독립 과업이고 공통 검증을 기존 도구로 제공하므로 추가 실행기를 만들 이유가 없습니다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/design/skills/design-interface/SKILL.md:11-48",
+          "note": "시작·제작·확인과 연속성으로 흩어진 본문을 번호 절차·결과·예시·경계로 정리할 필요가 있습니다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/design/skills/design-interface/SKILL.md:37-45",
+          "note": "명령 예만 있고 사용자 요청에서 실제 화면 결과·검증 범위로 이어지는 대표 예시가 없습니다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/design/skills/design-interface/SKILL.md:42-45",
+          "note": "scope별 gate·독립 평가자·live 판정 규칙을 공통 계약과 다시 정의합니다."
+        },
+        {
+          "kind": "internal-detail",
+          "location": "plugins/design/references/design-quality.md:62-68",
+          "note": "고정 npm package 버전과 digest 보존의 상세 규칙은 도구가 소유하므로 실행·출력 해석만 남길 수 있습니다."
+        }
+      ],
+      "example": "weak"
+    },
+    {
+      "path": "plugins/design/skills/find-references/SKILL.md",
+      "sha256": "2a5003d25af45b3818848f7b3b611ad646d56acb8635e06eccb9fb6bdc5cb152",
+      "sources": {
+        "plugins/design/references/continuity.md": "ad786777820f4d5d8dbfffa43ce48248da83ee75454f04b92b6110fa5ef1d5a7",
+        "plugins/design/references/reference-search.md": "edf7ed2f6cfd7f674d9e790804eedf5c73e70593253d03d9d1c94e08e32dcd2e"
+      },
+      "problem": "이미지를 확인하지 않은 검색 결과나 서로 다른 제품의 요소를 섞으면 설계에 쓸 근거가 불분명해집니다.",
+      "outcome": "관찰한 사례의 출처·관련성·primary·차용 범위 또는 no_verified_match 결과를 제공합니다.",
+      "ai_judgment": "쿼리의 탐색 축, 후보의 과업 적합성, primary 선정과 차용할 요소를 판단합니다.",
+      "mechanical": [
+        {
+          "step": "locator 정규화·중복, 공급자·쿼리 연결과 reference set 형식을 검사합니다. 도구 출력이 있으면 --provenance로 locator를 대조합니다.",
+          "location": "plugins/design/references/reference-search.md:136-184",
+          "existing_tool": "plugins/design/scripts/validate_design_quality.py",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "시각 사례를 직접 관찰한 근거와 차용·비차용 범위로 묶어 후속 설계가 재사용할 수 있게 합니다.",
+      "overlaps": [
+        {
+          "target": "omp:web-search",
+          "note": "기본 검색은 후보 수집 수단이며 출시 제품·컨셉 구분과 차용 판단을 대신하지 않습니다."
+        },
+        {
+          "target": "omp:browser",
+          "note": "지정 공개 페이지 관찰은 기본 브라우저를 쓰고 관찰·출처 계약만 추가합니다."
+        },
+        {
+          "target": "design:design-interface",
+          "note": "설계까지 요청한 경우 같은 reference-search 절차를 설계 스킬 내부에서 재사용합니다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "레퍼런스 선별만 요청하는 독립 과업이 있고 구조·추적성 검증기도 이미 있으므로 검색 기능으로 단순 대체하지 않습니다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/design/skills/find-references/SKILL.md:11-18",
+          "note": "목적 뒤 긴 연속성 설명이 절차보다 앞에 있어 공통 reference 링크와 짧은 실행 조건으로 줄일 수 있습니다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/design/skills/find-references/SKILL.md:30-38",
+          "note": "형식 검증 명령만 있고 선별된 사례와 차용 판단을 보여 주는 입력·결과 예시가 없습니다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/design/skills/find-references/SKILL.md:24-28",
+          "note": "metadata_only·primary·no_verified_match 규칙을 reference-search.md와 반복하므로 결과별 행동과 세부 규칙을 나눌 수 있습니다."
+        },
+        {
+          "kind": "history",
+          "location": "plugins/design/references/continuity.md:30-32",
+          "note": "이전 스킬 이름과 플러그인 통합 기록 처리 안내는 현재 사용법에서 분리할 수 있습니다."
+        }
+      ],
+      "example": "weak"
+    },
+    {
+      "path": "plugins/design/skills/redesign-interface/SKILL.md",
+      "sha256": "fa60689bad6cbf117f45e4efc16e5337f0094fe0e6e1f5312601f7d9f4656988",
+      "sources": {},
+      "problem": "기존 화면을 보기 좋게 바꾸면서 값·단위·권한·상태·동작을 누락하거나 레퍼런스의 제품 의미를 가져올 위험이 있습니다.",
+      "outcome": "보존·변경 조건을 추적한 개선 화면과 주요 전후 차이·퇴보 여부·실제 검증 범위를 제공합니다.",
+      "ai_judgment": "현재 문제의 원인, 보존할 의미, 변경할 표현과 정보 자산의 재구성 방법을 판단합니다.",
+      "mechanical": [
+        {
+          "step": "DESIGN.md와 재설계 contract·report의 구조 및 근거 파일을 검증합니다.",
+          "location": "plugins/design/skills/redesign-interface/SKILL.md:40-50",
+          "existing_tool": "plugins/design/scripts/validate_design_quality.py",
+          "proposal": "none"
+        },
+        {
+          "step": "Operations inventory↔change 및 scenario×environment 대응과 runtime receipt를 검증합니다.",
+          "location": "plugins/design/skills/redesign-interface/SKILL.md:40",
+          "existing_tool": "plugins/design/scripts/validate_operations_contracts.py",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "시각 재배치를 의미 보존과 구분하고 기존 기능·권한·데이터의 preserve/change를 명시적으로 추적합니다.",
+      "overlaps": [
+        {
+          "target": "design:design-interface",
+          "note": "정보·시각·제작 절차는 공유하며 이 스킬만 기존 의미 inventory와 회귀 대조를 담당합니다."
+        },
+        {
+          "target": "omp:browser",
+          "note": "실제 행동 검증은 기본 브라우저로 수행하지만 무엇을 보존·변경했는지 판단하는 계약은 추가 가치입니다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "기존 의미와 동작의 보존은 신규 설계에 없는 핵심 책임이어서 별도 진입점을 유지할 근거가 있습니다.",
+      "doc_findings": [
+        {
+          "kind": "negative-definition",
+          "location": "plugins/design/skills/redesign-interface/SKILL.md:34-38",
+          "note": "비트맵 확대 금지와 승인 재사용 금지 등 일반 품질 문장을 정보 자산 재제작·변경 범위 확인 행동으로 바꿀 수 있습니다."
+        },
+        {
+          "kind": "structure",
+          "location": "plugins/design/skills/redesign-interface/SKILL.md:11-58",
+          "note": "절차·결과·예시·경계 순서가 없고 산출물별 경계가 제작 설명에 섞여 있습니다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/design/skills/redesign-interface/SKILL.md:42-55",
+          "note": "명령과 완료 규칙만 있고 보존 항목·변경 항목을 비교한 재설계 입력·결과 예시가 없습니다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/design/skills/redesign-interface/SKILL.md:53-55",
+          "note": "평가자 수·최솟값·gate 적용 조건을 design-quality.md와 verification.md에서 반복합니다."
+        }
+      ],
+      "example": "weak"
+    }
+  ],
+  "scripts": [
+    {
+      "path": "plugins/design/figma-plugin/scripts/build.mjs",
+      "sha256": "d5c8863698b28954a0894ece3b883169ce605bd547ff0168e2506e80883aa3a2",
+      "role": "esbuild로 src/code.ts를 Figma plugin용 IIFE dist/code.js로 묶고 src/ui.html을 dist에 복사합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "manifest가 가리키는 저장소 포함 build 결과를 재현하는 유일한 경로이며 packaging 테스트가 직접 실행합니다. 모델 판단이 없는 결정론적 build 단계입니다."
+    },
+    {
+      "path": "plugins/design/figma-plugin/src/code.ts",
+      "sha256": "64e9927ff8d5a58a20609b60584f9ba8971ca0f3fef3e86100a574c1a8394565",
+      "role": "Figma plugin main thread 진입점으로 UI 메시지를 검사해 preview·apply 요청을 engine에 전달하고 결과를 UI로 돌려줍니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "agent 경로인 use_figma와 별개로 사용자가 직접 실행하는 companion의 메시지 경계이며 형식이 틀린 요청을 invalid 결과로 닫는 역할이 분명합니다."
+    },
+    {
+      "path": "plugins/design/figma-plugin/src/contracts.ts",
+      "sha256": "878f38356b42ee458c54316c9dc8672a3fa546001e9ea69b8dda5565f55dce85",
+      "role": "version 1 operation plan, 정규화한 node snapshot, preview receipt와 결과·reason code 타입을 정의합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "engine·adapter·진입점이 같은 allowlist 계약을 공유하는 단일 타입 정의입니다."
+    },
+    {
+      "path": "plugins/design/figma-plugin/src/engine.ts",
+      "sha256": "6f5661b8e2c8fbc2cae177c355160dbd8862630fd92d685f9a162b07938ad2c6",
+      "role": "allowlist JSON plan을 엄격하게 파싱하고 selection 점검·Auto Layout 감사·preview receipt 발급·expected state 기반 apply를 수행합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "unknown field 거부와 receipt 대조 같은 결정론적 실행 계약을 Figma API와 분리해 테스트할 수 있게 합니다. 모델이 대신할 판단이 아닙니다."
+    },
+    {
+      "path": "plugins/design/figma-plugin/src/figma-adapter.ts",
+      "sha256": "9fc7fbf2cd138019820785d34b8973982f83ec33433d56b64c33b673a2ddc0fd",
+      "role": "Figma Plugin API로 selection·node를 정규화해 읽고, 현재 상태가 기대값과 같을 때만 이름 변경·icon instance 교체를 적용합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "host API 의존을 NodePort 구현 하나에 모아 engine을 Figma 없이 검증할 수 있게 유지합니다."
+    },
+    {
+      "path": "plugins/design/figma-plugin/src/ports.ts",
+      "sha256": "38a92adb657d1efd215b203ceae728c3a25ba37621c2a2e6a34593bcf04b04c0",
+      "role": "engine이 Figma host에 요구하는 NodePort 인터페이스와 조건부 변경 결과 값을 정의합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "engine과 Figma API 사이의 최소 경계로 테스트가 Figma 없이 대체 구현을 주입할 수 있게 합니다."
+    },
+    {
+      "path": "plugins/design/scripts/validate_operations_contracts.py",
+      "sha256": "3b31907e42d1981a6fde53561cd47a9b9b5118cab8a7b53fc5280f3e15e00782",
+      "role": "공통 디자인 품질 검증기를 호출하고 Operations profile·평가 fixture·runtime screenshot의 경로와 PNG/JPEG/WebP 구조를 검사합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "공통 스키마 검사는 재사용하면서 운영 UI 전용 profile·coverage·이미지 증거를 검사하므로 일반 DQ 검증기와 구분되는 결정론적 역할이 있습니다."
+    }
+  ],
+  "problem": "화면의 시각적 완성도만 확인하면 사용자 과업·정보·상태·기존 동작과 실제 실행 근거를 놓칩니다.",
+  "outcome": "신규 설계·재설계·읽기 전용 감사·레퍼런스 선별을 구분하고 과업 계약과 산출물별 증거로 완료를 판단합니다.",
+  "omp": {
+    "current": "default",
+    "proposal": "default",
+    "reason": "브라우저·검색·서브에이전트는 실행 수단이고 사용자 과업에 맞춘 화면 판단, 의미 보존과 DQ 계약은 별도 가치입니다. 현재 기본 배포를 유지합니다."
+  },
+  "verdict": "keep",
+  "verdict_target": "",
+  "reason": "네 진입점의 쓰기 권한과 결과가 다르고 공통 계약·검증기는 이미 reference와 shared 원본으로 분리되어 있습니다. 문서 구성과 반복 규칙을 줄이는 정리가 우선입니다."
+}

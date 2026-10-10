@@ -1,0 +1,397 @@
+{
+  "schema_version": 1,
+  "plugin": "fluent-korean",
+  "manifest_sha256": "4325adc9e243a01fef682198b0940ab70d9c7bd1c84d6224d8a621f7ff106901",
+  "problem": "한국어 작성·윤문에서 반복되는 번역투와 획일적 표현을 줄이되 사실·서법·격식·기술 문자열을 지켜야 합니다.",
+  "outcome": "새 글 생성 규칙과 기존 글의 윤문·진단을 제공하고 파일 작업에는 변경률과 보존 근거를 남깁니다.",
+  "omp": {
+    "current": "default",
+    "proposal": "default",
+    "reason": "한국어 도메인 규칙과 변경률 검증은 omp 기본 기능이 대체하지 않습니다. 현재 omp는 Codex 기반 단일 호출 생성본을 배포하므로 Claude 다중 agent 절차를 기본 런타임으로 끌어올 필요가 없습니다."
+  },
+  "verdict": "keep",
+  "verdict_target": "",
+  "reason": "Codex 단일 호출과 Claude 다단계 스킬을 유지하고 공통 규칙을 정리하는 방향이 맞습니다. 기계 단계는 기존 스크립트를 재사용하며 미포함 commit-ko·평가 의존성 및 상위 프로젝트 홍보 도구를 번들에서 줄일 수 있습니다.",
+  "skills": [
+    {
+      "path": "plugins/fluent-korean/codex/skills/fluent-korean/SKILL.md",
+      "sha256": "014057d7932bfbe18074e173f433ae09c6cc146a471b0118087cbe0bd6e1d361",
+      "sources": {},
+      "problem": "한국어 생성·윤문에서 번역투를 줄이면서 사실·의무·가능성·기술 문자열을 보존해야 하며 Codex에는 단일 호출 경로가 필요합니다.",
+      "outcome": "한국어 새 글, 요청 구간의 국소 윤문·진단 또는 변경 요약을 갖춘 파일 기반 윤문 결과를 제공합니다.",
+      "ai_judgment": "장르와 격식, 실제 표현 문제, quick-rules 적용 여부, 의미·서법 보존과 최소 수정 범위를 판단합니다.",
+      "mechanical": [
+        {
+          "step": "원문과 결과의 문자 변경률을 실제 파일로 측정해 경고·중단 여부를 결정합니다. Codex 본문에도 기존 검증기를 실행하는 계약을 명시할 수 있습니다.",
+          "location": "plugins/fluent-korean/codex/skills/fluent-korean/SKILL.md:34-42",
+          "existing_tool": "plugins/fluent-korean/scripts/verify_change_rate.py",
+          "proposal": "none"
+        },
+        {
+          "step": "파일·정량 작업의 날짜별 run 디렉터리 할당과 입력 저장은 기존 입력 도구의 원자적 디렉터리 생성 기능을 활용합니다.",
+          "location": "plugins/fluent-korean/codex/skills/fluent-korean/SKILL.md:36",
+          "existing_tool": "plugins/fluent-korean/scripts/prepare_monolith_input.py",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "한국어 패턴 분류와 보존 규칙을 Codex 단일 호출에 맞추고 새 글·진단·국소 수정과 정량 파일 경로를 구분합니다.",
+      "overlaps": [
+        {
+          "target": "writing:writing",
+          "note": "문서 구조와 보호 문자열 계약은 겹치지만 한국어 번역투·격식·서법 판단은 이 스킬에 남습니다."
+        },
+        {
+          "target": "fluent-korean:fluent-korean",
+          "note": "Claude 루트와 도메인 규칙을 공유하되 Codex 단일 호출과 Claude 다단계 실행의 진입점은 구분해야 합니다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "Codex 배포 manifest가 이 루트를 사용하므로 Claude 스킬로 단순 통합하면 실행 계약이 바뀝니다. 공통 규칙은 단일 출처로 유지하되 호스트별 진입점은 보존합니다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/fluent-korean/codex/skills/fluent-korean/SKILL.md:20-55",
+          "note": "윤문 철칙·절차·등급·옵션으로 나뉘어 결과와 예시가 독립 절로 드러나지 않습니다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/fluent-korean/codex/skills/fluent-korean/SKILL.md:29-42",
+          "note": "필드 목록만 있고 실제 입력에 대한 채팅 윤문 또는 파일·정량 결과의 예시는 없습니다."
+        },
+        {
+          "kind": "negative-definition",
+          "location": "plugins/fluent-korean/codex/skills/fluent-korean/SKILL.md:20-27",
+          "note": "장르 이탈·과윤문 금지와 Do-NOT 대신 보존할 의미·격식·문자열을 행동형으로 정의할 수 있습니다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/fluent-korean/codex/skills/fluent-korean/SKILL.md:21-26",
+          "note": "의미·격식·변경률 기준이 Claude SKILL.md와 quick-rules의 보존·등급 규칙에 중복됩니다. 두 배포의 공통 규칙은 참고 자료에서 관리할 수 있습니다."
+        },
+        {
+          "kind": "internal-detail",
+          "location": "plugins/fluent-korean/codex/skills/fluent-korean/SKILL.md:44-47",
+          "note": "등급별 건수·변경률 상수가 본문과 quick-rules 꼬리에 중복되어 있습니다. 본문은 등급의 의미와 후속 행동만 설명하는 편이 맞습니다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/fluent-korean/skills/fluent-korean/SKILL.md",
+      "sha256": "1f4a54ef2befe3e23e493d3b0e4b9d65f2339d0b1b64db22c410bb47909e218b",
+      "sources": {
+        "plugins/fluent-korean/skills/fluent-korean/references/ai-tell-taxonomy.md": "a0cf8ea5ab4e74be6599b3b07d75f73d55fc43e6ebc87610f04a447eca5db739",
+        "plugins/fluent-korean/skills/fluent-korean/references/drafting-rules.md": "9f5e9b8814bff712f710f075fdf7186e9d2c1faaf8efdfa49b35fb423aa1f964",
+        "plugins/fluent-korean/skills/fluent-korean/references/quick-rules.md": "d666078f5ac351d6b934bffb3eb0f22e12d50b952df15c0d42000821fa7250b4"
+      },
+      "problem": "한국어 파일 윤문에서 과도한 재작성·서법 손실·각주·수치 훼손을 통제하면서 필요한 수준의 진단과 검증을 수행해야 합니다.",
+      "outcome": "light·standard·heavy별 윤문본과 진단·결정론적 게이트 결과를 반환하고 필요하면 검토를 보류합니다.",
+      "ai_judgment": "지배적인 표현 패턴, 장르·격식, 문맥상 보존할 앵커와 한계, 게이트 경고의 의미 및 국소 수정 방향을 판단합니다.",
+      "mechanical": [
+        {
+          "step": "텍스트를 정규화하고 정량 지표·route_hint 및 필요 시 청크 manifest를 생성합니다.",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:93-107",
+          "existing_tool": "plugins/fluent-korean/scripts/prepare_monolith_input.py",
+          "proposal": "none"
+        },
+        {
+          "step": "manifest 순서·원문 해시·구간 연결을 확인하고 윤문 청크와 각주 passthrough를 재조립합니다.",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:149-162",
+          "existing_tool": "plugins/fluent-korean/scripts/reassemble_chunks.py",
+          "proposal": "none"
+        },
+        {
+          "step": "짝 문장에서 사라진 의무·유보를 보수적으로 원문에 맞춰 복원합니다.",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:190-203",
+          "existing_tool": "plugins/fluent-korean/scripts/restore_modality.py",
+          "proposal": "none"
+        },
+        {
+          "step": "새로 작성된 문장의 연결어미 쉼표를 정리하며 진단이 지정한 경우에만 전체 문장 모드를 사용합니다.",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:200-215",
+          "existing_tool": "plugins/fluent-korean/scripts/strip_injected_commas.py",
+          "proposal": "none"
+        },
+        {
+          "step": "변경률·목표 달성·대구·보존·서법 축을 계산하고 게이트 종료 코드에 따라 분기합니다.",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:227-251",
+          "existing_tool": "plugins/fluent-korean/scripts/verify_gates.py",
+          "proposal": "none"
+        },
+        {
+          "step": "일련번호·태그와 run 디렉터리를 직접 조립하는 절차는 기존 입력 도구의 원자적 할당 기능을 재사용합니다.",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:45-65",
+          "existing_tool": "plugins/fluent-korean/scripts/prepare_monolith_input.py",
+          "proposal": "none"
+        },
+        {
+          "step": "taxonomy로부터 quick·diagnosis 규칙을 생성하고 --check로 최신 여부를 확인합니다.",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:347-351",
+          "existing_tool": "plugins/fluent-korean/scripts/build_quick_rules.py",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "한국어 패턴과 의미 보존을 진단·윤문·finalize 역할 및 결정론적 게이트로 연결하는 파일 윤문 경로입니다.",
+      "overlaps": [
+        {
+          "target": "omp:subagents",
+          "note": "다중 역할 호출의 실행 수단은 omp 기본 기능이며 별도 모델·호출 횟수 정책은 호스트가 맡아야 합니다. 실제 omp 배포는 README에 명시된 단일 호출 생성본입니다."
+        },
+        {
+          "target": "fluent-korean:fluent-korean",
+          "note": "Codex 루트와 표현·보존 규칙은 공유하지만 Claude의 진단·finalize orchestration은 별도 계약입니다."
+        },
+        {
+          "target": "writing:writing",
+          "note": "정보 구성과 기술 문자열 보존을 공유하며 한국어 패턴·정량 윤문 검증이 고유한 부분입니다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "핵심 기계 처리는 이미 스크립트로 구현되어 있어 새로운 실행 프레임워크보다 기존 도구 계약을 짧게 설명하는 재작성이 우선입니다. Claude 경로를 유지하면서 omp에서는 현재 단일 호출 배포를 계속 사용할 수 있습니다.",
+      "doc_findings": [
+        {
+          "kind": "history",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:8-13",
+          "note": "도입부가 버전별 이동·결함 수정 이력입니다. 원본 출처는 UPSTREAM.md에, 경위는 Git 기록에 남기고 목적부터 설명해야 합니다."
+        },
+        {
+          "kind": "structure",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:21-93",
+          "note": "경로 결정·run_id·설치 경로 해석의 긴 설명이 실제 절차보다 앞에 있습니다. 도구 실행·출력 의미·결과별 행동 중심으로 줄일 수 있습니다."
+        },
+        {
+          "kind": "internal-detail",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:301-331",
+          "note": "콜 수·토큰 실측·은퇴 에이전트 계보·9종 집계가 사용자 실행 지침에 들어 있습니다. 특히 현재 패키지에는 런타임 에이전트 3종만 있으므로 패키지의 실제 실행 계약만 남겨야 합니다."
+        },
+        {
+          "kind": "negative-definition",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:333-343",
+          "note": "주의 사항을 금지·철칙 중심으로 다시 나열합니다. 의미·격식·보호 문자열을 유지하는 행동으로 묶고 권한 경계만 별도 절에 둘 수 있습니다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:335-341",
+          "note": "의미 앵커와 과윤문 기준이 31–36행·227–251행 및 quick-rules와 중복됩니다. 공통 보존 기준을 한 곳에서 관리해야 합니다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:253-259",
+          "note": "상태 줄과 출력 항목은 있으나 실제 요청에 대한 윤문본·검증 결과를 짝지은 예시가 없습니다."
+        },
+        {
+          "kind": "history",
+          "location": "plugins/fluent-korean/skills/fluent-korean/references/ai-tell-taxonomy.md:5-11",
+          "note": "규칙 정본 앞에 여러 버전의 추가·삭제 경위가 길게 들어 있습니다. 현재 적용 조건과 규칙만 남기고 경위는 분리할 수 있습니다."
+        },
+        {
+          "kind": "negative-definition",
+          "location": "plugins/fluent-korean/skills/fluent-korean/references/drafting-rules.md:5-19",
+          "note": "생성 규칙 대부분이 하지 않는 표현을 나열합니다. 인과가 확인된 접속, 구체적인 결론, 원문 격식을 쓰는 행동으로 바꿀 수 있습니다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/fluent-korean/skills/fluent-korean/references/quick-rules.md:15",
+          "note": "과윤문 판정을 verify_change_rate.py로 설명하지만 Claude 본문은 verify_gates.py를 사용합니다. 공통 기준과 호스트별 실행 도구를 구분해 정본 링크를 맞춰야 합니다."
+        }
+      ],
+      "example": "weak"
+    }
+  ],
+  "scripts": [
+    {
+      "path": "plugins/fluent-korean/codex/skills/fluent-korean/references/metrics.py",
+      "sha256": "266800507fb67b97d9019b5f8a23a7566012b5582f06240971ae30b3a1541b17",
+      "role": "쉼표·결론 전환·한자어 접미사·어휘 다양도 등 v1.6 정량 지표 8개와 장르별 기준선 z-score·위험 등급을 계산합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "omp 단일 호출 패키지가 Codex references를 복사해 verify_change_rate.py의 metrics_v2 의존성을 해석하므로 필요합니다. Codex plugin cache가 upstream symlink를 보존하지 않아 Claude 경로와 같은 내용을 일반 파일로 둡니다."
+    },
+    {
+      "path": "plugins/fluent-korean/codex/skills/fluent-korean/references/metrics_v2.py",
+      "sha256": "342af920b7bc9ef15ebf7596e6e2c0bb57154179ccaf46727ef1ba7c4465a0f7",
+      "role": "v1.6 지표를 그대로 다시 내보내고 post-editese 3축·번역투 신호 14개와 변경률 게이트 기준 함수 change_rate를 제공합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "omp 패키지의 verify_change_rate.py가 이 사본의 change_rate를 import합니다. Claude 경로 사본과 같은 내용이며 Codex 배포 루트에 일반 파일로 있어야 합니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/build_calibration.py",
+      "sha256": "dcd6ac5b5191e3aeb46a878d4a55400d912510536248928ab6fda30a7de07947",
+      "role": "사람·AI 코퍼스 JSON의 패턴 밀도와 모델별 분포를 집계해 보정 기준선을 만듭니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "외부 코퍼스 입력과 출력 경로를 명시할 수 있는 독립 도구로, 한국어 규칙의 임계값을 근거 있게 관리하는 데 재사용할 수 있습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/build_diagnosis_rules.py",
+      "sha256": "b40dd2daa21ffe7151e6ac87e128511944b4b99c861a5b5b4be868222adce16b",
+      "role": "taxonomy 전체 ID에서 정의·탐지 시그니처를 뽑아 diagnosis-rules.md를 생성하고 --check로 드리프트를 검사합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "quick 여부와 무관한 전체 진단 인덱스를 유지하므로 quick-rules 생성기와 출력 목적이 다릅니다. 공통 파서는 이미 재사용합니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/build_quick_rules.py",
+      "sha256": "fdea7e619ea293096d05d08273de20c93e5a64c7dd5de3357a03c9acd92c2736",
+      "role": "taxonomy의 quick 메타와 header·footer로 quick-rules.md를 생성하고 최신 여부·규칙 수 상한을 검사합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "패턴 ID·심각도·처방의 단일 출처를 유지하는 결정론적 생성기입니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/build_social_preview_v2.py",
+      "sha256": "4b8c7b71c163e81bcaf20a932491654a8e85733bc03d98ab3304b29c04803266",
+      "role": "Pillow와 로컬 Pretendard 폰트로 v2.0 홍보용 social-preview.png를 그립니다.",
+      "verdict": "delete",
+      "verdict_target": "",
+      "reason": "v2.3 생성기와 동일한 출력 파일을 쓰는 이전 홍보 자산 도구이며 이 패키지에는 assets나 홍보 이미지 생성 과업이 없습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/build_social_preview_v2_3.py",
+      "sha256": "fb9ceb9d30ed5f48991b9df1a791be419c892a4223aa6639bba1c0f32dd9dd73",
+      "role": "Pillow와 로컬 폰트로 여섯 윤문 사례 및 상위 프로젝트 주소를 담은 v2.3 홍보 이미지를 만듭니다.",
+      "verdict": "delete",
+      "verdict_target": "",
+      "reason": "상위 프로젝트 imnotai.kr 홍보물 제작 도구로 한국어 생성·윤문 실행에 쓰이지 않습니다. 현재 패키지의 산출물 계약과 무관합니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/check_commit_lexicon_ids.py",
+      "sha256": "1a4a83f3307cf6352c359ad43283466bc4fee3850cb20b099c9ae7adcd963554",
+      "role": "commit-ko 어휘표의 헤더·본문 ID 집합과 taxonomy의 실제 ID를 대조합니다.",
+      "verdict": "delete",
+      "verdict_target": "",
+      "reason": "고정 입력 extras/skills/commit-ko/references/commit-lexicon.md가 현재 플러그인에 포함되지 않습니다. 함께 배포되지 않는 opt-in 스킬의 검사기를 런타임 번들에 유지할 이유가 없습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/checks.py",
+      "sha256": "ba51f5c392e00d94cd3549f9bb022d325d1cb504597e38cea187fb1357f08088",
+      "role": "원문과 윤문본에서 격식·상투구 주입, 제목·각주·인용·수치 훼손을 Failure 코드로 반환합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "verify_gates와 corruption_engine이 재사용하는 도메인 보존 검사이며 모델 자기 평가와 분리되어 있습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/commit_msg_lint.py",
+      "sha256": "3409ee5cc14f4727426f686c85a06352e8fa4b393c615de151d25de7abd0cfbc",
+      "role": "commit message의 사무적·번역투 패턴을 찾아 경고하고 자동 생성 커밋·명시적 skip을 처리합니다.",
+      "verdict": "delete",
+      "verdict_target": "",
+      "reason": "현재 배포하지 않는 commit-ko와 Git hook용 진입점이며 일반 한국어 윤문 스킬이 호출하지 않습니다. 커밋 작업은 Workflow의 명시적 계약에 남기는 편이 맞습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/console.py",
+      "sha256": "88615f82f30262a1411ea61ab1ecd29c19b52a841d8fcdcc486c970ec4eb5336",
+      "role": "표준 출력·오류를 UTF-8로 설정하고 게이트 실행 예외를 경고와 다른 종료 코드로 분류합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "한글 콘솔 오류가 게이트 경고로 오인되지 않도록 여러 실행 도구가 공유하는 기반입니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/corruption_engine.py",
+      "sha256": "da05e24b76ecb96d6e0dc9ff1d857882e6850873e0a714dd17ebd6bbb0cb2ce9",
+      "role": "시드가 있는 역주입으로 한국어 clean·corrupted JSONL 쌍을 만들고 탐지 증가와 checks 보존 조건을 통과한 변형만 채택합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "사용자 원문을 윤문하는 런타임은 아니지만 입력·출력을 명시한 재현 가능한 품질 데이터 생성 기능이 있습니다. [추론] 유지보수용 선택 도구로 분리해 활용할 수 있습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/eval_baseline.py",
+      "sha256": "6b5584a7913a8568274404276264da4c7cba9d2341cc743f6ff1589b87e6207b",
+      "role": "픽스처·모델별 반복 윤문을 실행하고 변경률·보호 항목·격식·패턴 신호의 평균과 분산을 기준선 JSON에 저장합니다.",
+      "verdict": "delete",
+      "verdict_target": "",
+      "reason": "현재 패키지에 없는 tests/humanize_asserts·humanize_runner 및 fixtures.json에 의존하는 상위 프로젝트 실험입니다. 배포 스킬 평가와 분리된 과거 워터마크 실험 진입점을 제거할 수 있습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/eval_compare.py",
+      "sha256": "f55672372796f0679a8507cd008787f4e65c2d20c6da8a3b26c4b356914c5762",
+      "role": "두 반복 평가 스냅샷의 평균 차이를 합동 표준편차와 비교하고 보존 불변식 비율 하락을 보고합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "파일 입력만으로 모델 변동과 회귀 후보를 구분할 수 있는 독립 비교 도구입니다. eval_baseline의 미포함 실행 의존성을 요구하지 않습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/make_thumbnail.py",
+      "sha256": "22ea392cabff807012c6d678cafb87ef8637be94643240325283c8e9e5b5c5f1",
+      "role": "Pillow로 고정 점수와 before·after 문장을 담은 social-preview.png를 생성합니다.",
+      "verdict": "delete",
+      "verdict_target": "",
+      "reason": "동일 출력의 후속 이미지 생성기들과 중복되는 상위 프로젝트 홍보용 코드입니다. 현재 플러그인에는 해당 자산 제작 과업이 없습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/prepare_monolith_input.py",
+      "sha256": "e293608018f6317a05dac1cc45f89351b5fbffb59c6bfe35ae9b5e504c043531",
+      "role": "원문 정규화·정량 점수·route_hint·진단 결합 입력을 만들고 선택적으로 손실 없는 청크 manifest를 생성합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "이미 파일 윤문 경로의 결정론적 입력 준비를 담당하며 run 디렉터리 생성도 원자적으로 처리합니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/reassemble_chunks.py",
+      "sha256": "03fafb4c92927344a1fd2b626fb90e16a6b3eaf53f0d1d7e5b6e31cf1773fb64",
+      "role": "원문 해시·구간 연결과 청크 결과를 대조한 뒤 경계 공백·각주를 보존하여 윤문 결과를 합칩니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "heavy 청크 경로의 유실·오래된 입력을 탐지하는 결정론적 단계로 필요합니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/restore_modality.py",
+      "sha256": "d2bd298c637c7bd20935aa195633dd246ef0e0b6a02280cc49fb5f4e2eaa777f",
+      "role": "문장 정렬·유사도와 병합 여부를 보고 의무·유보가 사라진 문장을 보수적으로 복원합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "게이트가 경고만 할 수 있는 서법 손실을 국소 복원하며 애매한 쌍은 보고로 남기는 구체적 기능이 있습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/sanitize_text.py",
+      "sha256": "5b7b93d6c5655db31bf489af835575aa12cf8149410d66f604186457ce78dabb",
+      "role": "분해 한글·비가시 문자·특수 공백·개행을 정규화하고 변경 내역을 반환합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "측정 전후의 문자 기준을 통일하는 멱등 전처리이며 의미 판단과 분리되어 있습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/strip_injected_commas.py",
+      "sha256": "52af7878a1fc361333f2c2f2a5f1b20b1a3b559d761afbfa1419de11177462cd",
+      "role": "기본적으로 새로 윤문된 문장의 인용 밖 연결어미 쉼표를 제거하고 제거·변경 문장 수를 반환합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "원문 문장과 인용의 쉼표를 구분하는 도메인 후처리이며 전체 문장 모드는 진단 조건 아래에서만 사용합니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/verify_change_rate.py",
+      "sha256": "54af1f2ede8b6450c85e2fffb8d31a2d83319d0619f734083da88171431a117c",
+      "role": "요약 주석을 제외한 전후 문자 변경률을 계산해 통과·경고·중단·실행 오류 종료 코드로 반환합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "verify_gates의 부분 기능과 겹치지만 README가 명시한 omp 단일 호출 배포에서 쓰는 경량 검증기이므로 단순 폐기하면 안 됩니다."
+    },
+    {
+      "path": "plugins/fluent-korean/scripts/verify_gates.py",
+      "sha256": "7adda22942ee5a909a0e50d39066cba2b1f97ad22d65efd7a3176912482abbba",
+      "role": "변경률·목표 달성·대구 전멸·보존 위반·서법 손실을 검사하고 문장 터치율·수치 소실은 보고합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "Claude 다단계 경로에서 구조·의미 보존을 보조하는 통합 게이트로 실제 절차에 연결되어 있습니다."
+    },
+    {
+      "path": "plugins/fluent-korean/skills/fluent-korean/references/metrics.py",
+      "sha256": "266800507fb67b97d9019b5f8a23a7566012b5582f06240971ae30b3a1541b17",
+      "role": "쉼표·결론 전환·한자어 접미사·어휘 다양도 등 v1.6 정량 지표 8개와 장르별 기준선 z-score·위험 등급을 계산합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "metrics_v2.py가 import해 8개 지표와 내부 함수를 그대로 다시 내보내고 prepare_monolith_input.py의 fallback으로도 쓰입니다. upstream이 회귀 방지를 위해 v1.6 함수를 v2에서 재정의하지 않도록 분리했으므로 합치면 고정 upstream과의 대조만 어려워집니다."
+    },
+    {
+      "path": "plugins/fluent-korean/skills/fluent-korean/references/metrics_v2.py",
+      "sha256": "342af920b7bc9ef15ebf7596e6e2c0bb57154179ccaf46727ef1ba7c4465a0f7",
+      "role": "v1.6 지표를 그대로 다시 내보내고 post-editese 3축·번역투 신호 14개와 변경률 게이트 기준 함수 change_rate를 제공합니다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "verify_gates·verify_change_rate·restore_modality·prepare_monolith_input이 공통으로 import하는 지표·변경률 계산의 단일 출처입니다."
+    }
+  ]
+}

@@ -1,0 +1,956 @@
+{
+  "schema_version": 1,
+  "plugin": "engineering",
+  "manifest_sha256": "1dbf9e83b8915eeea8d420b43ee7d2b25433aed57888f6c581aa316f35779ade",
+  "problem": "설계·계획·구현·리뷰의 책임과 검증 근거가 흩어져 변경 완료 여부와 전달 권한을 혼동하기 쉽다.",
+  "outcome": "계약에서 구현·검사·독립 리뷰까지 연결하고 현재 리비전의 완료 근거와 미해결 사항을 제공한다.",
+  "omp": {
+    "current": "not-distributed",
+    "proposal": "not-distributed",
+    "reason": "README와 omp 모델 프로필은 개발 실행·task·todo·session·review를 omp 순정 기능에 맡긴다. Codex·Claude Code용 품질 계약은 유지하되 같은 조정 계층을 omp에 중복 배포하지 않는다."
+  },
+  "verdict": "new-tool",
+  "verdict_target": "",
+  "reason": "호스트별 실행 계약과 내용 주소 기반 품질 근거는 고유하지만 PR 상태 고정과 계획 연결 검사에는 산문으로 남은 결정론적 단계가 있다. 기존 게이트·패키지 도구를 재사용하고 그 두 공백만 도구화한다.",
+  "skills": [
+    {
+      "path": "plugins/engineering/skills/address-review/SKILL.md",
+      "sha256": "d3f2e1e3fe80fb6501d3513a895bad882a2966d9a53bc2603efa06284d7b22b6",
+      "sources": {},
+      "problem": "리뷰 제안을 근거 없이 수용하거나 비차단 개선을 필수 수정으로 바꾸기 쉽다.",
+      "outcome": "각 제안의 수정·기각·비차단·확인 필요 상태와 현재 리비전의 근거를 제공한다.",
+      "ai_judgment": "기존 기본값·요구사항·도달 경로와 지적을 대조해 유효성과 최소 수정 범위를 정한다.",
+      "mechanical": [
+        {
+          "step": "수정 리비전과 집중 재리뷰 receipt의 최신성을 확인한다.",
+          "location": "plugins/engineering/skills/address-review/SKILL.md:20-22",
+          "existing_tool": "plugins/engineering/scripts/evidence-gates.py",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "리뷰 생성이 아니라 받은 주장에 대한 검증과 처리 책임을 맡는다.",
+      "overlaps": [
+        {
+          "target": "omp:review",
+          "note": "기본 리뷰는 문제 발견을 제공하며 이 스킬은 받은 지적을 검증·수정한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "리뷰어의 제안을 실행 승인과 분리하고 기각 근거까지 관리하는 독립 과업이다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/engineering/skills/address-review/SKILL.md:8-25",
+          "note": "절차와 대표 사례가 본문에 섞여 있다. 절차·결과·예시로 나누고 외부 답글 권한은 경계에 모은다."
+        },
+        {
+          "kind": "negative-definition",
+          "location": "plugins/engineering/skills/address-review/SKILL.md:27-30",
+          "note": "채택하지 않을 주장과 관찰 도구의 한계를 부정형으로 반복한다. 실제 근거 대조와 상태별 행동으로 정리한다."
+        }
+      ],
+      "example": "present"
+    },
+    {
+      "path": "plugins/engineering/skills/audit-overengineering/SKILL.md",
+      "sha256": "9c26e040b5c8817e86c3f3a9839926bed4c3a22467a3f118751131c08d2641ba",
+      "sources": {},
+      "problem": "넓은 저장소에서 삭제 가능한 구조와 실제 계약을 보호하는 구조를 구분하기 어렵다.",
+      "outcome": "사용 근거·삭제 효과·위험·안전한 시작점으로 정렬한 감사 결과를 제공한다.",
+      "ai_judgment": "사용 관계와 도메인 지식 중복을 읽고 제거 효과와 이전 위험을 평가한다.",
+      "mechanical": [
+        {
+          "step": "LSP·검색·Git 추적 파일 목록으로 사용처와 조사 대상 목록을 수집한다.",
+          "location": "plugins/engineering/skills/audit-overengineering/SKILL.md:30-34",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "전체 경로의 조사 범위를 명시하고 단일 diff보다 넓은 제거 후보를 순위화한다.",
+      "overlaps": [
+        {
+          "target": "engineering:review-overengineering",
+          "note": "불필요한 구조 판정은 공유하지만 전수 조사 범위와 제거 순위가 다르다."
+        },
+        {
+          "target": "omp:lsp",
+          "note": "사용처·참조 수집은 LSP를 재사용하고 삭제 가치는 모델이 판단한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "지정 변경 리뷰와 달리 저장소 범위의 조사·우선순위 산출물이 있다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/audit-overengineering/SKILL.md:18-26",
+          "note": "공통 우선순위가 review 및 여러 집중 리뷰·구현 스킬에 반복된다. 공통 리뷰 기준에서 소유한다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/audit-overengineering/SKILL.md:39-50",
+          "note": "결과 필드만 있고 실제 삭제 후보와 유지해야 할 구조의 대조 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/brainstorming/SKILL.md",
+      "sha256": "1a6b8cefc0553860f6b47fb920d4d6f66daf29ad3834fb3cc662a6873cae49f6",
+      "sources": {},
+      "problem": "구현 전 미결정 계약과 이미 승인된 내부 선택을 섞으면 불필요한 승인 대기나 과도한 설계를 만든다.",
+      "outcome": "범위·결정 근거·문서 영향과 후속 계획에 넘길 설계 경계를 정한다.",
+      "ai_judgment": "계약 공백, 설계 깊이, 대안의 비용과 영속 문서 필요성을 판단한다.",
+      "mechanical": [
+        {
+          "step": "시각 비교용 서버를 시작하고 screen_dir·events를 제공한다.",
+          "location": "plugins/engineering/skills/brainstorming/SKILL.md:64-66",
+          "existing_tool": "plugins/engineering/skills/brainstorming/scripts/start-server.sh",
+          "proposal": "none"
+        },
+        {
+          "step": "설계 문서 리비전과 선언한 소비 검사 상태를 기록한다.",
+          "location": "plugins/engineering/skills/brainstorming/SKILL.md:58-60",
+          "existing_tool": "plugins/engineering/scripts/evidence-gates.py",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "사용자 승인 범위를 유지하면서 제품 결정과 내부 구현 선택을 구분한다.",
+      "overlaps": [
+        {
+          "target": "omp:ask",
+          "note": "결론을 바꾸는 사용자 결정 확인은 기본 질문 기능과 겹친다."
+        },
+        {
+          "target": "omp:subagents",
+          "note": "독립 조사·설계 할당은 기본 위임 기능을 재사용한다."
+        },
+        {
+          "target": "omp:browser",
+          "note": "시각 확인은 브라우저와 겹치지만 선택 이벤트 수집은 companion이 소유한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "설계 구체화 자체는 필요하며 브라우저 시각 피드백도 제공한다. omp에서는 일반 탐색·질문·계획 조정과 상당 부분 겹친다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/engineering/skills/brainstorming/SKILL.md:45-62",
+          "note": "문서 배치·출처 태그·승인·게이트가 긴 문단에 모여 있다. 본문은 판단 절차로 줄이고 세부 계약을 참고 자료로 옮긴다."
+        },
+        {
+          "kind": "history",
+          "location": "plugins/engineering/skills/brainstorming/SKILL.md:40-43",
+          "note": "구형 fast-path 상태의 이전 정책 처리 설명은 현재 실행 절차와 분리해 이관 안내에 둔다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/brainstorming/SKILL.md:8-66",
+          "note": "입력에서 작업 경로와 문서 영향으로 이어지는 대표 결과 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/debug/SKILL.md",
+      "sha256": "b65cf6968664dfa15f002b6aa39a9457c3d9a685a9482a13727ad4bfb91358a4",
+      "sources": {
+        "plugins/engineering/skills/debug/root-cause-tracing.md": "b57cbd290832f2c2eda0a946a057e3c689d8686278340935b671e1935ec2713f"
+      },
+      "problem": "증상만 고치거나 추측성 retry·timeout을 추가하면 실제 원인이 남는다.",
+      "outcome": "관찰·원인 가설·최소 실험·수정·회귀 검증을 연결한다.",
+      "ai_judgment": "가설을 구분할 실험과 원인을 소유한 경계, 완화와 영구 수정의 차이를 판단한다.",
+      "mechanical": [
+        {
+          "step": "재현 명령과 회귀 테스트를 기존 테스트 러너로 실행해 종료 코드·출력을 수집한다.",
+          "location": "plugins/engineering/skills/debug/SKILL.md:46-55",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "환경 준비 실패와 제품 결함을 분리하며 실패 시도에서 새 근거로 돌아가는 절차가 있다.",
+      "overlaps": [
+        {
+          "target": "omp:lsp",
+          "note": "호출자 역추적과 참조 탐색에 기존 코드 도구를 재사용한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "원인 추적과 검증은 독립적인 사용자 과업이며 일반 리뷰와 결과가 다르다.",
+      "doc_findings": [
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/debug/SKILL.md:17-55",
+          "note": "본 SKILL에는 증상·가설·실험 결과·수정으로 이어지는 대표 사례가 없다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/debug/SKILL.md:63-65",
+          "note": "최대 5회와 재개 예산 규칙을 품질 게이트 문서와 중복 서술한다."
+        },
+        {
+          "kind": "history",
+          "location": "plugins/engineering/skills/debug/root-cause-tracing.md:88-92",
+          "note": "과거 날짜·테스트 통과 개수·사례 경위는 현재 사용법이 아니므로 출처 기록으로 옮긴다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/domain-shaped-code/SKILL.md",
+      "sha256": "6c997a4456208b208e3b285d0be1df629b038e058576a9c35832ef426f06dfa9",
+      "sources": {},
+      "problem": "확인된 도메인 계약이 넓은 primitive와 분산 guard에 숨으면 잘못된 상태와 중복 규칙이 늘어난다.",
+      "outcome": "신뢰 경계에서 검증하고 불변식·상태를 가장 작은 타입과 제어 흐름으로 표현한다.",
+      "ai_judgment": "타입·variant·wrapper가 실제 오류를 제거하는지와 재검증이 필요한 우회 경로를 판단한다.",
+      "mechanical": [
+        {
+          "step": "프로젝트의 타입 검사·정적 분석·계약 테스트로 변경된 상태와 경계 사용을 확인한다.",
+          "location": "plugins/engineering/skills/domain-shaped-code/SKILL.md:40-45",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "trust boundary의 런타임 보증과 내부 타입 보증을 구분하는 구현 기준을 제공한다.",
+      "overlaps": [
+        {
+          "target": "engineering:simplify-code",
+          "note": "불필요한 guard·wrapper 제거 원칙은 공유하되 이 스킬은 계약 표현이 중심이다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "명시적으로 도메인 형태 구현을 요청하는 과업과 결과가 있으므로 독립 스킬을 유지한다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/domain-shaped-code/SKILL.md:47-58",
+          "note": "신뢰 경계의 단일 검증과 내부 예외가 공통 code-quality.md와 반복된다. 공통 정의를 링크하고 이 스킬에는 적용 절차를 남긴다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/domain-shaped-code/SKILL.md:76-82",
+          "note": "완료 기준만 있고 외부 입력을 좁은 도메인 상태로 변환한 입력·결과 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/execute-plan/SKILL.md",
+      "sha256": "2dd8cf129d39cab38050c51ea4cd206e931227e17fc119884a782d9eff3fca6a",
+      "sources": {},
+      "problem": "승인된 다단계 작업의 선행 근거·쓰기 소유권·리뷰 상태가 엇갈리면 낡은 완료를 재사용한다.",
+      "outcome": "작업을 준비·실행·통합하고 현재 근거로 unit과 전체 작업을 닫는다.",
+      "ai_judgment": "작업 분해·위임 이점·변경 영향·리뷰 재사용 범위를 판단한다.",
+      "mechanical": [
+        {
+          "step": "DAG 준비 상태·작성 진입·검사·완료·close를 CLI로 처리한다.",
+          "location": "plugins/engineering/skills/execute-plan/SKILL.md:25-42",
+          "existing_tool": "plugins/engineering/scripts/evidence-gates.py",
+          "proposal": "none"
+        },
+        {
+          "step": "큰 계획의 공통 맥락과 지정 Task 절을 추출한다.",
+          "location": "plugins/engineering/skills/execute-plan/SKILL.md:26-29",
+          "existing_tool": "plugins/engineering/scripts/task-brief",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "의존 DAG와 현재 snapshot에 연결된 증적의 수명주기를 제공한다.",
+      "overlaps": [
+        {
+          "target": "omp:todo",
+          "note": "작업 진행 추적이 겹치며 게이트 receipt는 더 좁은 증적 기능이다."
+        },
+        {
+          "target": "omp:session",
+          "note": "재개·진행 기록은 기본 세션 기능과 겹친다."
+        },
+        {
+          "target": "omp:subagents",
+          "note": "할당·수집·통합은 native 하위 에이전트 기능을 사용한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "Codex·Claude Code용 관리형 실행 계약은 유지하되 omp 기본 todo·session·subagents를 대체하지 않는다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/execute-plan/SKILL.md:55-58",
+          "note": "리뷰 인원·고위험 역할·최대 라운드가 quality-gates.md와 independent-review.md에 반복된다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/execute-plan/SKILL.md:23-42",
+          "note": "ready부터 complete-unit까지 하나의 작업을 끝내는 입력·결과 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/finish-branch/SKILL.md",
+      "sha256": "e5b35fb084f649a4abfb75109cf85d6f288a5779a1b0fc9389dbc732c3b2edfe",
+      "sources": {},
+      "problem": "검증된 커밋을 병합·PR·보존·폐기 중 어떻게 마무리할지와 작업 공간 소유권이 불명확하다.",
+      "outcome": "승인된 통합·보존 선택을 실행하고 남은 브랜치·작업 공간·PR을 보고한다.",
+      "ai_judgment": "검증 근거 유효성, 통합 위험과 실제 승인된 손실 범위를 판단한다.",
+      "mechanical": [
+        {
+          "step": "git rev-parse·worktree list·status로 checkout 종류와 소유 경로를 확인한다.",
+          "location": "plugins/engineering/skills/finish-branch/SKILL.md:24-35",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "로컬 병합과 소유한 워크트리 정리까지 포함하는 완료 경계가 있다.",
+      "overlaps": [
+        {
+          "target": "workflow:to-pr",
+          "note": "푸시 후 PR·티켓 연결 절차가 겹치지만 로컬 병합·보존·폐기는 이 스킬 범위다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "PR 생성만으로는 로컬 병합·보존·폐기 계약을 대체할 수 없다. 전달 세부 규칙은 공통 참고 자료를 통해 재사용한다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/finish-branch/SKILL.md:74-76",
+          "note": "티켓 연결과 자동 종료 규칙을 PR 전달 스킬과 별도로 길게 정의한다. 공유 정책 정본을 연결한다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/finish-branch/SKILL.md:39-48",
+          "note": "명령·선택 표는 있지만 한 입력 상태에서 어떤 통합 결과를 보고하는지 보여 주는 예시는 없다."
+        }
+      ],
+      "example": "weak"
+    },
+    {
+      "path": "plugins/engineering/skills/plan/SKILL.md",
+      "sha256": "1a48143bbf3fbcbc79c833f3b3d4546cdc5806258596a2f9f3d6f797f549612a",
+      "sources": {},
+      "problem": "여러 흐름·파일·요구사항·검사가 계획에서 연결되지 않으면 실행자가 계약을 추측한다.",
+      "outcome": "의사코드와 흐름·작업·검증 대응 관계, 실행 권한과 완료 계약을 제공한다.",
+      "ai_judgment": "작업 경계·의존 관계·검증 검출력과 문서 영향을 판단한다.",
+      "mechanical": [
+        {
+          "step": "계획의 Flow·Task ID 참조, 중복·누락, 선언한 파일 경로 존재를 검사하는 validator를 제공한다.",
+          "location": "plugins/engineering/skills/plan/SKILL.md:181-185",
+          "existing_tool": null,
+          "proposal": "validator"
+        },
+        {
+          "step": "Task heading을 기준으로 구현자에게 전달할 계획 부분을 추출한다.",
+          "location": "plugins/engineering/skills/plan/SKILL.md:138-170",
+          "existing_tool": "plugins/engineering/scripts/task-brief",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "요구 출처에서 관찰 가능한 동작과 검증으로 이어지는 추적성을 보존한다.",
+      "overlaps": [
+        {
+          "target": "omp:todo",
+          "note": "기본 todo는 실행 상태를 추적하지만 요구사항·흐름·검증 대응의 의미를 대신하지 않는다."
+        }
+      ],
+      "verdict": "new-tool",
+      "verdict_target": "",
+      "reason": "명시된 Flow·Task ID와 파일 참조 누락은 기계적으로 검사할 수 있다. 의미적 적합성 리뷰는 유지하고 구조적 누락 검사만 도구화한다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/engineering/skills/plan/SKILL.md:95-170",
+          "note": "큰 계획·Task 양식이 본문 대부분을 차지한다. 참고 양식으로 분리하고 절차·결과·실제 예시를 앞에 둔다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/plan/SKILL.md:31-42",
+          "note": "의사코드와 대응표가 자리표시자 위주여서 실제 요청이 완성된 계획으로 바뀐 사례가 없다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/plan/SKILL.md:102",
+          "note": "출처 태그 설명이 brainstorming의 설계·문서 작성 문단과 중복된다."
+        }
+      ],
+      "example": "weak"
+    },
+    {
+      "path": "plugins/engineering/skills/review/SKILL.md",
+      "sha256": "78b17128165527a8738b80fb5077586cb3506d37849e2687dd4d831189fd484f",
+      "sources": {
+        "plugins/engineering/references/pr-review-execution.md": "f86acb2ab7d4918d55e5dc3c62c75e8eafdaedecde01478f8efa91126b046aa2"
+      },
+      "problem": "리뷰어별 가변 입력·중복 지적·근거 없는 의견 때문에 변경의 실제 결함을 판정하기 어렵다.",
+      "outcome": "같은 리비전을 검토한 결과를 근거로 통합하고 PR이면 승인 범위의 게시 결과를 확인한다.",
+      "ai_judgment": "도달 경로·영향·계약과 지적을 대조하고 중복·차단 여부를 판정한다.",
+      "mechanical": [
+        {
+          "step": "범위·작업 트리의 binary diff와 미추적 파일을 고정 패키지로 수집한다.",
+          "location": "plugins/engineering/skills/review/SKILL.md:45-48",
+          "existing_tool": "plugins/engineering/scripts/review-package",
+          "proposal": "none"
+        },
+        {
+          "step": "gh·git으로 PR host·repository·base/head·merge base·기존 리뷰 ID를 읽기 전용 JSON으로 수집하고 게시 전후 SHA를 대조한다.",
+          "location": "plugins/engineering/references/pr-review-execution.md:27-40",
+          "existing_tool": null,
+          "proposal": "script"
+        }
+      ],
+      "unique_value": "불변 입력과 원결과·조정자 판정을 분리하며 일반·PR 리뷰의 실행 경계를 제공한다.",
+      "overlaps": [
+        {
+          "target": "omp:review",
+          "note": "기본 reviewer와 일반 검토 책임은 겹친다. 다중 결과 통합·PR 게시 계약은 별도 정책이다."
+        },
+        {
+          "target": "engineering:review-pr",
+          "note": "두 PR 경로가 동일한 pr_review·새 세션·워크트리·게시 계약을 사용한다."
+        }
+      ],
+      "verdict": "new-tool",
+      "verdict_target": "",
+      "reason": "PR 대상 상태·merge base·고정 SHA·게시 전후 동일성 확인이 산문으로 남아 있다. 기존 패키지 도구 위에 읽기 전용 PR snapshot 수집 도구를 제공하면 판단과 수집을 분리할 수 있다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/engineering/skills/review/SKILL.md:3",
+          "note": "description에 리뷰 인원·워크트리·반복 실행까지 들어 있다. 대상과 사용 시점만 남기고 세부 실행은 참고 계약으로 옮긴다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/review/SKILL.md:29-37",
+          "note": "공통 우선순위 목록이 여러 집중 리뷰에 그대로 반복된다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/review/SKILL.md:85-98",
+          "note": "finding 필드만 있고 실제 근거 있는 finding과 finding 없음의 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/review-failure-modes/SKILL.md",
+      "sha256": "9ca6f8db8b587782f8dec1a8183a617beb360903151006e38d12db3f5c9be006",
+      "sources": {},
+      "problem": "부분 성공·중복 전달·동시성·cleanup에서 도달 가능한 실패를 놓치기 쉽다.",
+      "outcome": "실패 trigger·영향·기존 방어의 공백과 최소 수정 방향을 보고한다.",
+      "ai_judgment": "실패 경로의 실제 도달 가능성과 transaction·idempotency·복구의 충분성을 판단한다.",
+      "mechanical": [
+        {
+          "step": "고정 diff·파일 목록을 리뷰 패키지로 수집하고 caller·test는 코드 탐색 도구로 확인한다.",
+          "location": "plugins/engineering/skills/review-failure-modes/SKILL.md:37-43",
+          "existing_tool": "plugins/engineering/scripts/review-package",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "실패·복구만 명시한 요청을 집중 검토하는 관점이다.",
+      "overlaps": [
+        {
+          "target": "engineering:review",
+          "note": "일반 리뷰가 같은 관점을 선택할 수 있으나 이 스킬은 요청한 관점으로 범위를 고정한다."
+        },
+        {
+          "target": "omp:review",
+          "note": "실제 코드 검토 실행은 기본 reviewer를 재사용할 수 있다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "명시적으로 한 관점을 요청하는 독립 과업이므로 유지한다. 실행·우선순위 중복은 공통 참고 자료로 모을 수 있다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/review-failure-modes/SKILL.md:25-33",
+          "note": "공통 우선순위를 review와 각 관점 스킬에서 반복한다. 공통 리뷰 기준을 정본으로 둔다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/review-failure-modes/SKILL.md:54-58",
+          "note": "결과 필드 설명만 있고 이 관점에서 유효한 지적과 기각할 지적의 대표 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/review-maintainability/SKILL.md",
+      "sha256": "5419639e2954b6e30108b303f53c41cbf7f4e8003550206f8daf448cdb961ecc",
+      "sources": {},
+      "problem": "변경 이유·도메인 지식·public surface가 분산돼 다음 수정자의 이해 비용이 늘어난다.",
+      "outcome": "실제 reader journey와 변경 비용에 근거한 개선 지적을 제공한다.",
+      "ai_judgment": "파일 크기 대신 책임 결합과 지식 중복이 실제 유지 비용을 만드는지 판단한다.",
+      "mechanical": [
+        {
+          "step": "고정 diff·파일 목록을 리뷰 패키지로 수집하고 caller·test는 코드 탐색 도구로 확인한다.",
+          "location": "plugins/engineering/skills/review-maintainability/SKILL.md:34-40",
+          "existing_tool": "plugins/engineering/scripts/review-package",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "독자가 계약을 따라가는 경로를 기준으로 하는 집중 검토다.",
+      "overlaps": [
+        {
+          "target": "engineering:review",
+          "note": "일반 리뷰가 같은 관점을 선택할 수 있으나 이 스킬은 요청한 관점으로 범위를 고정한다."
+        },
+        {
+          "target": "omp:review",
+          "note": "실제 코드 검토 실행은 기본 reviewer를 재사용할 수 있다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "명시적으로 한 관점을 요청하는 독립 과업이므로 유지한다. 실행·우선순위 중복은 공통 참고 자료로 모을 수 있다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/review-maintainability/SKILL.md:22-30",
+          "note": "공통 우선순위를 review와 각 관점 스킬에서 반복한다. 공통 리뷰 기준을 정본으로 둔다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/review-maintainability/SKILL.md:51-55",
+          "note": "결과 필드 설명만 있고 이 관점에서 유효한 지적과 기각할 지적의 대표 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/review-operability/SKILL.md",
+      "sha256": "d658293698b2166d078ecd5e3a3cb10512bf2a438b0c6701fb0e11ab17c06df7",
+      "sources": {},
+      "problem": "오류 소유권과 signal이 불명확하면 실제 장애 질문에 답하지 못하거나 민감정보가 노출된다.",
+      "outcome": "답할 수 없는 운영 질문·데이터 노출·오류 흐름과 최소 수정을 보고한다.",
+      "ai_judgment": "운영 환경과 소비되는 dashboard·alert에서 필요한 signal과 소유 경계를 판단한다.",
+      "mechanical": [
+        {
+          "step": "고정 diff·파일 목록을 리뷰 패키지로 수집하고 caller·test는 코드 탐색 도구로 확인한다.",
+          "location": "plugins/engineering/skills/review-operability/SKILL.md:32-43",
+          "existing_tool": "plugins/engineering/scripts/review-package",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "운영 질문을 먼저 정해 과도한 계측과 진단 공백을 함께 검토한다.",
+      "overlaps": [
+        {
+          "target": "engineering:review",
+          "note": "일반 리뷰가 같은 관점을 선택할 수 있으나 이 스킬은 요청한 관점으로 범위를 고정한다."
+        },
+        {
+          "target": "omp:review",
+          "note": "실제 코드 검토 실행은 기본 reviewer를 재사용할 수 있다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "명시적으로 한 관점을 요청하는 독립 과업이므로 유지한다. 실행·우선순위 중복은 공통 참고 자료로 모을 수 있다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/review-operability/SKILL.md:22-30",
+          "note": "공통 우선순위를 review와 각 관점 스킬에서 반복한다. 공통 리뷰 기준을 정본으로 둔다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/review-operability/SKILL.md:53-57",
+          "note": "결과 필드 설명만 있고 이 관점에서 유효한 지적과 기각할 지적의 대표 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/review-overengineering/SKILL.md",
+      "sha256": "bbe1cd21adb2b0fb4ab9416b4dc5c635add6305347d13fc371fb590e46807cb7",
+      "sources": {},
+      "problem": "현재 변경에 쓰이지 않는 추상화·guard·확장 지점이 유지 비용을 늘린다.",
+      "outcome": "현재 필요가 없는 구조와 제거 근거·위험을 보고한다.",
+      "ai_judgment": "현재 caller와 요구사항에 비추어 구조의 추가 보장이 비용을 정당화하는지 판단한다.",
+      "mechanical": [
+        {
+          "step": "고정 diff·파일 목록을 리뷰 패키지로 수집하고 caller·test는 코드 탐색 도구로 확인한다.",
+          "location": "plugins/engineering/skills/review-overengineering/SKILL.md:34-48",
+          "existing_tool": "plugins/engineering/scripts/review-package",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "사용자 지정 변경의 최소 제거 방향을 찾는 집중 검토다.",
+      "overlaps": [
+        {
+          "target": "engineering:review",
+          "note": "일반 리뷰가 같은 관점을 선택할 수 있으나 이 스킬은 요청한 관점으로 범위를 고정한다."
+        },
+        {
+          "target": "omp:review",
+          "note": "실제 코드 검토 실행은 기본 reviewer를 재사용할 수 있다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "명시적으로 한 관점을 요청하는 독립 과업이므로 유지한다. 실행·우선순위 중복은 공통 참고 자료로 모을 수 있다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/review-overengineering/SKILL.md:22-30",
+          "note": "공통 우선순위를 review와 각 관점 스킬에서 반복한다. 공통 리뷰 기준을 정본으로 둔다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/review-overengineering/SKILL.md:56-61",
+          "note": "결과 필드 설명만 있고 이 관점에서 유효한 지적과 기각할 지적의 대표 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/review-pr/SKILL.md",
+      "sha256": "374bb23c586026afe141cea700fdc22f954f767ab1705f4e1d9dd92f42a401f1",
+      "sources": {},
+      "problem": "PR 전체 변경을 독립적으로 검토하지 않거나 수정 후 과거 지적에만 편향된 재검토를 하기 쉽다.",
+      "outcome": "고정 SHA의 새 리뷰·지적 판정·승인된 수정·전체 재리뷰·게시 결과를 제공한다.",
+      "ai_judgment": "근거의 타당성·수정 권한·종료 조건·판단 정체 시 필요한 추가 근거를 판단한다.",
+      "mechanical": [
+        {
+          "step": "PR 전체 diff와 정확한 base/head SHA를 고정하고 패키지 digest를 만든다.",
+          "location": "plugins/engineering/skills/review-pr/SKILL.md:19-21",
+          "existing_tool": "plugins/engineering/scripts/review-package",
+          "proposal": "none"
+        }
+      ],
+      "unique_value": "PR 새 세션·워크트리·memory 격리와 게시 readback을 명시한다.",
+      "overlaps": [
+        {
+          "target": "engineering:review",
+          "note": "PR 검토의 핵심 절차·기본 인원·공통 reference가 동일하다."
+        },
+        {
+          "target": "omp:review",
+          "note": "omp에서는 stock reviewer의 기존 설정을 그대로 요청한다."
+        }
+      ],
+      "verdict": "merge",
+      "verdict_target": "engineering:review",
+      "reason": "현재 review의 PR 경로도 같은 pr-review-execution.md와 같은 기본 1명·새 세션·게시 계약을 쓴다. 심층·다중은 review의 요청 옵션으로 합치면 두 진입점의 실행 중복을 줄일 수 있다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/review-pr/SKILL.md:17-41",
+          "note": "대상 고정·격리·호스트 프로필 절차를 pr-review-execution.md와 중복 서술한다."
+        },
+        {
+          "kind": "structure",
+          "location": "plugins/engineering/skills/review-pr/SKILL.md:3",
+          "note": "description이 사용 시점보다 실행·반복·게시 규칙을 길게 설명한다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/review-pr/SKILL.md:43-49",
+          "note": "위임 문구만 있고 사용자 입력에 대한 최종 판정·게시 결과 예시가 없다."
+        }
+      ],
+      "example": "weak"
+    },
+    {
+      "path": "plugins/engineering/skills/simplify-code/SKILL.md",
+      "sha256": "18823fbfe54cb8a444f3f9db797bbe75bc5a0cd5e97f538376ffc6c51d405083",
+      "sources": {},
+      "problem": "현재 요구를 넘는 wrapper·확장 지점·중복 guard가 변경을 불필요하게 복잡하게 만든다.",
+      "outcome": "기존 보장과 동작을 유지하면서 개념·의존성을 줄인 구현을 제공한다.",
+      "ai_judgment": "어떤 추상화가 실제 도메인 보장을 제공하는지와 삭제 위험을 판단한다.",
+      "mechanical": [
+        {
+          "step": "기존 테스트·typecheck·정적 분석으로 변경 전후 관찰 결과를 비교한다.",
+          "location": "plugins/engineering/skills/simplify-code/SKILL.md:32-38",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "읽기 전용 과잉 설계 리뷰와 달리 승인된 범위를 직접 단순화한다.",
+      "overlaps": [
+        {
+          "target": "engineering:review-overengineering",
+          "note": "제거 후보 기준은 같지만 이 스킬은 실제 수정·검증을 수행한다."
+        },
+        {
+          "target": "engineering:domain-shaped-code",
+          "note": "불변식 보존과 guard 정리는 공유하며 도메인 모델링이 항상 필요한 것은 아니다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "명시적인 최소 구현 요청을 수행하며 단순성 취향과 실제 보존할 계약을 구분한다.",
+      "doc_findings": [
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/simplify-code/SKILL.md:16-24",
+          "note": "공통 우선순위가 구현·리뷰 스킬에 반복된다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/simplify-code/SKILL.md:30-58",
+          "note": "불필요한 wrapper를 줄이면서 실제 경계 검증을 남기는 전후 예시가 없다."
+        }
+      ],
+      "example": "missing"
+    },
+    {
+      "path": "plugins/engineering/skills/test-driven-development/SKILL.md",
+      "sha256": "865d6588d8df214bcee91574974248f28940c51fe5c7d71ba6b5ca9d36c4f8ef",
+      "sources": {},
+      "problem": "자동 검사가 구현을 반복하거나 기대 계약 없이 만들어져 실제 결함 검출력을 제공하지 못한다.",
+      "outcome": "기대 동작·검증 방식과 RED·GREEN·회귀 관찰을 연결한다.",
+      "ai_judgment": "독립된 기대값, 실제 fault_example, 기존 검사 확장과 일회성 재현의 타당성을 판단한다.",
+      "mechanical": [
+        {
+          "step": "선택한 테스트 러너로 RED·GREEN 명령을 실행해 종료 코드·단언 결과를 수집한다.",
+          "location": "plugins/engineering/skills/test-driven-development/SKILL.md:98-112",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "테스트 파일을 만들기 전에 검증 oracle과 소비 경계를 확인한다.",
+      "overlaps": [
+        {
+          "target": "engineering:plan",
+          "note": "계획은 이 스킬의 검증 선택 필드를 참조해 흐름별 검증을 정한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "테스트 주도 구현의 선택·실행은 독립 과업이고 검사 명령 실행과 의미 판정을 구분한다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/engineering/skills/test-driven-development/SKILL.md:17-69",
+          "note": "검증 모드 필드·선택 상세가 본문 앞을 크게 차지한다. reference로 분리하고 본문에 실행 방법·필드 해석·결과별 행동을 둔다."
+        },
+        {
+          "kind": "duplicate-rule",
+          "location": "plugins/engineering/skills/test-driven-development/SKILL.md:13-15",
+          "note": "여러 스킬에 같은 연속성 적용·예외 문구가 반복된다. 공통 reference 링크와 읽을 조건만 남긴다."
+        }
+      ],
+      "example": "present"
+    },
+    {
+      "path": "plugins/engineering/skills/worktree/SKILL.md",
+      "sha256": "67baef77c7fe41289f8beefe64865eeb52ca28dfe9e9c4711231c3dfa43730b5",
+      "sources": {},
+      "problem": "기존 격리 상태·소유권·미커밋 변경을 모른 채 작업 공간을 새로 만들거나 정리할 위험이 있다.",
+      "outcome": "사용자 선호에 맞는 격리 공간과 실제 환경·기준 검사 결과를 제공한다.",
+      "ai_judgment": "격리 필요성, 기존 checkout 사용 가능성, 실패 시 안전한 대안을 판단한다.",
+      "mechanical": [
+        {
+          "step": "git rev-parse·status·worktree list·check-ignore로 격리 상태와 제외 경로를 확인한다.",
+          "location": "plugins/engineering/skills/worktree/SKILL.md:14-26",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        },
+        {
+          "step": "승인된 경로와 branch로 git worktree add를 실행한다.",
+          "location": "plugins/engineering/skills/worktree/SKILL.md:43-56",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "linked worktree·submodule·외부 관리 detached HEAD를 구분해 소유 범위를 보존한다.",
+      "overlaps": [
+        {
+          "target": "omp:subagents",
+          "note": "task의 격리 실행이 중복되므로 기본 기능을 우선 사용한다."
+        },
+        {
+          "target": "external:git worktree",
+          "note": "실제 생성·목록·제거 기능은 Git CLI가 제공한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "git worktree만으로 권한·소유권 판단을 대체하지 못하므로 호스트 중립 사용 지침은 유지한다. omp에서는 native 격리 기능을 우선한다.",
+      "doc_findings": [
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/worktree/SKILL.md:14-26",
+          "note": "명령과 상태 표는 있으나 실제 관찰값에서 생성 생략·생성 결과로 이어지는 예시가 없다."
+        },
+        {
+          "kind": "structure",
+          "location": "plugins/engineering/skills/worktree/SKILL.md:60-70",
+          "note": "환경 준비·검증·완료 근거를 공통 절차·결과 형식으로 정리하고 삭제·권한 조건은 경계에 모은다."
+        }
+      ],
+      "example": "weak"
+    },
+    {
+      "path": "plugins/engineering/skills/write-skill/SKILL.md",
+      "sha256": "8ae5356ad2cec7979c42fea7de5cc889057b49c63e3ebc2cd64b566e9dbb2b06",
+      "sources": {},
+      "problem": "스킬이 일반론과 금지 목록으로 길어지거나 호출 조건·형식·실제 수행 동작을 혼동하기 쉽다.",
+      "outcome": "명확한 역할·절차·참고 자료와 변경에 맞춘 형식·행동 검증 근거를 제공한다.",
+      "ai_judgment": "반복 과업의 고유 규칙, 혼동할 호출 경계와 실제 평가 사례를 선택한다.",
+      "mechanical": [
+        {
+          "step": "skills-ref validate로 이름·frontmatter를 검사하고 기존 생성기 check로 경로·배포 사본을 대조한다.",
+          "location": "plugins/engineering/skills/write-skill/SKILL.md:89-99",
+          "existing_tool": null,
+          "proposal": "existing-cli"
+        }
+      ],
+      "unique_value": "명시적 지침 적용과 자동 라우팅·설치 검증을 분리해 평가한다.",
+      "overlaps": [
+        {
+          "target": "omp:subagents",
+          "note": "행동 평가의 새 문맥 실행은 기본 하위 에이전트 기능을 재사용한다."
+        },
+        {
+          "target": "external:skills-ref validate",
+          "note": "frontmatter·이름 검사는 기존 규격 CLI로 수행한다."
+        }
+      ],
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "스킬 작성은 독립 저작 과업이며 기존 규격 validator와 실행 평가를 구분하는 가치가 있다.",
+      "doc_findings": [
+        {
+          "kind": "structure",
+          "location": "plugins/engineering/skills/write-skill/SKILL.md:49-50",
+          "note": "목차를 임의로 고르고 예시를 선택 사항으로 두어 새 작성 기준의 절차·결과·예시 순서와 어긋난다."
+        },
+        {
+          "kind": "missing-example",
+          "location": "plugins/engineering/skills/write-skill/SKILL.md:32-47",
+          "note": "스킬 본문 샘플에는 사용자 입력과 실제 결과 예시가 없다. 새 기준에 맞는 샘플로 보완한다."
+        }
+      ],
+      "example": "present"
+    }
+  ],
+  "scripts": [
+    {
+      "path": "plugins/engineering/scripts/evidence-gates.py",
+      "sha256": "7749ea53bed81a8c624cf5c62c266e07c65335bf03fa72efd1d3caf0c9980c4e",
+      "role": "관리형 v2 CLI·공통 안전 I/O·Git snapshot과 v1 observer 상태 조회를 제공한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "등록된 근거의 현재성 검사와 passive hook을 소유하며 실제 모델 판단과 분리돼 있다. v2 모듈의 공통 지원 함수도 제공한다."
+    },
+    {
+      "path": "plugins/engineering/scripts/evidence_gates_v2.py",
+      "sha256": "45aa293bf3ec75f2694f26420432133e6974c9907e37c27eb7b9bcc643878564",
+      "role": "unit DAG·작성 소유권·snapshot·검사 receipt·리뷰 판정·완료 상태를 관리한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "동일 리비전과 의존 근거의 유효성을 기계적으로 확인하는 핵심 모듈이며 native agent scheduler와 역할이 다르다."
+    },
+    {
+      "path": "plugins/engineering/scripts/red-team-package",
+      "sha256": "c145c02d0be029fab51faa33e0e33e000fce0c1d444bea4397a1cad0a3286319",
+      "role": "전체 변경·목표·설계·계획·검사·관찰·지적 이력 7개 입력을 불변 묶음과 digest로 만든다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "고위험 검토의 고정 증거를 만드는 도구로 일반 diff 패키지에 없는 입력 계약을 갖는다."
+    },
+    {
+      "path": "plugins/engineering/scripts/review-package",
+      "sha256": "5ffec04d1a165689c97dee0dda9586cd0a875f0021386cd93329c64b3c3eba8e",
+      "role": "커밋 범위 또는 staged·unstaged·untracked 변경을 binary-safe 패키지와 digest로 고정한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "여러 리뷰어에게 같은 입력을 제공하는 재사용 정본이며 미커밋 변경도 다룬다."
+    },
+    {
+      "path": "plugins/engineering/scripts/sdd-review-package",
+      "sha256": "7347a58b7bd7fd6a557e191ad453991cefc9561b81a2e3d9d6eb196577ce7883",
+      "role": "PLAN_FILE 인수를 유지하며 임시 workspace와 출력 경로를 정한 뒤 review-package에 위임한다.",
+      "verdict": "merge",
+      "verdict_target": "plugins/engineering/scripts/review-package",
+      "reason": "현재 구현은 호환 서명과 기본 출력 위치를 위한 wrapper다. 호출자가 정본의 range와 명시 OUTFILE을 쓰도록 전환하면 별도 포장 진입점이 필요 없다."
+    },
+    {
+      "path": "plugins/engineering/scripts/sdd-workspace",
+      "sha256": "722723fb885ed09f13bd8d4b025a627629f90ec007f7260a6778f87f4ddc4a48",
+      "role": "계획 basename별 ignored 임시 실행 자료 디렉터리를 준비한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "task-brief와 SDD 패키지의 임시 자료 위치를 한 곳에서 소유한다. native 세션 기능이 없는 호스트에서도 같은 경로를 재사용한다."
+    },
+    {
+      "path": "plugins/engineering/scripts/task-brief",
+      "sha256": "7b9b444e257b4c41ae1cc8ba92176151bf9b406c7c51162a3b9b09e909ab6918",
+      "role": "계획의 공통 맥락과 지정 Task heading 구간을 추출한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "큰 파일 계획에서 필요한 작업만 추출하는 결정론적 도구로 모델이 수동 복사할 필요를 줄인다."
+    },
+    {
+      "path": "plugins/engineering/skills/brainstorming/scripts/frame-template.html",
+      "sha256": "22ce939d2d4f93bbe27a70010c3241a9243d5f9e90bd5ca94ce0390d8db807b3",
+      "role": "시각 비교 화면의 프레임·테마·선택 카드 스타일을 제공한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "brainstorming companion의 HTML 조각을 공통 화면으로 감싸는 자원이며 브라우저 자동화 자체와 역할이 다르다."
+    },
+    {
+      "path": "plugins/engineering/skills/brainstorming/scripts/helper.js",
+      "sha256": "43c6d69954a46ec34a2a262bcc62a9a7e83e839c739f199cb72646d397c686e3",
+      "role": "선택 이벤트를 WebSocket으로 보내고 연결 복구·상태·선택 UI를 관리한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "사용자 클릭을 대화의 보조 근거로 기록하는 클라이언트 기능을 소유한다."
+    },
+    {
+      "path": "plugins/engineering/skills/brainstorming/scripts/server.cjs",
+      "sha256": "1a9202d2c5fb2ddac3cb18e0ec522e7c010de55e3fa34bcf99d8a5955fb8a642",
+      "role": "세션 키로 HTTP·WebSocket을 보호하고 최신 화면 제공·파일 감시·이벤트 기록·서버 수명을 관리한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "시각 비교의 실제 피드백 채널을 제공한다. 기본 browser 도구만으로 동일 이벤트 저장 계약을 대체했다고 볼 근거는 없다."
+    },
+    {
+      "path": "plugins/engineering/skills/brainstorming/scripts/start-server.sh",
+      "sha256": "80161e3d2a176ff13f29c2b426a21b9beb24eebfd5c6f2a9640a83495ac5788a",
+      "role": "호스트별 실행 방식·세션 경로·키·포트를 준비하고 companion 서버를 시작한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "server.cjs 소비 환경과 연결 정보를 제공하는 실행 진입점이다."
+    },
+    {
+      "path": "plugins/engineering/skills/brainstorming/scripts/stop-server.sh",
+      "sha256": "f9cf440305914e3834194dd11a44c6de347195f5f46a650afee70a90617c3d9b",
+      "role": "세션 instance ID로 소유 프로세스를 확인한 뒤 서버 종료와 임시 공간 정리를 수행한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "PID 재사용으로 타 프로세스를 종료하지 않도록 세션 소유권을 확인하는 종료 계약을 맡는다."
+    },
+    {
+      "path": "plugins/engineering/skills/debug/condition-based-waiting-example.ts",
+      "sha256": "40ae5ebe497fdf310200e43fe986552546d0a22837c0d39e855db1cfd33eb88e",
+      "role": "Lace 테스트 인프라에서 가져온 waitForEvent·waitForEventCount·waitForEventMatch 조건 대기 함수 예시다.",
+      "verdict": "to-reference",
+      "verdict_target": "plugins/engineering/skills/debug/condition-based-waiting.md",
+      "reason": "`~/threads` 경로의 Lace 타입을 import하므로 이 패키지에서 실행하거나 타입 검사할 수 없다. 실행 도구가 아니라 조건 기반 대기의 구현 형태를 보여 주는 자료이므로 필요한 부분만 reference 예시로 옮긴다."
+    },
+    {
+      "path": "plugins/engineering/skills/debug/find-polluter.sh",
+      "sha256": "dd7b8f13c4cc2a24b33ff87b18da9248f3e1c80a085c3316224f69ff0fa5c43c",
+      "role": "테스트 파일을 하나씩 `npm test`로 실행하고 지정한 파일·디렉터리가 처음 생긴 테스트를 보고한다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "오염을 만든 테스트를 찾는 반복 실행을 결정론적으로 처리하며 root-cause-tracing.md가 사용법과 검출 한계를 안내한다. 모델이 테스트를 하나씩 실행하는 절차를 대신한다."
+    },
+    {
+      "path": "plugins/engineering/skills/write-skill/render-graphs.js",
+      "sha256": "12780935ac197536fbdc82d6bc6a5625ef73cfa02f3eaf7a77b9e6c65a107359",
+      "role": "SKILL.md의 dot 코드 블록을 추출해 graphviz `dot`으로 블록별 또는 결합 SVG를 만든다.",
+      "verdict": "keep",
+      "verdict_target": "",
+      "reason": "기존 DOT 흐름을 사람이 확인해야 할 때만 write-skill이 안내하는 선택 도구이며 렌더링은 graphviz가 결정론적으로 수행한다. 저장소 밖 스킬의 DOT 흐름도 다룰 수 있어 사용 조건이 좁아도 유지한다."
+    }
+  ]
+}

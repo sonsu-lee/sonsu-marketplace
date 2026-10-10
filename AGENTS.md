@@ -10,6 +10,10 @@
   - `README.en.md`, `README.ja.md`는 `README.md`의 번역본으로 유지한다.
 - 코드 식별자, 파일 경로, 명령, 로그는 원문 그대로 둔다.
 
+## 스킬·문서 작성 기준
+
+- 스킬, 참고 자료, 플러그인 README는 [작성 기준](docs/guides/writing-skills.md)을 따른다.
+
 ## Git and Tracker Language
 
 - Write commit messages, pull request titles and bodies, and GitHub issues in English.

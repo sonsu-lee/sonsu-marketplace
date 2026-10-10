@@ -15,7 +15,7 @@ Sonsu Marketplace는 Codex·Claude Code·omp 플러그인을 한 저장소에서
 | `.agents/plugins/marketplace.json` | 마켓플레이스 식별자와 제공할 플러그인을 등록 |
 | `plugins/<name>/.codex-plugin/plugin.json` | 개별 플러그인의 메타데이터와 구성 요소 진입점 정의 |
 | `.claude-plugin/marketplace.json`, `plugins/<name>/.claude-plugin/plugin.json` | Codex 정본에서 생성한 Claude Code 배포 메타데이터 |
-| `.omp-plugin/marketplace.json` | omp 기본 6개와 opt-in Worklog 카탈로그. Codex catalog에서 대상만 생성 |
+| `.omp-plugin/marketplace.json` | omp 기본 6개와 opt-in Worklog·Design Patterns 카탈로그. Codex catalog에서 대상만 생성 |
 | `plugins/{design,workflow,fluent-korean}/omp/` | 독자 runtime을 포함하지 않는, 생성된 omp 전용 패키지 |
 | `plugins/<name>/skills/` | 플러그인이 제공하는 스킬 보관 |
 | `plugins/<name>/UPSTREAM.md` | 업스트림 기준 commit, 포함 범위와 로컬 차이 기록 |
@@ -37,7 +37,7 @@ Claude Code: 저장소 루트
   → skills, hooks와 지원되는 구성 요소
 omp: 저장소 루트
   → .omp-plugin/marketplace.json
-  → plugins/{workflow,design,fluent-korean,worklog}/omp 또는 plugins/{fluent-english,fluent-japanese,career}
+  → plugins/{workflow,design,fluent-korean,worklog}/omp 또는 plugins/{fluent-english,fluent-japanese,career,design-patterns}
   → skills와 필요한 동봉 자료(opt-in Worklog는 runtime extension도 포함)
 ```
 
@@ -48,7 +48,7 @@ Codex와 Claude Code는 대부분의 패키지에서 공통 스킬·hook·script
 검증 절차는 [플러그인 개발 가이드](../guides/adding-a-plugin.md)에 있습니다.
 
 omp 기본 구성은 Workflow, Fluent Korean, Fluent English, Fluent Japanese, Design, Career 6개입니다.
-작업 로그용 Worklog는 opt-in으로 별도 설치할 수 있습니다([ADR 0022](../decisions/0022-add-worklog-plugin.md)).
+작업 로그용 Worklog([ADR 0022](../decisions/0022-add-worklog-plugin.md))와 설계 패턴 선택·검토용 Design Patterns([ADR 0026](../decisions/0026-ship-design-patterns-as-omp-opt-in.md))는 opt-in으로 별도 설치할 수 있습니다.
 개발 실행·task·todo·session·review·메모리는 omp 순정 기능을 쓰며, 커스텀 역할 설정을 추가하지 않습니다.
 `scripts/render-omp-compat.py`가 Design·Workflow·Fluent Korean·Worklog의 전용 패키지를 생성합니다.
 기본 6개에는 독자 runtime extension, hook, evidence gate, `task-continuity.py`를 배포하지 않습니다.
@@ -68,6 +68,7 @@ Workflow의 권한 경계는 유지합니다. 생성된 연속성 자료는 `.so
 | 경력 원본·지원 서류·면접 준비 | Career |
 | 필요할 때 쓰는 조사·제품 탐색·글 구성 | Research·Product·Writing. 기본 배포에 추가하지 않는 선택 후보 |
 | 작업 로그 기록·읽기 전용 진단 | Worklog. opt-in으로 별도 설치 |
+| 설계 패턴 선택·기존 적용 검토 | Design Patterns. opt-in으로 별도 설치 |
 
 Engineering의 omp 프로필은 직접 설치해 선택한 legacy 사용자의 gate·실행·독립 리뷰가 참조하므로
 보존합니다. 기본 6개 설정에는 쓰지 않으며, 독자 세션 ID 주입이나 Stop hook도 제공하지 않습니다.

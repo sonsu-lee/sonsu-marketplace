@@ -81,6 +81,7 @@
 - [현재 독립 스킬 중심 플러그인 경계 결정](decisions/0015-independent-skills.md)
 - [마켓플레이스 요구사항](product/marketplace-requirements.md)
 - [플러그인 개발·수정·추가 가이드](guides/adding-a-plugin.md)
+- [스킬과 플러그인 문서 작성 기준](guides/writing-skills.md)
 - [이전 버전에서 이동하기](guides/migrating-from-earlier-versions.md)
 - [플러그인 매니페스트 참조](reference/plugin-manifest.md)
 - [플러그인별 라이선스와 출처](reference/licenses-and-sources.md)
@@ -89,5 +90,6 @@
 - [업스트림 플러그인 업데이트 런북](runbooks/updating-upstream-plugin.md)
 - [Madia Designer 디자인 실무 관찰 방법](research/madia-design-practice-method.md)
 - [Madia Designer 공개 영상 카탈로그](research/madia-design-practice-catalog.md)
+- [마켓플레이스 리팩터링 판정](research/refactor-assessment.md)
 
 현재 UI 디자인 패키지 결정은 [ADR 0018](decisions/0018-consolidate-ui-design.md)입니다.

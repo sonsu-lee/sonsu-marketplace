@@ -29,7 +29,8 @@ Claude Code는 실패 전용 hook(`PostToolUseFailure`, `StopFailure`)이 있다
   transcript로 보충한다. omp는 extension 하나로 기록한다.
 - **omp 배포 정책 예외**: 기본 6개 묶음은 유지한다. omp 카탈로그에 opt-in 패키지를 허용하고,
   그 패키지에 한해 runtime extension을 허용한다. 현재 opt-in 패키지는 worklog뿐이며 hook은
-  배포하지 않는다.
+  배포하지 않는다. opt-in 대상은 [ADR 0026](0026-ship-design-patterns-as-omp-opt-in.md)에서
+  design-patterns로 넓어졌다.
 - 기록 도구는 컨텍스트를 주입하지 않고, 결과를 바꾸지 않으며, 실패해도 작업을 막지 않는다
   (fail-open). 진단 스킬 `worklog-diagnose`는 읽기 전용이다.
 
