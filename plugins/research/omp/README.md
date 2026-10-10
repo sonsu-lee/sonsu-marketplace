@@ -1,12 +1,11 @@
 # Research
 
 단일 공개 웹 검색부터 여러 출처의 조사, 사실 확인, 문헌 검토와 외부 코드 사례 조사까지
-담당하는 개인 Codex·Claude Code 플러그인입니다. 특정 검색 공급자가 없어도 현재 host에 이미 제공된 web, browser, connector와
-로컬 자료를 사용해 가능한 범위에서 독립적으로 동작합니다. Engineering 또는 별도의
-planning·Git workflow를 먼저 실행하거나 함께 설치했다고 가정하지 않습니다.
+담당하는 omp opt-in 패키지입니다. 특정 검색 공급자가 없어도 현재 host에 이미 제공된 web, browser,
+connector와 로컬 자료를 사용해 가능한 범위에서 독립적으로 동작합니다.
 
 ```sh
-codex plugin add research@sonsu-marketplace
+omp plugin install research@sonsu-marketplace
 ```
 
 ## 선택적 공급자 설정
@@ -17,7 +16,7 @@ connector와 로컬 자료로 조사하고, 그 결과가 현재성·완전성·
 밝힙니다. plugin manifest에 provider dependency나 `mcpServers`를 선언하지 않고 별도
 `.mcp.json`도 함께 배포하지 않습니다.
 
-Codex가 관리하는 공급자는 읽기 전용 도구 노출, 현재 입력 스키마, 인증과 최소
+호스트가 관리하는 공급자는 읽기 전용 도구 노출, 현재 입력 스키마, 인증과 최소
 읽기 호출이 모두 확인되면 사용할 수 있습니다. 이 경로는 아래 README 선언이나 환경 변수를
 요구하지 않습니다.
 
@@ -92,12 +91,5 @@ artifact identity와 freshness 규칙은
 
 ## 컴팩션 후 작업 재개
 
-[작업 연속성 참고 자료](references/continuity.md)는 여러 단계로 이어지는 작업의 계약·진행·근거 위치를
-작업 폴더의 `.sonsu/continuity/`에 짧게 기록하고 같은 session의 컴팩션·재개 후 실제 상태와 대조합니다.
-짧은 단발 작업에는 기록하지 않으며, 파일 쓰기 금지와 기존 승인 범위를 유지합니다.
-
-포함된 `SessionStart` hook은 활성 기록이 있을 때 참고 자료·기록 경로만 전달합니다. 설치 후 CLI의
-`/hooks`에서 현재 hook 정의를 검토하고 신뢰해야 실행됩니다. hook을 사용할 수 없으면 위 참고 자료를
-읽고 수동으로 재개할 수 있습니다. helper는 Python 3.9+와 POSIX(macOS/Linux) 환경을 사용합니다.
-[기록 형식·운영 계약](../../docs/reference/task-continuity.md)과
-[검증 범위](../../evals/task-continuity/README.md)를 참고하세요.
+[작업 연속성 참고 자료](references/continuity.md)에 따라 omp 순정 todo와 세션 기록으로
+진행을 관리합니다. 이 패키지는 hook, 연속성 실행기와 `.sonsu` 기록을 포함하지 않습니다.
