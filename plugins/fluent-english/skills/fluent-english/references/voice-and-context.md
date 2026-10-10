@@ -97,16 +97,15 @@ Imitation from a sample has limits, and the procedure below is built around them
 
 1. Ask for one or two samples of 300 words or more that the writer produced without AI help. More than that changes little. Do not accept "write like [named author]" as a sample.
 2. Check the sample against the tell lists first. Human writing is drifting toward LLM style, and a sample that scores high on the catalogue may itself be AI-assisted. Ask before treating it as the source of truth.
-3. Record a profile. Rough counts are enough:
+3. Run `voice_profile.py` as described in the [skill](../SKILL.md#measurement-and-preservation-tools). Use the same text boundaries for source, sample, and rewrite. Its lexical profile supplies:
    - median sentence length, and the share of sentences under 8 words and over 30
-   - how sentences open: the share starting with a pronoun, a noun, a conjunction ("And", "But"), an adverb, or a verb
+   - mean word length in letters
    - contractions per 100 words
    - first-person and second-person pronouns per 100 words
    - hedges per 100 words ("I think", "probably", "sort of", "maybe")
    - punctuation inventory per 100 sentences: parentheses, colons, dashes, questions, exclamation marks
-   - median paragraph length in sentences
-   - five words or phrases used three or more times that are not on any slop list
-   - things the writer never does: no exclamation marks, no semicolons, no questions, no bold
+   - recurring words with three or more occurrences
+   Complete the profile by reading sentence openers (pronoun, noun, conjunction, adverb, verb), median paragraph length in sentences, recurring phrases outside the slop lists, and choices the writer avoids (such as bold or questions).
 4. Decide the unity choices once from the sample and the brief: person, tense, and stance (certain, ambivalent, sceptical). Hold them for the whole piece.
 
 ### While editing
@@ -120,6 +119,42 @@ Imitation from a sample has limits, and the procedure below is built around them
 Recompute the profile on the rewrite. Any figure that moved by more than a third is a voice break: either justify it from the brief or put the original back. Contractions, first person, and hedges falling while word length rises is the documented direction of drift, and it happens even under a "keep my voice" instruction, so check those four first. Recompute rather than judging by ear: in a 2026 preregistered study, participants who post-edited model text said it sounded like them while it measured closer to the model than to their own writing, and a 2026 Nature Human Behaviour study found LLM revision narrowed the variation in writing style between people by 21 to 50%.
 
 On outputs over about 600 words, or across several turns of editing, re-read the first paragraph and the last together. Drift toward formal, hedged, contraction-free prose is the failure to look for.
+
+### Measurement rules
+
+`english-lexical-v1` measures the complete supplied UTF-8 text, including any markup. For prose-only comparisons, prepare equally scoped prose extracts for all inputs; keep the untouched Markdown files for the preservation validator.
+
+- Words are Unicode letter sequences with optional internal straight or curly apostrophes. Digits and underscores separate tokens; hyphenated words count separately. Apostrophes are normalised only for counting.
+- Sentence spans end at a run of `.`, `!`, or `?` followed by whitespace/end (optionally after a closing quote or parenthesis), or at a blank line. Nonempty trailing fragments count. Abbreviations, initials, decimals, URLs, and unusual punctuation can distort these lexical spans; inspect them before interpreting shifts.
+- Contractions use `n't` and common pronoun/question-word forms ending in `'m`, `'re`, `'s`, `'ve`, `'d`, or `'ll`, plus `let's`. Noun possessives are excluded; ambiguous pronoun forms such as `it's` count. Pronouns include inflected first, second, and third person, including the pronoun base in contractions.
+- Hedges count case-insensitive `I think`, `probably`, `sort of`, and `maybe`. This bounded list is a marker, not a complete semantic hedge detector.
+- Punctuation counts literal characters. Both parentheses count separately; hyphens, en dashes, and em dashes have separate fields. Word-normalised frequencies use 100 words; punctuation frequencies use 100 sentence spans. Empty denominators yield zero.
+- Numeric differences are after minus before. Relative change divides by the baseline; a zero baseline yields `null`, including zero-to-zero. Counts and rates are distinct: inspect rates when text lengths differ. The tool supplies observations; the brief determines whether a shift is justified.
+
+## Editing contract
+
+Resolve conflicts in this order: quoted or frozen text, legal and citation exactness, keep-my-voice and sample fidelity, then strict de-AI styling.
+
+- Preserve required facts, citations, constraints, dates, scope words, and accuracy-protecting nuance. Keep coverage unless the user requests cuts. Hold neutral reference, legal, medical, financial, and technical prose to its genre's register.
+- For in-place edits, change prose while retaining code, code identifiers, YAML frontmatter, link targets, image references, and quoted text byte for byte. Table-cell prose and image alt text may change unless frozen. Retain heading levels and list style; judge information kept rather than paragraph count. Quotes include blockquotes and paired inline quoted spans.
+- The preservation validator compares fenced/indented/inline code (including fences and blockquotes that open a list item), frontmatter, blockquotes (including contiguous lazy continuation lines), paired straight/curly inline quotes (apostrophes inside them included), Markdown destinations, reference labels/definitions (footnote definitions stay prose), angle-bracket autolinks, and bare `http(s)://`/`www.` URLs. It compares exact strings and multiplicity in source order within each category, retaining line endings. It is a conservative lexical check, not a full Markdown or HTML parser. Review syntax outside those forms and bare names manually.
+- Prefer actors, objects, and evidence already in the source. Keep a vague claim vague or mark the gap: “powerful search” supplies no basis for “search covers everything you have written”. Replace faceless attribution with equally qualified wording, not an invented team or expert. Greetings, thanks, apologies, opinions, and questions need no fabricated evidence. Quotes, names, studies, links, statistics, and benchmarks require a source.
+- Use the doer as subject where it clarifies ownership. Retain passive or system-as-subject when the actor is unknown, irrelevant, legally sensitive, or expected by the genre.
+- Let sentence length follow the idea. Prefer literal wording and concrete source detail over impressive metaphors. Keep intentional asides, ambivalence, unusual details, defensible quirks, and repetition that carries distinct requirements.
+- Open short pieces with the point; end with the strongest existing fact or a user-requested next action. If removing a flourish leaves no closing fact, end on the preceding sentence. Apply this per section in long documents, with specs and runbooks exempt.
+- Keep additions within supplied facts and authorised register changes: contractions/second person required by chat or email, and user-requested next actions. Mark gaps or ask for missing facts. Source-free jokes, opinions, sensory detail, typos, slang, claims of progress, and invented voice are fabrications.
+- Restate inflation at its actual strength in roughly the source clause's length. A hope stays a hope: “paving the way for a rollout” supplies no evidence that rollout has begun. Use “healthy”, “well within range”, or “realistic” only with a named source baseline.
+- In light edits, keep contractions (or their absence), first person, hedges, lone dashes, and unusual words unless a named clarity failure or other brief-supported error warrants a change. A tell-list match alone is diagnostic input.
+- Apply specificity, directness, context, voice, evidence, and reader trust together. Cut announced intentions and needless reassurance where the relationship permits; retain genuine position and rhythm already present rather than polishing the prose flat.
+
+### Strict passes
+
+For humanise, de-AI, remove-slop, and equivalent requests, aim for one person writing to one reader. Apply the editing contract's precedence first.
+
+- Apply [Dash dependence](ai-writing-patterns.md#dash-dependence): sentence-hinge em/en dashes become full stops or commas, not substitute colons or parentheses; numeric/date ranges remain. Keep other punctuation when supported by the source or sample and genre. Preserve deliberate literary voice under the genre exemptions.
+- Use sentence-case headings, informative bullets, and medium-appropriate emoji.
+- Address the real reader. Remove pasted assistant scaffolding and disclaimers; keep genuine interpersonal coordination such as “Let me know if Thursday works”.
+- Prefer literal prose in neutral and non-fiction genres; flag deliberate literary voice rather than stripping it. Close on the source's real point under the editing contract, rather than manufacturing a positive or concrete ending.
 
 ## Sentence craft
 
