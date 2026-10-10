@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "engineering",
-  "manifest_sha256": "e21fbdef8b718f1b2696417b75d10d8989bcbe57cd889fbf19a0b1f65b7d8f9a",
+  "manifest_sha256": "a346bfcd1cd65325bcdb3faeabf13ec649aa2e5be6d7a5d769f1dbb3efdf5cdc",
   "problem": "설계·계획·구현·리뷰의 책임과 검증 근거가 흩어져 변경 완료 여부와 전달 권한을 혼동하기 쉽다.",
   "outcome": "계약에서 구현·검사·독립 리뷰까지 연결하고 현재 리비전의 완료 근거와 미해결 사항을 제공한다.",
   "omp": {

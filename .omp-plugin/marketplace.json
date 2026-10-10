@@ -10,7 +10,7 @@
       "name": "workflow",
       "source": "./plugins/workflow/omp",
       "description": "Git·티켓·PR 작성과 PR 상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
-      "version": "0.17.0",
+      "version": "0.17.1",
       "category": "Developer Tools"
     },
     {
@@ -45,7 +45,7 @@
       "name": "research",
       "source": "./plugins/research/omp",
       "description": "Exa·Perplexity 목적별 공개 검색과 근거 중심의 사실 검증·비교·코드 조사를 제공합니다.",
-      "version": "0.8.0",
+      "version": "0.7.0-sonsu.14",
       "category": "Productivity"
     },
     {
@@ -66,7 +66,7 @@
       "name": "design-patterns",
       "source": "./plugins/design-patterns",
       "description": "실제 설계 힘과 보장에 근거해 디자인 패턴을 선택하거나 기존 패턴 사용을 검토합니다.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "category": "Developer Tools"
     },
     {

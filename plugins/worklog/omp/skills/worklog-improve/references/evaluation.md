@@ -30,7 +30,8 @@
 재현할 수 없거나 비밀·개인 경로를 안전하게 제거할 수 없으면 `inconclusive`로 끝낸다.
 
 실행 전에 요청·fixture·기대 항목을 고정한다. 같은 스위트에서 같은 스킬로 라우팅되는 기존
-사례를 ID 순서로 최대 5개 선택한다. 새 사례는 제외하고 기존 사례가 없으면 빈 목록을 보존한다.
+사례를 ID 문자열의 코드 포인트 오름차순(Python `sorted`)으로 최대 5개 선택한다. 예를 들어
+`case-10`이 `case-2`보다 앞선다. 새 사례는 제외하고 기존 사례가 없으면 빈 목록을 보존한다.
 이 목록과 각 입력·기대 항목을 모든 후보에서 그대로 사용한다.
 
 ## 컨텍스트를 분리한다
@@ -77,7 +78,7 @@ JSON 스키마·문자열·파일 변화 같은 결정적 검사를 먼저 수�
 | `fixed.instructions` | 대상 정본 상대 경로→실제 기준선 내용 맵. 미커밋 내용 포함 |
 | `fixed.configuration` | `model`·`command` 문자열, `settings`·`environment` 객체. 실제 실행값 기록 |
 | `fixed.case` | 새 사례 `{id, input, fixtures, expected}`. input은 요청 문자열, fixtures는 상대 경로→내용 맵, expected는 문장 배열 |
-| `fixed.regressions` | 같은 모양의 고정 회귀 사례 배열. ID 순서, 최대 5개, 새 사례 제외 |
+| `fixed.regressions` | 같은 모양의 고정 회귀 사례 배열. ID 문자열의 코드 포인트 오름차순(Python `sorted`), 중복 없음, 최대 5개, 새 사례 제외 |
 | `baseline` | 아래 실행 묶음 |
 | `candidates` | 아래 후보 배열. 최대 3개, 실행 순서 |
 

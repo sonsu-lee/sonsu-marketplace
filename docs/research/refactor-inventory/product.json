@@ -212,7 +212,7 @@
       "verdict": "keep",
       "verdict_target": "",
       "reason": "to-prd 완료 조건의 결정론적 부분을 명령으로 판정하며 plugins/product/tests/test_validate_prd.py가 규칙을 고정합니다.",
-      "sha256": "6a77d0d82d0e4ed09271192d215b516eb2b5e9099aa7248f1af8329c2bac23b0"
+      "sha256": "584746eec866247be265dff93ac6c21999496a4c3c78cb90995da968eebf89bb"
     }
   ],
   "problem": "제품 아이디어와 근거를 곧바로 요구사항이나 승인된 결정으로 바꾸면 미확인 가정과 실행 결과가 섞입니다.",

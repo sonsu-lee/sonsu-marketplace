@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "research",
   "displayName": "Research",
-  "version": "0.8.0",
+  "version": "0.7.0-sonsu.14",
   "description": "Exa·Perplexity 목적별 공개 검색과 근거 중심의 사실 검증·비교·코드 조사를 제공합니다.",
   "author": {
     "name": "sonsu-lee",

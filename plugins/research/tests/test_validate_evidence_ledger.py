@@ -114,6 +114,18 @@ class EvidenceLedgerTests(unittest.TestCase):
         data["evidence"][0]["accessed_at"] = "2026-01-10"
         self.assertEqual(self.run_ledger(data)[0], 0)
 
+    def test_unversioned_public_page_uses_null_version(self):
+        data = ledger()
+        entry = data["evidence"][0]
+        entry["version_or_content_hash"] = None
+        del entry["version_or_commit"]
+        entry["accessed_at"] = "2026-01-10"
+        self.assertEqual(self.run_ledger(data)[0], 0)
+        for value in ("", "  ", 42):
+            with self.subTest(value=value):
+                entry["version_or_content_hash"] = value
+                self.assert_violation(data, "invalid-field")
+
     def test_malformed_shapes(self):
         for data in (None, [], {}, {"claims": {}, "evidence": []}, {"claims": [1], "evidence": [None]}):
             self.assert_violation(data, "invalid-field")

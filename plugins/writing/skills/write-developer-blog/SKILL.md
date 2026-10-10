@@ -21,7 +21,7 @@ description: 개발자 블로그·기술 아티클·TIL·디버깅 회고·기�
    ending_and_limits: 독자가 적용할 다음 행동과 남은 경계
    ```
 
-   `revise`·`audit`에서 원문에 흐름이 없으면 현재 글로부터 최소한으로 복원한다. 저자 의도·인과관계는 원문에 있는 범위로 둔다. 짧은 TIL이나 논지·근거가 충분한 글은 같은 응답에서 초안까지 작성한다. 한 번에 작성해 달라는 요청도 핵심 저자 정보가 있는 범위에서 완성하고, 흐름 공개 여부는 결과 계약을 따른다.
+   `revise`·`audit`에서 원문에 흐름이 없으면 현재 글로부터 최소한으로 복원한다. 저자 의도·인과관계는 원문에 있는 범위로 둔다. `draft`에서 짧은 TIL이나 논지·근거가 충분한 글은 흐름을 정한 같은 응답에서 본문까지 작성한다. 한 번에 작성해 달라는 요청도 핵심 저자 정보가 있는 범위에서 완성하고, 흐름 공개 여부는 결과 계약을 따른다.
 3. 핵심 기술 주장이 자료로 뒷받침되지 않으면 [기술 근거와 직접 검증](references/technical-evidence.md)에 따라 필요한 최소 범위를 확인한다. 안전한 local inspection·기존 test·build·local browser로 판정할 수 있을 때 수행한다. 새 재현 코드는 tracked 파일 밖의 격리 임시 디렉터리에 만들고 정리한다. 실행 전 `environment`, `input`, `command`, `expected`를 정하고 실행 뒤 `observed`와 한계를 기록한다. 예상과 결과가 다르면 논지와 흐름을 관찰에 맞춰 갱신한다. 실행 권한·자료가 부족한 부분은 `not_run`과 필요한 권한·자료로 구분한다.
 4. 한 문단이 하나의 주장·질문·결정을 맡도록 `주장 또는 질문 → 근거·메커니즘 → 의미·다음 문단으로의 연결` 순서로 쓴다. 코드 앞뒤에 무엇을 보여 주는지 설명하고 핵심과 무관한 부분만 덜어 낸다. 본문에는 독자에게 필요한 근거·한계를 자연스럽게 포함하고 내부 evidence ledger는 작성 판단에 사용한다. 사실의 확실성·시점·수치·이름·링크·인과관계를 유지하며 시간 순서와 원인을 구분한다.
 5. 외부 다중 출처 조사나 언어별 표현 지침이 필요하면 [협업과 언어 선택](../../references/collaboration.md)을 적용한다. 여러 차례 이어지는 장문·여러 파일 작성만 [작업 연속성](../../references/continuity.md)으로 이어 간다.
@@ -36,28 +36,40 @@ description: 개발자 블로그·기술 아티클·TIL·디버깅 회고·기�
 | `revise` | 영향받은 흐름 필드의 변경 전후와 지정 제목·문단의 수정본. 꼭 필요한 인접 연결을 바꿨다면 그 범위도 표시 |
 | `audit` | 판단 기준으로 쓴 현재 흐름 필드와 위치·근거 상태·저자성 또는 한계의 문제·영향·최소 수정 방향이 있는 finding |
 
-설명이나 평가를 요청받지 않았다면 해당 결과와 실제로 남은 근거 사항만 반환한다. 필요한 경우에만 초안 뒤에 `observed`, `source-confirmed`, `inference`, `unknown`, `not_run`을 구분한 근거·미확인 사항을 둔다. 관찰 주체와 현재 작업의 재실행 여부는 [기술 근거 계약](references/technical-evidence.md#근거-상태)에 따라 구분한다.
+설명이나 평가를 요청받지 않았다면 해당 결과와 실제로 남은 근거 사항만 반환한다. 초안이 실행 결과에 기대거나 미확인·미실행 사항이 남으면 초안 뒤에 근거·미확인 항목을 둔다. 각 항목에는 `observed`, `source-confirmed`, `inference`, `unknown`, `not_run` 중 하나인 `state`와 `observer`를 두고, 실행 근거에는 `current_task_rerun`과 `limits`도 둔다. 값은 [기술 근거 계약](references/technical-evidence.md#근거-상태)을 따른다.
 
 ## 예시
 
-입력: “로컬 Python 3.12에서 `sorted(['z', 'a'])`를 실행하니 `['a', 'z']`였어. 다른 정렬 조건은 확인 안 했어. 짧은 TIL과 흐름을 같이 써 줘.”
+입력: “디버깅 글 초안을 써 줘. Windows 11의 Docker Desktop 4.34에서 `docker compose up`을 실행하자 app 컨테이너가 바로 종료됐고 `docker compose logs app`에 `exec /app/start.sh: no such file or directory`가 남았어. `start.sh`의 줄바꿈을 CRLF에서 LF로 바꾸고 다시 실행하니 컨테이너가 계속 실행됐어. 다른 OS와 base image는 확인하지 않았어.”
 
-흐름:
+내부 흐름(흐름을 요청받지 않았으므로 응답에 표시하지 않음):
 
 ```text
-reader: Python 목록 정렬을 처음 쓰는 개발자
-reader_problem: 두 문자열을 정렬했을 때의 결과를 알고 싶다
-main_answer: 제공된 실행에서 ['z', 'a']를 정렬한 결과는 ['a', 'z']였다
-section_sequence: 실행한 식 → 관찰한 결과 → 확인 범위
-evidence_by_section: 저자가 제공한 로컬 Python 3.12 실행 기록
-ending_and_limits: 다른 입력·정렬 조건은 확인하지 않았다
+reader: Windows에서 셸 스크립트를 컨테이너 시작 명령으로 쓰는 개발자
+reader_problem: `start.sh`가 없다는 오류와 함께 컨테이너가 바로 종료된다
+main_answer: 저자 환경에서는 `start.sh`의 줄바꿈을 LF로 바꾸자 컨테이너가 계속 실행됐다
+section_sequence: 증상과 로그 → 줄바꿈 변경과 재실행 결과 → 확인 범위
+evidence_by_section: 저자가 제공한 `docker compose logs app` 출력과 LF 변경 뒤 실행 결과
+ending_and_limits: 다른 OS·base image와 오류가 생기는 메커니즘은 확인하지 않았다
 ```
 
 본문:
 
-> 로컬 Python 3.12에서 `sorted(['z', 'a'])`를 실행하니 `['a', 'z']`가 나왔어요. 이번에는 이 두 문자열의 결과만 확인했고, 다른 입력이나 정렬 조건은 확인하지 않았어요.
+> Windows 11의 Docker Desktop 4.34에서 `docker compose up`을 실행하자 app 컨테이너가 바로 종료됐어요. `docker compose logs app`에는 `exec /app/start.sh: no such file or directory`가 남아 있었어요. `start.sh`의 줄바꿈을 CRLF에서 LF로 바꾸고 다시 실행하자 컨테이너가 계속 실행됐어요. 다른 OS와 base image에서는 확인하지 않았어요.
 
-대조: “정렬 방식을 바꾼 나의 경험을 써 줘”라는 제목만 있고 경험 자료가 없다면 실제로 바꾼 방식·이유·관찰 결과를 질문한다. 근거를 확보한 뒤 본문을 쓴다.
+근거:
+
+```text
+state: observed
+observer: author
+environment: Windows 11, Docker Desktop 4.34
+command: docker compose up, docker compose logs app
+observed: CRLF일 때 `exec /app/start.sh: no such file or directory`와 함께 종료, LF로 바꾼 뒤 계속 실행
+current_task_rerun: false
+limits: 다른 OS·base image와 줄바꿈이 오류를 일으키는 메커니즘은 확인하지 않음
+```
+
+대조: 허용된 로컬 환경에서 같은 compose 파일로 현재 작업 중에 다시 실행했다면 그 결과는 `observer: agent`, `current_task_rerun: true`인 별도 항목으로 둔다. 실행 환경이 저자와 다르면 저자 환경의 결과를 대신하지 않는다.
 
 ## 경계
 

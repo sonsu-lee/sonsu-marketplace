@@ -84,8 +84,11 @@ def validate(data):
             else:
                 linked.add(claim_id)
         enums(entry, EVIDENCE_ENUMS, location)
-        for key in ("version_or_content_hash", "reopen_method", "source_role", "independence"):
+        for key in ("reopen_method", "source_role", "independence"):
             text(entry, key, location)
+        version = entry.get("version_or_content_hash")
+        if "version_or_content_hash" not in entry or (version is not None and (not isinstance(version, str) or not version.strip())):
+            fail("invalid-field", location + ".version_or_content_hash", "expected a nonempty string or null")
         for key in ("limitations", "conflicts"):
             text(entry, key, location, allow_empty=True)
         if not isinstance(entry.get("locator"), str) or not entry["locator"].strip():

@@ -15,7 +15,7 @@
   "skills": [
     {
       "path": "plugins/writing/skills/write-developer-blog/SKILL.md",
-      "sha256": "4951cb1077b102a8366c0cc9d247c4f6e914965f8c0ec0b02f12227e7746ceb3",
+      "sha256": "0254401ed6d8ec273f546fdd81438b6b44d8da9c1a19dc74940b93c111f7a66b",
       "sources": {
         "plugins/writing/references/continuity.md": "03de6d3a6dfaa43705781a476b7253b8c57ddf9b2b7515d9eaade025c2437c7f"
       },

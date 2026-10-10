@@ -49,4 +49,4 @@ python3 scripts/render-continuity.py --check
 python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py'
 ```
 
-모델 선택 사례는 [`evals/skill-routing/cases.json`](../../evals/skill-routing/cases.json)에 있습니다.
+스킬 선택(라우팅) 사례는 [`evals/skill-routing/cases.json`](../../evals/skill-routing/cases.json)에 있습니다.

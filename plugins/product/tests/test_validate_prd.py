@@ -285,6 +285,33 @@ class ValidatePrdTest(unittest.TestCase):
         self.assertIn("정의되지 않은 ID: OPEN-002", [item["message"] for item in findings])
         self.assertNotIn("정의되지 않은 ID: REQ-999", [item["message"] for item in findings])
 
+    def test_reference_followed_by_korean_particle(self):
+        text = VALID.replace("목표 미정(OPEN-001)", "OPEN-002의 영향, REQ-003은 미정")
+        _, report = self.run_tool(self.write("prd.md", text))
+        messages = [item["message"] for item in report["files"][0]["findings"]]
+        self.assertIn("정의되지 않은 ID: OPEN-002", messages)
+        self.assertIn("정의되지 않은 ID: REQ-003", messages)
+
+    def test_definition_list_forms(self):
+        nested = VALID.replace("  - 토글을 켜면 완료 항목이 사라진다.\n",
+                               "  - 토글을 켜면 완료 항목이 사라진다.\n- 근거 ID:\n"
+                               "  - OPEN-001: 응답 시간 목표 미정\n  - RISK-001: 하위 정의\n")
+        result, report = self.run_tool(self.write("nested.md", nested + "\nRISK-001 참조\n"))
+        self.assertEqual(result.returncode, 0, result.stdout)
+        numbered = VALID + "\n1. NFR-001: 즉시 보인다\n+ RISK-001: 수수료율 변경\n2) SUCCESS-001: 문의 감소\n"
+        result, report = self.run_tool(self.write("numbered.md", numbered + "\nNFR-001 RISK-001 SUCCESS-001\n"))
+        self.assertEqual(result.returncode, 0, result.stdout)
+        _, report = self.run_tool(self.write("duplicate.md", VALID + "\n1. OPEN-001: 중복\n"))
+        self.assertEqual(self.codes(report), ["duplicate-id"])
+
+    def test_indented_non_list_child_fills_field(self):
+        text = VALID.replace("  - 토글을 켜면 완료 항목이 사라진다.",
+                             "  Given 완료 항목이 있다 When 토글을 켠다 Then 사라진다.")
+        text = text.replace("- 관련 품질 기대:", "- 화면 상태:\n\n  | 상태 | 표시 |\n  | --- | --- |\n"
+                            "  | 켬 | 숨김 |\n- 관련 품질 기대:")
+        result, report = self.run_tool(self.write("prd.md", text))
+        self.assertEqual(result.returncode, 0, result.stdout)
+
     def test_links_and_fragments(self):
         self.write("other.md", "# 다른 문서\n\n## 범위 정의\n")
         text = VALID + "\n[ok](other.md#범위-정의) [bad](other.md#없음) [gone](missing.md) [self](#없는-제목)\n"

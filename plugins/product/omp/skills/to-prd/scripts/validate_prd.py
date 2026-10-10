@@ -5,7 +5,8 @@
   metadata            frontmatter 필수 키, 빈 값, 문자열이 아닌 id·status·workflow_status,
                       status·workflow_status 조합, sources 비어 있음
   duplicate-id        문서 안 REQ/NFR/OPEN/RISK/SUCCESS ID의 중복 정의
-                      (정의: `### REQ-001: …` 제목, `- REQ-001: …` 목록, 첫 열 제목이 `ID`인 표의 행)
+                      (정의: `### REQ-001: …` 제목, 들여 쓰지 않은 `- REQ-001: …`·`1. REQ-001: …` 목록,
+                      첫 열 제목이 `ID`인 표의 행. 들여 쓴 목록의 `- REQ-001: …`은 참조 대상으로만 인정)
   duplicate-document-id  입력과 --existing 문서 사이의 frontmatter id 중복
   undefined-reference 정의되지 않은 내부 ID 참조
   broken-link         상대 링크 대상 파일 없음
@@ -30,11 +31,9 @@ DEFAULT_KEYS = ("id", "title", "status", "workflow_status", "revision", "owners"
 STATUS_PAIRS = {"conditional": "draft", "approved": "stable"}
 SCALAR_KEYS = ("id", "status", "workflow_status")
 ID = r"(?:REQ|NFR|OPEN|RISK|SUCCESS)-\d+"
-ID_RE = re.compile(rf"(?<![\w-]){ID}(?![\w-])")
-DEFINITION_RE = (
-    re.compile(rf"^#+\s+\**({ID})\b"),
-    re.compile(rf"^\s*[-*]\s+\**({ID})\**\s*[:：]"),
-)
+ID_RE = re.compile(rf"(?<![\w-]){ID}(?![\w-])", re.ASCII)
+HEADING_ID_RE = re.compile(rf"^#+\s+\**({ID})\b", re.ASCII)
+LIST_ID_RE = re.compile(rf"^(\s*)(?:[-*+]|\d+[.)])\s+\**({ID})\**\s*[:：]")
 TABLE_ID_RE = re.compile(rf"^\|\s*\**({ID})\**\s*\|")
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 ANGLE_RE = re.compile(r"<([^<>\s](?:[^<>\n]*[^<>\s])?)>")
@@ -129,12 +128,12 @@ def mask_body(lines, start, keep_code=False):
 
 
 def has_children(masked, number):
-    """줄 number(1부터) 뒤에 더 깊게 들여 쓴 목록 항목이 이어지면 True."""
+    """줄 number(1부터) 뒤 첫 비어 있지 않은 줄이 더 깊게 들여 쓰여 있으면 True."""
     indent = len(masked[number - 1]) - len(masked[number - 1].lstrip())
     for line in masked[number:]:
         if not line.strip():
             continue
-        return bool(re.match(r"^\s*([-*]|\d+\.)\s", line)) and len(line) - len(line.lstrip()) > indent
+        return len(line) - len(line.lstrip()) > indent
     return False
 
 
@@ -201,6 +200,7 @@ def check_file(path, keys, add):
         add("placeholder", number, "작성 안내 주석")
 
     definitions = {}
+    nested = set()
     references = []
     table_header = None
     for number, line in enumerate(masked, 1):
@@ -211,11 +211,16 @@ def check_file(path, keys, add):
             table_header = [cell.strip() for cell in line.strip().strip("|").split("|")]
         elif not is_table:
             table_header = None
-        match = next((m for m in (p.match(line) for p in DEFINITION_RE) if m), None)
-        if match is None and is_table and table_header and table_header[0] == "ID":
+        item = LIST_ID_RE.match(line)
+        match = HEADING_ID_RE.match(line)
+        if match is None and item and item.group(1):
+            nested.add(item.group(2))
+        elif match is None and item:
+            match = item
+        elif match is None and is_table and table_header and table_header[0] == "ID":
             match = TABLE_ID_RE.match(line.lstrip())
         if match:
-            definitions.setdefault(match.group(1), []).append(number)
+            definitions.setdefault(match.group(match.lastindex), []).append(number)
         for found in ID_RE.finditer(line):
             references.append((found.group(0), number))
         text_placeholders(line, number, add)
@@ -230,7 +235,7 @@ def check_file(path, keys, add):
         if len(places) > 1:
             add("duplicate-id", places[1], f"{identifier} 중복 정의: 줄 {', '.join(map(str, places))}")
     for identifier, number in references:
-        if identifier not in definitions:
+        if identifier not in definitions and identifier not in nested:
             add("undefined-reference", number, f"정의되지 않은 ID: {identifier}")
 
     own_slugs = headings(path)
