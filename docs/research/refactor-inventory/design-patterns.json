@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "design-patterns",
-  "manifest_sha256": "f948b194518e41994bb15ac2047d9e54895ea3dacc4b1a98aeca49db36b86ee3",
+  "manifest_sha256": "c2e3666be01c9b3bf12467b2bc5128dc4f35c6a6e361c9d298fe724915c1efb6",
   "problem": "패턴 이름이나 익숙한 구조만으로 설계를 선택하면 현재 제약에 없는 추상화를 추가하거나 필요한 보장을 놓친다.",
   "outcome": "실제 forces·baseline·보장·비용을 근거로 패턴 선택 또는 기존 사용의 결함을 판단한다.",
   "omp": {
@@ -57,8 +57,7 @@
       "path": "plugins/design-patterns/skills/select-design-patterns/SKILL.md",
       "sha256": "bc6854f427aedd05bd5c18c80366758615822aa5a5974a0d70851460881d3ec1",
       "sources": {
-        "plugins/design-patterns/README.md": "fc135ebd0cb458268dd0e5dd17c2f2f2cb81d2d31597eb5ae6d2b95d1ce8f7b2",
-        "plugins/design-patterns/references/language-realization.md": "b1ad92e46ebaab7bc45758a586bee55906e83dee170c8d41da95fb91a63fd4d5"
+        "plugins/design-patterns/README.md": "fc135ebd0cb458268dd0e5dd17c2f2f2cb81d2d31597eb5ae6d2b95d1ce8f7b2"
       },
       "problem": "문제와 제약보다 패턴 이름을 먼저 고르면 불필요한 구조나 검증되지 않은 분산 보장을 선택한다.",
       "outcome": "use·no-pattern·insufficient-evidence 결정과 baseline·후보·선택·구현 형태·검증 근거를 제공한다.",
@@ -91,13 +90,7 @@
       "verdict": "keep",
       "verdict_target": "",
       "reason": "패턴의 필요 여부와 최소 구현 형태를 고르는 독립 과업이며 일반 구현·원칙 설명과 라우팅 경계가 있다.",
-      "doc_findings": [
-        {
-          "kind": "negative-definition",
-          "location": "plugins/design-patterns/references/language-realization.md:10-19",
-          "note": "framework lifecycle 중복 구현과 라이브러리 이름만으로 구현 완료를 주장하는 경우를 금지형으로 쓴다. 확인할 lifecycle 소유자와 설정된 보장을 먼저 기록하는 행동으로 바꾼다."
-        }
-      ],
+      "doc_findings": [],
       "example": "present"
     }
   ],

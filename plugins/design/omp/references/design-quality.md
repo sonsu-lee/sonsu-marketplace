@@ -59,13 +59,11 @@ POSIX 환경이 필요하다. 최초 실행은 npm registry 접근이 필요할 
 python3 <plugin-root>/scripts/validate_design_quality.py design-md <DESIGN.md>
 ```
 
-이 명령은 고정한 `@google/design.md@0.4.0`의 공식 linter API와 같은 설치의 파서 의존성을
-사용한다. YAML 파서나 token schema를 별도로 구현하지 않는다. 버전·실행·판정은 공통 도구가
-소유하며 플러그인별 설치 명령이나 경고 판정 규칙을 추가하지 않는다. 도구가 출력한 JSON을
-현재 산출물의 검증 근거로 보존한다.
-JSON에는 파일 경로·SHA-256 digest·package 버전·실행 시각·명령·상태·진단이 포함된다.
-파일을 읽었다면 UTF-8 디코딩에 실패해도 원본 bytes의 digest를 보존한다.
-파일이 바뀌면 다시 실행한다.
+이 명령은 고정한 `@google/design.md@0.4.0`의 공식 linter API와 같은 설치의 파서 의존성을 사용한다.
+YAML 파싱과 token schema 검사는 이 도구의 결과를 쓰고, 설치와 경고 판정도 공통 도구의 규칙을 따른다.
+도구가 출력한 JSON을 현재 산출물의 검증 근거로 보존한다. JSON의 파일 경로·SHA-256 digest는 검사 대상을,
+package 버전·실행 시각·명령은 실행 환경을, 상태·진단은 결과와 다음 조치를 나타낸다. 파일을 읽었다면
+UTF-8 디코딩에 실패해도 원본 bytes의 digest를 보존한다. 파일이 바뀌면 다시 실행한다.
 
 | 종료 코드 / 상태 | 처리 |
 | --- | --- |

@@ -44,6 +44,39 @@ limitations | conflicts | confidence | verified
 
 복사된 주장과 동일 보도자료 재게시물을 독립 증거로 세지 않는다. 공통 원출처를 추적해 하나의 증거 계열로 합친다.
 
+### 검사기 입력
+
+[`validate_evidence_ledger.py`](../../../scripts/validate_evidence_ledger.py)는 위 원장을 다음 JSON으로 받아 형식만 검사한다. 주장 하나에 출처가 여럿이면 `evidence` 항목을 여러 개 둔다.
+
+```json
+{
+  "claims": [{"claim_id": "C1", "claim": "주장", "claim_kind": "fact", "coverage_status": "supported"}],
+  "evidence": [{
+    "claim_id": "C1",
+    "source": {"url": "https://example.org/doc", "title": "문서 제목", "author_or_org": "발행 기관"},
+    "source_identity": {"kind": "public_url", "value": "https://example.org/doc"},
+    "access_scope": "public",
+    "version_or_content_hash": "v2",
+    "reopen_method": "canonical URL 열기",
+    "published_or_updated": "2026-01-10",
+    "locator": "제2절 첫 문단",
+    "support_relation": "direct",
+    "source_role": "공식 문서",
+    "independence": "벤더 자료",
+    "limitations": "",
+    "conflicts": "",
+    "confidence": "medium",
+    "verified": true
+  }]
+}
+```
+
+- `claim_id`는 claims 안에서 하나만 둔다. 각 evidence의 `claim_id`는 claims에 있어야 하고 `supported`, `partial`, `contradicted` 주장에는 evidence가 하나 이상 연결되어야 한다.
+- enum은 이 문서의 원장 정의와 [모순과 신뢰도](#모순과-신뢰도)의 `high | medium | low`를 따른다. `source_identity.kind`는 `public_url | connector_item_id | repository_commit_path | local_path_content_hash`다.
+- `locator`는 비어 있지 않은 정확한 구절·표·그림·데이터 셀·`file:symbol`이다. 날짜·버전 필드 세 개 중 하나 이상을 채운다.
+- `source.url`은 공개 출처에서 canonical URL을, 비공개·로컬 출처에서 `null`을 허용한다. `version_or_content_hash`도 비어 있지 않은 문자열 또는 `null`이다. 버전이나 내용 hash가 없는 공개 문서는 `null`로 두고 `accessed_at`을 채운다. `limitations`, `conflicts`는 빈 문자열을 허용하고 `verified`는 boolean이다.
+- 검사 결과는 형식과 연결만 판정한다. 원문 지지 여부·권위·독립성·신뢰도는 [인용 감사](#인용-감사)로 판단한다.
+
 ## 논문과 벤치마크
 
 - arXiv와 최종 학회판을 같은 연구 계열로 묶고 어느 버전을 사용했는지 밝힌다.
@@ -84,7 +117,15 @@ limitations | conflicts | confidence | verified
 기존 보고서를 감사할 때는 보고서의 결론, 인용, 기존 evidence ledger를 근거로 그대로 받아들이지 않는다.
 
 1. 외부 검증 가능한 주장을 원자적 주장–인용 쌍으로 분해한다.
-2. 각 인용의 원문과 정확한 locator를 다시 열고 `supported | partial | unsupported | stale | unreachable | conflicted`로 판정한다.
+2. 각 인용의 원문과 정확한 locator를 다시 열고 `supported | partial | unsupported | stale | unreachable | conflicted`로 판정한다. 감사 판정은 판정 요약에 쓰고, 원장의 `coverage_status`는 [증거 원장](#증거-원장) enum으로 다음처럼 옮긴다.
+
+   | 감사 판정 | `coverage_status` | 원장 기록 |
+   | --- | --- | --- |
+   | `supported`, `partial`, `unsupported` | 같은 값 | 해당 원문의 evidence |
+   | `conflicted` | `contradicted` | 반증 출처를 `support_relation: opposes`로 추가 |
+   | `stale` | `partial` | 기준 시점 이전 판본만 지지한다는 점을 `limitations`에 기록하고, 최신 원문을 확인하면 그 결과로 갱신 |
+   | `unreachable` | `blocked` | 접근 실패 이유를 기록하고 원문을 본 것처럼 evidence를 만들지 않음 |
+
 3. 공급자 답변이 아니라 canonical source lineage를 기준으로 중복을 합친다.
 4. 결론을 뒤집을 수 있는 누락 반증과 최신 정정·철회를 별도로 찾는다.
 5. 지원되지 않는 주장은 창작으로 메우지 않고 삭제·완화하거나 미확인으로 표시한다.

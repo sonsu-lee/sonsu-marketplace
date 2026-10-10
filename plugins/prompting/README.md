@@ -1,46 +1,52 @@
 # Prompting
 
-Codex, ChatGPT, OpenAI API와 Claude Code·Anthropic API에서 바로 사용할 수 있는 간결한 프롬프트를 작성하는 개인용
-플러그인입니다.
-
-## 포함된 스킬
-
-- `prompt-builder`: 사용자가 요청한 결과, 제약, 대상 제품과 출력 형식을 보존하면서 프롬프트를
-  생성·재작성·최적화합니다.
-
-단순한 prompt engineering 개념 설명에는 이 스킬을 사용하지 않습니다. 실제 프롬프트 산출물을
-요청했을 때만 선택하며, 다른 플러그인의 설치나 선행 실행을 가정하지 않습니다.
-
-## OpenAI 제품과 모델
-
-특정 OpenAI 모델, 제품 surface 또는 API 배치가 프롬프트 구성에 영향을 줄 때에는
-`skills/prompt-builder/references/openai-prompt-guidance.md`를 참고합니다. 이 문서는
-`2026-08-29` snapshot이며, 최신 또는 현재 권고를 요청받으면 snapshot만 신뢰하지 않고 OpenAI
-공식 문서를 다시 확인합니다.
-
-Claude Code나 Anthropic 모델을 대상으로 할 때에는
-`skills/prompt-builder/references/claude-prompt-guidance.md`를 참고하고, 현재 모델 지원·설정은
-공식 Anthropic 문서와 실행 환경에서 확인합니다.
+Codex, ChatGPT, OpenAI API와 Claude Code·Anthropic API에서 바로 사용할 수 있는 간결한 프롬프트를 작성합니다.
 
 ## 설치
 
-마켓플레이스를 등록한 뒤 다음 명령으로 설치합니다.
+[마켓플레이스를 등록](../../README.md#설치)한 뒤 설치합니다.
 
 ```sh
 codex plugin add prompting@sonsu-marketplace
+claude plugin install prompting@sonsu-marketplace
+omp plugin install prompting@sonsu-marketplace
 ```
 
-기존 standalone `prompt-builder` 스킬을 함께 노출하면 두 스킬이 같은 요청에 경쟁할 수 있습니다.
-플러그인판을 검증한 뒤에는 기존 standalone 복사본을 discovery 경로에서 제외합니다.
+omp에서는 기본 구성에 들지 않는 opt-in 패키지이므로 필요할 때 직접 설치합니다.
 
-## 컴팩션 후 작업 재개
+다른 플러그인 없이 단독으로 동작합니다.
 
-[작업 연속성 참고 자료](references/continuity.md)는 여러 단계로 이어지는 작업의 계약·진행·근거 위치를
-작업 폴더의 `.sonsu/continuity/`에 짧게 기록하고 같은 session의 컴팩션·재개 후 실제 상태와 대조합니다.
-짧은 단발 작업에는 기록하지 않으며, 파일 쓰기 금지와 기존 승인 범위를 유지합니다.
+## 스킬
 
-포함된 `SessionStart` hook은 활성 기록이 있을 때 참고 자료·기록 경로만 전달합니다. 설치 후 CLI의
-`/hooks`에서 현재 hook 정의를 검토하고 신뢰해야 실행됩니다. hook을 사용할 수 없으면 위 참고 자료를
-읽고 수동으로 재개할 수 있습니다. helper는 Python 3.9+와 POSIX(macOS/Linux) 환경을 사용합니다.
-[기록 형식·운영 계약](../../docs/reference/task-continuity.md)과
-[검증 범위](../../evals/task-continuity/README.md)를 참고하세요.
+| 스킬 | 사용할 때 | 결과 |
+| --- | --- | --- |
+| [`prompt-builder`](skills/prompt-builder/SKILL.md) | 특정 모델·제품에 넣을 프롬프트를 생성·재작성·최적화할 때 | 입력 칸별로 바로 복사할 수 있는 fenced block과 필요한 API 설정 |
+
+prompt engineering 개념 설명처럼 프롬프트 산출물이 없는 요청은 일반 답변으로 처리합니다. 모델·제품별 차이는 [OpenAI 지침](skills/prompt-builder/references/openai-prompt-guidance.md)과 [Claude 지침](skills/prompt-builder/references/claude-prompt-guidance.md)에 있고, 출처 기준은 [UPSTREAM.md](UPSTREAM.md)에 있습니다.
+
+## 사용 예시
+
+요청: “Codex에 넘길 작업 프롬프트를 만들어 줘. `docs/setup.md`의 Python 최소 버전을 3.11로 맞추고 다른 파일은 바꾸지 않게 해 줘.”
+
+결과:
+
+```text
+docs/setup.md의 Python 최소 버전 안내를 3.11로 수정한다. 다른 파일은 변경하지 않는다.
+완료 조건: docs/setup.md에서 최소 버전이 3.11로 표시된다.
+```
+
+## 구성
+
+[작업 연속성 참고 자료](references/continuity.md)는 여러 단계로 이어지는 작업의 계약·진행·근거 위치를 작업 폴더의 `.sonsu/continuity/`에 짧게 기록하고, 같은 session의 컴팩션·재개 후 실제 상태와 대조합니다. 짧은 단발 작업은 기록 없이 완성하며, 파일 쓰기 금지와 기존 승인 범위를 유지합니다.
+
+포함된 `SessionStart` hook은 활성 기록이 있을 때 참고 자료·기록 경로만 전달합니다. 설치 후 CLI의 `/hooks`에서 현재 hook 정의를 검토하고 신뢰해야 실행됩니다. hook을 사용할 수 없으면 위 참고 자료를 읽고 수동으로 재개합니다. helper는 Python 3.9+와 POSIX(macOS/Linux) 환경을 사용합니다. [기록 형식·운영 계약](../../docs/reference/task-continuity.md)과 [검증 범위](../../evals/task-continuity/README.md)를 참고하세요.
+
+## 검증
+
+```sh
+python3 scripts/validate_refactor_inventory.py check --plugin prompting
+python3 scripts/render-continuity.py --check
+python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py'
+```
+
+스킬 선택(라우팅) 사례는 [`evals/skill-routing/cases.json`](../../evals/skill-routing/cases.json)에 있습니다.

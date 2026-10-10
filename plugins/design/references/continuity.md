@@ -27,9 +27,8 @@
    `<root>/.sonsu/continuity/<session-id>/design.json`이다.
 3. `read`로 기록과 revision을 읽는다. 최초 `write`의 `--expected-revision`은 0이며,
    갱신·종료·새 작업 전환에는 방금 읽은 revision을 쓴다. 같은 작업의 `--task-id`는 재개 후에도 유지한다.
-   이전 공개 스킬 이름이 `active_skill`에 남아 있어도 읽을 수 있다. 다음 `write`에는 현재 설치된
-   작업 스킬 이름을 사용한다.
-   플러그인 이름이 통합된 기존 기록은 현재 패키지의 README에 있는 이전 절차를 먼저 따른다.
+   `active_skill`에 지금은 설치되지 않은 이전 스킬 이름이 남은 기록도 읽을 수 있다. 다음 `write`에는
+   현재 설치된 작업 스킬 이름을 사용한다.
 4. `write --mode write --task-id <id> --skill redesign-interface --expected-revision <n>`에
    아래 JSON을 표준 입력으로 전달한다. `--skill`에는 실제 작업을 수행하는 이 플러그인의
    스킬 이름을 쓴다. 사용자 내용을 shell 명령 문자열에 보간하지 않는다.
@@ -56,7 +55,7 @@
 
 ## 이 플러그인의 보존 항목
 
-플랫폼·과업·산출물, 원본 의미와 보존/변경 결정, 디자인 명세 revision, 사용한 reference set 위치와 primary·차용 범위, 실제 화면·정보 자산·Figma file/page/node 또는 코드 경로, 마지막 readback·preview receipt·검증과 미확인을 보존한다. 독립 레퍼런스 탐색에서는 공급자 자격·상태, 쿼리와 사용한 검색 호출 수, 관찰 근거 위치·inspection과 후보 선별 진행, primary·차용 범위와 미결정 사항을 보존한다. 재개하면 현재 공급자·도구와 근거를 대조하고 같은 작업 ID와 검색 예산을 이어 간다. 짧은 단발 탐색·위임받은 부분 작업·파일 쓰기가 금지된 작업에는 별도 checkpoint를 만들지 않는다. Figma 코드 이전의 명시적 허가 여부를 기록한다. 생성 응답 후 중단되면 기존 ID부터 읽으며 같은 화면을 다시 만들지 않는다. 제안·Figma·구현·탐색의 완료 범위를 섞지 않고 현재 사용자 요청과 실제 산출물을 대조한다.
+플랫폼·과업·산출물, 원본 의미와 보존/변경 결정, 디자인 명세 revision, 사용한 reference set 위치와 primary·차용 범위, 실제 화면·정보 자산·Figma file/page/node 또는 코드 경로, 마지막 readback·preview receipt·검증과 미확인을 보존한다. 독립 레퍼런스 탐색에서는 공급자 자격·상태, 쿼리와 사용한 검색 호출 수, 관찰 근거 위치·inspection과 후보 선별 진행, primary·차용 범위와 미결정 사항을 보존한다. 재개하면 현재 공급자·도구와 근거를 대조하고 같은 작업 ID와 검색 예산을 이어 간다. 짧은 단발 탐색·위임받은 부분 작업·파일 쓰기가 금지된 작업에는 별도 checkpoint를 만들지 않는다. Figma 코드 이전의 명시적 허가 여부를 기록한다. 생성 응답 후 중단되면 기존 ID부터 읽으며 같은 화면을 다시 만들지 않는다. 제안·Figma·구현·탐색의 완료 범위를 섞지 않고 현재 사용자 요청과 실제 산출물을 대조한다. 통합 전 `interface-design`·`operations-ui`·`figma-workflow`의 진행 중 기록은 [디자인 기록 이전 절차](migration.md)로 확인한다.
 
 ## 현재 상태에서 복구한다
 

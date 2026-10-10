@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "workflow",
-  "manifest_sha256": "95393e509c2836ac264861649066cf6ef899800104fe614e3b7a377987f16f6a",
+  "manifest_sha256": "f0ed349d8e1d60e8f983374671ae40cb0cb997cc5650995a31ea06cd49f63632",
   "problem": "Git 변경과 티켓·PR을 전달할 때 사용자 승인, 정확한 대상, 실제 반영 상태와 작성 근거가 섞여 잘못된 쓰기나 완료 보고가 발생할 수 있다.",
   "outcome": "브랜치·커밋·push·티켓·PR의 독립 작업을 승인 범위 안에서 수행하고, 초안·원격 반영·검증·미확인을 구분해 전달한다.",
   "omp": {

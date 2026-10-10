@@ -1,60 +1,53 @@
 # Design
 
-`design`은 일반 웹·앱, 운영 화면과 Figma 제품 화면을 한 작업 흐름에서 설계·재설계·감사하고
-디자인 레퍼런스를 찾는 Codex·Claude Code 플러그인입니다. 공개 스킬은 작업 유형으로 고르고 Figma와 코드는 실행 경로로 선택합니다.
+웹·앱·운영 화면을 Figma 또는 코드로 설계·재설계하고, 수정 없는 감사와 디자인 레퍼런스 선별을 지원합니다.
+
+## 설치
 
 ```sh
 codex plugin add design@sonsu-marketplace
+claude plugin install design@sonsu-marketplace
+omp plugin install design@sonsu-marketplace
 ```
 
-기존 `interface-design`, `operations-ui`, `figma-workflow` 중 하나를 사용 중이라면
-`design@sonsu-marketplace`를 설치하고, 진행 중인 작업의 기록을
-[이전 절차](references/migration.md)를 통해 확인한 뒤
-설치되어 있던 이전 플러그인을 제거합니다. 저장된 DQ contract/report의
-`profile: "interface-design"`, `"operations-ui"`, `"figma-workflow"`는 호환성 값이므로 변경하지 않습니다.
+## 스킬
 
-```sh
-# 기록 이전을 확인한 후, 설치되어 있는 이전 패키지만 제거
-codex plugin remove interface-design@sonsu-marketplace
-codex plugin remove operations-ui@sonsu-marketplace
-codex plugin remove figma-workflow@sonsu-marketplace
-```
+| 스킬 | 사용할 때 | 결과 |
+| --- | --- | --- |
+| `design-interface` | 새 화면·흐름을 만들 때 | 명세·시안·Figma 또는 구현과 검증 근거 |
+| `redesign-interface` | 기존 화면·흐름을 개선할 때 | 보존·변경 사항을 대조한 결과와 전후 차이 |
+| `audit-interface` | 코드·화면·Figma를 수정 없이 감사할 때 | 관찰·사용자 영향·최소 수정 방향을 담은 finding |
+| `find-references` | 화면·흐름·컴포넌트·스타일 사례를 선별할 때 | 출처·관찰·차용 범위 또는 `no_verified_match` |
 
-| 작업 | 스킬 |
-| --- | --- |
-| 새 화면·흐름 | `design-interface` |
-| 기존 화면·흐름 변경 | `redesign-interface` |
-| 수정 없는 코드·화면·Figma 감사 | `audit-interface` |
-| 화면·흐름·컴포넌트·스타일 레퍼런스 검색 | `find-references` |
+## 사용 예시
 
-작업은 대상 제품, 기존 화면·디자인 시스템, 레퍼런스, 사용자 과업과 산출물부터 정합니다.
-반복 판단·권한·대량 처리·부분 실패가 핵심이면 [Operations 계약](references/operations/screen-contract.md)을
-조건부로 적용합니다. Figma가 정본이면 [Figma 실행 경로](references/figma/workflow.md)로 화면·상태·
-요청한 prototype을 만들고 readback합니다. Figma 결과를 코드로 옮기기 전에는 검토 가능한
-결과를 제시하고 그 revision에 대한 명시적 허가를 받습니다. Figma를 쓰지 않으면 기존 앱에서
-직접 구현하고 실제 화면과 동작을 확인합니다.
+> 도서관 앱에 대출 중인 책과 반납 기한을 보는 새 화면을 코드로 구현해 줘. 대출 데이터와 기존 목록 컴포넌트는 프로젝트에 있어.
 
-Figma 캔버스 작업에는 현재 호스트의 공식 Figma MCP 연결과 해당 도구의 필수 스킬이 필요합니다.
-Codex connector와 Claude Code MCP 연결은 별도로 설정합니다.
+`design-interface`가 기존 컴포넌트로 제목·반납 기한·연체 상태를 구성하고 빈 목록과 긴 제목 등 요청 환경을 확인합니다. 결과에는 구현 위치, 실제 실행 근거와 미확인을 구분해 적습니다. 대표 이용자 검증을 실행하지 않았다면 그 단계는 `not_run`으로 남깁니다.
 
-새 설계·재설계·Figma 화면은 대상 앱의 가장 가까운 `DESIGN.md`를 사용하고 Google 형식으로
-작성·검증합니다. 감사는 읽기 전용으로 검사합니다. 공통 Design Decision Contract와 DQ0–DQ8은
-[품질 계약](references/design-quality.md)을 따릅니다. Proposal은 DQ0–DQ6, Figma/implementation은
-DQ0–DQ7, live는 DQ0–DQ8을 요구하며, 미실행 단계의 통과를 주장하지 않습니다.
+> 같은 화면을 수정하지 말고 문제점만 감사해 줘.
 
-레퍼런스 검색은 [레퍼런스 검색 계약](references/reference-search.md)을 따릅니다. Mobbin·Refero 같은
-MCP가 연결되어 있으면 사용하고, 없으면 호스트 웹 검색을 쓰거나 검증된 결과가 없다고 보고합니다.
-레퍼런스마다 출처, 출시 제품·컨셉 구분, 확인 수준, 가져올 것과 가져오지 않을 것을 기록합니다.
-설계·재설계 중 사용자가 요청하거나 동의하면 같은 계약으로 찾아 설계 계약에 기록합니다.
+`audit-interface`가 읽기 전용으로 관찰해 finding을 전달합니다. 감사 결과를 자동 수정 권한으로 사용하지 않습니다.
+
+## 구성
+
+[작업 선택과 산출물](references/delivery.md)에서 대상 제품·기존 디자인 시스템·사용자 과업과 완료 범위를 정합니다. 반복 판단·권한·대량 처리·부분 실패가 핵심이면 [Operations 계약](references/operations/screen-contract.md)을 적용합니다.
+
+Figma 캔버스 작업은 호스트의 공식 Figma MCP 연결과 도구의 필수 스킬을 사용합니다. Codex connector와 Claude Code MCP 연결은 별도로 설정합니다. [Figma 실행 경로](references/figma/workflow.md)로 native 화면·상태·요청한 prototype을 만들고 readback합니다. Figma 결과를 코드로 옮기기 전에는 검토 가능한 결과를 제시하고 해당 revision의 명시적 허가를 받습니다. 코드 직접 구현 요청은 기존 앱에서 화면과 동작을 확인합니다. Desktop companion은 [수동 사용 설명](figma-plugin/README.md)을 따릅니다.
+
+대상 앱의 `DESIGN.md`와 DQ 판정은 [품질 계약](references/design-quality.md), 실제 증거와 명령은 [검증](references/verification.md)을 따릅니다. 감사에서는 기존 파일을 읽기 전용으로 검사합니다. [레퍼런스 검색 계약](references/reference-search.md)은 공급자 자격·출처·확인 수준과 차용 범위를 정하며, 설계 중 탐색은 사용자의 요청·동의 범위에서 진행합니다. 여러 단계 작업은 [작업 연속성](references/continuity.md)으로 이어 갑니다.
+
+[설계 구조](../../docs/architecture/design.md)와 [출처](UPSTREAM.md)를 참고하세요.
+
+## 검증
+
+저장소 루트에서 실행합니다.
 
 ```bash
-python3 scripts/validate_design_quality.py design-md <DESIGN.md>
-python3 scripts/validate_design_quality.py contract <contract.json>
-python3 scripts/validate_design_quality.py report <report.json> <contract.json>
-python3 scripts/validate_design_quality.py references <reference-set.json>
-python3 scripts/validate_operations_contracts.py evals ../../evals/operations-ui/cases.json
+python3 plugins/design/scripts/validate_design_quality.py design-md <DESIGN.md>
+python3 plugins/design/scripts/validate_design_quality.py contract <contract.json>
+python3 plugins/design/scripts/validate_design_quality.py report <report.json> <contract.json>
+python3 plugins/design/scripts/validate_design_quality.py references <reference-set.json>
+python3 plugins/design/scripts/validate_operations_contracts.py evals evals/operations-ui/cases.json
+python3 -B -m unittest discover -s plugins/design/tests -p 'test_*.py'
 ```
-
-[작업 선택과 산출물](references/delivery.md), [설계 구조](../../docs/architecture/design.md),
-[출처](UPSTREAM.md)를 참고하세요. Figma Desktop companion은 [수동 사용 설명](figma-plugin/README.md)을
-따릅니다. 여러 단계 작업은 [연속성 참고 자료](references/continuity.md)로 이어 갑니다.

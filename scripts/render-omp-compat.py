@@ -140,25 +140,19 @@ def omp_korean_quick_rules(data):
 
 
 def omp_research_readme(data):
-    """직접 adapter의 opt-in marker와 공급자 안내는 유지하고 설치·연속성 안내만 omp로 바꾼다."""
+    """직접 adapter의 opt-in marker와 공급자 안내는 유지하고 설치·연속성·저장소 검증 안내만 omp로 바꾼다."""
     text = data.decode("utf-8")
-    start = text.index("\n", text.index("# Research")) + 1
-    end = text.index("## 선택적 공급자 설정")
-    intro = ("\n단일 공개 웹 검색부터 여러 출처의 조사, 사실 확인, 문헌 검토와 외부 코드 사례 조사까지\n"
-             "담당하는 omp opt-in 패키지입니다. 특정 검색 공급자가 없어도 현재 host에 이미 제공된 web, browser,\n"
-             "connector와 로컬 자료를 사용해 가능한 범위에서 독립적으로 동작합니다.\n\n"
-             "```sh\nomp plugin install research@sonsu-marketplace\n```\n\n")
-    text = text[:start] + intro + text[end:]
-    managed = "Codex가 관리하는 공급자는"
-    if text.count(managed) != 1:
-        raise ValueError(f"research README: expected one {managed!r}")
-    text = text.replace(managed, "호스트가 관리하는 공급자는")
-    resume = text.index("## 컴팩션 후 작업 재개")
-    following = text.find("\n## ", resume)
-    text = (text[:resume] + "## 컴팩션 후 작업 재개\n\n"
-            "[작업 연속성 참고 자료](references/continuity.md)에 따라 omp 순정 todo와 세션 기록으로\n"
-            "진행을 관리합니다. 이 패키지는 hook, 연속성 실행기와 `.sonsu` 기록을 포함하지 않습니다.\n"
-            + (text[following:] if following != -1 else ""))
+    install = text.index("```bash\n", text.index("## 설치\n"))
+    install_end = text.index("```\n", install + len("```bash\n")) + len("```\n")
+    text = text[:install] + "```bash\nomp plugin install research@sonsu-marketplace\n```\n" + text[install_end:]
+    resume = text.index("\n\n", text.index("### 작업 연속성\n")) + 2
+    resume_end = text.index("\n\n", resume)
+    text = (text[:resume] + "[작업 연속성 참고 자료](references/continuity.md)에 따라 omp 순정 todo와 세션 기록으로 "
+            "진행을 관리합니다. 이 패키지는 hook, 연속성 실행기와 `.sonsu` 기록을 포함하지 않습니다." + text[resume_end:])
+    # Repository test commands do not apply to the installed package.
+    checks = text.index("## 검증\n")
+    following = text.find("\n## ", checks)
+    text = text[:checks].rstrip("\n") + "\n" + (text[following:] if following != -1 else "")
     return text.encode("utf-8")
 
 

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "prompting",
-  "manifest_sha256": "4ac1b87785074546c6c1b017a20ef3cf644de744234f26bf9ebe99f73af18752",
+  "manifest_sha256": "9c804959d59319e089ad6095a1864f63be2c043faa789a5e78f5e067ff8aa353",
   "problem": "프롬프트를 작성하거나 줄일 때 사용자의 목표·권한·제약이 누락되거나, 대상 제품의 입력 칸과 API 설정이 본문에 뒤섞이기 쉽습니다.",
   "outcome": "사용자가 지정한 모델·제품·언어를 보존하고 해당 입력 칸에 바로 복사할 수 있는 프롬프트와 필요한 별도 설정을 제공합니다.",
   "omp": {
@@ -15,20 +15,15 @@
   "skills": [
     {
       "path": "plugins/prompting/skills/prompt-builder/SKILL.md",
-      "sha256": "efbe1b3f167ec57ad50047fbc5131171c3a7dd3e2bba5600794b7e663c79d663",
-      "sources": {
-        "plugins/prompting/README.md": "9bfb64c037a9c3ff23d4632964696fa8f4dc9516a2a1c863347c7723a2468545",
-        "plugins/prompting/references/continuity.md": "0bc49b2beb756ac7ee12ca73eacf13f352fde982ad5fcc2f8de7f88fc7084328",
-        "plugins/prompting/skills/prompt-builder/references/claude-prompt-guidance.md": "64cdc2985df766b7582acaef507b636f4d15a3318101b139cecaaa164a1074f4",
-        "plugins/prompting/skills/prompt-builder/references/openai-prompt-guidance.md": "45b5e930b2e19a18d57e21d898d1515cac548cab37514dc14a391fe43027bbca"
-      },
+      "sha256": "c2cad09df769c6927b7e64a108a6d80d8187aecebcce5665b110722aaea446f0",
+      "sources": {},
       "problem": "장황하거나 모호한 프롬프트를 줄이는 과정에서 필수 성공 조건과 권한 경계가 사라지고, 제품별 설정을 자연어 지시로 잘못 표현할 수 있습니다.",
       "outcome": "대상 surface의 입력 칸별로 완결된 fenced block을 제공하고, 실제 사용에 필요한 API control만 별도로 반환합니다.",
       "ai_judgment": "요청의 필수 의미와 불필요한 설명을 구분하고, 산출물을 바꾸는 누락 정보만 질문합니다. 모델·제품별 차이 중 실제 동작에 영향을 주는 지시와 예시를 고르고 중복을 줄입니다.",
       "mechanical": [
         {
           "step": "내부 backtick 연속보다 긴 바깥 fence를 선택하고, fence가 닫혔는지와 줄 시작 위치를 확인합니다. 작은 출력 형식 점검이므로 별도 실행 도구 후보로 확대하지 않습니다.",
-          "location": "plugins/prompting/skills/prompt-builder/SKILL.md:69-81",
+          "location": "plugins/prompting/skills/prompt-builder/SKILL.md:18-28",
           "existing_tool": null,
           "proposal": "none"
         }
@@ -54,60 +49,9 @@
       ],
       "verdict": "keep",
       "verdict_target": "",
-      "reason": "독립적으로 요청되는 프롬프트 생성·재작성 작업이며, 실행 도구나 세션 기능은 복사 가능한 제품별 산출물을 대신하지 않습니다. 의미 보존과 입력 surface 적합성은 모델 판단이 중심이고 작은 fence 점검만으로 새 도구를 도입할 필요는 확인되지 않았습니다.",
-      "doc_findings": [
-        {
-          "kind": "structure",
-          "location": "plugins/prompting/skills/prompt-builder/SKILL.md:3",
-          "note": "description이 사용 시점·동의어·제외 요청을 세 문장으로 반복합니다. 실제 프롬프트 생성·재작성 시점 한 문장과 개념 설명과의 구분 문장으로 줄입니다."
-        },
-        {
-          "kind": "structure",
-          "location": "plugins/prompting/skills/prompt-builder/SKILL.md:10-27",
-          "note": "목적 뒤에 작업 연속성이 먼저 나오고 절차가 여러 비번호 제목으로 흩어져 있습니다. 번호 절차 뒤에 결과·예시·필요한 경계·참고 자료를 배치합니다."
-        },
-        {
-          "kind": "missing-example",
-          "location": "plugins/prompting/skills/prompt-builder/SKILL.md:65-84",
-          "note": "복사 단위와 fence 규칙을 상세히 설명하지만 입력 요청과 실제 반환 프롬프트의 예시가 없습니다. 단일 입력과 여러 입력 칸이 필요한 경우를 대비하면 출력 계약을 짧게 설명할 수 있습니다."
-        },
-        {
-          "kind": "negative-definition",
-          "location": "plugins/prompting/skills/prompt-builder/SKILL.md:25",
-          "note": "Engineering에서 필수 호출하지 않는다는 부정형 정의가 절차 사이에 끼어 있습니다. 프롬프트 산출물을 요청한 경우에 선택한다는 행동형 호출 조건으로 모읍니다."
-        },
-        {
-          "kind": "duplicate-rule",
-          "location": "plugins/prompting/skills/prompt-builder/references/openai-prompt-guidance.md:63-71",
-          "note": "규칙 중복 제거와 성공 조건·권한 보존 점검이 SKILL.md:53-63과 반복됩니다. 공통 작성·축약 점검은 스킬에 두고 reference에는 OpenAI 제품별 차이만 남깁니다."
-        },
-        {
-          "kind": "history",
-          "location": "plugins/prompting/skills/prompt-builder/references/claude-prompt-guidance.md:3",
-          "note": "본문 첫 줄의 기준 날짜는 출처 기준 정보입니다. 현재 공식 문서를 확인하는 행동은 유지하고 날짜·출처의 관리 위치를 UPSTREAM.md로 분리합니다."
-        },
-        {
-          "kind": "history",
-          "location": "plugins/prompting/README.md:16-19",
-          "note": "플러그인 소개에 OpenAI 참고 문서의 snapshot 날짜가 노출됩니다. README에는 언제 reference를 읽는지만 남기고 출처 기준은 출처 문서에서 관리합니다."
-        },
-        {
-          "kind": "history",
-          "location": "plugins/prompting/README.md:33-34",
-          "note": "standalone 복사본을 discovery 경로에서 제외하는 이전 구성 이동 절차가 설치 설명에 섞여 있습니다. migration 가이드로 옮깁니다."
-        },
-        {
-          "kind": "structure",
-          "location": "plugins/prompting/README.md:6-31",
-          "note": "스킬 소개와 모델 설명 뒤에 설치가 나오고, 스킬 표·사용 예시·검증 명령이 없습니다. 소개·설치·스킬 표·예시·필요한 구성·검증 순서로 정리합니다."
-        },
-        {
-          "kind": "history",
-          "location": "plugins/prompting/references/continuity.md:28-32",
-          "note": "이전 공개 스킬 이름과 통합된 플러그인 기록을 처리하는 지침은 현재 작업 절차와 분리해 migration 가이드에서 관리합니다."
-        }
-      ],
-      "example": "missing"
+      "reason": "독립적으로 요청되는 프롬프트 생성·재작성 작업이며, 실행 도구나 세션 기능은 복사 가능한 제품별 산출물을 대신하지 않습니다. 의미 보존과 입력 surface 적합성은 모델 판단이 중심이고 작은 fence 점검만으로 새 도구를 도입할 필요는 확인되지 않았습니다. SKILL.md는 절차·결과·예시 구조로 정리했고 OpenAI reference에는 제품별 차이만 남겼으며 출처 기준은 UPSTREAM.md로 옮겼습니다.",
+      "doc_findings": [],
+      "example": "present"
     }
   ],
   "scripts": []

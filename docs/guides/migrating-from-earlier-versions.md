@@ -1,6 +1,6 @@
 # 이전 버전에서 이동하기
 
-이전 omp 구성, Career나 `fluent-languages`를 설치한 사용자를 위한 절차입니다. 처음 설치한다면 [설치 안내](../../README.md#설치)를 따르세요.
+이전 omp 구성, Career, 통합 전 디자인 플러그인이나 `fluent-languages`를 설치한 사용자를 위한 절차입니다. 처음 설치한다면 [설치 안내](../../README.md#설치)를 따르세요.
 
 ## 이전 omp 구성에서 이동
 
@@ -40,6 +40,19 @@ Career는 이 마켓플레이스에서 더 이상 배포하지 않습니다([ADR
 codex plugin remove career@sonsu-marketplace
 claude plugin uninstall career@sonsu-marketplace
 omp plugin uninstall career@sonsu-marketplace
+```
+
+## 통합 전 디자인 플러그인에서 이동
+
+`interface-design`, `operations-ui`, `figma-workflow`를 사용 중이라면 `design@sonsu-marketplace`를
+설치하고, 진행 중인 작업 기록을 [디자인 기록 이전 절차](../../plugins/design/references/migration.md)로
+확인한 뒤 설치되어 있던 이전 플러그인만 제거합니다. 저장된 DQ contract/report의
+`profile: "interface-design"`, `"operations-ui"`, `"figma-workflow"`는 호환성 값이므로 변경하지 않습니다.
+
+```sh
+codex plugin remove interface-design@sonsu-marketplace
+codex plugin remove operations-ui@sonsu-marketplace
+codex plugin remove figma-workflow@sonsu-marketplace
 ```
 
 ## Engineering 리뷰 진입점 변경

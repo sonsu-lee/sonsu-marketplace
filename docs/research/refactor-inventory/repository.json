@@ -19,7 +19,7 @@
     },
     {
       "path": "scripts/render-claude-compat.py",
-      "sha256": "ad71d1b471d806e89a517223ce9ed1dc60529fdd584103cd299fe87789691f8e",
+      "sha256": "fc8f509563dbba698529664a77c101a5be417be99c496392c0f514fa111789b0",
       "role": "Codex 카탈로그·manifest에서 Claude 카탈로그·manifest와 Memory Manager·Worklog의 호스트 전용 패키지를 생성한다.",
       "verdict": "keep",
       "verdict_target": "",
@@ -43,7 +43,7 @@
     },
     {
       "path": "scripts/render-omp-compat.py",
-      "sha256": "93134ddd17bcf2d157c913d784b7af3e384f2cf78c0722b2d801c12d43e03466",
+      "sha256": "a7ba3a49fd7184826f8647321ba7258f084576e1d35deb914af5b48c288e0018",
       "role": "omp 기본·opt-in 카탈로그를 만들고 독립 패키지의 스킬·도구·라이선스·호스트 지침과 허용된 runtime extension을 생성한다.",
       "verdict": "keep",
       "verdict_target": "",

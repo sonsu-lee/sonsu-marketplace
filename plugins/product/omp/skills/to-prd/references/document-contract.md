@@ -17,8 +17,10 @@ lite와 전체 PRD 파일 모두 저장소의 기존 metadata 관례를 따른�
 
 ## 근거와 승인
 
-- 코드와 테스트는 현재 구현의 근거이지 제품 의도나 승인 근거가 아니다.
+- 코드와 테스트는 현재 구현의 근거로 사용하고, 제품 의도·승인·출시는 각각의 근거로 확인한다.
 - 승인 요건과 상태 어휘는 [승인 기준](../../../references/approval.md)을 따른다.
+- 최소 제품 맥락은 준비됐지만 중요한 미결정이 남으면 `status: draft`, `workflow_status: conditional`로 기록한다.
+- 권한 있는 사람이 정확한 리비전과 범위를 승인했을 때 `status: stable`, `workflow_status: approved`로 기록한다.
 - `workflow_status: approved`로 기록하는 lite와 전체 PRD에는 확인된 승인 주체·권한 근거·범위·
   승인 리비전·확인 시점·승인 근거를 문서의 `승인 근거` 절에 보존한다. lite는 짧은 문단이나 목록이면
   충분하며 전체 PRD의 다른 절을 추가할 필요는 없다. 기존 저장소에 대응 metadata 필드가 있으면
