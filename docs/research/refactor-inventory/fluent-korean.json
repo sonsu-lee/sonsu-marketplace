@@ -53,10 +53,10 @@
     },
     {
       "path": "plugins/fluent-korean/skills/fluent-korean/SKILL.md",
-      "sha256": "e8f3e1844937964b81ad7ddc5981760ed7cfa7611a0c0daa31c549b4b8dc49d2",
+      "sha256": "864147d291c00f947d7390c7ebf43235b1988ae88cb3e0352538bd4e6da3bd99",
       "sources": {
         "plugins/fluent-korean/skills/fluent-korean/references/ai-tell-taxonomy.md": "bce04483eff12a94e7e3570395f22813a164fd9d797528626d16896950fe49ab",
-        "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md": "df150338873906d3c1785d0b15b016053fbfb3ee521e7cb55a34a2d19352811b",
+        "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md": "7541e9a57efe9f9b7cfbb1a1c4ae036220d20127a585fa0640feb064198406d3",
         "plugins/fluent-korean/skills/fluent-korean/references/quick-rules.footer.md": "a5468d492216c90b349bbe0c74926b6660ca28bd946b8d8c470d1ed8b419cbf3"
       },
       "problem": "한국어 파일 윤문에서 과도한 재작성·서법 손실·각주·수치 훼손을 통제하면서 필요한 수준의 진단과 검증을 수행해야 합니다.",
@@ -65,43 +65,43 @@
       "mechanical": [
         {
           "step": "텍스트를 정규화하고 정량 지표·route_hint 및 필요 시 청크 manifest를 생성합니다.",
-          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:28-36",
+          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:29-37",
           "existing_tool": "plugins/fluent-korean/scripts/prepare_monolith_input.py",
           "proposal": "none"
         },
         {
           "step": "manifest 순서·원문 해시·구간 연결을 확인하고 윤문 청크와 각주 passthrough를 재조립합니다.",
-          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:79-92",
+          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:80-93",
           "existing_tool": "plugins/fluent-korean/scripts/reassemble_chunks.py",
           "proposal": "none"
         },
         {
           "step": "짝 문장에서 사라진 의무·유보를 보수적으로 원문에 맞춰 복원합니다.",
-          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:94-101",
+          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:95-102",
           "existing_tool": "plugins/fluent-korean/scripts/restore_modality.py",
           "proposal": "none"
         },
         {
           "step": "새로 작성된 문장의 연결어미 쉼표를 정리하며 진단이 지정한 경우에만 전체 문장 모드를 사용합니다.",
-          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:102-104",
+          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:103-105",
           "existing_tool": "plugins/fluent-korean/scripts/strip_injected_commas.py",
           "proposal": "none"
         },
         {
           "step": "변경률·목표 달성·대구·보존·서법 축을 계산하고 게이트 종료 코드에 따라 분기합니다.",
-          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:105-120",
+          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:106-121",
           "existing_tool": "plugins/fluent-korean/scripts/verify_gates.py",
           "proposal": "none"
         },
         {
           "step": "셸 `mkdir` 반복으로 날짜·일련번호·태그 run 디렉터리를 원자적으로 할당하고, 원문은 파일 도구로 `01_input.txt`에 저장한 뒤 `--run-dir`로 입력 도구를 실행합니다.",
-          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:18-27",
+          "location": "plugins/fluent-korean/skills/fluent-korean/references/file-workflow.md:19-28",
           "existing_tool": "plugins/fluent-korean/scripts/prepare_monolith_input.py",
           "proposal": "none"
         },
         {
           "step": "taxonomy로부터 quick·diagnosis 규칙을 생성하고 --check로 최신 여부를 확인합니다.",
-          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:45",
+          "location": "plugins/fluent-korean/skills/fluent-korean/SKILL.md:46",
           "existing_tool": "plugins/fluent-korean/scripts/build_quick_rules.py",
           "proposal": "none"
         }
