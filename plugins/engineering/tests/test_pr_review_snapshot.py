@@ -199,6 +199,11 @@ class PrReviewSnapshotTest(unittest.TestCase):
         self.assertIn("disagree", data["error"])
         self.assertEqual(self.calls(), [])
 
+        self.gh([self.pr()])
+        result, data = self.run_tool("capture", URL, "--repository", "GitHub.com/Acme/Catalog")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(data["snapshot"]["repository"], "acme/catalog")
+
         self.gh([self.pr(base_repo="acme/other")])
         result, data = self.run_tool("capture", URL)
         self.assertEqual(result.returncode, 2)
