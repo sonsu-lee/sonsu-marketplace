@@ -21,7 +21,7 @@ PERSON = {
     "second": {"you", "your", "yours", "yourself", "yourselves"},
     "third": {"he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves"},
 }
-HEDGES = re.compile(r"\b(?:i think|probably|sort of|maybe)\b", re.IGNORECASE)
+HEDGES = re.compile(r"\b(?:i\s+think|probably|sort\s+of|maybe)\b", re.IGNORECASE)
 PUNCTUATION = {"parentheses": "()", "colons": ":", "semicolons": ";", "em_dashes": "—", "en_dashes": "–", "hyphens": "-", "questions": "?", "exclamations": "!", "commas": ",", "full_stops": "."}
 
 

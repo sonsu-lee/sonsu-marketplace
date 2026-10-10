@@ -16,6 +16,8 @@ import re
 import subprocess
 
 
+GH_TIMEOUT = 30
+COMMENT_ID = re.compile(r"[1-9][0-9]*")
 METADATA_FIELDS = (
     "number,title,url,state,isDraft,baseRefName,baseRefOid,headRefName,headRefOid,"
     "headRepository,headRepositoryOwner,isCrossRepository,mergeStateStatus,reviewDecision"
@@ -31,7 +33,7 @@ THREADS_QUERY = """query InspectThreads($owner:String!,$name:String!,$number:Int
 COMMENTS_QUERY = """query InspectComments($id:ID!,$cursor:String) {
   node(id:$id) { ... on PullRequestReviewThread {
     comments(first:100,after:$cursor) {
-      nodes { id databaseId url body createdAt updatedAt author { login }
+      nodes { id fullDatabaseId url body createdAt updatedAt author { login }
         commit { oid } originalCommit { oid } pullRequestReview { id } }
       pageInfo { hasNextPage endCursor }
     }
@@ -91,10 +93,12 @@ class Collector:
 
     def run(self, args):
         try:
-            return subprocess.run(["gh", *args], env=self.env, capture_output=True,
-                                  text=True, errors="replace", check=False)
+            return subprocess.run(["gh", *args], env=self.env, stdin=subprocess.DEVNULL, capture_output=True,
+                                  text=True, errors="replace", timeout=GH_TIMEOUT, check=False)
         except OSError as exc:
             return subprocess.CompletedProcess(["gh", *args], 127, "", str(exc))
+        except subprocess.TimeoutExpired:
+            return subprocess.CompletedProcess(["gh", *args], 124, "", f"gh: timed out after {GH_TIMEOUT}s")
 
     def request(self, args, result, location, graphql=False):
         process = self.run(args)
@@ -217,12 +221,12 @@ class Collector:
                 observations.append(comments)
                 if self.args.include_reactions:
                     for comment in comments["items"]:
-                        comment_id = comment.get("databaseId")
-                        if isinstance(comment_id, int) and comment_id > 0:
+                        comment_id = comment.get("fullDatabaseId")
+                        if isinstance(comment_id, str) and COMMENT_ID.fullmatch(comment_id):
                             reactions = self.rest(f"{self.prefix}/pulls/comments/{comment_id}/reactions", head)
                         else:
                             reactions = observation(head, listing=True)
-                            error(reactions, "response", "missing comment databaseId for reactions")
+                            error(reactions, "response", "missing comment fullDatabaseId for reactions")
                             finish(reactions)
                         comment["reactions"] = reactions
                         observations.append(reactions)
@@ -255,7 +259,7 @@ class Collector:
                   "scope": "open" if self.args.open else "specified", "queried_at": now(),
                   "completed_at": None, "status": "complete", "count": 0, "pull_requests": []}
         auth = observation()
-        process = self.run(["auth", "status", "--hostname", self.args.host])
+        process = self.run(["auth", "status", "--active", "--hostname", self.args.host])
         if process.returncode:
             message = next((line.strip() for line in process.stderr.splitlines() if line.strip()),
                            f"gh exited {process.returncode}")

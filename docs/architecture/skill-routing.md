@@ -42,6 +42,7 @@ Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering
 | `using-git-worktrees` | `worktree` |
 | `finishing-a-development-branch` | `finish-branch` |
 | `writing-skills` | `write-skill` |
+| `review-pr` | `review` (PR 경로의 심층·다중 요청 옵션) |
 | `using-engineering-skills`, `requesting-code-review`, `verification-before-completion`, `dispatching-parallel-agents`, `subagent-driven-development` | README 라우팅과 `references/`의 공통 절차 |
 
 Workflow의 `git-workflow`는 `branch`, `commit`, `push`, `review-commit`으로 나뉘었습니다.
@@ -117,10 +118,10 @@ Figma가 정본이면 native 화면·prototype을 완성하고 사용자에게 �
 담당합니다. Mobbin·Refero 같은 전용 MCP나 Research 플러그인이 없어도 host 웹 검색으로
 대체하거나 `no_verified_match`를 보고하며, MCP 서버나 플러그인을 자동 설치하지 않습니다.
 
-PR URL만으로 심층 리뷰를 시작하지 않고, 일반 리뷰와 명시적인 심층·다중 리뷰를 구분합니다.
-리뷰 의도는 요청과 기존 문맥에서 확인하며, 문맥 없는 URL 단독 입력에 리뷰·게시를 추가하지 않습니다.
-두 PR 리뷰 경로 모두 리뷰어별 별도 세션·워크트리에서 병렬 검토한 뒤 원인별로 중복을 제거해
-해당 PR에 `COMMENT` 리뷰를 게시합니다. 로컬 전용·게시 금지 요청은 우선합니다.
+PR URL만으로 심층 리뷰를 시작하지 않습니다. PR 리뷰는 `review`의 PR 경로 하나이며 심층·다중은
+그 경로의 요청 옵션입니다. 리뷰 의도는 요청과 기존 문맥에서 확인하며, 문맥 없는 URL 단독 입력에
+리뷰·게시를 추가하지 않습니다. 라운드마다 새 세션·워크트리의 검토자(기본 1명, 사용자 지정 인원은
+병렬)가 검토한 뒤 원인별로 중복을 제거해 해당 PR에 `COMMENT` 리뷰를 게시합니다. 로컬 전용·게시 금지 요청은 우선합니다.
 [PR 실행·게시 계약](../../plugins/engineering/references/pr-review-execution.md)이 SHA 고정,
 Codex 일시 오류 재시도, 기존 댓글 중복과 게시 결과 재조회를 소유합니다.
 

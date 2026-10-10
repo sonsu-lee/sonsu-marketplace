@@ -4,14 +4,15 @@
 
 ## 입력과 경로
 
-스크립트는 설치 루트의 절대 경로로, `_workspace/` 데이터는 사용자 cwd 기준으로 지정한다. `${CLAUDE_SKILL_DIR}`는 이 스킬의 디렉터리다. omp에서는 스킬 호출 메시지의 `Skill directory` 또는 `realpath skill://fluent-korean` 결과를 이 값으로 쓰고, `Agent` 도구 대신 같은 이름의 agent를 `task` 도구로 호출한다. 물리적 경로에서 `.claude-plugin/`까지 올라가 설치 루트를 찾는다.
+스크립트는 설치 루트의 절대 경로로, `_workspace/` 데이터는 사용자 cwd 기준으로 지정한다. `<skill-dir>`는 [스킬 절차](../SKILL.md#절차) 4에 적힌 이 스킬 디렉터리의 절대 경로다. 이 문서는 호스트가 경로를 치환하지 않으므로 명령의 `<skill-dir>`를 그 값으로 바꿔 실행한다. omp에서는 스킬 호출 메시지의 `Skill directory` 또는 `realpath skill://fluent-korean` 결과를 이 값으로 쓰고, `Agent` 도구 대신 같은 이름의 agent를 `task` 도구로 호출한다. 물리적 경로에서 `.claude-plugin/`까지 올라가 설치 루트를 찾는다.
 
 ```bash
-SKILL_ROOT="$(d="$(cd -P "${CLAUDE_SKILL_DIR:-$(realpath skill://fluent-korean)}" && pwd)"; \
-  while [ "$d" != / ] && [ ! -d "$d/.claude-plugin" ]; do d="$(dirname "$d")"; done; echo "$d")"
+SKILL_ROOT="$(d="$(cd -P '<skill-dir>' 2>/dev/null && pwd)"; \
+  while [ -n "$d" ] && [ "$d" != / ] && [ ! -d "$d/.claude-plugin" ]; do d="$(dirname "$d")"; done; \
+  [ -n "$d" ] && [ -d "$d/.claude-plugin" ] && echo "$d")"
 ```
 
-`${SKILL_ROOT}/scripts/prepare_monolith_input.py`의 존재를 확인한다. 찾지 못하면 shim·게이트 미확인 상태를 사용자에게 알리고, 정량 검증 통과 대신 확인할 수 있는 윤문 결과와 한계만 보고한다.
+`${SKILL_ROOT}/scripts/prepare_monolith_input.py`의 존재를 확인한다. `SKILL_ROOT`가 비었거나 파일을 찾지 못하면 shim·게이트 미확인 상태를 사용자에게 알리고, 정량 검증 통과 대신 확인할 수 있는 윤문 결과와 한계만 보고한다.
 
 1. 입력을 읽고 본문 바깥의 챗봇 인사·면책·꼬리 문장만 분리한다. 본문 안에 자연스럽게 녹아 있는 표현은 유지한다.
 2. 첫 300자로 장르를 추정하되 사용자 지정을 우선한다. `--genre`는 칼럼 `column`, 리포트 `report`, 블로그 `blog`, 공적·기타 `essay`, 초록 `abstract`다.
@@ -32,7 +33,7 @@ SKILL_ROOT="$(d="$(cd -P "${CLAUDE_SKILL_DIR:-$(realpath skill://fluent-korean)}
    python3 "${SKILL_ROOT}/scripts/prepare_monolith_input.py" --run-dir "_workspace/${run_id}" --genre "$genre"
    ```
 
-   출력된 `run_id`를 이후 모든 명령의 run 디렉터리 이름으로 쓴다. `01_input.txt`는 정규화된 비교 기준 원문, `00_metrics.json`은 점수·`route_hint`, `01_input_with_metrics.txt`는 모델 입력이다. `sanitize_text.py`가 제로폭·bidi·특수공백·한글 NFD를 정규화하고 변경 시 `00_sanitize.json`을 남긴다. `--no-sanitize`는 이 처리를 끈다. 정규화는 문자 기준을 맞추는 작업이며 AI 워터마크 제거를 의미하지 않는다.
+   3에서 만든 `run_id`를 이후 모든 명령의 run 디렉터리 이름으로 쓴다. shim은 `run_dir=` 줄로 실제 경로를 출력한다. `01_input.txt`는 정규화된 비교 기준 원문, `00_metrics.json`은 점수·`route_hint`, `01_input_with_metrics.txt`는 모델 입력이다. `sanitize_text.py`가 제로폭·bidi·특수공백·한글 NFD를 정규화하고 변경 시 `00_sanitize.json`을 남긴다. `--no-sanitize`는 이 처리를 끈다. 정규화는 문자 기준을 맞추는 작업이며 AI 워터마크 제거를 의미하지 않는다.
 5. metrics 실패 시 `00_metrics.error`와 점수 없는 입력을 사용하고 `standard`로 진행한다. `--run-dir`과 `--diagnosis` 상대 경로는 cwd 기준이다. `--baseline`은 기준선 파일을 명시적으로 바꿀 때만 쓴다.
 
 ## 경로 선택
@@ -56,8 +57,8 @@ fluent-korean — 경로: {light|standard|heavy} ({route_hint|사용자 지정})
 
 | 역할 | 입력 | 결과 |
 |---|---|---|
-| `humanize-diagnostician` | `input_path=01_input_with_metrics.txt`, `taxonomy_path=${CLAUDE_SKILL_DIR}/references/diagnosis-rules.md` | `02_diagnosis.md`: 지배 패턴 3~6개(ID·근거·처방), 장르·격식·보존 지침 |
-| `humanize-monolith` | `input_path`, `quick_rules_path=${CLAUDE_SKILL_DIR}/references/quick-rules.md`, `genre_hint`, 강도 | `final.md`: 본문과 `HUMANIZE-SUMMARY` 주석 |
+| `humanize-diagnostician` | `input_path=01_input_with_metrics.txt`, `taxonomy_path=<skill-dir>/references/diagnosis-rules.md` | `02_diagnosis.md`: 지배 패턴 3~6개(ID·근거·처방), 장르·격식·보존 지침 |
+| `humanize-monolith` | `input_path`, `quick_rules_path=<skill-dir>/references/quick-rules.md`, `genre_hint`, 강도 | `final.md`: 본문과 `HUMANIZE-SUMMARY` 주석 |
 | `humanize-finalizer` | `original_path=01_input.txt`, `rewritten_path=final.md`, 있으면 `diagnosis_path=02_diagnosis.md` | `final_pre_finalize.md` 백업, 국소 보정한 `final.md`, `09_finalize.json` |
 
 위 파일명은 현재 run 디렉터리 아래의 실제 경로로 전달한다. 진단은 span 개수보다 글을 지배하는 표현을 판단한다. finalizer는 원문·윤문본을 직접 대조해 의미 보존 15항과 잔존·과윤문을 검사하고 문제 구간만 고친다.

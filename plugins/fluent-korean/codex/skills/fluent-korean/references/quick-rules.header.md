@@ -1,6 +1,6 @@
 # Quick Rules — Monolith Fast Path 전용
 
-<!-- build_quick_rules.py가 이 header와 footer 및 ai-tell-taxonomy.md에서 quick-rules.md를 생성한다. 공통 규칙은 skills/fluent-korean/references에서 수정하고 같은 명령으로 Codex 배포 사본을 갱신한다. -->
+<!-- build_quick_rules.py가 이 header와 footer 및 ai-tell-taxonomy.md에서 quick-rules.md를 생성한다. 공통 규칙은 skills/fluent-korean/references에서 수정해 재생성하고, 바뀐 공통 reference를 codex/skills/fluent-korean/references로 복사한다. -->
 
 `humanize-monolith` 에이전트가 한 콜에서 탐지·윤문·자체검증을 끝낼 때 읽는다. [분류 체계](ai-tell-taxonomy.md)의 `quick: true` 패턴을 정의·처방 한 줄로 생성하며 ID를 그대로 사용한다.
 

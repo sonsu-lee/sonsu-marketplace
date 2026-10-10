@@ -83,6 +83,13 @@ class ScoreTest(unittest.TestCase):
                 data = self.score()
                 self.assertEqual((data["score"], data["band"]), (expected, band))
 
+    def test_long_document_exact_boundary_keeps_upper_band(self):
+        # 100 - 75.5 * 1000 / 1510 is exactly 50; rounding 1000 / 1510 first gives 49.999...
+        self.document.write_text("あ" * 1510, encoding="utf-8")
+        self.save_lint(["critical"] * 9 + ["info"] * 7)
+        data = self.score()
+        self.assertEqual((data["score"], data["band"]), (50, "要修正"))
+
     def test_mechanical_floor_and_negative_adjustment(self):
         self.save_lint(["critical"] * 100)
         data = self.score("--mode", "full", "--adjustment", "-15")

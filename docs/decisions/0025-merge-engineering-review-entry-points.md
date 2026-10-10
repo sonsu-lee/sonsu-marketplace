@@ -17,6 +17,20 @@ SDD 리뷰 패키지도 `sdd-review-package` wrapper가 계획 파일 인수와 
 - PR의 host·repository·base/head·merge base·고정 SHA·기존 리뷰 ID는 읽기 전용 snapshot 도구로 수집하고 게시 전후 SHA를 대조한다. 전체 diff 고정은 계속 `review-package`가 맡는다.
 - `sdd-review-package`를 제거한다. 호출자는 `review-package range BASE HEAD [OUTFILE]`을 직접 호출하고, 계획별 임시 위치가 필요하면 `sdd-workspace`가 만든 경로를 OUTFILE로 넘긴다.
 
+## 대안
+
+- **`review-pr`를 별칭으로 유지**: 기존 호출은 그대로 동작하지만 description이 겹치는 두 스킬이
+  같은 PR 요청을 두고 경쟁한다. 옛 호출명은 공개 별칭으로 남기지 않는다는 라우팅 원칙과도 맞지 않는다.
+- **`sdd-review-package` wrapper 유지**: 계획 경로에서 기본 출력 위치를 정해 주지만 정본
+  `review-package`와 별도로 인자·출력 규칙을 맞춰야 하고, 같은 일은 `sdd-workspace` 경로를 넘기는 한 줄로 대신할 수 있다.
+
 ## 결과
 
 PR 리뷰는 `engineering:review` 한 진입점에서 시작하며 `$review-pr` 직접 호출은 `$review`로 바뀐다. 라우팅 표와 평가 사례도 `engineering:review`를 기대한다. 이전 진입점의 구현과 경위는 Git 기록에서 확인한다.
+
+공개 스킬과 스크립트를 제거하는 비호환 변경이므로 Engineering 버전을 4.0.0으로 올린다. 기존 활성 연속성 기록에 저장된 `review-pr` 이름은 계속 읽을 수 있다.
+
+## 다시 볼 때
+
+- PR 리뷰의 기본 인원·격리·게시 계약이 PR 외 리뷰와 다른 방향으로 갈라져 한 스킬 안에서 분기가 커질 때
+- 라우팅 평가에서 심층·다중 PR 리뷰 요청이 `review`로 선택되지 않는 사례가 반복될 때

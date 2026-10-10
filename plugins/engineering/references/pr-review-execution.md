@@ -73,7 +73,7 @@ python3 "$REVIEW_SCRIPTS/pr_review_snapshot.py" compare --against "$PRE_POST" --
 | `schema_version`, `status` | 현재 schema는 `1`; `ok`, `changed`, `blocked`로 수집 상태를 구분 |
 | `snapshot.host`, `repository`, `number`, `url`, `state` | GitHub host·base 저장소·PR 식별자와 `open`/`closed`/`merged` 상태 |
 | `snapshot.base`, `head` | 각각 `{sha, ref, repository}`; fork의 head repository와 base repository를 구분하며 삭제된 head repository는 `null` |
-| `snapshot.merge_base`, `fixed_shas` | 검증한 정확한 공통 조상과 고정 `{base, head, merge_base}` SHA; 로컬 working tree는 포함하지 않음 |
+| `snapshot.merge_base`, `fixed_shas` | 검증한 정확한 공통 조상과 고정 `{base, head, merge_base}` SHA; 로컬 working tree는 포함하지 않음. 닫힌 PR이거나 비교 대상과 base/head SHA가 다르면 로컬 이력을 확인하지 않으므로 `merge_base`는 `null`이고 `fixed_shas`에는 원격 base/head SHA만 있음 |
 | `snapshot.existing_review_ids`, `existing_inline_comment_ids` | 모든 페이지에서 수집한 ID 목록; 본문·작성자·해결 상태를 판정하는 자료는 아님 |
 | `snapshot.collection_stable`, `observed_after` | metadata를 수집 앞뒤로 읽어 같았는지와 마지막 관측; 원자적 조회나 이후 불변을 보증하지 않음 |
 | `comparison` | `unchanged`, `changed_fields`, `before`/`after` state·fixed SHA, `new_review_ids`, `new_inline_comment_ids` |
