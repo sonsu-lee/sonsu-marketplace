@@ -6,7 +6,7 @@ PR 상태 근거는 [`scripts/inspect_prs.py`](../scripts/inspect_prs.py)로 수
 
 1. host와 `OWNER/REPO`는 사용자가 준 URL, 그다음 현재 저장소의 remote에서 정한다. GitHub.com·`origin`·`main`을 기본값으로 쓰지 않는다. 후보가 여럿이면 사용자에게 묻는다.
 2. 사용자가 PR을 지정하지 않았을 때만 현재 branch의 PR을 `gh pr list --repo <host>/<owner>/<repo> --head <현재 branch> --state open --json number,headRepositoryOwner,isCrossRepository`로 찾는다. `--head`는 branch 이름만 비교하므로 `headRepositoryOwner.login`이 현재 branch를 push한 저장소의 owner와 같은 항목이 정확히 하나일 때만 그 번호를 쓰고, 없거나 여럿이면 후보를 보고하고 사용자에게 묻는다. 다른 저장소의 같은 번호로 바꾸지 않는다.
-3. 수집기는 `gh auth status --hostname <host>`로 인증 상태만 확인한다. 로그인·계정 전환·설치는 사용자에게 맡긴다.
+3. 수집기는 `gh auth status --active --hostname <host>`로 활성 계정의 인증 상태만 확인한다. 같은 host의 비활성 계정 실패는 판정에 넣지 않는다. 로그인·계정 전환·설치는 사용자에게 맡긴다.
 
 ## 실행
 
@@ -29,7 +29,7 @@ PR 상태 근거는 [`scripts/inspect_prs.py`](../scripts/inspect_prs.py)로 수
 
 - PR 메타데이터: `gh pr view --json`의 번호, URL, 상태, Draft, base/head 이름과 SHA, head 저장소, `mergeStateStatus`, `reviewDecision`
 - REST 목록: reviews, 처음 읽은 head의 check runs(`filter=latest`)와 commit statuses, 선택한 반응. `per_page=100`으로 짧은 페이지가 나올 때까지 읽는다.
-- GraphQL: `reviewThreads`와 thread별 `comments`. `hasNextPage`가 false가 될 때까지 `endCursor`를 따라간다.
+- GraphQL: `reviewThreads`와 thread별 `comments`. `hasNextPage`가 false가 될 때까지 `endCursor`를 따라간다. 댓글 반응은 64-bit ID인 `fullDatabaseId`로 조회한다.
 - 마지막 `headRefOid` 재조회
 
 ## 출력
@@ -45,7 +45,7 @@ PR 상태 근거는 [`scripts/inspect_prs.py`](../scripts/inspect_prs.py)로 수
 | `queried_at`, `completed_at` | UTC 시작·종료 시각 |
 | `pages` | 성공한 페이지 수 |
 | `items`/`data` | 수집한 원본 값 |
-| `errors[]` | `kind`(`prerequisite`, `command`, `response`, `graphql`, `pagination`), `message`, 실패 위치(`page`, `cursor`), `exit_code`·`details` |
+| `errors[]` | `kind`(`prerequisite`, `command`, `response`, `graphql`, `pagination`), `message`, 실패 위치(`page`, `cursor`), `exit_code`·`details`. `gh` 호출이 30초 안에 끝나지 않으면 `exit_code` 124인 `command` 오류로 남기고 다음 조회를 계속한다. |
 
 `complete`이면서 `items`가 빈 경우만 빈 목록이다. `failed`나 `partial`의 `items`는 확인한 범위일 뿐이다.
 
