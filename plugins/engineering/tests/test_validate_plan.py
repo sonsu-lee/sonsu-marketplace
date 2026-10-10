@@ -85,6 +85,18 @@ class ValidatePlan(unittest.TestCase):
         dangling = {(e["code"], e["message"].split()[-1]) for e in report["errors"] if e["code"].startswith("dangling")}
         self.assertEqual(dangling, {("dangling_flow", "F2"), ("dangling_flow", "F5"), ("dangling_task", "9")})
 
+    def test_references_with_korean_particles_and_between_code_spans(self):
+        text = plan(
+            ["FLOW F1: 첫째"],
+            ["| F1 | - | a → b | x | Task 1; Task 8에 의존 | F5와 같이 검증 |"],
+            [task(1, "F1", ("Modify", "src/app.py"))],
+            "F9에서 만든 결과는 Task 7의 입력이다. `export()`를 호출한다. F6 이후 `render`를 쓴다.")
+        code, report = self.run_plan(text)
+        self.assertEqual(code, 1)
+        dangling = {(e["code"], e["message"].split()[-1]) for e in report["errors"] if e["code"].startswith("dangling")}
+        self.assertEqual(dangling, {("dangling_flow", "F5"), ("dangling_flow", "F6"), ("dangling_flow", "F9"),
+                                    ("dangling_task", "7"), ("dangling_task", "8")})
+
     def test_missing_and_inconsistent_mappings(self):
         text = plan(
             ["FLOW F1: 첫째", "FLOW F2: 둘째"],
@@ -131,6 +143,27 @@ class ValidatePlan(unittest.TestCase):
         self.assertIn(("invalid_path", "link.py"), errors)
         self.assertIn(("not_a_file", "src"), errors)
         self.assertNotIn("src/new.py", [path for _, path in errors])
+
+    def test_later_task_may_modify_file_created_by_earlier_task(self):
+        text = plan(
+            ["FLOW F1: 첫째"],
+            ["| F1 | - | a → b | x | Task 1, Task 2 | y |"],
+            [task(1, "F1", ("Create", "src/new.py")), task(2, "F1", ("Modify", "src/new.py"))])
+        code, report = self.run_plan(text)
+        self.assertEqual((code, report["errors"]), (0, []))
+
+    def test_files_after_sibling_heading_do_not_join_previous_task(self):
+        text = plan(
+            ["FLOW F1: 첫째"],
+            ["| F1 | - | a → b | x | Task 1 | y |"],
+            [task(1, "F1", ("Modify", "src/app.py")),
+             "#### 세부 메모\n**Files:**\n- Verify: `tests/test_app.py`",
+             "### 남은 결정\n**Files:**\n- Verify: `src/app.py`"])
+        code, report = self.run_plan(text)
+        self.assertEqual(code, 1)
+        self.assertEqual(self.codes(report), ["files_without_task"])
+        self.assertEqual([(f["task"], f["path"]) for f in report["files"]],
+                         [("1", "src/app.py"), ("1", "tests/test_app.py")])
 
     def test_input_errors_exit_two(self):
         missing_root = self.root.parent / "absent"
