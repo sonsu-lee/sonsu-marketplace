@@ -15,7 +15,7 @@ codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
 # 一つだけインストール
 codex plugin add engineering@sonsu-marketplace
 # 全件をインストールする場合は上の単独インストールの代わりに実行
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design career worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
 codex plugin marketplace list
 codex plugin list --marketplace sonsu-marketplace
 ```
@@ -29,19 +29,19 @@ claude plugin marketplace add sonsu-lee/sonsu-marketplace
 # 一つだけインストール
 claude plugin install engineering@sonsu-marketplace
 # 全件をインストールする場合は上の単独インストールの代わりに実行
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design career worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
+for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
 claude plugin marketplace list
 claude plugin list
 ```
 
 ### omp
 
-基本6件をインストールし、Worklog・Design Patternsは必要な場合だけ追加します。自動更新を新たに有効にする場合だけ、下のYAMLを `~/.omp/agent/config.yml` の既存の `marketplace:` 項目に統合してください。
+基本5件をインストールし、Worklog・Design Patternsは必要な場合だけ追加します。自動更新を新たに有効にする場合だけ、下のYAMLを `~/.omp/agent/config.yml` の既存の `marketplace:` 項目に統合してください。
 
 <!-- omp-preset:start -->
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
@@ -59,7 +59,7 @@ omp plugin list
 
 ## プラグイン
 
-各プラグインは独立して使え、詳しい使い方はリンク先で確認できます（Codex・Claude Codeは全14件、ompは基本6件とopt-inのWorklog・Design Patterns）。
+各プラグインは独立して使え、詳しい使い方はリンク先で確認できます（Codex・Claude Codeは全13件、ompは基本5件とopt-inのWorklog・Design Patterns）。
 
 | プラグイン | 用途 | インストール名 |
 | --- | --- | --- |
@@ -75,7 +75,6 @@ omp plugin list
 | [Memory Manager](plugins/memory-manager/README.md) | CodexとClaude Codeで共有するローカルメモリの想起・保存・整理 | `memory-manager` |
 | [Design](plugins/design/README.md) | 一般・運用UIの新規設計・再設計・監査をFigmaまたはコードで実施し、デザインリファレンスも検索 | `design` |
 | [Design Patterns](plugins/design-patterns/README.md) | 実際の設計上のforcesに基づくパターン選択と既存適用のレビュー | `design-patterns` |
-| [Career](plugins/career/README.md) | 開発者の経歴原本の整理、米国式レジュメ・履歴書・職務経歴書の作成、面接準備・模擬面接・振り返り | `career` |
 | [Worklog](plugins/worklog/README.md) | Claude Code・Codex・ompの作業で起きた失敗・中断・訂正のログと診断 | `worklog` |
 
 ## 使用例
@@ -94,7 +93,6 @@ omp plugin list
 | Memory Manager | 「`$memory-capture` この決定をプロジェクトのメモリに保存して。」 |
 | Design | 「登録フローをFigmaで設計して。運用画面はコードで直接再設計して。」または「ログイン画面のリファレンスを出典付きで探して。」 |
 | Design Patterns | 「この設計にパターンが必要か判断し、最小の実装形を選んで。」 |
-| Career | 「このJDに合わせて1ページの英文レジュメを作り、来週の一次面接を想定して模擬面接をして。」 |
 
 ホストは依頼内容とインストール済みスキルの説明をもとに、必要なスキルを選びます。
 

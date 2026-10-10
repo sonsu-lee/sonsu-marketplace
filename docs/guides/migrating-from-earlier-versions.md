@@ -19,7 +19,7 @@ for plugin in engineering writing research prompting product memory-manager oper
 ```sh
 omp plugin marketplace remove sonsu-marketplace
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design career; do omp plugin install --force "$plugin@sonsu-marketplace"; done
+for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
 ```
 
 `design-patterns`를 계속 쓰려면 다시 등록한 뒤 `omp plugin install --force design-patterns@sonsu-marketplace`로 갱신합니다.

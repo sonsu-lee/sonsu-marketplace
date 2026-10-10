@@ -43,7 +43,7 @@
     },
     {
       "path": "scripts/render-omp-compat.py",
-      "sha256": "87423f1b12af69c50868f74fa5bf00a1dacb80c329b06a9cf99ff9a0047b5a28",
+      "sha256": "ed948825b2a0da7408c21740863440893177c4ea55b2e9f4e1fe336a25155ecc",
       "role": "omp 기본·opt-in 카탈로그를 만들고 독립 패키지의 스킬·도구·라이선스·호스트 지침과 허용된 runtime extension을 생성한다.",
       "verdict": "keep",
       "verdict_target": "",
@@ -113,7 +113,6 @@
     }
   ],
   "evals": [
-    {"path": "evals/career", "covers": ["career"], "role": "가상 경력 작업 공간에서 다섯 Career 스킬의 사실 추적·공개 범위·철회 주장 배제·질문 은행 환류·미실행 표시를 평가한다."},
     {"path": "evals/design-patterns", "covers": ["design-patterns"], "role": "패턴 선택·불필요 판정·근거 부족·분산 보장과 읽기 전용 패턴 리뷰를 평가하고 일반 구현 요청을 가로채지 않는 라우팅 대조군을 둔다."},
     {"path": "evals/design-quality", "covers": ["design", "repository"], "role": "Design 품질 계약·보고서·DESIGN.md 검증과 허위 통과 방지를 검사한다. 저장소의 Madia 카탈로그 수집·병합·미디어 처리·용어 원장 도구도 단위 테스트한다."},
     {"path": "evals/design-reference-search", "covers": ["design"], "role": "레퍼런스 세트 형식·출처 추적과 선택 행동을 평가하고 고정 후보 풀 검색 지표, 설계 효용, 호출 비용을 서로 다른 증거 층으로 구분한다."},
@@ -135,7 +134,7 @@
     {"path": "evals/refactor-inventory", "covers": ["repository"], "role": "임시 카탈로그·스킬·스크립트·공유 자산·평가 fixture로 인벤토리 누락·해시 변경·필드·위치·호스트 상태·보고서 불일치와 단일 플러그인 검사 격리를 검증한다."},
     {"path": "evals/review-principles", "covers": ["engineering"], "role": "Engineering 리뷰의 실제 문제·조건부 위험·선택적 개선 구분, 읽기 전용 범위, 일반·집중 리뷰 분기와 독립 검토 미실행의 정직한 보고를 평가한다."},
     {"path": "evals/skill-expansion", "covers": ["engineering", "workflow", "product", "design"], "role": "독립 스킬의 자동 선택·직접 호출·산출물 경계와 PR 실패 처리, 정보 자산·제품 및 티켓 질문을 평가한다. native 발견·모의 다음 행동·실제 UI 및 외부 쓰기 증거를 구분한다."},
-    {"path": "evals/skill-routing", "covers": ["engineering", "workflow", "fluent-korean", "fluent-english", "fluent-japanese", "writing", "research", "prompting", "product", "memory-manager", "design", "career", "worklog"], "role": "카탈로그 플러그인의 단독·조합 설치에서 근접 요청의 스킬 선택과 책임 경계를 평가한다. 검색 공급자 자격, 티켓·PR 의도 및 권한, 언어별 적용 범위와 native 선택 attribution을 별도 기대값으로 다룬다."},
+    {"path": "evals/skill-routing", "covers": ["engineering", "workflow", "fluent-korean", "fluent-english", "fluent-japanese", "writing", "research", "prompting", "product", "memory-manager", "design", "worklog"], "role": "카탈로그 플러그인의 단독·조합 설치에서 근접 요청의 스킬 선택과 책임 경계를 평가한다. 검색 공급자 자격, 티켓·PR 의도 및 권한, 언어별 적용 범위와 native 선택 attribution을 별도 기대값으로 다룬다."},
     {"path": "evals/task-continuity", "covers": ["repository", "engineering", "workflow", "writing", "research", "prompting", "product", "design"], "role": "공유 checkpoint helper의 격리·무쓰기·stale·history·손상 경계와 등록 프로필의 로더 발견을 검사한다. 별도 행동 사례로 재개 시 현재 산출물·권한·외부 상태 대조를 평가하며 실제 컴팩션 hook 관찰과 구분한다."},
     {"path": "evals/ui-design-figma-routing", "covers": ["design"], "role": "Design·공식 Figma·FigJam·draw.io가 함께 또는 일부만 제공될 때 최종 산출물에 맞는 설계·감사·prototype·다이어그램 경로와 단일 canvas writer 경계를 평가한다."},
     {"path": "evals/worklog", "covers": ["worklog"], "role": "격리된 로그 저장소에서 호스트별 실패 수집·중복 제거·비밀 치환·보존 기간·군집화와 omp 이벤트 핸들러를 검사한다. 별도 개선 루프 사례로 원인 귀속·최소 변경·기준선 및 회귀 비교의 채택 판단을 평가한다."},

@@ -11,7 +11,7 @@ import stat
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
-OMP_PLUGINS = {"workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design", "career"}
+OMP_PLUGINS = {"workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design"}
 OMP_OPTIN_PLUGINS = {"worklog", "design-patterns"}
 RUNTIME_EXTENSIONS = {"worklog": "omp-extension/worklog.ts"}
 ISOLATED = {"workflow", "design", "fluent-korean", "worklog"}
@@ -181,7 +181,7 @@ def isolated_outputs(root, plugin_root, manifest, outputs, modes):
         if field in manifest:
             native_manifest[field] = manifest[field]
     if manifest["name"] in RUNTIME_EXTENSIONS:
-        # Opt-in packages may ship one runtime extension; the default six never do.
+        # Opt-in packages may ship one runtime extension; default packages never do.
         source = plugin_root / RUNTIME_EXTENSIONS[manifest["name"]]
         require_safe(source, root)
         extension = destination / "extension" / source.name
