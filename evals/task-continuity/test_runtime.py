@@ -57,21 +57,21 @@ class RuntimeTests(unittest.TestCase):
             shutil.copyfile(SOURCE, script)
             self.packages[plugin] = script
 
-    def run_cli(self, *args, data=None, plugin="engineering", cwd=None, env=None):
+    def run_cli(self, *args, data=None, plugin="dev-workflow", cwd=None, env=None):
         return subprocess.run([sys.executable, str(self.packages[plugin]), *args],
                               input=json.dumps(data) if data is not None else "",
                               text=True, capture_output=True, cwd=cwd or self.work,
                               env=self.env if env is None else env, timeout=15)
 
-    def write(self, revision=0, task="task-a", plugin="engineering", **kw):
+    def write(self, revision=0, task="task-a", plugin="dev-workflow", **kw):
         return self.run_cli("write", "--mode", "write", "--task-id", task,
                             "--skill", "example-work", "--expected-revision", str(revision),
                             data=kw.pop("data", SUMMARY), plugin=plugin, **kw)
 
-    def path(self, plugin="engineering", session="session-a", work=None):
+    def path(self, plugin="dev-workflow", session="session-a", work=None):
         return (work or self.work) / ".sonsu/continuity" / session / (plugin + ".json")
 
-    def hook(self, plugin="engineering", **changes):
+    def hook(self, plugin="dev-workflow", **changes):
         event = {"hook_event_name": "SessionStart", "source": "compact",
                  "session_id": "session-a", "cwd": str(self.work), "permission_mode": "default"}
         event.update(changes)
@@ -89,12 +89,12 @@ class RuntimeTests(unittest.TestCase):
         return legacy, record
 
     def test_generated_hook_resolves_both_plugin_roots(self):
-        hook_file = ROOT / "plugins/engineering/hooks/hooks.json"
+        hook_file = ROOT / "plugins/dev-workflow/hooks/hooks.json"
         session_start = json.loads(hook_file.read_text())["hooks"]["SessionStart"][0]
         command = session_start["hooks"][0]["command"]
         event = {"hook_event_name": "SessionStart", "source": "compact",
                  "session_id": "session-a", "cwd": str(self.work), "permission_mode": "default"}
-        plugin_root = ROOT / "plugins/engineering"
+        plugin_root = ROOT / "plugins/dev-workflow"
 
         self.assertIn("CLAUDE_PLUGIN_ROOT", command)
         self.assertEqual(session_start["matcher"], "^(startup|clear|compact|resume)$")
@@ -121,13 +121,13 @@ class RuntimeTests(unittest.TestCase):
         env_file = self.base / "claude-env"
         env = dict(self.env, PATH=str(directory) + os.pathsep + self.env["PATH"],
                    CLAUDE_ENV_FILE=str(env_file),
-                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+                   CLAUDE_PLUGIN_ROOT=str(self.packages["dev-workflow"].parent.parent))
         for source in ("compact", "resume"):
             with self.subTest(source=source):
                 event = {"hook_event_name": "SessionStart", "source": source,
                          "session_id": "session-a", "cwd": str(self.work)}
                 started = time.monotonic()
-                result = subprocess.run([sys.executable, str(self.packages["engineering"]), "hook"],
+                result = subprocess.run([sys.executable, str(self.packages["dev-workflow"]), "hook"],
                                         input=json.dumps(event), text=True, capture_output=True,
                                         env=env, cwd=self.work, timeout=5)
                 self.assertLess(time.monotonic() - started, 4)
@@ -142,7 +142,7 @@ class RuntimeTests(unittest.TestCase):
 
     def test_hook_budget_covers_incomplete_stdin(self):
         started = time.monotonic()
-        with subprocess.Popen([sys.executable, str(self.packages["engineering"]), "hook"],
+        with subprocess.Popen([sys.executable, str(self.packages["dev-workflow"]), "hook"],
                               stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                               text=True, env=self.env, cwd=self.work) as process:
             try:
@@ -172,9 +172,9 @@ class RuntimeTests(unittest.TestCase):
                     env = self.env
                     if input_state == "session_append_error":
                         env = dict(self.env, CLAUDE_ENV_FILE=str(self.base / "missing-parent" / "env"),
-                                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+                                   CLAUDE_PLUGIN_ROOT=str(self.packages["dev-workflow"].parent.parent))
                     started = time.monotonic()
-                    with subprocess.Popen([sys.executable, str(self.packages["engineering"]), "hook"],
+                    with subprocess.Popen([sys.executable, str(self.packages["dev-workflow"]), "hook"],
                                           stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                           stderr=write_fd, text=True, cwd=self.work, env=env) as process:
                         try:
@@ -204,7 +204,7 @@ class RuntimeTests(unittest.TestCase):
         normal = self.hook(source="resume").stdout
         env_file = self.base / "claude-env"
         env = dict(self.env, CLAUDE_ENV_FILE=str(env_file),
-                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+                   CLAUDE_PLUGIN_ROOT=str(self.packages["dev-workflow"].parent.parent))
         event = {"hook_event_name": "SessionStart", "source": "resume",
                  "session_id": "session-a", "cwd": str(self.work)}
         for boundary in ("record_read", "persist_claude_session", "session_write"):
@@ -229,7 +229,7 @@ else:
     setattr(hook, BOUNDARY, delayed)
 sys.argv = [SCRIPT_PATH, 'hook']
 raise SystemExit(hook.main())
-""".replace("SCRIPT_PATH", repr(str(self.packages["engineering"]))).replace("BOUNDARY", repr(boundary))
+""".replace("SCRIPT_PATH", repr(str(self.packages["dev-workflow"]))).replace("BOUNDARY", repr(boundary))
                 started = time.monotonic()
                 result = subprocess.run([sys.executable, "-c", code], input=json.dumps(event),
                                         text=True, capture_output=True, env=env, timeout=5)
@@ -252,7 +252,7 @@ raise SystemExit(hook.main())
         normal = self.hook(source="resume").stdout
         env_file, marker = self.base / "claude-env", self.base / "cleanup-entered"
         env = dict(self.env, CLAUDE_ENV_FILE=str(env_file),
-                   CLAUDE_PLUGIN_ROOT=str(self.packages["engineering"].parent.parent))
+                   CLAUDE_PLUGIN_ROOT=str(self.packages["dev-workflow"].parent.parent))
         event = {"hook_event_name": "SessionStart", "source": "resume",
                  "session_id": "session-a", "cwd": str(self.work)}
         code = """
@@ -277,7 +277,7 @@ def delayed_close(fd):
 os.write, os.close = delayed_write, delayed_close
 sys.argv = [SCRIPT_PATH, 'hook']
 raise SystemExit(hook.main())
-""".replace("SCRIPT_PATH", repr(str(self.packages["engineering"]))).replace("MARKER", repr(str(marker)))
+""".replace("SCRIPT_PATH", repr(str(self.packages["dev-workflow"]))).replace("MARKER", repr(str(marker)))
         # Exercise the actual recovery JSON with only PIPE_BUF bytes available.
         # Emergency cleanup must emit no stdout, including when a prefix could fit.
         self.assertGreater(len(normal.encode("utf-8")), 512)
@@ -366,48 +366,17 @@ raise SystemExit(hook.main())
         saved = json.loads(raw)
         self.assertEqual((saved["schema_version"], saved["session_id"], saved["task_id"],
                           saved["workspace_root"], saved["plugin"], saved["revision"]),
-                         (1, "session-a", "task-a", str(self.work), "engineering", 1))
+                         (1, "session-a", "task-a", str(self.work), "dev-workflow", 1))
         self.assertEqual(saved["summary"], SUMMARY)
         read = self.run_cli("read")
         self.assertEqual(json.loads(read.stdout), saved)
         self.assertEqual(self.path().read_bytes(), raw)
 
-    def test_retired_public_skill_checkpoint_can_resume_without_reexposing_skill(self):
-        retired = {"engineering": "executing-plans", "workflow": "git-workflow"}
-        for plugin in PLUGINS:
-            with self.subTest(plugin=plugin):
-                self.assertEqual(self.write(plugin=plugin).returncode, 0)
-                path = self.path(plugin=plugin)
-                saved = json.loads(path.read_text())
-                saved["active_skill"] = retired.get(plugin, "task-continuity")
-                path.write_text(json.dumps(saved))
-                read = self.run_cli("read", plugin=plugin)
-                self.assertEqual(read.returncode, 0, read.stderr)
-                self.assertEqual(json.loads(read.stdout)["active_skill"], saved["active_skill"])
-                self.assertIn("continuity.md", self.hook(plugin=plugin).stdout)
-                rejected = self.run_cli("write", "--mode", "write", "--task-id", "task-a",
-                                        "--skill", saved["active_skill"], "--expected-revision", "1",
-                                        data=SUMMARY, plugin=plugin)
-                self.assertNotEqual(rejected.returncode, 0)
-                migrated = self.write(revision=1, plugin=plugin)
-                self.assertEqual(migrated.returncode, 0, migrated.stderr)
-                self.assertEqual(json.loads(path.read_text())["active_skill"], "example-work")
-
-    def test_merged_review_pr_checkpoint_can_resume(self):
-        self.assertEqual(self.write(plugin="engineering").returncode, 0)
-        path = self.path(plugin="engineering")
-        saved = json.loads(path.read_text())
-        saved["active_skill"] = "review-pr"
-        path.write_text(json.dumps(saved))
-        read = self.run_cli("read", plugin="engineering")
-        self.assertEqual(read.returncode, 0, read.stderr)
-        self.assertEqual(json.loads(read.stdout)["active_skill"], "review-pr")
-
     def test_claude_session_id_can_replace_codex_thread_id(self):
         env = self.env.copy()
         env.pop("CODEX_THREAD_ID")
         env["CLAUDE_CODE_SESSION_ID"] = "claude-session"
-        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["dev-workflow"].parent.parent)
         result = self.write(env=env)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(self.path(session="claude-session").exists())
@@ -440,7 +409,7 @@ raise SystemExit(hook.main())
     def test_claude_hook_exports_session_for_resume_commands(self):
         env = self.env.copy()
         env.pop("CODEX_THREAD_ID")
-        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["dev-workflow"].parent.parent)
         env_file = self.base / "claude-env"
         env["CLAUDE_ENV_FILE"] = str(env_file)
         event = {"hook_event_name": "SessionStart", "source": "resume",
@@ -452,7 +421,7 @@ raise SystemExit(hook.main())
     def test_claude_startup_hook_persists_session_for_followup_commands(self):
         env = self.env.copy()
         env.pop("CODEX_THREAD_ID")
-        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["dev-workflow"].parent.parent)
         env_file = self.base / "claude-startup-env"
         env["CLAUDE_ENV_FILE"] = str(env_file)
         event = {"hook_event_name": "SessionStart", "source": "startup",
@@ -475,7 +444,7 @@ raise SystemExit(hook.main())
     def test_claude_clear_hook_updates_session_without_restoring_old_checkpoint(self):
         env = self.env.copy()
         env.pop("CODEX_THREAD_ID")
-        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["engineering"].parent.parent)
+        env["CLAUDE_PLUGIN_ROOT"] = str(self.packages["dev-workflow"].parent.parent)
         env_file = self.base / "claude-clear-env"
         env["CLAUDE_ENV_FILE"] = str(env_file)
         env_file.write_text("export SONSU_CLAUDE_SESSION_ID='claude-before'\n")
@@ -547,7 +516,7 @@ raise SystemExit(hook.main())
         self.assertEqual(json.loads(closed)["status"], "complete")
         self.assertEqual(self.hook().stdout, "")
         self.assertEqual(self.write(revision=2, task="task-b").returncode, 0)
-        archives = list(self.path().parent.glob("history/engineering/*.json"))
+        archives = list(self.path().parent.glob("history/dev-workflow/*.json"))
         self.assertEqual(len(archives), 1)
         self.assertEqual(archives[0].read_bytes(), closed)
 
@@ -561,7 +530,7 @@ raise SystemExit(hook.main())
             out = json.loads(r.stdout)["hookSpecificOutput"]
             self.assertEqual(out["hookEventName"], "SessionStart")
             self.assertIn(str(self.path()), out["additionalContext"])
-            self.assertIn(str(self.packages["engineering"].parents[1] / "references/continuity.md"), out["additionalContext"])
+            self.assertIn(str(self.packages["dev-workflow"].parents[1] / "references/continuity.md"), out["additionalContext"])
             self.assertNotIn(poison["extra"], r.stdout)
             self.assertNotIn(SUMMARY["goal"], r.stdout)
         self.assertEqual(before, {p: p.stat().st_mtime_ns for p in self.work.rglob("*")})
@@ -578,7 +547,7 @@ raise SystemExit(hook.main())
         self.write()
         original = json.loads(self.path().read_text())
         variants = ["{", json.dumps({**original, "schema_version": 99}),
-                    json.dumps({**original, "plugin": "workflow"}),
+                    json.dumps({**original, "plugin": "git"}),
                     json.dumps({**original, "workspace_root": str(self.base)}),
                     json.dumps({**original, "session_id": "other"}),
                     json.dumps({**original, "status": "approved"})]
@@ -739,7 +708,7 @@ raise SystemExit(hook.main())
     def test_atomic_replace_failure_keeps_last_valid_record(self):
         self.write()
         original = self.path().read_bytes()
-        spec = importlib.util.spec_from_file_location("continuity_under_test", self.packages["engineering"])
+        spec = importlib.util.spec_from_file_location("continuity_under_test", self.packages["dev-workflow"])
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         # Real filesystem, injecting only the failed OS replace boundary.

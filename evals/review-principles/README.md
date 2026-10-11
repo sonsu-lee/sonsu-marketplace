@@ -1,7 +1,8 @@
 # 리뷰 원칙 행동 평가
 
-Engineering의 lifecycle 리뷰와 품질 리뷰가 실제 문제·조건부 위험·선택적 개선을 구분하고,
-리뷰 요청에서 구현 절차나 소스 수정을 만들지 않는지 평가한다. [cases.json](cases.json)의 합성 코드와
+Dev Workflow의 lifecycle 리뷰와 Review의 품질 리뷰가 실제 문제·조건부 위험·선택적 개선을 구분하고,
+리뷰 요청에서 구현 절차나 소스 수정을 만들지 않는지 평가한다. 코멘트 라벨·판정·어조와 리뷰 지적에
+대한 작성자 답글 형식도 확인한다. [cases.json](cases.json)의 합성 코드와
 계약을 사용한다. framework·AWS 형태의 조회 값은 fixture가 정한 조건이며 실제 제품 동작이나
 운영 상태를 주장하지 않는다.
 
@@ -23,10 +24,14 @@ Engineering의 lifecycle 리뷰와 품질 리뷰가 실제 문제·조건부 위
 | `unavailable-context` | 접근 거부를 코드 결함으로 바꾸지 않고 판정에 필요한 질문으로 한정 |
 | `workflow-optional` | 선택적 구조 제안과 필수 red-team을 구분하고 Stop 무알림을 통과로 해석하지 않음 |
 | `frozen-red-team` | 고정 묶음의 공백을 가변 자료로 대체하지 않고 verification에 반환 |
+| `label-required-vs-nit` | 결함은 라벨 없이 `path:line`·이유와 함께, 가이드에 없는 이름 취향은 `Nit:`로 구분하고 `Request changes`를 합니다체·코드 주어 문장으로 판정 |
+| `defer-cleanup-rejected` | "다음 PR에서 정리" 약속을 받지 않고 이번 변경이 만든 중복을 지금 정리하거나 작성자에게 할당한 이슈로 등록하게 함 |
+| `approve-with-comments-minor` | 동작 개선에 사소한 주석 오타만 있으면 오타를 `Nit:`로 두고 `Approve with comments`로 판정 |
+| `author-reply-reject-with-evidence` | 작성자 답글 초안을 근거 위치·바꾸지 않은 이유·다른 경로를 묻는 질문으로 쓰고, 방어적 표현·의례적 감사·불필요한 검사 추가 없이 게시하지 않음 |
 
-여덟 사례 모두 `owners`가 가리키는 Engineering에서 실행한다. 일반 품질 사례는 `review`,
-집중 관점 사례는 해당 review skill, 피드백 사례는 `address-review`, red-team 사례는
-공통 기준과 `red-team-reviewer.md`를 사용한다.
+열두 사례 모두 `owners`가 가리키는 Review에서 실행한다. 일반 품질 사례는 `review-code`,
+집중 관점 사례는 해당 review skill, 피드백 사례(`workflow-optional`, `author-reply-reject-with-evidence`)는
+`address-review`, red-team 사례는 공통 기준과 Dev Workflow의 `red-team-reviewer.md`를 사용한다.
 red-team 입력은 기존 생성기로 일곱 구성요소를 고정하고 digest를 전달한다.
 
 ## 실제 스킬 선택
@@ -56,11 +61,11 @@ fixture의 모든 쓰기 금지는 임시 파일·진행 기록도 포함한다.
   한계는 이 문서에 요약한다. 코드·Git·실제 AWS·외부 PR은 변경하지 않는다.
 - `pass`, `fail`, `not_run`, `inconclusive`를 구분한다. 실행 오류·시간 초과는 모델의 코드 판단
   오답으로 세지 않는다. 명시적 스킬 적용 성공을 자동 선택 성공으로 대신하지 않는다.
-- 기본 26회 뒤 실패 사례를 수정·재실행하고 필요한 인접 회귀를 확인한다. 소수 사례의 성공을
+- 기본 실행 뒤 실패 사례를 수정·재실행하고 필요한 인접 회귀를 확인한다. 소수 사례의 성공을
   전체 리뷰 품질·절차 준수 보장으로 일반화하지 않는다.
 
 관찰 도구의 정책 만료·미등록 무동작·관찰만 수행하는 계약은 기존
-[`test_evidence_gates.py`](../../plugins/engineering/tests/test_evidence_gates.py)를 재사용한다.
+[`test_evidence_gates.py`](../../plugins/dev-workflow/tests/test_evidence_gates.py)를 재사용한다.
 JSON·frontmatter·참조 경로 검사, 실제 모델 행동, native 스킬 발견·선택, 실제 host hook 실행은
 서로 다른 검증이다. 실제 host `Stop` 실행은 이 평가 범위에 포함하지 않는다.
 

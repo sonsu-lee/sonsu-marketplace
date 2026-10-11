@@ -7,24 +7,38 @@
   "description": "Codex와 Claude Code에서 사용하는 Sonsu 플러그인 모음",
   "plugins": [
     {
-      "name": "engineering",
-      "source": "./plugins/engineering",
-      "description": "설계·구현·디버깅·검증과 도메인 구조, 단순성, 유지보수성, 실패 모드 및 운용 가능성 리뷰와 독립 심층 PR 리뷰를 함께 제공한다.",
-      "version": "4.0.1",
+      "name": "git",
+      "source": "./plugins/git",
+      "description": "Git branch·commit·push와 GitHub PR 작성·상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
+      "version": "1.0.0",
       "category": "Developer Tools"
     },
     {
-      "name": "workflow",
-      "source": "./plugins/workflow",
-      "description": "Git·티켓·PR 작성과 PR 상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
-      "version": "0.17.1",
+      "name": "tickets",
+      "source": "./plugins/tickets",
+      "description": "GitHub Issues·Linear 티켓을 작업·요청·버그·조사 양식으로 작성하고 기존 티켓의 상태·담당자·관계를 변경합니다.",
+      "version": "1.0.0",
+      "category": "Developer Tools"
+    },
+    {
+      "name": "review",
+      "source": "./plugins/review",
+      "description": "코드·diff·커밋·PR을 코드 건강도 기준으로 리뷰하고 집중 관점 리뷰와 리뷰 지적 대응을 제공합니다.",
+      "version": "1.0.0",
+      "category": "Developer Tools"
+    },
+    {
+      "name": "dev-workflow",
+      "source": "./plugins/dev-workflow",
+      "description": "설계·계획·구현·디버깅·검증과 도메인 구조·코드 단순화를 승인 범위와 검증 근거에 연결해 수행한다.",
+      "version": "5.0.0",
       "category": "Developer Tools"
     },
     {
       "name": "fluent-korean",
       "source": "./plugins/fluent-korean",
       "description": "한국어 글의 AI 티·번역투를 새 글 작성 중에 피하고, 기존 글을 윤문·진단한다. 일상 메시지와 기술 문서에도 적용할 수 있다.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "category": "Productivity"
     },
     {
@@ -45,35 +59,35 @@
       "name": "writing",
       "source": "./plugins/writing",
       "description": "독자·목적·근거에 맞춰 업무 문서와 개발자 블로그의 정보를 선별하고, 문서 배치와 글의 흐름을 다듬는다.",
-      "version": "0.5.0-beta.1",
+      "version": "0.5.0-beta.2",
       "category": "Productivity"
     },
     {
       "name": "research",
       "source": "./plugins/research",
       "description": "Exa·Perplexity 목적별 공개 검색과 근거 중심의 사실 검증·비교·코드 조사를 제공합니다.",
-      "version": "0.7.0-sonsu.14",
+      "version": "0.7.0-sonsu.15",
       "category": "Productivity"
     },
     {
       "name": "prompting",
       "source": "./plugins/prompting",
       "description": "Codex, ChatGPT, OpenAI API와 Claude Code·Anthropic API 모델에서 바로 사용할 수 있는 간결한 프롬프트를 작성합니다.",
-      "version": "0.5.0",
+      "version": "0.5.1",
       "category": "Productivity"
     },
     {
       "name": "product",
       "source": "./plugins/product",
       "description": "제품 기회를 탐색하고, 근거를 종합하고, 제품 도메인을 모델링하고, 검증을 설계·판정하며, 승인된 결정을 PRD로 변환합니다.",
-      "version": "0.5.0",
+      "version": "0.5.1",
       "category": "Productivity"
     },
     {
       "name": "memory-manager",
       "source": "./plugins/memory-manager/claude",
       "description": "Codex와 Claude Code가 공유하는 로컬 Markdown 메모리를 회상, 수집, 정리하고 절차 초안으로 승격합니다.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "category": "Productivity"
     },
     {
@@ -87,14 +101,14 @@
       "name": "design",
       "source": "./plugins/design",
       "description": "웹·앱·운영 UI를 Figma 또는 코드에서 설계·재설계·감사하고 디자인 레퍼런스를 찾으며 Google DESIGN.md와 DQ0–DQ8로 검증합니다.",
-      "version": "0.7.0",
+      "version": "0.7.1",
       "category": "Developer Tools"
     },
     {
       "name": "worklog",
       "source": "./plugins/worklog/claude",
       "description": "Claude Code·Codex·omp 작업의 도구 실패·중단·사용자 교정을 공용 로그로 남기고 진단합니다.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "category": "Developer Tools"
     }
   ]

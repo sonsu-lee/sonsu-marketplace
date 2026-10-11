@@ -27,7 +27,7 @@ def outputs():
                         'test -n "$plugin_root" && '
                         'python3 "$plugin_root/scripts/task-continuity.py" hook'),
             "timeout": 5, "additionalContextLimit": 600}]}]}}
-        if plugin == "engineering":
+        if plugin == "dev-workflow":
             hooks["hooks"]["Stop"] = [{"hooks": [{
                 "type": "command",
                 "command": ('plugin_root="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}" && '

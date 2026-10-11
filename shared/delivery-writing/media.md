@@ -1,0 +1,63 @@
+# 화면 자료
+
+PR과 티켓에 붙이는 스크린샷·영상의 판단, 캡처, 변환, 배치, 업로드 기준이다.
+
+## 필요한지 판단한다
+
+- 사용자에게 보이는 변화(UI, CLI 출력, 문서 렌더링)가 있거나, 사용자·저장소가 요구할 때만 첨부한다.
+- 정적인 변화는 스크린샷으로, 상호작용·전환·타이밍은 영상으로 남긴다. GIF는 쓰지 않는다.
+
+## 캡처한다
+
+- before/after는 같은 viewport·데이터·테마·locale로 찍고 변경 영역 위주로 자른다.
+- before는 base 화면을 같은 조건에서 안전하게 실행할 수 있을 때만 만든다. 현재 작업 트리를 checkout하거나 사용자 변경을 지우지 않는다.
+- 실제 계정·production 데이터를 쓰지 않는다.
+- 토큰·개인정보·내부 URL은 캡처 전에 가린다. 공개 저장소의 첨부는 인증 없이 열람할 수 있다.
+
+## 형식과 용량
+
+- 스크린샷은 PNG, 폭 1600px 이하다.
+- 영상은 MP4다: H.264, yuv420p, 오디오 없음, faststart, 폭 1280px 이하, 30fps 이하, 20초 안팎.
+- 상한은 이미지 10MB, 영상은 무료 플랜 10MB·유료 플랜 100MB다. 기본 상한은 10MB로 둔다.
+- 아래 명령을 그대로 쓴다. 10MB를 넘으면 crf 30–32 → fps 24·15 → 폭 960 순서로 낮춘다. 크기는 `stat -f %z`(macOS)나 `stat -c %s`(Linux)로 확인한다.
+
+  ```sh
+  ffmpeg -y -ss <시작> -to <끝> -i input.mov -vf "fps=30,scale='min(1280,iw)':-2:flags=lanczos" -c:v libx264 -preset slow -crf 28 -pix_fmt yuv420p -movflags +faststart -an NN-after-slug.mp4
+  ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,pix_fmt,width,height,r_frame_rate -show_entries format=duration,size -of compact=p=0 NN-after-slug.mp4
+  ffmpeg -y -i raw.png -vf "scale='min(1600,iw)':-2:flags=lanczos" NN-after-slug.png
+  ```
+
+## 파일 위치와 이름
+
+- PR 자료는 `${TMPDIR}/pr-media/<branch>/`에, 티켓 자료는 `${TMPDIR}/ticket-media/<slug>/`에 둔다.
+- 이름은 `NN-{before|after}-<slug>.{png,mp4}`다. 커밋하지 않는다.
+
+## 본문에 배치한다
+
+- PR은 `## Screenshots` 절에 둔다.
+  - 전/후는 `| Before | After |` 표에 `| ![Before: <상태>](NN-before-slug.png) | ![After: <상태>](NN-after-slug.png) |` 형식으로 넣는다. after만 있으면 이미지 하나를 단독으로 둔다.
+  - 영상은 `![](NN-after-slug.mp4)`만 한 문단에 둔다. 문장 안에 넣으면 플레이어가 아니라 링크로 표시된다.
+  - 영상에는 대체 텍스트를 붙일 수 없으므로, 바로 앞 줄에 `**After** — <무엇을 보여주는지>`를 쓴다.
+- 티켓은 버그형이면 `## 증거`에 두고, 그 밖의 종류는 자료를 설명하는 문단 바로 뒤에 둔다.
+- 대체 텍스트에는 화면 상태를 쓴다.
+
+## GitHub에 올린다
+
+- `gh <pr|issue> <create|edit> --help`에 `--attach`가 있을 때만 쓴다.
+- `body.md`를 자료와 같은 디렉터리에 두고 파일 이름만으로 참조한 뒤, 그 디렉터리에서 실행한다.
+  - `gh pr create --draft --body-file body.md --attach <file>…`
+  - `gh pr edit <n> --body-file body.md --attach <file>…`
+  - `gh issue create|edit|comment … --attach <file>…`
+- 본문에 이미 있는 참조는 업로드 URL로 바뀌고, 참조되지 않은 첨부는 본문 끝에 붙는다.
+- 첨부하려면 저장소 push 권한이 필요하다. 권한이 없으면 사용자에게 브라우저로 첨부해 달라고 요청한다.
+- 일부만 실패하면 PR은 성공한 첨부만 가진 채 생성되고, 명령은 0이 아닌 코드로 끝나며, PR URL은 출력된다. 실패한 파일만 `gh pr edit`로 다시 올린다.
+- 올린 뒤 `gh pr view <n> --json body`나 `gh issue view <n> --json body`로 다시 읽어, `NN-…` 로컬 참조가 남아 있지 않은지 확인한다.
+- `draft` 모드에서는 업로드하지 않는다.
+
+## Linear에 올린다
+
+현재 연결된 Linear 도구의 첨부 기능으로 파일마다 올리고, 올린 뒤 다시 조회한다.
+
+## 미검증
+
+표 안에 쓴 로컬 경로도 URL로 바뀌는지는 확인하지 않았다. 바뀌지 않으면 표 대신 `### Before`·`### After` 아래에 이미지를 하나씩 둔다.

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "product",
-  "manifest_sha256": "ca6c14a8b12c72b6ea20106abb958ab516bee62754fd286111767e4d43da5c92",
+  "manifest_sha256": "56c05ae16a8677ed567ff94ee6a3ab51d2797478dae853495c69b6cd960f60ae",
   "skills": [
     {
       "path": "plugins/product/skills/assess-product-test/SKILL.md",

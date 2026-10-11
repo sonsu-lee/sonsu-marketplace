@@ -4,7 +4,7 @@
     {
       "id": "revise-unapplied-defers-dependent-start",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
       "fixture": {
@@ -54,7 +54,7 @@
     {
       "id": "revise-timeout-unknown-defers-dependent-start",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
       "fixture": {
@@ -102,7 +102,7 @@
     {
       "id": "revise-partial-content-defers-dependent-start",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
       "fixture": {
@@ -152,7 +152,7 @@
     {
       "id": "revise-verified-noop-allows-dependent-start",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
       "fixture": {
@@ -202,7 +202,7 @@
     {
       "id": "revise-timeout-confirmed-allows-dependent-start",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
       "fixture": {
@@ -253,7 +253,7 @@
     {
       "id": "revise-success-without-readback-defers-start",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
       "fixture": {
@@ -300,7 +300,7 @@
     {
       "id": "revise-unverified-noop-defers-start",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
       "fixture": {
@@ -341,7 +341,7 @@
     {
       "id": "revise-independent-unassign-survives-content-failure",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace ENG-42 본문에 승인된 UTF-8 복구 조건을 반영해 줘. 본문 수정 성공과 무관하게 현재 담당자 user-a는 해제해 줘. 상태는 바꾸지 마.",
       "fixture": {
@@ -392,7 +392,7 @@
     {
       "id": "lifecycle-only-needs-no-content-prerequisite",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace ENG-42 작업을 시작해 줘. 제목과 본문은 수정하지 마.",
       "fixture": {
@@ -418,7 +418,7 @@
     {
       "id": "revise-missing-handoff-evidence-defers-start",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace ENG-42의 제목을 CSV 한글 깨짐으로 정리하고 본문에 승인된 UTF-8 복구 조건을 반영한 뒤 작업을 시작해 줘.",
       "fixture": {
@@ -458,16 +458,16 @@
       "must_not_classify_readiness": true,
       "must_not_invent_cause_or_acceptance": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ],
       "must_not_invent_reproduction_steps_or_media": true
     },
@@ -478,16 +478,16 @@
       "must_not_classify_readiness": true,
       "must_not_invent_cause_or_acceptance": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
@@ -496,16 +496,16 @@
       "must_ask_for_problem_context": true,
       "must_not_invent_cause_or_acceptance": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
@@ -519,27 +519,27 @@
       "must_map_parent_and_child_keys": true,
       "must_not_duplicate_type_and_structure_headings": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
       "id": "ticket-revise-korean-preserves-existing-records",
       "prompt": "Linear Acme workspace ENG-42 본문에 Safari 18에서도 재현된다는 새 관찰만 반영해 줘. 기존 결정·검증 기록은 유지해. 한국어로 작성해 줘.",
       "installed_plugins": [
-        "workflow",
+        "tickets",
         "fluent-korean"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "revise",
       "expected_mode": "publish",
@@ -550,7 +550,7 @@
       "must_reread_before_write": true,
       "must_reread_after_mutation": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ],
       "must_not_assume_plugin_dependency": true
     },
@@ -558,8 +558,8 @@
       "id": "revise-and-start-composes-lifecycle",
       "prompt": "Linear Acme workspace ENG-42에 승인된 복구 조건을 반영한 뒤 작업 시작 상태로 변경해 줘.",
       "expected_sequence": [
-        "workflow:to-ticket",
-        "workflow:ticket-lifecycle"
+        "tickets:write-ticket",
+        "tickets:update-ticket"
       ],
       "expected_action": "revise",
       "expected_mode": "publish",
@@ -567,7 +567,7 @@
       "must_limit_update_to_content": true,
       "must_reread_after_mutation": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "must_not_assume_plugin_dependency": true
     },
@@ -583,10 +583,10 @@
       "must_report_conflict": true,
       "must_not_propose_mutation": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "must_not_assume_plugin_dependency": true
     },
@@ -603,10 +603,10 @@
       "must_not_retry_uncertain_mutation": true,
       "must_report_unknown": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "must_not_assume_plugin_dependency": true
     },
@@ -632,16 +632,16 @@
       "expected_template_source": "team",
       "must_preserve_template_headings": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
@@ -655,16 +655,16 @@
       "must_not_apply_bundled_template": true,
       "must_not_claim_template_absent": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
@@ -676,15 +676,15 @@
       "must_not_assume_plugin_dependency": true,
       "must_not_install_plugin": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
@@ -693,16 +693,16 @@
       "expected_template": "investigation",
       "must_not_claim_prevention_complete": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
@@ -711,16 +711,16 @@
       "expected_template": "default",
       "must_not_claim_followups_complete": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
@@ -729,61 +729,61 @@
       "expected_template": "default",
       "must_preserve_whole_completion": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
       "id": "linear-branch-omits-id-despite-integration-suggestion",
       "prompt": "Linear ENG-123의 검색 필터 작업용 branch 이름을 제안해 줘. 기존 branch들과 integration 추천 이름에는 ENG-123 같은 ID가 들어 있어. codex/ prefix를 사용해.",
       "expected_sequence": [
-        "workflow:branch"
+        "git:branch"
       ],
       "must_not_include_linear_id_in_branch": true,
       "installed_plugins": [
-        "workflow"
+        "git"
       ]
     },
     {
       "id": "linear-branch-explicit-exact-name-wins",
       "prompt": "Linear ENG-123 작업용 branch 이름은 정확히 codex/feat/ENG-123-search로 사용할 거야. 그 이름을 확인해 줘.",
       "expected_sequence": [
-        "workflow:branch"
+        "git:branch"
       ],
       "expected_branch_name": "codex/feat/ENG-123-search",
       "installed_plugins": [
-        "workflow"
+        "git"
       ]
     },
     {
       "id": "linear-branch-ignores-configured-integration-format",
       "prompt": "이 repo에는 branch 이름 규칙이 없어. Linear GitHub 연동이 활성화된 ENG-123 검색 필터 작업의 branch 이름을 제안해 줘. Linear의 설정된 Copy git branch name 형식은 feat/ENG-123-search-filter야.",
       "expected_sequence": [
-        "workflow:branch"
+        "git:branch"
       ],
       "expected_branch_name": "feature/search-filter",
       "installed_plugins": [
-        "workflow"
+        "git"
       ]
     },
     {
       "id": "github-issue-branch-does-not-assume-native-link",
       "prompt": "이 repo에는 branch 규칙이 없어. GitHub Issue #123의 검색 오류 수정 branch 이름을 제안해 줘. 이슈 화면에서 연결 브랜치를 만든 것은 아니야.",
       "expected_sequence": [
-        "workflow:branch"
+        "git:branch"
       ],
       "must_use_descriptive_branch_without_issue_id": true,
       "must_not_claim_native_issue_link": true,
       "installed_plugins": [
-        "workflow"
+        "git"
       ]
     },
     {
@@ -793,56 +793,56 @@
       "must_not_classify_readiness": true,
       "must_not_disclose_restricted_content": true,
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_not_assume_plugin_dependency": true,
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
       "id": "direct-commit-routes-to-workflow",
       "installed_plugins": [
-        "engineering",
-        "workflow"
+        "dev-workflow",
+        "git"
       ],
       "prompt": "현재 변경 중 API 수정만 Conventional Commit으로 커밋해줘. push는 하지 마.",
       "expected_sequence": [
-        "workflow:commit"
+        "git:commit"
       ],
       "must_not_select": [
-        "engineering:finish-branch"
+        "dev-workflow:finish-branch"
       ]
     },
     {
       "id": "direct-pr-routes-to-workflow",
       "installed_plugins": [
-        "engineering",
-        "workflow"
+        "dev-workflow",
+        "git"
       ],
       "prompt": "현재 branch를 확인해서 GitHub PR 초안을 작성해줘. 아직 게시하지는 마.",
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "draft",
       "expected_remote_action": "none",
       "must_not_select": [
-        "engineering:finish-branch"
+        "dev-workflow:finish-branch"
       ]
     },
     {
       "id": "unspecified-pr-publish-defaults-to-draft",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "prompt": "현재 branch로 PR 올려줘.",
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "publish",
       "expected_pr_state": "draft",
@@ -851,11 +851,11 @@
     {
       "id": "explicit-ready-pr-overrides-default",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "prompt": "현재 branch로 바로 리뷰할 수 있는 Ready PR을 올려줘.",
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "publish",
       "expected_pr_state": "ready"
@@ -863,19 +863,20 @@
     {
       "id": "pr-with-local-media-routes-to-workflow",
       "installed_plugins": [
-        "workflow"
+        "git",
+        "review"
       ],
       "prompt": "현재 branch로 GitHub PR을 만들면서 변경 위치를 표시한 screenshot과 로컬 demo video도 함께 첨부해줘.",
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "publish",
       "expected_pr_state": "draft",
       "must_not_select": [
-        "workflow:branch",
-        "workflow:commit",
-        "workflow:push",
-        "workflow:review-commit",
+        "git:branch",
+        "git:commit",
+        "git:push",
+        "review:review-code",
         "publish-image"
       ],
       "must_not_assume_plugin_dependency": true
@@ -883,39 +884,39 @@
     {
       "id": "direct-ticket-routes-to-workflow",
       "installed_plugins": [
-        "engineering",
-        "workflow"
+        "dev-workflow",
+        "tickets"
       ],
       "prompt": "합의된 구현 계획을 Linear 티켓 초안으로 변환해줘.",
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "must_not_select": [
-        "engineering:plan"
+        "dev-workflow:plan"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "korean-ticket-composes-with-fluent-language",
       "installed_plugins": [
-        "workflow",
+        "tickets",
         "fluent-korean"
       ],
       "prompt": "이 버그 보고를 Linear 티켓 초안으로 만들고 본문은 한국어로 작성해줘.",
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "english-ticket-composes-with-fluent-language",
       "installed_plugins": [
-        "workflow",
+        "tickets",
         "fluent-english"
       ],
       "prompt": "Turn this approved maintenance task into a concise GitHub issue in English.",
       "expected_sequence": [
-        "workflow:to-ticket",
+        "tickets:write-ticket",
         "fluent-english:fluent-english"
       ],
       "must_not_assume_plugin_dependency": true
@@ -923,12 +924,12 @@
     {
       "id": "japanese-ticket-composes-with-fluent-language",
       "installed_plugins": [
-        "workflow",
+        "tickets",
         "fluent-japanese"
       ],
       "prompt": "合意済みの調査項目をLinearのチケットの下書きにして、本文は日本語で書いてください。",
       "expected_sequence": [
-        "workflow:to-ticket",
+        "tickets:write-ticket",
         "fluent-japanese:fluent-japanese"
       ],
       "must_not_assume_plugin_dependency": true
@@ -936,26 +937,26 @@
     {
       "id": "create-ticket-with-metadata-routes-to-to-ticket",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear ENG 팀에 승인된 작업 티켓을 생성해 줘. 기존 Bug 라벨, High 우선순위, 3 estimate, 나를 담당자, Payments 프로젝트와 M2 마일스톤으로 지정하고 ENG-10에 blocked by로 연결해. 아직 작업 시작은 하지 마.",
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_mode": "publish",
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ]
     },
     {
       "id": "create-and-start-ticket-composes-lifecycle",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear ENG 팀에 승인된 작업 티켓을 생성하고, 생성 결과를 확인한 다음 바로 작업 시작 상태로 변경해 줘.",
       "expected_sequence": [
-        "workflow:to-ticket",
-        "workflow:ticket-lifecycle"
+        "tickets:write-ticket",
+        "tickets:update-ticket"
       ],
       "expected_intent": "start",
       "must_reread_after_mutation": true
@@ -963,11 +964,11 @@
     {
       "id": "explicit-ticket-start-routes-to-lifecycle",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace의 ENG-123 작업을 시작하고 나를 담당자로 지정해 줘.",
       "expected_sequence": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ],
       "expected_intent": "start",
       "must_verify_canonical_ticket": true,
@@ -977,11 +978,11 @@
     {
       "id": "github-ticket-unassigns-only-verified-target",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "GitHub sonsu/example#17의 assignee 중 octocat만 해제하고 다른 담당자는 유지해 줘.",
       "expected_sequence": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ],
       "expected_assignee_change": {
         "action": "unassign",
@@ -995,11 +996,11 @@
     {
       "id": "github-ticket-unassigns-all-only-when-explicit",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "GitHub sonsu/example#17의 모든 assignee를 해제해 줘.",
       "expected_sequence": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ],
       "expected_assignee_change": {
         "action": "unassign",
@@ -1012,11 +1013,11 @@
     {
       "id": "existing-ticket-related-routes-to-lifecycle",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace의 ENG-123을 ENG-120과 related 관계로 연결해 줘. 본문이나 status는 바꾸지 마.",
       "expected_sequence": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ],
       "expected_relation": {
         "action": "add",
@@ -1028,11 +1029,11 @@
     {
       "id": "existing-ticket-duplicate-routes-to-lifecycle",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "Linear Acme workspace의 ENG-123을 ENG-98의 duplicate로 표시해 줘. 본문이나 status는 바꾸지 마.",
       "expected_sequence": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ],
       "expected_relation": {
         "action": "add",
@@ -1046,27 +1047,29 @@
     {
       "id": "ticket-id-shaped-branch-hint-does-not-mutate",
       "installed_plugins": [
-        "workflow"
+        "git",
+        "tickets"
       ],
       "prompt": "현재 ENG-123-fix branch의 변경을 검토해서 Conventional Commit 후보를 작성해 줘. 티켓 작업은 요청하지 않았어.",
       "expected_sequence": [
-        "workflow:commit"
+        "git:commit"
       ],
       "expected_remote_action": "none",
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ],
       "must_not_infer_provider": true
     },
     {
       "id": "ticket-start-and-branch-compose-at-runtime",
       "installed_plugins": [
-        "workflow"
+        "git",
+        "tickets"
       ],
       "prompt": "Linear Acme workspace의 ENG-123 작업을 시작하고, 이 작업용 Git branch도 만들어 줘.",
       "expected_sequence": [
-        "workflow:ticket-lifecycle",
-        "workflow:branch"
+        "tickets:update-ticket",
+        "git:branch"
       ],
       "expected_intent": "start",
       "must_not_assume_plugin_dependency": true
@@ -1074,26 +1077,28 @@
     {
       "id": "pr-native-automation-does-not-select-lifecycle-fallback",
       "installed_plugins": [
-        "workflow"
+        "git",
+        "tickets"
       ],
       "prompt": "Linear GitHub 연동에서 PR open과 merge status automation이 설정된 ENG-123을 Fixes로 연결해서 현재 branch의 Draft PR을 만들어 줘.",
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "must_not_select": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ],
       "must_not_duplicate_native_automation": true
     },
     {
       "id": "confirmed-pr-fallback-composes-lifecycle",
       "installed_plugins": [
-        "workflow"
+        "git",
+        "tickets"
       ],
       "prompt": "Linear ENG-42를 Part of로 연결해 현재 branch의 Ready PR을 만들어 줘. 이 팀에는 PR drafted·opened·ready status automation이 적용되지 않는 것이 확인됐고 현재 workflow의 To Review transition과 내 권한도 확인됐으니 티켓도 review 상태로 변경해 줘.",
       "expected_sequence": [
-        "workflow:to-pr",
-        "workflow:ticket-lifecycle"
+        "git:write-pr",
+        "tickets:update-ticket"
       ],
       "expected_intent": "review",
       "must_verify_canonical_ticket": true,
@@ -1102,11 +1107,11 @@
     {
       "id": "workflow-lifecycle-remains-standalone",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "GitHub sonsu/example#17의 현재 상태를 확인하고, 열려 있으면 닫아 줘.",
       "expected_sequence": [
-        "workflow:ticket-lifecycle"
+        "tickets:update-ticket"
       ],
       "expected_intent": "complete",
       "must_not_assume_plugin_dependency": true
@@ -1114,95 +1119,98 @@
     {
       "id": "integration-choice-routes-to-engineering",
       "installed_plugins": [
-        "engineering",
-        "workflow"
+        "dev-workflow",
+        "git",
+        "review"
       ],
       "prompt": "구현과 검증이 끝났고 commit도 모두 있어. 이 개발 branch를 어떻게 마무리할지 진행해줘.",
       "expected_sequence": [
-        "engineering:finish-branch"
+        "dev-workflow:finish-branch"
       ],
       "must_not_select": [
-        "workflow:branch",
-        "workflow:commit",
-        "workflow:push",
-        "workflow:review-commit",
-        "workflow:to-pr"
+        "git:branch",
+        "git:commit",
+        "git:push",
+        "review:review-code",
+        "git:write-pr"
       ]
     },
     {
       "id": "implementation-does-not-trigger-delivery",
       "installed_plugins": [
-        "engineering",
-        "workflow"
+        "dev-workflow",
+        "git",
+        "tickets",
+        "review"
       ],
       "prompt": "토큰 갱신 기능을 구현하고 필요한 테스트를 실행해줘. Git 작업은 하지 마.",
       "expected_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "must_not_select": [
-        "workflow:branch",
-        "workflow:commit",
-        "workflow:push",
-        "workflow:review-commit",
-        "workflow:to-ticket",
-        "workflow:to-pr"
+        "git:branch",
+        "git:commit",
+        "git:push",
+        "review:review-code",
+        "tickets:write-ticket",
+        "git:write-pr"
       ],
       "expected_sequence": []
     },
     {
       "id": "planning-list-is-not-a-ticket-request",
       "installed_plugins": [
-        "engineering",
-        "workflow"
+        "dev-workflow",
+        "tickets"
       ],
       "prompt": "이 기능의 구현 계획을 단계별로 작성해줘. 티켓은 만들지 마.",
       "expected_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "must_not_select": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_sequence": []
     },
     {
       "id": "implementation-then-pr-composes-at-runtime",
       "installed_plugins": [
-        "engineering",
-        "workflow"
+        "dev-workflow",
+        "git"
       ],
       "prompt": "이 기능을 구현하고 검증한 다음 현재 branch 기준 PR 초안까지 준비해줘.",
       "expected_sequence": [
-        "engineering:*",
-        "workflow:to-pr"
+        "dev-workflow:*",
+        "git:write-pr"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "workflow-only-remains-standalone",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "prompt": "현재 branch의 GitHub PR 초안을 작성해줘.",
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "engineering-only-remains-standalone",
       "installed_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "구현과 검증이 끝났고 commit도 모두 있어. 이 개발 branch를 어떻게 마무리할지 진행해줘.",
       "expected_sequence": [
-        "engineering:finish-branch"
+        "dev-workflow:finish-branch"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "engineering-only-handles-external-evidence-without-research",
       "installed_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "available_fallbacks": [
         "web",
@@ -1210,14 +1218,14 @@
       ],
       "prompt": "OAuth 2.1의 최신 공식 문서를 확인해서 이 서비스의 인증 방식을 설계해줘. 아직 구현하지 마.",
       "expected_sequence": [
-        "engineering:brainstorming"
+        "dev-workflow:brainstorming"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "direct-multi-source-research-routes-to-research",
       "installed_plugins": [
-        "engineering",
+        "dev-workflow",
         "research"
       ],
       "prompt": "브라우저 cache partitioning의 현재 동작과 보안 trade-off를 표준 문서, 브라우저 공식 문서와 관련 논문을 교차 검증해서 비교해줘. 구현은 하지 마.",
@@ -1225,32 +1233,32 @@
         "research:research"
       ],
       "must_not_select": [
-        "engineering:brainstorming"
+        "dev-workflow:brainstorming"
       ]
     },
     {
       "id": "development-and-research-compose-at-runtime",
       "installed_plugins": [
-        "engineering",
+        "dev-workflow",
         "research"
       ],
       "prompt": "이 서비스의 인증 방식을 설계하고 구현해줘. 설계 선택에 영향을 주는 최신 표준과 주요 라이브러리의 공식 문서를 여러 출처에서 먼저 검증해줘.",
       "expected_sequence": [
-        "engineering:brainstorming",
+        "dev-workflow:brainstorming",
         "research:research",
-        "engineering:*"
+        "dev-workflow:*"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "local-debugging-does-not-trigger-research",
       "installed_plugins": [
-        "engineering",
+        "dev-workflow",
         "research"
       ],
       "prompt": "이 repository에서 실패하는 단위 테스트와 관련 코드를 확인해서 원인을 찾고 수정해줘. 외부 조사는 필요 없어.",
       "expected_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "must_not_select": [
         "research:research"
@@ -1260,7 +1268,7 @@
     {
       "id": "single-official-doc-lookup-does-not-trigger-research",
       "installed_plugins": [
-        "engineering",
+        "dev-workflow",
         "research"
       ],
       "prompt": "이미 위치를 아는 https://nodejs.org/api/cli.html 공식 페이지를 직접 읽고 --env-file option이 처음 추가된 버전 하나만 확인해줘.",
@@ -1303,7 +1311,7 @@
     {
       "id": "direct-prompt-artifact-routes-to-prompting",
       "installed_plugins": [
-        "engineering",
+        "dev-workflow",
         "prompting"
       ],
       "prompt": "이 요구사항을 Codex에서 바로 사용할 수 있는 작업 프롬프트로 정리해줘. 구현은 하지 마.",
@@ -1311,7 +1319,7 @@
         "prompting:prompt-builder"
       ],
       "must_not_select": [
-        "engineering:brainstorming"
+        "dev-workflow:brainstorming"
       ]
     },
     {
@@ -1340,7 +1348,7 @@
     {
       "id": "product-ideation-routes-to-product-brainstorming",
       "installed_plugins": [
-        "engineering",
+        "dev-workflow",
         "product"
       ],
       "prompt": "반려동물 보호자를 위한 제품 기회와 서로 다른 해법 후보를 넓게 브레인스토밍해줘. 아직 검증됐다고 가정하지 마.",
@@ -1348,19 +1356,19 @@
         "product:product-brainstorming"
       ],
       "must_not_select": [
-        "engineering:brainstorming",
+        "dev-workflow:brainstorming",
         "product:product-discovery"
       ]
     },
     {
       "id": "technical-design-does-not-trigger-product-brainstorming",
       "installed_plugins": [
-        "engineering",
+        "dev-workflow",
         "product"
       ],
       "prompt": "이 서비스의 API와 비동기 job 구조 대안을 설계하고 trade-off를 비교해줘. 제품 문제 탐색은 필요 없어.",
       "expected_sequence": [
-        "engineering:brainstorming"
+        "dev-workflow:brainstorming"
       ],
       "must_not_select": [
         "product:product-brainstorming",
@@ -1415,14 +1423,14 @@
       "id": "product-rules-route-to-product-domain-discovery",
       "installed_plugins": [
         "product",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "주문 취소 기능의 제품 용어, 행위자, 상태, 사건, 규칙과 예외를 근거가 있는 후보 모델로 정리해줘. 코드는 바꾸지 마.",
       "expected_sequence": [
         "product:product-domain-discovery"
       ],
       "must_not_select": [
-        "engineering:domain-shaped-code",
+        "dev-workflow:domain-shaped-code",
         "domain-modeling"
       ]
     },
@@ -1430,11 +1438,11 @@
       "id": "code-domain-shape-does-not-trigger-product-domain-discovery",
       "installed_plugins": [
         "product",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "이미 승인된 주문 상태와 API 경계를 타입과 제어 흐름에 반영해서 구현해줘.",
       "expected_sequence": [
-        "engineering:domain-shaped-code"
+        "dev-workflow:domain-shaped-code"
       ],
       "must_not_select": [
         "product:product-domain-discovery"
@@ -1470,7 +1478,7 @@
       "id": "approved-product-context-routes-to-prd",
       "installed_plugins": [
         "product",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "현재 리비전에 승인된 제품 탐색 결과를 기존 문서 관례에 맞는 PRD로 작성해줘. 구현은 하지 마.",
       "expected_sequence": [
@@ -1478,7 +1486,7 @@
       ],
       "must_not_select": [
         "product:product-discovery",
-        "engineering:plan"
+        "dev-workflow:plan"
       ]
     },
     {
@@ -1507,11 +1515,11 @@
     {
       "id": "domain-shaped-implementation-routes-to-quality",
       "installed_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "주문 상태의 확인된 세 가지 variant와 API 입력 경계를 타입과 제어 흐름에 반영해서 구현해줘. 미래 상태는 만들지 마.",
       "expected_sequence": [
-        "engineering:domain-shaped-code"
+        "dev-workflow:domain-shaped-code"
       ],
       "must_not_select": [
         "domain-modeling",
@@ -1521,64 +1529,65 @@
     {
       "id": "explicit-minimal-implementation-routes-to-simplify",
       "installed_plugins": [
-        "engineering"
+        "review",
+        "dev-workflow"
       ],
       "prompt": "이 변경은 YAGNI로 가자. 새 abstraction 없이 현재 요구사항을 만족하는 가장 작은 코드로 구현해줘.",
       "expected_sequence": [
-        "engineering:simplify-code"
+        "dev-workflow:simplify-code"
       ],
       "must_not_select": [
-        "engineering:review-overengineering"
+        "review:review-overengineering"
       ]
     },
     {
       "id": "diff-overengineering-review-routes-to-focused-lens",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "현재 diff만 over-engineering과 불필요한 추상화 관점에서 리뷰해줘. 수정은 하지 마.",
       "expected_sequence": [
-        "engineering:review-overengineering"
+        "review:review-overengineering"
       ],
       "must_not_select": [
-        "engineering:audit-overengineering",
-        "engineering:review"
+        "review:audit-overengineering",
+        "review:review-code"
       ]
     },
     {
       "id": "repository-overengineering-audit-routes-to-audit",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "이 repository 전체를 over-engineering 관점에서 audit하고 삭제 효과가 큰 순서로 정리해줘.",
       "expected_sequence": [
-        "engineering:audit-overengineering"
+        "review:audit-overengineering"
       ],
       "must_not_select": [
-        "engineering:review-overengineering"
+        "review:review-overengineering"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "reader-load-review-routes-to-maintainability",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "현재 branch diff를 reader load, 중복 domain knowledge와 public surface 관점에서 유지보수성 리뷰해줘.",
       "expected_sequence": [
-        "engineering:review-maintainability"
+        "review:review-maintainability"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "reachable-failures-route-to-failure-review",
       "installed_plugins": [
-        "engineering",
+        "review",
         "codex-security"
       ],
       "prompt": "이 결제 consumer 변경에서 retry, duplicate delivery, 부분 write와 cleanup의 도달 가능한 실패 경로를 리뷰해줘.",
       "expected_sequence": [
-        "engineering:review-failure-modes"
+        "review:review-failure-modes"
       ],
       "must_not_select": [
         "codex-security:security-scan"
@@ -1587,22 +1596,22 @@
     {
       "id": "error-and-logging-route-to-operability",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "이 diff의 error ownership, log-and-rethrow, 원인 보존과 민감정보 logging을 운용 가능성 관점에서 리뷰해줘.",
       "expected_sequence": [
-        "engineering:review-operability"
+        "review:review-operability"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "broad-quality-review-routes-to-coordinator",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "현재 commit을 단순성, 유지보수성, 실패 모드와 운용 가능성을 아우르는 quality review로 검토해줘.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "must_not_select_all_quality_lenses": true,
       "must_deduplicate_shared_root_causes": true
@@ -1610,76 +1619,78 @@
     {
       "id": "generic-implementation-stays-with-engineering",
       "installed_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "사용자 프로필 편집 기능을 구현하고 테스트해줘.",
       "expected_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "must_not_select": [
-        "engineering:domain-shaped-code",
-        "engineering:simplify-code"
+        "dev-workflow:domain-shaped-code",
+        "dev-workflow:simplify-code"
       ],
       "expected_sequence": []
     },
     {
       "id": "debugging-does-not-trigger-quality-review",
       "installed_plugins": [
-        "engineering"
+        "review",
+        "dev-workflow"
       ],
       "prompt": "실패하는 통합 테스트의 root cause를 찾아서 디버깅하고 수정해줘.",
       "expected_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "must_not_select": [
-        "engineering:review-failure-modes",
-        "engineering:review"
+        "review:review-failure-modes",
+        "review:review-code"
       ],
       "expected_sequence": []
     },
     {
       "id": "architecture-decision-does-not-trigger-quality",
       "installed_plugins": [
-        "engineering"
+        "review",
+        "dev-workflow"
       ],
       "prompt": "이벤트 버스와 직접 호출 중 아직 결론이 나지 않은 아키텍처 선택을 비교해 결정 자료를 만들어줘.",
       "must_not_select": [
-        "engineering:domain-shaped-code",
-        "engineering:review"
+        "dev-workflow:domain-shaped-code",
+        "review:review-code"
       ],
       "expected_sequence": []
     },
     {
       "id": "domain-glossary-does-not-trigger-domain-shaped-code",
       "installed_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "이 repository의 도메인 용어를 조사해서 CONTEXT.md를 작성해줘.",
       "must_not_select": [
-        "engineering:domain-shaped-code"
+        "dev-workflow:domain-shaped-code"
       ],
       "expected_sequence": []
     },
     {
       "id": "git-delivery-does-not-trigger-quality",
       "installed_plugins": [
-        "engineering",
-        "workflow"
+        "review",
+        "git"
       ],
       "prompt": "현재 변경을 커밋하고 push한 뒤 PR을 만들어줘.",
       "expected_sequence": [
-        "workflow:commit",
-        "workflow:push",
-        "workflow:to-pr"
+        "git:commit",
+        "git:push",
+        "git:write-pr"
       ],
       "must_not_select": [
-        "engineering:review"
+        "review:review-code"
       ]
     },
     {
       "id": "deep-security-scan-does-not-trigger-quality",
       "installed_plugins": [
-        "engineering",
+        "review",
         "codex-security"
       ],
       "prompt": "repository 전체를 대상으로 깊은 보안 감사를 수행하고 취약점을 검증해줘.",
@@ -1687,67 +1698,68 @@
         "codex-security:deep-security-scan"
       ],
       "must_not_select": [
-        "engineering:review-failure-modes",
-        "engineering:review"
+        "review:review-failure-modes",
+        "review:review-code"
       ]
     },
     {
       "id": "long-file-is-not-a-maintainability-finding-by-itself",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "이 1,200줄 파일을 유지보수성 관점에서 리뷰해줘. 길다는 이유만으로 분할하지 말고 실제 reader load와 변경 이유를 확인해.",
       "expected_sequence": [
-        "engineering:review-maintainability"
+        "review:review-maintainability"
       ],
       "must_not_assume_finding_from_line_count": true
     },
     {
       "id": "trusted-internal-flow-does-not-require-duplicate-guards",
       "installed_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "API 경계에서 이미 검증한 Order를 내부 helper마다 다시 검사하지 않는 형태로 리팩터링해줘.",
       "expected_sequence": [
-        "engineering:domain-shaped-code"
+        "dev-workflow:domain-shaped-code"
       ],
       "must_not_require_internal_revalidation": true
     },
     {
       "id": "operability-does-not-require-blanket-logging",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "이 작은 로컬 변환 함수의 operability를 리뷰해줘. 실제 운영 질문이 없다면 모든 호출과 성공을 log하라고 요구하지 마.",
       "expected_sequence": [
-        "engineering:review-operability"
+        "review:review-operability"
       ],
       "must_not_require_blanket_logging": true
     },
     {
       "id": "implementation-quality-and-pr-compose-at-runtime",
       "installed_plugins": [
-        "engineering",
-        "workflow"
+        "review",
+        "dev-workflow",
+        "git"
       ],
       "prompt": "이 기능을 구현하고 검증한 다음 failure mode와 maintainability를 리뷰하고 현재 branch의 PR 초안까지 준비해줘.",
       "expected_sequence": [
-        "engineering:*",
-        "engineering:review-failure-modes",
-        "engineering:review-maintainability",
-        "workflow:to-pr"
+        "dev-workflow:*",
+        "review:review-failure-modes",
+        "review:review-maintainability",
+        "git:write-pr"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "quality-and-fluent-compose-orthogonally",
       "installed_plugins": [
-        "engineering",
+        "review",
         "fluent-korean"
       ],
       "prompt": "현재 diff를 broad quality review로 검토하고 결과를 자연스러운 한국어로 보고해줘.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "must_not_assume_plugin_dependency": true
     },
@@ -2024,11 +2036,11 @@
       "id": "ticket-common-template-preserves-preference-and-agreement",
       "prompt": "새 프로젝트마다 설정을 반복하고 있어 공통 템플릿이 필요해. Next.js를 선호하지만 스택은 아직 합의하지 않았고, Node 22 지원은 합의했어. 구현 방식은 담당자가 정하도록 티켓 초안만 써 줘.",
       "installed_plugins": [
-        "workflow",
+        "tickets",
         "fluent-korean"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
@@ -2043,10 +2055,10 @@
       "id": "general-ticket-without-reference-material",
       "prompt": "개발 안내 문서의 설치 단계 순서가 뒤섞여 새 구성원이 설정을 반복하고 있어. 실제 실행 순서에 맞게 안내 순서를 정리하는 티켓 초안만 작성해 줘. 별도 제약이나 참고 자료는 없어.",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
@@ -2059,10 +2071,10 @@
       "id": "visual-bug-keeps-steps-and-image",
       "prompt": "모바일 설정 화면에서 저장 버튼이 가려져 눌리지 않아. iOS Safari, 390px 화면에서 설정을 열고 키보드를 표시하면 재현돼. 버튼은 보여야 하고 누를 수 있어야 해. 첨부한 이미지로 버그 초안만 작성해 줘.",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
@@ -2083,10 +2095,10 @@
       "id": "nonvisual-bug-uses-request-response",
       "prompt": "POST /exports에 {\"format\":\"csv\"}를 보내면 500과 {\"error\":\"unsupported format\"}이 반환돼. 문서 계약은 CSV 지원과 201 응답이야. 테스트 환경 API v2에서 재현했어. 화면 자료 없이 버그 초안으로 정리해 줘.",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
@@ -2101,10 +2113,10 @@
       "id": "bug-fix-with-cause-analysis-stays-bug",
       "prompt": "검색어를 지우면 결과 목록이 비어 버려. 검색 화면에서 아무 검색어나 입력한 다음 지우면 재현돼. 기존 계약은 전체 목록으로 돌아가는 거야. 원인을 조사해서 수정하는 티켓 초안을 써 줘.",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
@@ -2118,10 +2130,10 @@
       "id": "investigation-delivers-answers",
       "prompt": "캐시 교체가 필요한지 판단할 근거가 부족해. 현재 Redis 운영의 문제점과 대안을 조사해서 답변과 근거를 전달하는 티켓 초안을 써 줘. 구현이나 도입은 이번 요청에 포함하지 않아.",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
@@ -2134,10 +2146,10 @@
       "id": "general-ticket-summarizes-external-agreement",
       "prompt": "프로젝트 초기 설정을 반복하고 있어 공통 템플릿을 만들려고 해. 외부 회의에서 Node 22 지원은 합의했고 Next.js는 선호일 뿐이야. 회의 메모 https://example.com/meeting-42를 참고해서 티켓 초안을 써 줘.",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
@@ -2151,10 +2163,10 @@
       "id": "general-ticket-keeps-agreed-completion",
       "prompt": "운영자가 저장한 검색 조건을 재사용할 수 없어 필터 저장 기능이 필요해. 사용자별 저장과 삭제를 제공해 줘. 운영 환경에서 저장한 조건을 다시 적용할 수 있고, 삭제한 조건은 목록에 남지 않아야 한다는 두 조건은 합의됐어. 이 내용으로 티켓 초안을 써 줘. 구현 방법은 담당자가 정해.",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "create",
       "expected_mode": "draft",
@@ -2166,10 +2178,10 @@
     {
       "id": "partial-ticket-draft-preserves-team-structure",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_action": "revise",
       "expected_mode": "draft",
@@ -2185,8 +2197,8 @@
     {
       "id": "pr-required-ai-disclosure-without-consent",
       "prompt": "한국어 PR 초안만 작성해 줘. 게시나 조회는 하지 마. 실패 응답까지 캐시하던 것을 성공 응답만 캐시하도록 바꿨어. AI 도움을 받았지만 공개 표기는 요청하지 않았어. 아래의 필수 양식은 보존해 줘.",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-pr"],
+      "installed_plugins": ["git"],
+      "expected_sequence": ["git:write-pr"],
       "expected_mode": "draft",
       "expected_remote_action": "none",
       "fixture": {
@@ -2204,8 +2216,8 @@
     {
       "id": "ticket-required-ai-disclosure-without-consent",
       "prompt": "한국어 GitHub Issue 초안만 작성해 줘. 게시나 조회는 하지 마. 다운로드한 CSV에서 한글이 깨지고 원문대로 보여야 해. 원인·환경·재현 단계는 미확인이야. AI 도움을 받았지만 공개 표기는 요청하지 않았어. 아래의 필수 양식은 보존해 줘.",
-      "installed_plugins": ["workflow"],
-      "expected_sequence": ["workflow:to-ticket"],
+      "installed_plugins": ["tickets"],
+      "expected_sequence": ["tickets:write-ticket"],
       "expected_action": "create",
       "expected_mode": "draft",
       "expected_remote_action": "none",
@@ -2221,10 +2233,10 @@
     {
       "id": "pr-default-form-keeps-non-ci-notes",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "draft",
       "expected_remote_action": "none",
@@ -2248,10 +2260,10 @@
     {
       "id": "pr-ui-draft-plans-media-without-upload",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "draft",
       "expected_remote_action": "none",
@@ -2275,10 +2287,10 @@
     {
       "id": "pr-ui-vrt-artifact-still-needs-marked-media",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "draft",
       "expected_remote_action": "none",
@@ -2297,10 +2309,10 @@
     {
       "id": "terraform-partial-pr-does-not-complete-ticket",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "draft",
       "expected_remote_action": "none",
@@ -2320,10 +2332,10 @@
     {
       "id": "github-partial-pr-checks-closing-commit",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "draft",
       "expected_remote_action": "none",
@@ -2342,10 +2354,10 @@
     {
       "id": "linear-partial-pr-drafted-event-done-blocks-publish",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "publish",
       "expected_remote_action": "none",
@@ -2363,10 +2375,10 @@
     {
       "id": "pr-partial-upload-keeps-draft-and-does-not-retry",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "publish",
       "prompt": "이 흐름에서 만들던 Ready PR의 첨부 작업을 이어서 처리해 줘.",
@@ -2440,12 +2452,12 @@
     {
       "id": "workflow-fluent-ja-fixed-pr",
       "installed_plugins": [
-        "workflow",
+        "git",
         "fluent-japanese"
       ],
       "prompt": "검증된 자료로 PR 초안만 작성해 줘. 추가 조회나 게시를 하지 말고 이 테스트의 자료를 사용해. Writing은 설치되지 않았고 Fluent는 설치되어 있다. 실제 전체 diff: 저장 성공 확인 이후에만 완료 알림을 표시한다. 배경: 성공 전 알림 때문에 실패한 저장을 완료로 오인할 수 있었다. 실패하면 완료 알림을 표시하지 않는다. 실제 UI 검증과 첨부 자료는 아직 없고, 정적 검사만 통과했다. 유효한 저장소 양식은 아래와 같고 제목, 순서, marker, 관련 행을 그대로 유지해야 한다. 검증된 canonical 관계는 ENG-123의 일부이며 완료시키지 않는다. 아래 URL과 문법은 입력 자료에 있는 그대로다.\n## 맥락\n\n## 변경\n\n## 관련\n<!-- tracker: keep -->\nPart of https://linear.app/example/issue/ENG-123\n\n## 확인할 내용\n\nUI 자료는 확인할 내용 항목에 놓는다.\n자유 설명은 일본어로 작성하고 지정 제목은 유지해.",
       "expected_sequence": [
-        "workflow:to-pr",
+        "git:write-pr",
         "fluent-japanese:fluent-japanese"
       ],
       "must_not_install_plugins": true
@@ -2453,12 +2465,12 @@
     {
       "id": "workflow-fluent-en-fixed-pr",
       "installed_plugins": [
-        "workflow",
+        "git",
         "fluent-english"
       ],
       "prompt": "검증된 자료로 PR 초안만 작성해 줘. 추가 조회나 게시를 하지 말고 이 테스트의 자료를 사용해. Writing은 설치되지 않았고 Fluent는 설치되어 있다. 실제 전체 diff: 저장 성공 확인 이후에만 완료 알림을 표시한다. 배경: 성공 전 알림 때문에 실패한 저장을 완료로 오인할 수 있었다. 실패하면 완료 알림을 표시하지 않는다. 실제 UI 검증과 첨부 자료는 아직 없고, 정적 검사만 통과했다. 유효한 저장소 양식은 아래와 같고 제목, 순서, marker, 관련 행을 그대로 유지해야 한다. 검증된 canonical 관계는 ENG-123의 일부이며 완료시키지 않는다. 아래 URL과 문법은 입력 자료에 있는 그대로다.\n## 맥락\n\n## 변경\n\n## 관련\n<!-- tracker: keep -->\nPart of https://linear.app/example/issue/ENG-123\n\n## 확인할 내용\n\nUI 자료는 확인할 내용 항목에 놓는다.\nWrite the free prose in English; preserve the specified headings.",
       "expected_sequence": [
-        "workflow:to-pr",
+        "git:write-pr",
         "fluent-english:fluent-english"
       ],
       "must_not_install_plugins": true
@@ -2466,12 +2478,12 @@
     {
       "id": "workflow-writing-unverified",
       "installed_plugins": [
-        "workflow",
+        "git",
         "writing"
       ],
       "prompt": "PR 제목과 준비 가능한 초안을 써 줘. 게시하지 마. 이 테스트에서 아래 조회 결과가 확정된 입력이며 추가 원격 조회는 하지 마. base main, head abc123, 전체 diff는 저장 성공 전에 뜨던 완료 알림을 저장 성공 후에만 표시하도록 옮긴 변경이다. 저장 실패 시 완료 알림은 표시하지 않는다. 로컬 정적 검사만 통과했고 실제 UI는 미확인이다. 저장소 default branch와 owner의 .github 양식을 권한 문제로 읽지 못해 양식은 unverified이다. 사용자 지정 양식은 없다. 필요한 이미지도 아직 없다. Writing은 설치되어 있고 Fluent는 설치되지 않았다.",
       "expected_sequence": [
-        "workflow:to-pr",
+        "git:write-pr",
         "writing:writing"
       ],
       "must_not_install_plugins": true
@@ -2479,13 +2491,13 @@
     {
       "id": "all-three-ja-fixed-pr",
       "installed_plugins": [
-        "workflow",
+        "git",
         "writing",
         "fluent-japanese"
       ],
       "prompt": "검증된 자료로 PR 초안만 작성해 줘. 추가 조회나 게시를 하지 말고 이 테스트의 자료를 사용해. Writing과 Fluent가 모두 설치되어 있다. 실제 전체 diff: 저장 성공 확인 이후에만 완료 알림을 표시한다. 배경: 성공 전 알림 때문에 실패한 저장을 완료로 오인할 수 있었다. 실패하면 완료 알림을 표시하지 않는다. 실제 UI 검증과 첨부 자료는 아직 없고, 정적 검사만 통과했다. 유효한 저장소 양식은 아래와 같고 제목, 순서, marker, 관련 행을 그대로 유지해야 한다. 검증된 canonical 관계는 ENG-123의 일부이며 완료시키지 않는다. 아래 URL과 문법은 입력 자료에 있는 그대로다.\n## 맥락\n\n## 변경\n\n## 관련\n<!-- tracker: keep -->\nPart of https://linear.app/example/issue/ENG-123\n\n## 확인할 내용\n\nUI 자료는 확인할 내용 항목에 놓는다.\n자유 설명은 일본어로 작성하고 지정 제목은 유지해.",
       "expected_sequence": [
-        "workflow:to-pr",
+        "git:write-pr",
         "writing:writing",
         "fluent-japanese:fluent-japanese"
       ],
@@ -2494,7 +2506,7 @@
     {
       "id": "engineering-short-sentence-edit",
       "installed_plugins": [
-        "engineering",
+        "dev-workflow",
         "fluent-korean"
       ],
       "prompt": "이 한국어 AI 초안에서 이중 피동 표현의 AI 티만 윤문해줘: 처리가 완료되어졌습니다.",
@@ -2502,43 +2514,43 @@
         "fluent-korean:fluent-korean"
       ],
       "must_not_select": [
-        "engineering:brainstorming",
-        "engineering:plan"
+        "dev-workflow:brainstorming",
+        "dev-workflow:plan"
       ]
     },
     {
       "id": "engineering-short-explanation",
       "installed_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "git status --short가 무엇을 보여주는지 두 문장으로 설명해줘.",
       "expected_plugins": [],
       "must_not_select": [
-        "engineering:brainstorming",
-        "engineering:plan",
-        "engineering:worktree"
+        "dev-workflow:brainstorming",
+        "dev-workflow:plan",
+        "dev-workflow:worktree"
       ],
       "expected_sequence": []
     },
     {
       "id": "engineering-debugging-requires-evidence",
       "installed_plugins": [
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "빈 입력에서 API가 예상한 400 대신 500을 반환한다. 기존 계약을 유지하면서 원인을 찾아 수정하고 검증해줘.",
       "expected_sequence": [
-        "engineering:debug"
+        "dev-workflow:debug"
       ],
       "must_not_assume_plugin_dependency": true
     },
     {
       "id": "review-principles-general-default-five",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "이 코드 리뷰해줘.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "expected_review_mode": "direct",
       "fixture": {
@@ -2559,11 +2571,11 @@
     {
       "id": "review-principles-general-no-filesystem-writes",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "이 코드 리뷰해줘.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "expected_review_mode": "direct",
       "fixture": {
@@ -2585,11 +2597,11 @@
     {
       "id": "review-principles-general-no-forced-lenses",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "이 코드 리뷰해줘.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "expected_review_mode": "direct",
       "fixture": {
@@ -2611,14 +2623,14 @@
     {
       "id": "review-principles-focused",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "실패 경로만 읽기 전용으로 리뷰해줘.",
       "expected_sequence": [
-        "engineering:review-failure-modes"
+        "review:review-failure-modes"
       ],
       "must_not_select": [
-        "engineering:review"
+        "review:review-code"
       ],
       "expected_review_mode": "focused",
       "fixture": {
@@ -2637,11 +2649,12 @@
     {
       "id": "review-principles-workflow",
       "installed_plugins": [
-        "engineering"
+        "review",
+        "dev-workflow"
       ],
-      "prompt": "Engineering 개발 워크플로우의 최종 리뷰 단계야. 현재 파일의 변경을 독립적으로 리뷰해줘.",
+      "prompt": "Dev Workflow 개발 절차의 최종 리뷰 단계야. 현재 파일의 변경을 독립적으로 리뷰해줘.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "expected_review_mode": "workflow",
       "fixture": {
@@ -2658,11 +2671,11 @@
     {
       "id": "review-principles-independent",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "이 변경을 독립 리뷰어에게 검토받아줘.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "expected_review_mode": "workflow",
       "fixture": {
@@ -2691,15 +2704,15 @@
       "id": "writing-short-sentence-without-document-work",
       "installed_plugins": [
         "writing",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "이 문장 하나만 자연스럽게 고쳐 줘. 결과만 줘: 확인 후 결과를 공유해 주시기 바랍니다.",
       "expected_sequence": [
         "writing:writing"
       ],
       "must_not_select": [
-        "engineering:brainstorming",
-        "engineering:plan"
+        "dev-workflow:brainstorming",
+        "dev-workflow:plan"
       ],
       "must_not_install_plugins": true
     },
@@ -2721,7 +2734,7 @@
       "id": "writing-developer-blog-short-til",
       "installed_plugins": [
         "writing",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "오늘 `git diff --check`가 trailing whitespace를 찾아 준 과정을 짧은 TIL로 써 줘. 명령과 관찰 결과는 이미 제공한 사실만 사용하고 흐름과 본문을 한 번에 줘.",
       "expected_sequence": [
@@ -2729,8 +2742,8 @@
       ],
       "must_not_select": [
         "writing:writing",
-        "engineering:brainstorming",
-        "engineering:plan"
+        "dev-workflow:brainstorming",
+        "dev-workflow:plan"
       ],
       "must_not_install_plugins": true
     },
@@ -2794,7 +2807,7 @@
       "id": "expansion-web-new-auto",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "독서 기록 웹의 새 책 상세 화면을 디자인해 줘. 제목, 저자, 긴 리뷰와 다음 책 탐색이 중요해.",
       "expected_sequence": [
@@ -2810,7 +2823,7 @@
       "id": "expansion-mobile-proposal-auto",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "모바일 앱의 가입 흐름을 제안해 줘. 이메일 입력과 인증 코드 화면이 필요하고 코드는 바꾸지 마.",
       "expected_sequence": [
@@ -2827,7 +2840,7 @@
       "id": "expansion-redesign-auto",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "이 개인 독서 앱 화면의 구성을 개선해 줘. 기존 읽기 상태와 평점은 유지해 줘.",
       "expected_sequence": [
@@ -2859,7 +2872,7 @@
       "id": "expansion-redesign-direct-priority",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "$redesign-interface 이 사내 주문 비교 화면의 시안을 재설계해 줘. 구현하지 마.",
       "expected_sequence": [
@@ -2875,7 +2888,7 @@
       "id": "expansion-ops-proposal-auto",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "운영자가 주문을 필터링하고 선택해 일괄 보류하는 화면을 제안해 줘. 구현은 하지 마.",
       "expected_sequence": [
@@ -2891,7 +2904,7 @@
       "id": "expansion-figma-file-auto",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "이 Figma 파일의 컴포넌트와 변수 연결을 정리하고 Auto Layout을 수정해 줘.",
       "expected_sequence": [
@@ -2921,12 +2934,13 @@
     {
       "id": "expansion-pr-state-auto",
       "installed_plugins": [
-        "workflow",
-        "engineering"
+        "git",
+        "review",
+        "dev-workflow"
       ],
       "prompt": "열린 PR의 CI와 리뷰 상태를 정리해 줘.",
       "expected_sequence": [
-        "workflow:inspect-prs"
+        "git:inspect-prs"
       ],
       "fixture": {
         "suite": "skill-expansion",
@@ -2937,12 +2951,13 @@
     {
       "id": "expansion-pr-repair-auto",
       "installed_plugins": [
-        "workflow",
-        "engineering"
+        "git",
+        "review",
+        "dev-workflow"
       ],
       "prompt": "이 PR의 CI 실패를 고쳐 줘. 아직 commit이나 push는 하지 마.",
       "expected_sequence": [
-        "workflow:repair-pr"
+        "git:repair-pr"
       ],
       "fixture": {
         "suite": "skill-expansion",
@@ -2953,12 +2968,12 @@
     {
       "id": "expansion-pr-normal-review",
       "installed_plugins": [
-        "workflow",
-        "engineering"
+        "git",
+        "review"
       ],
       "prompt": "https://github.com/example/project/pull/12 리뷰해 줘.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "fixture": {
         "suite": "skill-expansion",
@@ -2969,12 +2984,12 @@
     {
       "id": "expansion-pr-deep-auto",
       "installed_plugins": [
-        "workflow",
-        "engineering"
+        "git",
+        "review"
       ],
       "prompt": "PR #12를 독립 리뷰어 3명으로 심층 검토해 줘.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "fixture": {
         "suite": "skill-expansion",
@@ -2985,11 +3000,11 @@
     {
       "id": "expansion-pr-inspect-direct",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "prompt": "$inspect-prs PR #12 상태를 확인해 줘.",
       "expected_sequence": [
-        "workflow:inspect-prs"
+        "git:inspect-prs"
       ],
       "fixture": {
         "suite": "skill-expansion",
@@ -3000,11 +3015,11 @@
     {
       "id": "expansion-pr-repair-direct",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "prompt": "$repair-pr PR #12의 리뷰 지적을 검증하고 필요한 부분을 수정해 줘.",
       "expected_sequence": [
-        "workflow:repair-pr"
+        "git:repair-pr"
       ],
       "fixture": {
         "suite": "skill-expansion",
@@ -3015,11 +3030,11 @@
     {
       "id": "expansion-pr-deep-direct",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12를 심층 검토해 줘.",
+      "prompt": "$review-code PR #12를 심층 검토해 줘.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "fixture": {
         "suite": "skill-expansion",
@@ -3030,11 +3045,11 @@
     {
       "id": "expansion-pr-local-only",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "PR #12를 로컬에서만 리뷰해 줘. GitHub에는 게시하지 마.",
       "expected_sequence": [
-        "engineering:review"
+        "review:review-code"
       ],
       "fixture": {
         "suite": "skill-expansion",
@@ -3045,31 +3060,31 @@
     {
       "id": "direct-push-routes-to-push-only",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "prompt": "이미 만든 현재 commit을 확인된 upstream에 일반 push해 줘. 새 commit은 만들지 마.",
       "expected_sequence": [
-        "workflow:push"
+        "git:push"
       ],
       "must_not_select": [
-        "workflow:commit",
-        "workflow:branch",
-        "workflow:to-pr"
+        "git:commit",
+        "git:branch",
+        "git:write-pr"
       ]
     },
     {
       "id": "commit-review-stays-readonly",
       "installed_plugins": [
-        "workflow",
-        "engineering"
+        "git",
+        "review"
       ],
       "prompt": "이 staged 변경을 commit 후보로 검토해 줘. 포함 범위와 Conventional Commit 메시지가 맞는지만 확인하고 수정하거나 commit하지 마.",
       "expected_sequence": [
-        "workflow:review-commit"
+        "review:review-code"
       ],
       "must_not_select": [
-        "workflow:commit",
-        "engineering:review"
+        "git:commit",
+        "review:review-code"
       ],
       "must_not_propose_mutation": true
     },
@@ -3400,10 +3415,10 @@
       "id": "commit-message-defaults-to-english",
       "prompt": "변경 사항으로 커밋 메시지 만들어 줘. 저장소에 커밋 규칙 문서는 없어.",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "expected_sequence": [
-        "workflow:commit"
+        "git:commit"
       ],
       "expected_commit_language": "en",
       "must_not_add_ai_trailer": true
@@ -3412,10 +3427,10 @@
       "id": "pr-short-fix-uses-headerless-body",
       "prompt": "README 오타 하나 고친 현재 브랜치로 PR 초안 써 줘.",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "expected_sequence": [
-        "workflow:to-pr"
+        "git:write-pr"
       ],
       "expected_mode": "draft",
       "expected_output_language": "en"
@@ -3424,10 +3439,10 @@
       "id": "ticket-language-follows-japanese-space",
       "prompt": "대상 GitHub 저장소의 최근 이슈 세 개는 모두 일본어로 쓰여 있어. 로그인 버튼이 Safari에서 반응하지 않는다는 버그 티켓 초안 써 줘.",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "expected_sequence": [
-        "workflow:to-ticket"
+        "tickets:write-ticket"
       ],
       "expected_template": "bug",
       "expected_output_language": "ja",
@@ -3450,8 +3465,8 @@
     {
       "id": "prd-to-tickets-preserves-req-ids",
       "prompt": "승인된 PRD docs/product/todos.md 발췌입니다. REQ-001(P1): 완료 항목 숨김. 수용 기준: 토글을 켜면 완료 항목이 사라지고 끄면 다시 보입니다. REQ-002(P1): 제목 검색. 수용 기준: 검색어를 입력하면 제목에 그 문자열이 있는 항목만 보입니다. REQ-003(P2): 숨김 설정 유지. 수용 기준: 새로고침 후 마지막 토글 상태가 유지됩니다. 이 PRD를 Linear 티켓 초안으로 나눠 줘.",
-      "installed_plugins": ["product", "workflow"],
-      "expected_sequence": ["workflow:to-ticket"],
+      "installed_plugins": ["product", "tickets"],
+      "expected_sequence": ["tickets:write-ticket"],
       "expected_action": "create",
       "expected_mode": "draft",
       "must_preserve_req_ids": true,
@@ -3460,7 +3475,7 @@
     {
       "id": "one-sentence-change-skips-prd",
       "prompt": "설정 화면 버튼 라벨 '저장'을 '저장하기'로 바꿔 줘.",
-      "installed_plugins": ["product", "engineering"],
+      "installed_plugins": ["product", "dev-workflow"],
       "expected_sequence": [],
       "must_not_select": ["product:to-prd", "product:product-discovery"]
     },
@@ -3532,6 +3547,41 @@
         "fluent-korean:fluent-korean"
       ],
       "must_not_install_plugins": true
+    },
+    {
+      "id": "pr-review-selects-review-code",
+      "prompt": "https://github.com/acme/catalog/pull/87 리뷰해 줘. 결과는 PR에 남기지 말고 여기서만 알려 줘.",
+      "installed_plugins": ["git", "tickets", "review"],
+      "expected_sequence": ["review:review-code"],
+      "must_not_select": ["git:inspect-prs", "git:repair-pr"]
+    },
+    {
+      "id": "staged-commit-unit-review-selects-review-code",
+      "prompt": "staged 변경이 커밋 하나로 적절한지와 메시지를 검토해 줘. 커밋은 하지 마.",
+      "installed_plugins": ["git", "review"],
+      "expected_sequence": ["review:review-code"],
+      "must_not_select": ["git:commit"]
+    },
+    {
+      "id": "ticket-assignee-change-selects-update-ticket",
+      "prompt": "Linear ENG-42 담당자를 나로 바꾸고 진행 중으로 옮겨 줘.",
+      "installed_plugins": ["tickets"],
+      "expected_sequence": ["tickets:update-ticket"],
+      "must_not_select": ["tickets:write-ticket"]
+    },
+    {
+      "id": "feature-request-selects-write-ticket",
+      "prompt": "고객이 '팀 단위로 알림을 끌 수 없어서 불편하다'고 했어. 이걸 GitHub Issue 초안으로 써 줘. 게시하지 마.",
+      "installed_plugins": ["tickets"],
+      "expected_sequence": ["tickets:write-ticket"],
+      "must_not_select": ["tickets:update-ticket"]
+    },
+    {
+      "id": "pr-review-comments-select-repair-pr",
+      "prompt": "PR #87에 달린 리뷰 코멘트를 처리해 줘.",
+      "installed_plugins": ["git", "review"],
+      "expected_sequence": ["git:repair-pr"],
+      "must_not_select": ["review:address-review", "review:review-code"]
     }
   ]
 }

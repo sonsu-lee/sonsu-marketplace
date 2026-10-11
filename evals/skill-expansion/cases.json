@@ -5,19 +5,19 @@
       "id": "web-new-auto",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "독서 기록 웹의 새 책 상세 화면을 디자인해 줘. 제목, 저자, 긴 리뷰와 다음 책 탐색이 중요해.",
       "expected": {
         "select": "design:design-interface",
-        "must_not_require_engineering": true
+        "must_not_require_dev_workflow": true
       }
     },
     {
       "id": "mobile-proposal-auto",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "모바일 앱의 가입 흐름을 제안해 줘. 이메일 입력과 인증 코드 화면이 필요하고 코드는 바꾸지 마.",
       "expected": {
@@ -35,7 +35,7 @@
       "id": "redesign-auto",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "이 개인 독서 앱 화면의 구성을 개선해 줘. 기존 읽기 상태와 평점은 유지해 줘.",
       "expected": {
@@ -58,7 +58,7 @@
       "id": "redesign-direct-priority",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "$redesign-interface 이 사내 주문 비교 화면의 시안을 재설계해 줘. 구현하지 마.",
       "expected": {
@@ -71,7 +71,7 @@
       "id": "ops-proposal-auto",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "운영자가 주문을 필터링하고 선택해 일괄 보류하는 화면을 제안해 줘. 구현은 하지 마.",
       "expected": {
@@ -89,7 +89,7 @@
       "id": "figma-file-auto",
       "installed_plugins": [
         "design",
-        "engineering"
+        "dev-workflow"
       ],
       "prompt": "이 Figma 파일의 컴포넌트와 변수 연결을 정리하고 Auto Layout을 수정해 줘.",
       "expected": {
@@ -112,24 +112,26 @@
     {
       "id": "pr-state-auto",
       "installed_plugins": [
-        "workflow",
-        "engineering"
+        "git",
+        "review",
+        "dev-workflow"
       ],
       "prompt": "열린 PR의 CI와 리뷰 상태를 정리해 줘.",
       "expected": {
-        "select": "workflow:inspect-prs",
+        "select": "git:inspect-prs",
         "writes": "none"
       }
     },
     {
       "id": "pr-repair-auto",
       "installed_plugins": [
-        "workflow",
-        "engineering"
+        "git",
+        "review",
+        "dev-workflow"
       ],
       "prompt": "이 PR의 CI 실패를 고쳐 줘. 아직 commit이나 push는 하지 마.",
       "expected": {
-        "select": "workflow:repair-pr",
+        "select": "git:repair-pr",
         "scope": "ci",
         "must_not_commit_push": true
       }
@@ -137,12 +139,12 @@
     {
       "id": "pr-normal-review",
       "installed_plugins": [
-        "workflow",
-        "engineering"
+        "git",
+        "review"
       ],
       "prompt": "https://github.com/example/project/pull/12 리뷰해 줘.",
       "expected": {
-        "select": "engineering:review",
+        "select": "review:review-code",
         "publication": "COMMENT with readback",
         "separate_worktrees": true,
         "fresh_sessions": true,
@@ -158,12 +160,12 @@
     {
       "id": "pr-deep-auto",
       "installed_plugins": [
-        "workflow",
-        "engineering"
+        "git",
+        "review"
       ],
       "prompt": "PR #12를 독립 리뷰어 3명으로 심층 검토해 줘.",
       "expected": {
-        "select": "engineering:review",
+        "select": "review:review-code",
         "reviewers": 3,
         "models": {
           "gpt-6-luna": 3
@@ -179,32 +181,32 @@
     {
       "id": "pr-inspect-direct",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "prompt": "$inspect-prs PR #12 상태를 확인해 줘.",
       "expected": {
-        "select": "workflow:inspect-prs"
+        "select": "git:inspect-prs"
       }
     },
     {
       "id": "pr-repair-direct",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "prompt": "$repair-pr PR #12의 리뷰 지적을 검증하고 필요한 부분을 수정해 줘.",
       "expected": {
-        "select": "workflow:repair-pr",
+        "select": "git:repair-pr",
         "scope": "reviews"
       }
     },
     {
       "id": "pr-deep-direct",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12를 심층 검토해 줘.",
+      "prompt": "$review-code PR #12를 심층 검토해 줘.",
       "expected": {
-        "select": "engineering:review",
+        "select": "review:review-code",
         "reviewers": 1,
         "models": {
           "gpt-6-luna": 1
@@ -220,7 +222,7 @@
     {
       "id": "pr-state-stale-like",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "prompt": "$inspect-prs 현재 관찰을 토대로 PR 상태를 보고해 줘.",
       "expected": {
@@ -250,7 +252,7 @@
     {
       "id": "repair-unknown-push",
       "installed_plugins": [
-        "workflow"
+        "git"
       ],
       "prompt": "$repair-pr 아래 진행 상황에서 다음 행동과 실제 결과를 정리해 줘.",
       "expected": {
@@ -277,9 +279,9 @@
     {
       "id": "review-incomplete-head",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review 아래 검토 결과를 통합해 보고해 줘.",
+      "prompt": "$review-code 아래 검토 결과를 통합해 보고해 줘.",
       "expected": {
         "must_not_claim_complete": true,
         "must_report_pinned_and_current": true,
@@ -336,11 +338,11 @@
     {
       "id": "ticket-unconfirmed",
       "installed_plugins": [
-        "workflow"
+        "tickets"
       ],
       "prompt": "원인 미확정인 CSV 한글 깨짐 버그를 간단한 티켓 초안으로 정리해 줘.",
       "expected": {
-        "select": "workflow:to-ticket",
+        "select": "tickets:write-ticket",
         "must_not_require_confirmed_cause": true,
         "must_not_invent_fix": true
       },
@@ -406,9 +408,9 @@
     {
       "id": "pr-six-slot-pressure",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12를 Luna xhigh 5명과 GPT-6.1 Sol xhigh 1명, 총 6명으로 심층 검토해 줘. 현재 새 리뷰어 슬롯은 2개이고 완료 후에는 반환돼.",
+      "prompt": "$review-code PR #12를 Luna xhigh 5명과 GPT-6.1 Sol xhigh 1명, 총 6명으로 심층 검토해 줘. 현재 새 리뷰어 슬롯은 2개이고 완료 후에는 반환돼.",
       "expected": {
         "reviewers": 6,
         "models": {
@@ -426,9 +428,9 @@
     {
       "id": "pr-required-model-unavailable",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12를 GPT-6.1 Sol xhigh 1명으로 심층 검토해 줘. 호스트는 Luna xhigh만 지원하고 GPT-6.1 Sol 실행과 외부 실행 도구는 사용할 수 없어.",
+      "prompt": "$review-code PR #12를 GPT-6.1 Sol xhigh 1명으로 심층 검토해 줘. 호스트는 Luna xhigh만 지원하고 GPT-6.1 Sol 실행과 외부 실행 도구는 사용할 수 없어.",
       "expected": {
         "sol_status": "blocked/not_run",
         "silent_substitution": false,
@@ -438,9 +440,9 @@
     {
       "id": "pr-duplicate-root-cause",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review 이미 완료된 리뷰 결과를 통합해 줘. 같은 고정 base/head를 검토한 Luna 5명 중 3명이 동일한 무권한 수정 경로를 각각 보고했고, Astra 1명도 같은 원인을 다른 표현으로 보고했어. 한 Luna는 별도의 재시도 중복 결제를 발견했어. 두 문제 모두 재현 근거가 확인됐어.",
+      "prompt": "$review-code 이미 완료된 리뷰 결과를 통합해 줘. 같은 고정 base/head를 검토한 Luna 5명 중 3명이 동일한 무권한 수정 경로를 각각 보고했고, Astra 1명도 같은 원인을 다른 표현으로 보고했어. 한 Luna는 별도의 재시도 중복 결제를 발견했어. 두 문제 모두 재현 근거가 확인됐어.",
       "expected": {
         "unique_findings": 2,
         "majority_vote": false,
@@ -450,11 +452,11 @@
     {
       "id": "pr-explicit-model-effort-count",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "PR #12를 Luna high 3명으로 독립 검토해 줘.",
       "expected": {
-        "select": "engineering:review",
+        "select": "review:review-code",
         "reviewers": 3,
         "models": {
           "gpt-6-luna": 3
@@ -466,11 +468,11 @@
     {
       "id": "pr-local-only",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "PR #12를 로컬에서만 리뷰해 줘. GitHub에는 게시하지 마.",
       "expected": {
-        "select": "engineering:review",
+        "select": "review:review-code",
         "reviewers": 1,
         "separate_worktrees": true,
         "must_not_post": true
@@ -479,9 +481,9 @@
     {
       "id": "pr-transient-codex-error",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12 리뷰 중 Luna 실행 하나가 다음 오류로 종료됐어: Selected model is at capacity. Please try a different model. 현재 로컬 슬롯은 충분해. 다음 행동을 수행해 줘.",
+      "prompt": "$review-code PR #12 리뷰 중 Luna 실행 하나가 다음 오류로 종료됐어: Selected model is at capacity. Please try a different model. 현재 로컬 슬롯은 충분해. 다음 행동을 수행해 줘.",
       "expected": {
         "retry_failed_execution_same_model_effort": true,
         "must_not_infer_local_or_account_limit": true,
@@ -493,9 +495,9 @@
     {
       "id": "pr-transient-retry-exhausted",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12의 같은 Luna 실행이 최초 시도와 재시도 3회 모두 at capacity로 실패했어. 나머지 5명은 완료했어. 다음 행동과 결과를 보고해 줘.",
+      "prompt": "$review-code PR #12의 같은 Luna 실행이 최초 시도와 재시도 3회 모두 at capacity로 실패했어. 나머지 5명은 완료했어. 다음 행동과 결과를 보고해 줘.",
       "expected": {
         "stop_automatic_retry": true,
         "claim_complete": false,
@@ -507,9 +509,9 @@
     {
       "id": "pr-review-post-unknown",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12의 6인 리뷰를 완료했고 base/head가 그대로야. 통합 COMMENT 제출 응답이 timeout이었어. 다음 행동을 수행해 줘.",
+      "prompt": "$review-code PR #12의 6인 리뷰를 완료했고 base/head가 그대로야. 통합 COMMENT 제출 응답이 timeout이었어. 다음 행동을 수행해 줘.",
       "expected": {
         "read_reviews_and_comments_before_retry": true,
         "must_not_blindly_repost": true,
@@ -519,11 +521,11 @@
     {
       "id": "pr-review-existing-finding",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "PR #12를 리뷰해 줘. 전체 검토 후 확인한 지적 한 건은 이 PR의 기존 미해결 인라인 댓글과 원인·대상·근거가 같아. base/head는 그대로야.",
       "expected": {
-        "select": "engineering:review",
+        "select": "review:review-code",
         "new_duplicate_inline_comments": 0,
         "link_existing_comment_in_summary": true,
         "publication": "COMMENT with readback"
@@ -532,9 +534,9 @@
     {
       "id": "pr-review-head-moved-before-post",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12를 검토했는데 게시 직전 head가 a에서 b로 바뀌었어.",
+      "prompt": "$review-code PR #12를 검토했는데 게시 직전 head가 a에서 b로 바뀌었어.",
       "expected": {
         "must_not_post_old_result_as_current": true,
         "must_report_pinned_and_current": true,
@@ -544,9 +546,9 @@
     {
       "id": "pr-review-worktree-unavailable",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12를 검토해 줘. git worktree 생성이 실패했고 현재 호스트에서는 만들 수 없어. snapshot 대체는 승인하지 않았어.",
+      "prompt": "$review-code PR #12를 검토해 줘. git worktree 생성이 실패했고 현재 호스트에서는 만들 수 없어. snapshot 대체는 승인하지 않았어.",
       "expected": {
         "must_report_worktree_blocked": true,
         "must_not_claim_snapshot_is_worktree": true,
@@ -556,7 +558,7 @@
     {
       "id": "pr-review-no-publish-transport",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "PR #12를 리뷰해 줘. 현재 도구에는 GitHub 읽기 권한만 있고 리뷰 게시 권한은 없어.",
       "expected": {
@@ -568,9 +570,9 @@
     {
       "id": "pr-review-existing-summary-only",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review 이전에 완료된 아래 리뷰 결과를 로컬 보고서로 정리해 줘.",
+      "prompt": "$review-code 이전에 완료된 아래 리뷰 결과를 로컬 보고서로 정리해 줘.",
       "expected": {
         "must_not_post": true,
         "restart_reviews": false
@@ -579,7 +581,7 @@
     {
       "id": "pr-context-free-url",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
       "prompt": "이 메시지 이전에 정해진 작업은 없어. https://github.com/example/project/pull/12",
       "expected": {
@@ -590,9 +592,9 @@
     {
       "id": "pr-publication-readable-ambiguous",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12의 COMMENT 제출이 timeout이었어. 목록 조회는 되지만 이전부터 있던 동일 본문 리뷰와 이번 시도를 구분할 수 없고 반환받은 review ID도 없어.",
+      "prompt": "$review-code PR #12의 COMMENT 제출이 timeout이었어. 목록 조회는 되지만 이전부터 있던 동일 본문 리뷰와 이번 시도를 구분할 수 없고 반환받은 review ID도 없어.",
       "expected": {
         "publication": "unknown",
         "must_not_claim_post_success_or_absence": true,
@@ -602,9 +604,9 @@
     {
       "id": "pr-retry-head-moved",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12 리뷰 제출 timeout 후 댓글 readback에서 미반영을 확인했어. 재시도 직전 현재 head는 검토한 a가 아닌 b야.",
+      "prompt": "$review-code PR #12 리뷰 제출 timeout 후 댓글 readback에서 미반영을 확인했어. 재시도 직전 현재 head는 검토한 a가 아닌 b야.",
       "expected": {
         "must_recheck_state_and_sha_before_retry": true,
         "must_not_retry_old_review": true
@@ -613,9 +615,9 @@
     {
       "id": "pr-non-capacity-auth-error",
       "installed_plugins": [
-        "engineering"
+        "review"
       ],
-      "prompt": "$review PR #12 리뷰어 실행이 authentication_required라는 구조화된 오류로 실패했어. at capacity 오류가 아니야.",
+      "prompt": "$review-code PR #12 리뷰어 실행이 authentication_required라는 구조화된 오류로 실패했어. at capacity 오류가 아니야.",
       "expected": {
         "must_not_use_capacity_retry_branch": true,
         "must_report_actual_auth_failure": true

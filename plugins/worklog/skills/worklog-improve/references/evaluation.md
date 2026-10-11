@@ -146,4 +146,4 @@ hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True,
 
 보존 후 이번 호출이 만든 임시 worktree만 정리한다. 원래 작업 디렉터리에는 사례와 비식별
 fixture만 남긴다. 검토 통과는 적용 승인과 구분한다. 커밋·PR은 별도 요청이 있을 때 설치된
-Workflow 스킬로 넘기고, 해당 스킬이 없으면 필요한 다음 행동을 안내한다.
+Git 스킬로 넘기고, 해당 스킬이 없으면 필요한 다음 행동을 안내한다.

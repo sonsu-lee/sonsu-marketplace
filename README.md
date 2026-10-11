@@ -13,9 +13,9 @@
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
 # 하나만 설치
-codex plugin add engineering@sonsu-marketplace
+codex plugin add dev-workflow@sonsu-marketplace
 # 전체 설치 시 위 단일 설치 대신 실행
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
+for plugin in git tickets review dev-workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
 codex plugin marketplace list
 codex plugin list --marketplace sonsu-marketplace
 ```
@@ -27,21 +27,21 @@ codex plugin list --marketplace sonsu-marketplace
 ```sh
 claude plugin marketplace add sonsu-lee/sonsu-marketplace
 # 하나만 설치
-claude plugin install engineering@sonsu-marketplace
+claude plugin install dev-workflow@sonsu-marketplace
 # 전체 설치 시 위 단일 설치 대신 실행
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
+for plugin in git tickets review dev-workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
 claude plugin marketplace list
 claude plugin list
 ```
 
 ### omp
 
-기본 5개를 설치하며 Writing·Research·Prompting·Product·Design Patterns·Worklog 6개는 선택 사항입니다. 자동 업데이트를 새로 선택할 때만 아래 YAML을 `~/.omp/agent/config.yml`의 기존 `marketplace:` 항목과 합치세요.
+기본 7개를 설치하며 Writing·Research·Prompting·Product·Design Patterns·Worklog 6개는 선택 사항입니다. 자동 업데이트를 새로 선택할 때만 아래 YAML을 `~/.omp/agent/config.yml`의 기존 `marketplace:` 항목과 합치세요.
 
 <!-- omp-preset:start -->
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
+for plugin in git tickets review fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
@@ -63,12 +63,14 @@ omp plugin list
 
 ## 플러그인
 
-각 플러그인은 독립적으로 사용하며 링크에서 상세 사용법을 확인할 수 있습니다(Codex·Claude Code: 전체 13개, omp: 기본 5개와 opt-in 6개, 총 11개).
+각 플러그인은 독립적으로 사용하며 링크에서 상세 사용법을 확인할 수 있습니다(Codex·Claude Code: 전체 15개, omp: 기본 7개와 opt-in 6개, 총 13개).
 
 | 플러그인 | 용도 | 설치 이름 |
 | --- | --- | --- |
-| [Engineering](plugins/engineering/README.md) | 소프트웨어 변경 설계·구현·검증과 코드 단순화·품질 리뷰 | `engineering` |
-| [Workflow](plugins/workflow) | Git branch·commit·push, 티켓 작성·수정·상태 관리와 GitHub PR 작업 | `workflow` |
+| [Git](plugins/git/README.md) | Git branch·commit·push와 GitHub PR 작성·상태 조회·복구 | `git` |
+| [Tickets](plugins/tickets/README.md) | GitHub Issues·Linear 티켓 작성과 상태·담당자·관계 변경 | `tickets` |
+| [Review](plugins/review/README.md) | 코드·diff·커밋·PR의 코드 건강도 리뷰, 집중 관점 리뷰와 리뷰 지적 대응 | `review` |
+| [Dev Workflow](plugins/dev-workflow/README.md) | 소프트웨어 변경 설계·계획·구현·디버깅·검증과 코드 단순화 | `dev-workflow` |
 | [Fluent Korean](plugins/fluent-korean) | 한국어 새 글의 생성 규칙과 기존 글의 AI 티·번역투 윤문 (`im-not-ai` 기반) | `fluent-korean` |
 | [Fluent English](plugins/fluent-english) | 일상·기술 영어 작성·윤문·검토 (`better-writing` 기반) | `fluent-english` |
 | [Fluent Japanese](plugins/fluent-japanese) | 일상·기술 일본어 작성·윤문·문서 진단 (`natural-japanese` 기반) | `fluent-japanese` |
@@ -83,12 +85,14 @@ omp plugin list
 
 ## 사용 예시
 
-관련 플러그인을 설치한 뒤 Codex 또는 Claude Code에 요청하세요(직접 호출 예: Claude Code `/engineering:review`, omp `/skill:commit`).
+관련 플러그인을 설치한 뒤 Codex 또는 Claude Code에 요청하세요(직접 호출 예: Claude Code `/review:review-code`, omp `/skill:commit`).
 
 | 플러그인 | 요청 예시 |
 | --- | --- |
-| Engineering | “이 버그를 수정해 검증하거나, 현재 diff의 불필요한 추상화와 도달 가능한 실패 경로를 리뷰해 줘.” |
-| Workflow | “현재 변경을 커밋하고 Draft PR을 만들어 줘.” |
+| Git | “현재 변경을 커밋하고 Draft PR을 만들어 줘.” |
+| Tickets | “이 버그 보고를 GitHub Issue 초안으로 정리해 줘.” |
+| Review | “현재 diff의 불필요한 추상화와 도달 가능한 실패 경로를 리뷰해 줘.” |
+| Dev Workflow | “이 버그를 수정하고 검증해 줘.” |
 | Fluent Japanese | “이 일본어 기술 설명을 의미와 코드 식별자를 유지하면서 자연스럽게 다듬어 줘.” |
 | Writing | “이 자료에서 README에 필요한 내용을 골라 요약하고, 상세 내용은 기존 문서에 반영해 줘.” |
 | Research | “이 두 서비스의 요금과 제한 사항을 공식 자료로 비교해 줘.” |
@@ -105,12 +109,12 @@ omp plugin list
 ```sh
 codex plugin marketplace upgrade sonsu-marketplace
 claude plugin marketplace update sonsu-marketplace
-claude plugin update engineering@sonsu-marketplace
+claude plugin update dev-workflow@sonsu-marketplace
 omp plugin marketplace update sonsu-marketplace
 omp plugin upgrade
 ```
 
-[이전 omp 구성·fluent-languages에서 이동](docs/guides/migrating-from-earlier-versions.md)
+[이전 omp 구성·fluent-languages·workflow·engineering에서 이동](docs/guides/migrating-from-earlier-versions.md)
 
 ## 문서
 

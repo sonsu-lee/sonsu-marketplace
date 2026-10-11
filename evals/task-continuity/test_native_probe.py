@@ -11,8 +11,8 @@ class InstalledReferenceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             home = root / "home"
-            installed = home / "plugins/cache/fixture/engineering/3.0.0"
-            source = root / "marketplace/plugins/engineering"
+            installed = home / "plugins/cache/fixture/dev-workflow/3.0.0"
+            source = root / "marketplace/plugins/dev-workflow"
             (installed / "hooks").mkdir(parents=True)
             (source / "references").mkdir(parents=True)
             (installed / "hooks/hooks.json").write_text("{}")

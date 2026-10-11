@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "design",
-  "manifest_sha256": "dd7e63c9900348cf126a6d46fcae1feb0d62fdab8a501df9d058800769073721",
+  "manifest_sha256": "08c5c8a35322ad7b902f445a7b69fefc6a8058f7c0b9bb2b431894ffee82322f",
   "skills": [
     {
       "path": "plugins/design/skills/audit-interface/SKILL.md",

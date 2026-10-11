@@ -15,8 +15,8 @@ Sonsu Marketplace는 Codex·Claude Code·omp 플러그인을 한 저장소에서
 | `.agents/plugins/marketplace.json` | 마켓플레이스 식별자와 제공할 플러그인을 등록 |
 | `plugins/<name>/.codex-plugin/plugin.json` | 개별 플러그인의 메타데이터와 구성 요소 진입점 정의 |
 | `.claude-plugin/marketplace.json`, `plugins/<name>/.claude-plugin/plugin.json` | Codex 정본에서 생성한 Claude Code 배포 메타데이터 |
-| `.omp-plugin/marketplace.json` | omp 기본 5개와 opt-in 6개 카탈로그. Codex catalog에서 대상만 생성 |
-| `plugins/{design,workflow,fluent-korean,writing,research,prompting,product}/omp/` | 독자 runtime을 포함하지 않는, 생성된 omp 전용 패키지 |
+| `.omp-plugin/marketplace.json` | omp 기본 7개와 opt-in 6개 카탈로그. Codex catalog에서 대상만 생성 |
+| `plugins/{design,git,tickets,review,fluent-korean,writing,research,prompting,product}/omp/` | 독자 runtime을 포함하지 않는, 생성된 omp 전용 패키지 |
 | `plugins/<name>/skills/` | 플러그인이 제공하는 스킬 보관 |
 | `plugins/<name>/UPSTREAM.md` | 업스트림 기준 commit, 포함 범위와 로컬 차이 기록 |
 | `scripts/` | 공유 정책·연속성 참조 생성 등 저장소 유지보수 도구 |
@@ -37,7 +37,7 @@ Claude Code: 저장소 루트
   → skills, hooks와 지원되는 구성 요소
 omp: 저장소 루트
   → .omp-plugin/marketplace.json
-  → plugins/{workflow,design,fluent-korean,writing,research,prompting,product,worklog}/omp 또는 plugins/{fluent-english,fluent-japanese,design-patterns}
+  → plugins/{git,tickets,review,design,fluent-korean,writing,research,prompting,product,worklog}/omp 또는 plugins/{fluent-english,fluent-japanese,design-patterns}
   → skills와 필요한 동봉 자료(opt-in Worklog는 runtime extension도 포함)
 ```
 
@@ -47,30 +47,33 @@ Codex와 Claude Code는 대부분의 패키지에서 공통 스킬·hook·script
 `scripts/render-claude-compat.py`로 배포본을 갱신합니다. Codex 전용 connector 선언은 이식하지 않습니다. 구성과
 검증 절차는 [플러그인 개발 가이드](../guides/adding-a-plugin.md)에 있습니다.
 
-omp 기본 구성은 Workflow, Fluent Korean, Fluent English, Fluent Japanese, Design 5개입니다.
+omp 기본 구성은 Git, Tickets, Review, Fluent Korean, Fluent English, Fluent Japanese, Design 7개입니다.
 Writing·Research·Prompting·Product·Design Patterns·Worklog 6개는 opt-in으로 별도 설치합니다([ADR 0024](../decisions/0024-distribute-writing-research-prompting-product-to-omp.md), [Design Patterns ADR 0026](../decisions/0026-ship-design-patterns-as-omp-opt-in.md), [Worklog ADR 0022](../decisions/0022-add-worklog-plugin.md)).
-개발 실행·task·todo·session·review·메모리는 omp 순정 기능을 쓰며, 커스텀 역할 설정을 추가하지 않습니다.
-`scripts/render-omp-compat.py`가 Design·Workflow·Fluent Korean·Writing·Research·Prompting·Product·Worklog의 전용 패키지를 생성합니다.
-기본 5개에는 독자 runtime extension, hook, evidence gate, `task-continuity.py`를 배포하지 않습니다.
+개발 실행·task·todo·session·메모리는 omp 순정 기능을 쓰며, 커스텀 역할 설정을 추가하지 않습니다.
+리뷰는 omp 순정 `reviewer`를 쓰고, Review는 그 reviewer에만 적용되는 리뷰 기준 규칙을 함께 배포합니다.
+`scripts/render-omp-compat.py`가 Design·Git·Tickets·Review·Fluent Korean·Writing·Research·Prompting·Product·Worklog의 전용 패키지를 생성합니다.
+기본 7개에는 독자 runtime extension, hook, evidence gate, `task-continuity.py`를 배포하지 않습니다.
 runtime extension은 opt-in Worklog에만 포함하고, hook은 모든 omp 배포에서 제외합니다.
 Fluent Korean은 Codex의 단일 호출 스킬과 참고 자료를 투영하고 현재 호스트 모델을 사용합니다.
 Claude Code의 다중 호출·strict 모드와 고정 Opus 에이전트는 omp 배포에 포함하지 않습니다.
 원본 패키지의 Codex·Claude Code용 파일, English·Japanese 스킬, Design의 품질 계약과 프로필,
-Workflow의 권한 경계는 유지합니다. 생성된 연속성 자료는 `.sonsu`에 쓰지 않고 omp 순정 todo·session을 안내합니다.
+Git·Tickets의 권한 경계는 유지합니다. 생성된 연속성 자료는 `.sonsu`에 쓰지 않고 omp 순정 todo·session을 안내합니다.
 생성물과 설치 캐시는 손으로 편집하지 않습니다.
 
 | omp에서의 책임 | 담당 |
 | --- | --- |
-| 개발 실행·task·todo·session·review | omp 순정 기능 |
-| Git·티켓·PR 작업 권한과 산출물 | Workflow |
+| 개발 실행·task·todo·session | omp 순정 기능 |
+| 코드·PR 리뷰 기준과 결과 게시 | Review. 순정 `reviewer` 위에 규칙을 얹음 |
+| Git·PR 작업 권한과 산출물 | Git |
+| 티켓 작성·lifecycle 권한과 산출물 | Tickets |
 | 언어별 문장 품질·보호 규칙 | Fluent Korean·English·Japanese |
 | UI·prototype·handoff 품질과 native tool 전제 | Design |
 | 조사·제품 탐색·글 구성·프롬프트 산출물 | Research·Product·Writing·Prompting. opt-in으로 별도 설치 |
 | 작업 로그 기록·읽기 전용 진단 | Worklog. opt-in으로 별도 설치 |
 | 설계 패턴 선택·기존 적용 검토 | Design Patterns. opt-in으로 별도 설치 |
 
-Engineering의 omp 프로필은 직접 설치해 선택한 legacy 사용자의 gate·실행·독립 리뷰가 참조하므로
-보존합니다. 기본 5개 설정에는 쓰지 않으며, 독자 세션 ID 주입이나 Stop hook도 제공하지 않습니다.
+Dev Workflow의 omp 프로필은 직접 설치해 선택한 사용자의 gate·실행·독립 리뷰가 참조하므로
+보존합니다. 기본 7개 설정에는 쓰지 않으며, 독자 세션 ID 주입이나 Stop hook도 제공하지 않습니다.
 
 `main`에 공개해도 기존 설치에 바로 반영되지는 않습니다. 공개·자동 업데이트 조건과 세션 재시작은
 [배포 생명주기](plugin-lifecycle.md)를 참고하세요.
@@ -78,9 +81,9 @@ Engineering의 omp 프로필은 직접 설치해 선택한 legacy 사용자의 g
 마켓플레이스 등록은 저장소의 파일을 변경하거나 커밋하는 작업과 별개입니다. 호스트에
 등록하거나 설치하는 작업도 각각 외부 상태 변경이므로 사용자가 요청한 범위에서만 수행합니다.
 
-플러그인은 책임과 업데이트 경계에 따라 독립적으로 설치됩니다. Engineering은 개발 lifecycle과
-코드 shape·단순성·유지보수성·실패 모드·운용 가능성 및 PR 리뷰·통합 결과 게시, Workflow는 Git과
-delivery 산출물·PR 상태 조회·복구, Research는 외부 다중 출처 조사, Prompting은 프롬프트 산출물, Fluent Languages는
+플러그인은 책임과 업데이트 경계에 따라 독립적으로 설치됩니다. Dev Workflow는 개발 lifecycle과
+코드 shape·단순성, Review는 코드 건강도·유지보수성·실패 모드·운용 가능성 리뷰와 PR 리뷰·통합 결과 게시,
+Git은 Git과 PR 작성·상태 조회·복구, Tickets는 티켓 작성·lifecycle, Research는 외부 다중 출처 조사, Prompting은 프롬프트 산출물, Fluent Languages는
 출력 언어를 담당합니다. Writing은 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성을 담당합니다.
 Memory Manager는 명시적으로 호출하는 에이전트 메모리 점검·정리를
 담당하며 저장 방식과 수정 권한은 대상 호스트의 계약을 따릅니다. Product는 제품 기회·문제·근거·도메인 규칙·검증과 PRD 변환을,
@@ -94,7 +97,7 @@ Figma canvas의 agent mutation은 registered official Figma MCP가 단독으로 
 조합하며 manifest dependency나 공통 router를 전제하지 않습니다.
 세부 책임과 함께 적용하는 방식은 [스킬 라우팅](skill-routing.md)에서 관리합니다.
 
-단일 upstream fork뿐 아니라 Engineering으로 이동한 품질 자료처럼 여러 source를 합성한 영역도 원본을
+단일 upstream fork뿐 아니라 Dev Workflow·Review로 이동한 품질 자료처럼 여러 source를 합성한 영역도 원본을
 별도 baseline commit에 byte-for-byte로 보존한 뒤 최종 경로로 이동해 수정합니다. 현재 파일의
 출처는 `UPSTREAM.md`의 source·baseline·final mapping으로 추적합니다.
 

@@ -123,7 +123,7 @@ def probe(case_root, names):
         installed_references = {}
         for name in names:
             matched = [h for h in listed_hooks if h.get("pluginId") == name + "@continuity-fixture"]
-            expected_events = ["sessionStart", "stop"] if name == "engineering" else ["sessionStart"]
+            expected_events = ["sessionStart", "stop"] if name == "dev-workflow" else ["sessionStart"]
             if sorted(h["eventName"] for h in matched) != expected_events:
                 raise RuntimeError("missing or mismatched native hook for " + name)
             start = next(h for h in matched if h["eventName"] == "sessionStart")

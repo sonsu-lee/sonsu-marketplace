@@ -1,0 +1,26 @@
+name: Feature request
+description: Describe a problem or need. Leave the solution to the assignee.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Search existing issues before filing. Describe the problem, not the implementation.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Who cannot do what, and in which situation. Quote user feedback verbatim and link the source.
+    validations:
+      required: true
+  - type: textarea
+    id: desired-outcome
+    attributes:
+      label: Desired outcome
+      description: The state that should change. Do not prescribe an implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional. Workarounds you tried or options you considered.

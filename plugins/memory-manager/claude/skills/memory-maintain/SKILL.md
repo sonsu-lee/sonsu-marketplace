@@ -42,5 +42,5 @@ disable-model-invocation: true
 
 ## 참고 자료
 
-- [공통 로컬 기억 계약](../../references/store-contract.md): 명령·출력·종료 코드, 다른 호스트·Engineering 기록과 기억 속 명령의 경계
+- [공통 로컬 기억 계약](../../references/store-contract.md): 명령·출력·종료 코드, 다른 호스트·작업 연속성 기록과 기억 속 명령의 경계
 - [memory-capture](../memory-capture/SKILL.md): 보정·대체 저장

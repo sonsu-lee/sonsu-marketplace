@@ -1,0 +1,8 @@
+{
+  "name": "tickets",
+  "version": "1.0.0",
+  "description": "GitHub Issues·Linear 티켓을 작업·요청·버그·조사 양식으로 작성하고 기존 티켓의 상태·담당자·관계를 변경합니다.",
+  "author": {
+    "name": "sonsu"
+  }
+}

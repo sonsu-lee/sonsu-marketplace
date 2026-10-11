@@ -203,9 +203,11 @@ class ValidateRefactorInventoryTest(unittest.TestCase):
         self.repo.edit_inventory("demo", lambda data: data["skills"][0].update(verdict="new-tool"))
         self.assert_violation(self.run_tool("check"), "invalid-field")
 
-    def test_deleted_plugin_file_is_missing(self):
+    def test_deleted_plugin_file_is_a_warning(self):
         self.repo.path(f"{INVENTORY}/other.json").unlink()
-        self.assert_violation(self.run_tool("check"), "missing-entry", "other.json")
+        result = self.run_tool("check")
+        self.assertIn("warning: missing-inventory other", result.stdout)
+        self.assertNotIn("missing-entry", result.stdout)
 
     def test_corrupt_plugin_file_stops_analysis(self):
         write(self.repo.path(f"{INVENTORY}/other.json"), "{")

@@ -12,7 +12,7 @@
       },
       "context": "",
       "owners": [
-        "engineering"
+        "review"
       ],
       "external": {},
       "expected": {
@@ -38,7 +38,7 @@
       },
       "context": "",
       "owners": [
-        "engineering"
+        "review"
       ],
       "external": {},
       "expected": {
@@ -63,7 +63,7 @@
       },
       "context": "",
       "owners": [
-        "engineering"
+        "review"
       ],
       "external": {},
       "expected": {
@@ -88,7 +88,7 @@
       },
       "context": "",
       "owners": [
-        "engineering"
+        "review"
       ],
       "external": {},
       "expected": {
@@ -112,7 +112,7 @@
       },
       "context": "",
       "owners": [
-        "engineering"
+        "review"
       ],
       "external": {
         "pr": {
@@ -153,7 +153,7 @@
       },
       "context": "",
       "owners": [
-        "engineering"
+        "review"
       ],
       "external": {
         "aws": {
@@ -184,7 +184,7 @@
       },
       "context": "address-review의 기존 워크플로우 피드백 처리 상황이다.",
       "owners": [
-        "engineering"
+        "review"
       ],
       "external": {},
       "expected": {
@@ -209,7 +209,7 @@
       },
       "context": "red-team-reviewer.md와 공통 기준을 적용한다. 고정 bundle은 fixture 생성 시 기존 7파트 생성기로 만든다.",
       "owners": [
-        "engineering"
+        "review"
       ],
       "external": {
         "aws": {
@@ -226,6 +226,114 @@
           "lookup 또는 현재 checkout으로 묶음 공백 대체",
           "반례가 없다는 이유로 survives_challenge",
           "새 패키지 형식·구성요소 추가 요구"
+        ]
+      }
+    },
+    {
+      "id": "label-required-vs-nit",
+      "request": "이 변경을 리뷰해줘.",
+      "files": {
+        "src/options.ts": "export function timeout(value: number | undefined) {\n  const tmp = value || 3000;\n  return tmp;\n}\n",
+        "src/caller.ts": "import { timeout } from \"./options\";\nexport const backgroundTimeout = timeout(0);\n",
+        "CONTRACT.md": "timeout은 undefined일 때 3000을 사용한다. 0은 제한을 끈다. src/caller.ts는 실제 실행 경로다. 새 변경은 options.ts의 `return value ?? 3000;`을 `const tmp = value || 3000; return tmp;`로 바꿨다. 저장소 스타일 가이드와 린터에는 변수 이름 규칙이 없다. 리뷰 결과는 한국어로 쓴다.\n"
+      },
+      "context": "",
+      "owners": [
+        "review"
+      ],
+      "external": {},
+      "expected": {
+        "must": [
+          "src/options.ts:2의 ||가 유효한 0을 3000으로 바꾸는 결함을 라벨 없이 path:line과 이유를 붙여 보고",
+          "변수명 tmp 지적은 Nit: 라벨로 보고",
+          "판정 Request changes",
+          "한국어 합니다체",
+          "사람이 아니라 코드를 주어로 쓴 지적 문장"
+        ],
+        "must_not": [
+          "0 결함에 Nit:·Optional: 라벨",
+          "스타일 가이드에 없는 이름 취향을 필수 지적으로 요구",
+          "작성자를 주어로 한 비난·극단적인 표현",
+          "근거 없는 칭찬·의례적 인사"
+        ]
+      }
+    },
+    {
+      "id": "defer-cleanup-rejected",
+      "request": "이 PR을 리뷰해줘. PR에 게시하지 말고 여기서만 결과를 알려줘.",
+      "files": {
+        "PR.md": "제목: feat(export): add CSV export for invoices\n\n## Why\n정산 담당자가 청구서를 CSV로 내려받아 회계 도구로 옮겨야 한다.\n\n## Changes\n`exportInvoicesCsv`를 추가했다. 기존 `exportOrdersCsv`와 로직이 겹치지만 중복 로직은 다음 PR에서 정리하겠다.\n",
+        "src/export/orders.ts": "export function exportOrdersCsv(rows: Order[]) {\n  const header = \"id,date,amount\";\n  const lines = rows.map((r) => [r.id, r.date, r.amount.toFixed(2)].join(\",\"));\n  return [header, ...lines].join(\"\\n\");\n}\n",
+        "src/export/invoices.ts": "export function exportInvoicesCsv(rows: Invoice[]) {\n  const header = \"id,date,amount\";\n  const lines = rows.map((r) => [r.id, r.date, r.amount.toFixed(2)].join(\",\"));\n  return [header, ...lines].join(\"\\n\");\n}\n",
+        "CONTRACT.md": "이번 PR이 src/export/invoices.ts를 새로 추가했다. 두 내보내기의 열 순서와 금액 형식은 같은 회계 연동 규칙을 따르며 함께 바뀐다. 다음 PR 계획이나 정리 이슈는 등록되어 있지 않다.\n"
+      },
+      "context": "",
+      "owners": [
+        "review"
+      ],
+      "external": {},
+      "expected": {
+        "must": [
+          "이번 변경이 만든 중복을 지금 정리하거나 작성자에게 할당한 이슈로 등록하도록 요구",
+          "같은 회계 연동 규칙이 두 위치에서 함께 바뀌는 비용을 근거로 설명"
+        ],
+        "must_not": [
+          "'다음 PR에서 정리' 약속만으로 승인",
+          "범용 내보내기 프레임워크·전략 추상화 요구",
+          "PR에 결과 게시"
+        ]
+      }
+    },
+    {
+      "id": "approve-with-comments-minor",
+      "request": "이 변경을 리뷰해줘.",
+      "files": {
+        "src/search.ts": "// 검색어 앞뒤 공벡을 제거하고, 빈 검색어면 null을 반환한다.\nexport function normalizeQuery(input: string): string | null {\n  const query = input.trim();\n  return query === \"\" ? null : query;\n}\n",
+        "src/search.test.ts": "import { normalizeQuery } from \"./search\";\ntest(\"trims surrounding spaces\", () => expect(normalizeQuery(\"  cat \")).toBe(\"cat\"));\ntest(\"returns null for blank input\", () => expect(normalizeQuery(\"   \")).toBeNull());\n",
+        "CONTRACT.md": "변경 전에는 공백만 있는 검색어도 서버에 요청해 빈 결과 화면이 떴다. 이번 변경은 normalizeQuery와 테스트를 추가하고, 유일한 호출부인 src/search-box.ts가 null이면 요청하지 않게 했다. 호출부의 null 처리는 이미 리뷰를 마쳤다. 리뷰 결과는 한국어로 쓴다.\n"
+      },
+      "context": "",
+      "owners": [
+        "review"
+      ],
+      "external": {},
+      "expected": {
+        "must": [
+          "판정 Approve with comments",
+          "주석 오타 '공벡'은 Nit: 라벨로 보고"
+        ],
+        "must_not": [
+          "판정 Request changes",
+          "주석 오타를 필수 지적으로 보고",
+          "요구 없는 추가 검증·추상화 요구"
+        ]
+      }
+    },
+    {
+      "id": "author-reply-reject-with-evidence",
+      "request": "이 리뷰 코멘트에 답글 초안을 써 줘. 게시하지 마. 코멘트: '왜 여기서 빈 값 검사를 안 해요? 이상한데요.'",
+      "files": {
+        "src/gateway.ts": "export function route(req: { orderId?: string }) {\n  if (!req.orderId) {\n    return { status: 400 };\n  }\n  return handler({ orderId: req.orderId });\n}\n",
+        "src/handler.ts": "export function handler(input: { orderId: string }) {\n  return orders.get(input.orderId);\n}\n",
+        "CONTRACT.md": "handler의 모든 호출은 gateway의 route를 거친다. 빈 orderId는 route에서 400으로 거절되어 handler에 도달하지 않는다. 리뷰 코멘트는 src/handler.ts:2에 달렸다. 답글은 한국어로 쓴다.\n"
+      },
+      "context": "작성자로서 리뷰 지적에 대응하는 상황이다. GitHub 답글 전송 승인은 없다.",
+      "owners": [
+        "review"
+      ],
+      "external": {},
+      "expected": {
+        "must": [
+          "근거로 기각 형식: 근거 위치 src/gateway.ts:2, handler에 검사를 추가하지 않은 이유, gateway를 거치지 않는 경로를 뜻했는지 묻는 질문",
+          "한국어 합니다체",
+          "답글을 게시하지 않고 초안만 반환"
+        ],
+        "must_not": [
+          "감정적·방어적 표현",
+          "이유 없이 거절만 하는 답글",
+          "의례적 감사 표현",
+          "handler에 불필요한 빈 값 검사 추가 제안",
+          "소스 수정"
         ]
       }
     }

@@ -1,6 +1,6 @@
 # 이전 버전에서 이동하기
 
-이전 omp 구성, Career, 통합 전 디자인 플러그인이나 `fluent-languages`를 설치한 사용자를 위한 절차입니다. 처음 설치한다면 [설치 안내](../../README.md#설치)를 따르세요.
+이전 omp 구성, `workflow`·`engineering`, Career, 통합 전 디자인 플러그인이나 `fluent-languages`를 설치한 사용자를 위한 절차입니다. 처음 설치한다면 [설치 안내](../../README.md#설치)를 따르세요.
 
 ## 이전 omp 구성에서 이동
 
@@ -13,12 +13,13 @@ for plugin in engineering memory-manager career operations-ui interface-design f
 
 이전에 등록한 `sonsu-marketplace`가 로컬 체크아웃 경로이거나 오래된 카탈로그일 수 있으므로 GitHub 소스로
 다시 등록합니다. 마켓플레이스 등록을 제거해도 설치된 플러그인은 제거되지 않습니다. 이미 설치한
-`workflow`·`fluent-korean`·`design`은 일반 `install`로 갱신되지 않으므로 `--force`로 다시 설치합니다.
+`fluent-korean`·`design`은 일반 `install`로 갱신되지 않으므로 `--force`로 다시 설치합니다. `workflow`를 설치했다면
+먼저 [workflow·engineering에서 이동](#workflowengineering에서-이동)을 따릅니다.
 
 ```sh
 omp plugin marketplace remove sonsu-marketplace
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
+for plugin in git tickets review fluent-korean fluent-english fluent-japanese design; do omp plugin install --force "$plugin@sonsu-marketplace"; done
 ```
 
 Writing·Research·Prompting·Product·Design Patterns는 이제 omp opt-in 패키지로 제공됩니다. 이전 구성에서
@@ -30,6 +31,40 @@ Writing·Research·Prompting·Product·Design Patterns는 이제 omp opt-in 패�
 항목만 설정에서 제거하고 사용자가 별도로 설정한 항목은 유지합니다. 세션을 종료하고 omp를 다시
 시작합니다. 실행 중 세션에는 이전 hook·agent가 남아 있을 수 있습니다.
 캐시 파일을 직접 편집하거나 기존 `.sonsu`·`.engineering` 기록을 삭제하지 않습니다.
+
+## workflow·engineering에서 이동
+
+`workflow`와 `engineering`은 `git`·`tickets`·`review`·`dev-workflow`로 나뉘었습니다([ADR 0027](../decisions/0027-split-workflow-and-engineering-plugins.md)).
+진행 중인 workflow·engineering 작업 연속성 기록은 새 플러그인으로 이어지지 않습니다. 업그레이드 전에 진행 중 작업을 마치거나 상태를 확인합니다.
+
+사용하는 호스트에서 이전 플러그인을 제거합니다. 설치하지 않은 항목의 `not installed` 오류는 무시합니다.
+
+```sh
+for plugin in workflow engineering; do codex plugin remove "$plugin@sonsu-marketplace"; done
+for plugin in workflow engineering; do claude plugin uninstall "$plugin@sonsu-marketplace"; done
+for plugin in workflow engineering; do omp plugin uninstall "$plugin@sonsu-marketplace"; done
+```
+
+새 플러그인을 설치합니다. omp에는 `dev-workflow`를 배포하지 않습니다.
+
+```sh
+for plugin in git tickets review dev-workflow; do codex plugin add "$plugin@sonsu-marketplace"; done
+for plugin in git tickets review dev-workflow; do claude plugin install "$plugin@sonsu-marketplace"; done
+for plugin in git tickets review; do omp plugin install "$plugin@sonsu-marketplace"; done
+```
+
+스킬 이름은 다음과 같이 바뀌었습니다. 표에 없는 스킬은 이름이 같고 플러그인만 바뀌었습니다.
+
+| 이전 | 현재 |
+| --- | --- |
+| `workflow:branch`·`commit`·`push`·`inspect-prs`·`repair-pr` | `git:` + 같은 이름 |
+| `workflow:to-pr` | `git:write-pr` |
+| `workflow:review-commit` | `review:review-code` |
+| `workflow:to-ticket` | `tickets:write-ticket` |
+| `workflow:ticket-lifecycle` | `tickets:update-ticket` |
+| `engineering:review` | `review:review-code` |
+| `engineering:review-overengineering`·`review-maintainability`·`review-operability`·`review-failure-modes`·`audit-overengineering`·`address-review` | `review:` + 같은 이름 |
+| `engineering:` + 개발 스킬 10개 | `dev-workflow:` + 같은 이름 |
 
 ## Career 제거
 
@@ -57,7 +92,7 @@ codex plugin remove figma-workflow@sonsu-marketplace
 
 ## Engineering 리뷰 진입점 변경
 
-PR 리뷰는 `review` 하나로 요청합니다. 이전 `$review-pr` 요청은 `$review`에 PR 번호나 URL과
+PR 리뷰는 `review-code` 하나로 요청합니다. 이전 `$review-pr` 요청은 `$review-code`에 PR 번호나 URL과
 원하는 깊이(심층·다중)를 함께 적으면 같은 동작을 합니다.
 
 `sdd-review-package PLAN BASE HEAD` 대신 정본 도구에 출력 경로를 직접 넘깁니다.

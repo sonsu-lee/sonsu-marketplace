@@ -1,0 +1,8 @@
+{
+  "name": "git",
+  "version": "1.0.0",
+  "description": "Git branch·commit·push와 GitHub PR 작성·상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
+  "author": {
+    "name": "sonsu"
+  }
+}

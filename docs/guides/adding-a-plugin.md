@@ -44,7 +44,7 @@ omp는 이름 있는 profile로 기존 사용자 설정과 분리합니다. prof
 ```sh
 export OMP_PROFILE=sonsu-marketplace-local
 omp plugin marketplace add "$(pwd -P)"
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
+for plugin in git tickets review fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
 omp plugin list
 ```
 
@@ -59,7 +59,7 @@ omp plugin list
    외부 원본이 포함되어 있으면 `UPSTREAM.md`에서 원본과 로컬 변경의 경계를 확인합니다.
 2. 수정 대상의 정본을 갱신합니다. Fluent Languages는 각 `skills/fluent-<language>/SKILL.md`와
    해당 스킬의 참고 자료를 직접 편집합니다. 언어 사이에 공통 원본을 주입하지 않습니다.
-   Design·Workflow·Fluent Korean의 omp 배포본은 `plugins/<name>/omp/`에 생성합니다.
+   Design·Git·Tickets·Review·Fluent Korean의 omp 배포본은 `plugins/<name>/omp/`에 생성합니다.
    생성본과 설치 캐시는 직접 편집하지 않고 원본 스킬이나 `scripts/render-omp-compat.py` 변환을 고친 뒤
    `python3 scripts/render-omp-compat.py`로 재생성합니다. Fluent Korean은 `codex/skills/`의 단일 호출을
    투영하고 English·Japanese는 기존 패키지를 배포합니다.
@@ -84,7 +84,7 @@ omp plugin list
 4. `.agents/plugins/marketplace.json`의 `plugins` 배열 끝에 등록합니다.
 5. `python3 scripts/render-claude-compat.py`로 Claude Code catalog와 plugin manifest를 생성합니다.
 6. `python3 scripts/render-omp-compat.py`로 omp catalog와 `ISOLATED`에 등록한 플러그인의 전용 패키지를 생성합니다.
-   omp 기본 배포는 `workflow`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design` 5개로 고정합니다.
+   omp 기본 배포는 `git`, `tickets`, `review`, `fluent-korean`, `fluent-english`, `fluent-japanese`, `design` 7개로 고정합니다.
    Codex catalog에 추가해도 omp 배포 대상은 늘어나지 않습니다. 대상을 바꾸려면 배포 정책을 명시적으로 변경하고
    `scripts/render-omp-compat.py`의 `OMP_PLUGINS`와 `evals/plugin-compat/test_compat.py`의 omp 목록을 함께 갱신합니다.
    opt-in 패키지는 `OMP_OPTIN_PLUGINS`에 등록하면 카탈로그에 추가되며 사용자가 직접 설치합니다. 현재 대상은 `writing`, `research`, `prompting`, `product`([ADR 0024](../decisions/0024-distribute-writing-research-prompting-product-to-omp.md)), `design-patterns`([ADR 0026](../decisions/0026-ship-design-patterns-as-omp-opt-in.md)), `worklog`([ADR 0022](../decisions/0022-add-worklog-plugin.md))입니다.
@@ -110,17 +110,17 @@ omp plugin list
 `source.path`는 저장소 루트 기준입니다.
 `.agents/plugins/marketplace.json`과 plugin별 `.codex-plugin/plugin.json`이 패키지의 정본입니다.
 
-omp 생성기는 필요한 스킬·참고 자료·asset·스크립트·Figma companion·라이선스를 동봉하고
-스크립트 실행 권한을 유지합니다. 독자 hook, evidence gate, `task-continuity.py`, runtime extension은
+omp 생성기는 필요한 스킬·참고 자료·asset·스크립트·Figma companion·라이선스와 Review의 reviewer 전용 규칙(`omp-rules/` → `rules/`)을
+동봉하고 스크립트 실행 권한을 유지합니다. 독자 hook, evidence gate, `task-continuity.py`, runtime extension은
 포함하지 않으며 연속성 자료를 omp 순정 todo·session 안내로 바꿉니다. 예외로 opt-in 패키지 `worklog`는
 `omp-extension/worklog.ts`를 `extension/worklog.ts`로 복사하고 이를 선언하는 `package.json`을 생성합니다.
 hook은 opt-in 패키지에도 포함하지 않습니다.
-Design의 품질 계약·프로필, Workflow의 권한, English·Japanese 스킬은 유지합니다.
+Design의 품질 계약·프로필, Git·Tickets의 권한, English·Japanese 스킬은 유지합니다.
 Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude agent와 다중 호출·strict 모드에 의존하지 않습니다.
-개발 실행·task·todo·session·review는 omp 순정 기능을 사용합니다. Research·Product·Writing·Prompting은
-기본 5개와 분리해 opt-in으로 배포합니다. Engineering의 omp 프로필은 직접 설치한 기존 consumer용으로
-보존하고 기본 5개 설정에는 추가하지 않습니다. omp 대응을 위해 기존 Codex·Claude Code hook이나 연속성 자료를
-변경하지 않습니다.
+개발 실행·task·todo·session은 omp 순정 기능을 사용하고 리뷰는 Review 플러그인을 기본 배포합니다.
+Research·Product·Writing·Prompting은 기본 배포와 분리해 opt-in으로 배포합니다. Dev Workflow의 omp 프로필은
+직접 설치한 consumer용으로 보존하고 기본 설정에는 추가하지 않습니다. omp 대응을 위해 기존 Codex·Claude Code hook이나
+연속성 자료를 변경하지 않습니다.
 
 생성기의 `--check`는 생성물의 최신 상태와 불필요한 이전 생성물을 검사합니다. 일반 실행이 정리할 수 있는
 파일은 생성기가 소유한다고 확인한 이전 extension 파일뿐입니다. 사용자 파일, `.sonsu`·`.engineering`
@@ -136,8 +136,9 @@ Fluent Korean은 현재 호스트 모델로 단일 호출을 실행하며 Claude
 저장소 루트에서 다음 정적 검사를 실행합니다.
 
 ```sh
-find .agents plugins evals -name '*.json' -print0 \
+find .agents plugins evals .github -name '*.json' -print0 \
   | xargs -0 -n1 python3 -m json.tool >/dev/null
+python3 scripts/render-shared-files.py --check
 python3 scripts/render-agent-policy.py --check
 python3 scripts/render-continuity.py --check
 python3 scripts/render-claude-compat.py --check
@@ -147,7 +148,9 @@ python3 evals/language-style/eval.py validate
 python3 -m unittest -v evals/language-style/test_eval.py
 python3 -B -m unittest discover -s evals/plugin-compat -p 'test_*.py' -v
 python3 -B -m unittest discover -s evals/worklog -p 'test_*.py' -v
-python3 -B -m unittest discover -s plugins/workflow/tests -p 'test_*.py' -v
+python3 -B -m unittest discover -s plugins/git/tests -p 'test_*.py' -v
+python3 -B -m unittest discover -s plugins/review/tests -p 'test_*.py' -v
+python3 -B -m unittest discover -s plugins/dev-workflow/tests -p 'test_*.py' -v
 python3 scripts/validate_refactor_inventory.py check
 python3 -B -m unittest discover -s evals/refactor-inventory -p 'test_*.py' -v
 git diff --check

@@ -1,7 +1,7 @@
 # ADR 0025: Engineering 리뷰 진입점 통합
 
 - 날짜: 2026-10-09
-- 상태: 채택
+- 상태: 대체됨([ADR 0027](0027-split-workflow-and-engineering-plugins.md))
 - 관련 결정: [ADR 0007](0007-use-stage-owned-quality-gates.md), [ADR 0015](0015-independent-skills.md)
 
 ## 맥락

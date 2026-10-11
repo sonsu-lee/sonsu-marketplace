@@ -1,7 +1,7 @@
 {
   "schema_version": "marketplace-v2-cases-v1",
   "profiles": {
-    "engineering": {
+    "dev-workflow": {
       "required_skills": [
         "review",
         "review-failure-modes",
@@ -25,7 +25,7 @@
     {
       "id": "review-benchmark",
       "fixture": "review-service",
-      "profile": "engineering",
+      "profile": "dev-workflow",
       "kind": "review",
       "sandbox": "read-only",
       "benchmark": true,
@@ -54,7 +54,7 @@
     {
       "id": "general-review-default",
       "fixture": "review-service",
-      "profile": "engineering",
+      "profile": "dev-workflow",
       "kind": "routing",
       "sandbox": "read-only",
       "benchmark": false,
@@ -77,7 +77,7 @@
     {
       "id": "focused-failure-lens",
       "fixture": "review-service",
-      "profile": "engineering",
+      "profile": "dev-workflow",
       "kind": "routing",
       "sandbox": "read-only",
       "benchmark": false,
@@ -103,7 +103,7 @@
     {
       "id": "mechanical-deterministic",
       "fixture": "workflow-pack",
-      "profile": "engineering",
+      "profile": "dev-workflow",
       "kind": "implementation",
       "sandbox": "workspace-write",
       "benchmark": false,
@@ -130,7 +130,7 @@
     {
       "id": "behavior-change-gates",
       "fixture": "workflow-pack",
-      "profile": "engineering",
+      "profile": "dev-workflow",
       "kind": "implementation",
       "sandbox": "workspace-write",
       "benchmark": false,
@@ -155,7 +155,7 @@
     {
       "id": "docs-snapshot-boundary",
       "fixture": "review-service",
-      "profile": "engineering",
+      "profile": "dev-workflow",
       "kind": "review",
       "sandbox": "read-only",
       "benchmark": false,
@@ -181,7 +181,7 @@
     {
       "id": "provider-explicit-scope",
       "fixture": "review-service",
-      "profile": "engineering",
+      "profile": "dev-workflow",
       "kind": "review",
       "sandbox": "read-only",
       "benchmark": false,
