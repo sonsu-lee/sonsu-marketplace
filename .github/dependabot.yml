@@ -1,0 +1,11 @@
+version: 2
+updates:
+  # Raises the commit SHAs pinned in .github/workflows/ together with their
+  # version comments. The omp release in validate-marketplace.yml is updated by hand.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+      include: scope
