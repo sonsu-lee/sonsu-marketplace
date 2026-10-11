@@ -4,11 +4,15 @@
 
 A collection of Codex, Claude Code, and omp plugins for development, research, product planning, and writing.
 
+Each host gets a different set of plugins. Codex and Claude Code get all 15; omp gets seven default and six optional plugins. omp handles development execution and memory with its own features, so Dev Workflow and Memory Manager are not distributed to omp.
+
 ## Installation
+
+Register the marketplace once and install the plugins you need. Check the installation status in the list, then start a new session. The [Plugins](#plugins) table shows which plugins each host can install.
 
 ### Codex
 
-Register once with a CLI that supports `codex plugin`, then install one plugin or all plugins. When the list shows the installation status, start a new Codex task.
+Requires a CLI that supports `codex plugin`.
 
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
@@ -22,8 +26,6 @@ codex plugin list --marketplace sonsu-marketplace
 
 ### Claude Code
 
-Register the marketplace once, then install one plugin or all plugins. Check the installation status in the list and start a new session.
-
 ```sh
 claude plugin marketplace add sonsu-lee/sonsu-marketplace
 # Install one plugin
@@ -36,7 +38,7 @@ claude plugin list
 
 ### omp
 
-Install the default seven plugins; Writing, Research, Prompting, Product, Design Patterns, and Worklog are six optional plugins. Only if you choose to enable automatic updates, merge the YAML below into the existing `marketplace:` section of `~/.omp/agent/config.yml`.
+Install the seven default plugins, and install the six optional plugins separately when you need them. Only if you are turning on automatic updates, merge the YAML below into the existing `marketplace:` section of `~/.omp/agent/config.yml`.
 
 <!-- omp-preset:start -->
 ```sh
@@ -61,48 +63,52 @@ omp plugin install design-patterns@sonsu-marketplace
 omp plugin list
 ```
 
+## Usage
+
+After installation, make a request in natural language. The host picks a skill based on your request and the skill descriptions.
+
+Request: “Prepare only a PR draft for the current branch. Don't publish it.”
+
+The Git plugin's `write-pr` reports a PR title, body draft, and unverified items without writing to the remote.
+
+To call a skill by name, use the host's format.
+
+| Host | Format | Example |
+| --- | --- | --- |
+| Codex | `$<skill>` | `$write-pr` |
+| Claude Code | `/<plugin>:<skill>` | `/git:write-pr` |
+| omp | `/skill:<skill>` | `/skill:write-pr` |
+
+Each plugin's README has example requests for that plugin (Korean).
+
 ## Plugins
 
-Each plugin works independently; follow its link for details (Codex and Claude Code: all 15; omp: seven default and six opt-in plugins, 13 in total).
+The link text is the installation name. In the omp column, `default` plugins are included in the default install command and `optional` plugins are installed separately.
 
-| Plugin | Purpose | Installation name |
-| --- | --- | --- |
-| [Git](plugins/git/README.md) | Work with Git branches, commits, and pushes, and write, inspect, and repair GitHub PRs | `git` |
-| [Tickets](plugins/tickets/README.md) | Write GitHub Issues and Linear tickets and change their status, assignee, and relations | `tickets` |
-| [Review](plugins/review/README.md) | Review code, diffs, commits, and PRs for code health, run focused reviews, and address review comments | `review` |
-| [Dev Workflow](plugins/dev-workflow/README.md) | Design, plan, implement, debug, verify, and simplify software changes | `dev-workflow` |
-| [Fluent Korean](plugins/fluent-korean) | Apply drafting rules to new Korean text and edit AI-sounding or translationese passages in existing Korean text with `im-not-ai` as a source | `fluent-korean` |
-| [Fluent English](plugins/fluent-english) | Draft, edit, and review everyday and technical English with `better-writing` as a source | `fluent-english` |
-| [Fluent Japanese](plugins/fluent-japanese) | Draft and edit everyday and technical Japanese; score documents with `natural-japanese` as a source | `fluent-japanese` |
-| [Writing](plugins/writing) | Select information, choose where it belongs, and organize writing for the reader and purpose | `writing` |
-| [Research](plugins/research/README.md) | Research multiple sources, verify facts, and write answers supported by evidence | `research` |
-| [Prompting](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, OpenAI API, Claude Code, and Anthropic API | `prompting` |
-| [Product](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | `product` |
-| [Memory Manager](plugins/memory-manager/README.md) | Shared local memory for recall, capture, and maintenance in Codex and Claude Code | `memory-manager` |
-| [Design](plugins/design/README.md) | Design, redesign, and audit general and operations interfaces through Figma or code, and find design references | `design` |
-| [Design Patterns](plugins/design-patterns/README.md) | Select patterns from observed design forces and review existing usage | `design-patterns` |
-| [Worklog](plugins/worklog/README.md) | Log and diagnose failures, interruptions, and user corrections across Claude Code, Codex, and omp | `worklog` |
+| Plugin | Purpose | Codex | Claude Code | omp |
+| --- | --- | :---: | :---: | :---: |
+| [`git`](plugins/git/README.md) | Work with Git branches, commits, and pushes, and write, inspect, and repair GitHub PRs | ✓ | ✓ | default |
+| [`tickets`](plugins/tickets/README.md) | Write GitHub Issues and Linear tickets and change their status, assignee, and relations | ✓ | ✓ | default |
+| [`review`](plugins/review/README.md) | Review code, diffs, commits, and PRs for code health, run focused reviews, and address review comments | ✓ | ✓ | default |
+| [`dev-workflow`](plugins/dev-workflow/README.md) | Design, plan, implement, debug, verify, and simplify software changes | ✓ | ✓ | — |
+| [`fluent-korean`](plugins/fluent-korean/README.md) | Apply drafting rules to new Korean text and edit AI-sounding or translationese passages in existing Korean text (based on `im-not-ai`) | ✓ | ✓ | default |
+| [`fluent-english`](plugins/fluent-english/README.md) | Draft, edit, and review everyday and technical English (based on `better-writing`) | ✓ | ✓ | default |
+| [`fluent-japanese`](plugins/fluent-japanese/README.md) | Draft and edit everyday and technical Japanese and score documents (based on `natural-japanese`) | ✓ | ✓ | default |
+| [`writing`](plugins/writing/README.md) | Select information, choose where it belongs, and organize writing for the reader and purpose | ✓ | ✓ | optional |
+| [`research`](plugins/research/README.md) | Research multiple sources, verify facts, and write answers supported by evidence | ✓ | ✓ | optional |
+| [`prompting`](plugins/prompting/README.md) | Create and improve prompts for Codex, ChatGPT, OpenAI API, Claude Code, and Anthropic API | ✓ | ✓ | optional |
+| [`product`](plugins/product/README.md) | Explore product ideas, organize user evidence, test hypotheses, and write PRDs | ✓ | ✓ | optional |
+| [`memory-manager`](plugins/memory-manager/README.md) | Recall, capture, and maintain local memory shared by Codex and Claude Code | ✓ | ✓ | — |
+| [`design`](plugins/design/README.md) | Design, redesign, and audit general and operations interfaces through Figma or code, and find design references | ✓ | ✓ | default |
+| [`design-patterns`](plugins/design-patterns/README.md) | Select patterns from observed design forces and review existing usage | ✓ | ✓ | optional |
+| [`worklog`](plugins/worklog/README.md) | Log and diagnose failures, interruptions, and user corrections across Claude Code, Codex, and omp | ✓ | ✓ | optional |
 
-## Usage examples
+These plugins behave differently by host:
 
-After installing the relevant plugin, make a request in Codex or Claude Code (direct invocation examples: Claude Code `/review:review-code`, omp `/skill:commit`).
-
-| Plugin | Example request |
-| --- | --- |
-| Git | “Commit the current changes and create a Draft PR.” |
-| Tickets | “Turn this bug report into a GitHub Issue draft.” |
-| Review | “Review the current diff for unnecessary abstractions and reachable failure paths.” |
-| Dev Workflow | “Fix and verify this bug.” |
-| Fluent Japanese | “Make this Japanese technical explanation read naturally while preserving its meaning and code identifiers.” |
-| Writing | “Select and summarize what the README needs from this material, and update the existing documents with the details.” |
-| Research | “Compare the pricing and limits of these two services using official sources.” |
-| Prompting | “Improve this prompt so I can use it directly in Codex.” |
-| Product | “Extract the user problems and supporting evidence from these interview notes.” |
-| Memory Manager | “`$memory-capture` Save this decision as a memory for this project.” |
-| Design | “Design a mobile signup flow in Figma, or redesign this operations screen directly in code.” or “Find sign-in screen references with their sources.” |
-| Design Patterns | “Decide whether this design needs a pattern and choose the smallest implementation shape.” |
-
-The host selects skills based on your request and the descriptions of installed skills.
+- **Fluent Korean**: Claude Code edits through light, standard, and heavy multi-step paths; Codex and omp edit in a single call.
+- **Review**: In omp, this plugin's review standard also applies to the built-in `/review`.
+- **Memory Manager**: Codex and Claude Code share memory on the same machine. omp uses its own memory feature.
+- **Worklog**: Claude Code and Codex record through hooks; omp records through a runtime extension. In Codex, logging starts only after you trust the worklog hook in `/hooks` after installing or updating.
 
 ## Updates
 

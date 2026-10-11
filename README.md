@@ -2,13 +2,17 @@
 
 [한국어](README.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-개발, 리서치, 제품 기획과 글쓰기에 사용하는 Codex·Claude Code·omp 플러그인 모음입니다.
+개발, 리서치, 제품 기획과 글쓰기에 쓰는 Codex·Claude Code·omp 플러그인 모음입니다.
+
+호스트마다 제공하는 플러그인이 다릅니다. Codex와 Claude Code에는 15개 전체를, omp에는 기본 7개와 선택 6개를 제공합니다. omp는 개발 실행과 메모리를 자체 기능으로 처리하므로 Dev Workflow와 Memory Manager는 omp에 배포하지 않습니다.
 
 ## 설치
 
+마켓플레이스를 한 번 등록하고 필요한 플러그인을 설치합니다. 목록에서 설치 상태를 확인한 뒤 새 세션을 시작하세요. 호스트별로 설치할 수 있는 플러그인은 [플러그인](#플러그인) 표에 있습니다.
+
 ### Codex
 
-`codex plugin`을 지원하는 CLI에서 한 번 등록하고 필요한 플러그인 하나 또는 전체를 설치합니다. 목록에 설치 상태가 표시되면 새 Codex 작업을 시작하세요.
+`codex plugin`을 지원하는 CLI가 필요합니다.
 
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
@@ -22,8 +26,6 @@ codex plugin list --marketplace sonsu-marketplace
 
 ### Claude Code
 
-마켓플레이스는 한 번만 등록하고 필요한 플러그인 하나 또는 전체를 설치합니다. 목록에서 설치 상태를 확인한 뒤 새 세션을 시작하세요.
-
 ```sh
 claude plugin marketplace add sonsu-lee/sonsu-marketplace
 # 하나만 설치
@@ -36,7 +38,7 @@ claude plugin list
 
 ### omp
 
-기본 7개를 설치하며 Writing·Research·Prompting·Product·Design Patterns·Worklog 6개는 선택 사항입니다. 자동 업데이트를 새로 선택할 때만 아래 YAML을 `~/.omp/agent/config.yml`의 기존 `marketplace:` 항목과 합치세요.
+기본 7개를 설치하고 선택 6개는 필요할 때 따로 설치합니다. 자동 업데이트를 새로 켤 때만 아래 YAML을 `~/.omp/agent/config.yml`의 기존 `marketplace:` 항목과 합치세요.
 
 <!-- omp-preset:start -->
 ```sh
@@ -61,48 +63,52 @@ omp plugin install design-patterns@sonsu-marketplace
 omp plugin list
 ```
 
+## 사용
+
+설치한 뒤 자연어로 요청하면 호스트가 요청 내용과 스킬 설명을 보고 맞는 스킬을 고릅니다.
+
+요청: “현재 branch의 PR 초안만 준비해 줘. 게시는 하지 마.”
+
+Git 플러그인의 `write-pr`가 원격에 쓰지 않고 PR 제목·본문 초안과 미확인 항목을 보고합니다.
+
+스킬을 이름으로 직접 부를 때는 호스트마다 형식이 다릅니다.
+
+| 호스트 | 형식 | 예 |
+| --- | --- | --- |
+| Codex | `$<스킬>` | `$write-pr` |
+| Claude Code | `/<플러그인>:<스킬>` | `/git:write-pr` |
+| omp | `/skill:<스킬>` | `/skill:write-pr` |
+
+플러그인별 요청 예시는 각 플러그인 README에 있습니다.
+
 ## 플러그인
 
-각 플러그인은 독립적으로 사용하며 링크에서 상세 사용법을 확인할 수 있습니다(Codex·Claude Code: 전체 15개, omp: 기본 7개와 opt-in 6개, 총 13개).
+링크 이름이 설치 이름입니다. omp 열의 `기본`은 기본 설치 명령에 포함된 플러그인, `선택`은 따로 설치하는 플러그인입니다.
 
-| 플러그인 | 용도 | 설치 이름 |
-| --- | --- | --- |
-| [Git](plugins/git/README.md) | Git branch·commit·push와 GitHub PR 작성·상태 조회·복구 | `git` |
-| [Tickets](plugins/tickets/README.md) | GitHub Issues·Linear 티켓 작성과 상태·담당자·관계 변경 | `tickets` |
-| [Review](plugins/review/README.md) | 코드·diff·커밋·PR의 코드 건강도 리뷰, 집중 관점 리뷰와 리뷰 지적 대응 | `review` |
-| [Dev Workflow](plugins/dev-workflow/README.md) | 소프트웨어 변경 설계·계획·구현·디버깅·검증과 코드 단순화 | `dev-workflow` |
-| [Fluent Korean](plugins/fluent-korean) | 한국어 새 글의 생성 규칙과 기존 글의 AI 티·번역투 윤문 (`im-not-ai` 기반) | `fluent-korean` |
-| [Fluent English](plugins/fluent-english) | 일상·기술 영어 작성·윤문·검토 (`better-writing` 기반) | `fluent-english` |
-| [Fluent Japanese](plugins/fluent-japanese) | 일상·기술 일본어 작성·윤문·문서 진단 (`natural-japanese` 기반) | `fluent-japanese` |
-| [Writing](plugins/writing) | 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성 | `writing` |
-| [Research](plugins/research/README.md) | 여러 출처 조사, 사실 검증과 근거를 갖춘 답변 작성 | `research` |
-| [Prompting](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API·Claude Code·Anthropic API용 프롬프트 작성과 개선 | `prompting` |
-| [Product](plugins/product/README.md) | 제품 아이디어 탐색, 사용자 근거 정리, 가설 검증과 PRD 작성 | `product` |
-| [Memory Manager](plugins/memory-manager/README.md) | Codex·Claude Code가 공유하는 로컬 메모리의 회상·수집·정리 | `memory-manager` |
-| [Design](plugins/design/README.md) | 일반·운영 UI의 신규 설계·재설계·감사, 디자인 레퍼런스 검색과 Figma 또는 코드 경로 | `design` |
-| [Design Patterns](plugins/design-patterns/README.md) | 실제 설계 forces에 맞는 패턴 선택과 기존 적용 검토 | `design-patterns` |
-| [Worklog](plugins/worklog/README.md) | Claude Code·Codex·omp 작업의 실패·중단·교정 로그와 진단 | `worklog` |
+| 플러그인 | 용도 | Codex | Claude Code | omp |
+| --- | --- | :---: | :---: | :---: |
+| [`git`](plugins/git/README.md) | Git branch·commit·push와 GitHub PR 작성·상태 조회·복구 | ✓ | ✓ | 기본 |
+| [`tickets`](plugins/tickets/README.md) | GitHub Issues·Linear 티켓 작성과 상태·담당자·관계 변경 | ✓ | ✓ | 기본 |
+| [`review`](plugins/review/README.md) | 코드·diff·커밋·PR의 코드 건강도 리뷰, 집중 관점 리뷰와 리뷰 지적 대응 | ✓ | ✓ | 기본 |
+| [`dev-workflow`](plugins/dev-workflow/README.md) | 소프트웨어 변경 설계·계획·구현·디버깅·검증과 코드 단순화 | ✓ | ✓ | — |
+| [`fluent-korean`](plugins/fluent-korean/README.md) | 한국어 새 글의 생성 규칙과 기존 글의 AI 티·번역투 윤문 (`im-not-ai` 기반) | ✓ | ✓ | 기본 |
+| [`fluent-english`](plugins/fluent-english/README.md) | 일상·기술 영어 작성·윤문·검토 (`better-writing` 기반) | ✓ | ✓ | 기본 |
+| [`fluent-japanese`](plugins/fluent-japanese/README.md) | 일상·기술 일본어 작성·윤문·문서 진단 (`natural-japanese` 기반) | ✓ | ✓ | 기본 |
+| [`writing`](plugins/writing/README.md) | 독자·목적에 맞는 정보 선별, 문서 배치와 글의 구성 | ✓ | ✓ | 선택 |
+| [`research`](plugins/research/README.md) | 여러 출처 조사, 사실 검증과 근거를 갖춘 답변 작성 | ✓ | ✓ | 선택 |
+| [`prompting`](plugins/prompting/README.md) | Codex·ChatGPT·OpenAI API·Claude Code·Anthropic API용 프롬프트 작성과 개선 | ✓ | ✓ | 선택 |
+| [`product`](plugins/product/README.md) | 제품 아이디어 탐색, 사용자 근거 정리, 가설 검증과 PRD 작성 | ✓ | ✓ | 선택 |
+| [`memory-manager`](plugins/memory-manager/README.md) | Codex·Claude Code가 공유하는 로컬 메모리의 회상·수집·정리 | ✓ | ✓ | — |
+| [`design`](plugins/design/README.md) | 일반·운영 UI의 신규 설계·재설계·감사, 디자인 레퍼런스 검색과 Figma 또는 코드 경로 | ✓ | ✓ | 기본 |
+| [`design-patterns`](plugins/design-patterns/README.md) | 실제 설계 forces에 맞는 패턴 선택과 기존 적용 검토 | ✓ | ✓ | 선택 |
+| [`worklog`](plugins/worklog/README.md) | Claude Code·Codex·omp 작업의 실패·중단·교정 로그와 진단 | ✓ | ✓ | 선택 |
 
-## 사용 예시
+호스트에 따라 동작이 다른 플러그인은 다음과 같습니다.
 
-관련 플러그인을 설치한 뒤 Codex 또는 Claude Code에 요청하세요(직접 호출 예: Claude Code `/review:review-code`, omp `/skill:commit`).
-
-| 플러그인 | 요청 예시 |
-| --- | --- |
-| Git | “현재 변경을 커밋하고 Draft PR을 만들어 줘.” |
-| Tickets | “이 버그 보고를 GitHub Issue 초안으로 정리해 줘.” |
-| Review | “현재 diff의 불필요한 추상화와 도달 가능한 실패 경로를 리뷰해 줘.” |
-| Dev Workflow | “이 버그를 수정하고 검증해 줘.” |
-| Fluent Japanese | “이 일본어 기술 설명을 의미와 코드 식별자를 유지하면서 자연스럽게 다듬어 줘.” |
-| Writing | “이 자료에서 README에 필요한 내용을 골라 요약하고, 상세 내용은 기존 문서에 반영해 줘.” |
-| Research | “이 두 서비스의 요금과 제한 사항을 공식 자료로 비교해 줘.” |
-| Prompting | “이 프롬프트를 Codex에서 바로 쓸 수 있게 개선해 줘.” |
-| Product | “이 인터뷰 메모에서 사용자 문제와 근거를 정리해 줘.” |
-| Memory Manager | “`$memory-capture` 이 결정을 현재 프로젝트 기억으로 저장해 줘.” |
-| Design | “새 모바일 가입 흐름을 Figma에서 만들고, 이 운영 화면을 코드에서 재설계해 줘.” 또는 “로그인 화면 레퍼런스를 출처와 함께 찾아 줘.” |
-| Design Patterns | “이 구조에 패턴이 필요한지 판단하고 가장 작은 구현 형태를 골라 줘.” |
-
-호스트는 요청 내용과 설치된 스킬의 설명을 바탕으로 필요한 스킬을 선택합니다.
+- **Fluent Korean**: Claude Code는 light·standard·heavy 다단계 경로로, Codex와 omp는 단일 호출로 윤문합니다.
+- **Review**: omp에서는 순정 `/review`에도 이 플러그인의 리뷰 기준이 적용됩니다.
+- **Memory Manager**: Codex와 Claude Code가 같은 기기의 기억을 공유합니다. omp는 자체 메모리 기능을 씁니다.
+- **Worklog**: Claude Code·Codex는 hook으로, omp는 runtime extension으로 기록합니다. Codex에서는 설치·업데이트 뒤 `/hooks`에서 worklog hook을 신뢰해야 기록이 시작됩니다.
 
 ## 업데이트
 
