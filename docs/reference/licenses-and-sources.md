@@ -3,8 +3,10 @@
 저장소 전체에 공통으로 적용되는 root-level 라이선스는 현재 선언하지 않았습니다. 각
 플러그인의 범위는 다음과 같이 구분합니다.
 
-- Engineering은 기존 lifecycle 자료의 [MIT 라이선스](../../plugins/engineering/LICENSE)와 품질 자료의 [Apache-2.0 라이선스](../../plugins/engineering/LICENSE-APACHE-2.0)를 함께 사용합니다. [NOTICE](../../plugins/engineering/NOTICE), [출처 mapping](../../plugins/engineering/UPSTREAM.md)과 [MIT 원문 고지](../../plugins/engineering/THIRD_PARTY_NOTICES.md)를 보존합니다.
-- Workflow에는 현재 별도의 라이선스를 선언하지 않았습니다. 기존 작성 지침·양식의 [MIT 고지](../../plugins/workflow/WRITING_LICENSE.md)는 별도로 보존합니다.
+- Dev Workflow는 [MIT 라이선스](../../plugins/dev-workflow/LICENSE)를 사용합니다. pstack·ponytail·mcollina 자료의 [출처 mapping](../../plugins/dev-workflow/UPSTREAM.md)과 [MIT 원문 고지](../../plugins/dev-workflow/THIRD_PARTY_NOTICES.md)를 보존합니다.
+- Review는 로컬 작성 자료의 [MIT 라이선스](../../plugins/review/LICENSE)와 품질 자료의 [Apache-2.0 라이선스](../../plugins/review/LICENSE-APACHE-2.0)를 함께 사용합니다. [NOTICE](../../plugins/review/NOTICE), [출처 mapping](../../plugins/review/UPSTREAM.md)과 thermos·ponytail·addyosmani의 [MIT 원문 고지](../../plugins/review/THIRD_PARTY_NOTICES.md)를 보존합니다. 커밋 검토 기준의 Conventional Commits 1.0.0 명세는 [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) 조건으로 인용하고 출처를 [UPSTREAM.md](../../plugins/review/UPSTREAM.md#conventional-commits-인용)에 기록합니다.
+- Git에는 현재 별도의 라이선스를 선언하지 않았습니다. 기존 작성 지침·양식의 [MIT 고지](../../plugins/git/WRITING_LICENSE.md)는 별도로 보존합니다. 커밋 메시지 규칙의 Conventional Commits 1.0.0 명세는 [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) 조건으로 인용하고 출처를 [UPSTREAM.md](../../plugins/git/UPSTREAM.md#conventional-commits-인용)에 기록합니다.
+- Tickets에는 현재 별도의 라이선스를 선언하지 않았습니다. 기존 작성 지침·양식의 [MIT 고지](../../plugins/tickets/WRITING_LICENSE.md)는 별도로 보존하고, 참고 출처는 [UPSTREAM.md](../../plugins/tickets/UPSTREAM.md)에 기록합니다.
 - Prompting에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Product에는 현재 별도의 라이선스를 선언하지 않았습니다.
 - Memory Manager는 독자 작성 플러그인이며 현재 별도의 라이선스를 선언하지 않았습니다. 설계 참고 출처는 [UPSTREAM.md](../../plugins/memory-manager/UPSTREAM.md)에 기록합니다.

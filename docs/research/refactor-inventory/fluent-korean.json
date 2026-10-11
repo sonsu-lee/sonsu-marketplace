@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "fluent-korean",
-  "manifest_sha256": "eab41f9adbf906f40b6b77ab59bb5e578d5772b34d30b81aa6ac8f3009778433",
+  "manifest_sha256": "43b3bfa9c81d566c3e1b1b42fc55fcd84fea5ac58a033b0a892045b5ba47f6ad",
   "problem": "한국어 작성·윤문에서 반복되는 번역투와 획일적 표현을 줄이되 사실·서법·격식·기술 문자열을 지켜야 합니다.",
   "outcome": "새 글 생성 규칙과 기존 글의 윤문·진단을 제공하고 파일 작업에는 변경률과 보존 근거를 남깁니다.",
   "omp": {

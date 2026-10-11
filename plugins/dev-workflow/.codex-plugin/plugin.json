@@ -1,0 +1,39 @@
+{
+  "name": "dev-workflow",
+  "version": "5.0.0",
+  "description": "설계·계획·구현·디버깅·검증과 도메인 구조·코드 단순화를 승인 범위와 검증 근거에 연결해 수행한다.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT",
+  "keywords": [
+    "dev-workflow",
+    "brainstorming",
+    "skills",
+    "planning",
+    "tdd",
+    "debugging",
+    "verification"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Dev Workflow",
+    "shortDescription": "설계·구현·검증 개발 절차",
+    "longDescription": "개발 lifecycle과 승인 범위를 유지하면서 확인된 도메인 계약을 코드에 반영하고, 계획 단위의 독립 리뷰·red-team 게이트와 검증 근거로 완료를 판정한다. 단독 코드·PR 리뷰는 Review 플러그인이 담당한다.",
+    "developerName": "sonsu-lee",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "이 프로젝트에 새 기능을 추가해 줘.",
+      "이 버그의 원인을 찾아 수정하고 검증해 줘.",
+      "승인된 계획을 단계별로 실행해 줘."
+    ],
+    "brandColor": "#F59E0B",
+    "screenshots": []
+  }
+}

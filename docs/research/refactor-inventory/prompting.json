@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "prompting",
-  "manifest_sha256": "9c804959d59319e089ad6095a1864f63be2c043faa789a5e78f5e067ff8aa353",
+  "manifest_sha256": "59d59feeec413dc1bbf83b005530d4f1090afb7488966e7a0b249c165400819d",
   "problem": "프롬프트를 작성하거나 줄일 때 사용자의 목표·권한·제약이 누락되거나, 대상 제품의 입력 칸과 API 설정이 본문에 뒤섞이기 쉽습니다.",
   "outcome": "사용자가 지정한 모델·제품·언어를 보존하고 해당 입력 칸에 바로 복사할 수 있는 프롬프트와 필요한 별도 설정을 제공합니다.",
   "omp": {

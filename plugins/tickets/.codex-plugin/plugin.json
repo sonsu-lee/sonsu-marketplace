@@ -1,0 +1,26 @@
+{
+  "name": "tickets",
+  "version": "1.0.0",
+  "description": "GitHub Issues·Linear 티켓을 작업·요청·버그·조사 양식으로 작성하고 기존 티켓의 상태·담당자·관계를 변경합니다.",
+  "author": {
+    "name": "sonsu"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Tickets",
+    "shortDescription": "티켓 작성과 lifecycle 변경",
+    "longDescription": "해야 할 일을 짧고 직접적인 티켓으로 쓰고, 버그는 재현 단계·기대·실제 결과로, 요청은 해법 없이 문제와 원하는 결과로 정리합니다. GitHub Issue form과 저장소 양식 설치, 기존 티켓의 상태·담당자·관계 변경을 승인 범위 안에서 수행합니다.",
+    "developerName": "sonsu",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "이 버그 보고를 GitHub Issue 초안으로 정리해 줘.",
+      "이 요청을 Linear 티켓으로 만들어 줘. 해법은 정하지 마.",
+      "ENG-42를 진행 중으로 바꾸고 나에게 할당해 줘."
+    ]
+  }
+}

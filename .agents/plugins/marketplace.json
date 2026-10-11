@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "engineering",
+      "name": "git",
       "source": {
         "source": "local",
-        "path": "./plugins/engineering"
+        "path": "./plugins/git"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -17,10 +17,34 @@
       "category": "Developer Tools"
     },
     {
-      "name": "workflow",
+      "name": "tickets",
       "source": {
         "source": "local",
-        "path": "./plugins/workflow"
+        "path": "./plugins/tickets"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "review",
+      "source": {
+        "source": "local",
+        "path": "./plugins/review"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "dev-workflow",
+      "source": {
+        "source": "local",
+        "path": "./plugins/dev-workflow"
       },
       "policy": {
         "installation": "AVAILABLE",

@@ -30,11 +30,11 @@
   their results can be verified separately and the benefit exceeds coordination cost.
 - Give each subagent a bounded goal, inputs, output, and read/write scope. Parallel writers
   use separate worktrees; the root agent integrates their results and verifies the final state.
-- For recurring Engineering roles, select the matching project Codex agent in `.codex/agents/`
+- For recurring development and review roles, select the matching project Codex agent in `.codex/agents/`
   only when that role is discoverable and selectable in the current project/session. Host support
   for named selection alone is insufficient because project configuration may not be loaded.
   Read `shared/agent-policy/profiles.json` and pass the role's model and reasoning effort at spawn
-  unless the user specifies otherwise. Claude Code uses the matching packaged `engineering:<role>`
+  unless the user specifies otherwise. Claude Code uses the matching packaged `dev-workflow:<role>`
   agent. In both hosts, provide the concrete task brief at spawn time; a role name does not
   determine task count or file ownership. If the Codex role is unavailable or selection fails,
   read its definition and pass the role boundaries in the brief; report native role selection as

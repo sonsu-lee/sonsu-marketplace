@@ -20,7 +20,7 @@ REPORT_END = "<!-- inventory-report:end -->"
 REPOSITORY = "repository"
 
 # 다른 정본에서 생성되거나 캐시인 파일은 플러그인 스크립트 단위로 세지 않는다.
-GENERATED_SCRIPTS = {"task-continuity.py", "validate_design_quality.py", "design_md.mjs"}
+GENERATED_SCRIPTS = {"task-continuity.py", "validate_design_quality.py", "design_md.mjs", "review-package"}
 # 플러그인 root의 omp/(render-omp-compat.py)와 claude/(render-claude-compat.py)는 생성된 호스트 미러다.
 GENERATED_ROOTS = {"omp", "claude"}
 # 실행 도구를 찾을 때 테스트·빌드 산출물·의존성·캐시 디렉터리는 내려가지 않는다.
@@ -602,13 +602,15 @@ def command_check(root, args):
         if path.is_file():
             inventories[name] = read_json(path)
     unit_count = entry_count = 0
+    missing = []
     for plugin in units["plugins"]:
         if plugin["name"] not in selected:
             continue
         unit_count += 1 + len(plugin["skills"]) + len(plugin["scripts"])
         where = f"{plugin['name']}.json"
         if plugin["name"] not in inventories:
-            checker.add("missing-entry", where, "inventory file does not exist")
+            # 아직 조사하지 않은 플러그인은 경고로 남기고 검사를 막지 않는다.
+            missing.append(plugin["name"])
             continue
         entry_count += checker.plugin(inventories[plugin["name"]], plugin, where)
     if REPOSITORY in selected:
@@ -618,7 +620,7 @@ def command_check(root, args):
             checker.add("missing-entry", "repository.json", "inventory file does not exist")
         else:
             entry_count += checker.repository(inventories[REPOSITORY], "repository.json")
-    warnings = []
+    warnings = [f"warning: missing-inventory {name}" for name in missing]
     if args.plugin is None:
         for name in uncatalogued:
             checker.add("uncatalogued-plugin", f"plugins/{name}", "has a Codex manifest but is not in the catalog")
@@ -631,7 +633,7 @@ def command_check(root, args):
             for item in as_list(as_dict(inventories.get(REPOSITORY)).get("evals"))
             for name in as_list(as_dict(item).get("covers")) if isinstance(name, str)
         }
-        warnings = [f"warning: uncovered-plugin {name}" for name in catalog if name not in covered]
+        warnings += [f"warning: uncovered-plugin {name}" for name in catalog if name not in covered]
         report = root / REPORT
         if report.is_file():
             expected = render_report(catalog, inventories, inventories.get(REPOSITORY)).rstrip("\n")

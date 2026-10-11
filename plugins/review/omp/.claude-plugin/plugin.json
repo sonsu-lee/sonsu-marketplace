@@ -1,0 +1,18 @@
+{
+  "name": "review",
+  "version": "1.0.0",
+  "description": "코드·diff·커밋·PR을 코드 건강도 기준으로 리뷰하고 집중 관점 리뷰와 리뷰 지적 대응을 제공합니다.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT AND Apache-2.0",
+  "keywords": [
+    "code-review",
+    "code-quality",
+    "maintainability",
+    "failure-modes",
+    "operability",
+    "overengineering"
+  ]
+}

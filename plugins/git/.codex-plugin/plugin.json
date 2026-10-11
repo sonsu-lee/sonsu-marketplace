@@ -1,0 +1,26 @@
+{
+  "name": "git",
+  "version": "1.0.0",
+  "description": "Git branch·commit·push와 GitHub PR 작성·상태 조회·복구를 자동 트리거 또는 직접 호출로 수행합니다.",
+  "author": {
+    "name": "sonsu"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Git",
+    "shortDescription": "Git 전달과 GitHub PR 작성·조회·복구",
+    "longDescription": "원자적인 Git 변경, Conventional Commits 기반 커밋 메시지, 기본 Draft GitHub Pull Request 작성을 담당합니다. 열린 PR의 현재 head·CI·리뷰 상태와 응답이 늦은 리뷰 요청을 조회하고 요청 범위에서 충돌·리뷰 지적·CI 실패를 복구합니다. 원격 반영은 기존 승인 범위를 따릅니다.",
+    "developerName": "sonsu",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "이 변경에 맞는 브랜치 이름을 제안하고 요청한 파일만 commit해 줘.",
+      "현재 브랜치를 리뷰 가능한 GitHub Pull Request로 준비해 줘.",
+      "열린 PR의 CI와 리뷰 상태를 정리해 줘."
+    ]
+  }
+}

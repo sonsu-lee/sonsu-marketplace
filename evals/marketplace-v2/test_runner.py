@@ -150,7 +150,7 @@ class MarketplaceV2RunnerTests(unittest.TestCase):
             workspace.mkdir()
             workspace = workspace.resolve()
             (workspace / "CONTRACT.md").write_text("# Contract\n", encoding="utf-8")
-            runner._copy_candidate_profile(runner.REPO_ROOT / "plugins/engineering", workspace / ".agents")
+            runner._copy_candidate_profile(runner.REPO_ROOT / "plugins/dev-workflow", workspace / ".agents")
             runner._initialize_fixture_git(workspace)
 
             self.assertTrue((workspace / ".agents/.codex-plugin/plugin.json").is_file())

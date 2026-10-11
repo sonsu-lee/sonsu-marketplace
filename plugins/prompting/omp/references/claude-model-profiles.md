@@ -21,7 +21,7 @@
 
 ## PR 리뷰 기본값
 
-PR 리뷰는 `senior_review`의 `claude-opus-5-5` / `medium`를 라운드당 1명 요청한다. 위 역할 표의 인원은 PR 외 일반 리뷰·개발 게이트의 기본값이다. PR 인원은 `pr_review.count`를 적용하며 상위 검토를 자동 추가하지 않는다. 새 세션·메모리 격리, 지적 검증, 승인된 수정과 전체 재리뷰는 Engineering의 PR 실행 계약을 따른다. 사용자 지정과 현재 native 지원 범위가 우선한다.
+PR 리뷰는 `senior_review`의 `claude-opus-5-5` / `medium`를 라운드당 1명 요청한다. 위 역할 표의 인원은 PR 외 일반 리뷰·개발 게이트의 기본값이다. PR 인원은 `pr_review.count`를 적용하며 상위 검토를 자동 추가하지 않는다. 새 세션·메모리 격리, 지적 검증, 승인된 수정과 전체 재리뷰는 Review의 PR 실행 계약을 따른다. 사용자 지정과 현재 native 지원 범위가 우선한다.
 
 # Claude Code 모델·실행 차이
 

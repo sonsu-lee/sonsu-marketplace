@@ -33,7 +33,7 @@ path, 최종 path와 hash를 함께 기록합니다. 원본 가져오기와 로�
 `UPSTREAM.md`에서 각 source와 변환을 추적하고, 가져온 source가 없는 독립 plugin은 upstream
 기준선을 만들지 않습니다. 정책 변경은 관련 결정 기록과 현재 아키텍처 문서를 함께 갱신합니다.
 
-Engineering은 [독립 플러그인 결정](../decisions/0009-maintain-engineering-as-an-independent-plugin.md)에
+Dev Workflow는 [독립 플러그인 결정](../decisions/0009-maintain-engineering-as-an-independent-plugin.md)에
 따라 독립 semantic version을 사용하며 upstream 동기화나 이전 호환 경로를 배포 계약으로 두지
 않습니다.
 
@@ -52,9 +52,9 @@ Codex catalog와 manifest를 정본으로 두고 `python3 scripts/render-claude-
 생성합니다. memory-manager의 정리·승격 스킬과 worklog의 개선 스킬에는 Claude의 수동 호출 제한을 적용합니다. 모델 프로필은 호스트별로 분리하며, Codex connector와
 Claude Code MCP 구성은 별도의 실행 환경 상태입니다.
 
-## omp는 기본 5개와 opt-in 6개를 배포한다
+## omp는 기본 7개와 opt-in 6개를 배포한다
 
-`python3 scripts/render-omp-compat.py`는 Codex catalog의 순서를 유지하며 기본 5개인 `workflow`,
+`python3 scripts/render-omp-compat.py`는 Codex catalog의 순서를 유지하며 기본 7개인 `git`, `tickets`, `review`,
 `fluent-korean`, `fluent-english`, `fluent-japanese`, `design`과 opt-in 6개인
 `writing`, `research`, `prompting`, `product`, `design-patterns`, `worklog`를
 `.omp-plugin/marketplace.json`에 생성합니다. Codex·Claude Code 배포 대상과 원본 패키지는 바꾸지 않습니다.
@@ -62,7 +62,9 @@ opt-in 플러그인은 기본 구성에 포함하지 않고 필요한 사용자�
 
 | 플러그인 | omp catalog의 source |
 | --- | --- |
-| Workflow | `./plugins/workflow/omp` |
+| Git | `./plugins/git/omp` |
+| Tickets | `./plugins/tickets/omp` |
+| Review | `./plugins/review/omp` |
 | Fluent Korean | `./plugins/fluent-korean/omp` |
 | Fluent English | `./plugins/fluent-english` |
 | Fluent Japanese | `./plugins/fluent-japanese` |
@@ -74,13 +76,14 @@ opt-in 플러그인은 기본 구성에 포함하지 않고 필요한 사용자�
 | Design | `./plugins/design/omp` |
 | Worklog(opt-in) | `./plugins/worklog/omp` |
 
-Design·Workflow·Writing·Research·Prompting·Product의 omp 전용 패키지는 필요한 skills·references·assets·scripts·figma-plugin·라이선스를
+Design·Git·Tickets·Review·Writing·Research·Prompting·Product의 omp 전용 패키지는 필요한 skills·references·assets·scripts·figma-plugin·라이선스를
 원본 패키지에서 생성해 다른 플러그인 없이 쓸 수 있게 합니다. 스크립트의 실행 권한은 복사할 때 유지합니다.
+Review 패키지에는 순정 `reviewer`에만 적용되는 리뷰 기준 규칙(`omp-rules/` → `rules/`)을 함께 넣습니다.
 독자 hook, evidence gate, `task-continuity.py`, omp runtime extension은 포함하지 않습니다. 원본 패키지의
 hook·연속성 스크립트는 Codex·Claude Code용으로 남깁니다. Fluent Korean은 Codex 단일 호출 경로의
 스킬·참고 자료·라이선스를 전용 패키지로 생성합니다. 품질 불변식을 유지하고 현재 호스트 모델을 사용하며,
 Claude Code의 다중 호출·strict 모드와 고정 Opus 에이전트를 요구하지 않습니다. English·Japanese 스킬,
-Design의 품질 계약·프로필, Workflow의 작업 권한 경계는 유지합니다.
+Design의 품질 계약·프로필, Git·Tickets의 작업 권한 경계는 유지합니다.
 Design의 native tool 전제도 유지합니다. Japanese는 omp의 기존 model·effort·병렬 실행 정책을 쓰며
 full 모드의 세 검토 관점도 같은 호출 안에서 확인합니다.
 
@@ -92,7 +95,7 @@ Prompting의 Codex·Claude 모델 프로필은 작성 대상 프롬프트의 참
 Worklog는 [ADR 0022](../decisions/0022-add-worklog-plugin.md)에 따른 opt-in 예외입니다. 전용 패키지에는
 진단·개선 스킬과 기록 스크립트, runtime extension `extension/worklog.ts`와 이를 선언하는 `package.json`을
 생성합니다. runtime extension은 opt-in 패키지에만 배포하며 hook은 포함하지 않습니다.
-기본 5개 패키지에는 hook·runtime extension을 포함하지 않는 정책을 유지합니다.
+기본 7개 패키지에는 hook·runtime extension을 포함하지 않는 정책을 유지합니다.
 Worklog extension은 도구 결과와 세션 이벤트를 로컬 JSONL로 기록하며 진단 스킬은 읽기 전용입니다.
 
 생성된 `references/continuity.md`는 omp 순정 todo·session으로 작업을 이어 가도록 안내합니다.
@@ -102,10 +105,12 @@ Worklog extension은 도구 결과와 세션 이벤트를 로컬 JSONL로 기록
 
 | 책임 | 담당 | 배포 |
 | --- | --- | --- |
-| 개발 실행·task·todo·session·review·메모리 | omp 순정 기능 | 호스트 기능 |
-| Git·티켓·PR 작업 권한과 산출물 | Workflow | 기본 5개 |
-| 언어별 문장 품질·보호 규칙 | Fluent Korean·English·Japanese | 기본 5개 |
-| UI·prototype·handoff 품질과 native tool 전제 | Design | 기본 5개 |
+| 개발 실행·task·todo·session·메모리 | omp 순정 기능 | 호스트 기능 |
+| Git·PR 작업 권한과 산출물 | Git | 기본 7개 |
+| 티켓 작성·lifecycle 권한과 산출물 | Tickets | 기본 7개 |
+| 코드·PR 리뷰 기준과 결과 게시(순정 `reviewer` 위에 규칙 적용) | Review | 기본 7개 |
+| 언어별 문장 품질·보호 규칙 | Fluent Korean·English·Japanese | 기본 7개 |
+| UI·prototype·handoff 품질과 native tool 전제 | Design | 기본 7개 |
 | 원시 작업 이벤트 기록과 진단 | Worklog | opt-in |
 | 설계 패턴 선택·검토 | Design Patterns | opt-in |
 | 주장별 근거 감사와 고정 버전 코드 조사 | Research | opt-in |
@@ -113,7 +118,7 @@ Worklog extension은 도구 결과와 세션 이벤트를 로컬 JSONL로 기록
 | 문서 체계·글 구성과 개발자 글 작성 | Writing | opt-in |
 | 다른 모델·제품에 전달할 프롬프트 작성 | Prompting | opt-in |
 
-Engineering의 omp 모델 프로필은 직접 설치한 기존 사용자를 위해 보존하며 기본 구성에는 적용하지 않습니다.
+Dev Workflow의 omp 모델 프로필은 직접 설치한 사용자를 위해 보존하며 기본 구성에는 적용하지 않습니다.
 
 생성물은 직접 편집하지 않습니다. 생성기는 `--check`로 내용·실행 권한의 최신 여부와 불필요한 이전 생성물을
 확인하고, 일반 실행에서는 자신이 생성했다고 확인할 수 있는 이전 extension의 `package.json`·`extension.ts`만
@@ -141,5 +146,5 @@ omp는 시작할 때 24시간보다 오래된 카탈로그의 갱신을 가능�
 정적 JSON 검사를 통과했다는 사실만으로 실제 스킬 선택이나 호스트별 hook 동작을 확인했다고 보지 않습니다.
 미실행은 `not_run`, 원인 불명은 `inconclusive`로 기록합니다.
 [업데이트 런북](../runbooks/updating-upstream-plugin.md)과
-[ADR 0015](../decisions/0015-independent-skills.md)를 따릅니다. 이전 Engineering 게이트 결정은
+[ADR 0015](../decisions/0015-independent-skills.md)를 따릅니다. 이전 개발 게이트 결정은
 [ADR 0014](../decisions/0014-use-codex-managed-engineering.md)에 역사적 근거로 보존합니다.

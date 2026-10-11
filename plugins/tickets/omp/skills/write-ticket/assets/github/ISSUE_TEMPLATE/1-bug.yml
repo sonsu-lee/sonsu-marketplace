@@ -1,0 +1,52 @@
+name: Bug report
+description: Report a problem with steps to reproduce.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Search existing issues before filing. File one problem per issue, and describe the problem rather than a fix.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: State how often it happens (always, sometimes with N of M attempts, or could not reproduce), then list each action and its intent.
+      value: "Reproducibility: \n1. \n2. \n"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Observed facts only. Quote error messages verbatim.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: The earliest version or commit where it reproduces (and the last good one if known), plus OS, browser, or runtime.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant log output or stack traces. Rendered as code.
+      render: shell
+  - type: upload
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Screenshots, recordings, profiles, or log files.
+    validations:
+      required: false
+      accept: ".png,.jpg,.gif,.mp4,.mov,.webm,.log,.txt,.zip"
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      description: Optional. Keep guesses about the cause here, separate from the facts above.

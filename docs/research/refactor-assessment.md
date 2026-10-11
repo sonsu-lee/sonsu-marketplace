@@ -11,8 +11,6 @@
 
 | 플러그인 | 판정 | 대상 | omp 현재 | omp 제안 | 스킬 수 | 문서 지적 수 | 근거 |
 |---|---|---|---|---|---|---|---|
-| engineering | keep |  | not-distributed | not-distributed | 17 | 1 | 호스트별 실행 계약과 내용 주소 기반 품질 근거는 고유하다. PR 리뷰 진입점은 review 하나로 합쳤고 계획 구조 검사와 PR snapshot 수집은 validate_plan.py·pr_review_snapshot.py로 도구화해 판단과 수집을 분리했다. |
-| workflow | keep |  | default | default | 9 | 0 | 독립적인 전달 업무와 안전 계약은 유지한다. to-pr의 Git·GitHub 상태 수집은 pr_context.py, 첨부 manifest 검사는 validate_attachment_manifest.py, inspect-prs의 페이지 수집·상태 정규화는 inspect_prs.py로 분리해 모든 도구 제안을 처리했다. |
 | fluent-korean | keep |  | default | default | 2 | 2 | Codex 단일 호출과 Claude 다단계 스킬을 유지합니다. 공통 보존 규칙은 quick-rules.header.md 하나로 모으고 Claude 실행 절차는 file-workflow.md로 옮겼으며, 런타임과 무관한 홍보·commit-ko·과거 평가 스크립트는 번들에서 제거했습니다. |
 | fluent-english | keep |  | default | default | 1 | 0 | 독립적인 영어 작성·윤문 지침을 유지하고, 수치 기반 voice calibration과 보호 문자열 대조는 읽기 전용 도구로 분리했습니다. 도구 출력은 문맥 판단의 입력으로만 사용합니다. |
 | fluent-japanese | keep |  | default | default | 1 | 0 | 독립 도메인과 기존 검사 도구를 유지합니다. 진단 점수 산식은 score.py로 계산하고, 코퍼스가 없는 연구 도구 calibrate.py는 패키지에서 제거했습니다. |
@@ -29,7 +27,6 @@
 
 | 경로 | 판정 | 대상 | 근거 |
 |---|---|---|---|
-| plugins/engineering/skills/debug/condition-based-waiting-example.ts | to-reference | plugins/engineering/skills/debug/condition-based-waiting.md | `~/threads` 경로의 Lace 타입을 import하므로 이 패키지에서 실행하거나 타입 검사할 수 없다. 실행 도구가 아니라 조건 기반 대기의 구현 형태를 보여 주는 자료이므로 필요한 부분만 reference 예시로 옮긴다. |
 
 ### 도구 후보
 
@@ -40,8 +37,6 @@
 
 | 플러그인 | negative-definition | history | duplicate-rule | missing-example | structure | internal-detail |
 |---|---|---|---|---|---|---|
-| engineering | 0 | 0 | 1 | 0 | 0 | 0 |
-| workflow | 0 | 0 | 0 | 0 | 0 | 0 |
 | fluent-korean | 0 | 2 | 0 | 0 | 0 | 0 |
 | fluent-english | 0 | 0 | 0 | 0 | 0 | 0 |
 | fluent-japanese | 0 | 0 | 0 | 0 | 0 | 0 |
@@ -57,10 +52,10 @@
 
 ## 다음 단계
 
-1. `plugins/engineering/skills/finish-branch`: `duplicate-rule` 1건. 티켓 연결·자동 종료 규칙을 `shared/agent-policy` 정본으로 옮겨 Workflow와 공유한다.
+1. `plugins/dev-workflow/skills/finish-branch`: `duplicate-rule` 1건. 티켓 연결·자동 종료 규칙을 `shared/agent-policy` 정본으로 옮겨 Git과 공유한다.
 2. Fluent Korean `ai-tell-taxonomy.md`·`quick-rules.footer.md`: `history` 2건. 판정 근거와 얽힌 버전 경위를 정리하고 omp 투영 테스트가 고정한 행을 함께 조정한다.
 3. Writing `references/continuity.md`: `duplicate-rule` 1건. 생성물이므로 `shared/task-continuity/continuity.md.tmpl`에서 호스트 세션 규칙의 배치를 정한다.
-4. `plugins/engineering/skills/debug/condition-based-waiting-example.ts`: `to-reference`. 이 패키지에서 실행·타입 검사할 수 없는 예시 코드이므로 필요한 부분만 `condition-based-waiting.md`의 예시로 옮긴다.
+4. `plugins/dev-workflow/skills/debug/condition-based-waiting-example.ts`: `to-reference`. 이 패키지에서 실행·타입 검사할 수 없는 예시 코드이므로 필요한 부분만 `condition-based-waiting.md`의 예시로 옮긴다.
 
 ## 참고 구현
 

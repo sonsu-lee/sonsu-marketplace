@@ -13,7 +13,7 @@
 자동 선택하지 않습니다. fresh reviewer와 subagent는 controller의 checkpoint를 자동 상속하지 않습니다.
 저장·예산·권한·외부 작업 중복 방지 규칙은 [작업 연속성 계약](../reference/task-continuity.md)에 있습니다.
 
-Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering/references/evidence-gates.md)는
+Dev Workflow의 선택적 [완료 근거 관찰 도구](../../plugins/dev-workflow/references/evidence-gates.md)는
 등록한 계획 기반 task의 검사·리뷰 근거를 연결합니다. `Stop`은 현재 근거의 누락·stale 상태만
 관찰하며, 스킬 라우팅·실행 권한·다른 플러그인의 상태를 결정하지 않습니다.
 
@@ -30,11 +30,19 @@ Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering
 ## 이전 호출명에서 이동
 
 옛 호출명은 공개 스킬 별칭으로 남기지 않았습니다. 직접 호출과 저장된 평가 입력은 아래 현재
-이름을 사용합니다. 기존 활성 연속성 기록에 저장된 옛 이름만 읽기 호환을 유지합니다.
+이름을 사용합니다. workflow·engineering 이름의 진행 중 기록은 새 플러그인으로 이어지지 않습니다.
 
-| 이전 Engineering 호출명 | 현재 위치 |
+| 이전 호출명 | 현재 위치 |
 | --- | --- |
-| `review-quality` | `review` |
+| `workflow:branch`, `workflow:commit`, `workflow:push`, `workflow:inspect-prs`, `workflow:repair-pr` | `git:` + 같은 이름 |
+| `workflow:to-pr` | `git:write-pr` |
+| `workflow:review-commit` | `review:review-code` (커밋 검토) |
+| `workflow:to-ticket` | `tickets:write-ticket` |
+| `workflow:ticket-lifecycle` | `tickets:update-ticket` |
+| `engineering:review` | `review:review-code` |
+| `engineering:review-overengineering`, `engineering:review-maintainability`, `engineering:review-operability`, `engineering:review-failure-modes`, `engineering:audit-overengineering`, `engineering:address-review` | `review:` + 같은 이름 |
+| `engineering:plan`, `engineering:execute-plan`, `engineering:brainstorming`, `engineering:debug`, `engineering:test-driven-development`, `engineering:worktree`, `engineering:finish-branch`, `engineering:simplify-code`, `engineering:domain-shaped-code`, `engineering:write-skill` | `dev-workflow:` + 같은 이름 |
+| `review-quality` | `review-code` |
 | `systematic-debugging` | `debug` |
 | `writing-plans` | `plan` |
 | `executing-plans` | `execute-plan` |
@@ -42,16 +50,16 @@ Engineering의 선택적 [완료 근거 관찰 도구](../../plugins/engineering
 | `using-git-worktrees` | `worktree` |
 | `finishing-a-development-branch` | `finish-branch` |
 | `writing-skills` | `write-skill` |
-| `review-pr` | `review` (PR 경로의 심층·다중 요청 옵션) |
+| `review-pr` | `review-code` (PR 경로의 심층·다중 요청 옵션) |
+| `git-workflow` | `branch`, `commit`, `push`와 `review-code`의 커밋 검토 |
 | `using-engineering-skills`, `requesting-code-review`, `verification-before-completion`, `dispatching-parallel-agents`, `subagent-driven-development` | README 라우팅과 `references/`의 공통 절차 |
 
-Workflow의 `git-workflow`는 `branch`, `commit`, `push`, `review-commit`으로 나뉘었습니다.
 9개 플러그인의 공개 `task-continuity`는 각 플러그인의 `references/continuity.md`로 이동했습니다.
 작업의 최종 산출물에 여러 단계가 필요할 때만 현재 스킬을 순서대로 선택합니다.
 
 ## 플러그인 경계
 
-Engineering, Workflow, Research, Prompting, Product, Design, Design Patterns, Memory Manager, Worklog, Writing과 Fluent Languages는
+Git, Tickets, Review, Dev Workflow, Research, Prompting, Product, Design, Design Patterns, Memory Manager, Worklog, Writing과 Fluent Languages는
 각각 단독으로 설치하고 사용할 수 있는 독립 플러그인입니다. 한 플러그인이 다른 플러그인을
 import하거나 설치·선행 실행·특정 skill ID를 전제로 하지 않습니다. 여러 영역을 포함한 요청은
 Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 바탕으로 필요한 스킬을 순서대로
@@ -59,26 +67,27 @@ Codex가 현재 설치된 스킬의 description과 요청의 직접 목적을 �
 
 | 직접 목적 | 담당 |
 | --- | --- |
-| 구현, 디버깅, 계획 실행과 개발 방법론 | `engineering:*` |
-| 확인된 계약과 trust boundary를 코드 형태로 직접 반영 | `engineering:domain-shaped-code` |
-| 명시적으로 요청한 최소 구현, 삭제 우선과 YAGNI | `engineering:simplify-code` |
-| diff·commit·branch의 over-engineering 검토 | `engineering:review-overengineering` |
-| repository 또는 큰 경로의 over-engineering audit | `engineering:audit-overengineering` |
-| reader load와 유지보수성 검토 | `engineering:review-maintainability` |
-| 도달 가능한 실패 경로 검토 | `engineering:review-failure-modes` |
-| error ownership, logging과 운용 가능성 검토 | `engineering:review-operability` |
-| 코드·diff의 일반 직접 리뷰 또는 개발 단계의 독립 전체 리뷰 | `engineering:review` (Luna xhigh 5개 기본) |
-| branch 이름·생성, staging·commit, 일반 push, Git commit 검토 | 각각 `workflow:branch`, `workflow:commit`, `workflow:push`, `workflow:review-commit` |
-| ticket·issue·backlog 접수·초안·게시 또는 기존 제목·본문 보강 | `workflow:to-ticket` |
-| 기존 ticket의 작업 시작·review·완료 상태, 담당자와 native relation 변경 | `workflow:ticket-lifecycle` |
-| PR 상태·CI·리뷰·미해결 대화 조회 | `workflow:inspect-prs` |
-| 지정 PR의 충돌·리뷰 지적·CI 실패 처리 | `workflow:repair-pr` |
-| GitHub PR 일반·심층·다중 리뷰 | `engineering:review` (PR 경로, 기본 `pr_review` 새 검토자 1명/라운드) |
+| 구현, 디버깅, 계획 실행과 개발 방법론 | `dev-workflow:*` |
+| 확인된 계약과 trust boundary를 코드 형태로 직접 반영 | `dev-workflow:domain-shaped-code` |
+| 명시적으로 요청한 최소 구현, 삭제 우선과 YAGNI | `dev-workflow:simplify-code` |
+| diff·commit·branch의 over-engineering 검토 | `review:review-overengineering` |
+| repository 또는 큰 경로의 over-engineering audit | `review:audit-overengineering` |
+| reader load와 유지보수성 검토 | `review:review-maintainability` |
+| 도달 가능한 실패 경로 검토 | `review:review-failure-modes` |
+| error ownership, logging과 운용 가능성 검토 | `review:review-operability` |
+| 코드·diff의 일반 직접 리뷰 | `review:review-code` (Luna xhigh 5개 기본) |
+| 개발 단계의 독립 전체 리뷰 | `dev-workflow:*`의 독립 리뷰 절차 |
+| branch 이름·생성, staging·commit, 일반 push, Git commit 검토 | 각각 `git:branch`, `git:commit`, `git:push`, `review:review-code` |
+| ticket·issue·backlog 접수·초안·게시 또는 기존 제목·본문 보강 | `tickets:write-ticket` |
+| 기존 ticket의 작업 시작·review·완료 상태, 담당자와 native relation 변경 | `tickets:update-ticket` |
+| PR 상태·CI·리뷰·미해결 대화 조회 | `git:inspect-prs` |
+| 지정 PR의 충돌·리뷰 지적·CI 실패 처리 | `git:repair-pr` |
+| GitHub PR 일반·심층·다중 리뷰 | `review:review-code` (PR 경로, 기본 `pr_review` 새 검토자 1명/라운드) |
 | 일반·운영 UI의 새 화면·흐름 설계, Figma 또는 코드 | `design:design-interface` |
 | 일반·운영 UI의 기존 화면·흐름 재설계, Figma 또는 코드 | `design:redesign-interface` |
 | 기존 코드·화면·Figma의 읽기 전용 감사 | `design:audit-interface` |
 | 화면·흐름·컴포넌트·시각 스타일의 디자인 레퍼런스 검색과 출처·관찰 근거 선별 | `design:find-references` |
-| 현재 branch의 새 GitHub PR 초안 또는 게시 | `workflow:to-pr` |
+| 현재 branch의 새 GitHub PR 초안 또는 게시 | `git:write-pr` |
 | 반복 문제와 설계 forces에 맞는 named pattern 선택 | `design-patterns:select-design-patterns` |
 | 명시적으로 요청한 기존 pattern 적용·오용의 읽기 전용 검토 | `design-patterns:review-pattern-usage` |
 | 관련 과거 맥락 회상 | `memory-manager:memory-recall` |
@@ -118,38 +127,38 @@ Figma가 정본이면 native 화면·prototype을 완성하고 사용자에게 �
 담당합니다. Mobbin·Refero 같은 전용 MCP나 Research 플러그인이 없어도 host 웹 검색으로
 대체하거나 `no_verified_match`를 보고하며, MCP 서버나 플러그인을 자동 설치하지 않습니다.
 
-PR URL만으로 심층 리뷰를 시작하지 않습니다. PR 리뷰는 `review`의 PR 경로 하나이며 심층·다중은
+PR URL만으로 심층 리뷰를 시작하지 않습니다. PR 리뷰는 `review-code`의 PR 경로 하나이며 심층·다중은
 그 경로의 요청 옵션입니다. 리뷰 의도는 요청과 기존 문맥에서 확인하며, 문맥 없는 URL 단독 입력에
 리뷰·게시를 추가하지 않습니다. 라운드마다 새 세션·워크트리의 검토자(기본 1명, 사용자 지정 인원은
 병렬)가 검토한 뒤 원인별로 중복을 제거해 해당 PR에 `COMMENT` 리뷰를 게시합니다. 로컬 전용·게시 금지 요청은 우선합니다.
-[PR 실행·게시 계약](../../plugins/engineering/references/pr-review-execution.md)이 SHA 고정,
+[PR 실행·게시 계약](../../plugins/review/references/pr-review-execution.md)이 SHA 고정,
 Codex 일시 오류 재시도, 기존 댓글 중복과 게시 결과 재조회를 소유합니다.
 
 직접적인 산출물과 관점 요청을 우선하여 라우팅합니다. 예를 들어 현재 branch로 PR을 만들어 달라는
-요청은 `workflow:to-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
-요청은 `engineering:finish-branch`의 범위입니다.
+요청은 `git:write-pr`의 범위이며, 완료된 구현을 어떤 방식으로 통합할지 결정해 달라는
+요청은 `dev-workflow:finish-branch`의 범위입니다.
 
 ```text
 구현하고 PR 초안까지 준비
-  → Engineering으로 구현·검증
-  → Workflow의 to-pr로 현재 branch를 다시 확인하고 PR 산출물 준비
+  → Dev Workflow로 구현·검증
+  → Git의 write-pr로 현재 branch를 다시 확인하고 PR 산출물 준비
 ```
 
-이 순서는 runtime 조합이며 플러그인 dependency가 아닙니다. Workflow만 설치된 환경에서는
-Git·ticket·PR 작업이 독립적으로 동작하고, Engineering만 설치된 환경에서는 자체 개발 및
+이 순서는 runtime 조합이며 플러그인 dependency가 아닙니다. Git만 설치된 환경에서는
+Git·PR 작업이, Tickets만 설치된 환경에서는 ticket 작업이 독립적으로 동작하고, Dev Workflow만 설치된 환경에서는 자체 개발 및
 branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 트리거가 반복해서 확인되기
 전에는 추가하지 않습니다.
 
-## Engineering 실행과 모델 선택
+## Dev Workflow 실행과 모델 선택
 
-일반 리뷰의 진입점은 Engineering 안에 통합됐습니다. 일반 리뷰는 Luna xhigh 5개의 같은 고정
+단독 리뷰의 진입점은 Review의 `review-code`입니다. 일반 리뷰는 Luna xhigh 5개의 같은 고정
 입력·같은 기준, focused 리뷰는 1개가 기본입니다. 직접 리뷰 요청은 전체 개발 계획·소스 수정으로
 확장하지 않습니다. root가 작업자 할당을 소유하고 worker는 추가 할당을 root로 요청합니다.
 
-정확한 역할 모델·추론 수준은 [공유 프로필](../../plugins/engineering/references/model-profiles.md),
-실행은 [공통 수명주기](../../plugins/engineering/skills/execute-plan/SKILL.md),
-현재 근거와 진행 조건은 [관리형 게이트](../../plugins/engineering/references/evidence-gates.md)를
-따릅니다. 이 링크는 저장소 문서의 탐색이며 전문 플러그인이 Engineering 설치를 요구하는 계약이 아닙니다.
+정확한 역할 모델·추론 수준은 [공유 프로필](../../plugins/dev-workflow/references/model-profiles.md),
+실행은 [공통 수명주기](../../plugins/dev-workflow/skills/execute-plan/SKILL.md),
+현재 근거와 진행 조건은 [관리형 게이트](../../plugins/dev-workflow/references/evidence-gates.md)를
+따릅니다. 이 링크는 저장소 문서의 탐색이며 전문 플러그인이 Dev Workflow 설치를 요구하는 계약이 아닙니다.
 
 기계적 작업은 결정론적 검사, 동작 변경은 independent, 고위험 경계는 별도 red-team을 선택합니다.
 계획 파일 존재·재개·고정 탐색 횟수로 위험을 결정하지 않습니다. 직접/위임은 같은 절차이고
@@ -157,12 +166,12 @@ branch 완료 흐름이 동작해야 합니다. 공통 router는 실제 경쟁 �
 확인하며 사용자 권한과 gate 통과를 구분합니다.
 
 이 저장소에서 Codex로 작업할 때 모델 프로필의 11개 역할은 프로젝트 `.codex/agents/`에
-정의합니다. Claude Code의 같은 11개 역할은 생성된 `engineering:<role>` agent로 제공합니다.
+정의합니다. Claude Code의 같은 11개 역할은 생성된 `dev-workflow:<role>` agent로 제공하고, 리뷰 역할 5개는 `review:<role>`로도 제공합니다.
 역할 이름은 실행 유형을 구분하며 `localized_implementation`, `senior_review`,
 `complex_adjudication`은 각각 구현·전체 리뷰·지적 판정의 범위 또는 난도별 변형입니다.
 역할의 반복 가능한 책임과 읽기/쓰기 지침은 `scripts/render-agent-policy.py` 한 곳에서 정의하고
 두 호스트의 agent 파일을 생성합니다. Codex 파일은 이 저장소 작업용 설정이며 설치형
-Engineering 플러그인의 구성 요소가 아닙니다. 작업 수·대상 파일·의존성·검사는 위임할 때
+Dev Workflow·Review 플러그인의 구성 요소가 아닙니다. 작업 수·대상 파일·의존성·검사는 위임할 때
 brief로 전달합니다. 현재 프로젝트·세션에서 역할이 발견·선택되지 않으면 역할 정의를
 읽어 해당 경계를 brief에 포함하고 모델 프로필을 호출 인자로 전달하며, native 역할 선택은
 미확인으로 남깁니다. 프로젝트가 trusted 상태가 아니어서 `.codex/` 설정이 로드되지 않는 경우도
@@ -170,26 +179,26 @@ brief로 전달합니다. 현재 프로젝트·세션에서 역할이 발견·�
 읽기 전용 지침을 구분합니다. Claude Code의 읽기 전용 역할 문구도 agent 지침이며,
 실제 파일 권한은 실행 환경에서 확인합니다.
 
-공통 구성은 Writing, 언어 표현은 Fluent, 개발 단계와 코드 품질은 Engineering이 소유합니다.
+공통 구성은 Writing, 언어 표현은 Fluent, 개발 단계는 Dev Workflow, 코드 리뷰는 Review가 소유합니다.
 공유 원본에서 필요한 패키지 참조만 생성해 단독 설치를 유지합니다.
 
-## Writing·Fluent·Workflow 조합
+## Writing·Fluent·Git·Tickets 조합
 
 Writing은 독자·목적·편집 범위에 따라 내용을 선별하고 문서 위치와 문장·문단 구성을 정합니다.
-Fluent는 요청된 언어의 어순·표현·어조를 다듬고, Workflow는 티켓·PR 양식과 필수 항목,
+Fluent는 요청된 언어의 어순·표현·어조를 다듬고, Git·Tickets는 티켓·PR 양식과 필수 항목,
 사실·검증 근거 확인, 연결 문법·게시·재조회를 담당합니다. 각 플러그인은 단독으로 사용할 수 있습니다.
 
 함께 사용할 때는 현재 제공되는 지침을 같은 초안에 한 번씩 적용합니다. 독자·목적·선별한 사실,
 출력 언어·편집 범위·정해진 구성을 전달하고, 영속 문서는 이미 정한 목적·경로·갱신 범위도 이어받습니다.
-Fluent는 구성 단계에서 제외한 참고 내용을 다시 추가하지 않습니다. Workflow가 확인한 양식과
+Fluent는 구성 단계에서 제외한 참고 내용을 다시 추가하지 않습니다. Git·Tickets가 확인한 양식과
 필수 정보는 Writing·Fluent가 유지하며, 표현 개선이 양식 확인이나 게시 조건을 대신하지 않습니다.
 
 공통 작성 규칙의 정본은 Writing, 언어별 표현과 독립적인 보존 기준은 Fluent, 티켓·PR 양식과
-운영 지침은 Workflow에 있습니다. Fluent의 각 언어 SKILL은 자체 정본과 보존 기준을 가지며
-공통 언어 코어나 생성기가 없습니다. Writing과 Workflow 사이에서도 지침을 생성·복사하지 않습니다. 상세 조합 계약은
-[Workflow의 작성 지침 함께 적용하기](../../plugins/workflow/references/writing-composition.md)를 참고합니다.
+운영 지침은 Git·Tickets에 있습니다. Fluent의 각 언어 SKILL은 자체 정본과 보존 기준을 가지며
+공통 언어 코어나 생성기가 없습니다. Writing과 Git·Tickets 사이에서도 지침을 생성·복사하지 않습니다. 상세 조합 계약은
+[Git·Tickets의 작성 지침 함께 적용하기](../../shared/delivery-writing/writing-composition.md)를 참고합니다.
 
-Workflow는 Writing·Fluent 설치와 관계없이 티켓·PR에 필요한 사실·조건·이유를 보존하고 불필요한 내용을 구별하는 [공통 작성 기준](../../plugins/workflow/references/tracker-prose.md)을 적용합니다. 제목·분량·특정 서두를 품질 기준으로 삼지 않으며, Writing·Fluent 적용 후에도 Workflow가 최종 내용·연결·권한 계약을 대조합니다.
+Git·Tickets는 Writing·Fluent 설치와 관계없이 티켓·PR에 필요한 사실·조건·이유를 보존하고 불필요한 내용을 구별하는 [공통 작성 기준](../../shared/delivery-writing/tracker-prose.md)을 적용합니다. 제목·분량·특정 서두를 품질 기준으로 삼지 않으며, Writing·Fluent 적용 후에도 Git·Tickets가 최종 내용·연결·권한 계약을 대조합니다.
 
 한국어 산출물을 새로 쓸 때는 Writing의 구성과 함께 설치된 Fluent Korean의 생성 규칙을 적용합니다. 일반 대화 답변·단순 맞춤법 교정·번역에는 자동 적용하지 않습니다.
 
@@ -200,7 +209,7 @@ Prompting은 사용자가 실제로 사용할 프롬프트 산출물을 요청�
 prompt engineering 개념만 설명해 달라는 요청에는 선택하지 않습니다.
 
 Codex용 작업 프롬프트를 작성하더라도 그 요청 자체가 구현이나 개발 계획 실행을 의미하지는
-않으므로 Engineering을 자동으로 함께 선택하지 않습니다. 반대로 구현 요청 안에 포함된 일반
+않으므로 Dev Workflow를 자동으로 함께 선택하지 않습니다. 반대로 구현 요청 안에 포함된 일반
 자연어 요구사항을 Prompting으로 먼저 재작성해야 한다고 가정하지 않습니다. 사용자가 프롬프트
 산출물과 구현을 모두 요청했을 때만 직접 목적에 따라 runtime에서 조합합니다.
 
@@ -210,16 +219,17 @@ Prompting만 설치된 환경에서도 Codex, ChatGPT와 OpenAI API용 프롬프
 
 ## 코드 품질과 리뷰
 
-일반 리뷰, 도메인 타입·상태, 단순화, 유지보수·실패·운영성은 Engineering 내부의 전문 스킬입니다.
-일반 리뷰, 개발 단계의 독립 전체 리뷰와 GitHub PR의 일반·심층·다중 리뷰는 `review`, 특정 관점은
-해당 focused 스킬이 맡습니다. 리뷰 패키징과 결과 수집은
-[독립 리뷰 실행 절차](../../plugins/engineering/references/independent-review.md)를 공유합니다.
-판단 기준은 패키지의 공통 references를 재사용합니다.
+일반 리뷰와 유지보수·실패·운영성 리뷰는 Review, 도메인 타입·상태와 단순화는 Dev Workflow의 전문 스킬입니다.
+일반 리뷰와 GitHub PR의 일반·심층·다중 리뷰는 `review-code`, 특정 관점은 해당 focused 스킬이 맡고,
+개발 단계의 독립 전체 리뷰는 Dev Workflow의 [독립 리뷰 실행 절차](../../plugins/dev-workflow/references/independent-review.md)가
+맡습니다. Review의 리뷰 패키징과 결과 수집은 [리뷰 실행 절차](../../plugins/review/references/review-execution.md)를 따릅니다.
+판단 기준은 [공통 리뷰 기준](../../shared/review-core/review-criteria.md) 정본에서 각 패키지에 생성한 references를 사용합니다.
 
 root는 일반 리뷰에 같은 고정 입력·기준을 받은 Luna xhigh 5개를 할당합니다. 각 지적을 실제
 계약·도달 경로·영향으로 검증하고 중복 원인을 합칩니다. 다수결로 판정하지 않습니다. 리뷰 전용
 요청은 구현 계획·DAG·소스 수정을 요구하지 않으며 쓰기 금지 시 inline 고정 입력을 사용합니다.
 기본 Codex `/review`나 GitHub 자동 리뷰의 hook을 설치하는 기능은 별도 제공하지 않습니다.
+omp에서는 순정 `reviewer`를 쓰며, Review는 그 reviewer에만 적용되는 규칙 `sonsu-review-standard`를 얹습니다.
 
 도메인 타입은 확인된 규칙으로 불가능한 상태를 제외하고, 실제 외부·가변 경계는 검증합니다.
 이미 보장한 내부 경로에 중복 guard를 추가하거나 확인되지 않은 미래 요구의 fallback·추상화를
@@ -234,13 +244,13 @@ guarantee를 먼저 판단합니다. 일반 기능 구현이나 사소한 리팩
 ```text
 구현 중 pattern 판단이 실제로 필요한 경우
   → Design Patterns가 pattern 필요 여부와 최소 implementation shape를 결정
-  → Engineering이 승인된 선택을 전체 구현·TDD·검증 lifecycle에 반영
+  → Dev Workflow가 승인된 선택을 전체 구현·TDD·검증 lifecycle에 반영
   → 명시적인 pattern review 요청이면 review-pattern-usage가 수정 없이 guarantee를 검토
 ```
 
 이 조합은 runtime 책임 분담이며 manifest dependency가 아닙니다. Design Patterns만 설치된 환경에서도
-선택과 읽기 전용 검토를 완성하고 Engineering의 skill ID나 계획 절차를 호출하지 않습니다.
-Engineering도 Design Patterns가 없으면 일반 설계·구현을 독립적으로 수행합니다. Engineering의 품질 스킬은
+선택과 읽기 전용 검토를 완성하고 Dev Workflow의 skill ID나 계획 절차를 호출하지 않습니다.
+Dev Workflow도 Design Patterns가 없으면 일반 설계·구현을 독립적으로 수행합니다. Review의 품질 스킬은
 broad code shape와 실패·운용 문제를 검토하고, Design Patterns review는 named pattern이 약속한
 guarantee, cost와 scope에만 집중합니다.
 
@@ -259,9 +269,9 @@ Product는 제품 문제와 기회, 사용자 근거, 제품 도메인 규칙, �
 
 ```text
 PRD 이후(작업 크기 L)
-  → 화면·흐름은 Design, API·데이터·통합·대외 SLO·권한·보안 계약과 필요한 공통 내부 품질 설계는 Engineering 설계 문서 또는 ADR
-  → Workflow to-ticket으로 결과 단위 분해(REQ ID·수용 기준 보존)
-  → Engineering plan에서 흐름 F와 REQ 연결
+  → 화면·흐름은 Design, API·데이터·통합·대외 SLO·권한·보안 계약과 필요한 공통 내부 품질 설계는 Dev Workflow 설계 문서 또는 ADR
+  → Tickets write-ticket으로 결과 단위 분해(REQ ID·수용 기준 보존)
+  → Dev Workflow plan에서 흐름 F와 REQ 연결
 ```
 
 작업 크기에 따른 생략 기준은 [인계 계약](../../plugins/product/references/delivery-handoff.md)을 따릅니다.
@@ -280,14 +290,14 @@ Product와 다른 플러그인의 경계는 다음과 같습니다.
   인터뷰·피드백·지표를 제품 질문에 맞게 종합하는 작업은 `synthesize-product-evidence`가
   담당합니다.
 - 제품 용어·상태·규칙의 후보를 찾는 작업은 `product-domain-discovery`가 담당하고, 확인된
-  계약을 code shape와 제어 흐름에 반영하는 작업은 Engineering의
+  계약을 code shape와 제어 흐름에 반영하는 작업은 Dev Workflow의
   `domain-shaped-code`가 담당합니다.
 - 제품 문제, 결과와 요구사항은 Product가 담당하고, 기술 설계·구현·검증 lifecycle은
-  Engineering이 담당합니다.
-- `to-prd`는 PRD만 다루며 branch, commit, ticket과 PR은 Workflow가 담당합니다.
+  Dev Workflow가 담당합니다.
+- `to-prd`는 PRD만 다루며 branch, commit과 PR은 Git이, ticket은 Tickets가 담당합니다.
 
 Product만 설치된 환경에서도 현재 대화와 제공 자료를 바탕으로 각 작업을 완료할 수 있어야
-합니다. 외부 근거나 구현이 함께 요청되면 Research 또는 Engineering을 runtime에서 조합하며
+합니다. 외부 근거나 구현이 함께 요청되면 Research 또는 Dev Workflow를 runtime에서 조합하며
 manifest dependency를 추가하지 않습니다.
 
 ## Design의 Figma 경로
@@ -327,42 +337,42 @@ contract가 허용하는 범위에서만 사용하고, companion의 manual opera
 
 ## Ticket 작성·수정과 lifecycle
 
-Workflow는 Linear와 GitHub Issues의 ticket 접수·작성·내용 수정, 기존 ticket의 lifecycle 변경과 PR 연동을 서로 다른 책임으로 나눕니다.
+Tickets와 Git은 Linear와 GitHub Issues의 ticket 접수·작성·내용 수정, 기존 ticket의 lifecycle 변경과 PR 연동을 서로 다른 책임으로 나눕니다.
 
 | 이벤트 | 담당 | 책임 |
 | --- | --- | --- |
-| ticket 접수·초안·생성 | `workflow:to-ticket` | 적용 양식으로 제목·본문과 생성 필드를 준비하고 허가된 게시·첨부 결과를 검증 |
-| 기존 title·body 보강 | `workflow:to-ticket` | canonical 원문을 읽고 요청한 내용만 수정·재조회; 기존 결정·기록과 요청 밖 field 보존 |
-| 작업 시작·상태 변경 | `workflow:ticket-lifecycle` | canonical ticket의 현재 상태를 읽고 허용된 transition, 담당자와 native relation을 변경 |
-| branch 생성 | `workflow:branch` | Git branch만 관리하고 ticket mutation은 runtime에서 `ticket-lifecycle`과 조합 |
-| PR 초안·게시 | `workflow:to-pr` | canonical ticket의 연결 의도와 provider 문법을 PR에 표현하고 status effect를 검증 |
-| PR·merge·release event | tracker의 native integration | 구성된 workflow automation을 적용하고, Workflow skill은 직접 중복 전이하지 않음 |
+| ticket 접수·초안·생성 | `tickets:write-ticket` | 적용 양식으로 제목·본문과 생성 필드를 준비하고 허가된 게시·첨부 결과를 검증 |
+| 기존 title·body 보강 | `tickets:write-ticket` | canonical 원문을 읽고 요청한 내용만 수정·재조회; 기존 결정·기록과 요청 밖 field 보존 |
+| 작업 시작·상태 변경 | `tickets:update-ticket` | canonical ticket의 현재 상태를 읽고 허용된 transition, 담당자와 native relation을 변경 |
+| branch 생성 | `git:branch` | Git branch만 관리하고 ticket mutation은 runtime에서 `update-ticket`과 조합 |
+| PR 초안·게시 | `git:write-pr` | canonical ticket의 연결 의도와 provider 문법을 PR에 표현하고 status effect를 검증 |
+| PR·merge·release event | tracker의 native integration | 구성된 workflow automation을 적용하고, Git·Tickets skill은 직접 중복 전이하지 않음 |
 
 ### 작업 전달과 내용 수정을 담당한다
 
-`to-ticket`은 외부 논의의 핵심 결론과 작업에 필요한 맥락을 본문에 담습니다.
-[티켓 작성 지침](../../plugins/workflow/skills/to-ticket/references/ticket-writing.md)에 따라
+`write-ticket`은 외부 논의의 핵심 결론과 작업에 필요한 맥락을 본문에 담습니다.
+[티켓 작성 지침](../../plugins/tickets/skills/write-ticket/references/ticket-writing.md)에 따라
 사용자·대상 공간의 양식을 우선하고, 없으면 일반 작업·버그·조사 작업 양식을 사용합니다.
 이 구분은 본문 작성 방식이며 tracker의 type·label·status가 아닙니다. 항목별 의미는 각 템플릿의
-작성 안내, 양식 선택·언어·내용은 [티켓 작성 지침](../../plugins/workflow/skills/to-ticket/references/ticket-writing.md)이 담당합니다.
-[티켓·PR 작성 설계 근거](../reference/ticket-pr-writing.md)는 두 산출물의 정본 위치와 설계 근거를 설명합니다.
+작성 안내, 양식 선택·언어·내용은 [티켓 작성 지침](../../plugins/tickets/skills/write-ticket/references/ticket-writing.md)이 담당합니다.
+[티켓·PR·리뷰 규칙 근거](../reference/ticket-pr-review-sources.md)는 두 산출물의 정본 위치와 설계 근거를 설명합니다.
 
-첨부는 [미디어 규칙](../../plugins/workflow/skills/to-ticket/references/media-attachments.md)과
+첨부는 [미디어 규칙](../../shared/delivery-writing/media.md)과
 프로바이더 문서로 처리합니다. 기존 본문의 부분 수정·동시 변경 보존·결과 재조회는
-[`to-ticket`](../../plugins/workflow/skills/to-ticket/SKILL.md)의 책임이며, 본문 수정 권한을
+[`write-ticket`](../../plugins/tickets/skills/write-ticket/SKILL.md)의 책임이며, 본문 수정 권한을
 상태·담당자·관계 변경으로 확대하지 않습니다.
 
 내용 반영 후 시작처럼 후속 lifecycle이 수정 성공에 의존하면 필요한 content field 전체의
-`applied` 또는 검증된 `no-op`을 확인한 뒤 `ticket-lifecycle`에 인계합니다. 부분 성공·`unknown`이면
+`applied` 또는 검증된 `no-op`을 확인한 뒤 `update-ticket`에 인계합니다. 부분 성공·`unknown`이면
 의존하는 후속 변경을 보류합니다. 본문 성공과 무관하게 수행하라는 명시적 요청은 현재 상태와
 권한을 새로 확인해 처리합니다.
 
-제품·기술 의사결정은 Product·Engineering의 책임이며 필수 의존성이 아닙니다. 출력 언어의
+제품·기술 의사결정은 Product·Dev Workflow의 책임이며 필수 의존성이 아닙니다. 출력 언어의
 Fluent Languages 스킬이 있으면 함께 적용하되 설치를 가정하거나 자동 설치하지 않습니다.
 
 ### 생성 metadata를 같은 publish 흐름에서 완성한다
 
-`to-ticket`은 tracker와 대상 공간의 실제 schema, template, 사용자 지정값과 일관된 team·project
+`write-ticket`은 tracker와 대상 공간의 실제 schema, template, 사용자 지정값과 일관된 team·project
 정책을 먼저 읽습니다. 다음 값 가운데 근거가 있고 현재 interface가 지원하는 값은 title과 body를
 게시하는 동일한 흐름에서 적용합니다.
 
@@ -377,7 +387,7 @@ Fluent Languages 스킬이 있으면 함께 적용하되 설치를 가정하거�
 모든 선택 필드를 채우는 것이 목표는 아닙니다. 사용자 지정값, 유효한 template, 명시적인 공간
 정책 또는 동일한 종류의 최근 ticket에서 일관되게 확인되는 값이 없으면 assignee, priority,
 estimate와 분류값을 추정하지 않습니다. ticket 생성 자체만 요청받으면 확인된 template·공간의
-기본 초기 상태를 유지하며, 생성 직후 작업 시작까지 요청받았을 때에만 `ticket-lifecycle`을 이어서
+기본 초기 상태를 유지하며, 생성 직후 작업 시작까지 요청받았을 때에만 `update-ticket`을 이어서
 선택합니다.
 
 일부 tracker interface는 project custom field나 relation을 생성 호출과 별도 작업으로 처리합니다.
@@ -400,7 +410,7 @@ metadata와 relation을 적용한 뒤 원격 상태를 다시 읽습니다. 일�
 
 ### 작업 시작과 기존 ticket 변경을 분리한다
 
-`ticket-lifecycle`은 기존 ticket에 대한 다음 의도를 담당합니다.
+`update-ticket`은 기존 ticket에 대한 다음 의도를 담당합니다.
 
 ```text
 start | review | ready | complete | reopen | cancel | block | unblock
@@ -429,7 +439,7 @@ started이면 idempotent하게 유지하고, completed·canceled ticket은 명�
 `ENG-123 작업 시작해`처럼 canonical ticket과 작업 시작을 함께 지정한 요청은 해당 ticket의
 `start` mutation을 포함합니다. ticket을 지정하지 않은 일반 코드 수정, branch 이름에 우연히
 포함된 ID 또는 provider를 확정할 수 없는 ID만으로는 원격 ticket을 바꾸지 않습니다. ticket 작업과
-branch 생성이 함께 요청되면 `ticket-lifecycle`과 `branch`를 runtime에서 각각 선택하며 어느
+branch 생성이 함께 요청되면 `update-ticket`과 `branch`를 runtime에서 각각 선택하며 어느
 한 스킬도 다른 스킬의 설치나 선행 실행을 필수로 가정하지 않습니다.
 
 ### PR은 연결하고 native automation을 우선한다
@@ -437,27 +447,27 @@ branch 생성이 함께 요청되면 `ticket-lifecycle`과 `branch`를 runtime�
 새 branch 이름은 사용자 지정과 repository·team 규칙을 따르고, 규칙이 없으면 티켓 ID 없는
 설명형 이름을 씁니다. Linear·GitHub Issues 모두 티켓은 PR 본문에서 연결하고, 사용자가 요청하면
 provider가 지원하는 별도 link 작업을 추가합니다. 본문의 티켓 ID에는 canonical URL 링크를 겁니다. 기존 branch는 자동 rename하지 않습니다. 여러 PR의 부분 병합이
-티켓을 조기 완료시킬 자동화가 있으면 [티켓 연결 규칙](../../plugins/workflow/skills/to-pr/references/ticket-linking.md)의 비종결 연결·
+티켓을 조기 완료시킬 자동화가 있으면 [티켓 연결 규칙](../../plugins/git/skills/write-pr/references/ticket-linking.md)의 비종결 연결·
 충돌 처리 규칙을 적용합니다.
 
-`to-pr`은 canonical ticket의 `complete`, `contribute`, `relate` 또는 `suppress` 의도를 provider의
+`write-pr`은 canonical ticket의 `complete`, `contribute`, `relate` 또는 `suppress` 의도를 provider의
 정확한 PR body 문법(사용자가 요청하면 provider link 작업 추가)으로 표현합니다. Linear magic word와 GitHub closing keyword는
 서로 바꾸어 사용하지 않습니다. 같은 작업이 두 tracker에 동기화되어 있으면
 확인된 canonical ticket 하나에만 completion 의도를 적용합니다.
 
 Linear에서 PR event 기반 status automation이 구성된 경우 Draft, PR open, review request,
-ready for merge, merge와 release event는 native integration이 담당합니다. `to-pr`은 같은 status를
+ready for merge, merge와 release event는 native integration이 담당합니다. `write-pr`은 같은 status를
 직접 중복 변경하지 않고 PR 게시 후 ticket을 다시 읽어 link와 실제 status effect를 확인합니다.
 automation이 없거나 해당 event에 적용되지 않는다는 점, 목표 transition, 권한과 현재 상태가 모두
 확인되고 사용자의 전이 의도 또는 repository·team lifecycle 정책이 있는 경우에만
-`ticket-lifecycle`을 fallback으로 선택합니다. automation 적용 여부나 비동기 결과가 불명확하면
+`update-ticket`을 fallback으로 선택합니다. automation 적용 여부나 비동기 결과가 불명확하면
 직접 전이하지 않고 `unknown`으로 보고합니다.
 
 Draft PR 생성은 review 시작과 같지 않으며 Draft라는 이유만으로 review 상태로 직접 전이하지
 않습니다. Ready 전환, review request와 merge의 상태 효과는 확인된 provider integration 또는
 repository·team 정책이 정의한 매핑을 따릅니다. 배포나 release가 ticket의 완료 조건이면
 merge만으로 completed 처리하지 않고 release automation이나 명시적인 완료 요청을 기다립니다. PR
-없이 완료되는 investigation, 문서와 운영 ticket은 `ticket-lifecycle`이 직접 완료 상태를 처리합니다.
+없이 완료되는 investigation, 문서와 운영 ticket은 `update-ticket`이 직접 완료 상태를 처리합니다.
 
 Linear는 PR drafted·opened·review requested·ready for merge·merged event별 status automation을
 지원합니다. GitHub Issue 자체의 state는 open·closed 중심이므로 Started·Review 같은
@@ -489,7 +499,7 @@ Linear는 PR drafted·opened·review requested·ready for merge·merged event별
 
 ## PR 게시 상태
 
-`workflow:to-pr`의 로컬 `draft` 모드는 title과 body만 준비하며 원격 PR을 만들지 않습니다.
+`git:write-pr`의 로컬 `draft` 모드는 title과 body만 준비하며 원격 PR을 만들지 않습니다.
 사용자가 새 PR 생성·게시를 요청하면 `publish` 모드로 전환하지만, GitHub 상태를 지정하지 않은
 경우에는 Draft PR을 기본값으로 사용합니다. Ready, non-draft 또는 즉시 review 가능한 상태를
 명시한 경우에만 Ready PR을 만들거나 현재 publish 흐름에서 만든 Draft PR을 Ready로 전환합니다.
@@ -502,25 +512,25 @@ Linear는 PR drafted·opened·review requested·ready for merge·merged event별
 ## Research 조합
 
 Research를 직접 요청하면 Research가 조사와 근거 보고를 단독으로 완료합니다. 설계·계획·구현
-중 외부의 다중 출처 근거가 결과를 좌우하면 Engineering이 전체 개발 흐름을 유지하고 Research의
+중 외부의 다중 출처 근거가 결과를 좌우하면 Dev Workflow가 전체 개발 흐름을 유지하고 Research의
 결과를 다음 결정과 구현에 반영합니다.
 
 ```text
 외부 근거가 필요한 설계·구현 요청
-  → Engineering이 문제와 필요한 근거를 구체화
+  → Dev Workflow가 문제와 필요한 근거를 구체화
   → Research가 관련 출처를 찾고 원문을 교차 검증
-  → Engineering이 조사 결과를 설계·계획·구현에 반영
+  → Dev Workflow가 조사 결과를 설계·계획·구현에 반영
 ```
 
 local debugging, 단순한 repository 탐색과 하나의 공식 문서만 확인하면 충분한 조회는 Research의
-기본 범위가 아닙니다. 반대로 구현을 포함하지 않는 다중 출처 조사에는 Engineering을 선행시키지
-않습니다. Research만 설치된 환경에서도 조사를 완료할 수 있고, Engineering만 설치된 환경에서도
+기본 범위가 아닙니다. 반대로 구현을 포함하지 않는 다중 출처 조사에는 Dev Workflow를 선행시키지
+않습니다. Research만 설치된 환경에서도 조사를 완료할 수 있고, Dev Workflow만 설치된 환경에서도
 외부 Research의 존재를 가정하지 않고 개발 흐름을 수행합니다.
 
 Exa와 Perplexity 같은 전문 provider는 선택 사항입니다. 사용할 수 있는 provider가 없으면 generic
 web·browser·local 기능으로 조사하고, provider plugin이나 도구를 자동으로 설치·연결·인증하지
 않습니다. Fluent Languages 같은 문체 스킬은 조사 방법이나 개발 lifecycle을 소유하지 않으며,
-요청한 출력 언어에 따라 Research 또는 Engineering과 독립적으로 함께 선택할 수 있습니다.
+요청한 출력 언어에 따라 Research 또는 Dev Workflow와 독립적으로 함께 선택할 수 있습니다.
 
 ## 개발·문서·검증 경계
 
@@ -535,14 +545,14 @@ Writing은 영속 문서 작업에서 이후에도 찾아볼 내용인지 판단
 [Write Developer Blog](../../plugins/writing/skills/write-developer-blog/SKILL.md)이 맡습니다.
 본문 전에 독자·문제·핵심 답·전개·근거·결말을 흐름 의사코드로 정하고, 저자의 경험과 의견은
 저자가 제공하거나 확인한 범위에서만 사용합니다. 글의 핵심 주장에 필요한 local inspection과
-격리된 최소 검증은 수행할 수 있지만, 실제 제품 결함의 진단·수정이 목적이면 Engineering이
+격리된 최소 검증은 수행할 수 있지만, 실제 제품 결함의 진단·수정이 목적이면 Dev Workflow가
 주 작업을 맡고 Blog Writing은 전달받은 근거를 글로 구성합니다.
 
 ```text
 개발자 블로그 산출물 요청
   → Blog Writing이 독자·논지·골격과 필요한 근거를 정함
   → 외부 다중 출처가 결론을 좌우하면 Research가 조사함
-  → 제품 진단·수정이 필요하면 Engineering이 재현·구현 근거를 만듦
+  → 제품 진단·수정이 필요하면 Dev Workflow가 재현·구현 근거를 만듦
   → Blog Writing이 확인 상태를 보존해 한 초안으로 구성함
   → 요청 언어의 Fluent가 있으면 표현을 다듬음
 ```
@@ -553,22 +563,22 @@ Writing은 영속 문서 작업에서 이후에도 찾아볼 내용인지 판단
 각 플러그인은 단독으로도 자신의 범위를 완료하며, 다른 플러그인의 설치나 외부 게시 권한을
 가정하지 않습니다.
 
-구현 요청은 Engineering에서 범위·위험·의존성·검사를 정하고 실행합니다. 확인된 승인 안의
+구현 요청은 Dev Workflow에서 범위·위험·의존성·검사를 정하고 실행합니다. 확인된 승인 안의
 내부 선택은 진행하며 새 목표·미결정 제품 규칙에 의존하는 작업만 보류합니다. 문서 생성은
 승인된 작업에 필요한 만큼 수행하고 형식적인 추가 승인이나 날짜 기반 명세를 요구하지 않습니다.
 계획은 대화가 기본이며 큰 brief의 임시 파일은 선택적입니다.
 
 의미 있는 동작·결함은 재현/회귀 테스트로 보호하고 문서·메타데이터는 파서·경로·실제 loader로
 확인합니다. 관련 필수 검사가 통과하면 새 변경·실패·미해결 우려가 있을 때만 검사를 확대합니다.
-Git·외부 전달은 [공유 권한](../../plugins/workflow/references/delivery-authority.md)을 따릅니다.
+Git·외부 전달은 [공유 권한](../../plugins/git/references/delivery-authority.md)을 따릅니다.
 
 ## Worklog 조합
 
 `worklog-diagnose`는 읽기 전용 진단입니다. 작업 로그(`worklog-v1`)와 원문 transcript를 읽어 최근 도구 실패·중단·API 오류·사용자 교정의 타임라인과 원인 후보를 보고하며 파일을 수정하지 않습니다.
 
-Memory Manager는 승인된 지식, 작업 연속성 기록은 진행 중인 작업 상태, Worklog는 원시 이벤트를 다룹니다. 기억 저장·회상 요청에는 Memory Manager를 사용합니다. 진단에 따른 수정·커밋·PR은 Engineering과 Workflow가 맡습니다.
+Memory Manager는 승인된 지식, 작업 연속성 기록은 진행 중인 작업 상태, Worklog는 원시 이벤트를 다룹니다. 기억 저장·회상 요청에는 Memory Manager를 사용합니다. 진단에 따른 수정·커밋·PR은 Dev Workflow와 Git이 맡습니다.
 
-worklog-improve는 명시적 요청에만 실행하며 평가 사례·수정안·비교 결과까지 만들고, 커밋·PR은 Workflow에 넘깁니다.
+worklog-improve는 명시적 요청에만 실행하며 평가 사례·수정안·비교 결과까지 만들고, 커밋·PR은 Git에 넘깁니다.
 
 ## 라우팅 평가
 

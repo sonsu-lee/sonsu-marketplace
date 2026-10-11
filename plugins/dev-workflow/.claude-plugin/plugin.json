@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "dev-workflow",
+  "displayName": "Dev Workflow",
+  "version": "5.0.0",
+  "description": "설계·계획·구현·디버깅·검증과 도메인 구조·코드 단순화를 승인 범위와 검증 근거에 연결해 수행한다.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT",
+  "keywords": [
+    "dev-workflow",
+    "brainstorming",
+    "skills",
+    "planning",
+    "tdd",
+    "debugging",
+    "verification"
+  ]
+}

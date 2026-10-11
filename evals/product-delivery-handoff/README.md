@@ -1,7 +1,7 @@
 # 요구사항·설계·티켓·계획 인계 평가
 
 [인계 계약](../../plugins/product/references/delivery-handoff.md)의 작업 크기 판정, PRD 품질 기대,
-Engineering 계획의 REQ 추적과 근거 표기를 행동으로 확인한다. 결정 배경은
+Dev Workflow 계획의 REQ 추적과 근거 표기를 행동으로 확인한다. 결정 배경은
 [ADR 0021](../../docs/decisions/0021-use-hybrid-product-delivery-handoff.md)에 있다.
 
 ## 사례

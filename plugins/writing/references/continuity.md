@@ -19,7 +19,7 @@
    `CLAUDE_CODE_SESSION_ID`를 먼저 사용하고, 없을 때만 `SONSU_CLAUDE_SESSION_ID`를 대체값으로
    사용한다. Codex는 `CODEX_THREAD_ID`를 사용한다. 서로 다른 호스트 ID가 동시에 있거나 현재 ID를
    알 수 없으면 명시하거나 기존 산출물로 수동 복구한다. 다른 세션이나 최신 디렉터리에서 ID를
-   추정하지 않는다. omp 기본 5개 구성은 이 저장 도구 대신 omp 순정 todo·session을 사용한다.
+   추정하지 않는다. omp 배포본은 이 저장 도구 대신 omp 순정 todo·session을 사용한다.
    직접 설치한 선택·legacy 호출자가 이 도구를 사용하려면 실제 native session-ID를 관측한
    증거와 명시적 `--session-id`가 필요하다. 현재 ID를 확인하지 못하면 `blocked`/`not_run`으로
    기록하고 다른 세션·환경 변수 추정값·최신 디렉터리에서 추정하지 않는다.
@@ -73,7 +73,7 @@
 ## 재개 알림
 
 `SessionStart` hook은 `startup|clear`에서 세션 ID를 후속 Bash 명령용으로 저장하고, `compact|resume`에서
-활성 기록과 이 참고 자료의 위치를 알려 준다. omp 기본 5개 구성은 omp 순정 todo·session으로
+활성 기록과 이 참고 자료의 위치를 알려 준다. omp 배포본은 omp 순정 todo·session으로
 복구하며 이 플러그인은 세션 ID 주입이나 재개 알림을 제공하지 않는다. 직접 설치한 선택·legacy 호출자는
 관측한 native session-ID와 명시적 `--session-id`로 `read`부터 복구한다. 확인할 수 없으면 `blocked`/`not_run`으로 둔다.
 지원되지 않거나 신뢰 설정 때문에 실행되지 않으면 이 자료의 `read` 단계부터 직접 수행한다.

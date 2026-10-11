@@ -1,198 +1,240 @@
 [
   {
     "id": "workflow-ticket-only",
-    "skill": "to-ticket",
+    "skill": "write-ticket",
     "prompt": "GitHub Issue 초안만 작성해 줘. Writing과 Fluent 플러그인은 설치되지 않았어. 아래는 대상 조회 결과야. 저장소와 팀에 양식이 없는 것을 확인했고, 필수 필드는 제목과 본문뿐이야. 입력: 다운로드한 CSV에서 한글이 깨진다. 원인과 환경, 재현 순서는 아직 모른다. 원문대로 보이게 고쳐 달라. 게시하지 마.",
     "installed_plugins": [
-      "workflow"
+      "tickets"
     ],
-    "entry_skill": "workflow:to-ticket"
+    "entry_skill": "tickets:write-ticket"
   },
   {
     "id": "workflow-pr-unverified",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "PR 제목과 준비 가능한 초안을 써 줘. 게시하지 마. 이 테스트에서 아래 조회 결과가 확정된 입력이며 추가 원격 조회는 하지 마. base main, head abc123, 전체 diff는 저장 성공 전에 뜨던 완료 알림을 저장 성공 후에만 표시하도록 옮긴 변경이다. 저장 실패 시 완료 알림은 표시하지 않는다. 로컬 정적 검사만 통과했고 실제 UI는 미확인이다. 저장소 default branch와 owner의 .github 양식을 권한 문제로 읽지 못해 양식은 unverified이다. 사용자 지정 양식은 없다. 필요한 이미지도 아직 없다. Writing과 Fluent 플러그인은 설치되지 않았다.",
     "installed_plugins": [
-      "workflow"
+      "git"
     ],
-    "entry_skill": "workflow:to-pr"
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-pr-fixed",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "검증된 자료로 PR 초안만 작성해 줘. 추가 조회나 게시를 하지 말고 이 테스트의 자료를 사용해. Writing과 Fluent는 설치되지 않았다. 실제 전체 diff: 저장 성공 확인 이후에만 완료 알림을 표시한다. 배경: 성공 전 알림 때문에 실패한 저장을 완료로 오인할 수 있었다. 실패하면 완료 알림을 표시하지 않는다. 실제 UI 검증과 첨부 자료는 아직 없고, 정적 검사만 통과했다. 유효한 저장소 양식은 아래와 같고 제목, 순서, marker, 관련 행을 그대로 유지해야 한다. 검증된 canonical 관계는 ENG-123의 일부이며 완료시키지 않는다. 아래 URL과 문법은 입력 자료에 있는 그대로다.\n## 맥락\n\n## 변경\n\n## 관련\n<!-- tracker: keep -->\nPart of https://linear.app/example/issue/ENG-123\n\n## 확인할 내용\n\nUI 자료는 확인할 내용 항목에 놓는다.",
     "installed_plugins": [
-      "workflow"
+      "git"
     ],
-    "entry_skill": "workflow:to-pr"
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-commit-english-default",
     "skill": "commit",
     "prompt": "지금 staged된 변경으로 커밋 메시지를 만들어 줘. 커밋은 하지 마. 이 저장소에는 CONTRIBUTING, commitlint 설정, AGENTS.md, CLAUDE.md, .github 안내가 없다. staged diff: src/session.ts에서 세션 만료 시각 비교를 `<`에서 `<=`로 바꿔, 만료 시각과 정확히 같은 요청도 만료로 처리한다. 배경: 만료 시각과 같은 밀리초에 들어온 요청이 유효한 세션으로 통과했다.",
     "installed_plugins": [
-      "workflow"
+      "git"
     ],
-    "entry_skill": "workflow:commit"
+    "entry_skill": "git:commit"
   },
   {
     "id": "workflow-commit-omit-ai-attribution",
     "skill": "commit",
     "prompt": "staged 변경으로 커밋 메시지를 만들어 줘. 커밋은 하지 마. AI 도움을 받았지만 Assisted-by, AI Co-authored-by나 도구 서명은 넣고 싶지 않아. 저장소의 CONTRIBUTING.md에는 \"Add an `Assisted-by:` trailer for AI-assisted commits.\"라고 적혀 있어. 다른 커밋 규칙 문서는 없다. staged diff: docs/install.md의 설치 명령에서 패키지 이름 오타 `sonsu-clii`를 `sonsu-cli`로 고친다.",
     "installed_plugins": [
-      "workflow"
+      "git"
     ],
-    "entry_skill": "workflow:commit"
+    "entry_skill": "git:commit"
   },
   {
     "id": "workflow-pr-lightweight",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "PR 초안만 작성해 줘. 추가 조회나 게시를 하지 마. 이 테스트의 자료가 확정 입력이다. 저장소와 account-level에 PR 양식이 없음을 확인했고, 저장소 문서에 PR 언어 규칙은 없다. 연결할 티켓도 없다. base main, head def456, 전체 diff는 한 줄이다: README.md의 설치 명령에서 `npm instal`을 `npm install`로 고친다. 화면 변경, 위험, 별도 검증 항목은 없다.",
     "installed_plugins": [
-      "workflow"
+      "git"
     ],
-    "entry_skill": "workflow:to-pr"
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-ticket-japanese-space",
-    "skill": "to-ticket",
+    "skill": "write-ticket",
     "prompt": "GitHub Issue 초안만 작성해 줘. 게시하지 마. 대상 저장소에 이슈 양식은 없고 필수 필드는 제목과 본문뿐임을 확인했다. 대상 저장소의 최근 이슈 3개는 다음과 같다.\n1. 「検索結果が0件のときにページネーションが表示される」\n2. 「設定画面で通知のオン・オフが保存されない」\n3. 「CSVエクスポートで日付の書式が崩れる」\n입력: Safari에서 로그인 버튼을 눌러도 반응이 없다. 다른 브라우저는 확인하지 않았고 원인은 모른다. 버튼을 누르면 로그인되어야 한다.",
     "installed_plugins": [
-      "workflow"
+      "tickets"
     ],
-    "entry_skill": "workflow:to-ticket"
+    "entry_skill": "tickets:write-ticket"
   },
   {
     "id": "workflow-pr-no-ci-rerunnable-checks",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "PR 초안만 작성해 줘. 추가 조회나 게시를 하지 마. 이 테스트의 자료가 확정 입력이다. 저장소와 account-level에 PR 양식이 없음을 확인했고 PR 언어 규칙은 없다. 이 저장소에는 CI workflow가 없고 최근 PR에도 check가 없다. CONTRIBUTING.md는 `make test`와 `make lint`를 검사 명령으로 안내한다. 연결할 티켓은 없다. base main, head abc123. diff: 설정 화면의 언어 선택 드롭다운이 Safari에서 열리지 않던 문제를 고쳤다(`src/settings/LanguageSelect.tsx`의 이벤트 핸들러를 `onClick`에서 `onPointerDown`으로 변경). 내가 실행한 확인: `make test` 통과(테스트 412개), `make lint` 통과, Safari 17.4(macOS 14)에서 설정 화면을 열어 드롭다운이 열리고 언어를 바꿀 수 있음을 직접 확인. Firefox는 확인하지 않았다.",
     "installed_plugins": [
-      "workflow"
+      "git"
     ],
-    "entry_skill": "workflow:to-pr"
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-ticket-ac-single-outcome",
-    "skill": "to-ticket",
+    "skill": "write-ticket",
     "prompt": "GitHub Issue 초안만 작성해 줘. 게시하지 마. 대상 저장소에 이슈 양식은 없고 필수 필드는 제목과 본문뿐임을 확인했다. 티켓 언어는 한국어로 써 줘. 설정 화면 '저장' 버튼 라벨을 '저장하기'로 바꿔 달라. 다른 동작은 그대로다.",
     "installed_plugins": [
-      "workflow"
+      "tickets"
     ],
-    "entry_skill": "workflow:to-ticket"
+    "entry_skill": "tickets:write-ticket"
   },
   {
     "id": "workflow-ticket-ac-agreed-conditions",
-    "skill": "to-ticket",
+    "skill": "write-ticket",
     "prompt": "GitHub Issue 초안만 작성해 줘. 게시하지 마. 대상 저장소에 이슈 양식은 없고 필수 필드는 제목과 본문뿐임을 확인했다. 티켓 언어는 한국어로 써 줘. 할 일 목록에 완료 항목 숨김 토글을 추가한다. 합의된 내용: 토글을 켜면 완료 항목이 목록에서 사라지고 끄면 다시 보인다. 숨김은 표시만 바꾸고 항목의 완료 상태와 내용은 바뀌지 않는다. 모든 변경은 CI(lint, unit test)를 통과해야 하고 코드 리뷰를 받는 것이 팀 규칙이다.",
     "installed_plugins": [
-      "workflow"
+      "tickets"
     ],
-    "entry_skill": "workflow:to-ticket"
+    "entry_skill": "tickets:write-ticket"
   },
   {
     "id": "workflow-ticket-ac-automated-requirement",
-    "skill": "to-ticket",
+    "skill": "write-ticket",
     "prompt": "GitHub Issue 초안만 작성해 줘. 게시하지 마. 대상 저장소에 이슈 양식은 없고 필수 필드는 제목과 본문뿐임을 확인했다. 티켓 언어는 한국어로 써 줘. 주문 상세 API에서 다른 사용자의 주문을 조회할 수 있는 문제를 고쳐야 한다. 합의된 기대 동작: 로그인한 사용자는 자기 주문만 조회할 수 있고, 다른 사람의 주문 ID로 요청하면 404를 받는다. 이 동작은 앞으로 CI의 API 테스트로 자동 검증할 예정이다.",
     "installed_plugins": [
-      "workflow"
+      "tickets"
     ],
-    "entry_skill": "workflow:to-ticket"
+    "entry_skill": "tickets:write-ticket"
   },
   {
     "id": "workflow-ticket-ac-undefined-quality",
-    "skill": "to-ticket",
+    "skill": "write-ticket",
     "prompt": "GitHub Issue 초안만 작성해 줘. 게시하지 마. 대상 저장소에 이슈 양식은 없고 필수 필드는 제목과 본문뿐임을 확인했다. 티켓 언어는 한국어로 써 줘. 검색 결과 화면이 느리다는 불만이 많다. 빨라져야 하고 회귀가 없어야 한다. 목표 응답 시간과 지원 브라우저는 아직 정하지 않았다.",
     "installed_plugins": [
-      "workflow"
+      "tickets"
     ],
-    "entry_skill": "workflow:to-ticket"
+    "entry_skill": "tickets:write-ticket"
   },
   {
     "id": "workflow-ticket-ac-investigation",
-    "skill": "to-ticket",
+    "skill": "write-ticket",
     "prompt": "GitHub Issue 초안만 작성해 줘. 게시하지 마. 대상 저장소에 이슈 양식은 없고 필수 필드는 제목과 본문뿐임을 확인했다. 티켓 언어는 한국어로 써 줘. 결제 대기열 지연 원인을 조사하는 티켓을 써 줘. 범위는 지난 2주간 운영 로그와 큐 지표다. 결과는 원인 후보와 각 근거를 정리해 다음 조치를 정할 수 있게 하는 것이다. 원인을 반드시 찾아야 한다는 합의는 없다.",
     "installed_plugins": [
-      "workflow"
+      "tickets"
     ],
-    "entry_skill": "workflow:to-ticket"
+    "entry_skill": "tickets:write-ticket"
   },
   {
     "id": "workflow-ticket-ac-test-deliverable",
-    "skill": "to-ticket",
+    "skill": "write-ticket",
     "prompt": "GitHub Issue 초안만 작성해 줘. 게시하지 마. 대상 저장소에 이슈 양식은 없고 필수 필드는 제목과 본문뿐임을 확인했다. 티켓 언어는 한국어로 써 줘. CSV 내보내기에서 한글 파일명이 깨지는 회귀가 두 번 있었다. 이번 작업은 그 회귀를 잡는 자동 테스트를 추가하는 것이다. 테스트는 한글 파일명으로 내보낸 결과의 Content-Disposition 헤더가 RFC 5987 인코딩을 쓰는지 확인해야 한다고 합의했다.",
     "installed_plugins": [
-      "workflow"
+      "tickets"
     ],
-    "entry_skill": "workflow:to-ticket"
+    "entry_skill": "tickets:write-ticket"
   },
   {
     "id": "workflow-ticket-four-intents",
-    "skill": "to-ticket",
+    "skill": "write-ticket",
     "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\n작성 중 목록을 새로고침하면 입력이 사라져 사용자가 다시 작성해야 한다. 새로고침 후에도 미저장 입력이 남아야 한다. 현재 입력은 페이지 메모리에만 있다. 합의된 방향은 목록 최신화보다 입력 보존을 우선하는 것이며 저장 기술은 미정이다.",
-    "installed_plugins": ["workflow"],
-    "entry_skill": "workflow:to-ticket"
+    "installed_plugins": ["tickets"],
+    "entry_skill": "tickets:write-ticket"
   },
   {
     "id": "workflow-pr-ticket-context-not-copy",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, branch: fix/stable-search-order, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다. 브랜치명에는 티켓 ID를 넣지 않는다.\n확인된 Linear 티켓 ENG-123(https://linear.app/example/issue/ENG-123)은 검색 페이지 경계의 누락·중복을 함께 해결하는 작업이다. 이번 diff는 같은 생성 시각의 항목 정렬에 ID를 보조 기준으로 추가해 순서를 고정한다. 누락 문제는 이 PR 범위가 아니다. 검증된 관계는 contribute이며 PR 본문에서 Linear 공식 문법으로 연결한다. CI 412개 통과, 브랜치·작성자·상태는 UI에 보인다. 화면 변경은 없다.",
-    "installed_plugins": ["workflow"],
-    "entry_skill": "workflow:to-pr"
+    "installed_plugins": ["git"],
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-pr-static-marked-compact",
-    "skill": "to-pr",
-    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n저장 버튼 라벨만 `저장`에서 `저장하기`로 바꿨다. 행동을 명확히 표현하려는 변경이며 동작은 같다. 현재 head의 변경부가 마킹된 안전한 after 이미지와 caption은 이미 준비되어 있다. baseline 비교는 필요하지 않다. 영상은 없다.",
-    "installed_plugins": ["workflow"],
-    "entry_skill": "workflow:to-pr"
+    "skill": "write-pr",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n저장 버튼 라벨만 `저장`에서 `저장하기`로 바꿨다. 행동을 명확히 표현하려는 변경이며 동작은 같다. 현재 head의 변경 영역을 자른 안전한 after 이미지와 caption은 이미 준비되어 있다. baseline 비교는 필요하지 않다. 영상은 없다.",
+    "installed_plugins": ["git"],
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-pr-dynamic-video-only",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n저장 성공 응답 뒤에만 완료 알림을 표시하도록 변경했다. 최종 레이아웃·문구는 같다. 준비된 실제 화면 녹화는 저장 클릭→대기→성공 알림의 짧은 한 흐름이다. FFmpeg/ffprobe와 검사 환경을 사용할 수 있다.",
-    "installed_plugins": ["workflow"],
-    "entry_skill": "workflow:to-pr"
+    "installed_plugins": ["git"],
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-pr-mixed-media",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n오류가 난 폼 필드로 포커스를 이동하는 동작과, 오류 문구의 줄바꿈·필드별 배치를 함께 바꿨다. 리뷰어는 포커스 이동 순서와 정적 문구의 세부 배치를 각각 판단해야 한다. 녹화와 마킹을 위한 기존 도구를 사용할 수 있다.",
-    "installed_plugins": ["workflow"],
-    "entry_skill": "workflow:to-pr"
+    "installed_plugins": ["git"],
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-pr-ffmpeg-missing",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n전환 타이밍 변경으로 동작 영상이 필수다. 실제 녹화 원본은 있으나 FFmpeg/ffprobe가 없고 대체 검사·인코딩 도구도 없다. 환경은 macOS이며 Homebrew는 설치되어 있다. 설치 승인은 없다.",
-    "installed_plugins": ["workflow"],
-    "entry_skill": "workflow:to-pr"
+    "installed_plugins": ["git"],
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-pr-marking-tool-missing",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n정적 레이아웃 변경이다. 원본 스크린샷은 있지만 신뢰할 수 있는 변경부 마킹, DOM 접근, visual diff 도구가 없고 이미지 편집 도구도 없다. 설치 승인은 없다.",
-    "installed_plugins": ["workflow"],
-    "entry_skill": "workflow:to-pr"
+    "installed_plugins": ["git"],
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-pr-final-diff-over-old-description",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n티켓은 보조 창에서 Quick Fix 메뉴가 선택 전에 닫히는 문제다. 이전 초안은 `domFocus`를 `getFocus`로 교체했다고 설명한다. 최종 head의 실제 diff는 `this._list.domFocus();` 한 줄 삭제이며 기존 `this._list.getFocus();` 호출은 그대로다. 원인은 불필요한 DOM focus 이동이다. UI 확인·미디어는 아직 없다.",
-    "installed_plugins": ["workflow"],
-    "entry_skill": "workflow:to-pr"
+    "installed_plugins": ["git"],
+    "entry_skill": "git:write-pr"
   },
   {
     "id": "workflow-ticket-required-details-not-cut",
-    "skill": "to-ticket",
+    "skill": "write-ticket",
     "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\n주문 계산 규칙을 변경한다. 반올림 방식이 달라 회계 시스템과 새 주문 금액이 맞지 않는 것이 문제다. 합의 사항: 기존 주문은 재계산하지 않는다. 새 규칙은 전환 시점 이후 생성된 주문에만 적용한다. 부분 환불도 주문 생성 시점의 규칙을 따른다. 전환 전후 모두 같은 주문의 조회 금액이 달라지면 안 된다. 구형 모바일 앱의 응답 필드 형식은 유지한다. 전환 시각은 아직 미정이며 임의로 정하지 않는다.",
-    "installed_plugins": ["workflow"],
-    "entry_skill": "workflow:to-ticket"
+    "installed_plugins": ["tickets"],
+    "entry_skill": "tickets:write-ticket"
   },
   {
     "id": "workflow-pr-explain-behavior-not-slogan",
-    "skill": "to-pr",
+    "skill": "write-pr",
     "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다.\n입력 메모는 `중복 결제 방지와 안정성 개선`이다. 확인된 원인은 결제 요청이 타임아웃 나면 성공 여부를 알 수 없어 재시도하면서 중복 결제가 생기는 것이다. 최종 diff는 같은 주문의 재시도에 동일한 idempotency key를 사용하도록 바꾼다. 결제사의 중복 요청 처리 기능을 이용하고 있으며 자동 재시도 횟수는 바꾸지 않았다. UI 변경은 없다.",
-    "installed_plugins": ["workflow"],
-    "entry_skill": "workflow:to-pr"
+    "installed_plugins": ["git"],
+    "entry_skill": "git:write-pr"
+  },
+  {
+    "id": "tickets-request-no-solution",
+    "skill": "write-ticket",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nGitHub Issue 초안으로 써 줘. 게시하지 마.\n팀 관리자가 보낸 지원 문의 원문: \"팀 단위로 알림을 끌 수 없어서 불편하다\" (출처: https://example.com/support/4821). 내부 회의에서 'Slack 연동을 추가하자'는 의견이 나왔지만 결정된 것은 아니다.",
+    "installed_plugins": ["tickets"],
+    "entry_skill": "tickets:write-ticket"
+  },
+  {
+    "id": "tickets-bug-repro-fields",
+    "skill": "write-ticket",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nGitHub Issue 초안으로 써 줘. 게시하지 마.\n버그 보고 메모: 파일 목록 화면에서 업로드 직후 새로고침하면 방금 올린 파일이 목록에 보이지 않는다. 재현 순서: 1) 파일 목록 화면에서 `업로드`를 눌러 PDF 파일 하나를 올린다. 2) 업로드 완료 토스트가 뜨면 바로 브라우저 새로고침을 누른다. 3) 목록에서 방금 올린 파일을 찾는다. 기대: 방금 올린 파일이 목록 맨 위에 보인다. 실제: 파일이 목록에 없고, 1분쯤 뒤 다시 새로고침하면 나타난다. 5번 시도해 5번 모두 같았다. 버전 2.3.0부터 재현되고 2.2.4에서는 정상이다. 환경은 macOS 15, Safari 18이다. 브라우저 콘솔 로그:\n```\nGET /api/files?sort=recent 200 (from disk cache)\n[files] list rendered: 41 items\n```\n보고자 의견: 아마 캐시 때문인 듯.",
+    "installed_plugins": ["tickets"],
+    "entry_skill": "tickets:write-ticket"
+  },
+  {
+    "id": "tickets-exploration-deliverable",
+    "skill": "write-ticket",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nGitHub Issue 초안으로 써 줘. 게시하지 마.\n알림 설정 구조를 어떻게 바꿀지 아직 모르겠다. 먼저 조사하자. 팀 단위로 알림을 끄고 싶다는 요청이 있는데, 지금 알림 설정은 사용자별 설정 테이블에만 저장된다. 조사 결과는 `docs/design/` 아래 설계 문서로 남겨 다음 구현 티켓을 나눌 수 있게 하자.",
+    "installed_plugins": ["tickets"],
+    "entry_skill": "tickets:write-ticket"
+  },
+  {
+    "id": "git-commit-breaking-change",
+    "skill": "commit",
+    "prompt": "staged 변경으로 커밋 메시지를 만들어 줘. 커밋은 하지 마. 이 저장소에는 CONTRIBUTING, commitlint 설정, AGENTS.md, CLAUDE.md, .github 안내가 없다. 관련 티켓은 Linear ENG-7이다. staged diff: `src/config.ts`에서 설정 키 `timeoutMs`(밀리초)를 제거하고 `timeout`(초 단위)으로 대체했다. `timeoutMs`를 쓰는 기존 설정은 더 이상 읽히지 않는다. 배경: 모든 호출자가 초 단위 값에 1000을 곱해 넘기고 있었고, 두 호출자는 밀리초 자리에 초를 넘겨 timeout이 의도보다 1000배 짧았다.",
+    "installed_plugins": ["git"],
+    "entry_skill": "git:commit"
+  },
+  {
+    "id": "git-branch-no-ticket-id",
+    "skill": "branch",
+    "prompt": "ENG-42 작업용 브랜치 이름 제안해 줘. 작업은 로그인 화면에 비밀번호 표시 버튼을 추가하는 거야. 만들지는 마. 이 저장소와 팀 문서에는 브랜치 이름 규칙이 없다.",
+    "installed_plugins": ["git"],
+    "entry_skill": "git:branch"
+  },
+  {
+    "id": "git-pr-default-template",
+    "skill": "write-pr",
+    "prompt": "한국어 초안과 필요한 준비 안내만 작성한다. 아래 조회·도구·자료 상태는 이 평가의 확정 입력이다. 추가 원격 조회, 게시, 설치, 실제 시스템 조작은 하지 않는다. 대상 저장소·팀·account-level에 적용할 양식이 없음을 확인했다.\nPR fixture: base: main, head: abc123, 기존 PR 없음. 아래 변경이 전체 diff이며 사용자 요청은 draft다. 연결할 티켓은 없다.\n설정 화면의 탭 라벨 `알림`을 `알림 설정`으로 바꿨다. 같은 화면에 `알림`이라는 토글이 있어 탭과 토글을 헷갈린다는 문의가 반복됐기 때문이다. 동작은 같다. 같은 viewport·데이터·테마로 찍고 변경 영역을 자른 before/after PNG가 준비되어 있다: `01-before-settings-tab-label.png`, `01-after-settings-tab-label.png`. 로컬에서 `pnpm lint`와 `pnpm typecheck`만 실행했고 둘 다 통과했다. PR을 올리면 CI가 같은 검사를 다시 실행한다.",
+    "installed_plugins": ["git"],
+    "entry_skill": "git:write-pr"
   }
 ]

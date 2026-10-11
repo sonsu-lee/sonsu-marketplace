@@ -14,7 +14,7 @@ omp plugin install writing@sonsu-marketplace
 
 omp에서는 기본 구성에 들지 않는 opt-in 패키지이므로 필요할 때 직접 설치합니다.
 
-단독으로 사용할 수 있고, Engineering·Research·Fluent·Workflow와 함께 설치하면 필요한 지침을 같은 초안에 적용합니다. 담당 구분은 [협업과 언어 선택](references/collaboration.md)과 [스킬 라우팅 문서](../../docs/architecture/skill-routing.md#writingfluentworkflow-조합)에 있습니다.
+단독으로 사용할 수 있고, Dev Workflow·Research·Fluent·Git·Tickets와 함께 설치하면 필요한 지침을 같은 초안에 적용합니다. 담당 구분은 [협업과 언어 선택](references/collaboration.md)과 [스킬 라우팅 문서](../../docs/architecture/skill-routing.md#writingfluentgittickets-조합)에 있습니다.
 
 ## 스킬
 

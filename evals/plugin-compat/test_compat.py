@@ -253,12 +253,12 @@ class CodexPackagingTests(unittest.TestCase):
         omp = json.loads((ROOT / ".omp-plugin/marketplace.json").read_text(encoding="utf-8"))
         self.assertEqual(omp["name"], codex["name"])
         self.assertEqual([entry["name"] for entry in omp["plugins"]],
-                         ["workflow", "fluent-korean", "fluent-english", "fluent-japanese",
+                         ["git", "tickets", "review", "fluent-korean", "fluent-english", "fluent-japanese",
                           "writing", "research", "prompting", "product", "design-patterns", "design", "worklog"])
         for entry in omp["plugins"]:
             with self.subTest(plugin=entry["name"]):
                 suffix = "/omp" if entry["name"] in (
-                    "workflow", "design", "fluent-korean", "writing", "research", "prompting", "product", "worklog") else ""
+                    "git", "tickets", "review", "design", "fluent-korean", "writing", "research", "prompting", "product", "worklog") else ""
                 self.assertEqual(entry["source"], f"./plugins/{entry['name']}{suffix}")
                 package = ROOT / entry["source"]
                 manifest = json.loads((package / ".claude-plugin/plugin.json").read_text())
@@ -276,7 +276,7 @@ class CodexPackagingTests(unittest.TestCase):
                     self.assertFalse((package / forbidden).exists(), forbidden)
 
     def test_omp_isolated_skills_resolve_local_resources(self):
-        for name in ("workflow", "design", "fluent-korean", "writing", "research", "prompting", "product", "worklog"):
+        for name in ("git", "tickets", "review", "design", "fluent-korean", "writing", "research", "prompting", "product", "worklog"):
             package = ROOT / "plugins" / name / "omp"
             with tempfile.TemporaryDirectory() as directory:
                 installed = Path(directory).resolve() / name
@@ -335,7 +335,7 @@ class CodexPackagingTests(unittest.TestCase):
             self.assertIn("현재 omp 실행에 적용하지 않는다", generated)
 
     def omp_fixture(self, root):
-        names = ("workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design")
+        names = ("git", "tickets", "review", "fluent-korean", "fluent-english", "fluent-japanese", "design")
         catalog_path = root / ".agents/plugins/marketplace.json"
         catalog_path.parent.mkdir(parents=True)
         catalog_path.write_text(json.dumps({"name": "fixture", "plugins": [
@@ -344,7 +344,10 @@ class CodexPackagingTests(unittest.TestCase):
             manifest = root / f"plugins/{name}/.codex-plugin/plugin.json"
             manifest.parent.mkdir(parents=True)
             manifest.write_text(json.dumps({"name": name, "version": "1.0.0"}))
-        for name in ("workflow", "design"):
+        rule = root / "plugins/review/omp-rules/rule.md"
+        rule.parent.mkdir(parents=True)
+        rule.write_text("---\nalwaysApply: true\nagents: reviewer\n---\n")
+        for name in ("git", "design"):
             plugin = root / "plugins" / name
             skill = plugin / "skills/example/SKILL.md"
             skill.parent.mkdir(parents=True)
@@ -508,14 +511,14 @@ class CodexPackagingTests(unittest.TestCase):
             self.assertIn("native session-ID", text)
             self.assertIn("blocked`/`not_run", text)
 
-    def test_omp_direct_engineering_requires_native_session_evidence(self):
-        tools = (ROOT / "plugins/engineering/references/omp-tools.md").read_text()
+    def test_omp_direct_dev_workflow_requires_native_session_evidence(self):
+        tools = (ROOT / "plugins/dev-workflow/references/omp-tools.md").read_text()
         self.assertNotIn("Sonsu omp extension", tools)
         self.assertNotIn("session_stop", tools)
         self.assertNotIn("SONSU_OMP_SESSION_ID", tools)
         self.assertIn("native session-ID", tools)
-        profiles = (ROOT / "plugins/engineering/references/omp-model-profiles.md").read_text()
-        self.assertIn("기본 5개", profiles)
+        profiles = (ROOT / "plugins/dev-workflow/references/omp-model-profiles.md").read_text()
+        self.assertIn("omp 기본 배포", profiles)
         self.assertIn("직접 설치", profiles)
 
     def test_omp_renderer_cleans_owned_stale_files_without_mutating_sources(self):
@@ -583,11 +586,11 @@ class CodexPackagingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             command = self.omp_fixture(root)
-            legacy = root / "plugins/engineering"
+            legacy = root / "plugins/dev-workflow"
             legacy.mkdir()
             package = legacy / "package.json"
             package.write_text(json.dumps({
-                "name": "sonsu-marketplace-engineering", "version": "1.0.0",
+                "name": "sonsu-marketplace-dev-workflow", "version": "1.0.0",
                 "private": True, "type": "module", "omp": {"extensions": ["./omp/extension.ts"]},
             }))
             extension = legacy / "omp/extension.ts"
@@ -631,9 +634,9 @@ class CodexPackagingTests(unittest.TestCase):
                         with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--codex-primary-model", model]), contextlib.redirect_stdout(io.StringIO()):
                             self.assertEqual(renderer.main(), 0)
                         self.assertEqual(json.loads((source / "profiles.json").read_text()), expected)
-                        packaged = root / "plugins/engineering/references/model-profiles.json"
+                        packaged = root / "plugins/dev-workflow/references/model-profiles.json"
                         self.assertEqual(json.loads(packaged.read_text()), expected)
-                        for plugin in ("engineering", "prompting"):
+                        for plugin in ("dev-workflow", "review", "prompting"):
                             document = (root / "plugins" / plugin / "references/model-profiles.md").read_text()
                             for role in primary_roles:
                                 self.assertIn(f"| `{role}` | `{model}` |", document)
@@ -732,10 +735,10 @@ class CodexPackagingTests(unittest.TestCase):
                 profiles["roles"].pop("red_team")
                 profile_file.write_text(json.dumps(profiles))
                 removed = [root / "plugins" / plugin / "agents/red_team.md"
-                           for plugin in ("engineering", "prompting")]
+                           for plugin in ("dev-workflow", "prompting")]
                 with mock.patch.object(sys, "argv", ["render-agent-policy.py", "--check"]), contextlib.redirect_stdout(io.StringIO()) as output:
                     self.assertEqual(renderer.main(), 1)
-                for plugin in ("engineering", "prompting"):
+                for plugin in ("dev-workflow", "prompting"):
                     self.assertIn(f"stale: plugins/{plugin}/agents/red_team.md", output.getvalue())
                 with mock.patch.object(sys, "argv", ["render-agent-policy.py"]), contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(renderer.main(), 0)
@@ -794,6 +797,30 @@ class CodexPackagingTests(unittest.TestCase):
                     self.assertEqual((source / "profiles.json").read_bytes(), profile_before)
             self.assertEqual(custom.read_bytes(), original)
             self.assertFalse((root / ".codex/agents/extraction.toml").exists())
+
+    def test_shared_files_preserve_script_mode_and_detect_drift(self):
+        spec = importlib.util.spec_from_file_location("render_shared_files", ROOT / "scripts/render-shared-files.py")
+        renderer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(renderer)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "shared/review-core/review-package"
+            source.parent.mkdir(parents=True)
+            source.write_text("#!/usr/bin/env bash\necho package\n")
+            source.chmod(0o755)
+            (root / "plugins/review").mkdir(parents=True)
+            target = root / "plugins/review/scripts/review-package"
+            shared = (("shared/review-core/review-package", "scripts/review-package", ("review",)),)
+            with mock.patch.object(renderer, "ROOT", root), mock.patch.object(renderer, "SHARED", shared), \
+                    mock.patch.object(renderer, "REPOSITORY", ()):
+                with mock.patch.object(sys, "argv", ["render-shared-files.py"]), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(renderer.main(), 0)
+                self.assertEqual(target.stat().st_mode & 0o777, 0o755)
+                target.chmod(0o644)
+                with mock.patch.object(sys, "argv", ["render-shared-files.py", "--check"]), contextlib.redirect_stdout(io.StringIO()) as output:
+                    self.assertEqual(renderer.main(), 1)
+                self.assertIn("stale: plugins/review/scripts/review-package", output.getvalue())
+                self.assertEqual(target.stat().st_mode & 0o777, 0o644)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,36 @@
+{
+  "name": "review",
+  "version": "1.0.0",
+  "description": "코드·diff·커밋·PR을 코드 건강도 기준으로 리뷰하고 집중 관점 리뷰와 리뷰 지적 대응을 제공합니다.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "license": "MIT AND Apache-2.0",
+  "keywords": [
+    "code-review",
+    "code-quality",
+    "maintainability",
+    "failure-modes",
+    "operability",
+    "overengineering"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Review",
+    "shortDescription": "코드 건강도 기준 리뷰와 집중 관점 리뷰",
+    "longDescription": "Google의 코드 리뷰 기준으로 변경이 시스템의 코드 건강도를 높이는지 판정하고, 라벨로 필수·선택 지적을 구분합니다. PR 리뷰는 라운드마다 새 검토자로 수행해 통합 결과를 게시하며, 단순성·유지보수성·실패 경로·운용 가능성 관점 리뷰를 따로 제공합니다. 로컬 전용·게시 금지 요청은 우선합니다.",
+    "developerName": "sonsu-lee",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "현재 diff를 리뷰해 줘.",
+      "이 PR을 리뷰하고 결과를 PR에 남겨 줘.",
+      "staged 변경이 커밋 하나로 적절한지 검토해 줘."
+    ]
+  }
+}

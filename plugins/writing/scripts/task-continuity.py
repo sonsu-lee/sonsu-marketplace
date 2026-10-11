@@ -220,17 +220,6 @@ def skill_valid(package_root, name):
         raise ContinuityError("active skill must exist in this plugin")
 
 
-RETIRED_ACTIVE_SKILLS = {
-    "engineering": frozenset({
-        "review-quality", "systematic-debugging", "writing-plans", "executing-plans",
-        "receiving-code-review", "using-git-worktrees", "finishing-a-development-branch",
-        "writing-skills", "using-engineering-skills", "requesting-code-review",
-        "verification-before-completion", "dispatching-parallel-agents",
-        "subagent-driven-development", "review-pr",
-    }),
-    "workflow": frozenset({"git-workflow"}),
-}
-
 DESIGN_PREDECESSOR_SKILLS = {
     "interface-design": frozenset({"design-interface", "redesign-interface", "audit-interface"}),
     "operations-ui": frozenset({"design-operations-ui", "redesign-operations-ui",
@@ -243,7 +232,7 @@ DESIGN_PREDECESSOR_SKILLS = {
 def recorded_skill_valid(package_root, plugin, name):
     # Historical checkpoint IDs remain readable; new writes still require an installed skill.
     identifier(name)
-    if name == "task-continuity" or name in RETIRED_ACTIVE_SKILLS.get(plugin, ()):
+    if name == "task-continuity":
         return
     if name in DESIGN_PREDECESSOR_SKILLS.get(plugin, ()):
         return

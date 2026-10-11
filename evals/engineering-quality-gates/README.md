@@ -1,7 +1,7 @@
-# Engineering quality gate 평가
+# Dev Workflow quality gate 평가
 
-`cases.json`은 현재 Engineering quality policy를 읽고, 선택한 policy와 artifact·review·상태
-판정이 서로 맞는지 평가하는 behavior fixture다. 평가자는 Engineering plugin만 설치한 격리된
+`cases.json`은 현재 Dev Workflow quality policy를 읽고, 선택한 policy와 artifact·review·상태
+판정이 서로 맞는지 평가하는 behavior fixture다. 평가자는 Dev Workflow plugin만 설치한 격리된
 읽기 전용 fixture에서 prompt를 실행하고, 실제 응답·tool trace를 case의 측정 가능한 조건과
 대조한다. 다른 plugin, Git 권한 또는 실제 model 실행을 가정하지 않는다.
 
@@ -31,7 +31,7 @@ JSON parse는 fixture 구조만 확인한다. model 실행, native loading, 실�
 ## Prior baseline — 현재 정책의 증거 아님
 
 이후 섹션은 과거 snapshot과 실행에서 기록한 관찰을 보존한다. 현재 `cases.json`의 policy,
-runtime compliance, 모델 성능·비용 또는 현재 Engineering 문서의 검증 근거로 사용하지 않는다.
+runtime compliance, 모델 성능·비용 또는 현재 Dev Workflow 문서의 검증 근거로 사용하지 않는다.
 
 ## Codex 모델·prompt 변경 비교 (prior baseline)
 

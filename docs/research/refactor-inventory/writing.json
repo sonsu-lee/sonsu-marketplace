@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "writing",
-  "manifest_sha256": "41306af89a72ed5e3c2f070ba6961c5f7f7d3c73c59db2c5560d1816d6cb6686",
+  "manifest_sha256": "f1915bf17712eb5ac6866bcb771f0574e7c0860925df35c162b4b93d8edebd96",
   "problem": "언어별 윤문만으로는 업무 문서의 배치·편집 범위와 개발자 글의 저자성·기술 근거를 관리하기 어렵습니다.",
   "outcome": "정확한 정보·보존 계약과 읽는 목적에 맞는 업무 문서 또는 개발자 블로그를 만듭니다.",
   "omp": {
@@ -15,9 +15,9 @@
   "skills": [
     {
       "path": "plugins/writing/skills/write-developer-blog/SKILL.md",
-      "sha256": "0254401ed6d8ec273f546fdd81438b6b44d8da9c1a19dc74940b93c111f7a66b",
+      "sha256": "4ef41d7eb565ff71e4cdbe2ab0ae49645f41df86af66c10f2726a6673c885137",
       "sources": {
-        "plugins/writing/references/continuity.md": "03de6d3a6dfaa43705781a476b7253b8c57ddf9b2b7515d9eaade025c2437c7f"
+        "plugins/writing/references/continuity.md": "7181af179dbf3b157a771105c5a0dcc0dff49c6411f6f5e950453a44bd61dd2e"
       },
       "problem": "개발자 글에서 저자의 실제 경험과 기술 사실이 섞이거나, 근거 없이 성공·인과관계를 단정하는 문제를 다룹니다.",
       "outcome": "독자 문제와 확인된 근거를 연결한 기획·본문·국소 수정 또는 위치가 있는 검토 결과를 반환합니다.",
@@ -101,7 +101,7 @@
           "note": "문서 유형과 스켈레톤 통독은 겹치지만 기술 문서 구조·Markdown 정리는 Writing이 담당합니다."
         },
         {
-          "target": "workflow:to-pr",
+          "target": "git:write-pr",
           "note": "PR 내용은 전달된 양식 안에서 쓰고 양식 조회·게시·원격 권한은 Workflow가 담당합니다."
         },
         {

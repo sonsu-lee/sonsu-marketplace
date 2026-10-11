@@ -43,7 +43,7 @@
           "note": "일반 코드 리뷰와 검토 행위는 겹치지만 정규화 카탈로그의 패턴별 보장·scope 계약은 별도다."
         },
         {
-          "target": "engineering:review-overengineering",
+          "target": "review:review-overengineering",
           "note": "추가 보장 없는 복잡성을 찾는 기준은 공유하지만 패턴별 비용·성숙도·관계의 자료가 다르다."
         }
       ],
@@ -83,7 +83,7 @@
           "note": "원천 자료 검색은 겹치지만 추천 가능한 성숙도와 보장·비용의 정규화 계약은 카탈로그가 제공한다."
         },
         {
-          "target": "engineering:domain-shaped-code",
+          "target": "dev-workflow:domain-shaped-code",
           "note": "최소 표현과 framework 재사용 원칙은 공유하지만 선택 결과는 구현 권한을 주지 않는다."
         }
       ],

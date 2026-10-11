@@ -1,14 +1,14 @@
 # 스킬 라우팅 평가
 
-`cases.json`은 Engineering, Workflow, Research, Prompting, Product, Writing과 언어별 Fluent
+`cases.json`은 Git, Tickets, Review, Dev Workflow, Research, Prompting, Product, Writing과 언어별 Fluent
 플러그인을 함께 또는 각각 설치했을 때의 기대 라우팅을 정의합니다. 직접 산출물 요청,
 비슷하지만 다른 요청, runtime 조합과 단독 설치 사례를 포함합니다.
 
-`workflow:to-pr` 사례는 선택된 스킬뿐 아니라 원격 변경이 없는 준비 모드인지, publish payload의
+`git:write-pr` 사례는 선택된 스킬뿐 아니라 원격 변경이 없는 준비 모드인지, publish payload의
 `target_pr_state`가 무엇인지도 선언할 수 있습니다. 이 경우에도 평가는 원격 PR을 만들지 않고
 모델이 제안한 계획과 payload만 확인합니다.
 
-`workflow:to-ticket`과 `workflow:ticket-lifecycle` 사례는 생성·내용 수정과 lifecycle 변경을 분리하고,
+`tickets:write-ticket`과 `tickets:update-ticket` 사례는 생성·내용 수정과 lifecycle 변경을 분리하고,
 `expected_intent`, `expected_relation`, `expected_assignee_change`, canonical ticket·assignee 확인,
 mutation 후 재조회와 native automation 중복 방지 같은 기대 효과를 선언할 수 있습니다. 이 필드는 모델이 제안한 작업과
 결과 보고를 평가하기 위한 계약이며 실제 원격 ticket 생성·수정 권한을 부여하지 않습니다.
@@ -22,7 +22,7 @@ assignee에서 검증하고 다른 assignee를 유지해야 합니다. `all`은 
 
 Writing은 공통 구성을 담당합니다. 영어 Fluent는 일상·기술 문장의 작성·윤문·검토에, 일본어 Fluent는 작성·윤문과 문서 진단에 적용합니다. 한국어 Fluent는
 한국어 산출물을 새로 쓸 때 생성 규칙을 적용하고 기존 글의 AI 티·번역투 윤문이나 진단 요청도 처리합니다.
-일반 대화 답변·단순 맞춤법 교정·번역에는 자동 적용하지 않습니다. Workflow는 자체 양식과
+일반 대화 답변·단순 맞춤법 교정·번역에는 자동 적용하지 않습니다. Git·Tickets는 자체 양식과
 운영 절차에 적합한 지침을 적용합니다. 분리·조합 사례의 기대값은 실제 native 라우팅 결과와
 구분하며, [명시적 지침 적용 검사](../writing/README.md)만으로 자동 선택을 통과했다고 하지 않습니다.
 일상 메시지와 기술 설명의 선택 경계를 각 언어별로 확인하는 사례도 포함합니다.

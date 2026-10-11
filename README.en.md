@@ -13,9 +13,9 @@ Register once with a CLI that supports `codex plugin`, then install one plugin o
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace --ref main
 # Install one plugin
-codex plugin add engineering@sonsu-marketplace
+codex plugin add dev-workflow@sonsu-marketplace
 # To install all, use this instead of the single install above
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
+for plugin in git tickets review dev-workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do codex plugin add "$plugin@sonsu-marketplace"; done
 codex plugin marketplace list
 codex plugin list --marketplace sonsu-marketplace
 ```
@@ -27,21 +27,21 @@ Register the marketplace once, then install one plugin or all plugins. Check the
 ```sh
 claude plugin marketplace add sonsu-lee/sonsu-marketplace
 # Install one plugin
-claude plugin install engineering@sonsu-marketplace
+claude plugin install dev-workflow@sonsu-marketplace
 # To install all, use this instead of the single install above
-for plugin in engineering workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
+for plugin in git tickets review dev-workflow fluent-korean fluent-english fluent-japanese writing research prompting product memory-manager design-patterns design worklog; do claude plugin install "$plugin@sonsu-marketplace"; done
 claude plugin marketplace list
 claude plugin list
 ```
 
 ### omp
 
-Install the default five plugins; Writing, Research, Prompting, Product, Design Patterns, and Worklog are six optional plugins. Only if you choose to enable automatic updates, merge the YAML below into the existing `marketplace:` section of `~/.omp/agent/config.yml`.
+Install the default seven plugins; Writing, Research, Prompting, Product, Design Patterns, and Worklog are six optional plugins. Only if you choose to enable automatic updates, merge the YAML below into the existing `marketplace:` section of `~/.omp/agent/config.yml`.
 
 <!-- omp-preset:start -->
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
-for plugin in workflow fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
+for plugin in git tickets review fluent-korean fluent-english fluent-japanese design; do omp plugin install "$plugin@sonsu-marketplace"; done
 ```
 
 ```yaml
@@ -63,12 +63,14 @@ omp plugin list
 
 ## Plugins
 
-Each plugin works independently; follow its link for details (Codex and Claude Code: all 13; omp: five default and six opt-in plugins, 11 in total).
+Each plugin works independently; follow its link for details (Codex and Claude Code: all 15; omp: seven default and six opt-in plugins, 13 in total).
 
 | Plugin | Purpose | Installation name |
 | --- | --- | --- |
-| [Engineering](plugins/engineering/README.md) | Design, implement, verify, simplify, and review software changes | `engineering` |
-| [Workflow](plugins/workflow) | Work with Git branches, commits, pushes, tickets, and GitHub PRs | `workflow` |
+| [Git](plugins/git/README.md) | Work with Git branches, commits, and pushes, and write, inspect, and repair GitHub PRs | `git` |
+| [Tickets](plugins/tickets/README.md) | Write GitHub Issues and Linear tickets and change their status, assignee, and relations | `tickets` |
+| [Review](plugins/review/README.md) | Review code, diffs, commits, and PRs for code health, run focused reviews, and address review comments | `review` |
+| [Dev Workflow](plugins/dev-workflow/README.md) | Design, plan, implement, debug, verify, and simplify software changes | `dev-workflow` |
 | [Fluent Korean](plugins/fluent-korean) | Apply drafting rules to new Korean text and edit AI-sounding or translationese passages in existing Korean text with `im-not-ai` as a source | `fluent-korean` |
 | [Fluent English](plugins/fluent-english) | Draft, edit, and review everyday and technical English with `better-writing` as a source | `fluent-english` |
 | [Fluent Japanese](plugins/fluent-japanese) | Draft and edit everyday and technical Japanese; score documents with `natural-japanese` as a source | `fluent-japanese` |
@@ -83,12 +85,14 @@ Each plugin works independently; follow its link for details (Codex and Claude C
 
 ## Usage examples
 
-After installing the relevant plugin, make a request in Codex or Claude Code (direct invocation examples: Claude Code `/engineering:review`, omp `/skill:commit`).
+After installing the relevant plugin, make a request in Codex or Claude Code (direct invocation examples: Claude Code `/review:review-code`, omp `/skill:commit`).
 
 | Plugin | Example request |
 | --- | --- |
-| Engineering | “Fix and verify this bug, or review the current diff for unnecessary abstractions and reachable failure paths.” |
-| Workflow | “Commit the current changes and create a Draft PR.” |
+| Git | “Commit the current changes and create a Draft PR.” |
+| Tickets | “Turn this bug report into a GitHub Issue draft.” |
+| Review | “Review the current diff for unnecessary abstractions and reachable failure paths.” |
+| Dev Workflow | “Fix and verify this bug.” |
 | Fluent Japanese | “Make this Japanese technical explanation read naturally while preserving its meaning and code identifiers.” |
 | Writing | “Select and summarize what the README needs from this material, and update the existing documents with the details.” |
 | Research | “Compare the pricing and limits of these two services using official sources.” |
@@ -105,12 +109,12 @@ The host selects skills based on your request and the descriptions of installed 
 ```sh
 codex plugin marketplace upgrade sonsu-marketplace
 claude plugin marketplace update sonsu-marketplace
-claude plugin update engineering@sonsu-marketplace
+claude plugin update dev-workflow@sonsu-marketplace
 omp plugin marketplace update sonsu-marketplace
 omp plugin upgrade
 ```
 
-[Migrate from earlier omp configurations or fluent-languages](docs/guides/migrating-from-earlier-versions.md) (Korean)
+[Migrate from earlier omp configurations, fluent-languages, workflow, or engineering](docs/guides/migrating-from-earlier-versions.md) (Korean)
 
 ## Documentation
 

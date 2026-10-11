@@ -1,7 +1,7 @@
 # 원본과 출처
 
 Writing은 정보 선별·문서 배치와 글의 구성을 다루는 독립 플러그인이다.
-Engineering·Research·Fluent Languages·Workflow와 함께 사용할 수 있으며, 각 플러그인의
+Dev Workflow·Research·Fluent Languages·Git·Tickets와 함께 사용할 수 있으며, 각 플러그인의
 설치·호출명·전문 지침과 외부 작업 경계를 그대로 유지한다.
 
 업무 문서 진입점은 [`skills/writing/SKILL.md`](skills/writing/SKILL.md)이다. 공통

@@ -11,10 +11,11 @@ import stat
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"[a-z][a-z0-9-]*\Z")
-OMP_PLUGINS = {"workflow", "fluent-korean", "fluent-english", "fluent-japanese", "design"}
+OMP_PLUGINS = {"git", "tickets", "review", "fluent-korean", "fluent-english", "fluent-japanese", "design"}
 OMP_OPTIN_PLUGINS = {"writing", "research", "prompting", "product", "worklog", "design-patterns"}
 RUNTIME_EXTENSIONS = {"worklog": "omp-extension/worklog.ts"}
-ISOLATED = {"workflow", "design", "fluent-korean", "writing", "research", "prompting", "product", "worklog"}
+OMP_RULES = {"review": "omp-rules"}
+ISOLATED = {"git", "tickets", "review", "design", "fluent-korean", "writing", "research", "prompting", "product", "worklog"}
 MANIFEST_FIELDS = ("version", "description", "author", "homepage", "repository", "license", "keywords")
 COPY_ROOTS = ("skills", "references", "assets", "scripts", "figma-plugin")
 SKIP_PARTS = {"__pycache__", "node_modules", ".git"}
@@ -113,7 +114,7 @@ def omp_korean_skill(data):
    - exit 2: 변경률 50% 이상. 윤문본 채택 금지·롤백. 원문을 보존하며 완료본으로 반환하지 않는다.
    - exit 3: 실행 오류. 검증 미확인으로 기록하고 완료로 보고하지 않는다. 스크립트 실행 불가나 종료 코드를 얻지 못한 경우도 같게 처리한다.
 
-   검증기 stdout의 실제 측정값을 요약에 반영하며 자가 계산을 확정 변경률로 쓰지 않는다. 이 도구는 문장 보존을 위한 도메인 검증기이며 Engineering evidence gate나 task/session 실행기를 요구하지 않는다.
+   검증기 stdout의 실제 측정값을 요약에 반영하며 자가 계산을 확정 변경률로 쓰지 않는다. 이 도구는 문장 보존을 위한 도메인 검증기이며 Dev Workflow evidence gate나 task/session 실행기를 요구하지 않는다.
 9. **응답**:"""
     text = replace(text, "8. **응답**:", verification)
     text = replace(text, "① 한 줄 상태(`완료. 변경률 X% / 등급 Y / 자체검증 N/6 통과`)",
@@ -221,6 +222,16 @@ def isolated_outputs(root, plugin_root, manifest, outputs, modes):
     for field in MANIFEST_FIELDS:
         if field in manifest:
             native_manifest[field] = manifest[field]
+    if manifest["name"] in OMP_RULES:
+        directory = plugin_root / OMP_RULES[manifest["name"]]
+        require_safe(directory, root)
+        if not directory.is_dir():
+            raise ValueError(f"{manifest['name']}: missing omp rules directory {directory}")
+        for source in package_files(directory, root):
+            if source.suffix != ".md":
+                continue
+            outputs[destination / "rules" / source.name] = source.read_bytes()
+            modes[destination / "rules" / source.name] = 0o644
     if manifest["name"] in RUNTIME_EXTENSIONS:
         # Opt-in packages may ship one runtime extension; default packages never do.
         source = plugin_root / RUNTIME_EXTENSIONS[manifest["name"]]

@@ -98,12 +98,12 @@ Writing과 Workflow는 각자 담당한 작업의 기록을 관리합니다. Flu
 ```sh
 python3 /absolute/plugin/scripts/task-continuity.py read
 python3 /absolute/plugin/scripts/task-continuity.py write --mode write \
-  --task-id task-42 --skill to-pr --expected-revision 0 < /absolute/summary.json
+  --task-id task-42 --skill write-pr --expected-revision 0 < /absolute/summary.json
 python3 /absolute/plugin/scripts/task-continuity.py close --mode write \
   --task-id task-42 --expected-revision 1
 ```
 
-예시는 Workflow의 `to-pr`입니다. 다른 플러그인은 그 패키지의 실제 작업 스킬 이름을 사용합니다.
+예시는 Git의 `write-pr`입니다. 다른 플러그인은 그 패키지의 실제 작업 스킬 이름을 사용합니다.
 `read`는 기록 전체를 JSON으로 반환하고, 기록이 없으면 출력 없이 종료합니다. `write`·`close`는
 저장 경로·task ID·revision·상태를 반환합니다. 본문은 stdin으로 전달하고 shell 보간을 사용하지 않습니다.
 사용자의 입력이나 도구 결과를 command text로 실행하지 않습니다.
@@ -141,7 +141,7 @@ Claude Code 명령은 현재 `CLAUDE_CODE_SESSION_ID`를 우선 사용하고, �
 Claude Code의 세션 환경 파일에는 위의 ID 한 줄만 기록할 수 있습니다. PreCompact와
 PostCompact handler는 없으며 compaction의 실행 시점이나 압축 방식을 제어하지 않습니다.
 
-Engineering에는 별도로 선택적 [완료 근거 관찰](../../plugins/engineering/references/evidence-gates.md)의
+Dev Workflow에는 별도로 선택적 [완료 근거 관찰](../../plugins/dev-workflow/references/evidence-gates.md)의
 `Stop` handler가 있습니다. 명시적으로 등록한 task만 관찰하며 continuity checkpoint를 갱신하지
 않습니다. 위의 checkpoint 읽기 전용 복구 계약은 `SessionStart` handler에 적용됩니다.
 

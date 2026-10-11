@@ -28,9 +28,10 @@ manifest에 포함하지 않습니다. `claude plugin validate . --strict`와 �
 `worklog`는 호스트마다 hook 이벤트 집합이 달라 Claude Code용 `hooks/claude-hooks.json`을 배포 루트의
 `hooks/hooks.json`으로 복사합니다.
 
-omp 배포는 `python3 scripts/render-omp-compat.py`로 생성합니다. 카탈로그에는 기본 5개인 Workflow,
+omp 배포는 `python3 scripts/render-omp-compat.py`로 생성합니다. 카탈로그에는 기본 7개인 Git·Tickets·Review,
 Fluent Korean·English·Japanese, Design과 opt-in Writing·Research·Prompting·Product·Design Patterns·Worklog 6개를 등록합니다.
-English·Japanese·Design Patterns는 원본 패키지를 참조하고, Design·Workflow·Fluent Korean·Writing·Research·Prompting·Product·Worklog는 `plugins/<name>/omp`에 독립 배포용 사본을 생성합니다.
+English·Japanese·Design Patterns는 원본 패키지를 참조하고, Design·Git·Tickets·Review·Fluent Korean·Writing·Research·Prompting·Product·Worklog는 `plugins/<name>/omp`에 독립 배포용 사본을 생성합니다.
+Review 사본에는 순정 `reviewer`에만 적용되는 규칙(`omp-rules/` → `rules/`)을 함께 넣습니다.
 Fluent Korean의 `skills/fluent-korean/SKILL.md`와 참고 자료는 Codex 단일 호출 경로에서 생성하며
 현재 호스트 모델을 사용합니다. 기본 `skills/` discovery로 발견되고 Claude agent·고정 Opus·다중 호출·
 strict 모드를 요구하지 않습니다.
@@ -56,9 +57,9 @@ Prompting의 Codex·Claude 모델 프로필은 대상 프롬프트 참고용이�
 | `interface` | Codex UI 메타데이터 | 표시 이름, 설명, 아이콘과 기능 범위 정의 |
 | `apps` | 등록된 Codex connector 선언 | plugin-relative `.app.json`만 가리키며, connector ID와 실제 노출은 Codex가 소유 |
 
-Engineering은 독립 플러그인으로 관리하므로 `1.0.0`부터 독립 semantic version을 사용하고
+Dev Workflow·Review·Git·Tickets는 독립 플러그인으로 관리하므로 독립 semantic version을 사용하고
 upstream 기준선이나 이전 호환 경로를 매니페스트 계약으로 두지 않습니다. MIT 고지는
-[`LICENSE`](../../plugins/engineering/LICENSE)에 보존합니다.
+Dev Workflow의 [`LICENSE`](../../plugins/dev-workflow/LICENSE)와 Review의 [`LICENSE`](../../plugins/review/LICENSE)에 보존합니다.
 
 ## 마켓플레이스 연결
 
@@ -67,10 +68,10 @@ upstream 기준선이나 이전 호환 경로를 매니페스트 계약으로 �
 
 ```json
 {
-  "name": "engineering",
+  "name": "git",
   "source": {
     "source": "local",
-    "path": "./plugins/engineering"
+    "path": "./plugins/git"
   }
 }
 ```
