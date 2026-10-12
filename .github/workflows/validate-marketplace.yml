@@ -1,0 +1,46 @@
+# Checks that omp accepts every entry in .omp-plugin/marketplace.json.
+#
+# Why the omp CLI instead of a JSON schema: the marketplace catalog has no
+# standard format and omp publishes no schema for it, and omp silently skips
+# invalid entries. Asking omp itself is the only check that matches what users
+# get. This is a temporary workaround until omp ships a catalog schema or
+# validation command. Full rationale: CONTRIBUTING.md, "Validating the
+# marketplace".
+
+name: Validate Marketplace
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  # Pinned omp release used to validate the catalog. Dependabot does not update
+  # it, so raise it by hand: set the version and copy the omp-linux-x64 checksum
+  # from that release's SHA256SUMS.txt.
+  OMP_VERSION: v18.9.1
+  OMP_SHA256: 0ac24a7c146dbfb4005ef00e21aa60bf9b1ddf15dae5f92938542c1475824417
+
+jobs:
+  validate:
+    name: omp CLI dry-run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      # A pinned release binary, verified by checksum, so the check does not run
+      # whatever omp version is current.
+      - name: Install omp
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/omp" \
+            "https://github.com/can1357/oh-my-pi/releases/download/${OMP_VERSION}/omp-linux-x64"
+          echo "${OMP_SHA256}  $RUNNER_TEMP/omp" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/omp"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      # Node.js 22.18+ runs the TypeScript file directly, with no dependencies.
+      - run: node scripts/validate-marketplace.ts
