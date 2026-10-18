@@ -136,7 +136,7 @@ accepted decisions.
     and `extensions`. omp rejects the whole plugin if a defined field is
     invalid, for example an uppercase `name`.
 
-1.  Add the standard components:
+2.  Add the standard components:
 
     *   **Skills**: `skills/<skill>/SKILL.md` following the
         [Agent Skills specification](https://agentskills.io/specification).
@@ -144,6 +144,7 @@ accepted decisions.
         `compatibility`, `metadata`, and `allowed-tools`, and `name` must match
         the directory name. omp skips a skill with any other field, such as
         omp's `hide` or Claude Code's `argument-hint`.
+
     *   **MCP servers**: `mcp.json` with the
         `https://agent-plugins.org/schemas/1.0.0/mcp.schema.json` `$schema`
         and an `mcpServers` object. Each server sets `type` (`stdio`,
@@ -157,20 +158,23 @@ accepted decisions.
     skills and MCP servers of a standard plugin only from `skills/` and
     `mcp.json`.
 
-1.  Add omp-specific components:
+3.  Add omp-specific components:
 
     *   **Commands**: `commands/<command>.md` with a `description`. Use a
         command for a workflow that runs only when the user asks for it,
         since a standard skill cannot set `hide`.
+
     *   **Agents**: `agents/<agent>.md` with `name` and `description`.
+
     *   **Rules**: `rules/<rule>.md` with a `description`. Use a rule for
         guidance tied to file patterns (`globs`) or that always applies
         (`alwaysApply`), since a standard skill cannot set these fields.
+
     *   **Code** (tools, event handlers, commands with logic): extension
         modules listed in `package.json` under `omp.extensions`. See
         [Extensions](https://github.com/can1357/oh-my-pi/blob/main/docs/extensions.md).
 
-1.  Register the plugin in `.omp-plugin/marketplace.json`:
+4.  Register the plugin in `.omp-plugin/marketplace.json`:
 
     ```json
     {
