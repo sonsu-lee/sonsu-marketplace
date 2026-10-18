@@ -27,6 +27,9 @@ from the `plugins/` directory.
 Install [omp](https://github.com/can1357/oh-my-pi#install) before using this
 marketplace.
 
+The `git-workflow` plugin's commit skill also requires Node.js 22.12.0 or newer
+and npm (`npx`) to run commitlint. The first run needs npm registry access.
+
 ### Marketplace
 
 Add the marketplace:
@@ -72,15 +75,22 @@ omp plugin upgrade
 Install with `omp plugin install git-workflow@sonsu-marketplace`.
 
 - **`writing-commits`** writes Conventional Commit messages, following
-  repository-specific rules first.
+  repository-specific rules first. It requires validation through
+  `npx --yes --package @commitlint/cli@21.2.4 commitlint` before committing or
+  presenting a message as ready, using repository configuration when present
+  and the skill's bundled ESM rules otherwise. The bundled rules check
+  72-character line limits and lowercase scopes. See the
+  [skill's validation procedure](plugins/git-workflow/skills/writing-commits/SKILL.md#required-validation)
+  and [ADR-0006](docs/decisions/0006-bundle-esm-commitlint-rules.md).
 - **`naming-branches`** guides branch naming with Conventional Branch 1.1.0,
   following repository-specific rules and branch-name validator configuration
   (such as commit-check) first. Its defaults use `feature/` (not `feat/`) and
   `fix/` (not `bugfix/`), alongside `hotfix/`, `release/`, and `chore/`.
 
 Branch prefixes do not change commit types: a `feature/` branch can contain
-`feat`, `fix`, and other commits. These skills provide naming guidance, not Git
-hooks or CI enforcement.
+`feat`, `fix`, and other commits. These skills provide agent workflow
+instructions, including commit-message validation, not Git hooks or CI
+enforcement.
 
 ## Layout
 
@@ -221,6 +231,17 @@ install into a temporary home and check its output before pushing:
 ```
 
 Every skill should appear, with no `warning:` lines.
+
+For changes to `git-workflow` commit validation, also run its behavior tests:
+
+```sh
+node --test plugins/git-workflow/tests/commitlint.test.mjs
+```
+
+The tests use the pinned commitlint CLI through `npx` in a temporary Git
+repository. After installing the plugin into a temporary `HOME`, also run
+the skill's validation command from a separate repository with the installed
+`assets/commitlint.config.mjs` path to check that the asset is packaged.
 
 ## License
 
