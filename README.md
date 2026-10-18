@@ -30,6 +30,23 @@ omp plugin marketplace update sonsu-marketplace
 omp plugin upgrade
 ```
 
+## Available plugins
+
+### git-workflow
+
+Install with `omp plugin install git-workflow@sonsu-marketplace`.
+
+* **`writing-commits`** writes Conventional Commit messages, following
+  repository-specific rules first.
+* **`naming-branches`** guides branch naming with Conventional Branch 1.1.0,
+  following repository-specific rules and branch-name validator configuration
+  (such as commit-check) first. Its defaults use `feature/` (not `feat/`) and
+  `fix/` (not `bugfix/`), alongside `hotfix/`, `release/`, and `chore/`.
+
+Branch prefixes do not change commit types: a `feature/` branch can contain
+`feat`, `fix`, and other commits. These skills provide naming guidance, not
+Git hooks or CI enforcement.
+
 ## Layout
 
 ```text
