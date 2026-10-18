@@ -4,58 +4,52 @@ date: 2026-10-19
 decision-makers: sonsu-lee
 ---
 
-# Use Standard Readme and require Markdown lint checks
+# Require Markdown lint checks for all Markdown documents
 
 ## Context and Problem Statement
 
-[ADR-0003](0003-use-standard-readme.md) adopted Standard Readme without a linter
-requirement. Subsequent README review found inconsistent list formatting, and
-Markdown lint caught list-marker spacing errors. How should contributors check
-Markdown formatting as well as the README's structure?
+README review found inconsistent list formatting, and Markdown lint caught
+list-marker spacing errors. The same formatting issues can affect ADRs, skill
+instructions, and other Markdown documents. How should contributors check
+Markdown formatting consistently across the repository?
 
 ## Considered Options
 
-- Standard Readme with manual formatting review only
-- Standard Readme with Markdown lint run through `npx`
+- Manual formatting review only
+- Markdown lint run through `npx`
 
 ## Decision Outcome
 
-Chosen option: "Standard Readme with Markdown lint run through `npx`", because it
-adds a repeatable formatting check without a global installation or a repository
-package manifest. This decision supersedes ADR-0003 and retains its Standard
-Readme policy:
+Chosen option: "Markdown lint run through `npx`", because it adds a repeatable
+formatting check without a global installation or a repository package manifest.
 
-- Write documentation in English. The root README and any plugin README files
-  follow the [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md).
-- Use the project name as the title and a short description of fewer than 120
-  characters, consistent with GitHub and package metadata where applicable.
-- Follow the specification's section names and ordering. Include `Install`,
-  `Usage`, `Contributing`, and a final `License`. Include a table of contents for
-  READMEs of 100 lines or more.
-- Include installation and usage examples, `Dependencies` and `CLI` subsections
-  where applicable, and project-specific sections after `Usage`. Keep authoring,
-  testing, and contribution guidance under `Contributing`.
-- Omit optional sections that add no useful information. Keep decision rationale
-  in ADRs and link to it rather than duplicating it in README files.
+This policy applies to all Markdown documents maintained in the repository,
+including root and plugin READMEs, ADRs, contributor and agent instructions,
+skills, commands, and rules.
+It complements [ADR-0003](0003-use-standard-readme.md), which remains the decision
+for README structure; it does not replace that decision.
 
 Before pushing, run `markdownlint-cli` through `npx` on every Markdown file added
-or modified by the change, including README files and ADRs. Use version `0.49.1`
-and its default rules, and resolve all reported errors. Node.js 22 or newer and
-npm (which provides `npx`) are required. For a README-only change, run:
+or modified by the change. Use version `0.49.1` and its default rules, and resolve
+all reported errors. Node.js 22 or newer and npm (which provides `npx`) are
+required. For example, a change to a README and this ADR is checked with:
 
 ```sh
-npx --yes markdownlint-cli@0.49.1 README.md
+npx --yes markdownlint-cli@0.49.1 \
+  README.md docs/decisions/0004-require-markdown-lint.md
 ```
 
-Append the paths of any other changed Markdown files to the same command. The
-explicit version keeps the check repeatable; `npx` downloads and caches the
-package when needed. This decision does not add automatic formatting, CI
-integration, or a requirement to reformat untouched documents.
+Pass every added or modified Markdown file, not just the example paths above.
+The explicit version keeps the check repeatable; `npx` downloads and caches the
+package when needed. The policy applies to every document type, but each change
+only needs to check the files it touches. Untouched documents are checked when
+they are next modified; this does not require a repository-wide reformat.
+No automatic formatting or CI integration is introduced.
 
 ### Consequences
 
-- Good, because README structure stays predictable and formatting errors are
-  checked consistently before review.
+- Good, because all Markdown document types receive the same formatting checks
+  before review.
 - Good, because contributors need no global Markdown linter installation.
 - Bad, because contributors need Node.js and npm, and the first run requires
   access to the npm registry.
@@ -64,9 +58,7 @@ integration, or a requirement to reformat untouched documents.
 
 ### Confirmation
 
-Run the pinned command with all changed Markdown paths and require a zero exit
-status with no lint errors. Review README sections against Standard Readme,
-check table-of-contents targets and local and external links, confirm the license
-identifier and owner, and inspect the rendered Markdown. Exercise changed CLI
-examples with a temporary `HOME` when running omp; plugin changes also require
-the README's "Testing a plugin" procedure.
+Run the pinned command with all added or modified Markdown paths and require a
+zero exit status with no lint errors. Check links and inspect the rendered
+Markdown separately. README changes must also satisfy ADR-0003's structural
+review, and lint does not replace plugin tests or checks of documented commands.

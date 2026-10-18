@@ -115,11 +115,14 @@ plugin changes, follow the authoring and testing procedures below.
 Write documentation in English and follow the
 [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
 when creating or updating README files, as recorded in
-[ADR-0004](docs/decisions/0004-require-markdown-lint.md). Record new decisions
+[ADR-0003](docs/decisions/0003-use-standard-readme.md). Record new decisions
 using [MADR](docs/decisions/0001-use-madr-for-decision-records.md); do not
 rewrite accepted decisions.
 
-Before pushing Markdown changes, use Node.js 22 or newer and npm to run:
+All Markdown documents follow the lint policy in
+[ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
+agent instructions, skills, commands, and rules. Before pushing, use Node.js 22
+or newer and npm to check the files added or modified by your change:
 
 ```sh
 npx --yes markdownlint-cli@0.49.1 README.md

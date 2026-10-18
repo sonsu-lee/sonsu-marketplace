@@ -1,5 +1,5 @@
 ---
-status: superseded by ADR-0004
+status: accepted
 date: 2026-10-19
 decision-makers: sonsu-lee
 ---
