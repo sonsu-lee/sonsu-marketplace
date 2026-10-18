@@ -1,0 +1,22 @@
+[
+  { "query": "Create a branch for the login page I'm about to build.", "should_trigger": true },
+  { "query": "What should I call my branch for fixing mobile header overflow?", "should_trigger": true },
+  { "query": "I'm starting ENG-482 for payment timeouts. Suggest a branch name, no Git changes.", "should_trigger": true },
+  { "query": "Name the branch for our v2.3.0 release preparation.", "should_trigger": true },
+  { "query": "Rename feature/add-subtract to reflect that it now handles division too.", "should_trigger": true },
+  { "query": "Set me up on a fresh branch off main to update dependencies in ~/dev/store.", "should_trigger": true },
+  { "query": "Production checkout is down; create a hotfix branch so I can start.", "should_trigger": true },
+  { "query": "I need a Conventional Branch name for GitHub issue #45, adding CSV export.", "should_trigger": true },
+  { "query": "Is Feature/Add_Login a valid branch name before I push it?", "should_trigger": true },
+  { "query": "Does bugfix/header-overflow match our preferred branch naming style?", "should_trigger": true },
+  { "query": "Commit the staged change in src/math.js with a Conventional Commit message.", "should_trigger": false },
+  { "query": "Open a PR for this branch against main and write the description.", "should_trigger": false },
+  { "query": "Switch to the existing feature/add-subtract branch and rebase it on main.", "should_trigger": false },
+  { "query": "Delete local branches already merged into main.", "should_trigger": false },
+  { "query": "Explain merge versus rebase for bringing main into feature/login.", "should_trigger": false },
+  { "query": "How far has this branch diverged from origin/main?", "should_trigger": false },
+  { "query": "Push this branch to origin and set its upstream.", "should_trigger": false },
+  { "query": "Suggest a short name for our new CLI tool.", "should_trigger": false },
+  { "query": "Create tag v1.2.0 and push that tag to origin.", "should_trigger": false },
+  { "query": "List remote branches with no commits in the last 90 days.", "should_trigger": false }
+]
