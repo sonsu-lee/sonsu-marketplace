@@ -8,10 +8,10 @@ decision-makers: sonsu-lee
 
 ## Context and Problem Statement
 
-README review found inconsistent list formatting, and Markdown lint caught
-list-marker spacing errors. The same formatting issues can affect ADRs, skill
-instructions, and other Markdown documents. How should contributors check
-Markdown formatting consistently across the repository?
+Inconsistent Markdown formatting affects READMEs, decision records, and agent
+instructions alike. Manual review does not reliably catch these errors, but a
+marketplace should not need a package manifest just to run a formatting check.
+How should contributors validate Markdown consistently?
 
 ## Considered Options
 
@@ -23,28 +23,21 @@ Markdown formatting consistently across the repository?
 Chosen option: "Markdown lint run through `npx`", because it adds a repeatable
 formatting check without a global installation or a repository package manifest.
 
-This policy applies to all Markdown documents maintained in the repository,
-including root and plugin READMEs, ADRs, contributor and agent instructions,
-skills, commands, and rules.
-It complements [ADR-0003](0003-use-standard-readme.md), which remains the decision
-for README structure; it does not replace that decision.
+Apply the check to every maintained Markdown document type, but only require
+each change to check the files it adds or modifies. This keeps adoption
+incremental rather than forcing unrelated reformatting.
 
-Before pushing, run `markdownlint-cli` through `npx` on every Markdown file added
-or modified by the change. Use version `0.49.1` and its default rules, and resolve
-all reported errors. Node.js 22 or newer and npm (which provides `npx`) are
-required. For example, a change to a README and this ADR is checked with:
+Pin the tool version to make checks repeatable. Use a pre-push validation step,
+not automatic formatting or a new CI integration. This complements
+[ADR-0003](0003-use-standard-readme.md): lint checks Markdown formatting, while
+Standard Readme defines document structure.
 
-```sh
-npx --yes markdownlint-cli@0.49.1 \
-  README.md docs/decisions/0004-require-markdown-lint.md
-```
+### Current instructions
 
-Pass every added or modified Markdown file, not just the example paths above.
-The explicit version keeps the check repeatable; `npx` downloads and caches the
-package when needed. The policy applies to every document type, but each change
-only needs to check the files it touches. Untouched documents are checked when
-they are next modified; this does not require a repository-wide reformat.
-No automatic formatting or CI integration is introduced.
+The [README's documentation guidance](../../README.md#writing-documentation)
+defines the current Node.js prerequisite, pinned `npx` command, file selection,
+and separate link and rendering checks.
+[AGENTS.md](../../AGENTS.md) makes those checks mandatory for agents.
 
 ### Consequences
 
@@ -58,7 +51,6 @@ No automatic formatting or CI integration is introduced.
 
 ### Confirmation
 
-Run the pinned command with all added or modified Markdown paths and require a
-zero exit status with no lint errors. Check links and inspect the rendered
-Markdown separately. README changes must also satisfy ADR-0003's structural
-review, and lint does not replace plugin tests or checks of documented commands.
+Run the README's pinned command on every added or modified Markdown file and
+require a zero exit status. Review links, rendering, and README structure
+separately; successful lint does not replace those checks or plugin validation.

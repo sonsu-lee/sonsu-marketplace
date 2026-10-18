@@ -1,6 +1,6 @@
 ---
 status: accepted
-date: 2026-10-18
+date: 2026-10-19
 decision-makers: sonsu-lee
 ---
 
@@ -8,34 +8,20 @@ decision-makers: sonsu-lee
 
 ## Context and Problem Statement
 
-omp loads plugin content in three ways:
+This marketplace targets omp, but its plugin format should preserve portable
+skills and MCP servers without losing omp-specific commands, agents, rules,
+and extension modules. A standard-only package cannot provide all of these
+components, while an omp-conventions-only package gives up standard validation.
 
-1. **Claude Code compatible layout.** Conventional directories (`skills/`,
-   `commands/`, `agents/`, `rules/`, `hooks/`, `tools/`, `.mcp.json`) and an
-   optional `.claude-plugin/plugin.json`. Every marketplace install is read
-   through this path (`discovery/claude-plugins.ts`). The marketplace catalog
-   uses the same format.
-2. **omp extension modules.** `package.json` `omp.extensions`, inherited from
-   pi. Marketplace installs load them since
-   [#3245](https://github.com/can1357/oh-my-pi/pull/3245).
-3. **[Agent Plugins](https://agent-plugins.org/) 1.0.0.** A plugin whose root
-   `plugin.json` declares the Agent Plugins `$schema` has its skills and MCP
-   servers loaded only by the standard provider. Other components still load
-   through ways 1 and 2 (`discovery/agent-plugin-format.ts:546`,
-   `legacyProviderAllowed`).
+At the inspected
+[`can1357/oh-my-pi@ba85aef0b3`](https://github.com/can1357/oh-my-pi/tree/ba85aef0b3)
+revision, [Agent Plugins](https://agent-plugins.org/) 1.0.0 covered skills and MCP
+servers. omp loaded those through the standard provider while continuing to
+load its own component types alongside them. It did not yet consume the
+standard's client-specific extension mechanism.
 
-The standard covers skills and MCP servers only. For client-specific data it
-defines `extensions` in `plugin.json` and `metadata` in `SKILL.md`, but omp
-reads neither: it stores `extensions` without using it
-(`discovery/agent-plugin-format.ts:231`) and decides `hide` from top-level
-frontmatter only (`extensibility/skills.ts:265`).
-[#8853](https://github.com/can1357/oh-my-pi/issues/8853) proposes an omp
-namespace under `extensions`; it is open and not implemented.
-
-Which format should plugins in this marketplace use?
-
-Source paths are relative to `packages/coding-agent/src/` in
-[`can1357/oh-my-pi@ba85aef0b3`](https://github.com/can1357/oh-my-pi/tree/ba85aef0b3).
+Which packaging approach preserves both capabilities with the least migration
+risk?
 
 ## Decision Drivers
 
@@ -58,73 +44,49 @@ only option that keeps both the standard's portability and validation and omp's
 components. Its cost, the omp-only skill and MCP options, has workable
 replacements.
 
-Each plugin is laid out as follows:
+Use the standard for portable components and omp's supported conventions for
+client-specific components. Keep the catalog in omp's marketplace location.
+If neither can express a required capability, an individual plugin may use the
+omp-only format and document that exception.
 
-| Component | Format | Location |
-|---|---|---|
-| Manifest | Agent Plugins | `plugin.json` |
-| Skills | Agent Plugins | `skills/<skill>/SKILL.md` |
-| MCP servers | Agent Plugins | `mcp.json` |
-| Commands, agents, rules | omp | `commands/`, `agents/`, `rules/` |
-| Code | omp | `package.json` `omp.extensions` |
+### Current instructions
 
-The catalog stays at `.omp-plugin/marketplace.json`, the location omp docs
-prefer when omp is the only consumer. Plugins do not use
-`.claude-plugin/plugin.json` or `.mcp.json`.
-
-When the standard lacks an omp feature, use an omp component instead:
-
-| Need | Instead of | Use |
-|---|---|---|
-| Workflow that runs only when the user asks | skill with `hide` | command |
-| Guidance tied to file patterns or always on | skill with `globs` or `alwaysApply` | rule |
-| Code, tools, event handlers | `hooks/`, `tools/` | `omp.extensions` (omp docs prefer extensions over hooks) |
-
-A plugin that needs something none of these provide, such as a remote MCP server
-that sends a credential header, leaves out `plugin.json` and uses omp's
-conventions. That plugin's README states why.
+The [README's layout](../../README.md#layout) and
+[plugin-authoring procedure](../../README.md#adding-a-plugin) define component
+locations, manifest fields, supported substitutions, and alternatives for
+omp-only features. The
+[plugin test procedure](../../README.md#testing-a-plugin) defines how to verify
+the installed package. Keep those operational details there.
 
 ### Consequences
 
 * Good, because skills and MCP servers are portable and should not need
   migration if omp moves further toward the standard.
-* Good, because omp rejects an invalid `plugin.json` field, such as an
-  uppercase `name`, and skips a `SKILL.md` with any field outside `name`,
-  `description`, `license`, `compatibility`, `metadata`, and `allowed-tools`
-  (`discovery/agent-plugin-format.ts:90`).
-* Bad, because omp shows those warnings only in `omp skill list`, not in
-  `omp read`. The source has no TUI or `/status` consumer for them.
-* Bad, because `mcp.json` values are literal apart from `${PLUGIN_ROOT}` and
-  `${PLUGIN_DATA}`: no environment lookup and no `!command`
-  (`mcp/manager.ts:2089`). A `stdio` server inherits omp's environment
-  (`mcp/transports/stdio.ts:582`) and reads credentials from it.
+* Good, because the standard provider rejects malformed manifests and skill
+  metadata instead of loading them silently.
+* Bad, because discovery warnings are not reported by the installation command;
+  the installed skills must be checked separately.
+* Bad, because standard MCP configuration lacks some omp-specific expansion and
+  credential options, so some plugins may require a documented exception.
 * Bad, because the omp components use omp's existing conventions, not the
   standard's extension mechanism. If omp adopts `extensions` or namespaced
   extension directories, these components may need to move.
 
 ### Confirmation
 
-Each case below was installed from a local checkout of this marketplace into a
-temporary `HOME` with omp 18.12.1, then inspected with `omp skill list` and an
-RPC session.
+The initial evaluation used omp 18.12.1 with a temporary `HOME`. It recorded
+that standard skills and MCP servers coexisted with omp commands, agents,
+rules, and extension modules; invalid standard manifests and skill metadata
+were rejected. The omp-only path loaded malformed skills without warnings.
+These observations support the portability and validation tradeoff above;
+they are not a claim about every later omp release.
 
-| Case | Result |
-|---|---|
-| Standard plugin with a skill, two commands, an agent, a rule, and an extension module | All loaded: the skill and rule in the system prompt, `/demo:<command>`, the agent in the task tool, and the extension's `session_start` ran |
-| `mcp.json` `stdio` server with `${PLUGIN_ROOT}` in `args` | Connected and registered its tool. `${PLUGIN_ROOT}` expanded to the install cache, `PLUGIN_DATA` was set, and ambient environment variables were inherited |
-| `.mcp.json` next to `mcp.json` in a standard plugin | Server not started |
-| `plugin.json` `name: "Hello"` | Plugin installed, then rejected: `invalid plugin name "Hello"` |
-| Skill with `hide`, or with `argument-hint` | Skill skipped: `unexpected frontmatter field` |
-| Plugin without `plugin.json`, skill missing `description` or with broken YAML | Loaded without a warning |
+The evaluation did not establish whether rule `globs` and `alwaysApply` took
+effect, or confirm runtime handling of agent `model` fields in the legacy
+manifest path.
 
-Not confirmed at runtime:
-
-* Whether rule `globs` and `alwaysApply` take effect.
-* That `.claude-plugin/plugin.json` makes omp ignore agent `model` fields in a
-  plugin without a standard `plugin.json`. The source says it does
-  (`discovery/agent-plugin-format.ts:566`).
-
-New plugins are confirmed with the README's "Testing a plugin" procedure.
+Use the README's plugin test procedure for new packages. Re-evaluate coexistence
+and validation when the loader or supported standard changes.
 
 ## Pros and Cons of the Options
 
@@ -160,10 +122,13 @@ Only `plugin.json`, `skills/`, and `mcp.json`.
 
 Revisit this decision, with a new record that supersedes this one, when:
 
-* omp reads `plugin.json` `extensions` or `SKILL.md` `metadata` for omp
-  options. Move the replacements above back into skills or MCP config, and move
-  any non-standard plugins to the standard.
-* omp deprecates or changes the conventional locations for commands, agents,
-  rules, or extension modules.
+* omp supports its options through `plugin.json` `extensions` or `SKILL.md`
+  `metadata`, making the current component split unnecessary.
+* omp deprecates or changes its conventional component locations.
 * A new Agent Plugins version adds component types.
-* omp's major version changes. Rerun the confirmation above.
+* A major omp release changes the loader assumptions.
+
+The inspected implementation included marketplace extension loading from
+[#3245](https://github.com/can1357/oh-my-pi/pull/3245). The proposed omp namespace
+in [#8853](https://github.com/can1357/oh-my-pi/issues/8853) is a relevant point
+to check when revisiting native support for the standard's extension mechanism.

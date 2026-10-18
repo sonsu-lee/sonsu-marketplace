@@ -16,6 +16,7 @@ from the `plugins/` directory.
   - [git-workflow](#git-workflow)
 - [Layout](#layout)
 - [Contributing](#contributing)
+  - [Writing documentation](#writing-documentation)
   - [Decision records](#decision-records)
   - [Adding a plugin](#adding-a-plugin)
   - [Testing a plugin](#testing-a-plugin)
@@ -123,16 +124,37 @@ Pull requests are welcome. Ask questions or report problems in
 [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues). For
 plugin changes, follow the authoring and testing procedures below.
 
+### Writing documentation
+
 Write documentation in English and follow the
 [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
 when creating or updating README files, as recorded in
-[ADR-0003](docs/decisions/0003-use-standard-readme.md). Follow the
-[decision-record guidance](#decision-records) for significant choices.
+[ADR-0003](docs/decisions/0003-use-standard-readme.md).
+
+For root and plugin READMEs:
+
+- Use the project name as the title and a short description under 120
+  characters, consistent with package and repository metadata where applicable.
+- Include `Install`, `Usage`, `Contributing`, and a final `License` section in
+  that order. The license section identifies the license and its owner.
+- Include a table of contents for documents of 100 lines or more and keep its
+  links synchronized with headings.
+- Show installation and common usage in code blocks. Put manually installed
+  prerequisites under `Install` / `Dependencies` and CLI examples under
+  `Usage` / `CLI` where applicable.
+- Put marketplace-specific sections after `Usage`, and authoring and testing
+  procedures under `Contributing`. State where to ask questions and whether
+  pull requests are accepted.
+- Omit optional sections that add no value. Keep decision rationale in ADRs.
+- Inspect rendered navigation and code blocks, check links and license
+  information, and exercise changed CLI examples. Use a temporary `HOME` for
+  omp commands and follow the plugin test procedure for plugin changes.
 
 All Markdown documents follow the lint policy in
 [ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
 agent instructions, skills, commands, and rules. Before pushing, use Node.js 22
-or newer and npm to check the files added or modified by your change:
+or newer and npm to check the files added or modified by your change, using the
+pinned CLI's default rules:
 
 ```sh
 npx --yes markdownlint-cli@0.49.1 README.md
@@ -141,6 +163,8 @@ npx --yes markdownlint-cli@0.49.1 README.md
 Append the paths of any other Markdown files added or modified by your change,
 including ADRs. Fix all reported lint errors, then check links and the rendered
 Markdown; lint does not verify Standard Readme compliance or visual layout.
+Untouched documents do not need a repository-wide reformat. This is a validation
+step, not automatic formatting or CI integration.
 
 ### Decision records
 
@@ -150,10 +174,16 @@ and consequences. An ADR is not a chronological work log or a command reference.
 One record should cover one coherent decision, including closely related
 design choices.
 
+Store records as `docs/decisions/NNNN-title-with-dashes.md`, numbered in sequence.
+Start from the
+[MADR 4.0.0 template](https://github.com/adr/madr/blob/4.0.0/template/adr-template.md)
+with `status` and `date` in YAML front matter and the sections `Context and
+Problem Statement`, `Considered Options`, and `Decision Outcome`.
+
 - Keep a record `proposed` while it is under review. Revise and consolidate the
   same proposal within its PR instead of creating a supersession chain.
-- Mark it `accepted` only after decision review. Preserve accepted rationale;
-  a significant reversal needs a new record that supersedes the old one.
+- Mark it `accepted` only after decision review. After acceptance, edit only
+  errors or status; a changed decision needs a new record that supersedes it.
 - Routine implementation changes, command updates, and version bumps belong in
   the relevant operational documents, not new ADRs.
 

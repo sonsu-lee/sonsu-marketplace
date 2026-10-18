@@ -1,7 +1,8 @@
 # AGENTS.md
 
-This repository is an omp plugin marketplace. Plugins follow the format in
-[docs/decisions/0002-plugin-format.md](docs/decisions/0002-plugin-format.md).
+This repository is an omp plugin marketplace. The current plugin format and
+authoring procedure are in [README.md](README.md#adding-a-plugin); the rationale
+is in [ADR-0002](docs/decisions/0002-plugin-format.md).
 
 * Add or change plugins as described in [README.md](README.md), "Adding a
   plugin".
@@ -23,11 +24,11 @@ This repository is an omp plugin marketplace. Plugins follow the format in
   link to them from ADRs instead of duplicating commands or rule values.
 * Write documentation in English.
 * When creating or updating a README, follow the
-  [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
-  as adopted in [ADR-0003](docs/decisions/0003-use-standard-readme.md).
-* Before pushing Markdown changes, run
-  `npx --yes markdownlint-cli@0.49.1` with every added or modified Markdown file
-  as an argument, including agent instructions and skills. Use Node.js 22 or
-  newer and npm, and fix all reported errors. Check links and rendered Markdown
-  separately; lint does not replace those checks. See
-  [ADR-0004](docs/decisions/0004-require-markdown-lint.md) for the policy.
+  [README's documentation checklist](README.md#writing-documentation) and its
+  linked Standard Readme specification, as adopted in
+  [ADR-0003](docs/decisions/0003-use-standard-readme.md).
+* Before pushing Markdown changes, run the README's pinned Markdown lint
+  command on every added or modified Markdown file, including agent
+  instructions and skills, and fix all reported errors. Check links and
+  rendered Markdown separately; lint does not replace those checks. See
+  [ADR-0004](docs/decisions/0004-require-markdown-lint.md) for the rationale.

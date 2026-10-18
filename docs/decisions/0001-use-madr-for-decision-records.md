@@ -1,6 +1,6 @@
 ---
 status: accepted
-date: 2026-10-18
+date: 2026-10-19
 decision-makers: sonsu-lee
 ---
 
@@ -25,29 +25,36 @@ Chosen option: "MADR 4.0.0", because it records the options that were
 considered and how a decision is confirmed, which the decisions here depend on,
 and its required sections stay small.
 
-Records follow these rules:
+Record one significant choice and its rationale per ADR, rather than treating
+each implementation step as a new decision. Keep current operating instructions
+separate so readers can understand why a choice was made without using a
+historical record as a command reference.
 
-* Each record is `docs/decisions/NNNN-title-with-dashes.md`, numbered in
-  sequence, and starts from the
-  [MADR 4.0.0 template](https://github.com/adr/madr/blob/4.0.0/template/adr-template.md).
-  `status` and `date` go in the YAML front matter.
-* An accepted record is not edited, except to fix errors or to change its
-  `status`. To change a decision, write a new record and set the old record's
-  `status` to `superseded by ADR-NNNN`. This follows the
-  [AWS Prescriptive Guidance ADR process](https://docs.aws.amazon.com/prescriptive-guidance/latest/architectural-decision-records/adr-process.html).
+Use the [AWS ADR lifecycle](https://docs.aws.amazon.com/prescriptive-guidance/latest/architectural-decision-records/adr-process.html):
+proposals can be refined during review, while accepted decisions retain their
+rationale. A changed decision gets a new record that supersedes the old one.
+This preserves the context needed to evaluate later reversals.
+
+### Current instructions
+
+The [README's decision-record guidance](../../README.md#decision-records)
+defines naming, required sections, review states, and documentation ownership.
+Use the [MADR 4.0.0 template](https://github.com/adr/madr/blob/4.0.0/template/adr-template.md)
+when drafting a record.
 
 ### Consequences
 
 * Good, because the reasons for a decision and the rejected options stay next
   to the code they affect.
 * Good, because superseded records keep the history of why a decision changed.
-* Bad, because every decision change needs a new record rather than an edit.
+* Bad, because changing an accepted decision needs a new record rather than
+  an edit.
 
 ### Confirmation
 
-Every file in `docs/decisions/` has `status` and `date` front matter and the
-sections "Context and Problem Statement", "Considered Options", and "Decision
-Outcome".
+Review records against the README's decision-record guidance: each captures
+a coherent choice, considered alternatives, and its rationale, with an accurate
+review state and links to current operational instructions.
 
 ## Pros and Cons of the Options
 

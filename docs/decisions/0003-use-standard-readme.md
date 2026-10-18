@@ -8,10 +8,10 @@ decision-makers: sonsu-lee
 
 ## Context and Problem Statement
 
-The marketplace README explains installation and plugin development, but has no
-table of contents or dedicated usage and contribution sections. As the catalog
-grows, readers need predictable places to find these instructions. Which
-convention should the repository's README files follow?
+The marketplace README must explain installation, usage, and plugin development
+without making readers learn a different structure for each plugin. As the
+catalog grows, which convention keeps these documents predictable without
+adding unnecessary sections?
 
 ## Considered Options
 
@@ -23,25 +23,17 @@ convention should the repository's README files follow?
 Chosen option: "Standard Readme", because it defines recognizable section names
 and ordering while leaving room for marketplace-specific instructions.
 
-The root README and any plugin README files follow the
-[Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md).
-Documentation remains in English. Apply these rules when creating or updating a
-README:
+Apply the same structure to root and plugin READMEs, while keeping decision
+rationale in ADRs. Standard Readme provides familiar navigation without forcing
+optional content that adds no value to a particular plugin.
 
-* Use the project name as the title and a short description of fewer than 120
-  characters. Keep the description consistent with GitHub and package metadata
-  where applicable.
-* Use the specification's section names and order. Include `Install`, `Usage`,
-  `Contributing`, and a final `License` section. Include a table of contents for
-  READMEs of 100 lines or more; it may be omitted for shorter files.
-* Show installation and common usage in code blocks. Document manually installed
-  prerequisites under `Install` / `Dependencies` and CLI usage under `Usage` /
-  `CLI` where applicable.
-* Put marketplace-specific sections, such as available plugins and layout,
-  after `Usage`. Keep plugin authoring and testing under `Contributing`, along
-  with where to ask questions and whether pull requests are accepted.
-* Omit optional sections that add no useful information. Keep decision rationale
-  in ADRs and link to it rather than duplicating it in README files.
+### Current instructions
+
+The [README's documentation guidance](../../README.md#writing-documentation)
+contains the authoring and review checklist, including language, required
+sections, navigation, examples, and license information. It references the
+[Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
+as the structural source.
 
 ### Consequences
 
@@ -53,9 +45,8 @@ README:
 
 ### Confirmation
 
-Review README changes against the linked specification. Check required sections
-and their order, table-of-contents targets, local and external links, and the
-license identifier and owner. Render the Markdown to check navigation and code
-blocks. Exercise changed CLI examples with a temporary `HOME`; plugin changes
-also require the README's "Testing a plugin" procedure. No README linter or CI
-requirement is introduced by this decision.
+Review README changes using the documentation checklist and inspect their
+rendered navigation and examples. Exercise changed CLI examples using the
+plugin test procedure when applicable. Markdown lint, covered separately in
+[ADR-0004](0004-require-markdown-lint.md), does not establish structural
+compliance with Standard Readme.
