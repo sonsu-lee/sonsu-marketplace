@@ -5,7 +5,29 @@ Personal plugin marketplace for [omp](https://github.com/can1357/oh-my-pi).
 omp reads the catalog at `.omp-plugin/marketplace.json` and installs plugins
 from the `plugins/` directory.
 
+## Table of Contents
+
+* [Install](#install)
+  * [Dependencies](#dependencies)
+  * [Marketplace](#marketplace)
+* [Usage](#usage)
+  * [CLI](#cli)
+* [Available plugins](#available-plugins)
+  * [git-workflow](#git-workflow)
+* [Layout](#layout)
+* [Contributing](#contributing)
+  * [Adding a plugin](#adding-a-plugin)
+  * [Testing a plugin](#testing-a-plugin)
+* [License](#license)
+
 ## Install
+
+### Dependencies
+
+Install [omp](https://github.com/can1357/oh-my-pi#install) before using
+this marketplace.
+
+### Marketplace
 
 Add the marketplace:
 
@@ -20,8 +42,21 @@ omp plugin discover sonsu-marketplace
 omp plugin install <plugin>@sonsu-marketplace
 ```
 
-Add `--scope project` to install a plugin for the current project only. In an
-omp session, `/marketplace` opens the same catalog in the plugin browser.
+Add `--scope project` to install a plugin for the current project only.
+
+## Usage
+
+### CLI
+
+Check which skills are available after installation:
+
+```sh
+omp skill list
+```
+
+In an omp session, `/marketplace` opens the catalog in the plugin browser.
+Installed skills provide guidance for relevant requests; for example, ask omp
+to name a branch or write a commit message when using `git-workflow`.
 
 Fetch catalog changes, then upgrade installed plugins:
 
@@ -71,7 +106,21 @@ directories yet, so omp-specific components use these locations for now.
 Everything except `plugin.json` is optional. The reasons for this format are in
 [docs/decisions/0002-plugin-format.md](docs/decisions/0002-plugin-format.md).
 
-## Adding a plugin
+## Contributing
+
+Pull requests are welcome. Ask questions or report problems in
+[GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues).
+For plugin changes, follow the authoring and testing procedures below.
+
+Write documentation in English and follow the
+[Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
+when creating or updating README files, as recorded in
+[ADR-0003](docs/decisions/0003-use-standard-readme.md).
+Record new decisions using
+[MADR](docs/decisions/0001-use-madr-for-decision-records.md); do not rewrite
+accepted decisions.
+
+### Adding a plugin
 
 1.  Create `plugins/<name>/plugin.json`:
 
@@ -145,7 +194,7 @@ such as a remote MCP server that sends a credential header, leave out
 it with its own conventions (`.mcp.json`, omp skill frontmatter) instead of the
 standard.
 
-## Testing a plugin
+### Testing a plugin
 
 omp reports skipped skills and rejected plugins only in `omp skill list`, so
 install into a temporary home and check its output before pushing:
