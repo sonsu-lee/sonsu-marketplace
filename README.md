@@ -7,25 +7,25 @@ from the `plugins/` directory.
 
 ## Table of Contents
 
-* [Install](#install)
-  * [Dependencies](#dependencies)
-  * [Marketplace](#marketplace)
-* [Usage](#usage)
-  * [CLI](#cli)
-* [Available plugins](#available-plugins)
-  * [git-workflow](#git-workflow)
-* [Layout](#layout)
-* [Contributing](#contributing)
-  * [Adding a plugin](#adding-a-plugin)
-  * [Testing a plugin](#testing-a-plugin)
-* [License](#license)
+- [Install](#install)
+  - [Dependencies](#dependencies)
+  - [Marketplace](#marketplace)
+- [Usage](#usage)
+  - [CLI](#cli)
+- [Available plugins](#available-plugins)
+  - [git-workflow](#git-workflow)
+- [Layout](#layout)
+- [Contributing](#contributing)
+  - [Adding a plugin](#adding-a-plugin)
+  - [Testing a plugin](#testing-a-plugin)
+- [License](#license)
 
 ## Install
 
 ### Dependencies
 
-Install [omp](https://github.com/can1357/oh-my-pi#install) before using
-this marketplace.
+Install [omp](https://github.com/can1357/oh-my-pi#install) before using this
+marketplace.
 
 ### Marketplace
 
@@ -55,8 +55,8 @@ omp skill list
 ```
 
 In an omp session, `/marketplace` opens the catalog in the plugin browser.
-Installed skills provide guidance for relevant requests; for example, ask omp
-to name a branch or write a commit message when using `git-workflow`.
+Installed skills provide guidance for relevant requests; for example, ask omp to
+name a branch or write a commit message when using `git-workflow`.
 
 Fetch catalog changes, then upgrade installed plugins:
 
@@ -71,16 +71,16 @@ omp plugin upgrade
 
 Install with `omp plugin install git-workflow@sonsu-marketplace`.
 
-* **`writing-commits`** writes Conventional Commit messages, following
+- **`writing-commits`** writes Conventional Commit messages, following
   repository-specific rules first.
-* **`naming-branches`** guides branch naming with Conventional Branch 1.1.0,
+- **`naming-branches`** guides branch naming with Conventional Branch 1.1.0,
   following repository-specific rules and branch-name validator configuration
   (such as commit-check) first. Its defaults use `feature/` (not `feat/`) and
   `fix/` (not `bugfix/`), alongside `hotfix/`, `release/`, and `chore/`.
 
 Branch prefixes do not change commit types: a `feature/` branch can contain
-`feat`, `fix`, and other commits. These skills provide naming guidance, not
-Git hooks or CI enforcement.
+`feat`, `fix`, and other commits. These skills provide naming guidance, not Git
+hooks or CI enforcement.
 
 ## Layout
 
@@ -109,84 +109,79 @@ Everything except `plugin.json` is optional. The reasons for this format are in
 ## Contributing
 
 Pull requests are welcome. Ask questions or report problems in
-[GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues).
-For plugin changes, follow the authoring and testing procedures below.
+[GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues). For
+plugin changes, follow the authoring and testing procedures below.
 
 Write documentation in English and follow the
 [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
 when creating or updating README files, as recorded in
-[ADR-0003](docs/decisions/0003-use-standard-readme.md).
-Record new decisions using
-[MADR](docs/decisions/0001-use-madr-for-decision-records.md); do not rewrite
-accepted decisions.
+[ADR-0003](docs/decisions/0003-use-standard-readme.md). Record new decisions
+using [MADR](docs/decisions/0001-use-madr-for-decision-records.md); do not
+rewrite accepted decisions.
 
 ### Adding a plugin
 
-1.  Create `plugins/<name>/plugin.json`:
+1. Create `plugins/<name>/plugin.json`:
 
-    ```json
-    {
-      "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-      "name": "<name>"
-    }
-    ```
+   ```json
+   {
+     "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+     "name": "<name>"
+   }
+   ```
 
-    Use only the fields the standard defines: `$schema`, `name`, `version`,
-    `description`, `author`, `homepage`, `repository`, `license`, `keywords`,
-    and `extensions`. omp rejects the whole plugin if a defined field is
-    invalid, for example an uppercase `name`.
+   Use only the fields the standard defines: `$schema`, `name`, `version`,
+   `description`, `author`, `homepage`, `repository`, `license`, `keywords`,
+   and `extensions`. omp rejects the whole plugin if a defined field is
+   invalid, for example an uppercase `name`.
 
-2.  Add the standard components:
+2. Add the standard components:
+   - **Skills**: `skills/<skill>/SKILL.md` following the
+     [Agent Skills specification](https://agentskills.io/specification). The
+     frontmatter may contain only `name`, `description`, `license`,
+     `compatibility`, `metadata`, and `allowed-tools`, and `name` must match
+     the directory name. omp skips a skill with any other field, such as omp's
+     `hide` or Claude Code's `argument-hint`.
 
-    *   **Skills**: `skills/<skill>/SKILL.md` following the
-        [Agent Skills specification](https://agentskills.io/specification).
-        The frontmatter may contain only `name`, `description`, `license`,
-        `compatibility`, `metadata`, and `allowed-tools`, and `name` must match
-        the directory name. omp skips a skill with any other field, such as
-        omp's `hide` or Claude Code's `argument-hint`.
+   - **MCP servers**: `mcp.json` with the
+     `https://agent-plugins.org/schemas/1.0.0/mcp.schema.json` `$schema` and an
+     `mcpServers` object. Each server sets `type` (`stdio`, `streamable-http`,
+     or `sse`). A `stdio` `command` is a bare executable name or a `./` path.
+     Use `${PLUGIN_ROOT}` and `${PLUGIN_DATA}` in `args`, `env`, and `cwd`; omp
+     expands nothing else. Keep secrets out of `mcp.json`. A `stdio` server
+     receives omp's environment and can read credentials from it.
 
-    *   **MCP servers**: `mcp.json` with the
-        `https://agent-plugins.org/schemas/1.0.0/mcp.schema.json` `$schema`
-        and an `mcpServers` object. Each server sets `type` (`stdio`,
-        `streamable-http`, or `sse`). A `stdio` `command` is a bare executable
-        name or a `./` path. Use `${PLUGIN_ROOT}` and `${PLUGIN_DATA}` in
-        `args`, `env`, and `cwd`; omp expands nothing else. Keep secrets out of
-        `mcp.json`. A `stdio` server receives omp's environment and can read
-        credentials from it.
+   Do not add `.mcp.json` or `.claude-plugin/plugin.json`. omp loads the skills
+   and MCP servers of a standard plugin only from `skills/` and `mcp.json`.
 
-    Do not add `.mcp.json` or `.claude-plugin/plugin.json`. omp loads the
-    skills and MCP servers of a standard plugin only from `skills/` and
-    `mcp.json`.
+3. Add omp-specific components:
+   - **Commands**: `commands/<command>.md` with a `description`. Use a command
+     for a workflow that runs only when the user asks for it, since a standard
+     skill cannot set `hide`.
 
-3.  Add omp-specific components:
+   - **Agents**: `agents/<agent>.md` with `name` and `description`.
 
-    *   **Commands**: `commands/<command>.md` with a `description`. Use a
-        command for a workflow that runs only when the user asks for it,
-        since a standard skill cannot set `hide`.
+   - **Rules**: `rules/<rule>.md` with a `description`. Use a rule for guidance
+     tied to file patterns (`globs`) or that always applies (`alwaysApply`),
+     since a standard skill cannot set these fields.
 
-    *   **Agents**: `agents/<agent>.md` with `name` and `description`.
+   - **Code** (tools, event handlers, commands with logic): extension modules
+     listed in `package.json` under `omp.extensions`. See
+     [Extensions](https://github.com/can1357/oh-my-pi/blob/main/docs/extensions.md).
 
-    *   **Rules**: `rules/<rule>.md` with a `description`. Use a rule for
-        guidance tied to file patterns (`globs`) or that always applies
-        (`alwaysApply`), since a standard skill cannot set these fields.
+4. Register the plugin in `.omp-plugin/marketplace.json`:
 
-    *   **Code** (tools, event handlers, commands with logic): extension
-        modules listed in `package.json` under `omp.extensions`. See
-        [Extensions](https://github.com/can1357/oh-my-pi/blob/main/docs/extensions.md).
+   ```json
+   {
+     "name": "<name>",
+     "source": "./plugins/<name>",
+     "description": "What the plugin does.",
+     "version": "0.1.0"
+   }
+   ```
 
-4.  Register the plugin in `.omp-plugin/marketplace.json`:
-
-    ```json
-    {
-      "name": "<name>",
-      "source": "./plugins/<name>",
-      "description": "What the plugin does.",
-      "version": "0.1.0"
-    }
-    ```
-
-    Raise `version` with every change. `omp plugin upgrade` only reinstalls
-    plugins whose catalog version changed.
+   Raise `version` with every change. `omp plugin upgrade` only reinstalls
+   plugins whose catalog version changed.
 
 Use the same name in `plugin.json`, the catalog entry, and the directory. It
 must be lowercase ASCII letters, digits, `-`, and `.`, start and end with a
