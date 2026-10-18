@@ -38,18 +38,14 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`.
 
 * **`writing-commits`** writes Conventional Commit messages, following
   repository-specific rules first.
-* **`naming-branches`** chooses, creates, renames, or checks branch names.
-  It follows explicit repository rules first; otherwise it uses Conventional
-  Branch 1.1.0 with `feature/` (not `feat/`) and `fix/` (not `bugfix/`).
-  Other purpose prefixes are `hotfix/`, `release/`, and `chore/`. Agent
-  prefixes require an explicit request. Naming suggestions do not change Git
-  state, and published branch renames require confirmation.
+* **`naming-branches`** guides branch naming with Conventional Branch 1.1.0,
+  following repository-specific rules and branch-name validator configuration
+  (such as commit-check) first. Its defaults use `feature/` (not `feat/`) and
+  `fix/` (not `bugfix/`), alongside `hotfix/`, `release/`, and `chore/`.
 
-The spelling choice does not change commit types: a `feature/` branch can
-contain `feat`, `fix`, and other commits. This is skill guidance, not a Git
-hook or CI enforcement rule. See
-[ADR-0003](docs/decisions/0003-conventional-branch-defaults.md) for the
-decision and evaluation approach.
+Branch prefixes do not change commit types: a `feature/` branch can contain
+`feat`, `fix`, and other commits. These skills provide naming guidance, not
+Git hooks or CI enforcement.
 
 ## Layout
 
