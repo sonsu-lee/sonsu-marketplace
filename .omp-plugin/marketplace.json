@@ -1,0 +1,10 @@
+{
+  "name": "sonsu-marketplace",
+  "owner": {
+    "name": "sonsu-lee"
+  },
+  "metadata": {
+    "description": "Personal plugin marketplace for omp."
+  },
+  "plugins": []
+}
