@@ -6,5 +6,12 @@
   "metadata": {
     "description": "Personal plugin marketplace for omp."
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "git-workflow",
+      "source": "./plugins/git-workflow",
+      "description": "Write commit messages by the repository's conventions.",
+      "version": "0.1.1"
+    }
+  ]
 }
