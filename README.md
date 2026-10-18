@@ -82,8 +82,7 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`.
   presenting a message as ready, using repository configuration when present
   and the skill's bundled ESM rules otherwise. The bundled rules check
   72-character line limits and lowercase scopes. See the
-  [skill's validation procedure](plugins/git-workflow/skills/writing-commits/SKILL.md#required-validation)
-  and [ADR-0005](docs/decisions/0005-require-commitlint-through-npx.md).
+  [skill's validation procedure](plugins/git-workflow/skills/writing-commits/SKILL.md#required-validation).
 - **`naming-branches`** guides branch naming with Conventional Branch 1.1.0,
   following repository-specific rules and branch-name validator configuration
   (such as commit-check) first. Its defaults use `feature/` (not `feat/`) and
