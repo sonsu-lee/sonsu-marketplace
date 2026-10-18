@@ -37,56 +37,32 @@ Base the message on the actual changes. Use Conventional Commits:
 
 ## Required validation
 
-After writing or revising a message, you MUST validate the complete message
-(header, body, and footers) with commitlint through `npx`. Do not create or
-amend a commit, or present a message as ready to use, until validation passes.
-Re-run validation after any message change.
+Validate the complete proposed message before creating or amending a commit,
+or presenting the message as ready. Re-run validation after any message edit.
+Follow the [validation procedure](references/validation.md) to select the
+runner and configuration independently:
 
-Use Node.js 22.12.0 or newer and npm. From the target repository's root,
-save the exact proposed message in a temporary UTF-8 file and set
-`message_file` to its absolute path. Read the file back to confirm it contains
-the intended nonempty header and complete message; commitlint can skip empty
-files. If the repository has a commitlint configuration, run:
+1. Use the repository's existing validation command, tool, and version first,
+   including a validator other than commitlint. Follow its documented setup
+   if dependencies are missing; an unavailable or failing configured tool is
+   not permission to switch validators.
+2. Only if no execution setup is established, run the pinned commitlint CLI via
+   `npx`. Preserve repository configuration if present.
+3. Only if no configuration is established, use the
+   [bundled ESM defaults](assets/commitlint.config.mjs) with commitlint.
+   Do not replace another validator's configuration with this file.
 
-```sh
-npx --yes --package @commitlint/cli@21.2.4 commitlint \
-  --strict --verbose --edit "$message_file"
-```
+Respect repository acceptance criteria, including intentional warning levels.
+Do not bypass a failed check or install hooks, CI jobs, or project dependencies
+just to introduce the fallback. Report blockers rather than claim validation
+passed. An existing hook does not validate a draft before it runs.
 
-Respect the repository's configuration, including any explicitly selected
-config path (`--config`) and required presets or plugins. Install those
-dependencies using the repository's documented setup; do not replace its
-rules to make validation pass.
-
-Only when the repository has no commitlint configuration, use the bundled
-[ESM configuration](assets/commitlint.config.mjs). Set `skill_dir` to the
-absolute directory containing this loaded `SKILL.md`, not the target
-repository or a guessed plugin-cache path. Resolve the asset relative to
-that directory; do not copy it into the repository.
-
-```sh
-npx --yes --package @commitlint/cli@21.2.4 commitlint \
-  --config "$skill_dir/assets/commitlint.config.mjs" \
-  --strict --verbose --edit "$message_file"
-```
-
-Fix all errors and warnings and require exit status zero. If Node.js, npm,
-network access, or configuration dependencies are unavailable, report the
-blocker and stop before committing; manual review is not a substitute.
-Do not add a package manifest, commitlint config, Git hook, or CI job to the
-target repository just to run this check. Remove the temporary message file
-afterward.
-
-The bundled config checks allowed types, lowercase scopes, subject style,
-blank-line separators, and 72-character header, body, and footer limits.
-It has no external imports or presets. It accepts breaking changes marked
-with `!`, a `BREAKING-CHANGE:` footer, or both.
-
-Lint does not replace review of accuracy, rationale, imperative wording,
-the subject's initial lowercase letter, or breaking-change explanations.
-The body line-length rule exempts lines containing URLs; check those
-manually against the 72-column rule. When repository configuration is used,
-also review any skill defaults it leaves unchecked.
+The bundled defaults check types, lowercase scopes, subject style, blank-line
+separators, and 72-character limits. Review accuracy, rationale, imperative
+wording, the initial lowercase letter, and breaking-change explanations
+separately. The body-length rule exempts URL-containing lines; check those
+manually. Also review any skill defaults the repository validator leaves
+unchecked, without overriding an explicit repository rule.
 
 ## Example
 

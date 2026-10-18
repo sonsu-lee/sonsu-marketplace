@@ -29,8 +29,10 @@ from the `plugins/` directory.
 Install [omp](https://github.com/can1357/oh-my-pi#install) before using this
 marketplace.
 
-The `git-workflow` plugin's commit skill also requires Node.js 22.12.0 or newer
-and npm (`npx`) to run commitlint. The first run needs npm registry access.
+The `git-workflow` skills reuse the target repository's validation setup first.
+When none exists, the commit fallback needs Node.js 22.12.0 or newer and npm
+(`npx`), while the branch fallback needs uv (`uvx`) and Python 3.10 or newer.
+The first uncached fallback run needs access to its package registry.
 
 ### Marketplace
 
@@ -76,22 +78,23 @@ omp plugin upgrade
 
 Install with `omp plugin install git-workflow@sonsu-marketplace`.
 
-- **`writing-commits`** writes Conventional Commit messages, following
-  repository-specific rules first. It requires validation through
-  `npx --yes --package @commitlint/cli@21.2.4 commitlint` before committing or
-  presenting a message as ready, using repository configuration when present
-  and the skill's bundled ESM rules otherwise. The bundled rules check
-  72-character line limits and lowercase scopes. See the
+- **`writing-commits`** writes Conventional Commit messages and validates them
+  before use. It reuses repository commands, tools, versions, and configuration.
+  Only without an existing execution setup does it run pinned commitlint through
+  `npx`; only without configuration does it use bundled ESM defaults. See the
   [skill's validation procedure](plugins/git-workflow/skills/writing-commits/SKILL.md#required-validation).
-- **`naming-branches`** guides branch naming with Conventional Branch 1.1.0,
-  following repository-specific rules and branch-name validator configuration
-  (such as commit-check) first. Its defaults use `feature/` (not `feat/`) and
-  `fix/` (not `bugfix/`), alongside `hotfix/`, `release/`, and `chore/`.
+- **`naming-branches`** names and validates branches with Conventional Branch
+  1.1.0, reusing repository validation first. Without an execution setup it runs
+  pinned `commit-check` through `uvx`; repository configuration still takes
+  precedence over bundled defaults. This is a Python CLI, not an npm package.
+  The skill's default prefixes are `feature/` (not `feat/`), `fix/` (not
+  `bugfix/`), `hotfix/`, `release/`, and `chore/`. See the
+  [skill's validation procedure](plugins/git-workflow/skills/naming-branches/SKILL.md#required-validation).
 
 Branch prefixes do not change commit types: a `feature/` branch can contain
-`feat`, `fix`, and other commits. These skills provide agent workflow
-instructions, including commit-message validation, not Git hooks or CI
-enforcement.
+`feat`, `fix`, and other commits. A missing dependency or failed configured
+validator is not an absent setup and must not trigger a fallback. These skills
+provide agent workflow instructions, not Git hooks or CI enforcement.
 
 ## Layout
 
@@ -290,16 +293,19 @@ install into a temporary home and check its output before pushing:
 
 Every skill should appear, with no `warning:` lines.
 
-For changes to `git-workflow` commit validation, also run its behavior tests:
+For changes to `git-workflow` validation, also run its behavior tests:
 
 ```sh
-node --test plugins/git-workflow/tests/commitlint.test.mjs
+node --test plugins/git-workflow/tests/commitlint.test.mjs \
+  plugins/git-workflow/tests/branch-validation.test.mjs
 ```
 
-The tests use the pinned commitlint CLI through `npx` in a temporary Git
-repository. After installing the plugin into a temporary `HOME`, also run
-the skill's validation command from a separate repository with the installed
-`assets/commitlint.config.mjs` path to check that the asset is packaged.
+The tests run the pinned commitlint and commit-check CLIs through `npx` and
+`uvx` in temporary Git repositories. After installing the plugin into a
+temporary `HOME`, also exercise both skills' validation procedures from a
+separate repository using their installed assets and reference guides. Verify
+repository-owned executables, versions, and configuration remain in use when
+present, and failures are not bypassed with a fallback.
 
 ## License
 

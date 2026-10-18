@@ -12,9 +12,12 @@ is in [ADR-0002](docs/decisions/0002-plugin-format.md).
   Every skill must appear in `omp skill list` with no `warning:` lines.
 * Run omp only with a temporary `HOME`. Do not install plugins into, or add
   this marketplace to, the user's own omp.
-* When writing or revising commit messages, follow the
-  [commit skill](plugins/git-workflow/skills/writing-commits/SKILL.md), including
-  its required commitlint validation through `npx` before committing.
+* Follow the [commit skill](plugins/git-workflow/skills/writing-commits/SKILL.md)
+  when writing commit messages and the
+  [branch skill](plugins/git-workflow/skills/naming-branches/SKILL.md)
+  when choosing branch names, including their required validation procedures.
+  Reuse repository tools and versions first; use the documented fallback only
+  when no execution setup exists, never to bypass a broken setup.
 * Record significant decisions, not implementation steps or a work log, using
   [MADR](docs/decisions/0001-use-madr-for-decision-records.md) and the
   [README's decision-record guidance](README.md#decision-records).
