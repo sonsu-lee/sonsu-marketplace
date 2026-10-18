@@ -16,6 +16,7 @@ from the `plugins/` directory.
   - [git-workflow](#git-workflow)
 - [Layout](#layout)
 - [Contributing](#contributing)
+  - [Decision records](#decision-records)
   - [Adding a plugin](#adding-a-plugin)
   - [Testing a plugin](#testing-a-plugin)
 - [License](#license)
@@ -81,7 +82,7 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`.
   and the skill's bundled ESM rules otherwise. The bundled rules check
   72-character line limits and lowercase scopes. See the
   [skill's validation procedure](plugins/git-workflow/skills/writing-commits/SKILL.md#required-validation)
-  and [ADR-0006](docs/decisions/0006-bundle-esm-commitlint-rules.md).
+  and [ADR-0005](docs/decisions/0005-require-commitlint-through-npx.md).
 - **`naming-branches`** guides branch naming with Conventional Branch 1.1.0,
   following repository-specific rules and branch-name validator configuration
   (such as commit-check) first. Its defaults use `feature/` (not `feat/`) and
@@ -125,9 +126,8 @@ plugin changes, follow the authoring and testing procedures below.
 Write documentation in English and follow the
 [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
 when creating or updating README files, as recorded in
-[ADR-0003](docs/decisions/0003-use-standard-readme.md). Record new decisions
-using [MADR](docs/decisions/0001-use-madr-for-decision-records.md); do not
-rewrite accepted decisions.
+[ADR-0003](docs/decisions/0003-use-standard-readme.md). Follow the
+[decision-record guidance](#decision-records) for significant choices.
 
 All Markdown documents follow the lint policy in
 [ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
@@ -141,6 +141,35 @@ npx --yes markdownlint-cli@0.49.1 README.md
 Append the paths of any other Markdown files added or modified by your change,
 including ADRs. Fix all reported lint errors, then check links and the rendered
 Markdown; lint does not verify Standard Readme compliance or visual layout.
+
+### Decision records
+
+Use [MADR](docs/decisions/0001-use-madr-for-decision-records.md) to explain
+significant choices: the problem, considered alternatives, chosen approach,
+and consequences. An ADR is not a chronological work log or a command reference.
+One record should cover one coherent decision, including closely related
+design choices.
+
+- Keep a record `proposed` while it is under review. Revise and consolidate the
+  same proposal within its PR instead of creating a supersession chain.
+- Mark it `accepted` only after decision review. Preserve accepted rationale;
+  a significant reversal needs a new record that supersedes the old one.
+- Routine implementation changes, command updates, and version bumps belong in
+  the relevant operational documents, not new ADRs.
+
+Keep responsibilities separate so readers need not reconstruct current rules
+from decision history:
+
+| Document | Responsibility |
+| --- | --- |
+| `AGENTS.md` | Agent obligations and links to current contributor procedures |
+| README and skills | Current setup, workflow, precedence, and manual checks |
+| Configuration files | Executable rules and values |
+| ADRs | Rationale, alternatives, tradeoffs, and links to current instructions |
+
+When behavior changes, update the operational sources as part of the change.
+ADRs should link to those sources rather than duplicate their commands or rule
+values. Git and PR history retain the intermediate revisions.
 
 ### Adding a plugin
 
