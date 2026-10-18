@@ -1,12 +1,12 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "git-workflow",
-  "description": "Name branches and write commit messages by the repository's conventions.",
+  "description": "Name branches, write commits, and prepare draft pull requests by repository conventions.",
   "author": {
     "name": "sonsu-lee",
     "url": "https://github.com/sonsu-lee"
   },
   "repository": "https://github.com/sonsu-lee/sonsu-marketplace",
   "license": "MIT",
-  "keywords": ["git", "branch", "commit", "commitlint", "conventional-branch", "conventional-commits"]
+  "keywords": ["git", "branch", "commit", "pull-request", "commitlint", "conventional-branch", "conventional-commits"]
 }
