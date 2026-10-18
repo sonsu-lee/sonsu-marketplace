@@ -199,9 +199,12 @@ from decision history:
 | Configuration files | Executable rules and values |
 | ADRs | Rationale, alternatives, tradeoffs, and links to current instructions |
 
-When behavior changes, update the operational sources as part of the change.
-ADRs should link to those sources rather than duplicate their commands or rule
-values. Git and PR history retain the intermediate revisions.
+When adding or changing a requirement, update its operational source and ensure
+`AGENTS.md` identifies when it applies and which procedure to follow. Add or
+adjust that routing in the same change if needed. Do not leave an active
+requirement only in an ADR. ADRs should link to current instructions rather
+than duplicate commands or rule values. Git and PR history retain intermediate
+revisions.
 
 ### Adding a plugin
 
