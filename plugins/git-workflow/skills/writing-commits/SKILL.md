@@ -35,6 +35,35 @@ Base the message on the actual changes. Use Conventional Commits:
 * **Breaking changes:** add `!` before the colon or a `BREAKING-CHANGE:`
   footer, or both. Explain what breaks and how callers should adapt.
 
+## Required validation
+
+Validate the complete proposed message before creating or amending a commit,
+or presenting the message as ready. Re-run validation after any message edit.
+Follow the [validation procedure](references/validation.md) to select the
+runner and configuration independently:
+
+1. Use the repository's existing validation command, tool, and version first,
+   including a validator other than commitlint. Follow its documented setup
+   if dependencies are missing; an unavailable or failing configured tool is
+   not permission to switch validators.
+2. Only if no execution setup is established, run the pinned commitlint CLI via
+   `npx`. Preserve repository configuration if present.
+3. Only if no configuration is established, use the
+   [bundled ESM defaults](assets/commitlint.config.mjs) with commitlint.
+   Do not replace another validator's configuration with this file.
+
+Respect repository acceptance criteria, including intentional warning levels.
+Do not bypass a failed check or install hooks, CI jobs, or project dependencies
+just to introduce the fallback. Report blockers rather than claim validation
+passed. An existing hook does not validate a draft before it runs.
+
+The bundled defaults check types, lowercase scopes, subject style, blank-line
+separators, and 72-character limits. Review accuracy, rationale, imperative
+wording, the initial lowercase letter, and breaking-change explanations
+separately. The body-length rule exempts URL-containing lines; check those
+manually. Also review any skill defaults the repository validator leaves
+unchecked, without overriding an explicit repository rule.
+
 ## Example
 
 ```text

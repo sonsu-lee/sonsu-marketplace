@@ -16,6 +16,8 @@ from the `plugins/` directory.
   - [git-workflow](#git-workflow)
 - [Layout](#layout)
 - [Contributing](#contributing)
+  - [Writing documentation](#writing-documentation)
+  - [Decision records](#decision-records)
   - [Adding a plugin](#adding-a-plugin)
   - [Testing a plugin](#testing-a-plugin)
 - [License](#license)
@@ -26,6 +28,11 @@ from the `plugins/` directory.
 
 Install [omp](https://github.com/can1357/oh-my-pi#install) before using this
 marketplace.
+
+The `git-workflow` skills reuse the target repository's validation setup first.
+When none exists, the commit fallback needs Node.js 22.12.0 or newer and npm
+(`npx`), while the branch fallback needs uv (`uvx`) and Python 3.10 or newer.
+The first uncached fallback run needs access to its package registry.
 
 ### Marketplace
 
@@ -71,16 +78,23 @@ omp plugin upgrade
 
 Install with `omp plugin install git-workflow@sonsu-marketplace`.
 
-- **`writing-commits`** writes Conventional Commit messages, following
-  repository-specific rules first.
-- **`naming-branches`** guides branch naming with Conventional Branch 1.1.0,
-  following repository-specific rules and branch-name validator configuration
-  (such as commit-check) first. Its defaults use `feature/` (not `feat/`) and
-  `fix/` (not `bugfix/`), alongside `hotfix/`, `release/`, and `chore/`.
+- **`writing-commits`** writes Conventional Commit messages and validates them
+  before use. It reuses repository commands, tools, versions, and configuration.
+  Only without an existing execution setup does it run pinned commitlint through
+  `npx`; only without configuration does it use bundled ESM defaults. See the
+  [skill's validation procedure](plugins/git-workflow/skills/writing-commits/SKILL.md#required-validation).
+- **`naming-branches`** names and validates branches with Conventional Branch
+  1.1.0, reusing repository validation first. Without an execution setup it runs
+  pinned `commit-check` through `uvx`; repository configuration still takes
+  precedence over bundled defaults. This is a Python CLI, not an npm package.
+  The skill's default prefixes are `feature/` (not `feat/`), `fix/` (not
+  `bugfix/`), `hotfix/`, `release/`, and `chore/`. See the
+  [skill's validation procedure](plugins/git-workflow/skills/naming-branches/SKILL.md#required-validation).
 
 Branch prefixes do not change commit types: a `feature/` branch can contain
-`feat`, `fix`, and other commits. These skills provide naming guidance, not Git
-hooks or CI enforcement.
+`feat`, `fix`, and other commits. A missing dependency or failed configured
+validator is not an absent setup and must not trigger a fallback. These skills
+provide agent workflow instructions, not Git hooks or CI enforcement.
 
 ## Layout
 
@@ -112,17 +126,37 @@ Pull requests are welcome. Ask questions or report problems in
 [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues). For
 plugin changes, follow the authoring and testing procedures below.
 
+### Writing documentation
+
 Write documentation in English and follow the
 [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
 when creating or updating README files, as recorded in
-[ADR-0003](docs/decisions/0003-use-standard-readme.md). Record new decisions
-using [MADR](docs/decisions/0001-use-madr-for-decision-records.md); do not
-rewrite accepted decisions.
+[ADR-0003](docs/decisions/0003-use-standard-readme.md).
+
+For root and plugin READMEs:
+
+- Use the project name as the title and a short description under 120
+  characters, consistent with package and repository metadata where applicable.
+- Include `Install`, `Usage`, `Contributing`, and a final `License` section in
+  that order. The license section identifies the license and its owner.
+- Include a table of contents for documents of 100 lines or more and keep its
+  links synchronized with headings.
+- Show installation and common usage in code blocks. Put manually installed
+  prerequisites under `Install` / `Dependencies` and CLI examples under
+  `Usage` / `CLI` where applicable.
+- Put marketplace-specific sections after `Usage`, and authoring and testing
+  procedures under `Contributing`. State where to ask questions and whether
+  pull requests are accepted.
+- Omit optional sections that add no value. Keep decision rationale in ADRs.
+- Inspect rendered navigation and code blocks, check links and license
+  information, and exercise changed CLI examples. Use a temporary `HOME` for
+  omp commands and follow the plugin test procedure for plugin changes.
 
 All Markdown documents follow the lint policy in
 [ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
 agent instructions, skills, commands, and rules. Before pushing, use Node.js 22
-or newer and npm to check the files added or modified by your change:
+or newer and npm to check the files added or modified by your change, using the
+pinned CLI's default rules:
 
 ```sh
 npx --yes markdownlint-cli@0.49.1 README.md
@@ -131,6 +165,46 @@ npx --yes markdownlint-cli@0.49.1 README.md
 Append the paths of any other Markdown files added or modified by your change,
 including ADRs. Fix all reported lint errors, then check links and the rendered
 Markdown; lint does not verify Standard Readme compliance or visual layout.
+Untouched documents do not need a repository-wide reformat. This is a validation
+step, not automatic formatting or CI integration.
+
+### Decision records
+
+Use [MADR](docs/decisions/0001-use-madr-for-decision-records.md) to explain
+significant choices: the problem, considered alternatives, chosen approach,
+and consequences. An ADR is not a chronological work log or a command reference.
+One record should cover one coherent decision, including closely related
+design choices.
+
+Store records as `docs/decisions/NNNN-title-with-dashes.md`, numbered in sequence.
+Start from the
+[MADR 4.0.0 template](https://github.com/adr/madr/blob/4.0.0/template/adr-template.md)
+with `status` and `date` in YAML front matter and the sections `Context and
+Problem Statement`, `Considered Options`, and `Decision Outcome`.
+
+- Keep a record `proposed` while it is under review. Revise and consolidate the
+  same proposal within its PR instead of creating a supersession chain.
+- Mark it `accepted` only after decision review. After acceptance, edit only
+  errors or status; a changed decision needs a new record that supersedes it.
+- Routine implementation changes, command updates, and version bumps belong in
+  the relevant operational documents, not new ADRs.
+
+Keep responsibilities separate so readers need not reconstruct current rules
+from decision history:
+
+| Document | Responsibility |
+| --- | --- |
+| `AGENTS.md` | Agent obligations and links to current contributor procedures |
+| README and skills | Current setup, workflow, precedence, and manual checks |
+| Configuration files | Executable rules and values |
+| ADRs | Rationale, alternatives, tradeoffs, and links to current instructions |
+
+When adding or changing a requirement, update its operational source and ensure
+`AGENTS.md` identifies when it applies and which procedure to follow. Add or
+adjust that routing in the same change if needed. Do not leave an active
+requirement only in an ADR. ADRs should link to current instructions rather
+than duplicate commands or rule values. Git and PR history retain intermediate
+revisions.
 
 ### Adding a plugin
 
@@ -221,6 +295,20 @@ install into a temporary home and check its output before pushing:
 ```
 
 Every skill should appear, with no `warning:` lines.
+
+For changes to `git-workflow` validation, also run its behavior tests:
+
+```sh
+node --test plugins/git-workflow/tests/commitlint.test.mjs \
+  plugins/git-workflow/tests/branch-validation.test.mjs
+```
+
+The tests run the pinned commitlint and commit-check CLIs through `npx` and
+`uvx` in temporary Git repositories. After installing the plugin into a
+temporary `HOME`, also exercise both skills' validation procedures from a
+separate repository using their installed assets and reference guides. Verify
+repository-owned executables, versions, and configuration remain in use when
+present, and failures are not bypassed with a fallback.
 
 ## License
 

@@ -1,0 +1,5 @@
+[branch]
+conventional_branch = true
+require_description_grammar = true
+allow_branch_types = ["feature", "fix", "hotfix", "release", "chore"]
+allow_branch_names = ["main", "master", "develop"]

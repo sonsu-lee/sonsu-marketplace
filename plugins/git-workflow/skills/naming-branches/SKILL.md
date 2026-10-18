@@ -25,7 +25,7 @@ Name the branch for the purpose of the work. Use
 | `fix` | Bug fixes |
 | `hotfix` | Urgent production fixes |
 | `release` | Release preparation |
-| `chore` | Other maintenance, including dependencies, docs, CI, and refactoring |
+| `chore` | Maintenance: dependencies, docs, CI, and refactoring |
 
 * **Type:** use `feature`, not `feat`, and `fix`, not `bugfix`. Choose the
   purpose of the whole branch, not an individual commit's type. Commit
@@ -40,6 +40,30 @@ Name the branch for the purpose of the work. Use
 * **Trunk branches:** `main`, `master`, and `develop` stay unprefixed.
 * **Agent prefixes:** use only when explicitly requested by the user or
   repository, not merely because an agent is doing the work.
+
+## Required validation
+
+Validate a proposed name before creating or renaming a branch, or presenting
+the name as ready. Follow the
+[validation procedure](references/validation.md):
+
+1. Check Git ref syntax and apply repository naming rules first.
+2. Use the repository's existing validation command, tool, and version.
+   Follow its documented setup if dependencies are missing; do not bypass
+   a failing or unavailable configured validator.
+3. Only if no execution setup is established, use pinned `commit-check` through
+   `uvx`. This is the Python CLI linked by Conventional Branch, not an npm
+   package. Preserve repository configuration when present; otherwise use
+   the [bundled defaults](assets/commit-check.toml).
+
+Inspect the result to confirm it checked the proposed name, not the current
+branch or a skipped rule. Respect repository acceptance criteria. Do not
+create a branch just to validate its name, or install a hook or CI job.
+Report blockers rather than claim an unchecked name passed.
+
+Review purpose, ticket IDs, and the choice of prefix separately. The CLI
+also admits special CI ref names; without an explicit repository exception,
+only `main`, `master`, and `develop` are unprefixed branch names.
 
 ## Examples
 
