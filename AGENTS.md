@@ -24,6 +24,8 @@ read their linked procedures before making changes.
   when drafting, creating, updating, or marking a pull request ready, including
   title validation, repository templates, author checks, and UI evidence.
   Create new PRs as Draft by default; mark ready only on an explicit request.
+* When reviewing a PR or responding to feedback, follow the
+  [review procedure](README.md#code-review) and the Code Review Rules below.
 * Record significant decisions, not implementation steps or a work log,
   following the [decision-record procedure](README.md#decision-records).
   Keep records under review `proposed` and consolidate revisions of the same
@@ -47,3 +49,57 @@ read their linked procedures before making changes.
 * Before delivery, confirm that every applicable check above was completed.
   Report any verification blockers explicitly; do not describe unchecked work
   as verified.
+
+## Code Review Rules
+
+### Scope and evidence
+
+* Review against the PR's coherent purpose, supported use cases, and repository
+  requirements. Problems introduced or worsened by the change are in scope,
+  even when fixing them is substantial. Do not invent new requirements.
+* Before reporting a problem, inspect relevant surrounding code, callers,
+  tests, and guidance. Explain the triggering conditions and concrete failure,
+  requirement violation, or maintenance cost. Distinguish evidence from
+  speculation; ask for clarification only when an important uncertainty
+  cannot be resolved from available context.
+* Skills are not exhaustive tool manuals. Missing examples, repeated
+  safeguards, or explanations of ordinary tool usage are not defects by
+  themselves. Flag omissions that lead to an incorrect action or consequential
+  ambiguity, not merely information the reviewer did not know.
+* Do not demand a broad architectural migration when a change follows an
+  established pattern without violating an applicable requirement. Report
+  consequential existing issues directly related to the changed path only as
+  non-blocking warnings, explaining why resolution belongs in separate work.
+  Omit unrelated debt and preference-only observations.
+* Prefer the smallest sufficient correction, including simplification or
+  deletion. Describe the required outcome rather than mandate one
+  implementation. Justify additional tests by the important behavior or
+  regression not covered; leave formatting and lint checks to automation.
+
+### Comment intent
+
+Preserve Codex's native priority and output format. These are local intent
+labels, not severity levels or settings that expand which findings Codex posts:
+
+* **Fix:** a concrete problem introduced or worsened by this PR, to address
+  here.
+* **Warning (non-blocking):** a consequential, directly related existing
+  issue whose resolution belongs in separate work.
+* **Suggestion (non-blocking):** an optional alternative with a concrete
+  benefit; acknowledge that the current approach is valid.
+* **Nit (non-blocking):** minor polish; omit unless explicitly requested.
+
+Make the intent clear in comments that merit reporting; do not fill categories.
+Non-blocking labels do not excuse low-value feedback. No findings is a valid
+outcome.
+
+### Review iterations
+
+* Consolidate repeated manifestations of one actionable root cause into one
+  finding, identifying the affected scope. Keep independently actionable
+  problems separate.
+* When prior discussion is available, read it before commenting. Do not
+  duplicate findings or reopen settled decisions without new evidence, a
+  regression, or a newly discovered consequential defect. Explain what changed.
+  In subsequent rounds, prioritize the agreed fixes and their effects rather
+  than restarting an open-ended search for improvements.

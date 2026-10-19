@@ -16,6 +16,7 @@ from the `plugins/` directory.
   - [git-workflow](#git-workflow)
 - [Layout](#layout)
 - [Contributing](#contributing)
+  - [Code review](#code-review)
   - [Writing documentation](#writing-documentation)
   - [Decision records](#decision-records)
   - [Adding a plugin](#adding-a-plugin)
@@ -137,6 +138,35 @@ Pull requests are welcome. Ask questions or report problems in
 [PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md)
 when preparing a PR. For plugin changes, follow the authoring and testing
 procedures below.
+
+### Code review
+
+Codex review guidance lives in
+[Code Review Rules](AGENTS.md#code-review-rules). Apply it when reviewing PRs
+and interpreting feedback; it guides judgment rather than replacing tests,
+required approvals, or branch protections.
+
+When responding to review:
+
+1. Evaluate the observation, whether it needs a change in this PR, and the
+   proposed solution separately. A valid observation does not automatically
+   justify the suggested implementation or a new rule.
+2. Address in-scope defects with the smallest sufficient change. Explain
+   declined or deferred feedback in the existing discussion; do not turn
+   non-blocking advice into required work or silently expand the PR's purpose.
+3. On re-review, check the agreed correction and its effects against the
+   original requirement. New consequential defects remain reportable; a
+   different preference alone is not a reason to reopen a settled choice.
+
+The local policy draws on [Codex customization][codex-review],
+[Google's review standard][review-standard], and
+[Conventional Comments][review-comments]. Comment intent labels do not override
+Codex's supported output or priority filtering. Refine the guidance against
+actual review results, narrowing or removing rules that produce noise.
+
+[codex-review]: https://learn.chatgpt.com/docs/third-party/github#customize-what-codex-reviews
+[review-standard]: https://google.github.io/eng-practices/review/reviewer/standard.html
+[review-comments]: https://conventionalcomments.org/
 
 ### Writing documentation
 
