@@ -12,6 +12,12 @@
       "source": "./plugins/git-workflow",
       "description": "Name branches, write commits, and prepare draft pull requests by repository conventions.",
       "version": "0.3.3"
+    },
+    {
+      "name": "skill-workflow",
+      "source": "./plugins/skill-workflow",
+      "description": "Create and refine focused agent skills, delegating mechanical work to existing tools.",
+      "version": "0.1.1"
     }
   ]
 }

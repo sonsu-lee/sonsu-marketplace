@@ -6,6 +6,8 @@ read their linked procedures before making changes.
 
 * Add or change plugins using the
   [plugin-authoring procedure](README.md#adding-a-plugin).
+* When creating, revising, or reviewing skills, follow the
+  [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md).
 * Raise the plugin's `version` in `.omp-plugin/marketplace.json` with every
   change to it.
 * After changing a plugin, run the
