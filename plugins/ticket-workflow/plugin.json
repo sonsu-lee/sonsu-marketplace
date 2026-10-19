@@ -1,0 +1,12 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ticket-workflow",
+  "description": "Write small, outcome-centered GitHub and Linear tickets while leaving implementation to the assignee.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "repository": "https://github.com/sonsu-lee/sonsu-marketplace",
+  "license": "MIT",
+  "keywords": ["tickets", "issues", "github", "linear"]
+}

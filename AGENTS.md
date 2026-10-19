@@ -26,6 +26,11 @@ read their linked procedures before making changes.
   when drafting, creating, updating, or marking a pull request ready, including
   title validation, repository templates, author checks, and UI evidence.
   Create new PRs as Draft by default; mark ready only on an explicit request.
+* Follow the
+  [ticket-writing procedure](plugins/ticket-workflow/skills/writing-tickets/SKILL.md)
+  when drafting, creating, updating, or splitting GitHub Issues or Linear
+  tickets. Use ticket, work, then PR as the normal development flow; follow the
+  branch and PR skills for downstream work.
 * When reviewing a PR or responding to feedback, follow the
   [review procedure](README.md#code-review) and the Code Review Rules below.
 * Record significant decisions, not implementation steps or a work log,
