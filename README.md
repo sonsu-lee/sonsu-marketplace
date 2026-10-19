@@ -114,10 +114,13 @@ provide agent workflow instructions, not Git hooks or CI enforcement.
 
 Install with `omp plugin install skill-workflow@sonsu-marketplace`.
 
-- **`authoring-skills`** creates, revises, and reviews focused agent skills.
-  It keeps judgment and minimum procedures in the skill, delegates mechanical
-  work to existing tools, and loads evaluation guidance when choosing checks.
-  See the [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md).
+- **`authoring-skills`** creates, revises, and reviews focused agent skills
+  using common Agent Skills principles, without a default client. It identifies
+  the intended consumer from the request and project context, then loads only
+  the relevant omp, Claude, or Codex considerations. It keeps judgment in the
+  skill, delegates mechanical work to existing tools, and loads evaluation
+  guidance when choosing checks. See the
+  [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md).
 
 This plugin does not install skills, configure projects, or provide an
 evaluation runner. Plugin packaging and marketplace checks remain in the
@@ -383,9 +386,10 @@ Every skill should appear, with no `warning:` lines.
 Format and discovery checks do not prove correct activation or useful output.
 For instruction changes, exercise representative tasks and boundary cases in
 isolated repositories without publishing fixtures to a real project. Inspect
-the actions as well as the final output. Use the evaluation guides above for
-before/after or with/without comparisons; report smoke checks separately from
-measured trigger rates or comparative quality results.
+the actions as well as the final output. Use the
+[evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md)
+for before/after or with/without comparisons; report smoke checks separately
+from measured trigger rates or comparative quality results.
 
 For changes to `git-workflow` validation, also run its behavior tests:
 

@@ -31,6 +31,32 @@ Split skills when users need independently useful workflows, not merely
 because source documents have separate chapters. Do not invent expertise or
 requirements to fill an outline.
 
+## Identify the target environment
+
+Start from the common Agent Skills format and writing principles; no client
+is the default. Establish the intended consumer from the user's request and
+the target project's instructions, manifests, installation layout, or runtime
+documentation. For example, an omp marketplace catalog together with documented
+omp installation identifies an omp target. A portable `plugin.json` or shared
+skills directory alone does not identify a client.
+
+The client running this authoring session is not necessarily the consumer of
+the skill being written. An explicit target takes precedence over that context.
+When a target is established, read only its reference and apply the relevant
+differences to the artifact being authored:
+
+| Intended consumer | Conditional reference |
+| --- | --- |
+| omp | [omp authoring considerations](references/omp.md) |
+| Claude Code, claude.ai, or Claude API | [Claude authoring considerations](references/claude.md) |
+| Codex | [Codex authoring considerations](references/codex.md) |
+
+If no target is established, keep the artifact portable and do not load every
+client reference or add client-specific metadata. Ask only if an unresolved
+client choice affects a required capability. For explicitly shared skills,
+consult the named targets and keep shared content standard; do not combine
+incompatible extensions or claim compatibility without target-specific checks.
+
 ## Put each responsibility in the right place
 
 - **SKILL.md:** purpose, decision criteria, defaults, the minimum workflow, and
@@ -59,10 +85,11 @@ Keep the body focused; the guidance of fewer than 500 lines and 5,000 tokens is
 not a size target. State specific runtime requirements in `compatibility`
 only when they apply.
 
-Write `description` around user intent: when to use the skill, including
-implicit requests it should cover, and meaningful boundaries with adjacent
-work. Prefer "Use this skill when..." to a list of internal implementation
-steps. Avoid keyword accumulation to match individual failed prompts.
+Write `description` around user intent: what the skill does, when to use it,
+including implicit requests it should cover, and meaningful boundaries with
+adjacent work. Keep it concise and front-load the key use case rather than
+internal implementation steps. Avoid keyword accumulation to match individual
+failed prompts; client-specific wording preferences are not format rules.
 
 Give a short sequence from inputs through decisions to an observable result.
 Pick a default instead of offering an unranked menu. Explain why when it helps
