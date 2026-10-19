@@ -1,0 +1,12 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "decision-workflow",
+  "description": "Select consequential design decisions and write lightweight ADRs using repository conventions first.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "repository": "https://github.com/sonsu-lee/sonsu-marketplace",
+  "license": "MIT",
+  "keywords": ["adr", "architecture", "decisions", "documentation"]
+}

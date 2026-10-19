@@ -16,6 +16,7 @@ from the `plugins/` directory.
   - [git-workflow](#git-workflow)
   - [skill-workflow](#skill-workflow)
   - [ticket-workflow](#ticket-workflow)
+  - [decision-workflow](#decision-workflow)
 - [Layout](#layout)
 - [Contributing](#contributing)
   - [Code review](#code-review)
@@ -81,6 +82,9 @@ Ask to create, revise, or simplify an agent skill to use `authoring-skills`
 from `skill-workflow`.
 Ask to draft, create, update, or split GitHub Issues or Linear tickets to use
 `writing-tickets` from `ticket-workflow`. Draft requests do not publish issues.
+Ask whether a design choice warrants an ADR, or ask to draft, review, or
+supersede one, to use `writing-adrs` from `decision-workflow`. It does not
+create a decision record for every implementation change.
 
 Fetch catalog changes, then upgrade installed plugins:
 
@@ -154,6 +158,24 @@ Install `git-workflow` for downstream branch naming and PR preparation; it is no
 needed to draft tickets. The ticket plugin respects existing tracker sync and
 templates but does not configure them, publish duplicate issues to both trackers,
 or enforce ticket-first work through hooks.
+
+### decision-workflow
+
+Install with `omp plugin install decision-workflow@sonsu-marketplace`.
+
+- **`writing-adrs`** selects decisions worth recording and writes short ADRs
+  with context, a decision and its rationale, rejected alternatives, and
+  consequences. It follows the target project's scope, template, and lifecycle
+  first; without those, it uses direction-setting and consequential design
+  choices as its boundary. See the
+  [ADR writing procedure](plugins/decision-workflow/skills/writing-adrs/SKILL.md)
+  and [default template](plugins/decision-workflow/skills/writing-adrs/assets/adr.md).
+
+The principles follow Martin Fowler's ADR guidance, and the default template
+is adapted from Evolu. Drafts remain proposed until the decision-maker accepts
+them; changing an accepted decision requires a linked replacement. This plugin
+does not install hooks, impose a format on existing repositories, or turn
+routine work into ADRs.
 
 ## Layout
 
@@ -260,24 +282,55 @@ step, not automatic formatting or CI integration.
 
 ### Decision records
 
-Use [MADR](docs/decisions/0001-use-madr-for-decision-records.md) to explain
-significant choices: the problem, considered alternatives, chosen approach,
-and consequences. An ADR is not a chronological work log or a command reference.
-One record should cover one coherent decision, including closely related
-design choices.
+Follow [Martin Fowler's ADR writing and lifecycle guidance][adr-fowler].
+Use the [ADR writing procedure][adr-skill] and the
+[lightweight template][adr-template], adapted from [Evolu][adr-evolu-template].
+The repository's scope below deliberately narrows the broader ADR practice;
+Fowler does not prescribe this template or our selection threshold.
+
+Write an ADR only for a coherent choice that sets the marketplace's or a
+plugin's direction or consequential design constraints: purpose and supported
+scope, fundamental structure, public contracts, security boundaries, or key
+quality attributes. Explain the continuing constraint or substantial reversal
+cost. Affecting many files or future tasks is not enough.
+
+- Packaging portability versus client-specific capabilities is an ADR topic.
+  Applying the selected packaging format is not.
+- Routine features and fixes, document formats, lint commands, version bumps,
+  and review procedures belong in code, configuration, README, or skills.
+  Record one only if it actually changes the direction or design constraints
+  above, not merely because it is a shared rule.
+- An ADR explains a decision, not implementation steps, a work log, or a
+  command reference. Search existing records before starting another.
 
 Store records as `docs/decisions/NNNN-title-with-dashes.md`, numbered in sequence.
-Start from the
-[MADR 4.0.0 template](https://github.com/adr/madr/blob/4.0.0/template/adr-template.md)
-with `status` and `date` in YAML front matter and the sections `Context and
-Problem Statement`, `Considered Options`, and `Decision Outcome`.
+Use a title stating the decision, `Date` and `Status` metadata, and the template's
+`Context`, `Decision`, `Rejected alternatives`, and `Consequences` sections.
+State the choice and why in a few sentences; describe real alternatives rather
+than inventing options to fill the template. Aim for one page and link supporting
+evidence instead of duplicating it. Record uncertainty or revisit conditions
+when they matter.
 
-- Keep a record `proposed` while it is under review. Revise and consolidate the
-  same proposal within its PR instead of creating a supersession chain.
-- Mark it `accepted` only after decision review. After acceptance, edit only
-  errors or status; a changed decision needs a new record that supersedes it.
-- Routine implementation changes, command updates, and version bumps belong in
-  the relevant operational documents, not new ADRs.
+- Keep a record `proposed` while it is under review. Consolidate revisions of
+  the same proposal in that record instead of creating a supersession chain.
+- Mark it `accepted` only when the decision-maker has accepted the choice;
+  finishing implementation or passing checks is not acceptance.
+- When an accepted decision changes, write a replacement and link both records.
+  Mark the old one `superseded` only after the replacement is accepted.
+  Reconsideration that leaves the decision unchanged needs no new ADR.
+- Preserve accepted records in their historical format, including records
+  that would not meet today's narrower scope. Change only errors, links, or
+  status, not their original decision and rationale.
+
+The rationale is in
+[ADR-0001](docs/decisions/0001-use-lightweight-directional-decision-records.md).
+During initial setup on 2026-10-20, the maintainer authorized a one-time
+consolidation of ADR-0001 rather than a separate supersession chain, and
+reformatting ADR-0002 through ADR-0004 without changing their choices,
+decision dates, or rationale. Git retains the earlier MADR policy and document
+forms. This exception is limited to that initialization cleanup; it does not
+authorize further rewrites or resets. Subsequent decisions follow the lifecycle
+above.
 
 Keep responsibilities separate so readers need not reconstruct current rules
 from decision history:
@@ -295,6 +348,11 @@ adjust that routing in the same change if needed. Do not leave an active
 requirement only in an ADR. ADRs should link to current instructions rather
 than duplicate commands or rule values. Git and PR history retain intermediate
 revisions.
+
+[adr-fowler]: https://martinfowler.com/bliki/ArchitectureDecisionRecord.html
+[adr-skill]: plugins/decision-workflow/skills/writing-adrs/SKILL.md
+[adr-template]: plugins/decision-workflow/skills/writing-adrs/assets/adr.md
+[adr-evolu-template]: https://github.com/evoluhq/evolu/blob/bb2644275dd99ff6dce4744db578967699045ea3/docs/adr/template.md
 
 ### Adding a plugin
 
