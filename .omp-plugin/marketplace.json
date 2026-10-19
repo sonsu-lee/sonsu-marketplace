@@ -18,6 +18,12 @@
       "source": "./plugins/skill-workflow",
       "description": "Create and refine focused agent skills, delegating mechanical work to existing tools.",
       "version": "0.1.1"
+    },
+    {
+      "name": "ticket-workflow",
+      "source": "./plugins/ticket-workflow",
+      "description": "Write small, outcome-centered GitHub and Linear tickets while leaving implementation to the assignee.",
+      "version": "0.1.1"
     }
   ]
 }

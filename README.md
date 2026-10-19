@@ -15,6 +15,7 @@ from the `plugins/` directory.
 - [Available plugins](#available-plugins)
   - [git-workflow](#git-workflow)
   - [skill-workflow](#skill-workflow)
+  - [ticket-workflow](#ticket-workflow)
 - [Layout](#layout)
 - [Contributing](#contributing)
   - [Code review](#code-review)
@@ -39,6 +40,10 @@ The first uncached fallback run needs access to its package registry.
 Publishing pull requests needs an authenticated GitHub tool. Native media
 uploads use GitHub CLI's `--attach` support and require push access to the target
 repository. Capturing UI evidence needs suitable capture and annotation tools.
+
+Publishing tickets needs authenticated tooling for the selected GitHub repository
+or Linear workspace. `ticket-workflow` does not bundle credentials or configure
+tracker integrations.
 
 ### Marketplace
 
@@ -74,6 +79,8 @@ Ask to draft, create, or update a pull request to use `writing-pull-requests`.
 New PRs are Draft by default.
 Ask to create, revise, or simplify an agent skill to use `authoring-skills`
 from `skill-workflow`.
+Ask to draft, create, update, or split GitHub Issues or Linear tickets to use
+`writing-tickets` from `ticket-workflow`. Draft requests do not publish issues.
 
 Fetch catalog changes, then upgrade installed plugins:
 
@@ -125,6 +132,28 @@ Install with `omp plugin install skill-workflow@sonsu-marketplace`.
 This plugin does not install skills, configure projects, or provide an
 evaluation runner. Plugin packaging and marketplace checks remain in the
 contributor procedures below.
+
+### ticket-workflow
+
+Install with `omp plugin install ticket-workflow@sonsu-marketplace`.
+
+- **`writing-tickets`** writes small, outcome-centered GitHub and Linear tickets.
+  It follows applicable project templates first, using a bundled Problem,
+  Desired outcome, and optional Context body when no template applies.
+  Outcomes make completion judgeable without prescribing the implementation
+  or requiring a separate acceptance checklist. It also reviews labels,
+  assignment, priority, estimates, and milestones, proposing grounded metadata
+  separately from the body using the tracker's actual fields and conventions.
+  Optional unknowns remain unset rather than guessed. See the
+  [ticket-writing procedure](plugins/ticket-workflow/skills/writing-tickets/SKILL.md)
+  and [fallback template](plugins/ticket-workflow/skills/writing-tickets/assets/ticket-body.md).
+
+Use ticket, then work, then PR as the normal development flow. Tickets and PRs
+need not be one-to-one; partial work should not close the whole ticket.
+Install `git-workflow` for downstream branch naming and PR preparation; it is not
+needed to draft tickets. The ticket plugin respects existing tracker sync and
+templates but does not configure them, publish duplicate issues to both trackers,
+or enforce ticket-first work through hooks.
 
 ## Layout
 
