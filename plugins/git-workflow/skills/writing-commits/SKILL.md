@@ -1,6 +1,9 @@
 ---
 name: writing-commits
 description: Use this skill when writing or revising a git commit message, including when creating or amending a commit.
+compatibility: >-
+  Requires Git. Without a repository validation runner, fallback requires
+  Node.js >=22.12.0, npm (npx), and registry access.
 ---
 
 # Writing commits

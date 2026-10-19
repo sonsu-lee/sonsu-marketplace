@@ -34,6 +34,10 @@ When none exists, the commit fallback needs Node.js 22.12.0 or newer and npm
 (`npx`), while the branch fallback needs uv (`uvx`) and Python 3.10 or newer.
 The first uncached fallback run needs access to its package registry.
 
+Publishing pull requests needs an authenticated GitHub tool. Native media
+uploads use GitHub CLI's `--attach` support and require push access to the target
+repository. Capturing UI evidence needs suitable capture and annotation tools.
+
 ### Marketplace
 
 Add the marketplace:
@@ -64,6 +68,8 @@ omp skill list
 In an omp session, `/marketplace` opens the catalog in the plugin browser.
 Installed skills provide guidance for relevant requests; for example, ask omp to
 name a branch or write a commit message when using `git-workflow`.
+Ask to draft, create, or update a pull request to use `writing-pull-requests`.
+New PRs are Draft by default.
 
 Fetch catalog changes, then upgrade installed plugins:
 
@@ -90,6 +96,10 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`.
   The skill's default prefixes are `feature/` (not `feat/`), `fix/` (not
   `bugfix/`), `hotfix/`, `release/`, and `chore/`. See the
   [skill's validation procedure](plugins/git-workflow/skills/naming-branches/SKILL.md#required-validation).
+- **`writing-pull-requests`** writes repository-aware PR titles and descriptions,
+  records author checks, labels AI assistance, and prepares UI review evidence.
+  New PRs are Draft by default. See the
+  [PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md).
 
 Branch prefixes do not change commit types: a `feature/` branch can contain
 `feat`, `fix`, and other commits. A missing dependency or failed configured
@@ -123,8 +133,10 @@ Everything except `plugin.json` is optional. The reasons for this format are in
 ## Contributing
 
 Pull requests are welcome. Ask questions or report problems in
-[GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues). For
-plugin changes, follow the authoring and testing procedures below.
+[GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues). Follow the
+[PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md)
+when preparing a PR. For plugin changes, follow the authoring and testing
+procedures below.
 
 ### Writing documentation
 
@@ -230,6 +242,15 @@ revisions.
      the directory name. omp skips a skill with any other field, such as omp's
      `hide` or Claude Code's `argument-hint`.
 
+     Follow the [creator best practices][skill-practices]: keep the core workflow
+     concise, state specific runtime requirements in `compatibility`, and say
+     when each supporting file should be read. Aim for fewer than 500 lines and
+     5,000 tokens in `SKILL.md`; these are guidance, not parser limits. Use
+     [description evaluation][skill-triggers] for activation behavior and
+     [output evaluation][skill-evals] for task quality. Do not add scripts when
+     a simple pinned tool invocation already suffices; see
+     [using scripts][skill-scripts].
+
    - **MCP servers**: `mcp.json` with the
      `https://agent-plugins.org/schemas/1.0.0/mcp.schema.json` `$schema` and an
      `mcpServers` object. Each server sets `type` (`stdio`, `streamable-http`,
@@ -282,6 +303,23 @@ standard.
 
 ### Testing a plugin
 
+For skill changes, check the format with the official reference validator.
+This authoring check needs uv, Python 3.11 or newer, and network access on the
+first run. Pin the reference source independently of plugin runtime tools:
+
+```sh
+skills_ref_repo=https://github.com/agentskills/agentskills.git
+skills_ref_rev=69ef37e9424c0a7ea9dd2293b559e43ec8176379
+skills_ref="git+$skills_ref_repo@$skills_ref_rev#subdirectory=skills-ref"
+for skill in plugins/git-workflow/skills/*; do
+  uvx --from "$skills_ref" skills-ref validate "$skill"
+done
+```
+
+The [reference validator][skills-ref] checks frontmatter and naming, not task
+quality. It is an authoring aid, not a production dependency. For other plugins,
+select their skill directories instead.
+
 omp reports skipped skills and rejected plugins only in `omp skill list`, so
 install into a temporary home and check its output before pushing:
 
@@ -295,6 +333,13 @@ install into a temporary home and check its output before pushing:
 ```
 
 Every skill should appear, with no `warning:` lines.
+
+Format and discovery checks do not prove correct activation or useful output.
+For instruction changes, exercise representative tasks and boundary cases in
+isolated repositories without publishing fixtures to a real project. Inspect
+the actions as well as the final output. Use the evaluation guides above for
+before/after or with/without comparisons; report smoke checks separately from
+measured trigger rates or comparative quality results.
 
 For changes to `git-workflow` validation, also run its behavior tests:
 
@@ -313,3 +358,9 @@ present, and failures are not bypassed with a fallback.
 ## License
 
 [MIT](LICENSE) © sonsu-lee
+
+[skill-practices]: https://agentskills.io/skill-creation/best-practices
+[skill-triggers]: https://agentskills.io/skill-creation/optimizing-descriptions
+[skill-evals]: https://agentskills.io/skill-creation/evaluating-skills
+[skill-scripts]: https://agentskills.io/skill-creation/using-scripts
+[skills-ref]: https://github.com/agentskills/agentskills/tree/69ef37e9424c0a7ea9dd2293b559e43ec8176379/skills-ref

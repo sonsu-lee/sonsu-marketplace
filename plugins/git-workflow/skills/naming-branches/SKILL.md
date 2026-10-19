@@ -1,6 +1,9 @@
 ---
 name: naming-branches
 description: Use this skill when choosing or checking a git branch name, including when creating or renaming a branch.
+compatibility: >-
+  Requires Git. Without a repository validation runner, fallback requires
+  uv (uvx), Python >=3.10, and registry access.
 ---
 
 # Naming branches

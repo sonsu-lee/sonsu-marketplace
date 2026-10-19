@@ -10,8 +10,8 @@
     {
       "name": "git-workflow",
       "source": "./plugins/git-workflow",
-      "description": "Name branches and write commit messages by the repository's conventions.",
-      "version": "0.2.4"
+      "description": "Name branches, write commits, and prepare draft pull requests by repository conventions.",
+      "version": "0.3.3"
     }
   ]
 }

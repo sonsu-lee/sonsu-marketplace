@@ -19,6 +19,11 @@ read their linked procedures before making changes.
   when choosing branch names, including their required validation procedures.
   Reuse repository tools and versions first; use the documented fallback only
   when no execution setup exists, never to bypass a broken setup.
+* Follow the
+  [PR skill](plugins/git-workflow/skills/writing-pull-requests/SKILL.md)
+  when drafting, creating, updating, or marking a pull request ready, including
+  title validation, repository templates, author checks, and UI evidence.
+  Create new PRs as Draft by default; mark ready only on an explicit request.
 * Record significant decisions, not implementation steps or a work log,
   following the [decision-record procedure](README.md#decision-records).
   Keep records under review `proposed` and consolidate revisions of the same
