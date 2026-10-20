@@ -17,6 +17,7 @@ from the `plugins/` directory.
   - [skill-workflow](#skill-workflow)
   - [ticket-workflow](#ticket-workflow)
   - [decision-workflow](#decision-workflow)
+  - [writing-workflow](#writing-workflow)
 - [Layout](#layout)
 - [Contributing](#contributing)
   - [Code review](#code-review)
@@ -45,6 +46,10 @@ repository. Capturing UI evidence needs suitable capture and annotation tools.
 Publishing tickets needs authenticated tooling for the selected GitHub repository
 or Linear workspace. `ticket-workflow` does not bundle credentials or configure
 tracker integrations.
+
+The `writing-workflow` plugin includes Python-based Korean and Japanese checks.
+See its [dependencies and source notices](plugins/writing-workflow/README.md)
+before use. Its English skill has no external runtime dependency.
 
 ### Marketplace
 
@@ -85,6 +90,10 @@ Ask to draft, create, update, or split GitHub Issues or Linear tickets to use
 Ask whether a design choice warrants an ADR, or ask to draft, review, or
 supersede one, to use `writing-adrs` from `decision-workflow`. It does not
 create a decision record for every implementation change.
+
+Ask to write or refine Korean, English, or Japanese prose to use
+`writing-workflow`. Korean technical documentation is included; protected code,
+identifiers, quotations, numbers, and terminology remain unchanged.
 
 Fetch catalog changes, then upgrade installed plugins:
 
@@ -176,6 +185,26 @@ is adapted from Evolu. Drafts remain proposed until the decision-maker accepts
 them; changing an accepted decision requires a linked replacement. This plugin
 does not install hooks, impose a format on existing repositories, or turn
 routine work into ADRs.
+
+### writing-workflow
+
+Install with `omp plugin install writing-workflow@sonsu-marketplace`.
+
+- **`humanize-korean`** adapts `epoko77-ai/im-not-ai` for natural Korean
+  editing across genres, including technical documentation, README files,
+  API references, runbooks, and prose around code. For new writing, compose a
+  draft from the supplied material first, then refine it with the skill.
+- **`ce-noslop`** adapts Every's English writing, editing, and diagnostic
+  guidance for clear prose, preserving facts and the requested register.
+- **`natural-japanese`** adapts coji's Japanese drafting, editing, and
+  diagnostic workflow, including document-specific guidance and author voice.
+
+Use one editorial skill for the language being written; do not run competing
+humanizers over the same text. These are writing workflows, not translation
+services or reliable AI-authorship detectors. Read the
+[plugin guide](plugins/writing-workflow/README.md) for examples, dependencies,
+upstream revisions, and licenses. Mechanical checks do not establish naturalness
+or complete semantic preservation.
 
 ## Layout
 

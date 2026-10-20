@@ -30,6 +30,12 @@
       "source": "./plugins/decision-workflow",
       "description": "Select consequential design decisions and write lightweight ADRs using repository conventions first.",
       "version": "0.1.1"
+    },
+    {
+      "name": "writing-workflow",
+      "source": "./plugins/writing-workflow",
+      "description": "Write and refine natural Korean, English, and Japanese prose while preserving meaning and author voice.",
+      "version": "0.1.0"
     }
   ]
 }
