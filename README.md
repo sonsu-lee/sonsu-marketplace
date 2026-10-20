@@ -18,6 +18,7 @@ from the `plugins/` directory.
   - [ticket-workflow](#ticket-workflow)
   - [decision-workflow](#decision-workflow)
   - [writing-workflow](#writing-workflow)
+  - [review-workflow](#review-workflow)
 - [Layout](#layout)
 - [Contributing](#contributing)
   - [Code review](#code-review)
@@ -94,6 +95,11 @@ create a decision record for every implementation change.
 Ask to write or refine Korean, English, or Japanese prose to use
 `writing-workflow`. Korean technical documentation is included; protected code,
 identifiers, quotations, numbers, and terminology remain unchanged.
+
+Ask to review code, a diff, a branch, or a PR to use `reviewing-code` from
+`review-workflow`. In omp it pairs a native reviewer with focused custom review
+tasks. Explicit native-only requests keep omp's `/review` workflow unchanged.
+Reviews stay local unless you request publication; a comment draft is not posted.
 
 Fetch catalog changes, then upgrade installed plugins:
 
@@ -206,6 +212,25 @@ services or reliable AI-authorship detectors. Read the
 upstream revisions, and licenses. Mechanical checks do not establish naturalness
 or complete semantic preservation.
 
+### review-workflow
+
+Install with `omp plugin install review-workflow@sonsu-marketplace`.
+
+- **`reviewing-code`** reviews intent, flow, failures, architecture, and internal
+  implementation. In omp, a native `reviewer` and narrowly assigned
+  `review-workflow-focused` workers inspect the same frozen target in parallel,
+  without sharing initial conclusions. Models follow effective omp settings,
+  not a fixed provider pair. Runtime verification and high-risk red-team
+  challenges are separate, bounded work rather than repeated full reviews.
+- Reviews report locally by default. Comment drafting and explicit publication
+  use [review-comment guidance](plugins/review-workflow/skills/reviewing-code/references/review-comments.md)
+  that preserves evidence, uncertainty, and the difference between fixes and
+  optional suggestions.
+
+Read the [plugin guide](plugins/review-workflow/README.md) for model access,
+workspace isolation, runtime verification, and cost boundaries. The plugin does
+not install hooks, automatically fix code, or configure credentials.
+
 ## Layout
 
 ```text
@@ -240,10 +265,16 @@ procedures below.
 
 ### Code review
 
-Codex review guidance lives in
-[Code Review Rules](AGENTS.md#code-review-rules). Apply it when reviewing PRs
-and interpreting feedback; it guides judgment rather than replacing tests,
-required approvals, or branch protections.
+Apply [Code Review Rules](AGENTS.md#code-review-rules) when reviewing changes
+and interpreting feedback. Requested code reviews in omp use the
+[reviewing-code procedure](plugins/review-workflow/skills/reviewing-code/SKILL.md)
+and its [omp execution reference](plugins/review-workflow/skills/reviewing-code/references/omp.md),
+unless the user explicitly selects native-only review. The plugin dispatches
+native and focused workers; it does not replace or automatically intercept
+`/review`. Preserve the native reviewer's output contract. Results stay local
+unless publication is explicitly requested; a draft is not permission to post.
+Codex-native reviews retain their own output and priority contract. These
+procedures do not replace required approvals or branch protections.
 
 When responding to review:
 
