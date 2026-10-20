@@ -821,16 +821,27 @@ HOME="$CX_HOME" CODEX_HOME="$CX_CODEX_HOME" \
   '$review-workflow:reviewing-code Review working changes locally.'
 ```
 
-For Claude Code, run print mode from the target with the temporary variables:
+For Claude Code, run print mode from the target with the temporary variables.
+A temporary `CLAUDE_CONFIG_DIR` has no login. With explicit authorization,
+supply a token through `CLAUDE_CODE_OAUTH_TOKEN` in the process environment,
+for example one from `claude setup-token`; do not copy the live configuration
+directory. Print mode cannot answer permission prompts, and the default mode
+denies the snapshot, helper, and validator commands these workflows run. For
+disposable targets only, grant them with `--permission-mode bypassPermissions`
+and report that choice:
 
 ```sh
 (
   cd "$TARGET"
   HOME="$CC_HOME" CLAUDE_CONFIG_DIR="$CC_CONFIG_DIR" \
-    claude -p --output-format stream-json --verbose --add-dir "$TMP" \
-    '/review-workflow:reviewing-code Review working changes locally.'
+    claude -p '/review-workflow:reviewing-code Review working changes.' \
+    --output-format stream-json --verbose --add-dir "$TMP" \
+    --permission-mode bypassPermissions
 )
 ```
+
+The stream records the controller's Agent calls and each subagent's tool calls
+with a `parent_tool_use_id`; inspect them rather than only the final report.
 
 Without model access, set `ANTHROPIC_BASE_URL` to a local-only receiver that
 records requests and rejects them, with a placeholder `ANTHROPIC_API_KEY`.

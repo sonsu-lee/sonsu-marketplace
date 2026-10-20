@@ -54,7 +54,8 @@ coverage, and the focused question.
 
 Start one custom general reviewer and at least one complementary focused
 reviewer with the Agent tool, sending all initial calls in one message so they
-run concurrently. Set `subagent_type: "general-purpose"` explicitly for each.
+run concurrently. A small change does not exempt an ordinary plugin review from
+these workers. Set `subagent_type: "general-purpose"` explicitly for each.
 Never use `"fork"`: a fork inherits the full parent conversation. Do not use
 another agent type, including any `review-workflow-focused` profile; that omp
 agent is not part of this package's Claude Code components.
@@ -87,9 +88,11 @@ model's self-description.
 
 Subagents run in the background by default. Wait for each worker's completion
 notification and use its full final result, not the launch acknowledgment or a
-predicted result. Do not consolidate until every initial worker has finished
-or is recorded as incomplete. Use `TaskStop` only to stop owned active work,
-not as evidence that it completed.
+predicted result. Notifications arrive automatically; do not sleep, poll, or
+schedule a wakeup while waiting, since a wakeup replays the request as a later
+turn. Do not consolidate until every initial worker has finished or is recorded
+as incomplete. Use `TaskStop` only to stop owned active work, not as evidence
+that it completed.
 A denied Agent tool, `Concurrent subagent limit reached`, denied permissions,
 missing tools, partial output at a turn limit, and stopped workers mean
 incomplete review, not no findings. Preserve useful partial evidence, but do not
