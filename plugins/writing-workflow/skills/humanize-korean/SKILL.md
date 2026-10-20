@@ -215,7 +215,11 @@ consolidated in `diagnosis-rules.md`; quick rules retain the upstream selected
 subset. Research history, release/build tooling, client configuration, web
 service specifications, and development experiments are not runtime resources.
 
-The adaptation also distinguishes numbered procedures from referenced footnote
-definitions in preparation and fidelity checks, so runbook steps remain editable.
+The adaptation also distinguishes numbered procedures from referenced `N)` and
+`[N]` footnote definitions in preparation and fidelity checks, so runbook steps
+remain editable. Fidelity retains signed numeric values and attribution for
+all supported quote delimiters. Summary exclusion is shared by the gates and
+limited to complete terminal metadata outside code examples. Unit expressions
+remain part of direct semantic review rather than a new unit-parsing subsystem.
 
 [upstream]: https://github.com/epoko77-ai/im-not-ai/tree/b37e0206d31fffd9149bf57168d4d62eb2086bee

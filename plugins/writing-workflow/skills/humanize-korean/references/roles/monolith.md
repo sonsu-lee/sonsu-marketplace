@@ -52,5 +52,7 @@ Replace example values with observed counts and the editorial self-review.
 Use actual before/after spans for highlights and IDs plus notes for residuals.
 Do not fabricate a measured rate before the helper runs; afterward update the
 existing block from its output. The finalizer likewise updates this block,
-never appends a second one. Metadata is excluded by the bundled change-rate
-and gate readers from the marker onward.
+never appends a second one. Keep the fields in this order, with any multiline
+review data indented beneath its field. The bundled readers exclude only this
+complete terminal comment outside code examples; earlier, inline, and malformed
+markers remain document content.

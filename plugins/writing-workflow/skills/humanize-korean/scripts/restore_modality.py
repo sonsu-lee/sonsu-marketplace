@@ -160,9 +160,8 @@ def find_losses(before: str, after: str) -> list[dict]:
     각 손실에 `neighbor_gap`을 함께 싣는다 — 바로 옆 원문 문장이 짝을 잃었다면
     이 문장이 그 내용을 흡수한 것(병합)일 수 있다는 표시다.
     """
-    # ⚠️ `<!-- HUMANIZE-SUMMARY -->` 블록을 떼고 정렬한다. 블록 안에는 원문 인용이 들어가는데,
-    # 그 줄이 본문 문장 대신 정렬 짝이 되어 **손실이 통째로 가려졌다**(요약본이 짝을 훔친다).
-    # verify_gates는 이미 떼고 비교하는데 복원기만 안 떼던 비대칭이었다.
+    # Exclude only generated terminal metadata; quoted originals in that
+    # metadata must not steal alignment pairs from the actual body.
     before = _checks.strip_summary_block(before)
     after_body = _checks.strip_summary_block(after)
     pairs = align(_m._split_sentences(before), _m._split_sentences(after_body))

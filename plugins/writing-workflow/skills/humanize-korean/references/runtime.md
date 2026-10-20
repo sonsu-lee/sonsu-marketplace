@@ -17,7 +17,9 @@ packages, external executables, credentials, or network calls are required.
 - `scripts/verify_gates.py` imports `scripts/checks.py`, `metrics_v2.py`, and
   `scripts/restore_modality.py`. The modality helper imports the gate's shared
   modal expressions, metric helpers, and checks; keep these files together.
-- `scripts/verify_change_rate.py` imports `metrics_v2.py` and `console.py`.
+- `scripts/verify_change_rate.py` imports `metrics_v2.py`, `checks.py`, and
+  `console.py`. Both gates and modality restoration use the summary recognizer
+  in `checks.py`.
 - `scripts/reassemble_chunks.py` needs only the standard library and
   `console.py`. Its input manifest and body files live in the caller's run.
 - `sanitize_text.py` and `checks.py` also use the bundled console helper when
@@ -86,6 +88,8 @@ body chunk and can handle no-body/passthrough cases without inventing text.
 Numbered lines such as `1) ...` and `[1] ...` remain editable procedure prose
 unless an inline citation references them. Only referenced trailing definitions
 become footnote passthrough; numbered runbooks are not exempt from editing.
+Preparation and fidelity checks share recognition of `N)` and `[N]` citations.
+Markdown links and code examples do not turn numbered prose into definitions.
 
 The chunker is not a Markdown or programming-language parser. It does not
 protect every code block or detect executable directives. Before editing any
@@ -111,7 +115,9 @@ if needed; do not feed all stdout directly to a JSON decoder.
 
 - **P0:** Character change rate, computed as `1 - SequenceMatcher.ratio()` with
   `autojunk=False`, not Levenshtein distance. At least 0.30 warns; at least 0.50
-  blocks acceptance. The summary marker and following metadata are excluded.
+  blocks acceptance. Only a complete terminal `HUMANIZE-SUMMARY` comment in the
+  [editing-role format](roles/monolith.md#summary-format), outside code examples,
+  is excluded. Inline, earlier, or malformed markers remain document content.
 - **P1:** Selected v1 target z-scores and possible overcorrection. Metric failure
   can leave this axis unjudged rather than failing the whole command. Inspect
   stderr and disclose an unavailable axis; do not call it a complete pass.
@@ -119,6 +125,11 @@ if needed; do not feed all stdout directly to a JSON decoder.
   warns. This is not a requirement to preserve every repeated formula.
 - **P3:** Known preservation checks for register, heading independence, footnotes,
   quotes, and introduced numbers. These are heuristics, not exhaustive fidelity.
+  Numeric checks retain signs and normalize grouping, decimals, and single
+  Korean magnitude suffixes (`1만` equals `10,000`). They compare value sets,
+  not quantities: unit-only changes such as `5 ms` to `5 s` or `10%` to `10건`,
+  reassigned values, and compound numeric expressions require direct semantic
+  comparison. Do not infer unit preservation from a passing gate.
 - **P4:** Sentence touch rate and dropped numbers are observations only and do
   not themselves affect exit status. Review dropped numbers even on exit 0.
 - **P5:** Sentence-pair modality loss. Confident losses can warn; uncertain

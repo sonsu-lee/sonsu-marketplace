@@ -28,7 +28,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import re
 import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -38,16 +37,7 @@ if _REFS not in sys.path:
 
 import metrics_v2 as _m  # noqa: E402  (sys.path mutation is intentional)
 
-# final.md 본문 끝의 메타데이터 주석 블록. 여는 마커부터 파일 끝까지.
-_SUMMARY_BLOCK_RE = re.compile(r"<!--\s*HUMANIZE-SUMMARY\b.*", re.DOTALL)
-
-
-def strip_summary_block(text: str) -> str:
-    """final.md에서 `<!-- HUMANIZE-SUMMARY -->` 메타 블록을 제거한다.
-
-    블록이 없으면 원문 그대로 반환한다 (01_input.txt 등에 안전).
-    """
-    return _SUMMARY_BLOCK_RE.sub("", text).strip()
+import checks as _checks  # noqa: E402
 
 
 def _read(path: str) -> str:
@@ -72,8 +62,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"error: 파일 없음: {path}", file=sys.stderr)
             return 3
 
-    before = strip_summary_block(_read(args.before))
-    after = strip_summary_block(_read(args.after))
+    before = _checks.strip_summary_block(_read(args.before))
+    after = _checks.strip_summary_block(_read(args.after))
 
     rate = _m.change_rate(before, after, ignore_markup=args.ignore_markup)
     pct = rate * 100

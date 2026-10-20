@@ -83,6 +83,9 @@ Writing clearly does not require casual language. Preserve the requested
 formality, audience, document purpose, and meaningful technical structure.
 A passed mechanical check is not proof that a revision is more natural or that
 all meaning has survived. Review the actual output against its source.
+The Korean numerical check compares signed values, not unit expressions.
+Unit preservation remains part of direct source-to-output review; the plugin
+does not add a unit registry or quantity-conversion engine.
 
 The Korean helper uses `report` as a metric proxy for technical prose; it has
 no dedicated calibrated technical-document baseline. Do not edit legitimate
@@ -118,13 +121,15 @@ Use a temporary HOME for omp checks; never install test plugins into a user's
 live configuration. Exercise prose and protected-content boundary cases as
 well as format and discovery checks.
 
-Run the Korean helper regression tests from the marketplace root:
+Run the Korean and Japanese regression tests from the marketplace root:
 
 ```sh
-python3 -B -m unittest discover -s plugins/writing-workflow/tests -v
+uv run --with 'sudachipy>=0.6.8' --with 'sudachidict-core>=20240409' \
+  python -B -m unittest discover -s plugins/writing-workflow/tests -v
 ```
 
-These cover editable numbered procedures and preservation of genuine footnotes.
+The suite uses the Japanese runtime's existing dependencies. It covers Korean
+protected-content fidelity and Japanese structural lint and baseline transitions.
 
 ## License
 

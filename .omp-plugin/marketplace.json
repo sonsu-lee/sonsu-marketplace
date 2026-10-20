@@ -35,7 +35,7 @@
       "name": "writing-workflow",
       "source": "./plugins/writing-workflow",
       "description": "Write and refine natural Korean, English, and Japanese prose while preserving meaning and author voice.",
-      "version": "0.1.1"
+      "version": "0.1.2"
     }
   ]
 }

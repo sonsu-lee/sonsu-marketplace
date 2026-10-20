@@ -176,7 +176,7 @@ _HTML_TAG_RE = re.compile(r"</?[A-Za-z][A-Za-z0-9-]*(?:\s[^<>\n]*)?/?>")
 _JAPANESE_CHAR_RE = re.compile(r"[ぁ-んァ-ヶ一-龠々〆ヵヶ]")
 
 
-def _mask_html_comments_in_line(line: str, in_comment: bool) -> tuple[str, bool]:
+def _mask_html_comments_in_line(line: str, in_comment: bool) -> tuple[str, bool, int]:
     """行内の HTML コメント（`<!-- ... -->`）を同じ長さの空白に置換する。
 
     複数行コメント（前の行から続いている／次の行へ続く）に対応するため、
@@ -185,19 +185,24 @@ def _mask_html_comments_in_line(line: str, in_comment: bool) -> tuple[str, bool]
     同一行内で完結する場合にも対応する。閉じタグ `-->` が見つからないまま
     行末に達した場合は、行末までを空白化しコメント継続状態のまま返す
     （CommonMark の閉じられないコメントは EOF までコメントとみなす扱いに合わせる）。
+
+    The third return value counts masked characters, including original spaces.
     """
     out = []
     i = 0
+    masked_chars = 0
     n = len(line)
     while i < n:
         if in_comment:
             close = line.find("-->", i)
             if close == -1:
                 out.append(" " * (n - i))
+                masked_chars += n - i
                 i = n
             else:
                 end = close + 3
                 out.append(" " * (end - i))
+                masked_chars += end - i
                 i = end
                 in_comment = False
         else:
@@ -209,24 +214,65 @@ def _mask_html_comments_in_line(line: str, in_comment: bool) -> tuple[str, bool]
                 out.append(line[i:start])
                 i = start
                 in_comment = True
-    return "".join(out), in_comment
+    return "".join(out), in_comment, masked_chars
 
 
 def mask_html_comments(text: str) -> str:
-    """HTML コメント（`<!-- ... -->`）のみを同じ長さの空白に置換したテキストを返す。
+    """Mask HTML comments with spaces, preserving line and character offsets.
 
-    Markdown 構造（見出し・リスト・太字など）はマスクしない点が
-    mask_markdown_structure() と異なる。構造検出器（detect_structural_ai_habits）は
-    Markdown の構造そのものを検出対象とするため、構造はマスクせず、コメント内の
-    誤検知だけを防ぐために使う。行数・行内オフセットは元のテキストと完全に一致させる。
+    This comment-only helper does not interpret Markdown fences.
     """
     lines = text.split("\n")
     masked_lines = []
     in_html_comment = False
     for line in lines:
-        masked_line, in_html_comment = _mask_html_comments_in_line(line, in_html_comment)
+        masked_line, in_html_comment, _ = _mask_html_comments_in_line(line, in_html_comment)
         masked_lines.append(masked_line)
     return "\n".join(masked_lines)
+
+
+def _mask_code_fence_line(
+    line: str, open_fence: tuple[str, int] | None
+) -> tuple[bool, tuple[str, int] | None]:
+    """Return whether a line is fenced code and the next fence state."""
+    fence_match = _CODE_FENCE_RE.match(line)
+    if fence_match:
+        fence_run = fence_match.group(1)
+        if open_fence is None:
+            return True, (fence_run[0], len(fence_run))
+        if (
+            fence_run[0] == open_fence[0]
+            and len(fence_run) >= open_fence[1]
+            and not line[fence_match.end():].strip()
+        ):
+            return True, None
+    return open_fence is not None, open_fence
+
+
+def mask_fenced_code_and_comments(text: str) -> tuple[str, int]:
+    """Mask protected regions, retaining live Markdown structure and offsets.
+
+    Return the masked text and its unprotected character count for densities.
+    Comment delimiters inside fences and fences inside comments are literal.
+    Unclosed fences/comments protect the remainder of the document.
+    """
+    lines = text.split("\n")
+    masked_lines = []
+    open_fence = None
+    in_comment = False
+    visible_chars = len(text)
+    for index, line in enumerate(lines):
+        has_newline = index < len(lines) - 1
+        if not in_comment:
+            is_code, open_fence = _mask_code_fence_line(line, open_fence)
+            if is_code:
+                masked_lines.append(" " * len(line))
+                visible_chars -= len(line) + has_newline
+                continue
+        line, in_comment, masked_chars = _mask_html_comments_in_line(line, in_comment)
+        visible_chars -= masked_chars + (has_newline and in_comment)
+        masked_lines.append(line)
+    return "\n".join(masked_lines), visible_chars
 
 
 def _blank_inline_code_spans(line: str) -> str:
@@ -254,7 +300,6 @@ def mask_markdown_structure(text: str) -> str:
     """
     lines = text.split("\n")
     masked_lines = []
-    in_code_block = False
     # 開いているフェンスの (文字種, 長さ)。``` と ~~~ の混同や、フェンス内に
     # 出てくる別種・より短いフェンス様の行での誤クローズを防ぐため、開始フェンスと
     # 同じ文字種かつ同じ長さ以上の行でしか閉じない（CommonMark 準拠までは行わない）。
@@ -275,31 +320,12 @@ def mask_markdown_structure(text: str) -> str:
                 in_front_matter = False
             continue
 
-        fence_match = _CODE_FENCE_RE.match(line)
-        if fence_match:
-            fence_run = fence_match.group(1)
-            fence_char = fence_run[0]
-            fence_len = len(fence_run)
-            # CommonMark に合わせ、閉じフェンスは「フェンス文字の連続＋後続は空白のみ」の
-            # 行に限定する（開始フェンスは ```python のような info string を許容するが、
-            # 閉じ側でそれを許すと、フェンス内の地の文がたまたま ``` で始まっただけの
-            # 行を誤ってクローズ扱いしてしまう）。
-            remainder_after_fence = line[fence_match.end() :]
-            is_close_eligible = remainder_after_fence.strip() == ""
-            if open_fence is None:
-                open_fence = (fence_char, fence_len)
-            elif fence_char == open_fence[0] and fence_len >= open_fence[1] and is_close_eligible:
-                open_fence = None
-            # 種類・長さが一致しない行、あるいは後ろに文字が続く行は
-            # 「フェンス内の地の文（例: ```内で ~~ とだけ書いた行や ```これはコード）」
-            # として扱い、トグルしない。
-            masked_lines.append("")
-            continue
-        if open_fence is not None:
+        is_code, open_fence = _mask_code_fence_line(line, open_fence)
+        if is_code:
             masked_lines.append("")
             continue
 
-        line, in_html_comment = _mask_html_comments_in_line(line, in_html_comment)
+        line, in_html_comment, _ = _mask_html_comments_in_line(line, in_html_comment)
 
         if (
             _HEADING_RE.match(line)

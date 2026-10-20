@@ -57,8 +57,6 @@ for _p in (_REFS, _HERE):
 import checks as _checks  # noqa: E402  (sys.path mutation is intentional)
 import metrics_v2 as _m  # noqa: E402
 
-# final.md 본문 끝의 메타데이터 주석 블록. 여는 마커부터 파일 끝까지.
-_SUMMARY_BLOCK_RE = re.compile(r"<!--\s*HUMANIZE-SUMMARY\b.*", re.DOTALL)
 
 # P1 목표 달성 축의 어휘 S1 후보 지표. lexical_diversity는 제외 —
 # 높을수록 사람 글이라 감축 대상이 아니다.
@@ -80,11 +78,6 @@ S1_OVERCORRECT_Z = -1.5  # after z가 미만이면 과교정
 ANNIHILATION_MIN_BEFORE = 5
 
 _WS_RE = re.compile(r"\s+")
-
-
-def strip_summary_block(text: str) -> str:
-    """final.md에서 `<!-- HUMANIZE-SUMMARY -->` 메타 블록을 제거한다."""
-    return _SUMMARY_BLOCK_RE.sub("", text).strip()
 
 
 def _read(path: str) -> str:
@@ -275,11 +268,13 @@ def main(argv: list[str] | None = None) -> int:
             return 3
 
     try:
-        before = strip_summary_block(_read(args.before))
-        after = strip_summary_block(_read(args.after))
+        original = _read(args.before)
+        rewritten = _read(args.after)
     except OSError as e:
         print(f"error: 파일 읽기 실패: {e}", file=sys.stderr)
         return 3
+    before = _checks.strip_summary_block(original)
+    after = _checks.strip_summary_block(rewritten)
 
     report: dict = {"genre": args.genre}
     warn = False
@@ -338,7 +333,7 @@ def main(argv: list[str] | None = None) -> int:
           f"{report['antithesis']['verdict']}")
 
     # --- P3 golden + 수치 -------------------------------------------------
-    failures = _checks.run_checks(before, after)
+    failures = _checks.run_checks(original, rewritten)
     warn = warn or bool(failures)
     report["golden"] = [{"code": f.code, "message": f.message} for f in failures]
     if failures:
@@ -375,7 +370,7 @@ def main(argv: list[str] | None = None) -> int:
     # 순환 import를 피하려고 함수 안에서 늦게 불러온다.
     from restore_modality import find_losses  # noqa: PLC0415
 
-    losses = find_losses(before, after)
+    losses = find_losses(original, rewritten)
     confident = [l for l in losses if not l.get("low_sim")]
     uncertain = [l for l in losses if l.get("low_sim")]
     modality_fail = len(confident) > MODALITY_TOLERANCE

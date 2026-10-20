@@ -47,7 +47,7 @@ from textcore import (
     get_tokenizer,
     iter_lines_with_no,
     iter_paragraphs_with_lines,
-    mask_html_comments,
+    mask_fenced_code_and_comments,
     mask_markdown_structure,
     read_source_file,
     split_sentences_with_lines,
@@ -447,19 +447,12 @@ def format_related_lines(related_lines: list[int]) -> str:
 # ---------------------------------------------------------------------------
 _BASELINE_KEY_EXCERPT_PREFIX_LEN = 20
 
-# 文書全体の統計量（burstiness・変動係数・TTR/MTLD 等）を excerpt に直接埋め込んでいる
-# カテゴリ。これらは1文書につき高々1件しか出ない「集計そのもの」の finding であり、
-# excerpt が「burstiness=-0.623 (...)」のように計算結果の数値そのものなので、
-# 無関係な編集で文書の統計量がわずかに変化しただけで excerpt 文字列が変わり、
-# 同一性キーに含めると「解消」＋「新規」の偽ペアが発生してしまう。
-# このグループはカテゴリ名だけをキーにする（1文書1件が前提なので情報の欠落もない）。
-#
-# 一方、nominal_ending・repeated_sentence_lead・repeated_syntax_template・
-# paragraph_lead_conjunction・antithesis_repetition は「文書全体集計型」ではあるが、
-# excerpt 自体は実際にマッチした原文（体言止めの文末・反復した文頭など）であり、
-# 数値は detail 側にしか出てこない（同一性キーは detail を見ていない）。
-# これらは1文書内に複数の異なる該当箇所を持つのが普通なので、カテゴリ名だけに
-# 潰さず、従来どおり excerpt の前方一致キーを使う方が精度が高い。
+# These categories emit at most one document-level aggregate, with computed
+# counts or rates in the excerpt. Match by category so changing measurements
+# remain persisting findings rather than false resolved/new pairs.
+# Local findings retain their excerpt keys: repeated_sentence_lead groups,
+# boilerplate headings, antithesis matches, and other context-specific findings
+# can occur more than once and must not collapse into a document-wide identity.
 _CATEGORY_ONLY_KEY_CATEGORIES = {
     "low_burstiness",
     "high_length_autocorrelation",
@@ -467,6 +460,11 @@ _CATEGORY_ONLY_KEY_CATEGORIES = {
     "uniform_paragraph_structure",
     "low_lexical_diversity_ttr",
     "low_lexical_diversity_mtld",
+    "nominal_ending",
+    "high_bold_density",
+    "high_bullet_ratio",
+    "numbered_phase_structure",
+    "high_emoji_symbol_density",
 }
 
 
@@ -1618,7 +1616,9 @@ def detect_inanimate_subject_morph(tokenized: list[TokenizedSentence]) -> list[F
 # ---------------------------------------------------------------------------
 BOLD_SPAN_RE = re.compile(r"\*\*[^*\n]+\*\*")
 # 行頭(箇条の頭を含む)の「**ラベル**:」は項目を探す目印なので数えない
-BOLD_LABEL_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])?\s*\*\*[^*\n]+\*\*\s*[:：]", re.M)
+BOLD_LABEL_RE = re.compile(
+    r"^[ \t]*(?:(?:[-*+]|\d+[.)])[ \t]*)?\*\*[^*\r\n]+\*\*[ \t]*[:：]", re.M
+)
 BOLD_DENSITY_PER_1000_THRESHOLD = 3.0
 BULLET_LINE_RATIO_THRESHOLD = 0.35
 BULLET_LINE_MIN_LINES = 10
@@ -1643,13 +1643,15 @@ EMOJI_SYMBOL_PER_1000_THRESHOLD = 2.0
 
 
 def detect_structural_ai_habits(raw_text: str) -> tuple[list[Finding], dict]:
-    """マスク前の raw テキストに対して、Markdown 構造レベルの「教科書的AI癖」を検出する。
-    太字密度・箇条書き行比率・定型見出し・番号付きフェーズ構造・絵文字/装飾記号密度の
-    5種類。すべて severity="info"、EXPERIMENTAL カテゴリ扱い（デフォルト無効）。
+    """Detect Markdown structural habits outside fenced code and HTML comments.
+
+    Keep source offsets for findings; exclude protected characters from density
+    denominators as well as matches. Live headings, lists, and bold remain.
     """
     findings: list[Finding] = []
+    raw_text, visible_chars = mask_fenced_code_and_comments(raw_text)
     raw_lines = iter_lines_with_no(raw_text)
-    total_chars = len(raw_text) or 1
+    total_chars = visible_chars or 1
 
     # 1) 太字密度
     label_starts = {m.end() - len(m.group(0).lstrip()) for m in BOLD_LABEL_RE.finditer(raw_text)}
@@ -2223,11 +2225,7 @@ def run_lint(
     """
     profile = GENRE_PROFILES.get(genre, {})
 
-    # --- 構造層検出器は Markdown マスクより前のテキストを解析するが、HTML コメント内の
-    # 太字・番号付きフェーズ・絵文字を誤検知しないよう、HTML コメントのみを同じ長さの
-    # 空白に置換したテキストを渡す（行番号・オフセットは raw_text と一致するため、
-    # 検出器内で raw_text から excerpt を切り出す既存ロジックはそのまま使える）。
-    structural_findings, structural_stats = detect_structural_ai_habits(mask_html_comments(raw_text))
+    structural_findings, structural_stats = detect_structural_ai_habits(raw_text)
 
     # Markdown の構造行（見出し/リスト/コードブロック/引用/表）とインラインコードスパンは
     # 文章として扱わず、行番号を保ったままマスクしてから解析用テキストとして使う。

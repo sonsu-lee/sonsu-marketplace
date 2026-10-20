@@ -31,7 +31,7 @@ import traceback
 from datetime import date
 from pathlib import Path
 
-from checks import extract_inline_markers
+from checks import FOOTNOTE_LINE_RE, extract_inline_markers
 
 # All runtime resources are inside the installed skill.
 HERE = Path(__file__).resolve().parent
@@ -487,9 +487,6 @@ HEADING_LINE_RE = re.compile(
     r"|[가나다라마바사아자차카타파하]\.\s"
     r"|\([0-9가-힣]+\))"
 )
-# Numbered procedure lines are prose unless an inline citation references them.
-FOOTNOTE_LINE_RE = re.compile(r"^(?:(\d+)\)\s|\[(\d+)\]\s)")
-_BRACKET_REFERENCE_RE = re.compile(r"\[(\d+)\]")
 
 _PARA_SEP_RE = re.compile(r"\n{2,}")
 # 문장 경계: 종결 부호(+닫는 따옴표류) 뒤 공백. 컷은 공백 런 끝 = 다음 문장 시작.
@@ -518,19 +515,14 @@ def _line_spans(text: str) -> list[tuple[int, int]]:
 def find_footnote_block_start(text: str) -> int | None:
     """Return the start of a referenced trailing footnote block, if present."""
     spans = _line_spans(text)
-    paren_refs = {number for number, _ in extract_inline_markers(text)}
-    bracket_refs: set[str] = set()
-    for ls, le in spans:
-        line = text[ls:le]
-        if not FOOTNOTE_LINE_RE.match(line):
-            bracket_refs.update(_BRACKET_REFERENCE_RE.findall(line))
+    referenced = {number for number, _ in extract_inline_markers(text)}
     start: int | None = None
     for ls, le in reversed(spans):
         line = text[ls:le]
         if not line.strip():
             continue
         match = FOOTNOTE_LINE_RE.match(line)
-        if match and (match.group(1) in paren_refs or match.group(2) in bracket_refs):
+        if match and (match.group(1) or match.group(2)) in referenced:
             start = ls
             continue
         break
