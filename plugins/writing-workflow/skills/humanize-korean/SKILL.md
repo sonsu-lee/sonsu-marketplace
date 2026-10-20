@@ -215,4 +215,7 @@ consolidated in `diagnosis-rules.md`; quick rules retain the upstream selected
 subset. Research history, release/build tooling, client configuration, web
 service specifications, and development experiments are not runtime resources.
 
+The adaptation also distinguishes numbered procedures from referenced footnote
+definitions in preparation and fidelity checks, so runbook steps remain editable.
+
 [upstream]: https://github.com/epoko77-ai/im-not-ai/tree/b37e0206d31fffd9149bf57168d4d62eb2086bee

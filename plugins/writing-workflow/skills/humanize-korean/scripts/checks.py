@@ -185,10 +185,10 @@ def check_headings(original: str, output: str) -> list[Failure]:
     return fails
 
 
-# Inline marker: digits + ')' ATTACHED to the preceding character
-# ("...증가했다.1)"). A space-preceded or line-leading "N) " is a footnote
-# DEFINITION label, not an inline marker. '(3)' style headings are excluded
-# by the '(' lookbehind; '(2024)' style years by the digit lookbehind.
+# Inline markers are attached to preceding text ("...증가했다.1)").
+# A line-leading "N) " can be a procedure step or a definition; its prefix is
+# not a marker, but prose later on the same line can contain a real citation.
+# Parenthesized headings and years are excluded by the lookbehinds.
 _INLINE_MARKER = re.compile(r"(?<=\S)(?<![(\d])(\d{1,3})\)")
 _DEF_LABEL = re.compile(r"(?:^|(?<=\s))(\d{1,3})\)\s")
 _NUM_TOKEN = re.compile(r"\d+(?:[.,]\d+)*")
@@ -201,9 +201,8 @@ def extract_inline_markers(text: str) -> list[tuple[str, int]]:
     markers = []
     offset = 0
     for line in text.splitlines(keepends=True):
-        if not _DEF_LINE.match(line):
-            for m in _INLINE_MARKER.finditer(line):
-                markers.append((m.group(1), offset + m.start(1)))
+        for m in _INLINE_MARKER.finditer(line):
+            markers.append((m.group(1), offset + m.start(1)))
         offset += len(line)
     return markers
 
@@ -211,15 +210,18 @@ def extract_inline_markers(text: str) -> list[tuple[str, int]]:
 def extract_defs(text: str) -> dict[str, str]:
     """Return {footnote_number: normalized_definition_content}.
 
-    Handles both one-definition-per-line and (broken) merged lines, so the
-    content-identity check still works on merged-but-verbatim definitions.
+    Require an inline reference so numbered procedures remain editable.
+    Merged-but-verbatim definitions still support content-identity checks.
     """
     defs: dict[str, str] = {}
+    referenced = {number for number, _ in extract_inline_markers(text)}
     for line in text.splitlines():
         if not _DEF_LINE.match(line):
             continue
         labels = [(m.start(), m.group(1)) for m in _DEF_LABEL.finditer(line)]
         for i, (pos, num) in enumerate(labels):
+            if num not in referenced:
+                continue
             end = labels[i + 1][0] if i + 1 < len(labels) else len(line)
             content = re.sub(r"^\s*\d{1,3}\)\s*", "", line[pos:end])
             defs[num] = _norm_ws(content)

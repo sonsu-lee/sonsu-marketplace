@@ -98,6 +98,8 @@ language. Source licenses are bundled with each skill.
 - **humanize-korean:** [epoko77-ai/im-not-ai][ko-source] at
   `b37e0206d31fffd9149bf57168d4d62eb2086bee`. Adapted for standalone omp use and
   all Korean prose genres, explicitly including technical documentation.
+  Numbered procedure steps remain editable; actual referenced footnotes stay
+  protected.
 - **ce-noslop:** [EveryInc/compound-engineering-plugin][en-source] at
   `2e41b4490a37f53db0beb6d4904618da9af2f559`. Restricted to English in this
   collection; unsupported client metadata and uninstalled sibling dependencies
@@ -115,6 +117,14 @@ Keep upstream notices and revision references when updating an adaptation.
 Use a temporary HOME for omp checks; never install test plugins into a user's
 live configuration. Exercise prose and protected-content boundary cases as
 well as format and discovery checks.
+
+Run the Korean helper regression tests from the marketplace root:
+
+```sh
+python3 -B -m unittest discover -s plugins/writing-workflow/tests -v
+```
+
+These cover editable numbered procedures and preservation of genuine footnotes.
 
 ## License
 

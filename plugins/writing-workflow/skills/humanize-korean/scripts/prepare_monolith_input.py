@@ -31,6 +31,8 @@ import traceback
 from datetime import date
 from pathlib import Path
 
+from checks import extract_inline_markers
+
 # All runtime resources are inside the installed skill.
 HERE = Path(__file__).resolve().parent
 METRICS_DIR = HERE.parent / "references"
@@ -485,9 +487,9 @@ HEADING_LINE_RE = re.compile(
     r"|[가나다라마바사아자차카타파하]\.\s"
     r"|\([0-9가-힣]+\))"
 )
-# 각주 정의 줄. \d+\) 는 헤딩 정규식과 겹치지만 각주 판정은 문서 말미의
-# 연속 블록에만 적용되고 그 구간은 본문 청킹에서 제외되므로 충돌 없음.
-FOOTNOTE_LINE_RE = re.compile(r"^(?:\d+\)\s|\[\d+\]\s)")
+# Numbered procedure lines are prose unless an inline citation references them.
+FOOTNOTE_LINE_RE = re.compile(r"^(?:(\d+)\)\s|\[(\d+)\]\s)")
+_BRACKET_REFERENCE_RE = re.compile(r"\[(\d+)\]")
 
 _PARA_SEP_RE = re.compile(r"\n{2,}")
 # 문장 경계: 종결 부호(+닫는 따옴표류) 뒤 공백. 컷은 공백 런 끝 = 다음 문장 시작.
@@ -514,18 +516,21 @@ def _line_spans(text: str) -> list[tuple[int, int]]:
 
 
 def find_footnote_block_start(text: str) -> int | None:
-    """문서 말미의 각주 모음 블록 시작 offset. 없으면 None.
-
-    끝에서 역방향으로 훑으며 빈 줄은 통과, 각주 패턴 줄은 블록에 포함,
-    그 외 줄을 만나면 중단. 최소 1개의 각주 줄이 있어야 블록으로 본다.
-    """
+    """Return the start of a referenced trailing footnote block, if present."""
     spans = _line_spans(text)
+    paren_refs = {number for number, _ in extract_inline_markers(text)}
+    bracket_refs: set[str] = set()
+    for ls, le in spans:
+        line = text[ls:le]
+        if not FOOTNOTE_LINE_RE.match(line):
+            bracket_refs.update(_BRACKET_REFERENCE_RE.findall(line))
     start: int | None = None
     for ls, le in reversed(spans):
         line = text[ls:le]
         if not line.strip():
             continue
-        if FOOTNOTE_LINE_RE.match(line):
+        match = FOOTNOTE_LINE_RE.match(line)
+        if match and (match.group(1) in paren_refs or match.group(2) in bracket_refs):
             start = ls
             continue
         break

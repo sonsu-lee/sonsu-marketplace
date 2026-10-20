@@ -507,6 +507,14 @@ the actions as well as the final output. Use the
 for before/after or with/without comparisons; report smoke checks separately
 from measured trigger rates or comparative quality results.
 
+For changes to `writing-workflow` runtime helpers, also run its behavior tests:
+
+```sh
+python3 -B -m unittest discover -s plugins/writing-workflow/tests -v
+```
+
+The tests distinguish editable numbered procedures from protected footnotes.
+
 For changes to `git-workflow` validation, also run its behavior tests:
 
 ```sh

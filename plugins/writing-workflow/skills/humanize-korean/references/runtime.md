@@ -10,7 +10,8 @@ packages, external executables, credentials, or network calls are required.
 
 - `scripts/prepare_monolith_input.py` imports `references/metrics_v2.py`, with
   upstream fallback to `metrics.py`, and optionally `scripts/sanitize_text.py`.
-  It uses `scripts/console.py` for UTF-8 console handling.
+  It uses `scripts/checks.py` to recognize inline footnote references and
+  `scripts/console.py` for UTF-8 console handling.
 - `references/metrics_v2.py` imports adjacent `metrics.py`; both read adjacent
   `baseline.json` / `baseline_v2.json` as applicable.
 - `scripts/verify_gates.py` imports `scripts/checks.py`, `metrics_v2.py`, and
@@ -81,6 +82,10 @@ Read the manifest rather than deriving filenames. Passthrough entries are
 restored from the original. Body outputs contain only revised text, not summaries
 or newly invented boundary transitions. Reassembly is mandatory even with one
 body chunk and can handle no-body/passthrough cases without inventing text.
+
+Numbered lines such as `1) ...` and `[1] ...` remain editable procedure prose
+unless an inline citation references them. Only referenced trailing definitions
+become footnote passthrough; numbered runbooks are not exempt from editing.
 
 The chunker is not a Markdown or programming-language parser. It does not
 protect every code block or detect executable directives. Before editing any
