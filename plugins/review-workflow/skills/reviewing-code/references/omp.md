@@ -71,6 +71,11 @@ constraints, and read-only/local-only policy. Keep the same brief for all initia
 workers; vary only their assigned questions and report contracts. Large input
 may be stored in one explicitly referenced `local://` artifact.
 
+Include explicit diff inputs as well as source files: the comparison patch,
+separate staged/unstaged patches when applicable, and untracked file contents.
+If the export has no Git metadata, tell the native reviewer to read those
+supplied diffs rather than run repository-relative Git commands in the export.
+
 ## Dispatch one native batch
 
 For example, after preparing `/tmp/review-export-42` and
@@ -89,7 +94,7 @@ publishing, including cleanup and consumer boundaries, with the custom report.
     {
       "agent": "reviewer",
       "name": "NativeReview",
-      "task": "General bug/regression pass. Keep your native output contract.",
+      "task": "Read supplied diffs; inspect regressions; keep native output.",
       "solutionSpace": "General bug and regression causes are open; no known defect."
     },
     {

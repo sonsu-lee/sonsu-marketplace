@@ -41,7 +41,7 @@
       "name": "review-workflow",
       "source": "./plugins/review-workflow",
       "description": "Evidence-driven code review with native and focused reviewers and local-first reporting.",
-      "version": "0.2.0"
+      "version": "0.2.1"
     }
   ]
 }

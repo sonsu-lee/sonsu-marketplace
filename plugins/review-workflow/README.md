@@ -51,7 +51,7 @@ Keep the report local; do not edit files or publish anything.
 
 Review PR #123 against its stated purpose and report findings locally.
 
-Draft review comments for PR #123. Do not post them.
+Draft PR comments from these existing findings. Do not start a new review or post.
 ```
 
 Ordinary natural-language review requests should select `reviewing-code`.
@@ -61,6 +61,10 @@ one `review-workflow-focused` worker together in one native `task` batch.
 This invokes the native agent, not the `/review` slash command. The plugin
 neither replaces nor hooks `/review`; an explicit native-only request opts out
 of the custom orchestration and preserves the native workflow.
+
+When asked only to turn existing findings into comments, load the comment
+guidance and preserve their verification status without launching reviewers or
+runtime checks. Drafting a comment is a different entry path from reviewing code.
 
 To publish, explicitly ask to post the verified findings as a GitHub COMMENT
 review. A request to review or draft does not authorize posting, including a

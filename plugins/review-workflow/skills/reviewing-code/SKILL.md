@@ -1,10 +1,10 @@
 ---
 name: reviewing-code
 description: >-
-  Review code changes, pull requests, or an implementation against its purpose.
-  Use for natural-language requests such as "review this": coordinate independent
-  and focused review, then report evidence-backed defects and design costs.
-  Not for native-only review, automatic fixes, approval, or publication.
+  Review code changes, pull requests, or implementations against their purpose,
+  and draft or explicitly publish review comments. Coordinate independent and
+  focused review; use existing findings when only comments are requested.
+  Not for native-only reviews, applying fixes, or approving changes.
 ---
 
 # Reviewing code
@@ -15,6 +15,15 @@ Do not modify source, fix issues, commit, push, approve, or publish. Only an
 explicit posting request authorizes remote comments, using COMMENT rather than
 approval or request-changes events. Read-only review still sends code and context
 to model providers; it is not an offline or confidential execution guarantee.
+
+## Select the requested work
+
+For a code-review request, continue with the roles and procedure below.
+For a request only to draft or post comments from existing findings, read
+[review comments](references/review-comments.md) and use that evidence without
+starting new reviewers or runtime checks. Preserve its verification status;
+ask for a missing consequential fact rather than invent it. Posting still
+requires explicit authorization and the reference's revision/readback checks.
 
 ## Choose the role
 
