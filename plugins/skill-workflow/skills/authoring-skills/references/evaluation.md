@@ -1,14 +1,17 @@
 # Choosing evaluation
 
-Choose checks for the behavior being added or changed. Format, discovery,
-activation, output quality, and enforcement are different claims; evidence
-for one does not establish the others. Follow the target project's existing
+Choose checks for the changed behavior. Format, discovery, complete prompt
+loading, activation, output quality, and enforcement are different claims;
+evidence for one does not establish the others. Follow the project's existing
 validation setup rather than introducing a new evaluation framework.
 
 ## Start with the changed behavior
 
 - **Metadata or packaging:** use the official format validator and the target
-  client's discovery check. Confirm the intended skill loads without warnings.
+  client's discovery check. Separately invoke the installed skill and inspect
+  events and injected content for complete main-file loading without warnings.
+  Use the client's actual invocation identity and version-specific limits;
+  discovery may inspect only metadata and miss body truncation.
 - **Task guidance:** exercise a representative request and a relevant boundary
   case. Inspect actions and outputs, not just the final answer. Use isolated
   workspaces and avoid publishing test artifacts to real projects.
@@ -18,6 +21,13 @@ validation setup rather than introducing a new evaluation framework.
 - **Description or scope:** check relevant prompts and near-misses, observing
   whether the client actually loads the skill. A model saying it would use the
   skill is not evidence of activation.
+
+When splitting content to fit a loader, retain essential workflow and safety
+instructions in the main file and give moved detail explicit loading conditions.
+Exercise a task that needs the moved content and check that the reference is
+read. A size check or prompt capture proves neither reference use nor task
+success. With model access unavailable, report loading evidence separately from
+unverified reference following and behavior.
 
 Start small. For a new workflow, two or three realistic cases can reveal useful
 failures before investing in a larger evaluation. For a formatting-only edit,

@@ -133,6 +133,32 @@ and video playback. If playback or visual inspection is unavailable, report
 that limitation instead of declaring the evidence verified. Remove obsolete
 local-path placeholders and synchronize evidence after further UI changes.
 
+## Merge message
+
+Squash does not guarantee that GitHub uses the PR title or body. Its default
+message depends on repository settings and sometimes the number of commits.
+The PR body can use Markdown and media; it need not be a verbatim commit body.
+When preparing a merge, inspect and validate the final complete commit message
+with [writing-commits](../../writing-commits/SKILL.md), preserving important
+rationale, breaking-change details, and attribution. Do not merge as part of a
+request merely to write or open a PR.
+
+## Design sources
+
+Google supplies content and change-size principles, not a required PR template:
+
+- [Writing good CL descriptions][descriptions]: what, why, decision context,
+  informative titles, and keeping the description current.
+- [Small CLs][small]: coherent changes, related tests, and safe incremental work.
+- [What to look for in a code review][review]: design, functionality, and useful
+  evidence where reading code alone is insufficient.
+
+The fallback headings, author-check policy, AI disclosure, and Draft default are
+this plugin's choices. Useful comparisons are
+[React's template][react], [Rust's author-check and disclosure guidance][rust],
+and [LLVM's human-accountability policy][llvm]. Their project-specific
+restrictions do not become universal requirements here.
+
 ## References
 
 - [GitHub CLI attachments][attachments]: permissions, placement, and video.
@@ -148,3 +174,9 @@ local-path placeholders and synchronize evidence after further UI changes.
 [defaults]: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file
 [squash]: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/configuring-commit-squashing-for-pull-requests
 [issues]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue
+[descriptions]: https://google.github.io/eng-practices/review/developer/cl-descriptions.html
+[small]: https://google.github.io/eng-practices/review/developer/small-cls.html
+[review]: https://google.github.io/eng-practices/review/reviewer/looking-for.html
+[react]: https://github.com/facebook/react/blob/main/.github/PULL_REQUEST_TEMPLATE.md
+[rust]: https://rustc-dev-guide.rust-lang.org/llm-guidance/writing.html
+[llvm]: https://llvm.org/docs/AIToolPolicy.html

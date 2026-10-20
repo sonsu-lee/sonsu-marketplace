@@ -2,7 +2,7 @@
 
 Use this reference for `score` or a request such as 「この文章、AIっぽい？」.
 Return a score, its reasons, and priorities if the user later wants revisions.
-Do not modify the document. A rewrite request switches to sections 1–7 of
+Do not modify the document. A rewrite request switches to sections 1–6 of
 [the skill](../SKILL.md).
 
 The score measures selected stylistic signals, not whether an AI wrote the
@@ -15,9 +15,9 @@ Diagnosis depth differs from editing depth because there is no rewrite loop:
 - **quick**, default: run `lint.py --json` once, with `--genre` when known,
   and glance through headings and paragraph openings. No subagents.
 - **full**: also run `outline.py` and `terms.py`; include the structure,
-  readability, and document-type review from section 5. Parallel reading is
-  useful only for a genuinely long document. Evaluate once, without a
-  convergence loop.
+  readability, and document-type review from
+  [the readability review](readability.md). Parallel reading is useful only
+  for a genuinely long document. Evaluate once, without a convergence loop.
 
 Resolve every script against `SKILL_DIR` as explained in the skill. This
 adaptation does not ship upstream `semantic.py` or its `exp` mode, which would

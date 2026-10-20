@@ -4,44 +4,44 @@
     "name": "sonsu-lee"
   },
   "metadata": {
-    "description": "Personal plugin marketplace for omp."
+    "description": "Personal plugin marketplace for omp and Codex."
   },
   "plugins": [
     {
       "name": "git-workflow",
       "source": "./plugins/git-workflow",
       "description": "Name branches, write commits, and prepare draft pull requests by repository conventions.",
-      "version": "0.3.3"
+      "version": "0.3.5"
     },
     {
       "name": "skill-workflow",
       "source": "./plugins/skill-workflow",
       "description": "Create and refine focused agent skills, delegating mechanical work to existing tools.",
-      "version": "0.1.1"
+      "version": "0.1.3"
     },
     {
       "name": "ticket-workflow",
       "source": "./plugins/ticket-workflow",
       "description": "Write small, outcome-centered GitHub and Linear tickets while leaving implementation to the assignee.",
-      "version": "0.1.1"
+      "version": "0.1.3"
     },
     {
       "name": "decision-workflow",
       "source": "./plugins/decision-workflow",
       "description": "Select consequential design decisions and write lightweight ADRs using repository conventions first.",
-      "version": "0.1.1"
+      "version": "0.1.2"
     },
     {
       "name": "writing-workflow",
       "source": "./plugins/writing-workflow",
       "description": "Write and refine natural Korean, English, and Japanese prose while preserving meaning and author voice.",
-      "version": "0.1.2"
+      "version": "0.1.4"
     },
     {
       "name": "review-workflow",
       "source": "./plugins/review-workflow",
-      "description": "Evidence-driven code review with native and focused reviewers and local-first reporting.",
-      "version": "0.2.1"
+      "description": "Evidence-driven code review with independent general and focused reviewers and local-first reporting.",
+      "version": "0.3.1"
     }
   ]
 }
