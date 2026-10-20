@@ -33,12 +33,16 @@ read their linked procedures before making changes.
   branch and PR skills for downstream work.
 * When reviewing a PR or responding to feedback, follow the
   [review procedure](README.md#code-review) and the Code Review Rules below.
-* Record significant decisions, not implementation steps or a work log,
-  following the [decision-record procedure](README.md#decision-records).
-  Keep records under review `proposed` and consolidate revisions of the same
-  decision in the same record. Mark them `accepted` only after decision review.
-  Do not edit an accepted record to change a decision; write a new record that
-  supersedes it.
+* When deciding whether to write an ADR, or drafting, reviewing, or replacing
+  one, follow the [decision-record procedure](README.md#decision-records) and
+  its [ADR skill](plugins/decision-workflow/skills/writing-adrs/SKILL.md).
+  Record direction-setting or consequential design choices, not every shared
+  rule, implementation step, or operational change. Keep proposals together
+  until the decision-maker accepts them; implementation completion is not
+  acceptance. Preserve accepted records and link a new record when the
+  decision changes, not merely when it is reconsidered.
+  The procedure documents the one-time ADR-0001 consolidation and ADR-0002
+  through ADR-0004 format migration; do not infer permission for further resets.
 * Keep current procedures in the README and relevant skills, and executable
   rules in configuration files. When adding or changing a requirement, update
   its operational source and ensure this file identifies when it applies and

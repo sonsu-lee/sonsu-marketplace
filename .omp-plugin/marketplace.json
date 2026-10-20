@@ -24,6 +24,12 @@
       "source": "./plugins/ticket-workflow",
       "description": "Write small, outcome-centered GitHub and Linear tickets while leaving implementation to the assignee.",
       "version": "0.1.1"
+    },
+    {
+      "name": "decision-workflow",
+      "source": "./plugins/decision-workflow",
+      "description": "Select consequential design decisions and write lightweight ADRs using repository conventions first.",
+      "version": "0.1.1"
     }
   ]
 }
