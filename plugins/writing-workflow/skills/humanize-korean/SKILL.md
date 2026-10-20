@@ -52,7 +52,8 @@ These protections override stylistic quotas in the references.
 
 1. Resolve `SKILL_ROOT` from the actual directory containing this loaded
    `SKILL.md`, not the target repository or a guessed cache path. Codex reads
-   relative resources by ordinary file path; omp may also use
+   relative resources by ordinary file path; Claude Code shows the directory as
+   `Base directory for this skill`; omp may also use
    `skill://humanize-korean/<path>`. Pass absolute filesystem paths to Python,
    never client URIs. If the loaded location or a resource is unavailable,
    report the installation or lookup error; do not guess paths, copy assets into

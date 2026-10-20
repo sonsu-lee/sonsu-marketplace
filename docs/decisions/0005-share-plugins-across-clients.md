@@ -36,9 +36,11 @@ unavailable, disclose the limitation rather than silently weaken the workflow
 or claim equivalent support. This keeps common changes maintainable in one
 place without coupling every client to another client's native features.
 
-This direction applies to future clients, including Claude Code, but is not a
-claim that they are already supported. omp and Codex are the current application
-of the approach. Keep actual support scope, client procedures, and verification
+This direction applies to future clients as well. omp, Codex, and Claude Code
+are the current application of the approach. Claude Code shows that client
+metadata can include a package-level manifest when a client would otherwise
+load another client's components; it is not a second package tree. Keep actual
+support scope, client procedures, and verification
 requirements in the [layout](../../README.md#layout),
 [plugin-authoring procedure](../../README.md#adding-a-plugin), and
 [test procedure](../../README.md#testing-a-plugin). This proposal extends

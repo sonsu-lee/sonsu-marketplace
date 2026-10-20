@@ -53,8 +53,9 @@ editor owns the whole document. When uncertain, finish quick and mention full.
 ### Resolve installed resources before running scripts
 
 Relative links are relative to this skill's directory, never the caller's
-repository. In omp or Codex, set `SKILL_DIR` to the absolute directory containing
-this actually loaded `SKILL.md`; Codex reads relative links under that root, and
+repository. In omp, Codex, or Claude Code, set `SKILL_DIR` to the absolute
+directory containing this actually loaded `SKILL.md`; Codex reads relative links
+under that root, Claude Code shows it as `Base directory for this skill`, and
 omp may also use `skill://natural-japanese/<relative-path>`. Pass absolute
 filesystem paths to Python/uv, never client URIs. If the loaded location or a
 resource cannot be resolved, report the installation or lookup error; do not

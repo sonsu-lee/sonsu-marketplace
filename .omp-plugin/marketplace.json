@@ -35,13 +35,13 @@
       "name": "writing-workflow",
       "source": "./plugins/writing-workflow",
       "description": "Write and refine natural Korean, English, and Japanese prose while preserving meaning and author voice.",
-      "version": "0.1.4"
+      "version": "0.2.0"
     },
     {
       "name": "review-workflow",
       "source": "./plugins/review-workflow",
       "description": "Evidence-driven code review with independent general and focused reviewers and local-first reporting.",
-      "version": "0.3.1"
+      "version": "0.4.0"
     }
   ]
 }

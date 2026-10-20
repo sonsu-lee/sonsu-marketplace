@@ -1,0 +1,13 @@
+{
+  "name": "review-workflow",
+  "version": "0.4.0",
+  "description": "Evidence-driven code review with independent general and focused reviewers and local-first reporting.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "repository": "https://github.com/sonsu-lee/sonsu-marketplace",
+  "license": "MIT",
+  "keywords": ["review", "correctness", "architecture", "verification"],
+  "agents": []
+}
