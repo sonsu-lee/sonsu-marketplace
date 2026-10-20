@@ -56,8 +56,9 @@ configuration problems.
 
 Only if no repository commitlint configuration is established, set `skill_dir`
 to the absolute directory containing the loaded `SKILL.md` and use its
-`assets/commitlint.config.mjs`. Do not guess an omp cache path or copy the asset
-into the repository.
+`assets/commitlint.config.mjs`. Do not guess a plugin cache path or copy the asset
+into the repository. If the loaded location or asset cannot be resolved, report
+the installation or lookup error rather than bypassing validation.
 
 With an existing commitlint installation, keep that executable and add
 `--config "$skill_dir/assets/commitlint.config.mjs" --strict` to its supported

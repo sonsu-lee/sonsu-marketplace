@@ -61,8 +61,12 @@ eligible for other rules.
 
 1. Resolve `SKILL_ROOT` from the actual directory containing this loaded
    `SKILL.md`, not the target repository, a global client directory, or a guessed
-   cache path. Relative resources below are inside that directory. omp can read
-   them as `skill://humanize-korean/references/quick-rules.md`.
+   cache path. Relative resources below are inside that directory. Codex reads
+   those ordinary file paths; omp can also read resources as
+   `skill://humanize-korean/references/quick-rules.md`. Pass absolute filesystem
+   paths to Python, never client URIs. If the loaded location or a resource
+   is unavailable, report the installation or lookup error; do not guess paths,
+   copy assets into the target repository, or bypass configured checks.
 2. Read [quick rules](references/quick-rules.md). For standard or heavy, also
    read [the complete diagnostic taxonomy](references/diagnosis-rules.md).
 3. Create a unique caller-owned temporary run directory outside the target

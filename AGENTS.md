@@ -1,20 +1,26 @@
 # AGENTS.md
 
-This repository is an omp plugin marketplace. Use the current procedures in
-the README and skills below. Identify which requirements apply to the task and
-read their linked procedures before making changes.
+This repository is a shared omp and Codex plugin marketplace. Use the current
+procedures in the README and skills below. Identify which requirements apply
+to the task and read their linked procedures before making changes.
 
-* Add or change plugins using the
-  [plugin-authoring procedure](README.md#adding-a-plugin).
+* Add or change plugins, including support for another client, using the
+  [plugin-authoring procedure](README.md#adding-a-plugin). Keep shared sources
+  and client-specific execution separate, and verify each added client.
 * When creating, revising, or reviewing skills, follow the
   [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md).
-* Raise the plugin's `version` in `.omp-plugin/marketplace.json` with every
-  change to it.
+* Raise the plugin's root `plugin.json` version and matching
+  `.omp-plugin/marketplace.json` version together with every plugin change.
+  Keep both client catalogs pointed at the same package directories.
 * After changing a plugin, run the
-  [plugin test procedure](README.md#testing-a-plugin).
-  Every skill must appear in `omp skill list` with no `warning:` lines.
-* Run omp only with a temporary `HOME`. Do not install plugins into, or add
-  this marketplace to, the user's own omp.
+  [plugin test procedure](README.md#testing-a-plugin) for both clients.
+  Require every expected skill exactly once without loading errors; omp
+  discovery must have no `warning:` lines. Exercise representative tasks
+  separately; listing is not proof of execution.
+* Use separate temporary client homes: `HOME` for omp, and both `HOME` and
+  `CODEX_HOME` for Codex. Do not install into live clients or copy real settings
+  or credentials. Use `--no-daemon` for Codex model smoke runs and report
+  unavailable authorized authentication as an execution blocker.
 * Follow the [commit skill](plugins/git-workflow/skills/writing-commits/SKILL.md)
   when writing commit messages and the
   [branch skill](plugins/git-workflow/skills/naming-branches/SKILL.md)
@@ -33,8 +39,9 @@ read their linked procedures before making changes.
   branch and PR skills for downstream work.
 * When reviewing code, a diff, or a PR, or responding to feedback, follow the
   [review procedure](README.md#code-review) and the Code Review Rules below.
-  Requested omp reviews use its linked skill and omp execution reference;
-  explicit native-only requests retain the native procedure and output.
+  Requested omp and Codex plugin reviews use the linked common skill and the
+  corresponding client execution reference; explicit native-only requests
+  retain the native procedure and output.
   Results stay local unless publication is explicitly requested.
 * When deciding whether to write an ADR, or drafting, reviewing, or replacing
   one, follow the [decision-record procedure](README.md#decision-records) and
@@ -92,8 +99,10 @@ read their linked procedures before making changes.
 
 ### Comment intent
 
-Preserve Codex's native priority and output format. These are local intent
-labels, not severity levels or settings that expand which findings Codex posts:
+For native Codex reviews, preserve Codex's native priority and output format.
+Custom plugin controllers use their own report contract, not native JSON.
+These are local intent labels, not severity levels or settings that expand
+which findings Codex posts:
 
 * **Fix:** a concrete problem introduced or worsened by this PR, to address
   here.

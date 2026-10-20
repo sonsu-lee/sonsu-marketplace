@@ -98,10 +98,14 @@ When uncertain, finish quick and mention that full review is available.
 ### Resolve installed resources before running scripts
 
 Relative links in this skill are relative to this skill's directory, never the
-caller's repository. In omp, read resources through
-`skill://natural-japanese/<relative-path>`. For execution, obtain the actual
-loaded skill directory from omp's skill location and set `SKILL_DIR` to that
-absolute directory. Do not guess a cache path or pass `skill://` to Python.
+caller's repository. In either omp or Codex, set `SKILL_DIR` to the absolute
+directory containing this actually loaded `SKILL.md`. Codex reads the ordinary
+relative links under that installed root; omp may also read resources through
+`skill://natural-japanese/<relative-path>`. Always pass absolute filesystem
+paths to Python/uv, never client URIs. If the loaded location or a resource
+cannot be resolved, report the installation or lookup error. Do not guess a
+cache path, copy assets into the target repository, or bypass configured checks.
+Manual review remains limited to the execution-unavailable conditions below.
 Keep the caller's working directory and pass quoted target paths:
 
 ```sh

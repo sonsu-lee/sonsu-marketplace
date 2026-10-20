@@ -1,9 +1,10 @@
 # sonsu-marketplace
 
-Personal plugin marketplace for [omp](https://github.com/can1357/oh-my-pi).
+Personal plugin marketplace for omp and Codex.
 
-omp reads the catalog at `.omp-plugin/marketplace.json` and installs plugins
-from the `plugins/` directory.
+[omp](https://github.com/can1357/oh-my-pi) reads `.omp-plugin/marketplace.json`;
+[Codex](https://developers.openai.com/codex/cli) reads
+`.agents/plugins/marketplace.json`. Both install the same `plugins/` packages.
 
 ## Table of Contents
 
@@ -32,8 +33,13 @@ from the `plugins/` directory.
 
 ### Dependencies
 
-Install [omp](https://github.com/can1357/oh-my-pi#install) before using this
-marketplace.
+Install [omp](https://github.com/can1357/oh-my-pi#install) or
+[Codex CLI](https://developers.openai.com/codex/cli) before using this marketplace.
+Codex must provide the plugin marketplace and subagent interfaces described
+below; older clients without them do not meet the prerequisites.
+Local catalog installation and installed-skill discovery were checked with
+Codex CLI `0.163.0` and omp `18.12.3`. These are checked baselines, not promises
+for every older release or evidence of authenticated model execution.
 
 The `git-workflow` skills reuse the target repository's validation setup first.
 When none exists, the commit fallback needs Node.js 22.12.0 or newer and npm
@@ -54,7 +60,7 @@ before use. Its English skill has no external runtime dependency.
 
 ### Marketplace
 
-Add the marketplace:
+For omp, add the marketplace:
 
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
@@ -69,15 +75,42 @@ omp plugin install <plugin>@sonsu-marketplace
 
 Add `--scope project` to install a plugin for the current project only.
 
+For Codex:
+
+```sh
+codex plugin marketplace add sonsu-lee/sonsu-marketplace
+codex plugin list --marketplace sonsu-marketplace --available --json
+codex plugin add git-workflow@sonsu-marketplace
+```
+
+Use `codex plugin add <name>@sonsu-marketplace` for another package. This is a
+repository marketplace, not a submission to the public plugin directory.
+The common local marketplace format also applies to supporting app and IDE
+surfaces; their availability varies, and CLI checks do not verify those UIs.
+
 ## Usage
 
 ### CLI
 
-Check which skills are available after installation:
+In omp, check available skills after installation:
 
 ```sh
 omp skill list
 ```
+
+In Codex, check catalog and installed state:
+
+```sh
+codex plugin list --marketplace sonsu-marketplace --json
+```
+
+Listing proves catalog or installation state, not skill execution. In a Codex
+session, `$skill-name` explicitly selects a skill, for example
+`$writing-commits`. Natural-language selection is model behavior, not an
+installation hook or guaranteed trigger.
+Codex discovery qualifies plugin skills as `<plugin>:<skill>`, for example
+`git-workflow:writing-commits`; retain that identity when matching discovery
+results or selecting among same-named skills.
 
 In an omp session, `/marketplace` opens the catalog in the plugin browser.
 Installed skills provide guidance for relevant requests; for example, ask omp to
@@ -97,22 +130,33 @@ Ask to write or refine Korean, English, or Japanese prose to use
 identifiers, quotations, numbers, and terminology remain unchanged.
 
 Ask to review code, a diff, a branch, or a PR to use `reviewing-code` from
-`review-workflow`. In omp it pairs a native reviewer with focused custom review
-tasks. Explicit native-only requests keep omp's `/review` workflow unchanged.
+`review-workflow`. omp pairs a native reviewer with focused custom workers;
+Codex uses independent custom general and focused subagents. Explicit
+native-only requests retain `/review` or `codex review` without orchestration.
 Reviews stay local unless you request publication; a comment draft is not posted.
 
-Fetch catalog changes, then upgrade installed plugins:
+For omp, fetch catalog changes, then upgrade installed plugins:
 
 ```sh
 omp plugin marketplace update sonsu-marketplace
 omp plugin upgrade
 ```
 
+For Codex, refresh a Git-backed marketplace:
+
+```sh
+codex plugin marketplace upgrade sonsu-marketplace
+```
+
+An absolute local marketplace path is used directly and cannot be refreshed
+with `marketplace upgrade`; that command requires a configured Git source.
+
 ## Available plugins
 
 ### git-workflow
 
-Install with `omp plugin install git-workflow@sonsu-marketplace`.
+Install with `omp plugin install git-workflow@sonsu-marketplace` or
+`codex plugin add git-workflow@sonsu-marketplace`.
 
 - **`writing-commits`** writes Conventional Commit messages and validates them
   before use. It reuses repository commands, tools, versions, and configuration.
@@ -138,7 +182,8 @@ provide agent workflow instructions, not Git hooks or CI enforcement.
 
 ### skill-workflow
 
-Install with `omp plugin install skill-workflow@sonsu-marketplace`.
+Install with `omp plugin install skill-workflow@sonsu-marketplace` or
+`codex plugin add skill-workflow@sonsu-marketplace`.
 
 - **`authoring-skills`** creates, revises, and reviews focused agent skills
   using common Agent Skills principles, without a default client. It identifies
@@ -154,7 +199,8 @@ contributor procedures below.
 
 ### ticket-workflow
 
-Install with `omp plugin install ticket-workflow@sonsu-marketplace`.
+Install with `omp plugin install ticket-workflow@sonsu-marketplace` or
+`codex plugin add ticket-workflow@sonsu-marketplace`.
 
 - **`writing-tickets`** writes small, outcome-centered GitHub and Linear tickets.
   It follows applicable project templates first, using a bundled Problem,
@@ -176,7 +222,8 @@ or enforce ticket-first work through hooks.
 
 ### decision-workflow
 
-Install with `omp plugin install decision-workflow@sonsu-marketplace`.
+Install with `omp plugin install decision-workflow@sonsu-marketplace` or
+`codex plugin add decision-workflow@sonsu-marketplace`.
 
 - **`writing-adrs`** selects decisions worth recording and writes short ADRs
   with context, a decision and its rationale, rejected alternatives, and
@@ -194,7 +241,8 @@ routine work into ADRs.
 
 ### writing-workflow
 
-Install with `omp plugin install writing-workflow@sonsu-marketplace`.
+Install with `omp plugin install writing-workflow@sonsu-marketplace` or
+`codex plugin add writing-workflow@sonsu-marketplace`.
 
 - **`humanize-korean`** adapts `epoko77-ai/im-not-ai` for natural Korean
   editing across genres, including technical documentation, README files,
@@ -214,14 +262,19 @@ or complete semantic preservation.
 
 ### review-workflow
 
-Install with `omp plugin install review-workflow@sonsu-marketplace`.
+Install with `omp plugin install review-workflow@sonsu-marketplace` or
+`codex plugin add review-workflow@sonsu-marketplace`.
+
+Evidence-driven code review with independent general and focused reviewers and
+local-first reporting.
 
 - **`reviewing-code`** reviews intent, flow, failures, architecture, and internal
-  implementation. In omp, a native `reviewer` and narrowly assigned
-  `review-workflow-focused` workers inspect the same frozen target in parallel,
-  without sharing initial conclusions. Models follow effective omp settings,
-  not a fixed provider pair. Runtime verification and high-risk red-team
-  challenges are separate, bounded work rather than repeated full reviews.
+  implementation. omp uses a native `reviewer` plus `review-workflow-focused`;
+  Codex uses fresh generic subagents assigned general and focused roles. They
+  inspect the same frozen target independently, without sharing initial
+  conclusions. Models follow effective client settings, not a fixed provider
+  pair. Runtime verification and high-risk red-team challenges are separate,
+  bounded work rather than repeated full reviews.
 - Reviews report locally by default. Comment drafting and explicit publication
   use [review-comment guidance](plugins/review-workflow/skills/reviewing-code/references/review-comments.md)
   that preserves evidence, uncertainty, and the difference between fixes and
@@ -236,9 +289,11 @@ not install hooks, automatically fix code, or configure credentials.
 ```text
 .omp-plugin/
   marketplace.json            # catalog: name, owner, plugins[]
+.agents/plugins/
+  marketplace.json            # Codex catalog: same package roots
 plugins/
   <name>/
-    plugin.json               # Agent Plugins manifest (required)
+    plugin.json               # shared identity, version, standard metadata
     skills/<skill>/SKILL.md   # Agent Plugins: skills
     mcp.json                  # Agent Plugins: MCP servers
     commands/<command>.md     # omp: slash commands, run as /<name>:<command>
@@ -248,12 +303,16 @@ plugins/
 ```
 
 Each plugin is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package.
-Skills and MCP servers follow the standard. omp-specific components sit next to
-them in omp's conventional locations, and omp loads both from the same plugin.
-omp does not read the standard's `extensions` field or namespaced extension
-directories yet, so omp-specific components use these locations for now.
-Everything except `plugin.json` is optional. The reasons for this format are in
-[docs/decisions/0002-plugin-format.md](docs/decisions/0002-plugin-format.md).
+Both catalogs point to the same `plugins/<name>` directories, relative to the
+repository root. Standard metadata, skills, scripts, and assets are shared;
+omp agents and client-specific execution references remain separate.
+omp-specific components use omp's conventional locations because omp does not
+yet read the standard's `extensions` field or namespaced extension directories.
+Everything except `plugin.json` is optional. Do not duplicate package trees,
+add `.codex-plugin` overlays, symlinks, or empty MCP files for these packages.
+The packaging rationale remains [ADR-0002](docs/decisions/0002-plugin-format.md);
+the proposed cross-client design is
+[ADR-0005](docs/decisions/0005-share-plugins-across-clients.md).
 
 ## Contributing
 
@@ -266,15 +325,17 @@ procedures below.
 ### Code review
 
 Apply [Code Review Rules](AGENTS.md#code-review-rules) when reviewing changes
-and interpreting feedback. Requested code reviews in omp use the
+and interpreting feedback. Requested plugin reviews use the
 [reviewing-code procedure](plugins/review-workflow/skills/reviewing-code/SKILL.md)
-and its [omp execution reference](plugins/review-workflow/skills/reviewing-code/references/omp.md),
-unless the user explicitly selects native-only review. The plugin dispatches
-native and focused workers; it does not replace or automatically intercept
-`/review`. Preserve the native reviewer's output contract. Results stay local
-unless publication is explicitly requested; a draft is not permission to post.
-Codex-native reviews retain their own output and priority contract. These
-procedures do not replace required approvals or branch protections.
+and the matching [omp execution reference](plugins/review-workflow/skills/reviewing-code/references/omp.md)
+or [Codex execution reference](plugins/review-workflow/skills/reviewing-code/references/codex.md).
+omp dispatches native and focused reviewers; Codex dispatches independent
+custom general and focused reviewers. Explicit native-only requests retain
+`/review` or `codex review`, without plugin orchestration. Preserve native
+output and priority contracts only when using a native reviewer; custom
+controllers use the common skill's report contract. Results stay local unless
+publication is explicitly requested; a draft is not permission to post.
+These procedures do not replace required approvals or branch protections.
 
 When responding to review:
 
@@ -321,8 +382,8 @@ For root and plugin READMEs:
   pull requests are accepted.
 - Omit optional sections that add no value. Keep decision rationale in ADRs.
 - Inspect rendered navigation and code blocks, check links and license
-  information, and exercise changed CLI examples. Use a temporary `HOME` for
-  omp commands and follow the plugin test procedure for plugin changes.
+  information, and exercise changed CLI examples. Use isolated client homes
+  and follow the plugin test procedure below, including Codex's `CODEX_HOME`.
 
 All Markdown documents follow the lint policy in
 [ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
@@ -421,7 +482,8 @@ revisions.
    ```json
    {
      "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-     "name": "<name>"
+     "name": "<name>",
+     "version": "0.1.0"
    }
    ```
 
@@ -455,10 +517,11 @@ revisions.
      expands nothing else. Keep secrets out of `mcp.json`. A `stdio` server
      receives omp's environment and can read credentials from it.
 
-   Do not add `.mcp.json` or `.claude-plugin/plugin.json`. omp loads the skills
-   and MCP servers of a standard plugin only from `skills/` and `mcp.json`.
+   Keep one standard package root for both clients; do not add `.mcp.json`,
+   `.claude-plugin/plugin.json`, or `.codex-plugin/plugin.json` overlays.
+   Shared skills and MCP servers live in `skills/` and `mcp.json`.
 
-3. Add omp-specific components:
+3. Add omp-specific components only when needed:
    - **Commands**: `commands/<command>.md` with a `description`. Use a command
      for a workflow that runs only when the user asks for it, since a standard
      skill cannot set `hide`.
@@ -473,6 +536,18 @@ revisions.
      listed in `package.json` under `omp.extensions`. See
      [Extensions](https://github.com/can1357/oh-my-pi/blob/main/docs/extensions.md).
 
+   Keep client execution differences in conditional skill references.
+   Do not copy omp agents into Codex host configuration.
+
+   When adding another client, retain one source package per plugin and share
+   common workflow requirements, scripts, and assets. Separate only necessary
+   client metadata, components, and execution procedures. Use supported client
+   capabilities; disclose unavailable requirements rather than silently weaken
+   the workflow. A different model alone does not require a package fork.
+   Document the new client's actual support scope and verify its installation,
+   discovery, and representative execution before claiming compatibility;
+   the current omp and Codex checks do not establish support for other clients.
+
 4. Register the plugin in `.omp-plugin/marketplace.json`:
 
    ```json
@@ -484,18 +559,35 @@ revisions.
    }
    ```
 
-   Raise `version` with every change. `omp plugin upgrade` only reinstalls
-   plugins whose catalog version changed.
+   Also register it in `.agents/plugins/marketplace.json`:
 
-Use the same name in `plugin.json`, the catalog entry, and the directory. It
+   ```json
+   {
+     "name": "<name>",
+     "source": {"source": "local", "path": "./plugins/<name>"},
+     "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+     "category": "Productivity"
+   }
+   ```
+
+   Both paths are relative to the repository root, not the catalog directory.
+   Keep catalog names, order, and package sets aligned. The explicit Codex
+   policy follows its catalog format; these skill-only packages add neither
+   authentication dependencies nor automatic installation.
+
+   Raise `version` in the root manifest and omp catalog together on every
+   plugin change. `omp plugin upgrade` only reinstalls changed catalog versions.
+   Codex uses package metadata; do not duplicate versions, omp `owner`, or
+   marketplace `metadata` in its catalog.
+
+Use the same name in `plugin.json`, both catalog entries, and the directory. It
 must be lowercase ASCII letters, digits, `-`, and `.`, start and end with a
 letter or digit, contain no `--` or `..`, and be at most 64 characters.
 
-If a plugin needs something neither the standard nor these locations provide,
-such as a remote MCP server that sends a credential header, leave out
-`plugin.json` for that plugin and say why in the plugin's README. omp then loads
-it with its own conventions (`.mcp.json`, omp skill frontmatter) instead of the
-standard.
+If a future plugin needs a capability the standard cannot express, document
+the client limitation before changing packaging or claiming shared support.
+An unsupported client release is a prerequisite failure, not permission to
+silently switch these shared packages to a legacy format.
 
 ### Testing a plugin
 
@@ -516,19 +608,82 @@ The [reference validator][skills-ref] checks frontmatter and naming, not task
 quality. It is an authoring aid, not a production dependency. The loop covers
 all plugins; select individual skill directories for a focused check.
 
-omp reports skipped skills and rejected plugins only in `omp skill list`, so
-install into a temporary home and check its output before pushing:
+Use independent temporary homes outside the checkout. Do not install test
+plugins into live clients or copy real settings or credentials into the test
+environment. Begin at the marketplace root:
+
+```sh
+REPO="$PWD"
+TMP="$(mktemp -d)"
+OMP_HOME="$TMP/omp-home"
+CX_HOME="$TMP/codex-home"
+CX_CODEX_HOME="$CX_HOME/.codex"
+TARGET="$TMP/target"
+mkdir -p "$OMP_HOME" "$CX_CODEX_HOME" "$TARGET"
+```
+
+omp reports skipped skills and rejected plugins in `omp skill list`:
+
+```sh
+HOME="$OMP_HOME" omp plugin marketplace add "$REPO"
+for name in git-workflow skill-workflow ticket-workflow decision-workflow \
+  writing-workflow review-workflow; do
+  HOME="$OMP_HOME" omp plugin install "$name@sonsu-marketplace"
+done
+HOME="$OMP_HOME" omp skill list
+```
+
+For Codex, run from the separate target directory, not the marketplace source.
+Apply both temporary environment variables to every invocation:
 
 ```sh
 (
-  export HOME="$(mktemp -d)"
-  omp plugin marketplace add ./
-  omp plugin install <name>@sonsu-marketplace
-  omp skill list
+  cd "$TARGET"
+  export HOME="$CX_HOME" CODEX_HOME="$CX_CODEX_HOME"
+  codex plugin marketplace add "$REPO" --json
+  codex plugin list --marketplace sonsu-marketplace --available --json
+  for name in git-workflow skill-workflow ticket-workflow decision-workflow \
+    writing-workflow review-workflow; do
+    codex plugin add "$name@sonsu-marketplace" --json
+  done
+  codex plugin list --marketplace sonsu-marketplace --json
 )
 ```
 
-Every skill should appear, with no `warning:` lines.
+Require all six entries to parse and all six packages to install and enable.
+Do not hide catalog errors or count skipped entries as success. Check actual
+Codex skill discovery through a fresh `codex app-server` stdio subprocess in
+the same isolated environment. Following the
+[initialization and skills API](https://learn.chatgpt.com/docs/app-server),
+send `initialize`, wait for its response, send `initialized`, then `skills/list`:
+
+```json
+{"id":1,"method":"initialize","params":{"clientInfo":{"name":"sonsu_marketplace_smoke","version":"0.1.0"}}}
+{"method":"initialized","params":{}}
+{"id":2,"method":"skills/list","params":{"cwds":["<absolute disposable target>"],"forceReload":true}}
+```
+
+Inspect `result.data[].errors`, each skill's `enabled`, name, and actual path.
+Paths must resolve to installed packages, not direct source discovery; do not
+use extra user roots to bypass installation. Terminate the owned subprocess.
+Use a throwaway driver, not a new repository framework.
+
+In each client, require these ten skills exactly once (unrelated built-ins
+are allowed), without omp `warning:` lines or Codex loading errors:
+Codex reports `<plugin>:<skill>` names; match the plugin ID and skill suffix
+against this table without renaming the shared skill or counting built-ins.
+
+| Plugin | Expected skills |
+| --- | --- |
+| git-workflow | naming-branches, writing-commits, writing-pull-requests |
+| skill-workflow | authoring-skills |
+| ticket-workflow | writing-tickets |
+| decision-workflow | writing-adrs |
+| writing-workflow | humanize-korean, ce-noslop, natural-japanese |
+| review-workflow | reviewing-code |
+
+Also compare both catalogs' package names, source paths and existence, and
+root-manifest/omp-catalog versions with a throwaway check.
 
 Format and discovery checks do not prove correct activation or useful output.
 For instruction changes, exercise representative tasks and boundary cases in
@@ -537,6 +692,41 @@ the actions as well as the final output. Use the
 [evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md)
 for before/after or with/without comparisons; report smoke checks separately
 from measured trigger rates or comparative quality results.
+
+Model runs require separately authorized authentication in the temporary
+environment. Do not implicitly reuse live credentials. For Codex model smoke
+runs, use `--no-daemon` to avoid attaching to the live client daemon:
+
+```sh
+HOME="$CX_HOME" CODEX_HOME="$CX_CODEX_HOME" \
+  codex --no-daemon exec --json --sandbox workspace-write \
+  --add-dir "$TMP" -C "$TARGET" '$reviewing-code Review working changes locally.'
+```
+
+Use remote-free disposable Git targets with normal behavior and a known
+regression spanning staged, unstaged, and untracked changes. Observe independent
+general/focused workers on the same frozen target, full completion results,
+deduplicated findings, and controller-only runtime checks in another disposable
+copy. Confirm original source, index, and untracked content remain unchanged.
+omp must retain native `reviewer` plus `review-workflow-focused`; Codex must
+not call native review or a recursive CLI. Check a clean baseline, implicit
+skill selection, explicit native-only review, comment-only drafting, and
+unavailable subagents (`-c agents.enabled=false` in Codex). Missing or failed
+workers must remain incomplete, not a sequential or native-only fallback.
+
+Exercise writing helpers from discovered installed paths in both clients,
+preserving identifiers, numbers, URLs, and fenced code. Verify commit and branch
+candidates with installed validators without committing or creating branches;
+draft PRs and tickets without publication; reject an unnecessary ADR; design a
+Codex skill without loading omp authoring guidance; preserve dates and promises
+in an English edit. In a separate disposable installation, remove one helper
+and verify an explicit missing-resource result, not a guessed cache path or
+false pass. Do not change the successful installation or source helpers.
+
+Report actual CLI versions, discovery, execution traces, runtime evidence,
+and precise blockers separately. Without authorized model access, complete
+non-model checks but mark all unexecuted model scenarios unverified. Installation
+does not prove review quality, automatic selection, or app/IDE behavior.
 
 For changes to `writing-workflow` runtime helpers, also run its behavior tests:
 

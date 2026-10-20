@@ -25,9 +25,17 @@ omp plugin marketplace add sonsu-lee/sonsu-marketplace
 omp plugin install writing-workflow@sonsu-marketplace
 ```
 
+For Codex, install the same package:
+
+```sh
+codex plugin marketplace add sonsu-lee/sonsu-marketplace
+codex plugin add writing-workflow@sonsu-marketplace
+```
+
 ### Dependencies
 
-- Install [omp](https://github.com/can1357/oh-my-pi) first.
+- Install [omp](https://github.com/can1357/oh-my-pi) or
+  [Codex](https://developers.openai.com/codex/cli) first.
 - Korean checks require Python 3.10 or newer.
 - Japanese checks use Python 3.10 or newer and
   [uv](https://docs.astral.sh/uv/). The main linter uses SudachiPy and its
@@ -44,9 +52,10 @@ configuration merely to edit its prose.
 
 ```sh
 omp skill list
+codex plugin list --marketplace sonsu-marketplace --json
 ```
 
-In an omp session, ask for the writing task naturally:
+In either client, ask for the writing task naturally:
 
 ```text
 Refine this Korean API guide without changing its commands, identifiers,
@@ -62,6 +71,14 @@ Do not invent a conclusion or strengthen an unconfirmed claim.
 Use the skill for the language of the output, not the language of the request.
 For mixed-language documents, preserve other-language passages unless asked to
 edit them. Apply only one editorial workflow to each passage.
+
+Codex also supports explicit `$humanize-korean`, `$ce-noslop`, and
+`$natural-japanese` selection. Natural-language selection is model behavior,
+not an installation hook; listing plugins does not prove skill execution.
+Both clients use the same rules, roles, scripts, and assets. Resolve resources
+from the actual loaded `SKILL.md` directory, not the target repository or a
+guessed cache path. Codex uses ordinary file paths; omp's `skill://` is only
+a reading convenience. Python and uv always receive absolute filesystem paths.
 
 ### Skills and scope
 
@@ -99,8 +116,8 @@ Instructions are in English; Korean and Japanese examples retain their original
 language. Source licenses are bundled with each skill.
 
 - **humanize-korean:** [epoko77-ai/im-not-ai][ko-source] at
-  `b37e0206d31fffd9149bf57168d4d62eb2086bee`. Adapted for standalone omp use and
-  all Korean prose genres, explicitly including technical documentation.
+  `b37e0206d31fffd9149bf57168d4d62eb2086bee`. Adapted for standalone omp and Codex
+  use and all Korean prose genres, explicitly including technical documentation.
   Numbered procedure steps remain editable; actual referenced footnotes stay
   protected.
 - **ce-noslop:** [EveryInc/compound-engineering-plugin][en-source] at
@@ -117,9 +134,11 @@ Questions and pull requests are welcome in the
 [marketplace repository](https://github.com/sonsu-lee/sonsu-marketplace/issues).
 Follow its [authoring and testing procedures](../../README.md#adding-a-plugin).
 Keep upstream notices and revision references when updating an adaptation.
-Use a temporary HOME for omp checks; never install test plugins into a user's
-live configuration. Exercise prose and protected-content boundary cases as
-well as format and discovery checks.
+Use separate temporary homes: `HOME` for omp, plus `HOME` and `CODEX_HOME` for
+Codex. Never install test plugins into live clients or copy real settings or
+credentials. Follow the root [test procedure](../../README.md#testing-a-plugin)
+for discovery, model access, and missing-resource checks. Exercise prose and
+protected-content boundaries separately from format and discovery.
 
 Run the Korean and Japanese regression tests from the marketplace root:
 

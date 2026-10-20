@@ -2,8 +2,7 @@
 
 Read this reference only when controlling a review in omp. Assigned custom
 focused reviewers use the common skill and their assignment, not this dispatch
-procedure. The common criteria are portable; this is the only implemented client
-adapter.
+procedure. The common criteria are portable.
 
 ## Select native and focused roles
 
