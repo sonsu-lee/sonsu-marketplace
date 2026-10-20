@@ -22,9 +22,9 @@ template or that a named template was used merely because its headings match.
 
 Inspect available team/workspace labels, team members and ownership guidance,
 priority conventions, the team's estimate configuration, and the intended
-project's milestones. Apply the common skill's criteria to recommend values;
-do not make the user supply metadata that the selected template or project
-guidance already establishes.
+project's milestones. Apply the [common criteria](metadata.md) to recommend
+values; do not make the user supply metadata that the selected template or
+project guidance already establishes.
 
 Use the team's actual estimate scale only when estimation is enabled and the
 scope supports a meaningful suggestion. Do not enable estimates or substitute

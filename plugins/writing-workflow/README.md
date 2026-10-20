@@ -72,8 +72,9 @@ Use the skill for the language of the output, not the language of the request.
 For mixed-language documents, preserve other-language passages unless asked to
 edit them. Apply only one editorial workflow to each passage.
 
-Codex also supports explicit `$humanize-korean`, `$ce-noslop`, and
-`$natural-japanese` selection. Natural-language selection is model behavior,
+Codex also supports explicit `$writing-workflow:humanize-korean`,
+`$writing-workflow:ce-noslop`, and `$writing-workflow:natural-japanese`
+selection. Natural-language selection is model behavior,
 not an installation hook; listing plugins does not prove skill execution.
 Both clients use the same rules, roles, scripts, and assets. Resolve resources
 from the actual loaded `SKILL.md` directory, not the target repository or a
@@ -88,13 +89,19 @@ a reading convenience. Python and uv always receive absolute filesystem paths.
   README files, API references, design documents, runbooks, release notes,
   technical blogs, and prose embedded in code-bearing documents. Protect code,
   identifiers, commands, URLs, numbers, direct quotations, and technical terms;
-  do not exempt the surrounding prose from editing.
+  do not exempt the surrounding prose from editing. The main prompt stays
+  compact: the heavy-route procedure and the provenance record are separate
+  references, read only for a heavy route or an adaptation audit.
 - [ce-noslop](skills/ce-noslop/SKILL.md) writes, edits, or diagnoses English
   prose. It distinguishes neutral work artifacts from the user's own voice
   and preserves factual content and uncertainty.
 - [natural-japanese](skills/natural-japanese/SKILL.md) writes, edits, or
   diagnoses Japanese prose with genre-specific guidance and an optional author
-  style profile. Its mechanical findings require contextual judgment.
+  style profile. Its mechanical findings require contextual judgment. The main
+  prompt stays compact: the score procedure, writing principles, paragraph
+  review, revision limits, readability review, finishing and runtime notes,
+  author profile, and provenance record are focused references, each loaded by
+  mode, finding, or task as the skill states.
 
 Writing clearly does not require casual language. Preserve the requested
 formality, audience, document purpose, and meaningful technical structure.

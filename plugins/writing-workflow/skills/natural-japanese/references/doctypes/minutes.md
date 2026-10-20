@@ -23,8 +23,8 @@ certainty: a proposal with supporters is not necessarily a decision.
 
 This structure is for new writing. Existing minutes retain their section order
 unless the user requests restructuring or a concrete comprehension problem
-justifies it under the skill's section 3. Otherwise propose moving decisions
-forward rather than silently doing so.
+justifies it under the [revision limits](../revision-limits.md). Otherwise
+propose moving decisions forward rather than silently doing so.
 
 Start with one bullet per metadata item: name, date/time, participants, and
 pre-reading where supplied. Plain adjacent lines collapse into a Markdown

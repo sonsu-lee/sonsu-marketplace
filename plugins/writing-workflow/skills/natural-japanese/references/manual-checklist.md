@@ -96,10 +96,11 @@ inventing it. Do not manufacture firsthand experience.
 
 ## 9. Readability
 
-Apply the skill's section 5 manually. Prioritize double negatives and nested
-conditions, multiple claims in long sentences, runs of seven or more kanji,
-three or more 「の」, and embedded lists of at least three parallel items.
-Preserve truth conditions, actors, technical terms, and existing author voice.
+Apply [the readability review](readability.md) manually. Prioritize double
+negatives and nested conditions, multiple claims in long sentences, runs of
+seven or more kanji, three or more 「の」, and embedded lists of at least three
+parallel items. Preserve truth conditions, actors, technical terms, and
+existing author voice.
 
 ## Structure
 

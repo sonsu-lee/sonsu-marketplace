@@ -67,9 +67,9 @@ Draft PR comments from these existing findings. Do not start a new review or pos
 
 Ordinary natural-language review requests should select `reviewing-code`.
 Selection is a model decision, not a guaranteed hook. In Codex, explicitly
-select `$reviewing-code` if needed. Catalog listing is not proof of skill
-execution. In omp, the controller dispatches the bundled `reviewer` and at
-least one `review-workflow-focused` worker in one native `task` batch.
+select `$review-workflow:reviewing-code` if needed. Catalog listing is not proof
+of skill execution. In omp, the controller dispatches the bundled `reviewer`
+and at least one `review-workflow-focused` worker in one native `task` batch.
 In Codex, fresh generic subagents take custom general and focused assignments,
 without inheriting the author's conversation. The plugin does not call or
 intercept `/review`, `codex review`, or `review/start`; explicit native-only
@@ -141,6 +141,8 @@ incomplete review, not permission to silently substitute a sequential pass.
 ## Guides
 
 - [Review procedure](skills/reviewing-code/SKILL.md).
+- [Review lenses](skills/reviewing-code/references/review-lenses.md), loaded when
+  choosing a focused question or analyzing behavior.
 - [omp execution](skills/reviewing-code/references/omp.md), loaded for omp runs.
 - [Codex execution](skills/reviewing-code/references/codex.md), loaded for
   Codex runs.

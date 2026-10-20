@@ -142,9 +142,15 @@ editorial warning or bypass the checks. The gates do not comprehensively check
 code, identifiers, commands, URLs, semantic entailment, or all dropped facts.
 Direct finalizer comparison remains necessary.
 
+The change rate comes from `verify_gates.py`, not an editor's estimate; it is
+not a quality score or an authorship probability. Do not chase baseline values
+by removing valid terms, code, necessary hedges, or structure. A remaining
+warning may require human review instead of more editing.
+
 `--ignore-markup` cross-measures P0 after stripping selected formatting. It does
-not exclude all code content or validate technical syntax. Report both rates
-when using it, and never use it to hide a factual or code change.
+not exclude all code content, validate technical syntax, or exempt a technical
+file. Report both rates when using it, and never use it to hide a factual or
+code change.
 
 `verify_change_rate.py --before PATH --after PATH` provides the standalone P0
 measurement; use `--ignore-markup` only for the same disclosed cross-check.

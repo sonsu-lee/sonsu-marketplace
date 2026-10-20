@@ -47,17 +47,27 @@ coverage, and the focused question.
 ## Run independent general and focused reviews
 
 Start one custom general reviewer and at least one complementary focused
-reviewer independently before collecting results. Use Codex's generic
-subagent tools and the `default` role; assign the review responsibility in the
-prompt. No host-installed custom TOML agent is required. Do not copy omp task
-fields or its `review-workflow-focused` profile into Codex configuration.
+reviewer independently before collecting results. Assign those responsibilities
+in the prompt using generic subagents, not a host-installed custom TOML agent.
+Do not copy omp task fields or its `review-workflow-focused` profile into Codex.
 
-Inspect the currently exposed tool schema. With `spawn_agent`, use
-`agent_type: "default"` and `fork_context: false`. Start fresh sessions: do not
-resume prior reviewers or pass the author's conversation, implementation
-rationalizations, or another initial worker's conclusions. If the API changes,
-use its verified fresh-session, non-inherited-history equivalent; report an
-execution limitation if that boundary cannot be guaranteed.
+Inspect the currently exposed spawn schema before constructing arguments.
+Codex `0.163.0` contains two collaboration interfaces; do not mix their fields:
+
+- **`task_name`, `message`, `fork_turns`:** provide a distinct task name and the
+  assignment, and explicitly set `fork_turns: "none"`. Omitting it inherits
+  all parent history. Do not send `fork_context`; this interface rejects it.
+- **`message`, `fork_context`:** only when this interface is actually exposed,
+  provide the assignment and set `fork_context: false`.
+
+Omit `agent_type` when absent from the schema. If role selection is exposed and
+needed to select a generic worker, use the supported `default` role. Never send
+unsupported fields simply because another runtime exposes them.
+
+Start fresh sessions: do not resume reviewers or pass the author's conversation,
+implementation rationalizations, or another initial worker's conclusions. With
+another API, verify its fresh-session and non-inherited-history semantics first;
+report an execution limitation if that boundary cannot be guaranteed.
 
 - **General assignment:** inspect the whole frozen change and relevant affected
   call paths for bugs and regressions using the common criteria.
@@ -77,12 +87,15 @@ self-description.
 
 ## Collect completion and complete results
 
-Use completion events and full worker outputs, not spawn acknowledgments or
-truncated previews. Then close only workers created by this controller using
-the client's lifecycle API. Missing tools, thread limits, denied permissions,
-stopped workers, and truncated output mean incomplete review, not no findings.
-Preserve useful partial evidence, but do not silently substitute a sequential
-single-agent review or native-only review and claim completion.
+Use exposed completion events and full worker outputs, not spawn acknowledgments
+or truncated previews. If a close operation is exposed, close only workers this
+controller created after collecting their results; do not invent a close API
+on interfaces that provide completion and interruption instead. Use interruption
+only to stop owned active work, not as evidence that it completed.
+Missing tools needed for the review, thread limits, denied permissions, stopped
+workers, and truncated output mean incomplete review, not no findings. Preserve
+useful partial evidence, but do not silently substitute a sequential single-agent
+or native-only review and claim completion.
 
 ## Verify and report locally
 
@@ -108,3 +121,6 @@ is unavailable, name the blocker and mark runtime unverified.
   generic roles, configuration, and permission inheritance.
 - [Codex app server](https://learn.chatgpt.com/docs/app-server): native
   `review/start` is a separate workflow, not this plugin's worker API.
+- [Versioned spawn schemas](https://github.com/openai/codex/blob/83086188ae0614bd882818ff1aa23f3194962012/codex-rs/core/src/tools/handlers/multi_agents_spec.rs)
+  and [V2 history handling](https://github.com/openai/codex/blob/83086188ae0614bd882818ff1aa23f3194962012/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs):
+  inspected `0.163.0` behavior; the exposed runtime schema remains authoritative.

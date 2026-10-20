@@ -6,7 +6,8 @@ How do I do this now? Teaching the whole system is not the primary purpose.
 Readers often arrive from search or a contents list and read one section only.
 Judge a guide by whether that isolated section enables the task, not merely by
 how smoothly it reads from beginning to end. This reference covers structure
-and navigation; use the skill's section 2 for sentence-level guidance.
+and navigation; use [writing principles](../writing-principles.md) for
+sentence-level guidance.
 
 Technical guides, API guides, README instructions, and runbooks remain eligible
 for natural Japanese editing. Preserve code, commands, identifiers, established

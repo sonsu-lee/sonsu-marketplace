@@ -5,8 +5,9 @@
 Does reading the messages in order explain the path to the conclusion? Assume
 the audience sees each slide for seconds and reads mainly its title and
 prominent sentence. Put the claim in the message; evidence bullets support it.
-This reference concerns structure and element roles. Use the skill's section 2
-for sentence-level guidance and its preservation rules for all existing text.
+This reference concerns structure and element roles. Use
+[writing principles](../writing-principles.md) for sentence-level guidance and
+the skill's preservation rules for all existing text.
 
 ## Required elements
 

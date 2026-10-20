@@ -105,12 +105,11 @@ codex plugin list --marketplace sonsu-marketplace --json
 ```
 
 Listing proves catalog or installation state, not skill execution. In a Codex
-session, `$skill-name` explicitly selects a skill, for example
-`$writing-commits`. Natural-language selection is model behavior, not an
-installation hook or guaranteed trigger.
-Codex discovery qualifies plugin skills as `<plugin>:<skill>`, for example
-`git-workflow:writing-commits`; retain that identity when matching discovery
-results or selecting among same-named skills.
+session, explicitly select the installed plugin skill as `$<plugin>:<skill>`,
+for example `$git-workflow:writing-commits`. A bare `$writing-commits` does not
+select that plugin skill on the checked CLI baseline. Retain the qualified name
+returned by discovery when invoking skills or matching results. Natural-language
+selection is model behavior, not an installation hook or guaranteed trigger.
 
 In an omp session, `/marketplace` opens the catalog in the plugin browser.
 Installed skills provide guidance for relevant requests; for example, ask omp to
@@ -189,8 +188,9 @@ Install with `omp plugin install skill-workflow@sonsu-marketplace` or
   using common Agent Skills principles, without a default client. It identifies
   the intended consumer from the request and project context, then loads only
   the relevant omp, Claude, or Codex considerations. It keeps judgment in the
-  skill, delegates mechanical work to existing tools, and loads evaluation
-  guidance when choosing checks. See the
+  skill and delegates mechanical work to existing tools. Its checks distinguish
+  discovery from complete prompt loading and task behavior; version-specific
+  limits belong in client references, not common format rules. See the
   [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md).
 
 This plugin does not install skills, configure projects, or provide an
@@ -685,10 +685,12 @@ against this table without renaming the shared skill or counting built-ins.
 Also compare both catalogs' package names, source paths and existence, and
 root-manifest/omp-catalog versions with a throwaway check.
 
-Format and discovery checks do not prove correct activation or useful output.
-For instruction changes, exercise representative tasks and boundary cases in
-isolated repositories without publishing fixtures to a real project. Inspect
-the actions as well as the final output. Use the
+Format and discovery checks do not prove complete skill prompt loading,
+correct activation, or useful output. Use each client's actual installed skill
+name and inspect invocation events and injected content for truncation before
+claiming loading success. For instruction changes, exercise representative
+tasks and boundary cases in isolated repositories without publishing fixtures.
+Inspect required reference reads and actions as well as final output. Use the
 [evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md)
 for before/after or with/without comparisons; report smoke checks separately
 from measured trigger rates or comparative quality results.
@@ -700,7 +702,8 @@ runs, use `--no-daemon` to avoid attaching to the live client daemon:
 ```sh
 HOME="$CX_HOME" CODEX_HOME="$CX_CODEX_HOME" \
   codex --no-daemon exec --json --sandbox workspace-write \
-  --add-dir "$TMP" -C "$TARGET" '$reviewing-code Review working changes locally.'
+  --add-dir "$TMP" -C "$TARGET" \
+  '$review-workflow:reviewing-code Review working changes locally.'
 ```
 
 Use remote-free disposable Git targets with normal behavior and a known

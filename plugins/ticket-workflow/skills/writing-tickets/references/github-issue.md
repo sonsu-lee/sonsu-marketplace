@@ -25,7 +25,7 @@ clarify the intended issue type. Use the bundled fallback only when none applies
 ## Review issue and project metadata
 
 Inspect existing repository labels, eligible assignees, milestones, and available
-issue types. Recommend relevant values using the common skill's criteria.
+issue types. Recommend relevant values using the [common criteria](metadata.md).
 GitHub milestones belong to a repository; they are not Linear project milestones
 or GitHub Projects iterations.
 
