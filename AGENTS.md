@@ -31,8 +31,11 @@ read their linked procedures before making changes.
   when drafting, creating, updating, or splitting GitHub Issues or Linear
   tickets. Use ticket, work, then PR as the normal development flow; follow the
   branch and PR skills for downstream work.
-* When reviewing a PR or responding to feedback, follow the
+* When reviewing code, a diff, or a PR, or responding to feedback, follow the
   [review procedure](README.md#code-review) and the Code Review Rules below.
+  Requested omp reviews use its linked skill and omp execution reference;
+  explicit native-only requests retain the native procedure and output.
+  Results stay local unless publication is explicitly requested.
 * When deciding whether to write an ADR, or drafting, reviewing, or replacing
   one, follow the [decision-record procedure](README.md#decision-records) and
   its [ADR skill](plugins/decision-workflow/skills/writing-adrs/SKILL.md).
