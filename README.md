@@ -344,6 +344,8 @@ plugins/
     rules/<rule>.md           # omp: rules
     package.json              # omp: extension modules under "omp.extensions"
     .claude-plugin/plugin.json  # Claude Code: only to exclude omp agents
+scripts/
+  check_plugins.py            # model-free checks for omp, Codex, Claude Code
 ```
 
 Each plugin is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package.
@@ -671,145 +673,67 @@ silently switch these shared packages to a legacy format.
 
 ### Testing a plugin
 
-For skill changes, check the format with the official reference validator.
-This authoring check needs uv, Python 3.11 or newer, and network access on the
-first run. Pin the reference source independently of plugin runtime tools:
+Run the model-free checks from the marketplace root after every plugin change.
+They need Python 3.11 or newer, uv, network access on the first run, and the
+omp, Codex, and Claude Code CLIs on `PATH`:
 
 ```sh
-skills_ref_repo=https://github.com/agentskills/agentskills.git
-skills_ref_rev=69ef37e9424c0a7ea9dd2293b559e43ec8176379
-skills_ref="git+$skills_ref_repo@$skills_ref_rev#subdirectory=skills-ref"
-for skill in plugins/*/skills/*; do
-  uvx --from "$skills_ref" skills-ref validate "$skill"
-done
+python3 scripts/check_plugins.py
 ```
 
-The [reference validator][skills-ref] checks frontmatter and naming, not task
-quality. It is an authoring aid, not a production dependency. The loop covers
-all plugins; select individual skill directories for a focused check.
+The script installs the catalog into fresh temporary homes for each client and
+runs every client command from a temporary directory with a minimal
+environment, so clients never read live settings or credentials. Only the
+`format` check runs uv with your normal environment and cache. The script
+prints one line per check:
 
-Use independent temporary homes outside the checkout. Do not install test
-plugins into live clients or copy real settings or credentials into the test
-environment. Begin at the marketplace root:
+- `catalogs`: all three catalogs list the same packages in the same order,
+  each source exists, and the root manifest, omp catalog, and Claude Code entry
+  or manifest declare one version.
+- `format`: each skill passes the pinned [reference validator][skills-ref],
+  which checks frontmatter and naming, not task quality.
+- `size`: each `SKILL.md` fits Codex's 8,000-byte plugin-skill limit.
+- `validate`: `claude plugin validate --strict` accepts the catalog, any
+  Claude Code manifest, and each package's skills.
+- `install`: every package installs, and Codex lists each one as enabled.
+- `discovery`: every skill appears exactly once, in omp's `skill list` without
+  `warning:` lines, in Codex `skills/list` from installed paths without errors,
+  and in Claude Code's `init` event without this marketplace's agents.
+- `loading`: invoking each skill sends its complete `SKILL.md` body to a local
+  receiver that records and rejects model requests, and Codex reports no
+  truncation.
+
+Skills come from `plugins/*/skills/*/SKILL.md`, so a new skill needs no script
+change. Any `FAIL` line names the client and check and makes the exit status
+nonzero. A missing CLI is a failure, not a skip; `--clients omp,codex` limits a
+run while iterating, but report the full run. `--root` checks another
+marketplace copy. The Claude Code check installs from a local path, which loads
+packages in place; to inspect the cached copies a Git-backed marketplace
+installs, add a committed clone over Git instead.
+
+These checks do not prove correct activation or useful output. For instruction
+changes, exercise representative tasks and boundary cases in isolated
+repositories without publishing fixtures. Inspect required reference reads and
+actions as well as final output. Use the
+[evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md)
+for before/after or with/without comparisons; report smoke checks separately
+from measured trigger rates or comparative quality results.
+
+For model runs, keep the installed homes and point variables at them. The
+script removes its receiver settings before exiting, and the homes hold no
+credentials:
 
 ```sh
-REPO="$PWD"
-TMP="$(mktemp -d)"
+python3 scripts/check_plugins.py --keep-temp
+TMP=<directory printed by the script>
 OMP_HOME="$TMP/omp-home"
 CX_HOME="$TMP/codex-home"
 CX_CODEX_HOME="$CX_HOME/.codex"
 CC_HOME="$TMP/claude-home"
 CC_CONFIG_DIR="$CC_HOME/.claude"
 TARGET="$TMP/target"
-mkdir -p "$OMP_HOME" "$CX_CODEX_HOME" "$CC_CONFIG_DIR" "$TARGET"
+mkdir -p "$TARGET"
 ```
-
-omp reports skipped skills and rejected plugins in `omp skill list`:
-
-```sh
-HOME="$OMP_HOME" omp plugin marketplace add "$REPO"
-for name in git-workflow skill-workflow ticket-workflow decision-workflow \
-  writing-workflow review-workflow; do
-  HOME="$OMP_HOME" omp plugin install "$name@sonsu-marketplace"
-done
-HOME="$OMP_HOME" omp skill list
-```
-
-For Codex, run from the separate target directory, not the marketplace source.
-Apply both temporary environment variables to every invocation:
-
-```sh
-(
-  cd "$TARGET"
-  export HOME="$CX_HOME" CODEX_HOME="$CX_CODEX_HOME"
-  codex plugin marketplace add "$REPO" --json
-  codex plugin list --marketplace sonsu-marketplace --available --json
-  for name in git-workflow skill-workflow ticket-workflow decision-workflow \
-    writing-workflow review-workflow; do
-    codex plugin add "$name@sonsu-marketplace" --json
-  done
-  codex plugin list --marketplace sonsu-marketplace --json
-)
-```
-
-Require all six entries to parse and all six packages to install and enable.
-Do not hide catalog errors or count skipped entries as success. Check actual
-Codex skill discovery through a fresh `codex app-server` stdio subprocess in
-the same isolated environment. Following the
-[initialization and skills API](https://learn.chatgpt.com/docs/app-server),
-send `initialize`, wait for its response, send `initialized`, then `skills/list`:
-
-```json
-{"id":1,"method":"initialize","params":{"clientInfo":{"name":"sonsu_marketplace_smoke","version":"0.1.0"}}}
-{"method":"initialized","params":{}}
-{"id":2,"method":"skills/list","params":{"cwds":["<absolute disposable target>"],"forceReload":true}}
-```
-
-Inspect `result.data[].errors`, each skill's `enabled`, name, and actual path.
-Paths must resolve to installed packages, not direct source discovery; do not
-use extra user roots to bypass installation. Terminate the owned subprocess.
-Use a throwaway driver, not a new repository framework.
-
-For Claude Code, validate the catalog, any Claude Code manifest, and each
-package's skills. Install from the separate target directory and apply both
-temporary environment variables to every invocation:
-
-```sh
-claude plugin validate "$REPO" --strict
-claude plugin validate "$REPO/plugins/review-workflow" --strict
-for skills in "$REPO"/plugins/*/skills; do
-  claude plugin validate "$skills" --strict
-done
-(
-  cd "$TARGET"
-  export HOME="$CC_HOME" CLAUDE_CONFIG_DIR="$CC_CONFIG_DIR"
-  claude plugin marketplace add "$REPO"
-  for name in git-workflow skill-workflow ticket-workflow decision-workflow \
-    writing-workflow review-workflow; do
-    claude plugin install "$name@sonsu-marketplace"
-  done
-  claude plugin list --json
-  claude -p --output-format stream-json --verbose 'List nothing.'
-)
-```
-
-The final command's first `system` `init` event lists loaded `skills`,
-`agents`, and `plugins` before any model request, so it works without
-authentication; the run then reports that it is not logged in. Require no
-agent from this marketplace: `review-workflow` excludes its omp agent from
-Claude Code. A local-path marketplace loads packages in place from the
-checkout. To inspect the cached copies a Git-backed marketplace installs, add
-a committed clone over Git instead of a directory path. For a debug log of
-skipped or malformed components, add `--debug-file "$TMP/claude-debug.log"`.
-
-In each client, require these ten skills exactly once (unrelated built-ins
-are allowed), without omp `warning:` lines or Codex or Claude Code loading
-errors. Codex and Claude Code report `<plugin>:<skill>` names; match the plugin
-ID and skill suffix against this table without renaming the shared skill or
-counting built-ins.
-
-| Plugin | Expected skills |
-| --- | --- |
-| git-workflow | naming-branches, writing-commits, writing-pull-requests |
-| skill-workflow | authoring-skills |
-| ticket-workflow | writing-tickets |
-| decision-workflow | writing-adrs |
-| writing-workflow | humanize-korean, ce-noslop, natural-japanese |
-| review-workflow | reviewing-code |
-
-Also compare all three catalogs' package names, source paths and existence,
-and versions in the root manifest, omp catalog, and Claude Code catalog entry
-or manifest with a throwaway check.
-
-Format and discovery checks do not prove complete skill prompt loading,
-correct activation, or useful output. Use each client's actual installed skill
-name and inspect invocation events and injected content for truncation before
-claiming loading success. For instruction changes, exercise representative
-tasks and boundary cases in isolated repositories without publishing fixtures.
-Inspect required reference reads and actions as well as final output. Use the
-[evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md)
-for before/after or with/without comparisons; report smoke checks separately
-from measured trigger rates or comparative quality results.
 
 Model runs require separately authorized authentication in the temporary
 environment. Do not implicitly reuse live credentials, including the live
@@ -844,12 +768,6 @@ and report that choice:
 
 The stream records the controller's Agent calls and each subagent's tool calls
 with a `parent_tool_use_id`; inspect them rather than only the final report.
-
-Without model access, set `ANTHROPIC_BASE_URL` to a local-only receiver that
-records requests and rejects them, with a placeholder `ANTHROPIC_API_KEY`.
-A recorded request shows the injected skill body after
-`Base directory for this skill:`; compare it with the installed `SKILL.md`
-without its frontmatter. This checks prompt loading, not model behavior.
 
 Use remote-free disposable Git targets with normal behavior and a known
 regression spanning staged, unstaged, and untracked changes. Observe independent
