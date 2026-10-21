@@ -703,13 +703,13 @@ prints one line per check:
   receiver that records and rejects model requests, and Codex reports no
   truncation.
 
-Skills come from `plugins/*/skills/*/SKILL.md`, so a new skill needs no script
-change. Any `FAIL` line names the client and check and makes the exit status
-nonzero. A missing CLI is a failure, not a skip; `--clients omp,codex` limits a
-run while iterating, but report the full run. `--root` checks another
-marketplace copy. The Claude Code check installs from a local path, which loads
-packages in place; to inspect the cached copies a Git-backed marketplace
-installs, add a committed clone over Git instead.
+Skills come from `skills/*/SKILL.md` in each catalog package, so a new skill
+needs no script change. Any `FAIL` line names the client and check and makes
+the exit status nonzero. A missing CLI is a failure, not a skip;
+`--clients omp,codex` limits a run while iterating, but report the full run.
+`--root` checks another marketplace copy. The Claude Code check installs from
+a local path, which loads packages in place; to inspect the cached copies a
+Git-backed marketplace installs, add a committed clone over Git instead.
 
 These checks do not prove correct activation or useful output. For instruction
 changes, exercise representative tasks and boundary cases in isolated

@@ -195,7 +195,9 @@ def load_marketplace(root: Path) -> tuple[str, list[str], list[Skill], list[Resu
         claude_version = (json.loads(claude_manifest.read_text()).get("version")
                           if claude_manifest.is_file() else claude_entry.get("version"))
         versions = {manifest.get("version"), entry.get("version"), claude_version}
-        if len(versions) != 1:
+        if None in versions:
+            problems.append(f"{name}: a required version is missing")
+        elif len(versions) != 1:
             problems.append(f"{name}: versions differ {sorted(map(str, versions))}")
         for skill_md in sorted(package.glob("skills/*/SKILL.md")):
             skills.append(Skill(name, skill_md.parent.name, skill_md,
