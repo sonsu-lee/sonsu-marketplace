@@ -1,10 +1,12 @@
 # sonsu-marketplace
 
-Personal plugin marketplace for omp and Codex.
+Personal plugin marketplace for omp, Codex, and Claude Code.
 
 [omp](https://github.com/can1357/oh-my-pi) reads `.omp-plugin/marketplace.json`;
 [Codex](https://developers.openai.com/codex/cli) reads
-`.agents/plugins/marketplace.json`. Both install the same `plugins/` packages.
+`.agents/plugins/marketplace.json`; [Claude Code](https://code.claude.com/docs/en/overview)
+reads `.claude-plugin/marketplace.json`. All three install the same `plugins/`
+packages.
 
 ## Table of Contents
 
@@ -33,13 +35,15 @@ Personal plugin marketplace for omp and Codex.
 
 ### Dependencies
 
-Install [omp](https://github.com/can1357/oh-my-pi#install) or
-[Codex CLI](https://developers.openai.com/codex/cli) before using this marketplace.
-Codex must provide the plugin marketplace and subagent interfaces described
-below; older clients without them do not meet the prerequisites.
-Local catalog installation and installed-skill discovery were checked with
-Codex CLI `0.163.0` and omp `18.12.3`. These are checked baselines, not promises
-for every older release or evidence of authenticated model execution.
+Install [omp](https://github.com/can1357/oh-my-pi#install),
+[Codex CLI](https://developers.openai.com/codex/cli), or
+[Claude Code](https://code.claude.com/docs/en/overview) before using this
+marketplace. Codex and Claude Code must provide the plugin marketplace and
+subagent interfaces described below; older clients without them do not meet
+the prerequisites. Local catalog installation and installed-skill discovery
+were checked with Codex CLI `0.163.0`, omp `18.12.3`, and Claude Code
+`2.1.296`. These are checked baselines, not promises for every older release
+or evidence of authenticated model execution.
 
 The `git-workflow` skills reuse the target repository's validation setup first.
 When none exists, the commit fallback needs Node.js 22.12.0 or newer and npm
@@ -83,10 +87,19 @@ codex plugin list --marketplace sonsu-marketplace --available --json
 codex plugin add git-workflow@sonsu-marketplace
 ```
 
-Use `codex plugin add <name>@sonsu-marketplace` for another package. This is a
-repository marketplace, not a submission to the public plugin directory.
-The common local marketplace format also applies to supporting app and IDE
-surfaces; their availability varies, and CLI checks do not verify those UIs.
+For Claude Code:
+
+```sh
+claude plugin marketplace add sonsu-lee/sonsu-marketplace
+claude plugin install git-workflow@sonsu-marketplace
+```
+
+Use `codex plugin add <name>@sonsu-marketplace` or
+`claude plugin install <name>@sonsu-marketplace` for another package; Claude
+Code also accepts `--scope project`. This is a repository marketplace, not a
+submission to a public plugin directory. The common local marketplace format
+also applies to supporting app and IDE surfaces; their availability varies,
+and CLI checks do not verify those UIs.
 
 ## Usage
 
@@ -104,12 +117,21 @@ In Codex, check catalog and installed state:
 codex plugin list --marketplace sonsu-marketplace --json
 ```
 
+In Claude Code, check installed state and a package's components:
+
+```sh
+claude plugin list
+claude plugin details git-workflow
+```
+
 Listing proves catalog or installation state, not skill execution. In a Codex
 session, explicitly select the installed plugin skill as `$<plugin>:<skill>`,
 for example `$git-workflow:writing-commits`. A bare `$writing-commits` does not
-select that plugin skill on the checked CLI baseline. Retain the qualified name
-returned by discovery when invoking skills or matching results. Natural-language
-selection is model behavior, not an installation hook or guaranteed trigger.
+select that plugin skill on the checked CLI baseline. In Claude Code, invoke it
+as `/<plugin>:<skill>`, for example `/git-workflow:writing-commits`. Retain the
+qualified name returned by discovery when invoking skills or matching results.
+Natural-language selection is model behavior, not an installation hook or
+guaranteed trigger.
 
 In an omp session, `/marketplace` opens the catalog in the plugin browser.
 Installed skills provide guidance for relevant requests; for example, ask omp to
@@ -130,9 +152,10 @@ identifiers, quotations, numbers, and terminology remain unchanged.
 
 Ask to review code, a diff, a branch, or a PR to use `reviewing-code` from
 `review-workflow`. omp pairs a native reviewer with focused custom workers;
-Codex uses independent custom general and focused subagents. Explicit
-native-only requests retain `/review` or `codex review` without orchestration.
-Reviews stay local unless you request publication; a comment draft is not posted.
+Codex and Claude Code use independent custom general and focused subagents.
+Explicit native-only requests retain `/review`, `codex review`, or Claude
+Code's `/code-review` without orchestration. Reviews stay local unless you
+request publication; a comment draft is not posted.
 
 For omp, fetch catalog changes, then upgrade installed plugins:
 
@@ -150,12 +173,23 @@ codex plugin marketplace upgrade sonsu-marketplace
 An absolute local marketplace path is used directly and cannot be refreshed
 with `marketplace upgrade`; that command requires a configured Git source.
 
+For Claude Code, refresh the catalog, then update an installed plugin:
+
+```sh
+claude plugin marketplace update sonsu-marketplace
+claude plugin update git-workflow@sonsu-marketplace
+```
+
+Claude Code loads plugins from a local-path marketplace in place, so their
+source edits take effect at the next session without a version change.
+
 ## Available plugins
 
 ### git-workflow
 
-Install with `omp plugin install git-workflow@sonsu-marketplace` or
-`codex plugin add git-workflow@sonsu-marketplace`.
+Install with `omp plugin install git-workflow@sonsu-marketplace`,
+`codex plugin add git-workflow@sonsu-marketplace`, or
+`claude plugin install git-workflow@sonsu-marketplace`.
 
 - **`writing-commits`** writes Conventional Commit messages and validates them
   before use. It reuses repository commands, tools, versions, and configuration.
@@ -181,8 +215,9 @@ provide agent workflow instructions, not Git hooks or CI enforcement.
 
 ### skill-workflow
 
-Install with `omp plugin install skill-workflow@sonsu-marketplace` or
-`codex plugin add skill-workflow@sonsu-marketplace`.
+Install with `omp plugin install skill-workflow@sonsu-marketplace`,
+`codex plugin add skill-workflow@sonsu-marketplace`, or
+`claude plugin install skill-workflow@sonsu-marketplace`.
 
 - **`authoring-skills`** creates, revises, and reviews focused agent skills
   using common Agent Skills principles, without a default client. It identifies
@@ -199,8 +234,9 @@ contributor procedures below.
 
 ### ticket-workflow
 
-Install with `omp plugin install ticket-workflow@sonsu-marketplace` or
-`codex plugin add ticket-workflow@sonsu-marketplace`.
+Install with `omp plugin install ticket-workflow@sonsu-marketplace`,
+`codex plugin add ticket-workflow@sonsu-marketplace`, or
+`claude plugin install ticket-workflow@sonsu-marketplace`.
 
 - **`writing-tickets`** writes small, outcome-centered GitHub and Linear tickets.
   It follows applicable project templates first, using a bundled Problem,
@@ -222,8 +258,9 @@ or enforce ticket-first work through hooks.
 
 ### decision-workflow
 
-Install with `omp plugin install decision-workflow@sonsu-marketplace` or
-`codex plugin add decision-workflow@sonsu-marketplace`.
+Install with `omp plugin install decision-workflow@sonsu-marketplace`,
+`codex plugin add decision-workflow@sonsu-marketplace`, or
+`claude plugin install decision-workflow@sonsu-marketplace`.
 
 - **`writing-adrs`** selects decisions worth recording and writes short ADRs
   with context, a decision and its rationale, rejected alternatives, and
@@ -241,8 +278,9 @@ routine work into ADRs.
 
 ### writing-workflow
 
-Install with `omp plugin install writing-workflow@sonsu-marketplace` or
-`codex plugin add writing-workflow@sonsu-marketplace`.
+Install with `omp plugin install writing-workflow@sonsu-marketplace`,
+`codex plugin add writing-workflow@sonsu-marketplace`, or
+`claude plugin install writing-workflow@sonsu-marketplace`.
 
 - **`humanize-korean`** adapts `epoko77-ai/im-not-ai` for natural Korean
   editing across genres, including technical documentation, README files,
@@ -262,19 +300,20 @@ or complete semantic preservation.
 
 ### review-workflow
 
-Install with `omp plugin install review-workflow@sonsu-marketplace` or
-`codex plugin add review-workflow@sonsu-marketplace`.
+Install with `omp plugin install review-workflow@sonsu-marketplace`,
+`codex plugin add review-workflow@sonsu-marketplace`, or
+`claude plugin install review-workflow@sonsu-marketplace`.
 
 Evidence-driven code review with independent general and focused reviewers and
 local-first reporting.
 
 - **`reviewing-code`** reviews intent, flow, failures, architecture, and internal
   implementation. omp uses a native `reviewer` plus `review-workflow-focused`;
-  Codex uses fresh generic subagents assigned general and focused roles. They
-  inspect the same frozen target independently, without sharing initial
-  conclusions. Models follow effective client settings, not a fixed provider
-  pair. Runtime verification and high-risk red-team challenges are separate,
-  bounded work rather than repeated full reviews.
+  Codex and Claude Code use fresh generic subagents assigned general and focused
+  roles. They inspect the same frozen target independently, without sharing
+  initial conclusions. Models follow effective client settings, not a fixed
+  provider pair. Runtime verification and high-risk red-team challenges are
+  separate, bounded work rather than repeated full reviews.
 - Reviews report locally by default. Comment drafting and explicit publication
   use [review-comment guidance](plugins/review-workflow/skills/reviewing-code/references/review-comments.md)
   that preserves evidence, uncertainty, and the difference between fixes and
@@ -291,6 +330,8 @@ not install hooks, automatically fix code, or configure credentials.
   marketplace.json            # catalog: name, owner, plugins[]
 .agents/plugins/
   marketplace.json            # Codex catalog: same package roots
+.claude-plugin/
+  marketplace.json            # Claude Code catalog: same package roots
 plugins/
   <name>/
     plugin.json               # shared identity, version, standard metadata
@@ -300,14 +341,19 @@ plugins/
     agents/<agent>.md         # omp: task subagents
     rules/<rule>.md           # omp: rules
     package.json              # omp: extension modules under "omp.extensions"
+    .claude-plugin/plugin.json  # Claude Code: only to exclude omp agents
 ```
 
 Each plugin is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package.
-Both catalogs point to the same `plugins/<name>` directories, relative to the
-repository root. Standard metadata, skills, scripts, and assets are shared;
+All three catalogs point to the same `plugins/<name>` directories, relative to
+the repository root. Standard metadata, skills, scripts, and assets are shared;
 omp agents and client-specific execution references remain separate.
 omp-specific components use omp's conventional locations because omp does not
 yet read the standard's `extensions` field or namespaced extension directories.
+Claude Code takes its manifest from the catalog entry or a package's
+`.claude-plugin/plugin.json`, not from the root `plugin.json` or `mcp.json`.
+Claude Code `2.1.296` still records the root `version` at installation, so
+keep every declared version equal.
 Everything except `plugin.json` is optional. Do not duplicate package trees,
 add `.codex-plugin` overlays, symlinks, or empty MCP files for these packages.
 The packaging rationale remains [ADR-0002](docs/decisions/0002-plugin-format.md);
@@ -327,15 +373,17 @@ procedures below.
 Apply [Code Review Rules](AGENTS.md#code-review-rules) when reviewing changes
 and interpreting feedback. Requested plugin reviews use the
 [reviewing-code procedure](plugins/review-workflow/skills/reviewing-code/SKILL.md)
-and the matching [omp execution reference](plugins/review-workflow/skills/reviewing-code/references/omp.md)
-or [Codex execution reference](plugins/review-workflow/skills/reviewing-code/references/codex.md).
-omp dispatches native and focused reviewers; Codex dispatches independent
-custom general and focused reviewers. Explicit native-only requests retain
-`/review` or `codex review`, without plugin orchestration. Preserve native
-output and priority contracts only when using a native reviewer; custom
-controllers use the common skill's report contract. Results stay local unless
-publication is explicitly requested; a draft is not permission to post.
-These procedures do not replace required approvals or branch protections.
+and the matching [omp execution reference](plugins/review-workflow/skills/reviewing-code/references/omp.md),
+[Codex execution reference](plugins/review-workflow/skills/reviewing-code/references/codex.md),
+or [Claude Code execution reference](plugins/review-workflow/skills/reviewing-code/references/claude-code.md).
+omp dispatches native and focused reviewers; Codex and Claude Code dispatch
+independent custom general and focused reviewers. Explicit native-only requests
+retain `/review`, `codex review`, or `/code-review`, without plugin
+orchestration. Preserve native output and priority contracts only when using a
+native reviewer; custom controllers use the common skill's report contract.
+Results stay local unless publication is explicitly requested; a draft is not
+permission to post. These procedures do not replace required approvals or
+branch protections.
 
 When responding to review:
 
@@ -383,7 +431,8 @@ For root and plugin READMEs:
 - Omit optional sections that add no value. Keep decision rationale in ADRs.
 - Inspect rendered navigation and code blocks, check links and license
   information, and exercise changed CLI examples. Use isolated client homes
-  and follow the plugin test procedure below, including Codex's `CODEX_HOME`.
+  and follow the plugin test procedure below, including Codex's `CODEX_HOME`
+  and Claude Code's `CLAUDE_CONFIG_DIR`.
 
 All Markdown documents follow the lint policy in
 [ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
@@ -517,16 +566,25 @@ revisions.
      expands nothing else. Keep secrets out of `mcp.json`. A `stdio` server
      receives omp's environment and can read credentials from it.
 
-   Keep one standard package root for both clients; do not add `.mcp.json`,
-   `.claude-plugin/plugin.json`, or `.codex-plugin/plugin.json` overlays.
-   Shared skills and MCP servers live in `skills/` and `mcp.json`.
+   Keep one standard package root for all clients; do not add `.mcp.json` or
+   `.codex-plugin/plugin.json` overlays. Shared skills and MCP servers live in
+   `skills/` and `mcp.json`. Claude Code reads MCP servers from `.mcp.json` or
+   manifest `mcpServers`, not `mcp.json`; before adding MCP servers, decide and
+   verify how Claude Code receives them or disclose that they are unavailable.
 
 3. Add omp-specific components only when needed:
    - **Commands**: `commands/<command>.md` with a `description`. Use a command
      for a workflow that runs only when the user asks for it, since a standard
-     skill cannot set `hide`.
+     skill cannot set `hide`. Claude Code also loads `commands/` as plugin
+     commands, and omp may read a Claude Code manifest's `commands` field; no
+     package ships a command yet, so verify both before adding one.
 
-   - **Agents**: `agents/<agent>.md` with `name` and `description`.
+   - **Agents**: `agents/<agent>.md` with `name` and `description`. Claude Code
+     also loads `agents/` as its own plugin subagents and cannot exclude them
+     from a catalog entry. A package with omp agents therefore adds
+     `.claude-plugin/plugin.json` with `"agents": []` and its Claude Code
+     metadata, as `review-workflow` does. omp still loads `agents/`, but reads
+     that manifest's `version` before the root `plugin.json`.
 
    - **Rules**: `rules/<rule>.md` with a `description`. Use a rule for guidance
      tied to file patterns (`globs`) or that always applies (`alwaysApply`),
@@ -537,7 +595,8 @@ revisions.
      [Extensions](https://github.com/can1357/oh-my-pi/blob/main/docs/extensions.md).
 
    Keep client execution differences in conditional skill references.
-   Do not copy omp agents into Codex host configuration.
+   Do not copy omp agents into Codex host configuration or Claude Code agent
+   definitions.
 
    When adding another client, retain one source package per plugin and share
    common workflow requirements, scripts, and assets. Separate only necessary
@@ -546,7 +605,8 @@ revisions.
    the workflow. A different model alone does not require a package fork.
    Document the new client's actual support scope and verify its installation,
    discovery, and representative execution before claiming compatibility;
-   the current omp and Codex checks do not establish support for other clients.
+   the current omp, Codex, and Claude Code checks do not establish support for
+   other clients.
 
 4. Register the plugin in `.omp-plugin/marketplace.json`:
 
@@ -570,19 +630,37 @@ revisions.
    }
    ```
 
-   Both paths are relative to the repository root, not the catalog directory.
+   Also register it in `.claude-plugin/marketplace.json`:
+
+   ```json
+   {
+     "name": "<name>",
+     "source": "./plugins/<name>",
+     "description": "What the plugin does.",
+     "version": "0.1.0"
+   }
+   ```
+
+   Claude Code uses this entry as the manifest when the package has no
+   `.claude-plugin/plugin.json`. With that manifest, the entry contains only
+   `name` and `source`; the manifest carries `version`, `description`, and
+   `author`, because a version in both places is a validation warning.
+
+   All paths are relative to the repository root, not the catalog directory.
    Keep catalog names, order, and package sets aligned. The explicit Codex
    policy follows its catalog format; these skill-only packages add neither
    authentication dependencies nor automatic installation.
 
-   Raise `version` in the root manifest and omp catalog together on every
-   plugin change. `omp plugin upgrade` only reinstalls changed catalog versions.
-   Codex uses package metadata; do not duplicate versions, omp `owner`, or
-   marketplace `metadata` in its catalog.
+   Raise `version` in the root manifest, the omp catalog, and the Claude Code
+   catalog entry or manifest together on every plugin change.
+   `omp plugin upgrade` and `claude plugin update` only reinstall changed
+   versions. Codex uses package metadata; do not duplicate versions, omp
+   `owner`, or marketplace `metadata` in its catalog.
 
-Use the same name in `plugin.json`, both catalog entries, and the directory. It
-must be lowercase ASCII letters, digits, `-`, and `.`, start and end with a
-letter or digit, contain no `--` or `..`, and be at most 64 characters.
+Use the same name in `plugin.json`, every catalog entry, any Claude Code
+manifest, and the directory. It must be lowercase ASCII letters, digits, `-`,
+and `.`, start and end with a letter or digit, contain no `--` or `..`, and be
+at most 64 characters.
 
 If a future plugin needs a capability the standard cannot express, document
 the client limitation before changing packaging or claiming shared support.
@@ -618,8 +696,10 @@ TMP="$(mktemp -d)"
 OMP_HOME="$TMP/omp-home"
 CX_HOME="$TMP/codex-home"
 CX_CODEX_HOME="$CX_HOME/.codex"
+CC_HOME="$TMP/claude-home"
+CC_CONFIG_DIR="$CC_HOME/.claude"
 TARGET="$TMP/target"
-mkdir -p "$OMP_HOME" "$CX_CODEX_HOME" "$TARGET"
+mkdir -p "$OMP_HOME" "$CX_CODEX_HOME" "$CC_CONFIG_DIR" "$TARGET"
 ```
 
 omp reports skipped skills and rejected plugins in `omp skill list`:
@@ -668,10 +748,43 @@ Paths must resolve to installed packages, not direct source discovery; do not
 use extra user roots to bypass installation. Terminate the owned subprocess.
 Use a throwaway driver, not a new repository framework.
 
+For Claude Code, validate the catalog, any Claude Code manifest, and each
+package's skills. Install from the separate target directory and apply both
+temporary environment variables to every invocation:
+
+```sh
+claude plugin validate "$REPO" --strict
+claude plugin validate "$REPO/plugins/review-workflow" --strict
+for skills in "$REPO"/plugins/*/skills; do
+  claude plugin validate "$skills" --strict
+done
+(
+  cd "$TARGET"
+  export HOME="$CC_HOME" CLAUDE_CONFIG_DIR="$CC_CONFIG_DIR"
+  claude plugin marketplace add "$REPO"
+  for name in git-workflow skill-workflow ticket-workflow decision-workflow \
+    writing-workflow review-workflow; do
+    claude plugin install "$name@sonsu-marketplace"
+  done
+  claude plugin list --json
+  claude -p --output-format stream-json --verbose 'List nothing.'
+)
+```
+
+The final command's first `system` `init` event lists loaded `skills`,
+`agents`, and `plugins` before any model request, so it works without
+authentication; the run then reports that it is not logged in. Require no
+agent from this marketplace: `review-workflow` excludes its omp agent from
+Claude Code. A local-path marketplace loads packages in place from the
+checkout. To inspect the cached copies a Git-backed marketplace installs, add
+a committed clone over Git instead of a directory path. For a debug log of
+skipped or malformed components, add `--debug-file "$TMP/claude-debug.log"`.
+
 In each client, require these ten skills exactly once (unrelated built-ins
-are allowed), without omp `warning:` lines or Codex loading errors:
-Codex reports `<plugin>:<skill>` names; match the plugin ID and skill suffix
-against this table without renaming the shared skill or counting built-ins.
+are allowed), without omp `warning:` lines or Codex or Claude Code loading
+errors. Codex and Claude Code report `<plugin>:<skill>` names; match the plugin
+ID and skill suffix against this table without renaming the shared skill or
+counting built-ins.
 
 | Plugin | Expected skills |
 | --- | --- |
@@ -682,8 +795,9 @@ against this table without renaming the shared skill or counting built-ins.
 | writing-workflow | humanize-korean, ce-noslop, natural-japanese |
 | review-workflow | reviewing-code |
 
-Also compare both catalogs' package names, source paths and existence, and
-root-manifest/omp-catalog versions with a throwaway check.
+Also compare all three catalogs' package names, source paths and existence,
+and versions in the root manifest, omp catalog, and Claude Code catalog entry
+or manifest with a throwaway check.
 
 Format and discovery checks do not prove complete skill prompt loading,
 correct activation, or useful output. Use each client's actual installed skill
@@ -696,8 +810,9 @@ for before/after or with/without comparisons; report smoke checks separately
 from measured trigger rates or comparative quality results.
 
 Model runs require separately authorized authentication in the temporary
-environment. Do not implicitly reuse live credentials. For Codex model smoke
-runs, use `--no-daemon` to avoid attaching to the live client daemon:
+environment. Do not implicitly reuse live credentials, including the live
+Claude Code login. For Codex model smoke runs, use `--no-daemon` to avoid
+attaching to the live client daemon:
 
 ```sh
 HOME="$CX_HOME" CODEX_HOME="$CX_CODEX_HOME" \
@@ -706,18 +821,49 @@ HOME="$CX_HOME" CODEX_HOME="$CX_CODEX_HOME" \
   '$review-workflow:reviewing-code Review working changes locally.'
 ```
 
+For Claude Code, run print mode from the target with the temporary variables.
+A temporary `CLAUDE_CONFIG_DIR` has no login. With explicit authorization,
+supply a token through `CLAUDE_CODE_OAUTH_TOKEN` in the process environment,
+for example one from `claude setup-token`; do not copy the live configuration
+directory. Print mode cannot answer permission prompts, and the default mode
+denies the snapshot, helper, and validator commands these workflows run. For
+disposable targets only, grant them with `--permission-mode bypassPermissions`
+and report that choice:
+
+```sh
+(
+  cd "$TARGET"
+  HOME="$CC_HOME" CLAUDE_CONFIG_DIR="$CC_CONFIG_DIR" \
+    claude -p '/review-workflow:reviewing-code Review working changes.' \
+    --output-format stream-json --verbose --add-dir "$TMP" \
+    --permission-mode bypassPermissions
+)
+```
+
+The stream records the controller's Agent calls and each subagent's tool calls
+with a `parent_tool_use_id`; inspect them rather than only the final report.
+
+Without model access, set `ANTHROPIC_BASE_URL` to a local-only receiver that
+records requests and rejects them, with a placeholder `ANTHROPIC_API_KEY`.
+A recorded request shows the injected skill body after
+`Base directory for this skill:`; compare it with the installed `SKILL.md`
+without its frontmatter. This checks prompt loading, not model behavior.
+
 Use remote-free disposable Git targets with normal behavior and a known
 regression spanning staged, unstaged, and untracked changes. Observe independent
 general/focused workers on the same frozen target, full completion results,
 deduplicated findings, and controller-only runtime checks in another disposable
 copy. Confirm original source, index, and untracked content remain unchanged.
 omp must retain native `reviewer` plus `review-workflow-focused`; Codex must
-not call native review or a recursive CLI. Check a clean baseline, implicit
-skill selection, explicit native-only review, comment-only drafting, and
-unavailable subagents (`-c agents.enabled=false` in Codex). Missing or failed
-workers must remain incomplete, not a sequential or native-only fallback.
+not call native review or a recursive CLI; Claude Code must start non-fork
+`general-purpose` subagents without `/code-review`, `/security-review`,
+ultrareview, or a nested CLI. Check a clean baseline, implicit skill selection,
+explicit native-only review, comment-only drafting, and unavailable subagents
+(`-c agents.enabled=false` in Codex, `--disallowedTools Agent` in Claude Code).
+Missing or failed workers must remain incomplete, not a sequential or
+native-only fallback.
 
-Exercise writing helpers from discovered installed paths in both clients,
+Exercise writing helpers from discovered installed paths in each client,
 preserving identifiers, numbers, URLs, and fenced code. Verify commit and branch
 candidates with installed validators without committing or creating branches;
 draft PRs and tickets without publication; reject an unnecessary ADR; design a

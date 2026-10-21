@@ -1,8 +1,9 @@
 # AGENTS.md
 
-This repository is a shared omp and Codex plugin marketplace. Use the current
-procedures in the README and skills below. Identify which requirements apply
-to the task and read their linked procedures before making changes.
+This repository is a shared omp, Codex, and Claude Code plugin marketplace.
+Use the current procedures in the README and skills below. Identify which
+requirements apply to the task and read their linked procedures before making
+changes.
 
 * Add or change plugins, including support for another client, using the
   [plugin-authoring procedure](README.md#adding-a-plugin). Keep shared sources
@@ -10,17 +11,19 @@ to the task and read their linked procedures before making changes.
 * When creating, revising, or reviewing skills, follow the
   [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md).
 * Raise the plugin's root `plugin.json` version and matching
-  `.omp-plugin/marketplace.json` version together with every plugin change.
-  Keep both client catalogs pointed at the same package directories.
+  `.omp-plugin/marketplace.json` version together with every plugin change,
+  along with its Claude Code catalog entry or `.claude-plugin/plugin.json`.
+  Keep all client catalogs pointed at the same package directories.
 * After changing a plugin, run the
-  [plugin test procedure](README.md#testing-a-plugin) for both clients.
+  [plugin test procedure](README.md#testing-a-plugin) for every client.
   Require every expected skill exactly once without loading errors; omp
   discovery must have no `warning:` lines. Exercise representative tasks
   separately; listing is not proof of execution.
-* Use separate temporary client homes: `HOME` for omp, and both `HOME` and
-  `CODEX_HOME` for Codex. Do not install into live clients or copy real settings
-  or credentials. Use `--no-daemon` for Codex model smoke runs and report
-  unavailable authorized authentication as an execution blocker.
+* Use separate temporary client homes: `HOME` for omp, both `HOME` and
+  `CODEX_HOME` for Codex, and both `HOME` and `CLAUDE_CONFIG_DIR` for Claude
+  Code. Do not install into live clients or copy real settings or credentials.
+  Use `--no-daemon` for Codex model smoke runs and report unavailable
+  authorized authentication as an execution blocker.
 * Follow the [commit skill](plugins/git-workflow/skills/writing-commits/SKILL.md)
   when writing commit messages and the
   [branch skill](plugins/git-workflow/skills/naming-branches/SKILL.md)
@@ -39,10 +42,10 @@ to the task and read their linked procedures before making changes.
   branch and PR skills for downstream work.
 * When reviewing code, a diff, or a PR, or responding to feedback, follow the
   [review procedure](README.md#code-review) and the Code Review Rules below.
-  Requested omp and Codex plugin reviews use the linked common skill and the
-  corresponding client execution reference; explicit native-only requests
-  retain the native procedure and output.
-  Results stay local unless publication is explicitly requested.
+  Requested omp, Codex, and Claude Code plugin reviews use the linked common
+  skill and the corresponding client execution reference; explicit native-only
+  requests retain the native procedure and output. Results stay local unless
+  publication is explicitly requested.
 * When deciding whether to write an ADR, or drafting, reviewing, or replacing
   one, follow the [decision-record procedure](README.md#decision-records) and
   its [ADR skill](plugins/decision-workflow/skills/writing-adrs/SKILL.md).

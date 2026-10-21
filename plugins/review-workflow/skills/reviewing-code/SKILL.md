@@ -27,14 +27,17 @@ the reference's revision/readback checks.
 
 - **Controller:** freeze the target, assign independent complementary review,
   verify candidates and runtime evidence, then consolidate without a third full
-  scan. Read [omp execution](references/omp.md) in omp or
-  [Codex execution](references/codex.md) in Codex. Only controllers read dispatch
-  references. Explicit native-only requests retain the selected native workflow
-  without plugin orchestration. Skill selection is model behavior, not a hook.
+  scan. Read [omp execution](references/omp.md) in omp,
+  [Codex execution](references/codex.md) in Codex, or
+  [Claude Code execution](references/claude-code.md) in Claude Code. Only
+  controllers read dispatch references. Explicit native-only requests retain the
+  selected native workflow without plugin orchestration. Skill selection is
+  model behavior, not a hook.
 - **General reviewer:** inspect the whole frozen change and relevant call paths
   for bugs/regressions. omp's native reviewer keeps its instructions and schema,
-  including confidence/correctness fields. Codex's custom reviewer uses the
-  common criteria and custom report; do not invent native fields.
+  including confidence/correctness fields. Codex and Claude Code custom
+  reviewers use the common criteria and custom report; do not invent native
+  fields.
 - **Focused reviewer:** answer one narrow assigned question complementing the
   general pass, not another entire checklist.
 

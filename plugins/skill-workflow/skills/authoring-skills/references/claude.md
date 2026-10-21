@@ -22,14 +22,22 @@ Add client-specific behavior only when the requested workflow needs it and the
 target surface supports it. Distinguish automatic skill loading from permission
 to perform side effects; do not grant broad tool access merely for convenience.
 
+Claude Code invokes plugin skills as `/<plugin>:<skill>` and prefixes the
+injected body with `Base directory for this skill:`. A shared skill resolves
+bundled files from that loaded directory, not a cache path.
+
 ## Verify the claimed support
 
 Check discovery, activation, and task behavior on the intended surface and
-models. When evaluating a Claude Code plugin, consider its
+models. For a Claude Code plugin, `claude plugin validate --strict` on its
+`skills/` directory checks skill files; a marketplace run does not open them.
+The `system` `init` event of `claude -p --output-format stream-json --verbose`
+lists discovered skills before any model request. For complete loading, inspect
+the injected body in an actual request. For activation, consider the
 [official plugin evaluation tool][evals] before building a runner. Its case
 format differs from the skill-creator plugin's format; use the documentation
 for the tool actually selected. Do not claim Claude compatibility from an omp
-run or a text-only review.
+or Codex run or a text-only review.
 
 [code]: https://code.claude.com/docs/en/skills
 [portability]: https://code.claude.com/docs/en/skills#using-skill-frontmatter-outside-claude-code
