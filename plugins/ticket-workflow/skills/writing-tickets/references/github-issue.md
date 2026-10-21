@@ -65,8 +65,8 @@ an issue in prose is not proof that a structured relation was created. Issue
 types classify an issue but do not create hierarchy.
 
 A public repository's issues are visible to anyone. For a suspected
-vulnerability, follow the repository's security policy and use private
-vulnerability reporting when it is enabled, not an issue.
+vulnerability, follow the repository's security policy; when it names no
+channel, use private vulnerability reporting if enabled, not an issue.
 
 Files attached to an issue in a public repository can be accessed without
 authentication. GitHub CLI can attach local images and videos when the user

@@ -2,8 +2,7 @@
 
 Read this when the ticket reports existing behavior that differs from what the
 product, documentation, or an established contract promises, including a
-regression. A request for behavior that never existed is a feature request,
-not a bug.
+regression.
 
 ## Describe the failure
 
@@ -11,7 +10,8 @@ Use the selected template's bug fields when it has them; otherwise structure
 the default body's Problem section as follows. Write a field only from known
 information. Collect what is unknown once, as unresolved questions in the
 draft, instead of filling the body with "unknown" entries; a required template
-field may state briefly what is not yet known.
+field may state briefly what is not yet known. Remove secrets and personal
+data from anything quoted or attached.
 
 - **Summary:** state the observed failure and its condition in the title, not
   the suspected fix. "Cancelling a file copy crashes the file manager" rather
@@ -29,7 +29,7 @@ field may state briefly what is not yet known.
   the last known good and first known bad version or change when known.
 - **Evidence:** logs, traces, crash identifiers, screenshots, screen
   recordings, or a reduced test case, linked or attached rather than pasted at
-  length. Remove secrets and personal data before including them.
+  length.
 - **Recording:** include a short screen recording when the failure depends on
   interaction, timing, or visual state that steps describe poorly. It
   supplements the written steps and results, which stay readable and
@@ -40,8 +40,8 @@ field may state briefly what is not yet known.
 - **Impact:** who or what is affected, how often, and any workaround. Use this
   for priority and severity proposals without assuming every bug is urgent.
 
-Report one failure per ticket. Link apparently related failures instead of
-merging them; similar symptoms can have different causes.
+Do not merge failures on symptoms alone; similar symptoms can have different
+causes, so link apparently related failures instead.
 
 ## State the desired outcome
 
