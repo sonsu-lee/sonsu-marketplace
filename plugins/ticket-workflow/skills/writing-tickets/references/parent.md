@@ -26,11 +26,14 @@ Hold the shared agreement in the parent so children do not repeat it:
 - **Desired outcome:** the observable result once the parts work together.
   Distinguish delivering the change from later evaluating its effect when both
   matter.
-- **Scope and non-goals:** what is included and what is deliberately excluded,
-  so children do not expand the work. Record a known time or effort limit only
-  when it is established; do not invent one.
-- **Children:** each child's one-line outcome and real ordering dependencies.
-  Shared membership under a parent does not imply order.
+- **Exclusions:** only work a reasonable assignee would otherwise include,
+  such as an adjacent capability the problem invites. Do not list things
+  nobody would attempt. Record a known time or effort limit only when it is
+  established; do not invent one.
+- **Ordering:** dependencies between children that the tracker does not
+  show; omit when there are none. Shared membership under a parent does not
+  imply order. Do not repeat the child list the tracker shows natively, such
+  as sub-issues; a draft presents the proposed split outside the parent body.
 - **Context:** decisions, designs, and evidence, linked rather than copied.
 
 A parent is not complete merely because its children are closed. When
