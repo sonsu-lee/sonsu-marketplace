@@ -37,12 +37,27 @@ fits that milestone's goal. If the project is unresolved, keep the milestone
 unresolved too. Resolve actual user, label, project, and milestone identities
 before publication; matching display names alone may be ambiguous.
 
+## Choose a parent issue or project
+
+Linear suggests sub-issues for work too large for one issue but too small for a
+project. A project groups issues with a clear outcome or planned completion
+date and can span teams. Follow the team's existing practice; propose a new
+project rather than creating one unless that is authorized.
+
+Sub-issues inherit the parent's team, priority, and project but not its labels.
+A team can configure the parent to close automatically once every sub-issue is
+done. Check that setting before leaving integration or verification work on
+the parent itself.
+
 ## Publish and connect work
 
 Search existing issues in the relevant scope before creating one. Respect
 configured GitHub Issues Sync; a synchronized counterpart is not a second
 independent work item to recreate. Use actual issue identifiers returned by
 Linear, and preserve existing relations when updating or splitting work.
+
+Before recording a suspected vulnerability, check the team's visibility and any
+sync to a public GitHub repository; a synced issue can expose its details.
 
 Inspect the integration's current workflow before relying on automatic status
 changes. Linear distinguishes these PR description relationships:
@@ -69,3 +84,5 @@ for actual PR work; do not change integration settings to write a ticket.
 
 - [Issue templates](https://linear.app/docs/issue-templates)
 - [GitHub integration](https://linear.app/docs/github)
+- [Parent and sub-issues](https://linear.app/docs/parent-and-sub-issues)
+- [Projects](https://linear.app/docs/projects)

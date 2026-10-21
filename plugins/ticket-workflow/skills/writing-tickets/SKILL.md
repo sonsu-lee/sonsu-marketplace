@@ -1,9 +1,11 @@
 ---
 name: writing-tickets
 description: >-
-  Use this skill when drafting, creating, or updating GitHub Issues or Linear
-  tickets, turning a problem or request into actionable issues, or splitting
-  an oversized ticket. Not for implementing the work or writing pull requests.
+  Use this skill before drafting, opening, filing, or updating any GitHub issue
+  or Linear ticket, including bug reports, feature requests, and suspected
+  security vulnerabilities, or when turning a problem into actionable issues or
+  splitting an oversized ticket. Not for implementing the work or writing pull
+  requests.
 compatibility: >-
   Publishing or reading private tracker context requires authenticated tooling
   for the selected GitHub repository or Linear workspace.
@@ -35,13 +37,23 @@ feedback verbatim and link its source when available. Never invent impact,
 reproduction steps, thresholds, prior decisions, or issue IDs. Ask only when
 context cannot resolve a material gap in problem, scope, destination, or completion.
 
+Treat a suspected security vulnerability as a disclosure: follow the project's
+security policy or private reporting channel, and never put exploit details or
+reproduction in a public or publicly synced ticket. Without a private path,
+return the draft in your reply, not a repository file, and say so.
+
 ## Choose the format
 
-For the selected platform, read only its applicable procedure:
+Read only the references that apply:
 
-- [GitHub Issues](references/github-issue.md): templates, issue forms,
-  metadata, and relationships.
-- [Linear](references/linear.md): templates, metadata, PR status automation.
+- [Bug](references/bug.md): behavior differs from what the product,
+  documentation, or a contract promises, including regressions.
+- [Parent](references/parent.md): independently completable parts share a
+  goal, or a parent, epic, or project is created or split.
+- [GitHub Issues](references/github-issue.md) or [Linear](references/linear.md):
+  the selected platform's templates, metadata, relationships, and publishing.
+
+Feature requests, maintenance, and investigations need no kind reference.
 
 Within the project's mandatory rules, use an explicitly requested applicable
 template first, then the applicable repository, team, or issue-type template;
@@ -61,7 +73,6 @@ Keep the body only as long as the work requires:
 
 - **Problem:** what happens now, relevant conditions, and why it matters. A
   feature request describes an unmet need or limitation, not an invented bug.
-  Include reproduction details when they help locate a failure.
 - **Desired outcome:** the observable state that resolves the problem, making
   completion judgeable without prescribing implementation. One sentence may
   suffice; use a short list for distinct outcomes, not a default extra checklist.
@@ -80,13 +91,16 @@ assignee unless a requirement constrains them; mark proposed
 approaches tentative or omit them. Do not turn routine implementation steps,
 test counts, or generic CI checks into outcomes; the PR records those.
 
+For maintenance, the problem is the current state's cost or risk; an agreed or
+externally required change may itself be the outcome. Do not file trivial debt
+that belongs in the current change, or title a ticket `Follow-up`.
+
 ## Review and propose metadata
 
 Review metadata alongside the body: inspect fields, allowed values, template
 defaults, and repository or team conventions. Use explicit user choices and
 established rules first; propose grounded candidates for missing values, kept
-distinct from established ones. For label, type, assignee,
-priority, estimate, project, and milestone criteria and presentation, read
+distinct from established ones. For per-field criteria and presentation, read
 [Metadata](references/metadata.md).
 
 When publication is authorized, apply established values and project-supported
@@ -102,30 +116,25 @@ prioritized, deferred, or completed independently. Never split code, necessary
 tests, and required documentation just to reduce size; file counts and time
 limits are not the criterion.
 
-For a larger request, give each child an independently judgeable outcome and
-name real dependencies. Use a parent only to retain the shared goal; never
-copy the full specification into children. Read relationships before changing
-them. For genuine uncertainty, name the question and needed decision or
-deliverable; do not promise the eventual feature or stop at "investigate".
+Read existing relationships before changing them. For genuine uncertainty, name
+the question and needed decision or deliverable; do not promise the eventual
+feature or stop at "investigate".
 
 ## Connect tickets to work and pull requests
 
-The normal flow is ticket, work, PR. Establish the issue ID before naming the
-work branch. Drafting a ticket does not authorize implementation, branch
-creation, or publishing a PR; for those use `naming-branches` and
-`writing-pull-requests` from `git-workflow`, repository rules first, without
-duplicating their procedures. For work spanning tickets, use the primary ticket
-for the branch ID and explain every relationship in the PR.
+The normal flow is ticket, work, PR; establish the issue ID before naming the
+work branch. Drafting does not authorize implementation, branches, or PRs; for
+those use `naming-branches` and `writing-pull-requests` from `git-workflow`,
+repository rules first. For work spanning tickets, use the primary ticket for
+the branch ID and explain every relationship in the PR.
 
-A ticket may need several PRs; a PR may address several tickets. Reference
-partial work without closing the ticket; use completion links only when the
-desired outcome is fulfilled, given the tracker's actual automation. A merge
-does not prove completion when deployment or other verification remains.
+Tickets and PRs need not be one-to-one. Reference partial work without closing
+the ticket; use completion links only when the outcome is fulfilled under the
+tracker's actual automation, not while deployment or verification remains.
 
-The assignee may change the approach while preserving the outcome. If the
-problem, scope, or outcome changes, state it in the ticket with the important
-reason; never silently redefine success. Keep implementation details and
-evidence in the PR, not a work log.
+The assignee may change the approach while preserving the outcome. State
+changes to the problem, scope, or outcome in the ticket with the reason; never
+silently redefine success. Keep implementation details and evidence in the PR.
 
 ## Deliver the requested result
 
@@ -134,8 +143,8 @@ and material unresolved questions. Do not invent an ID or imply publication.
 
 For an authorized create or update, apply the selected template and established
 metadata with the tracker tools, preserving unrelated content and properties.
-Inspect the returned issue and separately stored project fields, or read them
-back, to confirm destination, content, metadata, and relationships.
+Read back the issue and separately stored project fields to confirm
+destination, content, metadata, and relationships.
 Report the real ID, URL, and incomplete actions; never call a draft published.
 
 Source: [Linear's Write issues not user stories](https://linear.app/method/write-issues-not-user-stories);
