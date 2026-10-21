@@ -245,7 +245,9 @@ Install with `omp plugin install ticket-workflow@sonsu-marketplace`,
   or requiring a separate acceptance checklist. It also reviews labels,
   assignment, priority, estimates, and milestones, proposing grounded metadata
   separately from the body using the tracker's actual fields and conventions.
-  Optional unknowns remain unset rather than guessed. See the
+  Optional unknowns remain unset rather than guessed. Bug reports and parent
+  tickets add kind-specific guidance, and suspected vulnerabilities follow the
+  project's private reporting path instead of a public ticket. See the
   [ticket-writing procedure](plugins/ticket-workflow/skills/writing-tickets/SKILL.md)
   and [fallback template](plugins/ticket-workflow/skills/writing-tickets/assets/ticket-body.md).
 

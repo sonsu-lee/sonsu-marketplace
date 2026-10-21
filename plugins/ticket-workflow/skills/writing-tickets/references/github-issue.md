@@ -22,6 +22,11 @@ search, or agreement merely because the template asks for it.
 If several templates remain materially different after reading their purpose,
 clarify the intended issue type. Use the bundled fallback only when none applies.
 
+`config.yml` contact links can route questions, support, ideas, or security
+reports away from issues, for example to Discussions or private vulnerability
+reporting. When the request belongs to such a route, report the destination
+instead of filing an issue; do not create a discussion unless asked.
+
 ## Review issue and project metadata
 
 Inspect existing repository labels, eligible assignees, milestones, and available
@@ -55,8 +60,19 @@ existing issues in that scope and inspect likely duplicates. Respect any existin
 Linear sync instead of independently creating a second ticket there.
 
 For splits, record intended parent/child or dependency relationships through
-supported tracker operations; mentioning an issue in prose is not proof that a
-structured relation was created.
+supported tracker operations, using sub-issues for parent and child; mentioning
+an issue in prose is not proof that a structured relation was created. Issue
+types classify an issue but do not create hierarchy.
+
+A public repository's issues are visible to anyone. For a suspected
+vulnerability, follow the repository's security policy; when it names no
+channel, use private vulnerability reporting if enabled, not an issue.
+
+Files attached to an issue in a public repository can be accessed without
+authentication. GitHub CLI can attach local images and videos when the user
+has push access; otherwise link the evidence or leave the upload to the user.
+A partial upload still creates the issue, so check which attachments rendered
+before reporting them.
 
 A reference to `#123` is scoped to its repository; use `owner/repository#123` or
 the full URL when crossing repositories. Partial PRs should reference the issue
@@ -72,9 +88,17 @@ non-default-branch merge closes the issue. Reuse the PR skill for actual PR work
 - [Linking pull requests to issues][linking]
 - [Setting organization issue field values][issue-fields]
 - [Projects priority and estimate fields][project-fields]
+- [Adding sub-issues][sub-issues]
+- [Privately reporting a security vulnerability][private-reporting]
+- [Attaching files][attaching]
+- [Attaching files with GitHub CLI][attaching-cli]
 
 [templates]: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository
 [defaults]: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file
 [linking]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue
 [issue-fields]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-and-managing-issue-fields
 [project-fields]: https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects
+[sub-issues]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-sub-issues
+[private-reporting]: https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability
+[attaching]: https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files
+[attaching-cli]: https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli
