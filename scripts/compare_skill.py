@@ -151,6 +151,9 @@ def compare(base: Path, root: Path, query: ca.Query, answers: dict[str, Answer],
         if trace.refused or trace.failed or not trace.reached or not answers[side].text:
             reason = trace.refused and "refused by provider" or trace.error or "no answer"
             problems.append(f"{side} did not complete: {reason}")
+        elif not trace.loaded:
+            # An answer that never read its revision does not measure that revision.
+            problems.append(f"{side} did not read its SKILL.md")
     if problems:
         return Verdict(error="; ".join(problems))
     order = ["base", "head"]
@@ -167,8 +170,9 @@ def compare(base: Path, root: Path, query: ca.Query, answers: dict[str, Answer],
         return Verdict(error=f"judge winner was {winner!r}")
     # Require exactly one boolean A/B pair per numbered criterion.
     items = result.get("criteria")
-    numbers = [item.get("n") for item in items if isinstance(item, dict)] \
-        if isinstance(items, list) else []
+    if not isinstance(items, list) or not all(isinstance(item, dict) for item in items):
+        return Verdict(error="judge did not grade every criterion with true or false")
+    numbers = [item.get("n") for item in items]
     if (sorted(numbers, key=str) != sorted(range(1, len(query.criteria) + 1), key=str)
             or not all(isinstance(item.get(k), bool) for item in items for k in "AB")):
         return Verdict(error="judge did not grade every criterion with true or false")
