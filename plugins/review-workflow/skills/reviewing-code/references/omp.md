@@ -7,9 +7,11 @@ procedure. The common criteria are portable.
 ## Select native and focused roles
 
 For an ordinary natural-language review request, explicitly invoke one bundled
-`agent: "reviewer"` and at least one `agent: "review-workflow-focused"` in the
-same native `task` batch. The native reviewer provides the independent general
-bug/regression pass; each custom worker answers a named, narrow review question.
+`agent: "reviewer"` and at least one focused worker in the same native `task`
+batch: `agent: "review-workflow-focused"`, or `skill-workflow-reviewer` for a
+skill-only change as described below. The native reviewer provides the
+independent general bug/regression pass; each focused worker answers a named,
+narrow review question.
 Choose focus from the common skill rather than automatically running all lenses.
 This invokes the bundled agent, not `/review`. Leave that command unchanged;
 an explicit native-only request opts out of this custom orchestration.

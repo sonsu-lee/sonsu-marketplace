@@ -117,14 +117,14 @@ responsibility, and the proposed solution separately. Missing tool examples
 alone are not defects. Correct actual errors or consequential ambiguity with
 the smallest sufficient change, including deletion; generalize recurring failures.
 
-For a new skill or a revision that changes behavior, get an independent review
-before delivery; skip it for formatting-only edits or when you are that reviewer.
-In omp, dispatch the `skill-workflow-reviewer` agent with a fresh brief: purpose,
+In omp, for a new skill or a revision that changes behavior, dispatch the
+`skill-workflow-reviewer` agent before delivery with a fresh brief: purpose,
 intended consumers, changed files, and project requirements, not your drafting
-rationale. Elsewhere, only on explicit request, start a fresh subagent with the
-same brief and have it read this `SKILL.md` by absolute path as its review
-criteria. Verify its findings before revising; it does not replace behavior
-checks.
+rationale. Skip it for formatting-only edits or when you are that reviewer.
+In other clients, independent review is optional: only on explicit request,
+start a fresh subagent with the same brief and have it read this `SKILL.md` by
+absolute path as its review criteria. Verify its findings before revising; it
+does not replace behavior checks.
 
 Deliver the requested skill or revision with the checks actually performed
 and any material limitations. Keep authoring evaluations separate from the

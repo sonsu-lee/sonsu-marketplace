@@ -321,8 +321,9 @@ local-first reporting.
   roles. They inspect the same frozen target independently, without sharing
   initial conclusions. Models follow effective client settings, not a fixed
   provider pair. When a reviewed change touches a skill, omp adds
-  `skill-workflow-reviewer` if `skill-workflow` is installed; Codex and Claude
-  Code add a skill-criteria worker only on explicit request. Runtime
+  `skill-workflow-reviewer` if `skill-workflow` is installed; for a skill-only
+  change it replaces `review-workflow-focused`. Codex and Claude Code add a
+  skill-criteria worker only on explicit request. Runtime
   verification and high-risk red-team challenges are separate, bounded work
   rather than repeated full reviews.
 - Reviews report locally by default. Comment drafting and explicit publication
@@ -844,7 +845,9 @@ regression spanning staged, unstaged, and untracked changes. Observe independent
 general/focused workers on the same frozen target, full completion results,
 deduplicated findings, and controller-only runtime checks in another disposable
 copy. Confirm original source, index, and untracked content remain unchanged.
-omp must retain native `reviewer` plus `review-workflow-focused`; Codex must
+omp must retain native `reviewer` plus a focused worker:
+`review-workflow-focused`, or `skill-workflow-reviewer` for a skill-only
+change. Codex must
 not call native review or a recursive CLI; Claude Code must start non-fork
 `general-purpose` subagents without `/code-review`, `/security-review`,
 ultrareview, or a nested CLI. Check a clean baseline, implicit skill selection,

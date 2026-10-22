@@ -80,7 +80,8 @@ Selection is a model decision, not a guaranteed hook. In Codex, explicitly
 select `$review-workflow:reviewing-code` if needed; in Claude Code, use
 `/review-workflow:reviewing-code`. Catalog listing is not proof of skill
 execution. In omp, the controller dispatches the bundled `reviewer` and at
-least one `review-workflow-focused` worker in one native `task` batch. In Codex
+least one focused worker in one native `task` batch: `review-workflow-focused`,
+or `skill-workflow-reviewer` for a skill-only change. In Codex
 and Claude Code, fresh generic subagents take custom general and focused
 assignments, without inheriting the author's conversation. The plugin does not
 call or intercept `/review`, `codex review`, `review/start`, `/code-review`,
