@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Measure skill activation and safety in omp, Codex, and Claude Code.
 
-`prepare` installs the marketplace into temporary client homes and prints the
-login commands. `run` sends each query in `evals/<plugin>/<skill>.toml` to each
-logged-in client from a fresh Git target and reports how often the skill loaded
-and whether the query's assertions held. Results are samples for review, not a
-CI gate.
+`prepare` installs the marketplace into dedicated test client homes, kept
+between runs so each client needs one login, and prints login commands for
+clients without stored credentials. `run` sends each query in
+`evals/<plugin>/<skill>.toml` to each logged-in client from a fresh Git target
+and reports how often the skill loaded and whether the query's assertions held.
+Results are samples for review, not a CI gate.
 """
 
 from __future__ import annotations
@@ -17,7 +18,6 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -26,6 +26,11 @@ from pathlib import Path
 import check_plugins as cp
 
 REPO = Path(__file__).resolve().parents[1]
+# Dedicated test homes, never the user's live client homes. They persist so the
+# logins made once in them can be reused.
+DEFAULT_HOMES = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") \
+    / "sonsu-marketplace" / "client-homes"
+CLAUDE_TOKEN_FILE = "oauth-token"
 RUN_TIMEOUT = 900
 PREFLIGHT_PROMPT = "Reply with the single word OK."
 FORBIDS = {"write-command", "new-files"}
@@ -127,18 +132,42 @@ def install(client: str, root: Path, market: str, plugins: list[str],
     return installer(root, market, plugins, home, target)
 
 
+def claude_token(base: Path) -> str:
+    """The Claude Code token from the environment, else from the test home."""
+    if os.environ.get("CLAUDE_CODE_OAUTH_TOKEN"):
+        return os.environ["CLAUDE_CODE_OAUTH_TOKEN"]
+    path = homes_for(base, "claude")[0] / CLAUDE_TOKEN_FILE
+    return path.read_text(encoding="utf-8").strip() if path.is_file() else ""
+
+
+def has_login(client: str, base: Path) -> bool:
+    """Whether stored credentials exist; `run` still checks model access."""
+    home, target = homes_for(base, client)
+    if client == "codex":
+        return (home / ".codex/auth.json").is_file()
+    if client == "claude":
+        return bool(claude_token(base))
+    # The export holds secrets; only count its entries, never print it.
+    proc = cp.run(["omp", "auth", "export"], cp.base_env(home), target)
+    try:
+        return proc.returncode == 0 and bool(json.loads(proc.stdout).get("credentials"))
+    except ValueError:
+        return False
+
+
 def login_commands(base: Path) -> dict[str, str]:
     omp_home, _ = homes_for(base, "omp")
     codex_home, _ = homes_for(base, "codex")
     claude_home, _ = homes_for(base, "claude")
+    token_file = claude_home / CLAUDE_TOKEN_FILE
     return {
         "omp": f'HOME="{omp_home}" omp login',
         "codex": (f'HOME="{codex_home}" CODEX_HOME="{codex_home}/.codex" '
                   "codex login --device-auth"),
         "claude": (f'HOME="{claude_home}" CLAUDE_CONFIG_DIR="{claude_home}/.claude" '
                    "claude setup-token\n"
-                   "    # then: export CLAUDE_CODE_OAUTH_TOKEN=<token> in the shell "
-                   "that runs `run`"),
+                   "    # then paste the token without echoing it:\n"
+                   f'    (umask 077; read -rs t; printf "%s" "$t" > "{token_file}")'),
     }
 
 
@@ -177,8 +206,9 @@ def client_env(client: str, base: Path) -> tuple[dict[str, str], Path]:
     if client == "codex":
         return cp.base_env(home, CODEX_HOME=str(home / ".codex")), target
     env = cp.base_env(home, CLAUDE_CONFIG_DIR=str(home / ".claude"))
-    if os.environ.get("CLAUDE_CODE_OAUTH_TOKEN"):
-        env["CLAUDE_CODE_OAUTH_TOKEN"] = os.environ["CLAUDE_CODE_OAUTH_TOKEN"]
+    token = claude_token(base)
+    if token:
+        env["CLAUDE_CODE_OAUTH_TOKEN"] = token
     return env, target
 
 
@@ -410,9 +440,9 @@ def cmd_prepare(args: argparse.Namespace) -> int:
     if not all(r.ok for r in results):
         print("catalogs are inconsistent; run scripts/check_plugins.py first")
         return 1
-    base = Path(args.homes).resolve() if args.homes else Path(
-        tempfile.mkdtemp(prefix="skill-activation-"))
-    base.mkdir(parents=True, exist_ok=True)
+    base = Path(args.homes).resolve()
+    base.mkdir(mode=0o700, parents=True, exist_ok=True)
+    base.chmod(0o700)
     commands = login_commands(base)
     failed = False
     for client in args.clients:
@@ -420,17 +450,25 @@ def cmd_prepare(args: argparse.Namespace) -> int:
             print(f"FAIL  {client:<7} {client} not found on PATH")
             failed = True
             continue
-        _, failures = install(client, root, market, plugins, base)
+        # A home from an earlier prepare keeps its login; reinstall the plugins
+        # in place instead of adding the marketplace again.
+        if homes_for(base, client)[0].is_dir():
+            failures = refresh(client, root, market, base, set(plugins))
+        else:
+            _, failures = install(client, root, market, plugins, base)
         if failures:
             print(f"FAIL  {client:<7} install: {'; '.join(failures)}")
             failed = True
+        elif has_login(client, base):
+            print(f"READY {client:<7} stored credentials found")
         else:
-            print(f"READY {client:<7} log in with:\n    {commands[client]}")
+            print(f"LOGIN {client:<7} log in once with:\n    {commands[client]}")
     options = f' --clients {",".join(args.clients)}'
     if root != REPO:
         options += f' --root "{root}"'
-    print(f"\nhomes: {base}\nthen run: python3 scripts/check_activation.py{options} run "
-          f'--homes "{base}"\nremove the homes when done; they hold the new logins.')
+    homes = f' --homes "{base}"' if base != DEFAULT_HOMES else ""
+    print(f"\nhomes: {base}\nthen run: python3 scripts/check_activation.py{options} run"
+          f"{homes}\nThe homes keep their logins for later runs; delete them to sign out.")
     return 1 if failed else 0
 
 
@@ -521,10 +559,12 @@ def main() -> int:
     parser.add_argument("--clients", default=",".join(cp.CLIENTS),
                         help="comma-separated subset of omp,codex,claude")
     sub = parser.add_subparsers(dest="command", required=True)
-    prep = sub.add_parser("prepare", help="install into temporary homes for login")
-    prep.add_argument("--homes", help="directory for the homes (default: new temp dir)")
+    prep = sub.add_parser("prepare", help="install into test homes and list needed logins")
+    prep.add_argument("--homes", type=Path, default=DEFAULT_HOMES,
+                      help=f"directory for the test homes (default: {DEFAULT_HOMES})")
     runp = sub.add_parser("run", help="run spec queries in prepared, logged-in homes")
-    runp.add_argument("--homes", required=True, help="directory created by prepare")
+    runp.add_argument("--homes", type=Path, default=DEFAULT_HOMES,
+                      help="directory used by prepare (default: same as prepare)")
     runp.add_argument("--spec", action="append", default=[],
                       help="spec file; repeat to select (default: evals/*/*.toml)")
     runp.add_argument("--reps", type=int, default=3, help="runs per query and client")
