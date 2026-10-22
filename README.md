@@ -738,17 +738,18 @@ from attempted tool calls and commands, so a denied read still counts.
 
 `run` reinstalls the specs' plugins so cached copies match the current text,
 checks that each client reaches a model, and runs every query from a fresh Git
-target, by default twice per client. It prints how often the skill loaded and
-the first violated assertion with its trace. Runs that the provider refused,
-that never reached a model, or that ended in an error or timeout are reported
-separately and not counted for activation; their forbidden writes still fail
+target, by default three times per client. It prints how often the skill
+loaded and the first violated assertion with its trace. Runs that the
+provider refused, that never reached a model, or that ended in an error or
+timeout are reported separately and not counted for activation; their
+forbidden writes still fail
 the query. Spec files with unknown keys, duplicate query IDs, or list keys that
 are not lists of nonempty strings are rejected. A query with no counted run
 prints `NONE`. The exit status is 1 for a failed assertion, 2 when only `NONE`
 lines remain, and 0 otherwise. Clients run with token variables removed; omp
 uses `--approval-mode always-ask`, Codex a read-only sandbox without account
 apps, and Claude Code its default permission mode. Results are samples for
-review, not a CI gate: two runs show a direction, not a selection rate.
+review, not a CI gate: three runs show a direction, not a selection rate.
 
 For instruction changes, compare the revisions blind in omp. Add `criteria` to
 the spec queries that matter, commit the change, and log in to omp only:
@@ -762,9 +763,10 @@ python3 scripts/compare_skill.py <plugin>:<skill> \
 The script uninstalls the compared plugin from the omp home, so the answers can
 follow only the extracted revisions; `check_activation.py run` reinstalls it.
 It extracts each revision's skill directory under a random label, has omp
-handle every query with `criteria` once per revision while following that
-directory's `SKILL.md`, then asks a separate omp run without tools to grade the
-two answers, shown as A and B in random order, against the criteria. Only then
+handle every query with `criteria` once per revision in each comparison while
+following that directory's `SKILL.md`, then asks a separate omp run without
+tools to grade the two answers, shown as A and B in random order, against the
+criteria. Only then
 does it map A and B back to base and head. Each line shows the winner or
 `TIE`, the criteria each revision met, the references each read, and the
 judge's reason with the side it saw as A; a summary file maps each pair's
@@ -772,8 +774,9 @@ traces to base, head, and judge. A pair prints `NONE`, and the exit status is
 2, when either answer did not finish normally or did not read its `SKILL.md`,
 or the judge did not grade every criterion. The runs use the skill by path
 rather than through an installed plugin, and the same omp model answers and
-judges, so the result supports review rather than replacing it. One run per
-query shows a direction; `--reps` repeats each comparison.
+judges, so the result supports review rather than replacing it. Each query is
+compared three times by default; `--reps` changes the count, and a few runs
+show a direction, not a reliable rate.
 
 Also exercise representative tasks and boundary cases in isolated repositories
 without publishing fixtures, and inspect reference reads and actions as well as
@@ -852,7 +855,9 @@ in an English edit. In a separate disposable installation, remove one helper
 and verify an explicit missing-resource result, not a guessed cache path or
 false pass. Do not change the successful installation or source helpers.
 
-Report actual CLI versions, discovery, execution traces, runtime evidence,
+Run each model scenario three times by default, each from a fresh target, and
+report every run's outcome rather than only the best one. Report actual CLI
+versions, discovery, execution traces, runtime evidence,
 and precise blockers separately. Without authorized model access, complete
 non-model checks but mark all unexecuted model scenarios unverified. Installation
 does not prove review quality, automatic selection, or app/IDE behavior.

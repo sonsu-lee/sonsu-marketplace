@@ -190,7 +190,7 @@ def main() -> int:
     parser.add_argument("--head", default="HEAD", help="head revision (default HEAD)")
     parser.add_argument("--root", type=Path, default=ca.REPO,
                         help="repository to read revisions from (default: this one)")
-    parser.add_argument("--reps", type=int, default=1, help="comparisons per query")
+    parser.add_argument("--reps", type=int, default=3, help="comparisons per query")
     parser.add_argument("--jobs", type=int, default=4, help="parallel omp runs")
     parser.add_argument("--seed", type=int, help="seed for label and A/B order")
     args = parser.parse_args()
