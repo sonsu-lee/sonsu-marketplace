@@ -234,13 +234,10 @@ def expect_once(found: list[str], wanted: list[str]) -> str:
     return "; ".join(problems)
 
 
-def check_omp(root: Path, market: str, plugins: list[str], skills: list[Skill],
-              tmp: Path) -> list[Result]:
-    home = tmp / "omp-home"
-    target = tmp / "omp-target"
-    agent_dir = home / ".omp/agent"
-    agent_dir.mkdir(parents=True)
-    target.mkdir()
+def install_omp(root: Path, market: str, plugins: list[str], home: Path,
+                target: Path) -> tuple[dict[str, str], list[str]]:
+    (home / ".omp/agent").mkdir(parents=True, exist_ok=True)
+    target.mkdir(parents=True, exist_ok=True)
     env = base_env(home)
     # Run every omp command from the temporary target: omp also discovers
     # project skills by walking up from the working directory.
@@ -250,6 +247,54 @@ def check_omp(root: Path, market: str, plugins: list[str], skills: list[Skill],
         proc = run(["omp", "plugin", "install", f"{plugin}@{market}"], env, target)
         if proc.returncode != 0:
             failures.append(f"{plugin}: {tail(proc)}")
+    return env, failures
+
+
+def install_codex(root: Path, market: str, plugins: list[str], home: Path,
+                  target: Path) -> tuple[dict[str, str], list[str]]:
+    codex_home = home / ".codex"
+    codex_home.mkdir(parents=True, exist_ok=True)
+    target.mkdir(parents=True, exist_ok=True)
+    env = base_env(home, CODEX_HOME=str(codex_home))
+    proc = run(["codex", "plugin", "marketplace", "add", str(root), "--json"], env, target)
+    failures = [] if proc.returncode == 0 else [f"marketplace add: {tail(proc)}"]
+    for plugin in plugins:
+        proc = run(["codex", "plugin", "add", f"{plugin}@{market}", "--json"], env, target)
+        if proc.returncode != 0:
+            failures.append(f"{plugin}: {tail(proc)}")
+    proc = run(["codex", "plugin", "list", "--marketplace", market, "--json"], env, target)
+    try:
+        installed = {p["name"]: p for p in json.loads(proc.stdout)["installed"]}
+    except (ValueError, KeyError):
+        installed = {}
+        failures.append(f"plugin list: {tail(proc)}")
+    for plugin in plugins:
+        entry = installed.get(plugin)
+        if not entry or not entry.get("installed") or not entry.get("enabled"):
+            failures.append(f"{plugin} not installed and enabled")
+    return env, failures
+
+
+def install_claude(root: Path, market: str, plugins: list[str], home: Path,
+                   target: Path) -> tuple[dict[str, str], list[str]]:
+    config_dir = home / ".claude"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    target.mkdir(parents=True, exist_ok=True)
+    env = base_env(home, CLAUDE_CONFIG_DIR=str(config_dir))
+    proc = run(["claude", "plugin", "marketplace", "add", str(root)], env, target)
+    failures = [] if proc.returncode == 0 else [f"marketplace add: {tail(proc)}"]
+    for plugin in plugins:
+        proc = run(["claude", "plugin", "install", f"{plugin}@{market}"], env, target)
+        if proc.returncode != 0:
+            failures.append(f"{plugin}: {tail(proc)}")
+    return env, failures
+
+
+def check_omp(root: Path, market: str, plugins: list[str], skills: list[Skill],
+              tmp: Path) -> list[Result]:
+    target = tmp / "omp-target"
+    agent_dir = tmp / "omp-home/.omp/agent"
+    env, failures = install_omp(root, market, plugins, tmp / "omp-home", target)
     results = [Result("omp", "install", not failures, "; ".join(failures))]
     proc = run(["omp", "skill", "list"], env, target)
     text = proc.stdout + proc.stderr
@@ -299,9 +344,6 @@ def check_omp(root: Path, market: str, plugins: list[str], skills: list[Skill],
                               "incomplete body: " + ", ".join(missing) if missing else ""))
     finally:
         receiver.close()
-        # Leave the installed home usable for authorized model runs.
-        (agent_dir / "models.yml").unlink(missing_ok=True)
-        (agent_dir / "config.yml").unlink(missing_ok=True)
     return results
 
 
@@ -351,28 +393,9 @@ def codex_skills_list(env: dict[str, str], target: Path) -> dict:
 
 def check_codex(root: Path, market: str, plugins: list[str], skills: list[Skill],
                 tmp: Path) -> list[Result]:
-    home = tmp / "codex-home"
-    codex_home = home / ".codex"
+    codex_home = tmp / "codex-home/.codex"
     target = tmp / "codex-target"
-    codex_home.mkdir(parents=True)
-    target.mkdir()
-    env = base_env(home, CODEX_HOME=str(codex_home))
-    proc = run(["codex", "plugin", "marketplace", "add", str(root), "--json"], env, target)
-    failures = [] if proc.returncode == 0 else [f"marketplace add: {tail(proc)}"]
-    for plugin in plugins:
-        proc = run(["codex", "plugin", "add", f"{plugin}@{market}", "--json"], env, target)
-        if proc.returncode != 0:
-            failures.append(f"{plugin}: {tail(proc)}")
-    proc = run(["codex", "plugin", "list", "--marketplace", market, "--json"], env, target)
-    try:
-        installed = {p["name"]: p for p in json.loads(proc.stdout)["installed"]}
-    except (ValueError, KeyError):
-        installed = {}
-        failures.append(f"plugin list: {tail(proc)}")
-    for plugin in plugins:
-        entry = installed.get(plugin)
-        if not entry or not entry.get("installed") or not entry.get("enabled"):
-            failures.append(f"{plugin} not installed and enabled")
+    env, failures = install_codex(root, market, plugins, tmp / "codex-home", target)
     results = [Result("codex", "install", not failures, "; ".join(failures))]
 
     try:
@@ -388,10 +411,10 @@ def check_codex(root: Path, market: str, plugins: list[str], skills: list[Skill]
         problem = f"skills/list failed: {exc}"
     results.append(Result("codex", "discovery", not problem, problem))
 
-    config = codex_home / "config.toml"
-    existing = config.read_text() if config.exists() else ""
     receiver = Receiver()
     try:
+        config = codex_home / "config.toml"
+        existing = config.read_text() if config.exists() else ""
         # Top-level keys must precede every table, or TOML assigns them to it.
         config.write_text(
             'model = "check-model"\nmodel_provider = "check"\n\n' + existing
@@ -416,19 +439,13 @@ def check_codex(root: Path, market: str, plugins: list[str], skills: list[Skill]
                               "incomplete body: " + ", ".join(missing) if missing else ""))
     finally:
         receiver.close()
-        # Leave the installed home usable for authorized model runs.
-        config.write_text(existing)
     return results
 
 
 def check_claude(root: Path, market: str, plugins: list[str], skills: list[Skill],
                  tmp: Path) -> list[Result]:
-    home = tmp / "claude-home"
-    config_dir = home / ".claude"
     target = tmp / "claude-target"
-    config_dir.mkdir(parents=True)
-    target.mkdir()
-    env = base_env(home, CLAUDE_CONFIG_DIR=str(config_dir))
+    env, failures = install_claude(root, market, plugins, tmp / "claude-home", target)
     paths = [root] + sorted(p.parent.parent for p in root.glob("plugins/*/.claude-plugin/plugin.json"))
     paths += sorted(p for p in root.glob("plugins/*/skills") if p.is_dir())
     invalid = []
@@ -436,15 +453,8 @@ def check_claude(root: Path, market: str, plugins: list[str], skills: list[Skill
         proc = run(["claude", "plugin", "validate", str(path), "--strict"], env, target)
         if proc.returncode != 0:
             invalid.append(f"{path.relative_to(root.parent)}: {tail(proc)}")
-    results = [Result("claude", "validate", not invalid, "; ".join(invalid))]
-
-    proc = run(["claude", "plugin", "marketplace", "add", str(root)], env, target)
-    failures = [] if proc.returncode == 0 else [f"marketplace add: {tail(proc)}"]
-    for plugin in plugins:
-        proc = run(["claude", "plugin", "install", f"{plugin}@{market}"], env, target)
-        if proc.returncode != 0:
-            failures.append(f"{plugin}: {tail(proc)}")
-    results.append(Result("claude", "install", not failures, "; ".join(failures)))
+    results = [Result("claude", "validate", not invalid, "; ".join(invalid)),
+               Result("claude", "install", not failures, "; ".join(failures))]
 
     receiver = Receiver()
     try:

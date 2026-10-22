@@ -344,8 +344,11 @@ plugins/
     rules/<rule>.md           # omp: rules
     package.json              # omp: extension modules under "omp.extensions"
     .claude-plugin/plugin.json  # Claude Code: only to exclude omp agents
+evals/
+  <plugin>/<skill>.toml       # activation and safety queries
 scripts/
   check_plugins.py            # model-free checks for omp, Codex, Claude Code
+  check_activation.py         # activation and safety runs with real logins
 ```
 
 Each plugin is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package.
@@ -711,21 +714,51 @@ the exit status nonzero. A missing CLI is a failure, not a skip;
 a local path, which loads packages in place; to inspect the cached copies a
 Git-backed marketplace installs, add a committed clone over Git instead.
 
-These checks do not prove correct activation or useful output. For instruction
-changes, exercise representative tasks and boundary cases in isolated
-repositories without publishing fixtures. Inspect required reference reads and
-actions as well as final output. Use the
+These checks do not prove correct activation or useful output. To measure
+activation and safety, declare queries for a skill in
+`evals/<plugin>/<skill>.toml` and run them with authorized logins in temporary
+homes:
+
+```sh
+python3 scripts/check_activation.py prepare
+# log in with the commands it prints; for Claude Code, export
+# CLAUDE_CODE_OAUTH_TOKEN in this shell instead of storing it
+python3 scripts/check_activation.py run --homes <directory printed by prepare>
+rm -rf <directory printed by prepare>
+```
+
+Each query sets `expect` to `load` or `no-load`, may list `reads` that must
+appear and `not_reads` that must not, and may `forbid` a `write-command` or
+`new-files` in the target. A write command is a client write tool or a
+publishing command: `gh` create, edit, or comment verbs, `gh api` or `curl`
+with a write method, data, or a GraphQL mutation, and `git commit` or `push`.
+New files come from `git status` in the target. Loads and reads are counted
+from attempted tool calls and commands, so a denied read still counts.
+
+`run` reinstalls the specs' plugins so cached copies match the current text,
+checks that each client reaches a model, and runs every query from a fresh Git
+target, by default twice per client. It prints how often the skill loaded and
+the first violated assertion with its trace. Runs that never reached a model
+or that the provider refused are reported separately and not counted for
+activation; a refused run's forbidden writes still fail the query. A query with
+no counted run prints `NONE`. The exit status is 1 for a failed assertion, 2
+when only `NONE` lines remain, and 0 otherwise. Clients run with token
+variables removed; omp uses `--approval-mode always-ask`, Codex a read-only
+sandbox without account apps, and Claude Code its default permission mode.
+Results are samples for review, not a CI gate: two runs show a direction, not
+a selection rate.
+
+For instruction changes, also exercise representative tasks and boundary cases
+in isolated repositories without publishing fixtures. Inspect required
+reference reads and actions as well as final output. Use the
 [evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md)
 for before/after or with/without comparisons; report smoke checks separately
 from measured trigger rates or comparative quality results.
 
-For model runs, keep the installed homes and point variables at them. The
-script removes its receiver settings before exiting, and the homes hold no
-credentials:
+For other model runs, reuse the prepared homes:
 
 ```sh
-python3 scripts/check_plugins.py --keep-temp
-TMP=<directory printed by the script>
+TMP=<directory printed by prepare>
 OMP_HOME="$TMP/omp-home"
 CX_HOME="$TMP/codex-home"
 CX_CODEX_HOME="$CX_HOME/.codex"
