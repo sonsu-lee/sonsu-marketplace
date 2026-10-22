@@ -31,6 +31,8 @@ REPO = Path(__file__).resolve().parents[1]
 DEFAULT_HOMES = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") \
     / "sonsu-marketplace" / "client-homes"
 CLAUDE_TOKEN_FILE = "oauth-token"
+# omp providers whose login can answer a model run; search and MCP logins cannot.
+OMP_MODEL_PROVIDERS = {"anthropic", "openai-codex"}
 RUN_TIMEOUT = 900
 PREFLIGHT_PROMPT = "Reply with the single word OK."
 FORBIDS = {"write-command", "new-files"}
@@ -147,12 +149,15 @@ def has_login(client: str, base: Path) -> bool:
         return (home / ".codex/auth.json").is_file()
     if client == "claude":
         return bool(claude_token(base))
-    # The export holds secrets; only count its entries, never print it.
+    # The export holds secrets; only read provider names, never print it.
+    # Search and MCP logins do not let omp answer, so they do not count.
     proc = cp.run(["omp", "auth", "export"], cp.base_env(home), target)
     try:
-        return proc.returncode == 0 and bool(json.loads(proc.stdout).get("credentials"))
-    except ValueError:
+        entries = json.loads(proc.stdout).get("credentials") or []
+    except (ValueError, AttributeError):
         return False
+    return proc.returncode == 0 and any(
+        isinstance(e, dict) and e.get("provider") in OMP_MODEL_PROVIDERS for e in entries)
 
 
 def login_commands(base: Path) -> dict[str, str]:
