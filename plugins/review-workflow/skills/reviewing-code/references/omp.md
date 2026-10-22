@@ -42,8 +42,9 @@ question, such as whether moved safety guidance still has a loading condition
 or whether a description still excludes a near-miss request. For a skill-only
 change it is the required focused worker; add `review-workflow-focused` only for
 a separate question about changed scripts, code, or configuration. If the agent
-does not resolve, report missing skill-criteria coverage rather than substitute
-another worker.
+does not resolve, meet the focused requirement with `review-workflow-focused` on
+an ordinary focused question, without assigning it the skill criteria, and
+report skill-criteria coverage as missing.
 
 Changed skill guidance is changed behavior for the runtime step. Exercise a
 representative request with the changed skill in a temporary client home,
