@@ -9,7 +9,10 @@ changes.
   [plugin-authoring procedure](README.md#adding-a-plugin). Keep shared sources
   and client-specific execution separate, and verify each added client.
 * When creating, revising, or reviewing skills, follow the
-  [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md).
+  [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md),
+  including its independent review step. In omp, reviews of changes that touch
+  skills also dispatch `skill-workflow-reviewer` as described in the
+  [omp review execution reference](plugins/review-workflow/skills/reviewing-code/references/omp.md).
 * Raise the plugin's root `plugin.json` version and matching
   `.omp-plugin/marketplace.json` version together with every plugin change,
   along with its Claude Code catalog entry or `.claude-plugin/plugin.json`.

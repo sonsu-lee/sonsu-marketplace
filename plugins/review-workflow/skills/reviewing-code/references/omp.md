@@ -31,6 +31,23 @@ report the unmet request rather than silently substitute. Do not modify
 persistent user settings. An alias or frontmatter value is not proof of the
 resolved model; record observed execution metadata or `unknown`.
 
+## Add skill review for skill changes
+
+When the frozen change adds or modifies an agent skill (a `SKILL.md` or a file
+it loads), also dispatch `skill-workflow-reviewer` from `skill-workflow` in the
+same batch. It autoloads `authoring-skills` and answers one named skill-guidance
+question, such as whether moved safety guidance still has a loading condition
+or whether a description still excludes a near-miss request. For a skill-only
+change it is the required focused worker; add `review-workflow-focused` only for
+a separate question about changed scripts, code, or configuration. If the agent
+does not resolve, report missing skill-criteria coverage rather than substitute
+another worker.
+
+Changed skill guidance is changed behavior for the runtime step. Exercise a
+representative request with the changed skill in a temporary client home,
+using the target project's skill checks, and report loading separately from
+task behavior. Missing authorized model access is a runtime blocker.
+
 ## Freeze the target and hand off constraints
 
 Prepare an immutable, readable snapshot outside the user's working files and

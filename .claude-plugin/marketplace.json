@@ -14,9 +14,7 @@
     },
     {
       "name": "skill-workflow",
-      "source": "./plugins/skill-workflow",
-      "description": "Create and refine focused agent skills, delegating mechanical work to existing tools.",
-      "version": "0.2.0"
+      "source": "./plugins/skill-workflow"
     },
     {
       "name": "ticket-workflow",

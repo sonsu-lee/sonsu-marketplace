@@ -113,6 +113,12 @@ threads first; it never approves the PR or requests changes on your behalf.
   spawn every lens or ask each worker to repeat the entire checklist. Large
   independent flows may be sliced with boundary context; split the general
   pass only when needed.
+- When the reviewed change adds or modifies an agent skill, omp also dispatches
+  `skill-workflow-reviewer` from `skill-workflow`, which autoloads
+  `authoring-skills`, and exercises the changed skill as the runtime step. If
+  that agent does not resolve, skill-criteria coverage is reported missing.
+  Codex and Claude Code add a generic skill-criteria worker only when the user
+  explicitly asks for skill review.
 - Common criteria proceed from original purpose through flow, failure/state,
   architecture/current cost, and implementation details such as data
   structures, APIs, types, guards, and comments. Findings need concrete
