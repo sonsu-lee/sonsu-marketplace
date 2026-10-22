@@ -1,0 +1,13 @@
+{
+  "name": "skill-workflow",
+  "version": "0.3.0",
+  "description": "Create, refine, and independently review focused agent skills, delegating mechanical work to existing tools.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "repository": "https://github.com/sonsu-lee/sonsu-marketplace",
+  "license": "MIT",
+  "keywords": ["skills", "authoring", "evaluation", "review"],
+  "agents": []
+}

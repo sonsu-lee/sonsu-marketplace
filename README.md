@@ -227,6 +227,12 @@ Install with `omp plugin install skill-workflow@sonsu-marketplace`,
   discovery from complete prompt loading and task behavior; version-specific
   limits belong in client references, not common format rules. See the
   [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md).
+- **`skill-workflow-reviewer`** is an omp agent that autoloads
+  `authoring-skills` and reviews a fixed skill change read-only, without
+  running checks. In omp, `authoring-skills` dispatches it after creating a
+  skill or changing its behavior, and `reviewing-code` adds it when a reviewed
+  change touches a skill. Codex and Claude Code have no such agent; they start
+  an equivalent generic worker only on explicit request.
 
 This plugin does not install skills, configure projects, or provide an
 evaluation runner. Plugin packaging and marketplace checks remain in the
@@ -314,8 +320,12 @@ local-first reporting.
   Codex and Claude Code use fresh generic subagents assigned general and focused
   roles. They inspect the same frozen target independently, without sharing
   initial conclusions. Models follow effective client settings, not a fixed
-  provider pair. Runtime verification and high-risk red-team challenges are
-  separate, bounded work rather than repeated full reviews.
+  provider pair. When a reviewed change touches a skill, omp adds
+  `skill-workflow-reviewer` if `skill-workflow` is installed; for a skill-only
+  change it replaces `review-workflow-focused`. Codex and Claude Code add a
+  skill-criteria worker only on explicit request. Runtime
+  verification and high-risk red-team challenges are separate, bounded work
+  rather than repeated full reviews.
 - Reviews report locally by default. Comment drafting and explicit publication
   use [review-comment guidance](plugins/review-workflow/skills/reviewing-code/references/review-comments.md)
   that preserves evidence, uncertainty, and the difference between fixes and
@@ -384,9 +394,10 @@ and interpreting feedback. Requested plugin reviews use the
 and the matching [omp execution reference](plugins/review-workflow/skills/reviewing-code/references/omp.md),
 [Codex execution reference](plugins/review-workflow/skills/reviewing-code/references/codex.md),
 or [Claude Code execution reference](plugins/review-workflow/skills/reviewing-code/references/claude-code.md).
-omp dispatches native and focused reviewers; Codex and Claude Code dispatch
-independent custom general and focused reviewers. Explicit native-only requests
-retain `/review`, `codex review`, or `/code-review`, without plugin
+omp dispatches native and focused reviewers, plus `skill-workflow-reviewer` when
+the change touches a skill; Codex and Claude Code dispatch independent custom
+general and focused reviewers. Explicit native-only requests retain `/review`,
+`codex review`, or `/code-review`, without plugin
 orchestration. Preserve native output and priority contracts only when using a
 native reviewer; custom controllers use the common skill's report contract.
 Results stay local unless publication is explicitly requested; a draft is not
@@ -834,7 +845,9 @@ regression spanning staged, unstaged, and untracked changes. Observe independent
 general/focused workers on the same frozen target, full completion results,
 deduplicated findings, and controller-only runtime checks in another disposable
 copy. Confirm original source, index, and untracked content remain unchanged.
-omp must retain native `reviewer` plus `review-workflow-focused`; Codex must
+omp must retain native `reviewer` plus a focused worker:
+`review-workflow-focused`, or `skill-workflow-reviewer` for a skill-only
+change. Codex must
 not call native review or a recursive CLI; Claude Code must start non-fork
 `general-purpose` subagents without `/code-review`, `/security-review`,
 ultrareview, or a nested CLI. Check a clean baseline, implicit skill selection,
@@ -842,6 +855,14 @@ explicit native-only review, comment-only drafting, and unavailable subagents
 (`-c agents.enabled=false` in Codex, `--disallowedTools Agent` in Claude Code).
 Missing or failed workers must remain incomplete, not a sequential or
 native-only fallback.
+
+For skill reviews, use a disposable target whose skill change moves a safety
+instruction into a reference without a loading condition. In omp with both
+`review-workflow` and `skill-workflow` installed, the review batch must include
+`skill-workflow-reviewer`, and a code-only change must not. Creating or
+changing a skill with `authoring-skills` in omp must also dispatch it. Without
+an explicit request, Codex and Claude Code reviews add no skill-criteria worker;
+with one, the extra worker must read the installed `authoring-skills`.
 
 Exercise writing helpers from discovered installed paths in each client,
 preserving identifiers, numbers, URLs, and fenced code. Verify commit and branch

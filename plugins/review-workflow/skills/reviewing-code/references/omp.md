@@ -7,9 +7,11 @@ procedure. The common criteria are portable.
 ## Select native and focused roles
 
 For an ordinary natural-language review request, explicitly invoke one bundled
-`agent: "reviewer"` and at least one `agent: "review-workflow-focused"` in the
-same native `task` batch. The native reviewer provides the independent general
-bug/regression pass; each custom worker answers a named, narrow review question.
+`agent: "reviewer"` and at least one focused worker in the same native `task`
+batch: `agent: "review-workflow-focused"`, or `skill-workflow-reviewer` for a
+skill-only change as described below. The native reviewer provides the
+independent general bug/regression pass; each focused worker answers a named,
+narrow review question.
 Choose focus from the common skill rather than automatically running all lenses.
 This invokes the bundled agent, not `/review`. Leave that command unchanged;
 an explicit native-only request opts out of this custom orchestration.
@@ -30,6 +32,24 @@ user model/effort requests only through verified native support; if unavailable,
 report the unmet request rather than silently substitute. Do not modify
 persistent user settings. An alias or frontmatter value is not proof of the
 resolved model; record observed execution metadata or `unknown`.
+
+## Add skill review for skill changes
+
+When the frozen change adds or modifies an agent skill (a `SKILL.md` or a file
+it loads), also dispatch `skill-workflow-reviewer` from `skill-workflow` in the
+same batch. It autoloads `authoring-skills` and answers one named skill-guidance
+question, such as whether moved safety guidance still has a loading condition
+or whether a description still excludes a near-miss request. For a skill-only
+change it is the required focused worker; add `review-workflow-focused` only for
+a separate question about changed scripts, code, or configuration. If the agent
+does not resolve, meet the focused requirement with `review-workflow-focused` on
+an ordinary focused question, without assigning it the skill criteria, and
+report skill-criteria coverage as missing.
+
+Changed skill guidance is changed behavior for the runtime step. Exercise a
+representative request with the changed skill in a temporary client home,
+using the target project's skill checks, and report loading separately from
+task behavior. Missing authorized model access is a runtime blocker.
 
 ## Freeze the target and hand off constraints
 

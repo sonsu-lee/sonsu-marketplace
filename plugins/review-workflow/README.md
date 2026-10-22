@@ -80,7 +80,8 @@ Selection is a model decision, not a guaranteed hook. In Codex, explicitly
 select `$review-workflow:reviewing-code` if needed; in Claude Code, use
 `/review-workflow:reviewing-code`. Catalog listing is not proof of skill
 execution. In omp, the controller dispatches the bundled `reviewer` and at
-least one `review-workflow-focused` worker in one native `task` batch. In Codex
+least one focused worker in one native `task` batch: `review-workflow-focused`,
+or `skill-workflow-reviewer` for a skill-only change. In Codex
 and Claude Code, fresh generic subagents take custom general and focused
 assignments, without inheriting the author's conversation. The plugin does not
 call or intercept `/review`, `codex review`, `review/start`, `/code-review`,
@@ -113,6 +114,13 @@ threads first; it never approves the PR or requests changes on your behalf.
   spawn every lens or ask each worker to repeat the entire checklist. Large
   independent flows may be sliced with boundary context; split the general
   pass only when needed.
+- When the reviewed change adds or modifies an agent skill, omp also dispatches
+  `skill-workflow-reviewer` from `skill-workflow`, which autoloads
+  `authoring-skills`, and exercises the changed skill as the runtime step. If
+  that agent does not resolve, `review-workflow-focused` takes an ordinary
+  focused question and skill-criteria coverage is reported missing.
+  Codex and Claude Code add a generic skill-criteria worker only when the user
+  explicitly asks for skill review.
 - Common criteria proceed from original purpose through flow, failure/state,
   architecture/current cost, and implementation details such as data
   structures, APIs, types, guards, and comments. Findings need concrete
