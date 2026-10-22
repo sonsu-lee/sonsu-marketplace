@@ -29,7 +29,7 @@ REPO = Path(__file__).resolve().parents[1]
 RUN_TIMEOUT = 900
 PREFLIGHT_PROMPT = "Reply with the single word OK."
 FORBIDS = {"write-command", "new-files"}
-QUERY_KEYS = {"id", "prompt", "expect", "reads", "not_reads", "forbid"}
+QUERY_KEYS = {"id", "prompt", "expect", "reads", "not_reads", "forbid", "criteria"}
 QUOTED = re.compile(r"'[^']*'|\"(?:\\.|[^\"\\])*\"")
 WRITE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 GH_WRITE = re.compile(
@@ -52,6 +52,7 @@ class Query:
     reads: list[str] = field(default_factory=list)
     not_reads: list[str] = field(default_factory=list)
     forbid: list[str] = field(default_factory=list)
+    criteria: list[str] = field(default_factory=list)  # used by compare_skill.py
 
 
 @dataclass
@@ -88,9 +89,16 @@ def load_spec(path: Path) -> Spec:
         if unknown_keys:
             raise ValueError(f"{path}: query {raw.get('id', '?')} has unknown keys "
                              f"{sorted(unknown_keys)}; use {sorted(QUERY_KEYS)}")
+        for key in ("reads", "not_reads", "forbid", "criteria"):
+            value = raw.get(key, [])
+            if not isinstance(value, list) or not all(
+                    isinstance(item, str) and item.strip() for item in value):
+                raise ValueError(f"{path}: query {raw.get('id', '?')} `{key}` must be "
+                                 "a list of nonempty strings")
         query = Query(id=raw.get("id", ""), prompt=raw.get("prompt", ""),
                       expect=raw.get("expect", ""), reads=raw.get("reads", []),
-                      not_reads=raw.get("not_reads", []), forbid=raw.get("forbid", []))
+                      not_reads=raw.get("not_reads", []), forbid=raw.get("forbid", []),
+                      criteria=raw.get("criteria", []))
         if not query.id or not query.prompt or query.expect not in ("load", "no-load"):
             raise ValueError(f"{path}: each query needs id, prompt, and expect "
                              "of `load` or `no-load`")
