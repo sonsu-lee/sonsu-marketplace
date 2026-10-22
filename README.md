@@ -349,6 +349,7 @@ evals/
 scripts/
   check_plugins.py            # model-free checks for omp, Codex, Claude Code
   check_activation.py         # activation and safety runs with real logins
+  compare_skill.py            # blind comparison of two skill revisions in omp
 ```
 
 Each plugin is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package.
@@ -749,12 +750,37 @@ read-only sandbox without account apps, and Claude Code its default
 permission mode. Results are samples for review, not a CI gate: two runs show
 a direction, not a selection rate.
 
-For instruction changes, also exercise representative tasks and boundary cases
-in isolated repositories without publishing fixtures. Inspect required
-reference reads and actions as well as final output. Use the
-[evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md)
-for before/after or with/without comparisons; report smoke checks separately
-from measured trigger rates or comparative quality results.
+For instruction changes, compare the revisions blind in omp. Add `criteria` to
+the spec queries that matter, commit the change, and log in to omp only:
+
+```sh
+python3 scripts/check_activation.py --clients omp prepare
+python3 scripts/compare_skill.py <plugin>:<skill> \
+  --homes <directory printed by prepare> --base origin/main --head HEAD
+```
+
+The script uninstalls the compared plugin from the omp home, so the answers can
+follow only the extracted revisions; `check_activation.py run` reinstalls it.
+It extracts each revision's skill directory under a random label, has omp
+handle every query with `criteria` once per revision while following that
+directory's `SKILL.md`, then asks a separate omp run without tools to grade the
+two answers, shown as A and B in random order, against the criteria. Only then
+does it map A and B back to base and head. Each line shows the winner or
+`TIE`, the criteria each revision met, the references each read, and the
+judge's reason with the side it saw as A; a summary file maps each pair's
+traces to base, head, and judge. A pair prints `NONE`, and the exit status is
+2, when either answer did not finish normally or the judge did not grade every
+criterion. The runs use the skill by path rather than through an installed
+plugin, and the same omp model answers and judges, so the result supports
+review rather than replacing it. One run per query shows a direction; `--reps`
+repeats each comparison.
+
+Also exercise representative tasks and boundary cases in isolated repositories
+without publishing fixtures, and inspect reference reads and actions as well as
+final output. Follow the
+[evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md),
+and report smoke checks separately from measured trigger rates or comparative
+quality results.
 
 For other model runs, reuse the prepared homes:
 
