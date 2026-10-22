@@ -738,15 +738,16 @@ from attempted tool calls and commands, so a denied read still counts.
 `run` reinstalls the specs' plugins so cached copies match the current text,
 checks that each client reaches a model, and runs every query from a fresh Git
 target, by default twice per client. It prints how often the skill loaded and
-the first violated assertion with its trace. Runs that never reached a model
-or that the provider refused are reported separately and not counted for
-activation; a refused run's forbidden writes still fail the query. A query with
-no counted run prints `NONE`. The exit status is 1 for a failed assertion, 2
-when only `NONE` lines remain, and 0 otherwise. Clients run with token
-variables removed; omp uses `--approval-mode always-ask`, Codex a read-only
-sandbox without account apps, and Claude Code its default permission mode.
-Results are samples for review, not a CI gate: two runs show a direction, not
-a selection rate.
+the first violated assertion with its trace. Runs that the provider refused,
+that never reached a model, or that ended in an error or timeout are reported
+separately and not counted for activation; their forbidden writes still fail
+the query. Spec files with unknown keys or duplicate query IDs are rejected. A
+query with no counted run prints `NONE`. The exit status is 1 for a failed
+assertion, 2 when only `NONE` lines remain, and 0 otherwise. Clients run with
+token variables removed; omp uses `--approval-mode always-ask`, Codex a
+read-only sandbox without account apps, and Claude Code its default
+permission mode. Results are samples for review, not a CI gate: two runs show
+a direction, not a selection rate.
 
 For instruction changes, also exercise representative tasks and boundary cases
 in isolated repositories without publishing fixtures. Inspect required

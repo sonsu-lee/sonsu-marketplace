@@ -29,6 +29,8 @@ REPO = Path(__file__).resolve().parents[1]
 RUN_TIMEOUT = 900
 PREFLIGHT_PROMPT = "Reply with the single word OK."
 FORBIDS = {"write-command", "new-files"}
+QUERY_KEYS = {"id", "prompt", "expect", "reads", "not_reads", "forbid"}
+QUOTED = re.compile(r"'[^']*'|\"(?:\\.|[^\"\\])*\"")
 WRITE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 GH_WRITE = re.compile(
     r"\bgh\s+(?:issue|pr|release|label|repo|project)\s+"
@@ -65,6 +67,7 @@ class Trace:
     reached: bool = False
     refused: str = ""
     error: str = ""
+    failed: bool = False  # the run ended in an error or timeout
     loaded: bool = False
     reads: set[str] = field(default_factory=set)
     writes: list[str] = field(default_factory=list)
@@ -76,14 +79,24 @@ def load_spec(path: Path) -> Spec:
     plugin, _, skill = str(data.get("skill", "")).partition(":")
     if not plugin or not skill:
         raise ValueError(f"{path}: `skill` must be `<plugin>:<skill>`")
-    queries = []
+    unknown_top = set(data) - {"skill", "queries"}
+    if unknown_top:
+        raise ValueError(f"{path}: unknown keys {sorted(unknown_top)}")
+    queries, seen = [], set()
     for raw in data.get("queries", []):
+        unknown_keys = set(raw) - QUERY_KEYS
+        if unknown_keys:
+            raise ValueError(f"{path}: query {raw.get('id', '?')} has unknown keys "
+                             f"{sorted(unknown_keys)}; use {sorted(QUERY_KEYS)}")
         query = Query(id=raw.get("id", ""), prompt=raw.get("prompt", ""),
                       expect=raw.get("expect", ""), reads=raw.get("reads", []),
                       not_reads=raw.get("not_reads", []), forbid=raw.get("forbid", []))
         if not query.id or not query.prompt or query.expect not in ("load", "no-load"):
             raise ValueError(f"{path}: each query needs id, prompt, and expect "
                              "of `load` or `no-load`")
+        if query.id in seen:
+            raise ValueError(f"{path}: duplicate query id {query.id}")
+        seen.add(query.id)
         unknown = set(query.forbid) - FORBIDS
         if unknown:
             raise ValueError(f"{path}: query {query.id} forbids unknown "
@@ -206,7 +219,8 @@ def note_access(trace: Trace, skill: str, text: str) -> None:
 def is_write_command(cmd: str) -> bool:
     """Classify a shell command as a publishing or repository write."""
     for segment in SEGMENT.split(cmd.replace("\\\n", " ")):
-        if "--help" in segment:
+        # Only a real --help option exempts a segment, not text inside quotes.
+        if re.search(r"(?:^|\s)--help(?:\s|$)", QUOTED.sub("", segment)):
             continue
         if GH_WRITE.search(segment) or GIT_WRITE.search(segment):
             return True
@@ -244,7 +258,9 @@ def parse_omp(text: str, plugin: str, skill: str) -> Trace:
         if message.get("stopReason") == "error":
             if error.startswith("Refusal"):
                 trace.refused = error[:120]
-            elif not message.get("content"):
+            else:
+                trace.failed = True
+            if not error.startswith("Refusal") and not message.get("content"):
                 trace.error = error[:120]
                 continue
         trace.reached = True
@@ -268,6 +284,7 @@ def parse_codex(text: str, plugin: str, skill: str) -> Trace:
         if kind in ("turn.failed", "error"):
             # Codex has no stable refusal signal here; treat failures as errors.
             trace.error = json.dumps(event.get("error") or event.get("message"))[:120]
+            trace.failed |= kind == "turn.failed"
             continue
         if kind != "item.completed":
             continue
@@ -288,8 +305,9 @@ def parse_claude(text: str, plugin: str, skill: str) -> Trace:
     trace = Trace()
     for event in events(text):
         kind = event.get("type")
-        if kind == "result" and event.get("is_error") and not trace.reached:
-            trace.error = str(event.get("result") or event.get("subtype"))[:120]
+        if kind == "result" and event.get("is_error"):
+            trace.failed = True
+            trace.error = trace.error or str(event.get("result") or event.get("subtype"))[:120]
         if kind != "assistant":
             continue
         message = event.get("message", {})
@@ -299,6 +317,7 @@ def parse_claude(text: str, plugin: str, skill: str) -> Trace:
         # API failures arrive as synthetic assistant messages with an error.
         if event.get("error") or message.get("model") == "<synthetic>":
             trace.error = str(event.get("error") or "synthetic message")[:120]
+            trace.failed = True
             continue
         trace.reached = True
         for block in message.get("content", []):
@@ -330,6 +349,9 @@ def run_once(client: str, base: Path, root: Path, spec: Spec, prompt: str,
     log = base / "runs" / f"{label}.jsonl"
     log.write_text(proc.stdout, encoding="utf-8")
     trace = PARSERS[client](proc.stdout, spec.plugin, spec.skill)
+    if proc.returncode == 124:
+        trace.failed = True
+        trace.error = trace.error or cp.tail(proc)
     if not trace.reached and not trace.error:
         trace.error = cp.tail(proc)
     status = subprocess.run(["git", "status", "--porcelain", "--untracked-files=all"],
@@ -370,7 +392,8 @@ def preflight(client: str, base: Path, root: Path) -> str:
     target.mkdir(parents=True)
     proc = cp.run(command(client, PREFLIGHT_PROMPT, root), env, target, timeout=300)
     trace = PARSERS[client](proc.stdout, "", "")
-    return "" if trace.reached else (trace.error or cp.tail(proc))
+    complete = trace.reached and not trace.failed
+    return "" if complete else (trace.error or cp.tail(proc))
 
 
 def cmd_prepare(args: argparse.Namespace) -> int:
@@ -395,7 +418,10 @@ def cmd_prepare(args: argparse.Namespace) -> int:
             failed = True
         else:
             print(f"READY {client:<7} log in with:\n    {commands[client]}")
-    print(f"\nhomes: {base}\nthen run: python3 scripts/check_activation.py run "
+    options = f' --clients {",".join(args.clients)}'
+    if root != REPO:
+        options += f' --root "{root}"'
+    print(f"\nhomes: {base}\nthen run: python3 scripts/check_activation.py{options} run "
           f'--homes "{base}"\nremove the homes when done; they hold the new logins.')
     return 1 if failed else 0
 
@@ -444,20 +470,24 @@ def cmd_run(args: argparse.Namespace) -> int:
             for client in clients:
                 outcomes = [futures[(si, qi, client, rep)].result()
                             for rep in range(1, args.reps + 1)]
-                counted = [(t, log) for t, log in outcomes if t.reached and not t.refused]
+                # A run counts only if it reached a model and completed.
+                counted = [(t, log) for t, log in outcomes
+                           if t.reached and not t.refused and not t.failed]
                 refused = sum(1 for t, _ in outcomes if t.refused)
-                unreached = sum(1 for t, _ in outcomes if not t.reached and not t.refused)
+                unreached = sum(1 for t, _ in outcomes
+                                if not t.refused and (not t.reached or t.failed))
                 loaded = sum(1 for t, _ in counted if t.loaded)
-                # Refused runs are excluded from activation, but a forbidden
+                # Excluded runs do not count for activation, but a forbidden
                 # write they attempted is still safety evidence.
                 problems = [(judge(query, t), log) for t, log in counted]
-                problems += [(judge_safety(query, t), log) for t, log in outcomes if t.refused]
+                problems += [(judge_safety(query, t), log) for t, log in outcomes
+                             if (t, log) not in counted]
                 bad = [(p, log) for p, log in problems if p]
                 excluded = []
                 if refused:
                     excluded.append(f"{refused} refused by provider")
                 if unreached:
-                    excluded.append(f"{unreached} never reached a model")
+                    excluded.append(f"{unreached} did not complete")
                 # Excluded runs are not failures, but a query with none counted
                 # has no evidence and must not read as a pass.
                 status = "FAIL" if bad else ("NONE" if not counted else "PASS")
