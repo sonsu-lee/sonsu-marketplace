@@ -41,9 +41,10 @@ Install [omp](https://github.com/can1357/oh-my-pi#install),
 marketplace. Codex and Claude Code must provide the plugin marketplace and
 subagent interfaces described below; older clients without them do not meet
 the prerequisites. Local catalog installation and installed-skill discovery
-were checked with Codex CLI `0.163.0`, omp `18.12.3`, and Claude Code
-`2.1.296`. These are checked baselines, not promises for every older release
-or evidence of authenticated model execution.
+were checked with Codex CLI `0.163.0`, omp `18.12.6`, and Claude Code
+`2.1.304`, the versions the `checks` workflow installs. These are checked
+baselines, not promises for every older release or evidence of authenticated
+model execution.
 
 The `git-workflow` skills reuse the target repository's validation setup first.
 When none exists, the commit fallback needs Node.js 22.12.0 or newer and npm
