@@ -1,0 +1,25 @@
+name: setup-clients
+description: Install Python, uv, and the pinned omp, Codex, and Claude Code CLIs.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - uses: astral-sh/setup-uv@v6
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+    - uses: oven-sh/setup-bun@v2
+    # Versions match the checked baselines in README.md.
+    - shell: bash
+      run: |
+        bun install -g @oh-my-pi/pi-coding-agent@18.12.6
+        npm install -g @openai/codex@0.163.0 @anthropic-ai/claude-code@2.1.304
+        echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
+    - shell: bash
+      run: |
+        omp --version
+        codex --version
+        claude --version

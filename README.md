@@ -344,6 +344,10 @@ not install hooks, automatically fix code, or configure credentials.
   marketplace.json            # Codex catalog: same package roots
 .claude-plugin/
   marketplace.json            # Claude Code catalog: same package roots
+.github/
+  actions/setup-clients/      # pinned omp, Codex, and Claude Code for CI
+  workflows/checks.yml        # model-free checks on every pull request
+  workflows/model-evals.yml   # manual model runs with subscription secrets
 plugins/
   <name>/
     plugin.json               # shared identity, version, standard metadata
@@ -913,6 +917,47 @@ versions, discovery, execution traces, runtime evidence,
 and precise blockers separately. Without authorized model access, complete
 non-model checks but mark all unexecuted model scenarios unverified. Installation
 does not prove review quality, automatic selection, or app/IDE behavior.
+
+#### Running checks in CI
+
+The `checks` workflow runs `scripts/check_plugins.py` on every pull request
+and push to `main`, with the client versions in
+`.github/actions/setup-clients`. It needs no secrets.
+
+The `model-evals` workflow runs `check_activation.py` on real models. It starts
+only from Actions → model-evals → Run workflow, by someone with write access,
+with a spec, clients, profile, and run count; one run happens at a time. It uses
+subscription logins from these repository secrets:
+
+- `CLAUDE_CODE_OAUTH_TOKEN`: a token from `claude setup-token`. Claude Code
+  uses it, and omp receives it as `ANTHROPIC_OAUTH_TOKEN`. It is independent of
+  local logins; replace it before it expires after a year or when revoked.
+- `CODEX_AUTH_JSON`: `auth.json` from a Codex login made only for CI, never the
+  one used locally. The workflow saves it back whenever Codex refreshes the
+  session; re-seed it only if a refresh fails.
+- `SECRETS_WRITE_TOKEN`: a fine-grained token limited to this repository with
+  Secrets read and write, used only to save the refreshed Codex login.
+
+Create the Codex login in a separate home so it never shares a refresh token
+with a local session, then store it without printing it:
+
+```sh
+CI_CODEX="$(mktemp -d)"
+HOME="$CI_CODEX" CODEX_HOME="$CI_CODEX/.codex" codex login --device-auth
+gh secret set CODEX_AUTH_JSON < "$CI_CODEX/.codex/auth.json"
+rm -rf "$CI_CODEX"
+```
+
+Run `claude setup-token` and paste its token into
+`gh secret set CLAUDE_CODE_OAUTH_TOKEN`, which reads it without echoing.
+
+These are personal subscription logins on a public repository. Fork pull
+requests do not receive the secrets, and the workflow masks the Codex tokens,
+but the agents under test can read their credentials, and the logs are public:
+run only refs you trust, and the workflow uploads no traces. OpenAI documents
+subscription logins in CI for trusted private automation and recommends API
+keys otherwise; Anthropic supports `setup-token` tokens in GitHub Actions. Each
+run counts against the subscriptions' limits.
 
 For changes to `writing-workflow` runtime helpers, also run its behavior tests:
 

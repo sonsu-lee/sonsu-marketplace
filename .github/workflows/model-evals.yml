@@ -1,0 +1,90 @@
+name: model-evals
+
+# Activation and safety runs on real models, with subscription logins from
+# secrets. Manual only: every run uses the subscriptions' limits, and only
+# people with write access can start it. Logs are public, so traces are not
+# uploaded. See "Running model checks in CI" in README.md.
+on:
+  workflow_dispatch:
+    inputs:
+      spec:
+        description: "Spec file, e.g. evals/ticket-workflow/writing-tickets.toml (empty = all)"
+        default: ""
+      clients:
+        description: "Comma-separated clients"
+        default: "omp,codex,claude"
+      profile:
+        description: "Model profile in evals/models.toml"
+        default: "default"
+      reps:
+        description: "Runs per query and client"
+        default: "3"
+
+permissions:
+  contents: read
+
+# One run at a time: Codex rotates the refresh token in CODEX_AUTH_JSON.
+concurrency:
+  group: model-evals
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    # Inputs reach scripts only through the environment, never as code.
+    env:
+      CLIENTS: ${{ inputs.clients }}
+      PROFILE: ${{ inputs.profile }}
+      REPS: ${{ inputs.reps }}
+      SPEC: ${{ inputs.spec }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-clients
+      - run: echo "HOMES=$RUNNER_TEMP/client-homes" >> "$GITHUB_ENV"
+
+      - name: Prepare test homes
+        run: python3 scripts/check_activation.py --clients "$CLIENTS" prepare --homes "$HOMES"
+
+      - name: Seed the Codex login
+        if: contains(inputs.clients, 'codex')
+        env:
+          CODEX_AUTH_JSON: ${{ secrets.CODEX_AUTH_JSON }}
+        run: |
+          auth="$HOMES/codex-home/.codex/auth.json"
+          # Mask each token: GitHub does not reliably mask a multi-line secret.
+          printf '%s' "$CODEX_AUTH_JSON" | jq -r '.tokens // {} | .[] | strings' |
+            while read -r value; do echo "::add-mask::$value"; done
+          (umask 077; printf '%s' "$CODEX_AUTH_JSON" > "$auth")
+          sha256sum "$auth" | cut -d' ' -f1 > "$RUNNER_TEMP/codex-auth.sha"
+
+      - name: Run
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          args=(--clients "$CLIENTS" run --homes "$HOMES" --profile "$PROFILE" --reps "$REPS")
+          [ -n "$SPEC" ] && args+=(--spec "$SPEC")
+          python3 scripts/check_activation.py "${args[@]}" | tee "$RUNNER_TEMP/result.txt"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Summary
+        if: always()
+        run: |
+          { echo '```text'; cat "$RUNNER_TEMP/result.txt" 2>/dev/null; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      # Codex rewrites auth.json when it refreshes the session; the old refresh
+      # token stops working, so the secret must hold the new file.
+      - name: Save the refreshed Codex login
+        if: always() && contains(inputs.clients, 'codex')
+        env:
+          GH_TOKEN: ${{ secrets.SECRETS_WRITE_TOKEN }}
+        run: |
+          auth="$HOMES/codex-home/.codex/auth.json"
+          [ -f "$auth" ] || exit 0
+          if [ "$(sha256sum "$auth" | cut -d' ' -f1)" = "$(cat "$RUNNER_TEMP/codex-auth.sha")" ]; then
+            echo "Codex login unchanged"
+            exit 0
+          fi
+          gh secret set CODEX_AUTH_JSON --repo "$GITHUB_REPOSITORY" < "$auth"
+          echo "Codex login refreshed and saved"
