@@ -312,11 +312,13 @@ def command(client: str, prompt: str, root: Path, pin: Pin) -> list[str]:
 def pin_mismatch(client: str, trace: Trace, pin: Pin) -> str:
     """Describe a run that used another model or effort; empty if it matched."""
     want = pin.model.split("/")[-1]
-    # A missing value means the parser no longer matches the client's output,
-    # so the pin cannot be confirmed. Claude Code never reports effort.
-    if trace.reached and not trace.model:
+    # A missing value on a completed run means the parser no longer matches the
+    # client's output, so the pin cannot be confirmed. Refused or failed runs are
+    # already excluded and may omit these fields. Claude Code never reports effort.
+    complete = trace.reached and not trace.refused and not trace.failed
+    if complete and not trace.model:
         return "model not reported"
-    if trace.reached and not trace.effort and client in EFFORT_CLIENTS:
+    if complete and not trace.effort and client in EFFORT_CLIENTS:
         return "effort not reported"
     if trace.model and trace.model.split("/")[-1] != want:
         return f"ran {trace.model}, pinned {want}"
