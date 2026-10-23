@@ -16,7 +16,7 @@ Run Markdown lint through `npx` with a pinned tool version. This provides a
 repeatable formatting check without a global installation or a repository
 package manifest. Require it before pushing for every added or modified
 Markdown file, across all maintained document types, rather than reformatting
-unrelated files. Do not add automatic formatting or a new CI integration.
+unrelated files. Do not add automatic formatting.
 
 The [README's documentation guidance](../../README.md#writing-documentation)
 owns the Node.js prerequisite, pinned command, file selection, and separate

@@ -22,7 +22,9 @@ changes.
   Require every expected skill exactly once without loading errors; omp
   discovery must have no `warning:` lines. Exercise representative tasks
   separately, three runs each by default, with the `default` model profile in
-  `evals/models.toml`; listing is not proof of execution.
+  `evals/models.toml`; listing is not proof of execution. Run model checks
+  locally, never in CI or with credentials in repository secrets, and report
+  the profile and results in the pull request.
 * Use dedicated test client homes: `HOME` for omp, both `HOME` and
   `CODEX_HOME` for Codex, and both `HOME` and `CLAUDE_CONFIG_DIR` for Claude
   Code. They may persist between runs to keep their test logins. Do not install
@@ -71,10 +73,14 @@ changes.
 * When creating or updating a README, follow the
   [documentation checklist](README.md#writing-documentation) and its linked
   Standard Readme specification.
+* When adding or changing a GitHub Actions workflow, follow the pinning rules
+  in [Running checks in CI](README.md#running-checks-in-ci): actions by commit
+  SHA, and CLI tools from the committed lockfile in `.github/ci-clients`.
 * Before pushing Markdown changes, run the pinned Markdown lint command in
   the [documentation procedure](README.md#writing-documentation) on every added
   or modified Markdown file, including agent instructions and skills. Fix all
-  reported errors and check links and rendered Markdown separately.
+  reported errors and check links and rendered Markdown separately. CI runs
+  the same command on changed Markdown, but does not replace the local run.
 * Before delivery, confirm that every applicable check above was completed.
   Report any verification blockers explicitly; do not describe unchecked work
   as verified.

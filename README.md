@@ -41,9 +41,10 @@ Install [omp](https://github.com/can1357/oh-my-pi#install),
 marketplace. Codex and Claude Code must provide the plugin marketplace and
 subagent interfaces described below; older clients without them do not meet
 the prerequisites. Local catalog installation and installed-skill discovery
-were checked with Codex CLI `0.163.0`, omp `18.12.3`, and Claude Code
-`2.1.296`. These are checked baselines, not promises for every older release
-or evidence of authenticated model execution.
+were checked with Codex CLI `0.163.0`, omp `18.12.6`, and Claude Code
+`2.1.304`, the versions the `checks` workflow installs. These are checked
+baselines, not promises for every older release or evidence of authenticated
+model execution.
 
 The `git-workflow` skills reuse the target repository's validation setup first.
 When none exists, the commit fallback needs Node.js 22.12.0 or newer and npm
@@ -344,6 +345,11 @@ not install hooks, automatically fix code, or configure credentials.
   marketplace.json            # Codex catalog: same package roots
 .claude-plugin/
   marketplace.json            # Claude Code catalog: same package roots
+.github/
+  actions/setup-clients/      # installs the CI toolchain and locked clients
+  ci-clients/                 # omp, Codex, Claude Code versions and bun.lock
+  workflows/checks.yml        # model-free checks on every pull request
+  workflows/pr-title.yml      # PR title against the commit rules
 plugins/
   <name>/
     plugin.json               # shared identity, version, standard metadata
@@ -361,6 +367,7 @@ scripts/
   check_plugins.py            # model-free checks for omp, Codex, Claude Code
   check_activation.py         # activation and safety runs with real logins
   compare_skill.py            # blind comparison of two skill revisions in omp
+  check_version_bumps.py      # changed plugins raised their version
 ```
 
 Each plugin is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package.
@@ -468,7 +475,8 @@ Append the paths of any other Markdown files added or modified by your change,
 including ADRs. Fix all reported lint errors, then check links and the rendered
 Markdown; lint does not verify Standard Readme compliance or visual layout.
 Untouched documents do not need a repository-wide reformat. This is a validation
-step, not automatic formatting or CI integration.
+step, not automatic formatting; the `checks` workflow runs the same command on
+the Markdown files a pull request adds or modifies.
 
 ### Decision records
 
@@ -521,6 +529,14 @@ decision dates, or rationale. Git retains the earlier MADR policy and document
 forms. This exception is limited to that initialization cleanup; it does not
 authorize further rewrites or resets. Subsequent decisions follow the lifecycle
 above.
+
+On 2026-10-23 the maintainer separately authorized one correction to
+ADR-0004: its Decision ended with "Do not add … a new CI integration", an
+operational constraint that, under the scope above, belongs in this README
+rather than a decision record. The clause was removed, so the README now owns
+where the lint runs, including the `checks` workflow. The choice to require the
+pinned lint and its rationale are unchanged. This does not authorize other
+rewrites.
 
 Keep responsibilities separate so readers need not reconstruct current rules
 from decision history:
@@ -913,6 +929,45 @@ versions, discovery, execution traces, runtime evidence,
 and precise blockers separately. Without authorized model access, complete
 non-model checks but mark all unexecuted model scenarios unverified. Installation
 does not prove review quality, automatic selection, or app/IDE behavior.
+
+#### Running checks in CI
+
+When changing a workflow, pin what it runs, as
+[ADR-0007](docs/decisions/0007-pin-ci-dependencies-to-immutable-content.md)
+explains: reference each action by full commit SHA with its release tag in a
+comment, and install CLI tools from `.github/ci-clients` with the frozen
+lockfile rather than `npm install -g` or `bun install -g`. Node.js stays on
+the latest 24.x patch through `check-latest`.
+
+The `checks` workflow runs on every pull request and push to `main`, needs no
+secrets, and enforces the agreed rules a machine can check:
+
+- `plugins`: `scripts/check_plugins.py`, with the clients in
+  `.github/ci-clients`. Its `package.json` names the checked versions above,
+  and `bun.lock` pins every dependency by integrity hash; CI installs them with
+  `bun install --frozen-lockfile`, which skips dependency install scripts.
+  After changing a version, run `bun install` there with the Bun version set in
+  `.github/actions/setup-clients` and commit the new lockfile.
+- `markdown`: the pinned Markdown lint command above on added or modified
+  Markdown files.
+- `versions`: `scripts/check_version_bumps.py <base>` fails when files under a
+  plugin changed but its `plugin.json` version did not; the `catalogs` check
+  keeps the catalogs equal to that version.
+- `writing-workflow-tests` and `git-workflow-tests`: the behavior tests below,
+  when files under those plugins change.
+
+The `pr-title` workflow checks the pull request title, which becomes the squash
+commit subject, with the
+[writing-commits defaults](plugins/git-workflow/skills/writing-commits/SKILL.md),
+since this repository has no commitlint configuration of its own. The rule
+checks compare against the pull request's merge base or the pushed range, and
+skip on manual runs.
+
+Model runs stay out of this repository's CI, as
+[ADR-0006](docs/decisions/0006-keep-model-evaluations-local.md) explains: its
+workflow logs are public, and an agent under test can read the credentials it
+runs with. Run `check_activation.py` and `compare_skill.py` locally in the test
+homes above, and report the profile and results in the pull request.
 
 For changes to `writing-workflow` runtime helpers, also run its behavior tests:
 

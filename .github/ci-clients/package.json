@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "description": "Client CLIs for the checks workflow, locked with integrity hashes in bun.lock.",
+  "dependencies": {
+    "@anthropic-ai/claude-code": "2.1.304",
+    "@oh-my-pi/pi-coding-agent": "18.12.6",
+    "@openai/codex": "0.163.0"
+  }
+}
