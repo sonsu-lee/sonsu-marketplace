@@ -1,7 +1,7 @@
 # Require Markdown lint checks for all Markdown documents
 
 - Date: 2026-10-19
-- Status: superseded by [ADR-0007](0007-lint-changed-markdown-in-ci.md)
+- Status: accepted
 - Decision-makers: sonsu-lee
 
 ## Context
@@ -16,12 +16,12 @@ Run Markdown lint through `npx` with a pinned tool version. This provides a
 repeatable formatting check without a global installation or a repository
 package manifest. Require it before pushing for every added or modified
 Markdown file, across all maintained document types, rather than reformatting
-unrelated files. Do not add automatic formatting or a new CI integration.
+unrelated files. Do not add automatic formatting.
 
 The [README's documentation guidance](../../README.md#writing-documentation)
-owns the Node.js prerequisite, pinned command, file selection, and separate
-link and rendering checks. [AGENTS.md](../../AGENTS.md) makes those checks
-mandatory for agents.
+owns the Node.js prerequisite, pinned command, file selection, where the check
+also runs, such as CI, and separate link and rendering checks.
+[AGENTS.md](../../AGENTS.md) makes those checks mandatory for agents.
 
 ## Rejected alternatives
 

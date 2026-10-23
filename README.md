@@ -459,9 +459,8 @@ For root and plugin READMEs:
   and Claude Code's `CLAUDE_CONFIG_DIR`.
 
 All Markdown documents follow the lint policy in
-[ADR-0007](docs/decisions/0007-lint-changed-markdown-in-ci.md), including
-READMEs, ADRs, agent instructions, skills, commands, and rules. Before pushing,
-use Node.js 22
+[ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
+agent instructions, skills, commands, and rules. Before pushing, use Node.js 22
 or newer and npm to check the files added or modified by your change, using the
 pinned CLI's default rules:
 
@@ -527,6 +526,14 @@ decision dates, or rationale. Git retains the earlier MADR policy and document
 forms. This exception is limited to that initialization cleanup; it does not
 authorize further rewrites or resets. Subsequent decisions follow the lifecycle
 above.
+
+On 2026-10-23 the maintainer separately authorized one correction to
+ADR-0004: its Decision ended with "Do not add … a new CI integration", an
+operational constraint that, under the scope above, belongs in this README
+rather than a decision record. The clause was removed, so the README now owns
+where the lint runs, including the `checks` workflow. The choice to require the
+pinned lint and its rationale are unchanged. This does not authorize other
+rewrites.
 
 Keep responsibilities separate so readers need not reconstruct current rules
 from decision history:
