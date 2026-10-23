@@ -33,6 +33,9 @@ DEFAULT_HOMES = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
 CLAUDE_TOKEN_FILE = "oauth-token"
 # omp providers whose login can answer a model run; search and MCP logins cannot.
 OMP_MODEL_PROVIDERS = {"anthropic", "openai-codex"}
+MODELS_FILE = "evals/models.toml"
+# Clients whose output reports the effort that ran; Claude Code does not.
+EFFORT_CLIENTS = {"omp", "codex"}
 RUN_TIMEOUT = 900
 PREFLIGHT_PROMPT = "Reply with the single word OK."
 FORBIDS = {"write-command", "new-files"}
@@ -80,6 +83,10 @@ class Trace:
     reads: set[str] = field(default_factory=set)
     writes: list[str] = field(default_factory=list)
     new_files: list[str] = field(default_factory=list)
+    # Observed from the client's own output; empty when it does not report it.
+    model: str = ""
+    effort: str = ""
+    mismatch: str = ""  # another model or effort ran than the profile pinned
 
 
 def load_spec(path: Path) -> Spec:
@@ -264,19 +271,60 @@ def client_env(client: str, base: Path) -> tuple[dict[str, str], Path]:
     return env, target
 
 
-def command(client: str, prompt: str, root: Path) -> list[str]:
+@dataclass
+class Pin:
+    model: str
+    effort: str
+
+
+def load_pins(root: Path, profile: str) -> dict[str, Pin]:
+    """Model and effort per client from `evals/models.toml`."""
+    data = tomllib.loads((root / MODELS_FILE).read_text(encoding="utf-8"))
+    if profile not in data:
+        raise ValueError(f"{MODELS_FILE}: no profile `{profile}`; have {sorted(data)}")
+    pins = {}
+    for client in cp.CLIENTS:
+        entry = data[profile].get(client)
+        if not isinstance(entry, dict) or not entry.get("model") or not entry.get("effort"):
+            raise ValueError(f"{MODELS_FILE}: `{profile}.{client}` needs model and effort")
+        pins[client] = Pin(str(entry["model"]), str(entry["effort"]))
+    return pins
+
+
+def command(client: str, prompt: str, root: Path, pin: Pin) -> list[str]:
     if client == "omp":
         # always-ask auto-approves read-only tools; print mode cannot approve others.
+        # --slow also pins the agents that request the slow role.
         return ["omp", "-p", "--no-session", "--mode", "json",
-                "--approval-mode", "always-ask", prompt]
+                "--approval-mode", "always-ask", "--model", pin.model,
+                "--slow", pin.model, "--thinking", pin.effort, prompt]
     if client == "codex":
         # Disable account connectors that a ChatGPT login brings into the home.
         return ["codex", "--no-daemon", "exec", "--json", "--skip-git-repo-check",
                 "--sandbox", "read-only", "-c", "features.apps=false",
                 "-c", "features.browser_use=false", "-c", "features.computer_use=false",
-                prompt]
+                "-m", pin.model, "-c", f'model_reasoning_effort="{pin.effort}"', prompt]
     return ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
-            "--add-dir", str(root / "plugins")]
+            "--add-dir", str(root / "plugins"), "--model", pin.model,
+            "--effort", pin.effort]
+
+
+def pin_mismatch(client: str, trace: Trace, pin: Pin) -> str:
+    """Describe a run that used another model or effort; empty if it matched."""
+    want = pin.model.split("/")[-1]
+    # A missing value on a completed run means the parser no longer matches the
+    # client's output, so the pin cannot be confirmed. Refused or failed runs are
+    # already excluded and may omit these fields. Claude Code never reports effort.
+    complete = trace.reached and not trace.refused and not trace.failed
+    if complete and not trace.model:
+        return "model not reported"
+    if complete and not trace.effort and client in EFFORT_CLIENTS:
+        return "effort not reported"
+    if trace.model and trace.model.split("/")[-1] != want:
+        return f"ran {trace.model}, pinned {want}"
+    if trace.effort and trace.effort != pin.effort:
+        return f"ran effort {trace.effort}, pinned {pin.effort}"
+    return ""
 
 
 def events(text: str) -> list[dict]:
@@ -344,6 +392,9 @@ def parse_omp(text: str, plugin: str, skill: str) -> Trace:
         message = event.get("message", {})
         if message.get("role") != "assistant":
             continue
+        trace.model = str(message.get("model") or trace.model)
+        effort = ((message.get("requestControls") or {}).get("effort") or {}).get("topLevel")
+        trace.effort = str(effort or trace.effort)
         error = str(message.get("errorMessage") or "")
         if message.get("stopReason") == "error":
             if error.startswith("Refusal"):
@@ -395,6 +446,8 @@ def parse_claude(text: str, plugin: str, skill: str) -> Trace:
     trace = Trace()
     for event in events(text):
         kind = event.get("type")
+        if kind == "system" and event.get("subtype") == "init":
+            trace.model = str(event.get("model") or "")
         if kind == "result" and event.get("is_error"):
             trace.failed = True
             trace.error = trace.error or str(event.get("result") or event.get("subtype"))[:120]
@@ -428,17 +481,45 @@ def parse_claude(text: str, plugin: str, skill: str) -> Trace:
 PARSERS = {"omp": parse_omp, "codex": parse_codex, "claude": parse_claude}
 
 
-def run_once(client: str, base: Path, root: Path, spec: Spec, prompt: str,
-             label: str) -> tuple[Trace, Path]:
+def observe_codex(env: dict[str, str], stdout: str, trace: Trace) -> None:
+    """Codex reports model and effort only in the session rollout."""
+    thread = next((e.get("thread_id") for e in events(stdout)
+                   if e.get("type") == "thread.started"), "")
+    sessions = Path(env["CODEX_HOME"]) / "sessions"
+    rollout = next(sessions.rglob(f"*{thread}.jsonl"), None) if thread else None
+    for line in rollout.read_text(encoding="utf-8").splitlines() if rollout else []:
+        item = json.loads(line)
+        if item.get("type") == "turn_context":
+            trace.model = str(item["payload"].get("model") or "")
+            trace.effort = str(item["payload"].get("effort") or "")
+            return
+
+
+def execute(client: str, base: Path, root: Path, pin: Pin, prompt: str, target: Path,
+            plugin: str = "", skill: str = "",
+            timeout: int = RUN_TIMEOUT) -> tuple[subprocess.CompletedProcess[str], Trace]:
+    """Run one pinned prompt and fail the trace if another model or effort ran."""
     env, _ = client_env(client, base)
+    proc = cp.run(command(client, prompt, root, pin), env, target, timeout=timeout)
+    trace = PARSERS[client](proc.stdout, plugin, skill)
+    if client == "codex":
+        observe_codex(env, proc.stdout, trace)
+    trace.mismatch = pin_mismatch(client, trace, pin)
+    if trace.mismatch:
+        trace.failed = True
+        trace.error = trace.mismatch
+    return proc, trace
+
+
+def run_once(client: str, base: Path, root: Path, pin: Pin, spec: Spec, prompt: str,
+             label: str) -> tuple[Trace, Path]:
     target = base / "runs" / label
     shutil.rmtree(target, ignore_errors=True)
     target.mkdir(parents=True)
     subprocess.run(["git", "init", "-q", str(target)], check=True)
-    proc = cp.run(command(client, prompt, root), env, target, timeout=RUN_TIMEOUT)
+    proc, trace = execute(client, base, root, pin, prompt, target, spec.plugin, spec.skill)
     log = base / "runs" / f"{label}.jsonl"
     log.write_text(proc.stdout, encoding="utf-8")
-    trace = PARSERS[client](proc.stdout, spec.plugin, spec.skill)
     if proc.returncode == 124:
         trace.failed = True
         trace.error = trace.error or cp.tail(proc)
@@ -475,13 +556,11 @@ def judge(query: Query, trace: Trace) -> list[str]:
     return problems + judge_safety(query, trace)
 
 
-def preflight(client: str, base: Path, root: Path) -> str:
-    env, _ = client_env(client, base)
+def preflight(client: str, base: Path, root: Path, pin: Pin) -> str:
     target = base / "runs" / f"preflight-{client}"
     shutil.rmtree(target, ignore_errors=True)
     target.mkdir(parents=True)
-    proc = cp.run(command(client, PREFLIGHT_PROMPT, root), env, target, timeout=300)
-    trace = PARSERS[client](proc.stdout, "", "")
+    proc, trace = execute(client, base, root, pin, PREFLIGHT_PROMPT, target, timeout=300)
     complete = trace.reached and not trace.failed
     return "" if complete else (trace.error or cp.tail(proc))
 
@@ -533,6 +612,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     specs_paths = [Path(p) for p in args.spec] or sorted((root / "evals").glob("*/*.toml"))
     try:
         specs = [load_spec(p) for p in specs_paths]
+        pins = load_pins(root, args.profile)
     except (OSError, ValueError, tomllib.TOMLDecodeError) as exc:
         print(f"spec error: {exc}")
         return 2
@@ -545,11 +625,15 @@ def cmd_run(args: argparse.Namespace) -> int:
             print(f"FAIL  {client:<7} {client} not found on PATH")
             continue
         failures = refresh(client, root, market, base, spec_plugins)
-        problem = "; ".join(failures) or preflight(client, base, root)
+        problem = "; ".join(failures) or preflight(client, base, root, pins[client])
         if problem:
             print(f"FAIL  {client:<7} unavailable: {problem}")
         else:
             clients.append(client)
+    # Claude Code does not report effort, so only its model is checked.
+    print(f"profile {args.profile}: " + ", ".join(
+        f"{c} {pins[c].model} ({pins[c].effort}"
+        f"{', effort not reported' if c == 'claude' else ''})" for c in clients))
 
     jobs = [(si, qi, client, rep) for si, spec in enumerate(specs)
             for qi, _ in enumerate(spec.queries)
@@ -557,8 +641,9 @@ def cmd_run(args: argparse.Namespace) -> int:
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         futures = {
             (si, qi, client, rep): pool.submit(
-                run_once, client, base, root, specs[si], specs[si].queries[qi].prompt,
-                f"{specs[si].skill}-{specs[si].queries[qi].id}-{client}-{rep}")
+                run_once, client, base, root, pins[client], specs[si],
+                specs[si].queries[qi].prompt,
+                f"{args.profile}-{specs[si].skill}-{specs[si].queries[qi].id}-{client}-{rep}")
             for si, qi, client, rep in jobs}
     failed = len(clients) < len(args.clients)
     unmeasured = False
@@ -572,8 +657,8 @@ def cmd_run(args: argparse.Namespace) -> int:
                 counted = [(t, log) for t, log in outcomes
                            if t.reached and not t.refused and not t.failed]
                 refused = sum(1 for t, _ in outcomes if t.refused)
-                unreached = sum(1 for t, _ in outcomes
-                                if not t.refused and (not t.reached or t.failed))
+                unreached = sum(1 for t, _ in outcomes if not t.refused and not t.mismatch
+                                and (not t.reached or t.failed))
                 loaded = sum(1 for t, _ in counted if t.loaded)
                 # Excluded runs do not count for activation, but a forbidden
                 # write they attempted is still safety evidence.
@@ -581,6 +666,10 @@ def cmd_run(args: argparse.Namespace) -> int:
                 problems += [(judge_safety(query, t), log) for t, log in outcomes
                              if (t, log) not in counted]
                 bad = [(p, log) for p, log in problems if p]
+                # A run on another model is not evidence for this profile, and
+                # the check cannot pass with it.
+                bad += [([f"off profile: {t.mismatch}"], log)
+                        for t, log in outcomes if t.mismatch]
                 excluded = []
                 if refused:
                     excluded.append(f"{refused} refused by provider")
@@ -617,6 +706,8 @@ def main() -> int:
     runp = sub.add_parser("run", help="run spec queries in prepared, logged-in homes")
     runp.add_argument("--homes", type=Path, default=DEFAULT_HOMES,
                       help="directory used by prepare (default: same as prepare)")
+    runp.add_argument("--profile", default="default",
+                      help=f"model profile in {MODELS_FILE} (default: default)")
     runp.add_argument("--spec", action="append", default=[],
                       help="spec file; repeat to select (default: evals/*/*.toml)")
     runp.add_argument("--reps", type=int, default=3, help="runs per query and client")

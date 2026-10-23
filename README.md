@@ -355,6 +355,7 @@ plugins/
     package.json              # omp: extension modules under "omp.extensions"
     .claude-plugin/plugin.json  # Claude Code: only to exclude omp agents
 evals/
+  models.toml                 # model and effort per client for model runs
   <plugin>/<skill>.toml       # activation and safety queries
 scripts/
   check_plugins.py            # model-free checks for omp, Codex, Claude Code
@@ -772,6 +773,24 @@ uses `--approval-mode always-ask`, Codex a read-only sandbox without account
 apps, and Claude Code its default permission mode. Results are samples for
 review, not a CI gate: three runs show a direction, not a selection rate.
 
+Every model run pins the model and reasoning effort from a profile in
+`evals/models.toml`: omp `--model`, `--slow`, and `--thinking`, Claude Code
+`--model` and `--effort`, and Codex `-m` and `model_reasoning_effort`. `run`
+uses the `default` profile, the models most users run, unless `--profile`
+names another; this profile is the required check before merging. The
+`floor` profile holds the weakest models the skills are meant to support. A
+run on it is a cheap way to expose missing guidance, not a substitute for the
+`default` run. Each run reads the model back from the client's own output:
+omp's messages, Claude Code's `init` event, and the Codex session rollout. A
+run on another model or effort, or one whose model, or effort for omp and
+Codex, is missing from that output, is not counted and makes its query `FAIL`
+(`off profile`), and preflight stops a client whose pinned model does not
+run. In `compare_skill.py` such an answer, or such a judge run, makes the
+pair `NONE`. Claude Code does not report effort, so its effort is pinned but
+unchecked. A result holds only for the
+profile it ran, not for whatever a user's settings select. Use full model IDs
+in the profiles, since an alias is reported as the model it resolves to.
+
 For instruction changes, compare the revisions blind in omp. Add `criteria` to
 the spec queries that matter, commit the change, and log in to omp only:
 
@@ -887,7 +906,8 @@ in an English edit. In a separate disposable installation, remove one helper
 and verify an explicit missing-resource result, not a guessed cache path or
 false pass. Do not change the successful installation or source helpers.
 
-Run each model scenario three times by default, each from a fresh target, and
+Run each model scenario three times by default, each from a fresh target, with
+the models and efforts of a profile in `evals/models.toml`, and
 report every run's outcome rather than only the best one. Report actual CLI
 versions, discovery, execution traces, runtime evidence,
 and precise blockers separately. Without authorized model access, complete
