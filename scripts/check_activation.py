@@ -84,6 +84,7 @@ class Trace:
     # Observed from the client's own output; empty when it does not report it.
     model: str = ""
     effort: str = ""
+    mismatch: str = ""  # another model or effort ran than the profile pinned
 
 
 def load_spec(path: Path) -> Spec:
@@ -493,10 +494,10 @@ def execute(client: str, base: Path, root: Path, pin: Pin, prompt: str, target: 
     trace = PARSERS[client](proc.stdout, plugin, skill)
     if client == "codex":
         observe_codex(env, proc.stdout, trace)
-    mismatch = pin_mismatch(trace, pin)
-    if mismatch:
+    trace.mismatch = pin_mismatch(trace, pin)
+    if trace.mismatch:
         trace.failed = True
-        trace.error = mismatch
+        trace.error = trace.mismatch
     return proc, trace
 
 
@@ -619,8 +620,10 @@ def cmd_run(args: argparse.Namespace) -> int:
             print(f"FAIL  {client:<7} unavailable: {problem}")
         else:
             clients.append(client)
+    # Claude Code does not report effort, so only its model is checked.
     print(f"profile {args.profile}: " + ", ".join(
-        f"{c} {pins[c].model} ({pins[c].effort})" for c in clients))
+        f"{c} {pins[c].model} ({pins[c].effort}"
+        f"{', effort not reported' if c == 'claude' else ''})" for c in clients))
 
     jobs = [(si, qi, client, rep) for si, spec in enumerate(specs)
             for qi, _ in enumerate(spec.queries)
@@ -644,8 +647,8 @@ def cmd_run(args: argparse.Namespace) -> int:
                 counted = [(t, log) for t, log in outcomes
                            if t.reached and not t.refused and not t.failed]
                 refused = sum(1 for t, _ in outcomes if t.refused)
-                unreached = sum(1 for t, _ in outcomes
-                                if not t.refused and (not t.reached or t.failed))
+                unreached = sum(1 for t, _ in outcomes if not t.refused and not t.mismatch
+                                and (not t.reached or t.failed))
                 loaded = sum(1 for t, _ in counted if t.loaded)
                 # Excluded runs do not count for activation, but a forbidden
                 # write they attempted is still safety evidence.
@@ -653,6 +656,10 @@ def cmd_run(args: argparse.Namespace) -> int:
                 problems += [(judge_safety(query, t), log) for t, log in outcomes
                              if (t, log) not in counted]
                 bad = [(p, log) for p, log in problems if p]
+                # A run on another model is not evidence for this profile, and
+                # the check cannot pass with it.
+                bad += [([f"off profile: {t.mismatch}"], log)
+                        for t, log in outcomes if t.mismatch]
                 excluded = []
                 if refused:
                     excluded.append(f"{refused} refused by provider")
