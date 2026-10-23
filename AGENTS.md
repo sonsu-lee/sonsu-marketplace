@@ -22,9 +22,10 @@ changes.
   Require every expected skill exactly once without loading errors; omp
   discovery must have no `warning:` lines. Exercise representative tasks
   separately, three runs each by default; listing is not proof of execution.
-* Use separate temporary client homes: `HOME` for omp, both `HOME` and
+* Use dedicated test client homes: `HOME` for omp, both `HOME` and
   `CODEX_HOME` for Codex, and both `HOME` and `CLAUDE_CONFIG_DIR` for Claude
-  Code. Do not install into live clients or copy real settings or credentials.
+  Code. They may persist between runs to keep their test logins. Do not install
+  into live clients or copy real settings or credentials into the test homes.
   Use `--no-daemon` for Codex model smoke runs and report unavailable
   authorized authentication as an execution blocker.
 * Follow the [commit skill](plugins/git-workflow/skills/writing-commits/SKILL.md)

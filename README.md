@@ -728,16 +728,26 @@ Git-backed marketplace installs, add a committed clone over Git instead.
 
 These checks do not prove correct activation or useful output. To measure
 activation and safety, declare queries for a skill in
-`evals/<plugin>/<skill>.toml` and run them with authorized logins in temporary
-homes:
+`evals/<plugin>/<skill>.toml` and run them with authorized logins in dedicated
+test homes:
 
 ```sh
 python3 scripts/check_activation.py prepare
-# log in with the commands it prints; for Claude Code, export
-# CLAUDE_CODE_OAUTH_TOKEN in this shell instead of storing it
-python3 scripts/check_activation.py run --homes <directory printed by prepare>
-rm -rf <directory printed by prepare>
+# log in once with the commands it prints for each LOGIN line
+python3 scripts/check_activation.py run
 ```
+
+The test homes live under `~/.cache/sonsu-marketplace/client-homes` (or
+`$XDG_CACHE_HOME`), with owner-only permissions, and are never the live client
+homes. They keep their logins, so later `prepare` and `run` invocations point
+the homes' marketplace at the current checkout (or `--root`), reinstall the
+plugins, and compare every installed skill file with it; `prepare` prints
+`READY` for clients with stored credentials, and only a missing or expired
+login needs a new one. Codex refreshes its stored session in place.
+For Claude Code, `prepare` prints how to save the `claude setup-token` token to
+`claude-home/oauth-token` without echoing it; `CLAUDE_CODE_OAUTH_TOKEN` in the
+environment takes precedence. `--homes` selects another directory. Delete the
+directory to sign out of every test login.
 
 Each query sets `expect` to `load` or `no-load`, may list `reads` that must
 appear and `not_reads` that must not, and may `forbid` a `write-command` or
@@ -767,8 +777,7 @@ the spec queries that matter, commit the change, and log in to omp only:
 
 ```sh
 python3 scripts/check_activation.py --clients omp prepare
-python3 scripts/compare_skill.py <plugin>:<skill> \
-  --homes <directory printed by prepare> --base origin/main --head HEAD
+python3 scripts/compare_skill.py <plugin>:<skill> --base origin/main --head HEAD
 ```
 
 The script uninstalls the compared plugin from the omp home, so the answers can
@@ -796,35 +805,36 @@ final output. Follow the
 and report smoke checks separately from measured trigger rates or comparative
 quality results.
 
-For other model runs, reuse the prepared homes:
+For other model runs, reuse the test homes:
 
 ```sh
-TMP=<directory printed by prepare>
+TMP="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
 OMP_HOME="$TMP/omp-home"
 CX_HOME="$TMP/codex-home"
 CX_CODEX_HOME="$CX_HOME/.codex"
 CC_HOME="$TMP/claude-home"
 CC_CONFIG_DIR="$CC_HOME/.claude"
-TARGET="$TMP/target"
+WORK="$(mktemp -d)"
+TARGET="$WORK/target"
 mkdir -p "$TARGET"
 ```
 
-Model runs require separately authorized authentication in the temporary
-environment. Do not implicitly reuse live credentials, including the live
+Model runs require separately authorized authentication in the test homes. Do
+not reuse live credentials or copy live client homes, including the live
 Claude Code login. For Codex model smoke runs, use `--no-daemon` to avoid
 attaching to the live client daemon:
 
 ```sh
 HOME="$CX_HOME" CODEX_HOME="$CX_CODEX_HOME" \
   codex --no-daemon exec --json --sandbox workspace-write \
-  --add-dir "$TMP" -C "$TARGET" \
+  --add-dir "$WORK" -C "$TARGET" \
   '$review-workflow:reviewing-code Review working changes locally.'
 ```
 
-For Claude Code, run print mode from the target with the temporary variables.
-A temporary `CLAUDE_CONFIG_DIR` has no login. With explicit authorization,
-supply a token through `CLAUDE_CODE_OAUTH_TOKEN` in the process environment,
-for example one from `claude setup-token`; do not copy the live configuration
+For Claude Code, run print mode from the target with the test-home variables.
+`CLAUDE_CONFIG_DIR` holds no login; supply the saved token through
+`CLAUDE_CODE_OAUTH_TOKEN` in the process environment, and do not copy the live
+configuration
 directory. Print mode cannot answer permission prompts, and the default mode
 denies the snapshot, helper, and validator commands these workflows run. For
 disposable targets only, grant them with `--permission-mode bypassPermissions`
@@ -834,8 +844,9 @@ and report that choice:
 (
   cd "$TARGET"
   HOME="$CC_HOME" CLAUDE_CONFIG_DIR="$CC_CONFIG_DIR" \
+    CLAUDE_CODE_OAUTH_TOKEN="$(cat "$CC_HOME/oauth-token")" \
     claude -p '/review-workflow:reviewing-code Review working changes.' \
-    --output-format stream-json --verbose --add-dir "$TMP" \
+    --output-format stream-json --verbose --add-dir "$WORK" \
     --permission-mode bypassPermissions
 )
 ```

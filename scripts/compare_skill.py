@@ -184,8 +184,9 @@ def compare(base: Path, root: Path, query: ca.Query, answers: dict[str, Answer],
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("skill", help="<plugin>:<skill> to compare")
-    parser.add_argument("--homes", required=True,
-                        help="directory from `check_activation.py --clients omp prepare`")
+    parser.add_argument("--homes", type=Path, default=ca.DEFAULT_HOMES,
+                        help="test homes from `check_activation.py --clients omp prepare` "
+                             f"(default: {ca.DEFAULT_HOMES})")
     parser.add_argument("--base", default="origin/main", help="base revision (default origin/main)")
     parser.add_argument("--head", default="HEAD", help="head revision (default HEAD)")
     parser.add_argument("--root", type=Path, default=ca.REPO,

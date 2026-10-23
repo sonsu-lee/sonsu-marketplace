@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Measure skill activation and safety in omp, Codex, and Claude Code.
 
-`prepare` installs the marketplace into temporary client homes and prints the
-login commands. `run` sends each query in `evals/<plugin>/<skill>.toml` to each
-logged-in client from a fresh Git target and reports how often the skill loaded
-and whether the query's assertions held. Results are samples for review, not a
-CI gate.
+`prepare` installs the marketplace into dedicated test client homes, kept
+between runs so each client needs one login, and prints login commands for
+clients without stored credentials. `run` sends each query in
+`evals/<plugin>/<skill>.toml` to each logged-in client from a fresh Git target
+and reports how often the skill loaded and whether the query's assertions held.
+Results are samples for review, not a CI gate.
 """
 
 from __future__ import annotations
@@ -17,7 +18,6 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -26,6 +26,13 @@ from pathlib import Path
 import check_plugins as cp
 
 REPO = Path(__file__).resolve().parents[1]
+# Dedicated test homes, never the user's live client homes. They persist so the
+# logins made once in them can be reused.
+DEFAULT_HOMES = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") \
+    / "sonsu-marketplace" / "client-homes"
+CLAUDE_TOKEN_FILE = "oauth-token"
+# omp providers whose login can answer a model run; search and MCP logins cannot.
+OMP_MODEL_PROVIDERS = {"anthropic", "openai-codex"}
 RUN_TIMEOUT = 900
 PREFLIGHT_PROMPT = "Reply with the single word OK."
 FORBIDS = {"write-command", "new-files"}
@@ -127,30 +134,99 @@ def install(client: str, root: Path, market: str, plugins: list[str],
     return installer(root, market, plugins, home, target)
 
 
+def claude_token(base: Path) -> str:
+    """The Claude Code token from the environment, else from the test home."""
+    if os.environ.get("CLAUDE_CODE_OAUTH_TOKEN"):
+        return os.environ["CLAUDE_CODE_OAUTH_TOKEN"]
+    path = homes_for(base, "claude")[0] / CLAUDE_TOKEN_FILE
+    return path.read_text(encoding="utf-8").strip() if path.is_file() else ""
+
+
+def has_login(client: str, base: Path) -> bool:
+    """Whether stored credentials exist; `run` still checks model access."""
+    home, target = homes_for(base, client)
+    if client == "codex":
+        return (home / ".codex/auth.json").is_file()
+    if client == "claude":
+        return bool(claude_token(base))
+    # The export holds secrets; only read provider names, never print it.
+    # Search and MCP logins do not let omp answer, so they do not count.
+    proc = cp.run(["omp", "auth", "export"], cp.base_env(home), target)
+    try:
+        entries = json.loads(proc.stdout).get("credentials") or []
+    except (ValueError, AttributeError):
+        return False
+    return proc.returncode == 0 and any(
+        isinstance(e, dict) and e.get("provider") in OMP_MODEL_PROVIDERS for e in entries)
+
+
 def login_commands(base: Path) -> dict[str, str]:
     omp_home, _ = homes_for(base, "omp")
     codex_home, _ = homes_for(base, "codex")
     claude_home, _ = homes_for(base, "claude")
+    token_file = claude_home / CLAUDE_TOKEN_FILE
     return {
         "omp": f'HOME="{omp_home}" omp login',
         "codex": (f'HOME="{codex_home}" CODEX_HOME="{codex_home}/.codex" '
                   "codex login --device-auth"),
         "claude": (f'HOME="{claude_home}" CLAUDE_CONFIG_DIR="{claude_home}/.claude" '
                    "claude setup-token\n"
-                   "    # then: export CLAUDE_CODE_OAUTH_TOKEN=<token> in the shell "
-                   "that runs `run`"),
+                   "    # then paste the token without echoing it:\n"
+                   f'    (umask 077; read -rs t; printf "%s" "$t" > "{token_file}")'),
     }
+
+
+def registered_root(client: str, env: dict[str, str], target: Path, market: str) -> Path | None:
+    """The checkout a home's marketplace currently points to."""
+    if client == "claude":
+        proc = cp.run(["claude", "plugin", "marketplace", "list", "--json"], env, target)
+        try:
+            entries = json.loads(proc.stdout)
+        except ValueError:
+            return None
+        path = next((e.get("path") for e in entries
+                     if isinstance(e, dict) and e.get("name") == market), None)
+    else:
+        proc = cp.run([client, "plugin", "marketplace", "list"], env, target)
+        rows = (line.split(None, 1) for line in proc.stdout.splitlines())
+        path = next((row[1].strip() for row in rows if len(row) == 2 and row[0] == market),
+                    None)
+    return Path(path).resolve() if path else None
+
+
+def bind_marketplace(client: str, root: Path, market: str, plugins: list[str],
+                     base: Path) -> tuple[bool, list[str]]:
+    """Point a reused home at `root`; return whether it moved and any failures.
+
+    A home kept from another checkout would otherwise install that checkout's
+    plugins under the same marketplace name.
+    """
+    env, target = client_env(client, base)
+    if registered_root(client, env, target, market) == root.resolve():
+        return False, []
+    cp.run([client, "plugin", "marketplace", "remove", market], env, target)
+    if client == "claude":  # removing the marketplace uninstalls its plugins
+        return True, install(client, root, market, plugins, base)[1]
+    add = [client, "plugin", "marketplace", "add", str(root)]
+    proc = cp.run(add + (["--json"] if client == "codex" else []), env, target)
+    return True, [] if proc.returncode == 0 else [f"marketplace add: {cp.tail(proc)}"]
 
 
 def refresh(client: str, root: Path, market: str, base: Path,
             spec_plugins: set[str]) -> list[str]:
-    """Reinstall the specs' plugins so cached copies hold the current text."""
-    if client == "claude":  # a local-path marketplace loads packages in place
-        return []
+    """Bind the home to `root` and reinstall plugins so they match its files."""
     home, _ = homes_for(base, client)
     env, target = client_env(client, base)
-    failures = []
-    for plugin in sorted(spec_plugins):
+    all_plugins = cp.load_marketplace(root)[1]
+    moved, failures = bind_marketplace(client, root, market, all_plugins, base)
+    # After a move, every plugin may still be a copy of the old checkout.
+    plugins = set(all_plugins) if moved else spec_plugins
+    if client == "claude":
+        # A local-path marketplace loads packages in place; check where it points.
+        if registered_root(client, env, target, market) != root.resolve():
+            failures.append(f"marketplace does not point to {root}")
+        return failures
+    for plugin in sorted(plugins):
         if client == "omp":
             cp.run(["omp", "plugin", "uninstall", f"{plugin}@{market}"], env, target)
             proc = cp.run(["omp", "plugin", "install", f"{plugin}@{market}"], env, target)
@@ -161,12 +237,17 @@ def refresh(client: str, root: Path, market: str, base: Path,
                           env, target)
         if proc.returncode != 0:
             failures.append(f"reinstall {plugin}: {cp.tail(proc)}")
-    for plugin in spec_plugins:
-        for source in sorted((root / "plugins" / plugin).glob("skills/*/SKILL.md")):
-            installed = [p for p in home.rglob(f"skills/{source.parent.name}/SKILL.md")
-                         if plugin in str(p)]
-            if not installed or any(p.read_bytes() != source.read_bytes() for p in installed):
-                failures.append(f"installed {plugin}:{source.parent.name} differs from source")
+    # Compare every skill file, not just SKILL.md, so stale references show.
+    for plugin in sorted(plugins):
+        for skill_md in sorted((root / "plugins" / plugin).glob("skills/*/SKILL.md")):
+            source = skill_md.parent
+            copies = [p.parent for p in home.rglob(f"skills/{source.name}/SKILL.md")
+                      if plugin in str(p)]
+            files = [f.relative_to(source) for f in source.rglob("*") if f.is_file()]
+            if not copies or any(not (c / f).is_file()
+                                 or (c / f).read_bytes() != (source / f).read_bytes()
+                                 for c in copies for f in files):
+                failures.append(f"installed {plugin}:{source.name} differs from source")
     return failures
 
 
@@ -177,8 +258,9 @@ def client_env(client: str, base: Path) -> tuple[dict[str, str], Path]:
     if client == "codex":
         return cp.base_env(home, CODEX_HOME=str(home / ".codex")), target
     env = cp.base_env(home, CLAUDE_CONFIG_DIR=str(home / ".claude"))
-    if os.environ.get("CLAUDE_CODE_OAUTH_TOKEN"):
-        env["CLAUDE_CODE_OAUTH_TOKEN"] = os.environ["CLAUDE_CODE_OAUTH_TOKEN"]
+    token = claude_token(base)
+    if token:
+        env["CLAUDE_CODE_OAUTH_TOKEN"] = token
     return env, target
 
 
@@ -410,9 +492,9 @@ def cmd_prepare(args: argparse.Namespace) -> int:
     if not all(r.ok for r in results):
         print("catalogs are inconsistent; run scripts/check_plugins.py first")
         return 1
-    base = Path(args.homes).resolve() if args.homes else Path(
-        tempfile.mkdtemp(prefix="skill-activation-"))
-    base.mkdir(parents=True, exist_ok=True)
+    base = Path(args.homes).resolve()
+    base.mkdir(mode=0o700, parents=True, exist_ok=True)
+    base.chmod(0o700)
     commands = login_commands(base)
     failed = False
     for client in args.clients:
@@ -420,17 +502,25 @@ def cmd_prepare(args: argparse.Namespace) -> int:
             print(f"FAIL  {client:<7} {client} not found on PATH")
             failed = True
             continue
-        _, failures = install(client, root, market, plugins, base)
+        # A home from an earlier prepare keeps its login; bind it to this
+        # checkout and reinstall the plugins instead of starting over.
+        if homes_for(base, client)[0].is_dir():
+            failures = refresh(client, root, market, base, set(plugins))
+        else:
+            _, failures = install(client, root, market, plugins, base)
         if failures:
             print(f"FAIL  {client:<7} install: {'; '.join(failures)}")
             failed = True
+        elif has_login(client, base):
+            print(f"READY {client:<7} stored credentials found")
         else:
-            print(f"READY {client:<7} log in with:\n    {commands[client]}")
+            print(f"LOGIN {client:<7} log in once with:\n    {commands[client]}")
     options = f' --clients {",".join(args.clients)}'
     if root != REPO:
         options += f' --root "{root}"'
-    print(f"\nhomes: {base}\nthen run: python3 scripts/check_activation.py{options} run "
-          f'--homes "{base}"\nremove the homes when done; they hold the new logins.')
+    homes = f' --homes "{base}"' if base != DEFAULT_HOMES else ""
+    print(f"\nhomes: {base}\nthen run: python3 scripts/check_activation.py{options} run"
+          f"{homes}\nThe homes keep their logins for later runs; delete them to sign out.")
     return 1 if failed else 0
 
 
@@ -521,10 +611,12 @@ def main() -> int:
     parser.add_argument("--clients", default=",".join(cp.CLIENTS),
                         help="comma-separated subset of omp,codex,claude")
     sub = parser.add_subparsers(dest="command", required=True)
-    prep = sub.add_parser("prepare", help="install into temporary homes for login")
-    prep.add_argument("--homes", help="directory for the homes (default: new temp dir)")
+    prep = sub.add_parser("prepare", help="install into test homes and list needed logins")
+    prep.add_argument("--homes", type=Path, default=DEFAULT_HOMES,
+                      help=f"directory for the test homes (default: {DEFAULT_HOMES})")
     runp = sub.add_parser("run", help="run spec queries in prepared, logged-in homes")
-    runp.add_argument("--homes", required=True, help="directory created by prepare")
+    runp.add_argument("--homes", type=Path, default=DEFAULT_HOMES,
+                      help="directory used by prepare (default: same as prepare)")
     runp.add_argument("--spec", action="append", default=[],
                       help="spec file; repeat to select (default: evals/*/*.toml)")
     runp.add_argument("--reps", type=int, default=3, help="runs per query and client")
