@@ -35,17 +35,14 @@ such as plugin catalogs, skill format, installation, discovery, and loading.
 The current procedure is in the README's
 [testing section](../../README.md#testing-a-plugin).
 
-This keeps subscription credentials on the maintainer's machine, so no
-workflow, log, or agent outside it can expose them, at no extra cost.
+This keeps subscription credentials on the maintainer's machine and out of
+anything public, and uses the existing subscriptions instead of paid API usage.
 
 ## Rejected alternatives
 
 - **Subscription logins as repository secrets with a manual workflow:** keeps
   the subscriptions but exposes them to public logs and to the agents under
-  test, and needs a token that can rewrite repository secrets for Codex. A
-  first revision of
-  [#26](https://github.com/sonsu-lee/sonsu-marketplace/pull/26) was removed
-  for this reason.
+  test, and needs a token that can rewrite repository secrets for Codex.
 - **A private repository or self-hosted runner that checks out this one:**
   makes logs private, but the agents still hold the subscription credentials,
   and it adds a second environment to maintain for one contributor.
@@ -63,7 +60,9 @@ workflow, log, or agent outside it can expose them, at no extra cost.
 Model evaluation evidence depends on the maintainer running it and reporting
 it honestly; nothing blocks a merge without it. Results come from one machine
 and reflect the pinned model profile, not every user's configuration.
-Credential exposure and extra model cost are zero.
+The agents under test can still read the test-home credentials, but only on
+the maintainer's machine and with nothing published. Runs consume the
+subscriptions' usage limits instead of adding API charges.
 
 Reconsider when outside contributors change skills, when scheduled regression
 runs across model releases become necessary, or when results must come from an
