@@ -1,0 +1,27 @@
+name: pr-title
+
+# Squash merges use the PR title as the commit subject, so it follows the
+# commit rules: the writing-commits skill's bundled defaults, since this
+# repository has no commitlint configuration of its own.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          printf '%s\n' "$TITLE" > "$RUNNER_TEMP/title.txt"
+          npx --yes --package @commitlint/cli@21.2.4 commitlint --strict --verbose \
+            --config plugins/git-workflow/skills/writing-commits/assets/commitlint.config.mjs \
+            --edit "$RUNNER_TEMP/title.txt"
