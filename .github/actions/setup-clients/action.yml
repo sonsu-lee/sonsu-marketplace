@@ -1,5 +1,5 @@
 name: setup-clients
-description: Install Python, uv, Node.js 24, and the pinned omp, Codex, and Claude Code CLIs.
+description: Install Python, uv, Node.js 24, Bun, and the locked omp, Codex, and Claude Code CLIs.
 
 runs:
   using: composite
@@ -13,9 +13,11 @@ runs:
         node-version: "24"
         check-latest: true
     - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
-    # Versions match the checked baselines in README.md.
+      with:
+        bun-version: "1.4.4"
+    # Versions are the checked baselines in README.md; bun.lock pins every
+    # dependency by integrity hash, and Bun skips dependency install scripts.
     - shell: bash
       run: |
-        bun install -g @oh-my-pi/pi-coding-agent@18.12.6
-        npm install -g @openai/codex@0.163.0 @anthropic-ai/claude-code@2.1.304
-        echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
+        bun install --frozen-lockfile --cwd "$GITHUB_ACTION_PATH/../../ci-clients"
+        echo "$(cd "$GITHUB_ACTION_PATH/../../ci-clients" && pwd)/node_modules/.bin" >> "$GITHUB_PATH"

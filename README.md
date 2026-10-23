@@ -346,7 +346,8 @@ not install hooks, automatically fix code, or configure credentials.
 .claude-plugin/
   marketplace.json            # Claude Code catalog: same package roots
 .github/
-  actions/setup-clients/      # pinned omp, Codex, and Claude Code for CI
+  actions/setup-clients/      # installs the CI toolchain and locked clients
+  ci-clients/                 # omp, Codex, Claude Code versions and bun.lock
   workflows/checks.yml        # model-free checks on every pull request
   workflows/pr-title.yml      # PR title against the commit rules
 plugins/
@@ -934,8 +935,12 @@ does not prove review quality, automatic selection, or app/IDE behavior.
 The `checks` workflow runs on every pull request and push to `main`, needs no
 secrets, and enforces the agreed rules a machine can check:
 
-- `plugins`: `scripts/check_plugins.py`, with the client versions in
-  `.github/actions/setup-clients`.
+- `plugins`: `scripts/check_plugins.py`, with the clients in
+  `.github/ci-clients`. Its `package.json` names the checked versions above,
+  and `bun.lock` pins every dependency by integrity hash; CI installs them with
+  `bun install --frozen-lockfile`, which skips dependency install scripts.
+  After changing a version, run `bun install` there with the Bun version set in
+  `.github/actions/setup-clients` and commit the new lockfile.
 - `markdown`: the pinned Markdown lint command above on added or modified
   Markdown files.
 - `versions`: `scripts/check_version_bumps.py <base>` fails when files under a
