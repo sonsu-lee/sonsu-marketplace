@@ -310,6 +310,10 @@ def command(client: str, prompt: str, root: Path, pin: Pin) -> list[str]:
 def pin_mismatch(trace: Trace, pin: Pin) -> str:
     """Describe a run that used another model or effort; empty if it matched."""
     want = pin.model.split("/")[-1]
+    # Every client reports its model; a missing one means the parser no longer
+    # matches the client's output, so the pin cannot be confirmed.
+    if trace.reached and not trace.model:
+        return "model not reported"
     if trace.model and trace.model.split("/")[-1] != want:
         return f"ran {trace.model}, pinned {want}"
     if trace.effort and trace.effort != pin.effort:
