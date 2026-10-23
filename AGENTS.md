@@ -21,7 +21,7 @@ changes.
   [plugin test procedure](README.md#testing-a-plugin) for every client.
   Require every expected skill exactly once without loading errors; omp
   discovery must have no `warning:` lines. Exercise representative tasks
-  separately; listing is not proof of execution.
+  separately, three runs each by default; listing is not proof of execution.
 * Use separate temporary client homes: `HOME` for omp, both `HOME` and
   `CODEX_HOME` for Codex, and both `HOME` and `CLAUDE_CONFIG_DIR` for Claude
   Code. Do not install into live clients or copy real settings or credentials.

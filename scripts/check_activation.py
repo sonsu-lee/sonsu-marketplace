@@ -527,7 +527,7 @@ def main() -> int:
     runp.add_argument("--homes", required=True, help="directory created by prepare")
     runp.add_argument("--spec", action="append", default=[],
                       help="spec file; repeat to select (default: evals/*/*.toml)")
-    runp.add_argument("--reps", type=int, default=2, help="runs per query and client")
+    runp.add_argument("--reps", type=int, default=3, help="runs per query and client")
     runp.add_argument("--jobs", type=int, default=4, help="parallel client runs")
     args = parser.parse_args()
     args.clients = [c.strip() for c in args.clients.split(",") if c.strip()]
