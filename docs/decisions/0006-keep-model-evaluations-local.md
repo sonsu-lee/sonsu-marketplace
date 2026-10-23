@@ -19,12 +19,16 @@ credentials where the security boundary cannot hold them:
 - Workflow logs of a public repository are public.
 - An agent under test runs with its credential, so it can read it. Masking,
   manual dispatch, and branch restrictions reduce but do not remove that
-  exposure. Even OpenAI's own Codex action, which proxies the key, states that
-  a process able to read its memory can read the key.
-- OpenAI documents subscription logins in CI only for trusted private
-  automation, and a Codex subscription login rotates its refresh token, which
-  a CI copy would have to write back to the secret after every refresh.
-  Anthropic describes subscription OAuth for its own applications.
+  exposure. Even OpenAI's own
+  [Codex action](https://github.com/openai/codex-action#safety-strategy),
+  which proxies the key, states that a process able to read its memory can
+  read the key.
+- OpenAI documents subscription logins in CI only for
+  [trusted private automation](https://learn.chatgpt.com/docs/auth/ci-cd-auth),
+  and a Codex subscription login rotates its refresh token, which a CI copy
+  would have to write back to the secret after every refresh. Anthropic
+  describes subscription OAuth for
+  [Claude Code and its own applications](https://code.claude.com/docs/en/legal-and-compliance).
 
 ## Decision
 

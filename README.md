@@ -348,6 +348,7 @@ not install hooks, automatically fix code, or configure credentials.
 .github/
   actions/setup-clients/      # pinned omp, Codex, and Claude Code for CI
   workflows/checks.yml        # model-free checks on every pull request
+  workflows/pr-title.yml      # PR title against the commit rules
 plugins/
   <name>/
     plugin.json               # shared identity, version, standard metadata
@@ -365,6 +366,7 @@ scripts/
   check_plugins.py            # model-free checks for omp, Codex, Claude Code
   check_activation.py         # activation and safety runs with real logins
   compare_skill.py            # blind comparison of two skill revisions in omp
+  check_version_bumps.py      # changed plugins raised their version
 ```
 
 Each plugin is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package.

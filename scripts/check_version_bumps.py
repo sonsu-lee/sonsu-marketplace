@@ -23,16 +23,26 @@ def git(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True)
 
 
+def newer(after: str, before: str) -> bool:
+    """Whether a dotted numeric version is higher; other forms only must differ."""
+    try:
+        return tuple(map(int, after.split("."))) > tuple(map(int, before.split(".")))
+    except (AttributeError, ValueError):
+        return after != before
+
+
 def main() -> int:
     if len(sys.argv) != 2:
         print("usage: check_version_bumps.py <base revision>")
         return 2
     base = sys.argv[1]
-    diff = git("diff", "--name-only", base, "HEAD")
+    # Without renames, a file moved out of a plugin still lists its old path;
+    # -z keeps unusual names unquoted.
+    diff = git("diff", "--no-renames", "--name-only", "-z", base, "HEAD")
     if diff.returncode != 0:
         print(f"cannot diff against {base}: {diff.stderr.strip()}")
         return 2
-    changed = diff.stdout.splitlines()
+    changed = [path for path in diff.stdout.split("\0") if path]
     plugins = cp.load_marketplace(ROOT)[1]
     failed = False
     for plugin in plugins:
@@ -45,8 +55,8 @@ def main() -> int:
             continue
         before = json.loads(old.stdout).get("version")
         after = json.loads((ROOT / prefix / "plugin.json").read_text()).get("version")
-        if before == after:
-            print(f"FAIL  {plugin}: files changed but version is still {after}")
+        if not newer(after, before):
+            print(f"FAIL  {plugin}: files changed but version {before} -> {after} is not higher")
             failed = True
         else:
             print(f"PASS  {plugin}: {before} -> {after}")

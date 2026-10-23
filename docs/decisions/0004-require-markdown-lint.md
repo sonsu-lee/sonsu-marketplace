@@ -19,9 +19,9 @@ Markdown file, across all maintained document types, rather than reformatting
 unrelated files. Do not add automatic formatting.
 
 The [README's documentation guidance](../../README.md#writing-documentation)
-owns the Node.js prerequisite, pinned command, file selection, where the check
-also runs, such as CI, and separate link and rendering checks.
-[AGENTS.md](../../AGENTS.md) makes those checks mandatory for agents.
+owns the Node.js prerequisite, pinned command, file selection, and separate
+link and rendering checks. [AGENTS.md](../../AGENTS.md) makes those checks
+mandatory for agents.
 
 ## Rejected alternatives
 

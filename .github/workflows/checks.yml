@@ -11,9 +11,11 @@ on:
 permissions:
   contents: read
 
+# Superseded pull request runs are cancelled; push runs each check their own
+# range, so they are never cancelled.
 concurrency:
-  group: checks-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: checks-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   plugins:
@@ -41,8 +43,11 @@ jobs:
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
-          git cat-file -e "${BASE:-none}^{commit}" 2>/dev/null || exit 0
-          base="$(git merge-base "$BASE" HEAD)"; files="$(git diff --name-only "$base" HEAD)"
+          if ! git cat-file -e "${BASE:-none}^{commit}" 2>/dev/null; then
+            echo "::warning::No base commit; the rule checks are skipped."; exit 0
+          fi
+          base="$(git merge-base "$BASE" HEAD)"
+          files="$(git -c core.quotePath=false diff --no-renames --name-only "$base" HEAD)"
           { echo "base=$base"
             echo "markdown=$(grep -qE '\.md$' <<< "$files" && echo true)"
             echo "plugins=$(grep -q '^plugins/' <<< "$files" && echo true)"
@@ -64,7 +69,7 @@ jobs:
       # The README's pinned command, on added or modified Markdown only.
       - env:
           BASE: ${{ needs.changes.outputs.base }}
-        run: git diff -z --name-only --diff-filter=ACMR "$BASE" HEAD -- '*.md' | xargs -0 -r npx --yes markdownlint-cli@0.49.1
+        run: git diff -z --name-only --diff-filter=ACMR "$BASE" HEAD -- '*.md' | xargs -0 -r npx --yes markdownlint-cli@0.49.1 --
 
   versions:
     needs: changes
