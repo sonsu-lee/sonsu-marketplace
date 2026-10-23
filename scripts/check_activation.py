@@ -33,8 +33,6 @@ DEFAULT_HOMES = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
 CLAUDE_TOKEN_FILE = "oauth-token"
 # omp providers whose login can answer a model run; search and MCP logins cannot.
 OMP_MODEL_PROVIDERS = {"anthropic", "openai-codex"}
-# omp reads an Anthropic OAuth token from this variable, for example in CI.
-OMP_TOKEN_VAR = "ANTHROPIC_OAUTH_TOKEN"
 MODELS_FILE = "evals/models.toml"
 # Clients whose output reports the effort that ran; Claude Code does not.
 EFFORT_CLIENTS = {"omp", "codex"}
@@ -158,8 +156,6 @@ def has_login(client: str, base: Path) -> bool:
         return (home / ".codex/auth.json").is_file()
     if client == "claude":
         return bool(claude_token(base))
-    if os.environ.get(OMP_TOKEN_VAR):
-        return True
     # The export holds secrets; only read provider names, never print it.
     # Search and MCP logins do not let omp answer, so they do not count.
     proc = cp.run(["omp", "auth", "export"], cp.base_env(home), target)
@@ -265,12 +261,7 @@ def refresh(client: str, root: Path, market: str, base: Path,
 def client_env(client: str, base: Path) -> tuple[dict[str, str], Path]:
     home, target = homes_for(base, client)
     if client == "omp":
-        env = cp.base_env(home)
-        # An explicitly exported token (CI secret) is the only credential that
-        # passes through; everything else comes from the test home.
-        if os.environ.get(OMP_TOKEN_VAR):
-            env[OMP_TOKEN_VAR] = os.environ[OMP_TOKEN_VAR]
-        return env, target
+        return cp.base_env(home), target
     if client == "codex":
         return cp.base_env(home, CODEX_HOME=str(home / ".codex")), target
     env = cp.base_env(home, CLAUDE_CONFIG_DIR=str(home / ".claude"))
