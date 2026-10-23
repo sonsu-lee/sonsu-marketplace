@@ -459,8 +459,9 @@ For root and plugin READMEs:
   and Claude Code's `CLAUDE_CONFIG_DIR`.
 
 All Markdown documents follow the lint policy in
-[ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
-agent instructions, skills, commands, and rules. Before pushing, use Node.js 22
+[ADR-0007](docs/decisions/0007-lint-changed-markdown-in-ci.md), including
+READMEs, ADRs, agent instructions, skills, commands, and rules. Before pushing,
+use Node.js 22
 or newer and npm to check the files added or modified by your change, using the
 pinned CLI's default rules:
 
@@ -472,7 +473,8 @@ Append the paths of any other Markdown files added or modified by your change,
 including ADRs. Fix all reported lint errors, then check links and the rendered
 Markdown; lint does not verify Standard Readme compliance or visual layout.
 Untouched documents do not need a repository-wide reformat. This is a validation
-step, not automatic formatting or CI integration.
+step, not automatic formatting; the `checks` workflow runs the same command on
+the Markdown files a pull request adds or modifies.
 
 ### Decision records
 
@@ -920,9 +922,25 @@ does not prove review quality, automatic selection, or app/IDE behavior.
 
 #### Running checks in CI
 
-The `checks` workflow runs `scripts/check_plugins.py` on every pull request
-and push to `main`, with the client versions in
-`.github/actions/setup-clients`. It needs no secrets.
+The `checks` workflow runs on every pull request and push to `main`, needs no
+secrets, and enforces the agreed rules a machine can check:
+
+- `plugins`: `scripts/check_plugins.py`, with the client versions in
+  `.github/actions/setup-clients`.
+- `markdown`: the pinned Markdown lint command above on added or modified
+  Markdown files.
+- `versions`: `scripts/check_version_bumps.py <base>` fails when files under a
+  plugin changed but its `plugin.json` version did not; the `catalogs` check
+  keeps the catalogs equal to that version.
+- `writing-workflow-tests` and `git-workflow-tests`: the behavior tests below,
+  when files under those plugins change.
+
+The `pr-title` workflow checks the pull request title, which becomes the squash
+commit subject, with the
+[writing-commits defaults](plugins/git-workflow/skills/writing-commits/SKILL.md),
+since this repository has no commitlint configuration of its own. The rule
+checks compare against the pull request's merge base or the pushed range, and
+skip on manual runs.
 
 Model runs stay out of this repository's CI, as
 [ADR-0006](docs/decisions/0006-keep-model-evaluations-local.md) explains: its

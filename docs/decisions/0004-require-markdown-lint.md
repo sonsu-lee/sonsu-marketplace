@@ -1,7 +1,7 @@
 # Require Markdown lint checks for all Markdown documents
 
 - Date: 2026-10-19
-- Status: accepted
+- Status: superseded by [ADR-0007](0007-lint-changed-markdown-in-ci.md)
 - Decision-makers: sonsu-lee
 
 ## Context

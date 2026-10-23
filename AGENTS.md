@@ -76,7 +76,8 @@ changes.
 * Before pushing Markdown changes, run the pinned Markdown lint command in
   the [documentation procedure](README.md#writing-documentation) on every added
   or modified Markdown file, including agent instructions and skills. Fix all
-  reported errors and check links and rendered Markdown separately.
+  reported errors and check links and rendered Markdown separately. CI runs
+  the same command on changed Markdown, but does not replace the local run.
 * Before delivery, confirm that every applicable check above was completed.
   Report any verification blockers explicitly; do not describe unchecked work
   as verified.
