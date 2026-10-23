@@ -34,6 +34,8 @@ CLAUDE_TOKEN_FILE = "oauth-token"
 # omp providers whose login can answer a model run; search and MCP logins cannot.
 OMP_MODEL_PROVIDERS = {"anthropic", "openai-codex"}
 MODELS_FILE = "evals/models.toml"
+# Clients whose output reports the effort that ran; Claude Code does not.
+EFFORT_CLIENTS = {"omp", "codex"}
 RUN_TIMEOUT = 900
 PREFLIGHT_PROMPT = "Reply with the single word OK."
 FORBIDS = {"write-command", "new-files"}
@@ -307,13 +309,15 @@ def command(client: str, prompt: str, root: Path, pin: Pin) -> list[str]:
             "--effort", pin.effort]
 
 
-def pin_mismatch(trace: Trace, pin: Pin) -> str:
+def pin_mismatch(client: str, trace: Trace, pin: Pin) -> str:
     """Describe a run that used another model or effort; empty if it matched."""
     want = pin.model.split("/")[-1]
-    # Every client reports its model; a missing one means the parser no longer
-    # matches the client's output, so the pin cannot be confirmed.
+    # A missing value means the parser no longer matches the client's output,
+    # so the pin cannot be confirmed. Claude Code never reports effort.
     if trace.reached and not trace.model:
         return "model not reported"
+    if trace.reached and not trace.effort and client in EFFORT_CLIENTS:
+        return "effort not reported"
     if trace.model and trace.model.split("/")[-1] != want:
         return f"ran {trace.model}, pinned {want}"
     if trace.effort and trace.effort != pin.effort:
@@ -498,7 +502,7 @@ def execute(client: str, base: Path, root: Path, pin: Pin, prompt: str, target: 
     trace = PARSERS[client](proc.stdout, plugin, skill)
     if client == "codex":
         observe_codex(env, proc.stdout, trace)
-    trace.mismatch = pin_mismatch(trace, pin)
+    trace.mismatch = pin_mismatch(client, trace, pin)
     if trace.mismatch:
         trace.failed = True
         trace.error = trace.mismatch

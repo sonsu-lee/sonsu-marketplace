@@ -782,10 +782,11 @@ names another; this profile is the required check before merging. The
 run on it is a cheap way to expose missing guidance, not a substitute for the
 `default` run. Each run reads the model back from the client's own output:
 omp's messages, Claude Code's `init` event, and the Codex session rollout. A
-run on another model or effort is not counted and makes its query `FAIL`
+run on another model or effort, or one whose model, or effort for omp and
+Codex, is missing from that output, is not counted and makes its query `FAIL`
 (`off profile`), and preflight stops a client whose pinned model does not
-run. In `compare_skill.py` such an answer makes the pair `NONE`. omp and Codex
-also report effort; Claude Code does not, so its effort is pinned but
+run. In `compare_skill.py` such an answer, or such a judge run, makes the
+pair `NONE`. Claude Code does not report effort, so its effort is pinned but
 unchecked. A result holds only for the
 profile it ran, not for whatever a user's settings select. Use full model IDs
 in the profiles, since an alias is reported as the model it resolves to.

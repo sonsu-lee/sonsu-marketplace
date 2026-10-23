@@ -135,6 +135,10 @@ def judge(base: Path, root: Path, pin: ca.Pin, query: ca.Query, first: Answer,
                   env, target, timeout=JUDGE_TIMEOUT)
     log = base / "compare-runs" / f"{label}-judge.jsonl"
     log.write_text(proc.stdout, encoding="utf-8")
+    # The judge decides the winner, so it must have run on the selected profile.
+    mismatch = ca.pin_mismatch("omp", ca.parse_omp(proc.stdout, "", ""), pin)
+    if mismatch:
+        raise ValueError(f"judge off profile: {mismatch}")
     text, _ = final_text(proc.stdout)
     match = re.search(r"\{.*\}", text, re.S)
     if not match:
