@@ -739,9 +739,11 @@ python3 scripts/check_activation.py run
 
 The test homes live under `~/.cache/sonsu-marketplace/client-homes` (or
 `$XDG_CACHE_HOME`), with owner-only permissions, and are never the live client
-homes. They keep their logins, so later `prepare` runs reinstall the plugins in
-place and print `READY` for clients with stored credentials; only a missing or
-expired login needs a new one. Codex refreshes its stored session in place.
+homes. They keep their logins, so later `prepare` and `run` invocations point
+the homes' marketplace at the current checkout (or `--root`), reinstall the
+plugins, and compare every installed skill file with it; `prepare` prints
+`READY` for clients with stored credentials, and only a missing or expired
+login needs a new one. Codex refreshes its stored session in place.
 For Claude Code, `prepare` prints how to save the `claude setup-token` token to
 `claude-home/oauth-token` without echoing it; `CLAUDE_CODE_OAUTH_TOKEN` in the
 environment takes precedence. `--homes` selects another directory. Delete the

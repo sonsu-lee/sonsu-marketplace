@@ -176,15 +176,57 @@ def login_commands(base: Path) -> dict[str, str]:
     }
 
 
+def registered_root(client: str, env: dict[str, str], target: Path, market: str) -> Path | None:
+    """The checkout a home's marketplace currently points to."""
+    if client == "claude":
+        proc = cp.run(["claude", "plugin", "marketplace", "list", "--json"], env, target)
+        try:
+            entries = json.loads(proc.stdout)
+        except ValueError:
+            return None
+        path = next((e.get("path") for e in entries
+                     if isinstance(e, dict) and e.get("name") == market), None)
+    else:
+        proc = cp.run([client, "plugin", "marketplace", "list"], env, target)
+        rows = (line.split(None, 1) for line in proc.stdout.splitlines())
+        path = next((row[1].strip() for row in rows if len(row) == 2 and row[0] == market),
+                    None)
+    return Path(path).resolve() if path else None
+
+
+def bind_marketplace(client: str, root: Path, market: str, plugins: list[str],
+                     base: Path) -> tuple[bool, list[str]]:
+    """Point a reused home at `root`; return whether it moved and any failures.
+
+    A home kept from another checkout would otherwise install that checkout's
+    plugins under the same marketplace name.
+    """
+    env, target = client_env(client, base)
+    if registered_root(client, env, target, market) == root.resolve():
+        return False, []
+    cp.run([client, "plugin", "marketplace", "remove", market], env, target)
+    if client == "claude":  # removing the marketplace uninstalls its plugins
+        return True, install(client, root, market, plugins, base)[1]
+    add = [client, "plugin", "marketplace", "add", str(root)]
+    proc = cp.run(add + (["--json"] if client == "codex" else []), env, target)
+    return True, [] if proc.returncode == 0 else [f"marketplace add: {cp.tail(proc)}"]
+
+
 def refresh(client: str, root: Path, market: str, base: Path,
             spec_plugins: set[str]) -> list[str]:
-    """Reinstall the specs' plugins so cached copies hold the current text."""
-    if client == "claude":  # a local-path marketplace loads packages in place
-        return []
+    """Bind the home to `root` and reinstall plugins so they match its files."""
     home, _ = homes_for(base, client)
     env, target = client_env(client, base)
-    failures = []
-    for plugin in sorted(spec_plugins):
+    all_plugins = cp.load_marketplace(root)[1]
+    moved, failures = bind_marketplace(client, root, market, all_plugins, base)
+    # After a move, every plugin may still be a copy of the old checkout.
+    plugins = set(all_plugins) if moved else spec_plugins
+    if client == "claude":
+        # A local-path marketplace loads packages in place; check where it points.
+        if registered_root(client, env, target, market) != root.resolve():
+            failures.append(f"marketplace does not point to {root}")
+        return failures
+    for plugin in sorted(plugins):
         if client == "omp":
             cp.run(["omp", "plugin", "uninstall", f"{plugin}@{market}"], env, target)
             proc = cp.run(["omp", "plugin", "install", f"{plugin}@{market}"], env, target)
@@ -195,12 +237,17 @@ def refresh(client: str, root: Path, market: str, base: Path,
                           env, target)
         if proc.returncode != 0:
             failures.append(f"reinstall {plugin}: {cp.tail(proc)}")
-    for plugin in spec_plugins:
-        for source in sorted((root / "plugins" / plugin).glob("skills/*/SKILL.md")):
-            installed = [p for p in home.rglob(f"skills/{source.parent.name}/SKILL.md")
-                         if plugin in str(p)]
-            if not installed or any(p.read_bytes() != source.read_bytes() for p in installed):
-                failures.append(f"installed {plugin}:{source.parent.name} differs from source")
+    # Compare every skill file, not just SKILL.md, so stale references show.
+    for plugin in sorted(plugins):
+        for skill_md in sorted((root / "plugins" / plugin).glob("skills/*/SKILL.md")):
+            source = skill_md.parent
+            copies = [p.parent for p in home.rglob(f"skills/{source.name}/SKILL.md")
+                      if plugin in str(p)]
+            files = [f.relative_to(source) for f in source.rglob("*") if f.is_file()]
+            if not copies or any(not (c / f).is_file()
+                                 or (c / f).read_bytes() != (source / f).read_bytes()
+                                 for c in copies for f in files):
+                failures.append(f"installed {plugin}:{source.name} differs from source")
     return failures
 
 
@@ -455,8 +502,8 @@ def cmd_prepare(args: argparse.Namespace) -> int:
             print(f"FAIL  {client:<7} {client} not found on PATH")
             failed = True
             continue
-        # A home from an earlier prepare keeps its login; reinstall the plugins
-        # in place instead of adding the marketplace again.
+        # A home from an earlier prepare keeps its login; bind it to this
+        # checkout and reinstall the plugins instead of starting over.
         if homes_for(base, client)[0].is_dir():
             failures = refresh(client, root, market, base, set(plugins))
         else:
