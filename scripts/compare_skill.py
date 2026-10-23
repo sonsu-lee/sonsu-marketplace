@@ -91,9 +91,8 @@ def final_text(stdout: str) -> tuple[str, str]:
     return text, stop
 
 
-def answer(base: Path, root: Path, skill_dir: Path, plugin: str, skill: str,
+def answer(base: Path, root: Path, pin: ca.Pin, skill_dir: Path, plugin: str, skill: str,
            query: ca.Query, side: str, label: str) -> Answer:
-    env, _ = ca.client_env("omp", base)
     target = base / "compare-runs" / label
     shutil.rmtree(target, ignore_errors=True)
     target.mkdir(parents=True)
@@ -101,10 +100,9 @@ def answer(base: Path, root: Path, skill_dir: Path, plugin: str, skill: str,
     prompt = (f"Follow the agent skill in {skill_dir}: read {skill_dir}/SKILL.md "
               "first, read the files it points to when they apply, then handle "
               f"this request.\n\n{query.prompt}")
-    proc = cp.run(ca.command("omp", prompt, root), env, target, timeout=ca.RUN_TIMEOUT)
+    proc, trace = ca.execute("omp", base, root, pin, prompt, target, plugin, skill)
     log = base / "compare-runs" / f"{label}.jsonl"
     log.write_text(proc.stdout, encoding="utf-8")
-    trace = ca.parse_omp(proc.stdout, plugin, skill)
     text, stop = final_text(proc.stdout)
     # Only a final message that stopped normally is a complete answer.
     if proc.returncode == 124 or stop != "stop":
@@ -114,8 +112,8 @@ def answer(base: Path, root: Path, skill_dir: Path, plugin: str, skill: str,
     return Answer(side, trace, text, log)
 
 
-def judge(base: Path, root: Path, query: ca.Query, first: Answer, second: Answer,
-          label: str) -> tuple[dict, str]:
+def judge(base: Path, root: Path, pin: ca.Pin, query: ca.Query, first: Answer,
+          second: Answer, label: str) -> tuple[dict, str]:
     """Ask omp, without tools, to grade A and B; return its JSON and the log."""
     criteria = "\n".join(f"{i}. {c}" for i, c in enumerate(query.criteria, 1))
     prompt = (
@@ -132,7 +130,8 @@ def judge(base: Path, root: Path, query: ca.Query, first: Answer, second: Answer
     target = base / "compare-runs" / f"{label}-judge"
     shutil.rmtree(target, ignore_errors=True)
     target.mkdir(parents=True)
-    proc = cp.run(["omp", "-p", "--no-session", "--mode", "json", "--no-tools", prompt],
+    proc = cp.run(["omp", "-p", "--no-session", "--mode", "json", "--no-tools",
+                   "--model", pin.model, "--thinking", pin.effort, prompt],
                   env, target, timeout=JUDGE_TIMEOUT)
     log = base / "compare-runs" / f"{label}-judge.jsonl"
     log.write_text(proc.stdout, encoding="utf-8")
@@ -143,8 +142,8 @@ def judge(base: Path, root: Path, query: ca.Query, first: Answer, second: Answer
     return json.loads(match.group(0)), str(log)
 
 
-def compare(base: Path, root: Path, query: ca.Query, answers: dict[str, Answer],
-            rng: random.Random, label: str) -> Verdict:
+def compare(base: Path, root: Path, pin: ca.Pin, query: ca.Query,
+            answers: dict[str, Answer], rng: random.Random, label: str) -> Verdict:
     problems = []
     for side in ("base", "head"):
         trace = answers[side].trace
@@ -160,7 +159,8 @@ def compare(base: Path, root: Path, query: ca.Query, answers: dict[str, Answer],
     rng.shuffle(order)
     letters = {"A": order[0], "B": order[1]}
     try:
-        result, _ = judge(base, root, query, answers[order[0]], answers[order[1]], label)
+        result, _ = judge(base, root, pin, query, answers[order[0]], answers[order[1]],
+                          label)
     except (ValueError, json.JSONDecodeError) as exc:
         return Verdict(error=str(exc)[:160])
     winner = str(result.get("winner", "")).strip()
@@ -194,6 +194,8 @@ def main() -> int:
     parser.add_argument("--reps", type=int, default=3, help="comparisons per query")
     parser.add_argument("--jobs", type=int, default=4, help="parallel omp runs")
     parser.add_argument("--seed", type=int, help="seed for label and A/B order")
+    parser.add_argument("--profile", default="default",
+                        help=f"model profile in {ca.MODELS_FILE} (default: default)")
     args = parser.parse_args()
     if args.reps < 1 or args.jobs < 1:
         parser.error("--reps and --jobs must be at least 1")
@@ -206,6 +208,7 @@ def main() -> int:
         return 2
     try:
         spec = ca.load_spec(root / "evals" / plugin / f"{skill}.toml")
+        pin = ca.load_pins(root, args.profile)["omp"]
     except (OSError, ValueError) as exc:
         print(f"spec error: {exc}")
         return 2
@@ -246,7 +249,7 @@ def main() -> int:
                for line in listing.stdout.splitlines() if line.strip()):
             print(f"omp still lists the installed {skill}; cannot compare blind")
             return 2
-        problem = ca.preflight("omp", base, root)
+        problem = ca.preflight("omp", base, root, pin)
         if problem:
             print(f"omp unavailable: {problem}")
             return 2
@@ -257,13 +260,13 @@ def main() -> int:
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
             futures = {
                 (qi, rep, side): pool.submit(
-                    answer, base, root, dirs[side], plugin, skill, queries[qi], side,
+                    answer, base, root, pin, dirs[side], plugin, skill, queries[qi], side,
                     f"{stamp}-{queries[qi].id}-{rep}-{rng.getrandbits(32):08x}")
                 for qi, rep, side in jobs}
             answers = {key: f.result() for key, f in futures.items()}
             verdicts = {
                 (qi, rep): pool.submit(
-                    compare, base, root, queries[qi],
+                    compare, base, root, pin, queries[qi],
                     {s: answers[(qi, rep, s)] for s in ("base", "head")},
                     random.Random(rng.getrandbits(64)), f"{stamp}-{queries[qi].id}-{rep}")
                 for qi in range(len(queries)) for rep in range(1, args.reps + 1)}
@@ -272,7 +275,8 @@ def main() -> int:
         shutil.rmtree(work, ignore_errors=True)
 
     print(f"{args.skill}: base {args.base} ({refs['base'][:7]}) vs head {args.head} "
-          f"({refs['head'][:7]}), judged blind by omp")
+          f"({refs['head'][:7]}), answered and judged blind by omp {pin.model} "
+          f"({pin.effort}, profile {args.profile})")
     incomplete = False
     for qi, query in enumerate(queries):
         for rep in range(1, args.reps + 1):
