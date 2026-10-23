@@ -932,6 +932,13 @@ does not prove review quality, automatic selection, or app/IDE behavior.
 
 #### Running checks in CI
 
+When changing a workflow, pin what it runs, as
+[ADR-0007](docs/decisions/0007-pin-ci-dependencies-to-immutable-content.md)
+explains: reference each action by full commit SHA with its release tag in a
+comment, and install CLI tools from `.github/ci-clients` with the frozen
+lockfile rather than `npm install -g` or `bun install -g`. Node.js stays on
+the latest 24.x patch through `check-latest`.
+
 The `checks` workflow runs on every pull request and push to `main`, needs no
 secrets, and enforces the agreed rules a machine can check:
 

@@ -73,6 +73,9 @@ changes.
 * When creating or updating a README, follow the
   [documentation checklist](README.md#writing-documentation) and its linked
   Standard Readme specification.
+* When adding or changing a GitHub Actions workflow, follow the pinning rules
+  in [Running checks in CI](README.md#running-checks-in-ci): actions by commit
+  SHA, and CLI tools from the committed lockfile in `.github/ci-clients`.
 * Before pushing Markdown changes, run the pinned Markdown lint command in
   the [documentation procedure](README.md#writing-documentation) on every added
   or modified Markdown file, including agent instructions and skills. Fix all
