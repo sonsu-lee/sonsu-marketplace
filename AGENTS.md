@@ -22,7 +22,9 @@ changes.
   Require every expected skill exactly once without loading errors; omp
   discovery must have no `warning:` lines. Exercise representative tasks
   separately, three runs each by default, with the `default` model profile in
-  `evals/models.toml`; listing is not proof of execution.
+  `evals/models.toml`; listing is not proof of execution. Run model checks
+  locally, never in CI or with credentials in repository secrets, and report
+  the profile and results in the pull request.
 * Use dedicated test client homes: `HOME` for omp, both `HOME` and
   `CODEX_HOME` for Codex, and both `HOME` and `CLAUDE_CONFIG_DIR` for Claude
   Code. They may persist between runs to keep their test logins. Do not install

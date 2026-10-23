@@ -923,10 +923,11 @@ The `checks` workflow runs `scripts/check_plugins.py` on every pull request
 and push to `main`, with the client versions in
 `.github/actions/setup-clients`. It needs no secrets.
 
-Model runs stay out of this repository's CI. It is public, so its workflow logs
-are public, and an agent under test can read the credentials it runs with.
-Run `check_activation.py` and `compare_skill.py` locally in the test homes
-above, and report their results in the pull request.
+Model runs stay out of this repository's CI, as
+[ADR-0006](docs/decisions/0006-keep-model-evaluations-local.md) explains: its
+workflow logs are public, and an agent under test can read the credentials it
+runs with. Run `check_activation.py` and `compare_skill.py` locally in the test
+homes above, and report the profile and results in the pull request.
 
 For changes to `writing-workflow` runtime helpers, also run its behavior tests:
 
