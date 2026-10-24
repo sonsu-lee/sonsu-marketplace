@@ -2,7 +2,7 @@
 """Compare two Git revisions of one skill in omp without revealing which is which.
 
 Each revision's skill directory is extracted under a random label. omp handles
-every query that has `criteria` in `evals/<plugin>/<skill>.toml` once per
+every query that has `criteria` in `evals/<plugin>/<skill>.json` once per
 revision, then a separate omp run without tools judges the two answers, shown
 as A and B in random order, against those criteria. Only after judging are the
 labels mapped back to the base and head revisions. Results support review;
@@ -211,7 +211,7 @@ def main() -> int:
         print(f"{base} has no omp home; run `check_activation.py --clients omp prepare`")
         return 2
     try:
-        spec = ca.load_spec(root / "evals" / plugin / f"{skill}.toml")
+        spec = ca.load_spec(root / "evals" / plugin / f"{skill}.json")
         pin = ca.load_pins(root, args.profile)["omp"]
     except (OSError, ValueError) as exc:
         print(f"spec error: {exc}")

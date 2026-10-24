@@ -4,7 +4,7 @@
 `prepare` installs the marketplace into dedicated test client homes, kept
 between runs so each client needs one login, and prints login commands for
 clients without stored credentials. `run` sends each query in
-`evals/<plugin>/<skill>.toml` to each logged-in client from a fresh Git target
+`evals/<plugin>/<skill>.json` to each logged-in client from a fresh Git target
 and reports how often the skill loaded and whether the query's assertions held.
 Results are samples for review, not a CI gate.
 """
@@ -91,16 +91,43 @@ class Trace:
     mismatch: str = ""  # another model or effort ran than the profile pinned
 
 
+def _spec_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    """Preserve TOML's duplicate-key and Unicode-scalar rejection."""
+    result = {}
+    for key, value in pairs:
+        key.encode("utf-8")
+        if isinstance(value, str):
+            value.encode("utf-8")
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, str):
+                    item.encode("utf-8")
+        if key in result:
+            raise ValueError(f"duplicate JSON key {key!r}")
+        result[key] = value
+    return result
+
+
 def load_spec(path: Path) -> Spec:
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
-    plugin, _, skill = str(data.get("skill", "")).partition(":")
+    data = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_spec_object)
+    if not isinstance(data, dict):
+        raise ValueError(f"{path}: spec must be a JSON object")
+    identity = data.get("skill", "")
+    if not isinstance(identity, str):
+        raise ValueError(f"{path}: `skill` must be `<plugin>:<skill>`")
+    plugin, _, skill = identity.partition(":")
     if not plugin or not skill:
         raise ValueError(f"{path}: `skill` must be `<plugin>:<skill>`")
     unknown_top = set(data) - {"skill", "queries"}
     if unknown_top:
         raise ValueError(f"{path}: unknown keys {sorted(unknown_top)}")
+    raw_queries = data.get("queries", [])
+    if not isinstance(raw_queries, list):
+        raise ValueError(f"{path}: `queries` must be an array")
     queries, seen = [], set()
-    for raw in data.get("queries", []):
+    for raw in raw_queries:
+        if not isinstance(raw, dict):
+            raise ValueError(f"{path}: each query must be an object")
         unknown_keys = set(raw) - QUERY_KEYS
         if unknown_keys:
             raise ValueError(f"{path}: query {raw.get('id', '?')} has unknown keys "
@@ -115,7 +142,9 @@ def load_spec(path: Path) -> Spec:
                       expect=raw.get("expect", ""), reads=raw.get("reads", []),
                       not_reads=raw.get("not_reads", []), forbid=raw.get("forbid", []),
                       criteria=raw.get("criteria", []))
-        if not query.id or not query.prompt or query.expect not in ("load", "no-load"):
+        if (not isinstance(query.id, str) or not query.id
+                or not isinstance(query.prompt, str) or not query.prompt
+                or query.expect not in ("load", "no-load")):
             raise ValueError(f"{path}: each query needs id, prompt, and expect "
                              "of `load` or `no-load`")
         if query.id in seen:
@@ -611,11 +640,11 @@ def cmd_run(args: argparse.Namespace) -> int:
     if not base.is_dir():
         print(f"{base} does not exist; run `prepare` first")
         return 2
-    specs_paths = [Path(p) for p in args.spec] or sorted((root / "evals").glob("*/*.toml"))
+    specs_paths = [Path(p) for p in args.spec] or sorted((root / "evals").glob("*/*.json"))
     try:
         specs = [load_spec(p) for p in specs_paths]
         pins = load_pins(root, args.profile)
-    except (OSError, ValueError, tomllib.TOMLDecodeError) as exc:
+    except (OSError, ValueError) as exc:
         print(f"spec error: {exc}")
         return 2
     market, plugins, _, _ = cp.load_marketplace(root)
@@ -711,7 +740,7 @@ def main() -> int:
     runp.add_argument("--profile", default="default",
                       help=f"model profile in {MODELS_FILE} (default: default)")
     runp.add_argument("--spec", action="append", default=[],
-                      help="spec file; repeat to select (default: evals/*/*.toml)")
+                      help="JSON spec file; repeat to select (default: evals/*/*.json)")
     runp.add_argument("--reps", type=int, default=3, help="runs per query and client")
     runp.add_argument("--jobs", type=int, default=4, help="parallel client runs")
     args = parser.parse_args()

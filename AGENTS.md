@@ -25,6 +25,9 @@ changes.
   `evals/models.toml`; listing is not proof of execution. Run model checks
   locally, never in CI or with credentials in repository secrets, and report
   the profile and results in the pull request.
+* When changing evaluation runners or case formats, follow the evaluation
+  guidance and model-free regression checks in
+  [Testing a plugin](README.md#testing-a-plugin).
 * Use dedicated test client homes: `HOME` for omp, both `HOME` and
   `CODEX_HOME` for Codex, and both `HOME` and `CLAUDE_CONFIG_DIR` for Claude
   Code. They may persist between runs to keep their test logins. Do not install
