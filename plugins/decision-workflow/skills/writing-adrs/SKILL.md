@@ -84,9 +84,9 @@ match the template.
 Before delivering a drafted or revised record, check it with a reader who lacks
 the discussion. Where subagents are available, give a fresh one only the record
 and the files it links and ask what was decided, why, and what was rejected;
-otherwise reread it cold, setting aside what you know. Fix the gaps this
-exposes. It tests whether the record stands alone and does not replace the
-decision-maker's acceptance.
+otherwise self-review and disclose that no independent reader was available.
+Fix exposed gaps. Do not call self-review an independent reader test; neither
+kind of review replaces the decision-maker's acceptance.
 
 ## Preserve the decision lifecycle
 
