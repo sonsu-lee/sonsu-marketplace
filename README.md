@@ -22,6 +22,7 @@ packages.
   - [decision-workflow](#decision-workflow)
   - [writing-workflow](#writing-workflow)
   - [review-workflow](#review-workflow)
+  - [planning-workflow](#planning-workflow)
 - [Layout](#layout)
 - [Contributing](#contributing)
   - [Code review](#code-review)
@@ -335,6 +336,27 @@ local-first reporting.
 Read the [plugin guide](plugins/review-workflow/README.md) for model access,
 workspace isolation, runtime verification, and cost boundaries. The plugin does
 not install hooks, automatically fix code, or configure credentials.
+
+### planning-workflow
+
+Install with `omp plugin install planning-workflow@sonsu-marketplace`,
+`codex plugin add planning-workflow@sonsu-marketplace`, or
+`claude plugin install planning-workflow@sonsu-marketplace`.
+
+- **`planning-work`** plans non-trivial work, such as a feature, a change
+  spanning several pull requests, or product and UI planning, as a design to
+  approve before implementation. It reads available context first and asks
+  only about unknowns that would change the plan, each with a recommended
+  answer. The plan states goals and non-goals, a structure diagram, and for
+  each element what, why, how, and rejected alternatives. It traces items to
+  requirements, keeps only reachable edge cases, derives verification from the
+  plan, and splits delivery by purpose. It marks the plan Draft or Decided,
+  has a reader without the planning context test it, and waits for explicit
+  approval. See the
+  [planning procedure](plugins/planning-workflow/skills/planning-work/SKILL.md).
+
+Small, clear changes need no plan. The plugin does not implement the work,
+write tickets, ADRs, or pull requests, or install hooks that require a plan.
 
 ## Layout
 
