@@ -1,0 +1,70 @@
+{
+  "skill": "planning-workflow:planning-work",
+  "queries": [
+    {
+      "id": "feature",
+      "expect": "load",
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "criteria": [
+        "Does not implement or create files; asks for the unresolved delivery decision with a recommendation before treating the design as approved",
+        "Distinguishes known requirements from the unresolved delivery choice",
+        "Explains how the recommended delivery approach addresses large accounts without slowing other users",
+        "Does not require a finalized design or test plan before the user answers the delivery question"
+      ],
+      "prompt": "Plan a feature for our Express and Postgres web app: customers should be able to export their order history as CSV from the account page. Orders have up to 50,000 rows for large accounts, and exports must not slow down the site for other users. We have not decided how to deliver the file."
+    },
+    {
+      "id": "multi-pr",
+      "expect": "load",
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "criteria": [
+        "Splits the work into pull requests that each have one purpose",
+        "States the order of dependent pull requests and what each leaves working",
+        "Does not create branches, tickets, or pull requests, or start implementing",
+        "Marks the plan as a draft awaiting approval"
+      ],
+      "prompt": "We need to migrate our monolith's session handling from server-side sessions stored in the database to signed JWT cookies, without logging users out during the rollout. Plan how to do it; it will take several pull requests."
+    },
+    {
+      "id": "ui",
+      "expect": "load",
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "criteria": [
+        "Connects features to screens, screens to wireframes, and wireframes to component usage",
+        "Gives every screen or component a requirement that needs it, or flags it as unneeded",
+        "Uses existing design-system or standard component names rather than inventing new names",
+        "Does not implement the screens or claim that anything was built"
+      ],
+      "prompt": "Plan the UI for a self-service returns flow in our shop's React app, which uses a design system with Button, TextField, Select, Stepper, and Dialog components. Customers must pick an order, choose items and a reason, and get a prepaid label. Start from the features and work down to screens, wireframes, and which components each screen uses."
+    },
+    {
+      "id": "short",
+      "expect": "load",
+      "prompt": "Before we build it, plan how we should add rate limiting to our public REST API. We run several instances behind a load balancer."
+    },
+    {
+      "id": "typo",
+      "expect": "no-load",
+      "prompt": "Fix the typo \"recieve\" in the comment above the handler in src/server.ts."
+    },
+    {
+      "id": "clear",
+      "expect": "no-load",
+      "prompt": "Rename the function `getUsr` to `getUser` in src/users.ts and update its callers."
+    },
+    {
+      "id": "prdesc",
+      "expect": "no-load",
+      "prompt": "Write the pull request description for my current branch, which adds CSV export of order history."
+    }
+  ]
+}
