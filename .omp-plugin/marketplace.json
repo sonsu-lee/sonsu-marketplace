@@ -42,6 +42,12 @@
       "source": "./plugins/review-workflow",
       "description": "Evidence-driven code review with independent general and focused reviewers and local-first reporting.",
       "version": "0.6.0"
+    },
+    {
+      "name": "planning-workflow",
+      "source": "./plugins/planning-workflow",
+      "description": "Plan non-trivial work as a reviewable design, with questions, alternatives, verification, and approval before implementation.",
+      "version": "0.1.0"
     }
   ]
 }
