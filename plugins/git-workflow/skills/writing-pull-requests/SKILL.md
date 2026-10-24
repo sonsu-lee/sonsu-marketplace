@@ -9,10 +9,10 @@ compatibility: >-
 
 # Writing pull requests
 
-Write for reviewers and maintainers, not as a narration of the diff. Follow
-the repository's contribution rules, AI policy, templates, and merge
-requirements first. These defaults fill gaps; they never authorize changing
-repository settings or bypassing required checks.
+Write for reviewers in plain language: say what changes and why, using
+established technical terms rather than formal filler. Follow repository rules,
+templates, and AI policy first. These defaults do not authorize settings
+changes or bypassing required checks.
 
 ## Choose the requested work
 
@@ -71,40 +71,39 @@ public `.github` repository for an inherited default (not in the target clone).
 Offered templates live on the default branch. Use an explicitly requested
 template when applicable.
 
-Preserve required fields and automation markers; satisfy the principles below
-within that format instead of appending a second template. If none applies,
-start from the [bundled body template](assets/pr-body.md), a structure that does
-not require inventing content or filling optional sections. An explicit CLI or
-API body must already incorporate the selected template.
+Preserve required fields and automation markers, without adding a second
+template or filling optional sections merely because they exist. If no template
+applies, use the [bundled body](assets/pr-body.md). An explicit CLI or API body
+must already incorporate the selected template.
 
 ## Explain the reason and approach
 
-- **Why:** the concrete problem, limitation, or need motivating the change.
-- **What changes:** the observable or architectural change and approach, with
-  reasons, constraints, and tradeoffs not evident from the code.
+Select content before drafting or polishing; investigation notes are not the
+body to reproduce. Keep details only if they affect understanding, review, or
+safe use:
 
-Orient reviewers without listing every file or step; do not invent motivation
-or demand alternatives essays for obvious changes. Include related issues,
-design context, and compatibility or migration details when relevant,
-summarizing essential external context in case links break. Use closing
-keywords only when this PR actually completes the issue; otherwise reference
-it. GitHub ignores them unless the PR targets the default branch
-([stacks](references/publishing.md#closing-issues-from-a-stack)). Follow the
-tracker integration's syntax; GitHub keywords may not work identically
-elsewhere.
+- **Why:** the concrete problem or need.
+- **What changes:** the observable change and decisions not evident in the diff.
+
+Do not retell every file, command, retry, or investigation step. Summarize
+essential context and link existing evidence; retain material risks, rollout
+constraints, and uncertainty. Do not invent rationale or alternatives for
+obvious changes. Link related issues and dependencies without copying them.
+Use closing keywords only when this PR completes the issue; GitHub ignores
+them unless it targets the default branch
+([stacks](references/publishing.md#closing-issues-from-a-stack)). Follow other
+trackers' own completion-link rules.
 
 ## Record author checks, not CI status
 
-Describe change-specific situations actually checked and observed results, not
-CI's build, lint, type-check, or test checklist. A targeted check can
-inform, such as a reproduction that fails before the fix and passes after.
+Report the relevant scenario and observed result, not an execution diary or
+CI checklist. Link detailed logs instead of copying them; include commands,
+counts, or environment details only when needed to reproduce or judge a result.
 
-Use prose or ordinary bullets, not task checkboxes; add no arbitrary checks.
-Link evidence; include commands or output only when they help reproduce or
-judge it. Distinguish a proposed test plan from completed checks. Omit the
-section or say why no extra checks were needed, but state material unverified
-behavior or blockers: an unnecessary check differs from a needed one that
-could not run. Never claim agent execution proves a person reviewed the change.
+Use prose or ordinary bullets, not task checkboxes. Omit optional checks when
+unnecessary; do not enumerate everything not tested. Keep material blockers
+and unverified behavior explicit, and distinguish plans from completed checks.
+Agent execution is not evidence of human review.
 
 ## Provide UI evidence
 
@@ -142,9 +141,9 @@ default**, even when checks pass. Mark ready only when the user explicitly asks
 and readiness requirements are met. Updating a description does not change an
 existing PR's stage.
 
-Before publication and again before marking ready, ensure the title, rationale,
-checks, links, and media describe the current diff. Preserve others' content
-when updating; keep lasting design explanations in the description, code, or
-docs, not only in a review reply.
+Before publication or readiness, align title, body, links, and media with the
+diff and remove repeated explanations. Preserve others' content. Keep current
+rationale in the body, code, or docs; link substantial history rather than
+appending superseded accounts.
 
 Sources: [publishing reference](references/publishing.md#design-sources).

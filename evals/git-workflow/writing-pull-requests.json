@@ -67,6 +67,45 @@
       "prompt": "Plan linking two existing Draft pull requests into a new stack in acme/web; do not execute anything. The repository supports stacks and gh stack is already installed. Its default branch is main, but our intended destination is release/1.2. PR #41 is feature/api into release/1.2; PR #42 is feature/ui into feature/api and depends on #41. Give the gh stack link command and the final base of each PR. Does linking preserve their existing bases by itself?"
     },
     {
+      "id": "reader-focused",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Explains the broken quickstart command and its replacement without repeating the same explanation in multiple sections",
+        "Omits the command-search chronology, retry count, and unrelated checker inventory from the published body",
+        "Preserves the relevant observation that the documented replacement started the app",
+        "Uses direct Japanese prose and established command names without inflated claims of broader improvements",
+        "Omits optional UI evidence because no UI changed, and does not invent verification"
+      ],
+      "prompt": "Draft a PR title and body for fictional acme/handbook, using the default template; no repository-specific template or extra requirements apply. Write the body in Japanese. The complete diff changes the quickstart command in README.md from `npm start` to `npm run dev`; package.json already has the dev script but no start script. No code or UI changed. Author notes: searched seven files, ran the search command five times, corrected a typo in a local command, and reran unrelated formatting checks twice. The relevant check was running `npm run dev`, which started the app successfully. These notes are source material, not requested sections. Do not publish, create files, or contact the fictional repository."
+    },
+    {
+      "id": "risk-boundary",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Keeps the deletion scope of expired reports older than 30 days and preservation of newer reports",
+        "Explicitly preserves the required dry-run review and operator confirmation before irreversible production deletion",
+        "Distinguishes verified staging behavior from unverified production execution",
+        "Summarizes the relevant check and omits the chronological command log without hiding material risk",
+        "Does not claim deployment, production verification, or a completed cleanup"
+      ],
+      "prompt": "Draft only the PR description for fictional acme/reports, with the default template. Supplied change: the cleanup command now selects only expired report files older than 30 days. Newer reports are preserved. Deletion is irreversible, so the agreed rollout requires reviewing dry-run output and explicit operator confirmation before any production deletion. A staging run preserved newer files and selected only eligible expired files; production execution has not been performed. Working notes also list directory searches, three dependency-install retries, terminal setup, and individual formatting commands. No UI changed. Use only these supplied facts; do not publish, create files, or access the fictional repository."
+    },
+    {
+      "id": "media-caption",
+      "expect": "load",
+      "reads": ["references/ui-evidence.md"],
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Describes the visible transition from submitting an order to seeing its confirmation",
+        "Discloses that the preview is assembled from still images and does not establish animation timing",
+        "Omits frame-count, sampling-interval, and encoder details that do not affect this demonstration",
+        "Returns a caption rather than a recording diary, full test report, or invented media evidence"
+      ],
+      "prompt": "Prepare only the UI-evidence caption for a fictional checkout PR. The existing preview shows submitting an order and then its confirmation. It was assembled from still images and is not evidence of animation timing. The recording notes include 27 images, a nominal 0.2-second interval, encoder flags, and several export retries. The change concerns the confirmation being visible, not its timing. No repository-specific caption requirements apply. Do not create, upload, or publish media or change any files."
+    },
+    {
       "id": "commit",
       "expect": "no-load",
       "prompt": "Write a commit message for my staged change, which renames the helper formatDate to formatDay in src/date.ts."

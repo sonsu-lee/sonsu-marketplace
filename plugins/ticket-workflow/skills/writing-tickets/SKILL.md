@@ -13,9 +13,9 @@ compatibility: >-
 
 # Writing tickets
 
-A ticket is an agreement about a problem and the desired outcome, not an
-implementation prescription. Give the assignee enough context to choose a
-solution. Write directly; no user-story formula is required.
+A ticket agrees on the problem and observable result, not an implementation
+recipe. Use plain, direct language and established technical terms. Give the
+assignee context to choose a solution, not your investigation diary.
 
 ## Establish the request and context
 
@@ -70,32 +70,27 @@ template to an explicit body.
 
 ## Describe the problem and desired outcome
 
-Use a short, specific title conveying the problem or purpose on a board.
-Keep the body only as long as the work requires:
+Use a short title naming the problem or purpose. Select relevant facts before
+writing or polishing; source notes are not the body to reproduce.
 
-- **Problem:** what happens now, relevant conditions, and why it matters. A
-  feature request describes an unmet need or limitation, not an invented bug.
-- **Desired outcome:** the observable state that resolves the problem, making
-  completion judgeable without prescribing implementation. One sentence may
-  suffice; use a short list for distinct outcomes, not a default extra checklist.
-- **Context:** relevant history, decisions, evidence, dependencies, and links,
-  summarized to stand alone. Omit when empty unless required.
+- **Problem:** current behavior or need, relevant conditions, and why it
+  matters. Do not frame a feature request as a bug.
+- **Desired outcome:** the observable result that makes completion judgeable,
+  not an implementation recipe. One sentence may suffice; list only distinct
+  outcomes, not a default checklist.
+- **Context:** necessary decisions, constraints, evidence, and dependencies.
+  Summarize enough to stand alone, link the details, and omit when unnecessary.
 
-Add detail when omission would permit solving the wrong problem or declaring
-completion wrongly, not to list edge cases. Preserve established security,
-compatibility, and external-contract constraints; distinguish them from
-unverified implementation preferences.
+Keep detail only if its omission could change the task or completion judgment.
+Preserve security, compatibility, external contracts, and material unknowns;
+omit generic cautions, exhaustive exclusions, and routine test/command lists.
+Describe restored capability: "Repeated saves produce one record", not
+"Debounce the button". Leave storage, timing, and code structure to the assignee
+unless required; label proposed approaches tentative or omit them.
 
-Describe restored capability, not a vanished symptom: prefer "Repeated save
-attempts produce one record" over "Debounce the save button" or "Hide the
-duplicate-record error." Leave storage, timing, and code structure to the
-assignee unless a requirement constrains them; mark proposed
-approaches tentative or omit them. Do not turn routine implementation steps,
-test counts, or generic CI checks into outcomes; the PR records those.
-
-For maintenance, the problem is the current state's cost or risk; an agreed or
-externally required change may itself be the outcome. Do not file trivial debt
-that belongs in the current change, or title a ticket `Follow-up`.
+For maintenance, describe the current cost or risk; an agreed or externally
+required change may itself be the outcome. Do not file trivial debt that
+belongs in the current change, or title a ticket `Follow-up`.
 
 ## Review and propose metadata
 
@@ -134,9 +129,10 @@ Tickets and PRs need not be one-to-one. Reference partial work without closing
 the ticket; use completion links only when the outcome is fulfilled under the
 tracker's actual automation, not while deployment or verification remains.
 
-The assignee may change the approach while preserving the outcome. State
-changes to the problem, scope, or outcome in the ticket with the reason; never
-silently redefine success. Keep implementation details and evidence in the PR.
+Keep the body on the current agreed problem, scope, and outcome. When these
+change, record the reason without accumulating superseded plans or progress
+logs; link existing discussion or design records. Never redefine success
+silently. Keep detailed implementation and verification evidence with the PR.
 
 ## Deliver the requested result
 

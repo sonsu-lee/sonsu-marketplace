@@ -17,7 +17,7 @@ Include essential constraints, without prescribing an implementation. -->
 
 ## Context
 
-<!-- Summarize relevant history, prior decisions, dependencies, and evidence.
-Link to original sources. Omit this section when there is no useful context.
-Remove these instructional comments from the completed draft. -->
+<!-- Keep only context needed to understand the current agreement.
+Link detailed evidence, decisions, or parent policy instead of copying them.
+Omit if unnecessary; remove these instructional comments from the draft. -->
 ```

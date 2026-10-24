@@ -42,10 +42,10 @@ it explicit, as its own child if the tracker closes parents automatically.
 
 ## Write the children
 
-Give each child its own problem and an independently judgeable outcome, and
-link the parent for shared context instead of copying its specification. Each
-requirement belongs to one ticket. If a child is cancelled, record in the parent
-whether its requirement was removed, replaced, or moved.
+Give each child its own problem and judgeable outcome. Link the parent for
+shared policy; retain the local constraint needed to act safely, not its whole
+specification. Each requirement has one owning ticket. If a child is cancelled,
+record in the parent whether its requirement was removed, replaced, or moved.
 
 ## Sources
 
