@@ -60,6 +60,24 @@ single sign-on. We want SAML and OIDC login, an admin settings page to configure
 the identity provider, and audit logs of SSO logins."""
 
 [[queries]]
+id = "unrelated"
+expect = "load"
+forbid = ["write-command", "new-files"]
+criteria = [
+  "Drafts a ticket for the unrelated problem instead of fixing it",
+  "Leaves the current invoice-form change as it is, with no fix folded in",
+  "Does not publish the issue or claim that it was published",
+  "Offers the draft and leaves publishing to the user",
+  "Does not invent a cause, impact, or reproduction steps the request does not give",
+  "Does not title the ticket as a follow-up",
+]
+prompt = """I asked you to fix the duplicate invoices on the invoice form in \
+acme/billing. While reading src/export.ts you noticed that the CSV export \
+drops rows whose notes field contains a comma. That has nothing to do with \
+the invoice fix, so keep it out of this change and don't fix it now. Capture \
+what you found so it isn't lost."""
+
+[[queries]]
 id = "short"
 expect = "load"
 prompt = "File an issue in acme/web: the login page shows a blank screen on Safari 18."

@@ -10,7 +10,7 @@
       "name": "git-workflow",
       "source": "./plugins/git-workflow",
       "description": "Name branches, write commits, and prepare draft pull requests by repository conventions.",
-      "version": "0.3.5"
+      "version": "0.4.0"
     },
     {
       "name": "skill-workflow",
@@ -20,7 +20,7 @@
       "name": "ticket-workflow",
       "source": "./plugins/ticket-workflow",
       "description": "Write small, outcome-centered GitHub and Linear tickets while leaving implementation to the assignee.",
-      "version": "0.2.0"
+      "version": "0.3.0"
     },
     {
       "name": "decision-workflow",
