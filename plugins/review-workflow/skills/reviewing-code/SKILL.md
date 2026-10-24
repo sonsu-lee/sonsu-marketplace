@@ -98,6 +98,12 @@ Record target, command/scenario, expected/observed result, and limits. Clean up
 owned processes/state. If safe execution is unavailable, name the blocker and
 mark runtime unverified; explain non-applicability for non-executable changes.
 
+To check an unreachable-code or test-value candidate, the controller may also
+run a dead-code detector or mutation-testing command the repository already
+configures, in that disposable copy and on the changed paths where the tool
+allows. It supplements the entry-point execution, not replaces it. Workers do
+not run it; never install tools or change configuration for it.
+
 After candidate verification and the runtime step (including a blocker), only
 high risk or an explicit request justifies an optional **redteam** assignment.
 A custom focused worker challenges a named goal, assumption, or coverage claim
