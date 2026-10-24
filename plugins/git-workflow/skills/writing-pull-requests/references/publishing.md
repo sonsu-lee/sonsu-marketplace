@@ -1,7 +1,9 @@
 # Publishing a pull request
 
 Drafting a title or body does not authorize a push, PR creation, or merge. When
-the user requests publication, use their intended repository, head, and base.
+the user requests publication, use their intended repository, head, and base;
+a head that depends on an unmerged PR uses that PR's branch as base (see
+[Stack dependent pull requests](#stack-dependent-pull-requests)).
 Check for an existing PR for that head and base before creating another.
 Preserve its content and stage when updating; do not automatically convert an
 existing ready PR back to Draft.
@@ -41,6 +43,56 @@ Keep a PR draft until the user explicitly requests ready-for-review and the
 repository's readiness requirements are satisfied. Creating a Draft must not
 be followed by an automatic ready transition. A request to mark ready is not
 permission to merge.
+
+## Stack dependent pull requests
+
+Use a [stack][stacks] only for a PR that depends on another unmerged PR in the
+same repository. Its base is the head branch of the PR below it; the bottom PR
+targets the trunk, normally the default branch. Independent PRs stay separate
+against the trunk. A stack is one linear chain of branches, each containing the
+one below, and cannot include a head in a fork. If the repository or host
+offers no stack option, or a constraint fails, use the trunk as base and state
+the dependency and merge order in the body.
+
+Create each PR as above with `base` set to the branch below, then link them. On
+the website, choose **Create stack** when creating the next PR with that base;
+GitHub also offers a banner to stack existing PRs whose bases already chain
+([creating stacks][stack-create]). With the `gh stack` extension,
+`gh stack link` takes branches or PR numbers from bottom to top, uses existing
+PRs, and creates and pushes missing ones as drafts
+([other tools][stack-other]). The extension is optional: do not install it to
+publish; the website needs none.
+
+Extension commands do not follow this procedure by default: the `submit`
+editor opens new PRs ready for review unless toggled, `--auto` generates
+titles, and `--open` on `submit` or `link` marks PRs ready
+([commands][stack-cli]). Inspect each PR's title, body, and Draft state, and
+correct them as above.
+
+Pushing to a lower branch or a moved trunk breaks the linear history merging
+requires. Restore it with **Rebase stack** in the merge box or
+`gh stack rebase` then `gh stack push` ([managing][stack-manage]). Rebasing
+rewrites branches, so do it only when the user asks to update the stack. The
+website rebase is unsigned; use the CLI where signed commits are required.
+
+A stack merges from the bottom: merging a PR also merges every unmerged PR
+below it, and a mid-stack PR cannot merge alone. A request to merge one
+stacked PR therefore covers those below it; confirm that scope. Afterward,
+GitHub rebases the next PR to target the stack base ([merging][stack-merge]).
+
+### Closing issues from a stack
+
+GitHub interprets closing keywords only when the PR targets the default branch.
+For any other base they are ignored, no link is created, and merging does not
+affect the issue ([linking issues][issues]). In a stack, every PR above the
+bottom targets another PR's branch, and a stack on a non-default trunk has no
+PR that targets the default branch. Reference the issue there without a
+keyword. The bottom PR on the default branch may carry a keyword when it alone
+completes the issue.
+
+The stack docs do not say whether keywords take effect after a PR is retargeted
+to the stack base. After the PR that completes the issue lands, check the
+issue; report it if still open, or close it when the user asked.
 
 ## Label AI assistance
 
@@ -165,7 +217,13 @@ restrictions do not become universal requirements here.
 - [gh pr create][create] and [gh pr edit][edit]: flags and partial success.
 - [Repository templates][templates] and [inherited defaults][defaults].
 - [Squash message configuration][squash]: title and body are not always used.
-- [Linking issues][issues]: closing keywords and default-branch behavior.
+- [Linking issues][issues]: closing keywords apply only to default-branch PRs.
+- [Stacked pull requests][stacks]: same repository, linear history, trunk.
+- [Creating][stack-create], [managing][stack-manage], and
+  [merging][stack-merge] stacks: website and CLI paths, rebasing, bottom-up
+  merges.
+- [Stack CLI commands][stack-cli] and [other tools][stack-other]: `submit`,
+  `link`, draft and ready defaults.
 
 [attachments]: https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli
 [create]: https://cli.github.com/manual/gh_pr_create
@@ -174,6 +232,12 @@ restrictions do not become universal requirements here.
 [defaults]: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file
 [squash]: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/configuring-commit-squashing-for-pull-requests
 [issues]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue
+[stacks]: https://docs.github.com/en/pull-requests/reference/stacked-pull-requests
+[stack-create]: https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-stacked-pull-requests
+[stack-manage]: https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/managing-stacked-pull-requests
+[stack-merge]: https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/merging-stacked-pull-requests
+[stack-cli]: https://docs.github.com/en/pull-requests/reference/stacked-prs-cli-commands
+[stack-other]: https://docs.github.com/en/pull-requests/reference/use-other-tools-with-stacked-pull-requests
 [descriptions]: https://google.github.io/eng-practices/review/developer/cl-descriptions.html
 [small]: https://google.github.io/eng-practices/review/developer/small-cls.html
 [review]: https://google.github.io/eng-practices/review/reviewer/looking-for.html

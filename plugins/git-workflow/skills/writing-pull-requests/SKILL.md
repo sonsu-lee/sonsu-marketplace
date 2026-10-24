@@ -25,17 +25,22 @@ repository settings or bypassing required checks.
 ## Establish the change and scope
 
 Identify the repository, head, and base: the user's base or an established
-project target, otherwise the discovered default branch, never an assumed
-`main`. Read the full proposed diff against that base and relevant issue or design
-context; do not infer scope from the last commit or the agent's summary.
+project target. A PR that depends on an unmerged PR uses that PR's branch as
+its base when the repository supports
+[stacked PRs](references/publishing.md#stack-dependent-pull-requests);
+otherwise use the discovered default branch, never an assumed `main`. Read the
+full proposed diff against that base and relevant issue or design context; do
+not infer scope from the last commit or the agent's summary.
 
 A PR is one coherent, explainable change that can become a sound commit:
 
 - Address one purpose. Split independent topics, not just files or line counts.
 - Include related tests, callers, and required documentation; never split
   implementation from needed usage or tests just to shrink the diff.
-- Keep the target branch working after each PR lands. Dependent PRs name
-  dependencies and merge order; a later PR must not repair a broken base.
+- Keep the target branch working after each PR lands. A dependent PR names its
+  dependency and merge order; a later PR must not repair a broken base. Stack
+  only work that depends on an unmerged PR; independent PRs target the trunk
+  separately, because stacking them imposes a false merge order.
 - Prefer separating substantial refactoring from behavior changes; small
   local cleanups may stay.
 
@@ -83,8 +88,10 @@ or demand alternatives essays for obvious changes. Include related issues,
 design context, and compatibility or migration details when relevant,
 summarizing essential external context in case links break. Use closing
 keywords only when this PR actually completes the issue; otherwise reference
-it. Follow the tracker integration's syntax; GitHub keywords may not work
-identically elsewhere.
+it. GitHub ignores them unless the PR targets the default branch
+([stacks](references/publishing.md#closing-issues-from-a-stack)). Follow the
+tracker integration's syntax; GitHub keywords may not work identically
+elsewhere.
 
 ## Record author checks, not CI status
 
