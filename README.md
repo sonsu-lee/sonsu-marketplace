@@ -379,6 +379,8 @@ instructions; creating a file alone does not prove the client loaded it.
 Imports pick up a refreshed download at the next session; copies do not
 update, so repeat the copy after the template changes. Instructions guide the
 model but do not enforce behavior, and subagents may start without them.
+In particular, a requested approval wait is not a permission boundary: use
+client approval controls when edits or external actions must be blocked.
 
 ## Layout
 
