@@ -22,6 +22,7 @@ packages.
   - [decision-workflow](#decision-workflow)
   - [writing-workflow](#writing-workflow)
   - [review-workflow](#review-workflow)
+- [Baseline instructions](#baseline-instructions)
 - [Layout](#layout)
 - [Contributing](#contributing)
   - [Code review](#code-review)
@@ -336,6 +337,42 @@ Read the [plugin guide](plugins/review-workflow/README.md) for model access,
 workspace isolation, runtime verification, and cost boundaries. The plugin does
 not install hooks, automatically fix code, or configure credentials.
 
+## Baseline instructions
+
+[`templates/agent-baseline.md`](templates/agent-baseline.md) holds short
+instructions meant for every task: Karpathy's coding guidelines plus rules for
+evidence, decisions, scope, completion, and communication. It is not a plugin,
+and the plugins work without it. Each line loads into every session, so keep
+project-specific rules in the project's own instruction file. The rationale is
+in [ADR-0008](docs/decisions/0008-distribute-baseline-instructions-as-an-agents-md-template.md).
+
+Download it once, then add it to each client's user-level instruction file:
+
+```sh
+curl -fsSLo ~/.config/agent-baseline.md \
+  https://raw.githubusercontent.com/sonsu-lee/sonsu-marketplace/main/templates/agent-baseline.md
+```
+
+| Client | User-level file | Add |
+| --- | --- | --- |
+| omp | `~/.omp/agent/AGENTS.md` | Import `@~/.config/agent-baseline.md` |
+| Claude Code | `~/.claude/CLAUDE.md` | Import `@~/.config/agent-baseline.md` |
+| Codex | `~/.codex/AGENTS.md` | The file's contents, appended |
+
+omp keeps one user-level context file and `~/.omp/agent/AGENTS.md` takes
+precedence, so add the import there rather than to another client's file
+([context files](https://github.com/can1357/oh-my-pi/blob/main/docs/context-files.md)).
+Claude Code loads imports in user-level files without an approval prompt
+([CLAUDE.md files](https://code.claude.com/docs/en/claude-md)). Codex has no
+import syntax and reads the first non-empty `AGENTS.override.md` or `AGENTS.md`
+in `CODEX_HOME` ([AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)).
+For one project only, copy the contents into that project's `AGENTS.md`
+instead.
+
+Imports pick up a refreshed download at the next session; copies do not
+update, so repeat the copy after the template changes. Instructions guide the
+model but do not enforce behavior, and subagents may start without them.
+
 ## Layout
 
 ```text
@@ -360,6 +397,8 @@ plugins/
     rules/<rule>.md           # omp: rules
     package.json              # omp: extension modules under "omp.extensions"
     .claude-plugin/plugin.json  # Claude Code: only to exclude omp agents
+templates/
+  agent-baseline.md           # always-on instructions users copy or import
 evals/
   models.toml                 # model and effort per client for model runs
   <plugin>/<skill>.toml       # activation and safety queries
@@ -992,6 +1031,23 @@ temporary `HOME`, also exercise both skills' validation procedures from a
 separate repository using their installed assets and reference guides. Verify
 repository-owned executables, versions, and configuration remain in use when
 present, and failures are not bypassed with a fallback.
+
+### Changing the baseline instructions
+
+Keep [`templates/agent-baseline.md`](templates/agent-baseline.md) to criteria
+that apply to almost every task and that agents miss without being told; put
+task procedures in skills. Keep the Karpathy section's upstream wording, and
+update its attribution line when its formatting differs in another way.
+
+The scripts above do not load the template, so test a change with the manual
+model-run setup. Place the template in each test home's user-level file
+(`$OMP_HOME/.omp/agent/AGENTS.md`, `$CX_CODEX_HOME/AGENTS.md`, and
+`$CC_CONFIG_DIR/CLAUDE.md`), run representative tasks with and without it in
+each client, three runs each with the `default` profile, and remove it
+afterward so other model runs are unaffected. Cover the behavior the change
+targets, such as a small change that invites speculative guards, an ambiguous
+request, a completion claim, and a large task that must wait for plan
+approval. Report every run's outcome in the pull request.
 
 ## License
 
