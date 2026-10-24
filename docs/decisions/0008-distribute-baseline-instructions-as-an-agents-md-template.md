@@ -1,7 +1,13 @@
 # Distribute baseline instructions as an AGENTS.md template
 
 - Date: 2026-10-24
-- Status: proposed
+- Status: rejected
+
+This proposal was rejected on 2026-10-24. General agent guidelines are
+independent of this marketplace and are now published in a
+[standalone Gist](https://gist.github.com/sonsu-lee/ecd74e9c41ff2d3bcf36d6b24be30a9e).
+The marketplace does not distribute, load, or require them. The proposal
+below is retained as history, not as current instructions.
 
 ## Context
 
