@@ -1,8 +1,8 @@
 # Publishing a pull request
 
 Drafting a title or body does not authorize a push, PR creation, or merge. When
-the user requests publication, use their intended repository, head, and base;
-a head that depends on an unmerged PR uses that PR's branch as base (see
+the user requests publication, use their intended repository, head, and trunk.
+Use the trunk as base, or the lower PR's head branch for a supported stack (see
 [Stack dependent pull requests](#stack-dependent-pull-requests)).
 Check for an existing PR for that head and base before creating another.
 Preserve its content and stage when updating; do not automatically convert an
@@ -48,18 +48,23 @@ permission to merge.
 
 Use a [stack][stacks] only for a PR that depends on another unmerged PR in the
 same repository. Its base is the head branch of the PR below it; the bottom PR
-targets the trunk, normally the default branch. Independent PRs stay separate
-against the trunk. A stack is one linear chain of branches, each containing the
-one below, and cannot include a head in a fork. If the repository or host
-offers no stack option, or a constraint fails, use the trunk as base and state
-the dependency and merge order in the body.
+targets the chosen trunk: the user's destination or project target, otherwise
+the discovered default branch. Independent PRs stay separate against that
+trunk. A stack is one linear chain of branches, each containing the one below,
+and cannot include a head in a fork. If the repository or host offers no stack
+option, or a constraint fails, use the trunk as base and state the dependency
+and merge order in the body.
 
 Create each PR as above with `base` set to the branch below, then link them. On
 the website, choose **Create stack** when creating the next PR with that base;
 GitHub also offers a banner to stack existing PRs whose bases already chain
 ([creating stacks][stack-create]). With the `gh stack` extension,
-`gh stack link` takes branches or PR numbers from bottom to top, uses existing
-PRs, and creates and pushes missing ones as drafts
+`gh stack link --base "$trunk"` takes branches or PR numbers from bottom to top.
+Set `trunk` to the chosen destination: omitting `--base` defaults to the
+repository's default branch, and linking can change existing PR bases to fit
+that chain. When extending an existing stack, `--base` is ignored; preserve
+and confirm its trunk ([commands][stack-cli]). Branch arguments are pushed;
+existing PRs are reused and missing PRs created as drafts
 ([other tools][stack-other]). The extension is optional: do not install it to
 publish; the website needs none.
 
@@ -69,11 +74,14 @@ titles, and `--open` on `submit` or `link` marks PRs ready
 ([commands][stack-cli]). Inspect each PR's title, body, and Draft state, and
 correct them as above.
 
-Pushing to a lower branch or a moved trunk breaks the linear history merging
-requires. Restore it with **Rebase stack** in the merge box or
-`gh stack rebase` then `gh stack push` ([managing][stack-manage]). Rebasing
-rewrites branches, so do it only when the user asks to update the stack. The
-website rebase is unsigned; use the CLI where signed commits are required.
+Changes to a lower branch or the trunk can break the linear history merging
+requires. Restore it with **Rebase stack** in the merge box or, for a locally
+tracked stack, `gh stack rebase` then `gh stack push`
+([managing][stack-manage]). Website creation and `link` do not establish local
+tracking: first use `gh stack checkout` with the remote stack number or a PR
+URL to fetch its branches and set it up locally ([commands][stack-cli]).
+Rebasing rewrites branches, so do it only when the user asks to update the
+stack.
 
 A stack merges from the bottom: merging a PR also merges every unmerged PR
 below it, and a mid-stack PR cannot merge alone. A request to merge one

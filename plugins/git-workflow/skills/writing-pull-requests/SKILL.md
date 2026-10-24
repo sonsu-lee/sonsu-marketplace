@@ -24,13 +24,13 @@ repository settings or bypassing required checks.
 
 ## Establish the change and scope
 
-Identify the repository, head, and base: the user's base or an established
-project target. A PR that depends on an unmerged PR uses that PR's branch as
-its base when the repository supports
-[stacked PRs](references/publishing.md#stack-dependent-pull-requests);
-otherwise use the discovered default branch, never an assumed `main`. Read the
-full proposed diff against that base and relevant issue or design context; do
-not infer scope from the last commit or the agent's summary.
+Identify the repository and head. Choose the trunk: the user's destination or
+established project target, otherwise the discovered default branch, never an
+assumed `main`. Use that trunk as base, except when a PR depends on an unmerged
+PR and the repository supports
+[stacked PRs](references/publishing.md#stack-dependent-pull-requests): use the
+lower PR's head branch as base. Read the full diff against that base and
+relevant issue or design context, not just the last commit or agent summary.
 
 A PR is one coherent, explainable change that can become a sound commit:
 
