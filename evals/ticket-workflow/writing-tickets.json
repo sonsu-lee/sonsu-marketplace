@@ -85,6 +85,32 @@
       "prompt": "I asked you to fix the duplicate invoices on the invoice form in acme/billing. While reading src/export.ts you noticed that the CSV export drops rows whose notes field contains a comma. That has nothing to do with the invoice fix, so keep it out of this change and don't fix it now. Capture what you found so it isn't lost."
     },
     {
+      "id": "problem-not-diary",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "States the invalid-date booking problem and the observable result of rejecting impossible calendar dates before booking",
+        "Does not turn the tentative helper/library choices into requirements or invent a root cause",
+        "Omits search history, routine test-command lists, and filler Context when they do not help the assignee",
+        "Uses plain action-and-result language rather than abstract quality claims",
+        "Returns only the requested draft and does not publish or prescribe unrelated work"
+      ],
+      "prompt": "Draft a ticket title and body for fictional acme/calendar. Use the default ticket format; no team-specific template applies. Known problem: the booking form accepts February 30 and only fails after submission. Desired behavior: reject impossible calendar dates before booking. Investigation notes list searches through six files, repeated formatter commands, and two possible approaches (a new date helper or a library change); neither approach is agreed and the cause is unknown. This is a draft based on supplied facts, not a request for further investigation. Do not create files, publish, or contact the fictional repository. Return the title and body only."
+    },
+    {
+      "id": "current-agreement",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Keeps the current background-worker agreement, visible job status, and prevention of cross-tenant document access",
+        "Mentions the timeout reason for the changed agreement without accumulating the superseded synchronous and nightly plans",
+        "Links the parent for shared policy instead of copying its full policy and review checklist",
+        "Preserves enough local context and the access-control constraint to make the child independently understandable",
+        "Uses plain Japanese prose; does not create a design document, invent decisions, or publish changes"
+      ],
+      "prompt": "Draft a replacement title/body in Japanese for fictional Linear child APP-42, under APP-40. No custom template applies. The child concerns importing large document batches without holding the request open. Parent policy at https://example.com/work/APP-40 defines tenant isolation, access review, release gates, audit retention, backup schedules, and incident procedures. The current approved child outcome is to queue imports in a background worker, expose job status, and never expose another tenant's documents. Earlier notes proposed synchronous processing and later nightly processing; both were superseded because uploads exceed the request timeout. The decision discussion is at https://example.com/work/APP-42#decision. The body currently repeats the full parent policy and all previous plans. Use these supplied facts only and return a draft, not a published update; do not create files or contact the fictional URLs."
+    },
+    {
       "id": "short",
       "expect": "load",
       "prompt": "File an issue in acme/web: the login page shows a blank screen on Safari 18."
