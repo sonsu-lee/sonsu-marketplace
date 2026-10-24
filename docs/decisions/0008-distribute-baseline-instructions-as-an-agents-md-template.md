@@ -8,11 +8,11 @@
 The marketplace has so far distributed only plugins, whose skills hold
 task-specific procedures. Some guidance should apply to almost every task:
 write no speculative code, cite evidence before claiming completion, and stop
-to ask when something is unclear. A skill loads only when a request matches
-its description, so it cannot guarantee such guidance.
+to ask when something is unclear. Skill bodies load on demand, through
+selection or explicit invocation, rather than as session-opening instructions.
 
-Plugins have no dependable way to add instructions to every session across the
-supported clients:
+This repository has not verified one shared plugin mechanism for loading such
+instructions across its supported clients:
 
 - [ADR-0002](0002-plugin-format.md) did not establish whether omp rules with
   `alwaysApply` take effect.
@@ -48,21 +48,20 @@ packages and does not replace it.
 ## Rejected alternatives
 
 - **Client-specific always-on components** (omp rules, Claude Code and Codex
-  hooks): would apply automatically after installation, but none of these
-  paths is established to work for this purpose, they behave differently per
-  client, and they add hook code to maintain.
-- **Skills only:** need no new distribution path, but load only when a request
-  matches, so guidance that must cover every status report or every change
-  would be skipped.
+  hooks): could automate loading, but their support and trust requirements
+  differ by client and a shared installation contract is not established.
+  Hook-based paths also add executable code to maintain.
+- **Skills only:** need no new distribution path, but are activated on demand,
+  so they do not establish session-wide baseline guidance.
 
 ## Consequences
 
-The same guidance reaches all three clients by the same path, and the
-marketplace's scope grows from plugins to plugins plus an instruction
-template. Users' copies do not update automatically and can drift from the
-source. Plugin checks do not cover the template, so its effect needs separate
-model runs. Every line adds cost to every session, so a line belongs in the
-template only if omitting it would cause mistakes.
+Users can adopt one source of guidance through their clients' instruction-file
+mechanisms. The marketplace's scope grows from plugins to plugins plus an
+instruction template. Users' copies do not update automatically and can drift
+from the source. Plugin checks do not cover the template, so its effect needs
+separate model runs. Every line adds cost to every session, so a line belongs
+in the template only if omitting it would cause mistakes.
 
 Moving later to client-specific components would require users to remove
 their copies, or the guidance would load twice. Revisit this decision if the

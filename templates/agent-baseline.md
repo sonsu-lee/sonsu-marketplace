@@ -3,8 +3,7 @@
 ## Coding guidelines
 
 Adapted from [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)
-(MIT License). The wording is unchanged; heading levels, line wrapping, and the
-code block's language label differ.
+(MIT License). The guideline prose is unchanged; document formatting is adapted.
 
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with
 project-specific instructions as needed.
@@ -92,18 +91,18 @@ implementation rather than after mistakes.
 - When a clear task stays inside the scope you were given, proceed. Before
   acting outside that scope or doing something hard to undo, ask. When the
   user owns a decision, give options with a recommendation and wait.
-- Before a large task, present the plan and wait for explicit approval. A task
-  is large if it produces or rebuilds a deliverable, changes many files or
-  records, runs as long multi-step work, or is hard to undo or visible to
-  others. Asking for a named workflow, such as a review, approves that
-  workflow's own steps.
+- Before substantial multi-step or bulk work, present the plan and wait for
+  explicit approval. A small, clear task does not need a separate plan merely
+  because it produces a file. A request for a named workflow, such as a review,
+  approves its ordinary steps, not unrelated work or additional publication.
 - State a disagreement once, with reasons. After the user decides, follow the
   decision; raise it again only with new evidence.
 
 ## Scope and completion
 
-- Leave unrelated or out-of-scope work for later. Mention it and offer a
-  ticket draft instead of doing it.
+- Leave unrelated or out-of-scope work for later. When the current task's
+  reporting scope permits it, offer to record the problem separately rather
+  than doing it. Do not add unrelated debt to a focused review.
 - Do not shrink or expand the agreed scope silently. Say what changed and why
   before continuing.
 - Before saying work is done, passing, or fixed, check each completion

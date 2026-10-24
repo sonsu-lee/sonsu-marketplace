@@ -30,6 +30,7 @@ packages.
   - [Decision records](#decision-records)
   - [Adding a plugin](#adding-a-plugin)
   - [Testing a plugin](#testing-a-plugin)
+  - [Changing the baseline instructions](#changing-the-baseline-instructions)
 - [License](#license)
 
 ## Install
@@ -349,7 +350,7 @@ in [ADR-0008](docs/decisions/0008-distribute-baseline-instructions-as-an-agents-
 Download it once, then add it to each client's user-level instruction file:
 
 ```sh
-curl -fsSLo ~/.config/agent-baseline.md \
+curl --create-dirs -fsSLo ~/.config/agent-baseline.md \
   https://raw.githubusercontent.com/sonsu-lee/sonsu-marketplace/main/templates/agent-baseline.md
 ```
 
@@ -362,12 +363,18 @@ curl -fsSLo ~/.config/agent-baseline.md \
 omp keeps one user-level context file and `~/.omp/agent/AGENTS.md` takes
 precedence, so add the import there rather than to another client's file
 ([context files](https://github.com/can1357/oh-my-pi/blob/main/docs/context-files.md)).
-Claude Code loads imports in user-level files without an approval prompt
-([CLAUDE.md files](https://code.claude.com/docs/en/claude-md)). Codex has no
-import syntax and reads the first non-empty `AGENTS.override.md` or `AGENTS.md`
-in `CODEX_HOME` ([AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)).
-For one project only, copy the contents into that project's `AGENTS.md`
-instead.
+Claude Code loads user-file imports without a prompt in ordinary CLI sessions
+([CLAUDE.md files](https://code.claude.com/docs/en/claude-md)). Codex reads the
+first non-empty `AGENTS.override.md` or `AGENTS.md` in `CODEX_HOME`
+([AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)); append
+to that active file if an override is present.
+
+For one project only, append to its active instruction file instead. A plain
+`AGENTS.md` can be shadowed by omp's native project instructions, Codex's
+`AGENTS.override.md`, or Claude Code's `CLAUDE.md` or `CLAUDE.local.md`. Where
+Claude Code already uses `CLAUDE.md`, import the shared file from there.
+Start a new session and confirm the baseline's headings appear in the loaded
+instructions; creating a file alone does not prove the client loaded it.
 
 Imports pick up a refreshed download at the next session; copies do not
 update, so repeat the copy after the template changes. Instructions guide the
@@ -1036,8 +1043,8 @@ present, and failures are not bypassed with a fallback.
 
 Keep [`templates/agent-baseline.md`](templates/agent-baseline.md) to criteria
 that apply to almost every task and that agents miss without being told; put
-task procedures in skills. Keep the Karpathy section's upstream wording, and
-update its attribution line when its formatting differs in another way.
+task procedures in skills. Preserve the Karpathy guideline prose and keep its
+attribution accurate if the adaptation changes.
 
 The scripts above do not load the template, so test a change with the manual
 model-run setup. Place the template in each test home's user-level file
