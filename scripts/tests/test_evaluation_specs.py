@@ -98,6 +98,21 @@ class EvaluationSpecTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     load_spec(self.save(data))
 
+    def test_rejects_unpaired_surrogates_before_utf8_consumers(self):
+        for data in (
+            self.spec(prompt="Draft \ud800"),
+            self.spec(id="\udfff"),
+            self.spec(criteria=["Check \ud800"]),
+            {**self.spec(), "\ud800": "unknown key"},
+        ):
+            with self.subTest(data=data):
+                with self.assertRaises(ValueError):
+                    load_spec(self.save(data))
+
+    def test_accepts_unicode_and_paired_surrogate_escapes(self):
+        query = load_spec(self.save(self.spec(prompt="한글 \U00010400"))).queries[0]
+        self.assertEqual(query.prompt.encode("utf-8"), "한글 \U00010400".encode("utf-8"))
+
     def test_rejects_toml_and_invalid_json_instead_of_guessing_format(self):
         for text in (
             'skill = "demo:case"\n[[queries]]\nid = "old"\n',
@@ -109,7 +124,10 @@ class EvaluationSpecTests(unittest.TestCase):
                     load_spec(self.path)
 
     def test_both_cli_discovery_paths_reject_bad_json_before_execution(self):
-        self.save(self.spec(forbids=["write-command"]))
+        invalid_specs = (
+            (self.spec(forbids=["write-command"]), "forbids"),
+            (self.spec(prompt="Draft \ud800"), "surrogate"),
+        )
         homes = self.root / "homes"
         (homes / "omp-home").mkdir(parents=True)
         commands = (
@@ -118,15 +136,17 @@ class EvaluationSpecTests(unittest.TestCase):
             ["compare_skill.py", "demo:case", "--root", str(self.root),
              "--homes", str(homes)],
         )
-        for script, *args in commands:
-            with self.subTest(script=script):
-                result = subprocess.run(
-                    [sys.executable, str(SCRIPTS / script), *args],
-                    cwd=self.root, capture_output=True, text=True, timeout=15,
-                )
-                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-                self.assertIn("forbids", result.stdout)
-                self.assertNotIn("Traceback", result.stderr)
+        for data, expected_error in invalid_specs:
+            self.save(data)
+            for script, *args in commands:
+                with self.subTest(script=script, error=expected_error):
+                    result = subprocess.run(
+                        [sys.executable, str(SCRIPTS / script), *args],
+                        cwd=self.root, capture_output=True, text=True, timeout=15,
+                    )
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn(expected_error, result.stdout)
+                    self.assertNotIn("Traceback", result.stderr)
 
 
 if __name__ == "__main__":

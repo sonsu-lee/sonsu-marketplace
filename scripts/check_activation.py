@@ -91,10 +91,17 @@ class Trace:
     mismatch: str = ""  # another model or effort ran than the profile pinned
 
 
-def _unique_spec_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
-    """Do not let JSON's last-value-wins behavior discard an assertion."""
+def _spec_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    """Preserve TOML's duplicate-key and Unicode-scalar rejection."""
     result = {}
     for key, value in pairs:
+        key.encode("utf-8")
+        if isinstance(value, str):
+            value.encode("utf-8")
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, str):
+                    item.encode("utf-8")
         if key in result:
             raise ValueError(f"duplicate JSON key {key!r}")
         result[key] = value
@@ -102,7 +109,7 @@ def _unique_spec_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
 
 
 def load_spec(path: Path) -> Spec:
-    data = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_unique_spec_keys)
+    data = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_spec_object)
     if not isinstance(data, dict):
         raise ValueError(f"{path}: spec must be a JSON object")
     identity = data.get("skill", "")

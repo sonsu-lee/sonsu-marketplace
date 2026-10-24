@@ -841,9 +841,10 @@ loaded and the first violated assertion with its trace. Runs that the
 provider refused, that never reached a model, or that ended in an error or
 timeout are reported separately and not counted for activation; their
 forbidden writes still fail
-the query. Malformed spec structures, duplicate JSON keys, unknown keys,
-duplicate query IDs, and invalid string-array fields are rejected. A query
-with no counted run prints `NONE`. The exit status is 1 for a failed assertion,
+the query. Malformed spec structures, duplicate JSON keys, invalid Unicode
+scalar values, unknown keys, duplicate query IDs, and invalid string-array
+fields are rejected. A query with no counted run prints `NONE`.
+The exit status is 1 for a failed assertion,
 2 when only `NONE` lines remain, and 0 otherwise. Clients run with token
 variables removed; omp uses `--approval-mode always-ask`, Codex a read-only
 sandbox without account apps, and Claude Code its default permission mode.
