@@ -22,9 +22,9 @@ solution. Write directly; no user-story formula is required.
 Distinguish drafting from publishing. A request to propose, organize, or draft
 does not authorize creating issues, changing metadata, or configuring
 integrations. Create or update tickets only when requested; splitting a draft
-does not permit publishing children. Work found during another task that is
-unrelated or out of its scope becomes a ticket draft, not part of the current change;
-offer it and publish only when asked.
+does not permit publishing children. When the current task permits reporting
+unrelated work, offer a ticket draft instead of expanding its scope; publish
+only when asked. Do not bypass a focused review's exclusion of unrelated debt.
 
 Identify the repository or Linear team and primary tracker from the request and
 project guidance. Support either platform; never copy a ticket into both.
