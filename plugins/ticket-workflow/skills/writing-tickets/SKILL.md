@@ -3,9 +3,9 @@ name: writing-tickets
 description: >-
   Use this skill before drafting, opening, filing, or updating any GitHub issue
   or Linear ticket, including bug reports, feature requests, and suspected
-  security vulnerabilities, or when turning a problem into actionable issues or
-  splitting an oversized ticket. Not for implementing the work or writing pull
-  requests.
+  security vulnerabilities, or when turning a problem into actionable issues,
+  splitting an oversized ticket, or capturing unrelated work found during
+  another task. Not for implementing the work or writing pull requests.
 compatibility: >-
   Publishing or reading private tracker context requires authenticated tooling
   for the selected GitHub repository or Linear workspace.
@@ -22,7 +22,9 @@ solution. Write directly; no user-story formula is required.
 Distinguish drafting from publishing. A request to propose, organize, or draft
 does not authorize creating issues, changing metadata, or configuring
 integrations. Create or update tickets only when requested; splitting a draft
-does not permit publishing children.
+does not permit publishing children. Work found during another task that is
+unrelated or out of its scope becomes a ticket draft, not part of the current change;
+offer it and publish only when asked.
 
 Identify the repository or Linear team and primary tracker from the request and
 project guidance. Support either platform; never copy a ticket into both.
