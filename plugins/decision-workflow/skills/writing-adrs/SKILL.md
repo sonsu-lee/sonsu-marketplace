@@ -81,6 +81,13 @@ Do not copy a prior ADR just to replace its vocabulary. Review whether the recor
 explains the tradeoff and its future implications, not just whether its headings
 match the template.
 
+Before delivering a drafted or revised record, check it with a reader who lacks
+the discussion. Where subagents are available, give a fresh one only the record
+and the files it links and ask what was decided, why, and what was rejected;
+otherwise self-review and disclose that no independent reader was available.
+Fix exposed gaps. Do not call self-review an independent reader test; neither
+kind of review replaces the decision-maker's acceptance.
+
 ## Preserve the decision lifecycle
 
 Unless the project specifies another lifecycle, start at `proposed`. Keep the
@@ -117,6 +124,10 @@ project-specific format. The selection threshold and fallback file conventions
 above are this skill's defaults, not rules prescribed by Fowler or copied from
 Evolu's full workflow.
 
+The fresh-reader check adapts the reader-testing stage of Anthropic's
+[doc-coauthoring skill][doc-coauthoring], described here in our own words.
+
 [fowler]: https://martinfowler.com/bliki/ArchitectureDecisionRecord.html
 [evolu-template]: https://github.com/evoluhq/evolu/blob/bb2644275dd99ff6dce4744db578967699045ea3/docs/adr/template.md
 [evolu-guidance]: https://github.com/evoluhq/evolu/blob/bb2644275dd99ff6dce4744db578967699045ea3/docs/adr/README.md
+[doc-coauthoring]: https://github.com/anthropics/skills/blob/main/skills/doc-coauthoring/SKILL.md
