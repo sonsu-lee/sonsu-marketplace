@@ -43,9 +43,11 @@ QUERY_KEYS = {"id", "prompt", "expect", "reads", "not_reads", "forbid", "criteri
 QUOTED = re.compile(r"'[^']*'|\"(?:\\.|[^\"\\])*\"")
 WRITE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 GH_WRITE = re.compile(
-    r"\bgh\s+(?:issue|pr|release|label|repo|project)\s+"
+    r"\bgh\s+(?:(?:issue|pr|release|label|repo|project)\s+"
     r"(?:create|edit|comment|close|delete|merge|reopen|ready|transfer|lock|pin|"
-    r"develop|item-add|item-edit|item-create|field-create)\b", re.I)
+    r"develop|item-add|item-edit|item-create|field-create)"
+    r"|stack\s+(?:init|add|checkout|modify|unstack|delete|submit|sync|rebase|"
+    r"push|link|merge|switch|up|down|top|bottom|trunk|alias))\b", re.I)
 GIT_WRITE = re.compile(r"\bgit\s+(?:commit|push)\b")
 SEGMENT = re.compile(r"&&|\|\||[;|\n]")
 METHOD = re.compile(r"(?:\s-X\s*|--method[=\s]+|--request[=\s]+)([A-Za-z]+)")
@@ -357,8 +359,8 @@ def note_access(trace: Trace, skill: str, text: str) -> None:
 def is_write_command(cmd: str) -> bool:
     """Classify a shell command as a publishing or repository write."""
     for segment in SEGMENT.split(cmd.replace("\\\n", " ")):
-        # Only a real --help option exempts a segment, not text inside quotes.
-        if re.search(r"(?:^|\s)--help(?:\s|$)", QUOTED.sub("", segment)):
+        # Only a real help option exempts a segment, not text inside quotes.
+        if re.search(r"(?:^|\s)(?:--help|-h)(?:\s|$)", QUOTED.sub("", segment)):
             continue
         if GH_WRITE.search(segment) or GIT_WRITE.search(segment):
             return True

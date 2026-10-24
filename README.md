@@ -208,7 +208,8 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`,
   [skill's validation procedure](plugins/git-workflow/skills/naming-branches/SKILL.md#required-validation).
 - **`writing-pull-requests`** writes repository-aware PR titles and descriptions,
   records author checks, labels AI assistance, and prepares UI review evidence.
-  New PRs are Draft by default. See the
+  Dependent PRs use GitHub stacked PRs where available. New PRs are Draft by
+  default. See the
   [PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md).
 
 Branch prefixes do not change commit types: a `feature/` branch can contain
