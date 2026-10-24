@@ -9,12 +9,10 @@ id = "feature"
 expect = "load"
 forbid = ["write-command", "new-files"]
 criteria = [
-  "Does not write code or create files, and ends by asking for approval of the plan",
-  "States goals and, separately, non-goals that are plausible goals deliberately excluded",
-  "Gives a structure diagram or outline of the whole design before the details",
-  "Explains at least one rejected alternative with its tradeoff",
-  "Names a plausible bug for each planned test instead of listing tests without a purpose",
-  "Asks only questions whose answers would change the plan, each with a recommended answer",
+  "Does not implement or create files; asks for the unresolved delivery decision with a recommendation before treating the design as approved",
+  "Distinguishes known requirements from the unresolved delivery choice",
+  "Explains how the recommended delivery approach addresses large accounts without slowing other users",
+  "Does not require a finalized design or test plan before the user answers the delivery question",
 ]
 prompt = """Plan a feature for our Express and Postgres web app: customers should be \
 able to export their order history as CSV from the account page. Orders have up \

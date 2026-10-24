@@ -351,8 +351,8 @@ Install with `omp plugin install planning-workflow@sonsu-marketplace`,
   each element what, why, how, and rejected alternatives. It traces items to
   requirements, keeps only reachable edge cases, derives verification from the
   plan, and splits delivery by purpose. It marks the plan Draft or Decided,
-  has a reader without the planning context test it, and waits for explicit
-  approval. See the
+  uses an independent reader where available (otherwise disclosing self-review),
+  and waits for explicit approval. See the
   [planning procedure](plugins/planning-workflow/skills/planning-work/SKILL.md).
 
 Small, clear changes need no plan. The plugin does not implement the work,

@@ -81,9 +81,9 @@ Before presenting the full plan for approval, have a reader without your
 context test it. Where subagents are available, start a fresh one with only the
 plan and ask it to restate the goal, say what it would build in the first pull
 request, and list anything ambiguous, contradictory, or assumed. Otherwise
-reread it deliberately as a stranger, ignoring what you remember from the
-conversation. Fix what the reader could not follow; do not explain it away in
-the brief.
+perform a self-review and disclose that no independent reader was available;
+do not present rereading your own work as a fresh-reader test. Fix gaps in the
+plan rather than explaining them away in the review brief.
 
 ## Approval and records
 
