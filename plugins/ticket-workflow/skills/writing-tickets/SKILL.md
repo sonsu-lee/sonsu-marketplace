@@ -59,9 +59,9 @@ Feature requests, maintenance, and investigations need no kind reference.
 
 Within the project's mandatory rules, use an explicitly requested applicable
 template first, then the applicable repository, team, or issue-type template;
-otherwise the [default body](assets/ticket-body.md). If template lookup is
-unavailable, distinguish that from finding none: disclose the limitation in a
-draft and resolve required fields before publishing.
+otherwise use the [body guidance](assets/ticket-body.md). Distinguish an
+unavailable template lookup from finding none: disclose it in a draft and resolve
+required fields before publishing.
 
 Preserve required fields and automation markers. Apply these principles inside
 the selected format, not a second template (for example, put outcomes in an
@@ -72,6 +72,9 @@ template to an explicit body.
 
 Use a short title naming the problem or purpose. Select relevant facts before
 writing or polishing; source notes are not the body to reproduce.
+If the title communicates the request, omit the body unless the format requires
+one. Otherwise add only information not already clear from the title.
+These are optional content, not required sections:
 
 - **Problem:** current behavior or need, relevant conditions, and why it
   matters. Do not frame a feature request as a bug.
@@ -136,8 +139,9 @@ silently. Keep detailed implementation and verification evidence with the PR.
 
 ## Deliver the requested result
 
-For a draft, return title, body, metadata recommendations, splits or relations,
-and material unresolved questions. Do not invent an ID or imply publication.
+For a draft, return the title and any needed body, relevant metadata proposals,
+relations, and material questions. Omit empty categories; do not invent an ID
+or imply publication.
 
 For an authorized create or update, apply the selected template and established
 metadata with the tracker tools, preserving unrelated content and properties.
