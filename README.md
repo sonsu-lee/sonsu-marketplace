@@ -205,10 +205,10 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`,
   The skill's default prefixes are `feature/` (not `feat/`), `fix/` (not
   `bugfix/`), `hotfix/`, `release/`, and `chore/`. See the
   [skill's validation procedure](plugins/git-workflow/skills/naming-branches/SKILL.md#required-validation).
-- **`writing-pull-requests`** writes repository-aware PR titles and descriptions,
-  records author checks, labels AI assistance, and prepares UI review evidence.
-  Dependent PRs use GitHub stacked PRs where available. New PRs are Draft by
-  default. See the
+- **`writing-pull-requests`** writes plain, repository-aware PR descriptions,
+  selecting review-relevant context instead of reproducing work logs. It records
+  author checks, labels AI assistance, and prepares UI evidence. Dependent PRs
+  use GitHub stacks where available; new PRs are Draft by default. See the
   [PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md).
 
 Branch prefixes do not change commit types: a `feature/` branch can contain
@@ -247,11 +247,11 @@ Install with `omp plugin install ticket-workflow@sonsu-marketplace`,
 `codex plugin add ticket-workflow@sonsu-marketplace`, or
 `claude plugin install ticket-workflow@sonsu-marketplace`.
 
-- **`writing-tickets`** writes small, outcome-centered GitHub and Linear tickets.
-  It follows applicable project templates first; otherwise a clear title or
-  one or two sentences can be the entire ticket. Add context only when needed
-  to understand the purpose or recognize completion, not to fill sections or
-  prescribe the implementation. It also reviews labels,
+- **`writing-tickets`** writes plain, outcome-centered GitHub and Linear tickets.
+  It follows project templates first; otherwise a clear title or one or two
+  sentences can be the entire ticket. Bodies hold the current agreement, not
+  accumulated investigation or progress logs, while retaining essential
+  constraints. It also reviews labels,
   assignment, priority, estimates, and milestones, proposing grounded metadata
   separately from the body using the tracker's actual fields and conventions.
   Optional unknowns remain unset rather than guessed. Bug reports and parent

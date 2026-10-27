@@ -13,9 +13,9 @@ compatibility: >-
 
 # Writing tickets
 
-A ticket communicates what is needed, not a design document or implementation
-plan. Identify its purpose and stop once the assignee can understand the work
-and recognize completion. Write directly; no user-story formula is required.
+A ticket agrees on the problem and observable result, not an implementation
+recipe. Use plain, direct language and established technical terms. Give the
+assignee context to choose a solution, not your investigation diary.
 
 ## Establish the request and context
 
@@ -59,9 +59,9 @@ Feature requests, maintenance, and investigations need no kind reference.
 
 Within the project's mandatory rules, use an explicitly requested applicable
 template first, then the applicable repository, team, or issue-type template;
-otherwise use the [default body guidance](assets/ticket-body.md). If template
-lookup is unavailable, disclose that in a draft and resolve required fields
-before publishing.
+otherwise use the [body guidance](assets/ticket-body.md). Distinguish an
+unavailable template lookup from finding none: disclose it in a draft and resolve
+required fields before publishing.
 
 Preserve required fields and automation markers. Apply these principles inside
 the selected format, not a second template (for example, put outcomes in an
@@ -70,27 +70,30 @@ template to an explicit body.
 
 ## Describe the problem and desired outcome
 
-Use a short, specific title conveying the problem or purpose on a board.
-If the title communicates the whole request, no body is needed unless the
-selected format requires one. One or two sentences can be a complete ticket.
+Use a short title naming the problem or purpose. Select relevant facts before
+writing or polishing; source notes are not the body to reproduce.
+If the title communicates the request, omit the body unless the format requires
+one. Otherwise add only information not already clear from the title.
+These are optional content, not required sections:
 
-Add information only when omission could misdirect the work or leave completion
-unclear: a non-obvious purpose, outcome, constraint, evidence, dependency, or
-link. Preserve known security, compatibility, and external-contract constraints.
-Do not restate the same need as separate problem, outcome, and acceptance
-sections, invent rationale to fill them, or anticipate the design and its edge
-cases. Use headings or lists only to organize necessary detail.
+- **Problem:** current behavior or need, relevant conditions, and why it
+  matters. Do not frame a feature request as a bug.
+- **Desired outcome:** the observable result that makes completion judgeable,
+  not an implementation recipe. One sentence may suffice; list only distinct
+  outcomes, not a default checklist.
+- **Context:** necessary decisions, constraints, evidence, and dependencies.
+  Summarize enough to stand alone, link the details, and omit when unnecessary.
 
-Describe restored capability, not a vanished symptom: prefer "Repeated save
-attempts produce one record" over "Debounce the save button" or "Hide the
-duplicate-record error." Leave storage, timing, and code structure to the
-assignee unless a requirement constrains them; mark proposed
-approaches tentative or omit them. Do not turn routine implementation steps,
-test counts, or generic CI checks into outcomes; the PR records those.
+Keep detail only if its omission could change the task or completion judgment.
+Preserve security, compatibility, external contracts, and material unknowns;
+omit generic cautions, exhaustive exclusions, and routine test/command lists.
+Describe restored capability: "Repeated saves produce one record", not
+"Debounce the button". Leave storage, timing, and code structure to the assignee
+unless required; label proposed approaches tentative or omit them.
 
-For maintenance, the problem is the current state's cost or risk; an agreed or
-externally required change may itself be the outcome. Do not file trivial debt
-that belongs in the current change, or title a ticket `Follow-up`.
+For maintenance, describe the current cost or risk; an agreed or externally
+required change may itself be the outcome. Do not file trivial debt that
+belongs in the current change, or title a ticket `Follow-up`.
 
 ## Review and propose metadata
 
@@ -129,9 +132,10 @@ Tickets and PRs need not be one-to-one. Reference partial work without closing
 the ticket; use completion links only when the outcome is fulfilled under the
 tracker's actual automation, not while deployment or verification remains.
 
-The assignee may change the approach while preserving the outcome. State
-changes to the problem, scope, or outcome in the ticket with the reason; never
-silently redefine success. Keep implementation details and evidence in the PR.
+Keep the body on the current agreed problem, scope, and outcome. When these
+change, record the reason without accumulating superseded plans or progress
+logs; link existing discussion or design records. Never redefine success
+silently. Keep detailed implementation and verification evidence with the PR.
 
 ## Deliver the requested result
 
