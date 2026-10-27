@@ -20,7 +20,7 @@
       "name": "ticket-workflow",
       "source": "./plugins/ticket-workflow",
       "description": "Write small, outcome-centered GitHub and Linear tickets while leaving implementation to the assignee.",
-      "version": "0.3.0"
+      "version": "0.3.1"
     },
     {
       "name": "decision-workflow",

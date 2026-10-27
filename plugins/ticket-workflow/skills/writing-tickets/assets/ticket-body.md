@@ -1,23 +1,19 @@
 # Default ticket body
 
-Copy the fenced body below, not this heading or introduction. Use an applicable
-project template instead when one exists. Replace instructional comments with
-known information and remove the comments from the completed draft. Omit empty
-optional context rather than inventing history.
+Use an applicable project template first, preserving required fields.
+Otherwise start with a specific title. If it conveys the whole request,
+no body is needed; do not copy a fixed set of headings.
 
-```markdown
-## Problem
+For example, **Create a production Auth0 tenant** can be the entire ticket.
+Add a known region constraint or dependency if it matters; do not invent
+setup steps or acceptance criteria to make the ticket look complete.
 
-<!-- Describe the current problem, relevant conditions, and why it matters. -->
+When a body adds necessary information, use plain sentences or, for more
+complex work, only the sections that help:
 
-## Desired outcome
+- **Problem or purpose:** what needs to change and why, when not already clear.
+- **Desired outcome:** what completion means, when not already clear.
+- **Context:** relevant constraints, evidence, decisions, dependencies, or links.
 
-<!-- Describe the observable result that would resolve the problem.
-Include essential constraints, without prescribing an implementation. -->
-
-## Context
-
-<!-- Summarize relevant history, prior decisions, dependencies, and evidence.
-Link to original sources. Omit this section when there is no useful context.
-Remove these instructional comments from the completed draft. -->
-```
+Stop when the purpose and completion are clear. Do not repeat the title,
+add empty sections, or turn the ticket into a design document.

@@ -85,6 +85,39 @@
       "prompt": "I asked you to fix the duplicate invoices on the invoice form in acme/billing. While reading src/export.ts you noticed that the CSV export drops rows whose notes field contains a comma. That has nothing to do with the invoice fix, so keep it out of this change and don't fix it now. Capture what you found so it isn't lost."
     },
     {
+      "id": "simple-provisioning",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Conveys the need for a production Auth0 tenant in a title alone or with at most one short body sentence, without repetitive sections",
+        "Does not invent setup steps, security settings, impact, or acceptance criteria",
+        "Does not publish anything or claim that it was published"
+      ],
+      "prompt": "Draft a ticket: we need an Auth0 tenant for production. This is the entire request; no additional constraints or context are known. This is a standalone draft, not tied to a tracker or project, and no template or metadata requirements apply."
+    },
+    {
+      "id": "concise-with-constraint",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Preserves both the EU data residency requirement and the requirement to keep production separate from the existing staging tenant",
+        "Does not expand the request into a setup plan, invented configuration choices, or generic verification checklist",
+        "Does not repeat the same need under separate problem and outcome sections"
+      ],
+      "prompt": "Draft a standalone ticket, not tied to a tracker or project: we need an Auth0 tenant for production. Customer data must remain in the EU, and production must be separate from the existing staging tenant. No template or metadata requirements apply."
+    },
+    {
+      "id": "simple-required-template",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Preserves the required Request and Business reason fields and answers each briefly using only the supplied facts",
+        "Does not add an implementation plan, generic checklist, or optional sections",
+        "Does not publish anything or claim that it was published"
+      ],
+      "prompt": "Draft a standalone ticket using this mandatory template: '## Request' and '## Business reason'. We need an Auth0 tenant for production because the launch requires production authentication separate from staging. These are all the facts. No tracker lookup, metadata, or publication is needed."
+    },
+    {
       "id": "short",
       "expect": "load",
       "prompt": "File an issue in acme/web: the login page shows a blank screen on Safari 18."

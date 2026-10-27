@@ -13,9 +13,9 @@ compatibility: >-
 
 # Writing tickets
 
-A ticket is an agreement about a problem and the desired outcome, not an
-implementation prescription. Give the assignee enough context to choose a
-solution. Write directly; no user-story formula is required.
+A ticket communicates what is needed, not a design document or implementation
+plan. Identify its purpose and stop once the assignee can understand the work
+and recognize completion. Write directly; no user-story formula is required.
 
 ## Establish the request and context
 
@@ -59,9 +59,9 @@ Feature requests, maintenance, and investigations need no kind reference.
 
 Within the project's mandatory rules, use an explicitly requested applicable
 template first, then the applicable repository, team, or issue-type template;
-otherwise the [default body](assets/ticket-body.md). If template lookup is
-unavailable, distinguish that from finding none: disclose the limitation in a
-draft and resolve required fields before publishing.
+otherwise use the [default body guidance](assets/ticket-body.md). If template
+lookup is unavailable, disclose that in a draft and resolve required fields
+before publishing.
 
 Preserve required fields and automation markers. Apply these principles inside
 the selected format, not a second template (for example, put outcomes in an
@@ -71,20 +71,15 @@ template to an explicit body.
 ## Describe the problem and desired outcome
 
 Use a short, specific title conveying the problem or purpose on a board.
-Keep the body only as long as the work requires:
+If the title communicates the whole request, no body is needed unless the
+selected format requires one. One or two sentences can be a complete ticket.
 
-- **Problem:** what happens now, relevant conditions, and why it matters. A
-  feature request describes an unmet need or limitation, not an invented bug.
-- **Desired outcome:** the observable state that resolves the problem, making
-  completion judgeable without prescribing implementation. One sentence may
-  suffice; use a short list for distinct outcomes, not a default extra checklist.
-- **Context:** relevant history, decisions, evidence, dependencies, and links,
-  summarized to stand alone. Omit when empty unless required.
-
-Add detail when omission would permit solving the wrong problem or declaring
-completion wrongly, not to list edge cases. Preserve established security,
-compatibility, and external-contract constraints; distinguish them from
-unverified implementation preferences.
+Add information only when omission could misdirect the work or leave completion
+unclear: a non-obvious purpose, outcome, constraint, evidence, dependency, or
+link. Preserve known security, compatibility, and external-contract constraints.
+Do not restate the same need as separate problem, outcome, and acceptance
+sections, invent rationale to fill them, or anticipate the design and its edge
+cases. Use headings or lists only to organize necessary detail.
 
 Describe restored capability, not a vanished symptom: prefer "Repeated save
 attempts produce one record" over "Debounce the save button" or "Hide the
@@ -140,8 +135,9 @@ silently redefine success. Keep implementation details and evidence in the PR.
 
 ## Deliver the requested result
 
-For a draft, return title, body, metadata recommendations, splits or relations,
-and material unresolved questions. Do not invent an ID or imply publication.
+For a draft, return the title and any needed body, relevant metadata proposals,
+relations, and material questions. Omit empty categories; do not invent an ID
+or imply publication.
 
 For an authorized create or update, apply the selected template and established
 metadata with the tracker tools, preserving unrelated content and properties.

@@ -248,10 +248,10 @@ Install with `omp plugin install ticket-workflow@sonsu-marketplace`,
 `claude plugin install ticket-workflow@sonsu-marketplace`.
 
 - **`writing-tickets`** writes small, outcome-centered GitHub and Linear tickets.
-  It follows applicable project templates first, using a bundled Problem,
-  Desired outcome, and optional Context body when no template applies.
-  Outcomes make completion judgeable without prescribing the implementation
-  or requiring a separate acceptance checklist. It also reviews labels,
+  It follows applicable project templates first; otherwise a clear title or
+  one or two sentences can be the entire ticket. Add context only when needed
+  to understand the purpose or recognize completion, not to fill sections or
+  prescribe the implementation. It also reviews labels,
   assignment, priority, estimates, and milestones, proposing grounded metadata
   separately from the body using the tracker's actual fields and conventions.
   Optional unknowns remain unset rather than guessed. Bug reports and parent
