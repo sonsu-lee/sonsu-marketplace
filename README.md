@@ -484,7 +484,7 @@ For root and plugin READMEs:
   and follow the plugin test procedure below, including Codex's `CODEX_HOME`
   and Claude Code's `CLAUDE_CONFIG_DIR`.
 
-All Markdown documents follow the lint policy in
+Repository Markdown files follow the lint policy in
 [ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
 agent instructions, skills, commands, and rules. Before pushing, use Node.js 22
 or newer and npm to check the files added or modified by your change, using the
@@ -500,6 +500,14 @@ Markdown; lint does not verify Standard Readme compliance or visual layout.
 Untouched documents do not need a repository-wide reformat. This is a validation
 step, not automatic formatting; the `checks` workflow runs the same command on
 the Markdown files a pull request adds or modifies.
+
+This file-lint policy and its line-length rule do not apply to PR bodies, even
+when saved to a temporary `.md` file for `--body-file`. Follow the
+[PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md#choose-the-body-format):
+keep each prose paragraph on one source line, with blank lines between
+paragraphs and structural newlines for lists, tables, and code blocks. GitHub
+renders single newlines in PR bodies as visible line breaks, unlike repository
+`.md` files.
 
 ### Decision records
 

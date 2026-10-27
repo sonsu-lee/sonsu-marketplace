@@ -106,6 +106,30 @@
       "prompt": "Prepare only the UI-evidence caption for a fictional checkout PR. The existing preview shows submitting an order and then its confirmation. It was assembled from still images and is not evidence of animation timing. The recording notes include 27 images, a nominal 0.2-second interval, encoder flags, and several export retries. The change concerns the confirmation being visible, not its timing. No repository-specific caption requirements apply. Do not create, upload, or publish media or change any files."
     },
     {
+      "id": "continuous-paragraphs",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Keeps each prose paragraph and each list item's prose on a single source line, without manual column wrapping",
+        "Preserves blank lines between paragraphs and structural newlines between list items",
+        "Does not apply the repository's Markdown-file lint or 80-column limit to the PR body",
+        "Reports only the supplied staging check and does not claim publication"
+      ],
+      "prompt": "Draft only a copy-ready GitHub PR body for fictional acme/exports using the default template. Repository Markdown files must pass markdownlint with its default 80-column limit; contribution rules say nothing about PR-body lint. The complete change makes CSV exports preserve non-ASCII customer names and retain the selected column order. Previously, downloaded reports replaced accented characters and reordered columns, forcing support staff to repair the files before importing them into the billing system. In staging, an export preserved Zoë and José and kept the selected column order. Include a paragraph explaining the problem and two bullets describing the changed behaviors. No UI changed. Use only these facts; do not create files, publish, or access the fictional repository."
+    },
+    {
+      "id": "body-file-structure",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Keeps each prose paragraph on one source line despite the planned temporary .md body file and repository file-lint policy",
+        "Preserves the two-column table's row structure and the code block's separate command lines",
+        "Does not run or recommend applying Markdown-file lint or column wrapping merely because --body-file uses a .md file",
+        "Keeps production execution explicitly unverified and does not publish or create files"
+      ],
+      "prompt": "Return only copy-ready Markdown for a GitHub PR description for fictional acme/archive. I will later save it as /tmp/pr-body.md and pass it to gh pr create --body-file; do not create it or publish anything. Repository Markdown files require default markdownlint checks; no PR-body formatting rule is specified. Use this required template: ## Why, ## Behavior (a two-column table named Environment and Result), ## Author checks (a fenced sh block followed by prose). Change: the archive command now preserves original filenames so operators can match downloaded records to audit entries without manually renaming them. Table facts: staging preserved the original filenames; production has not been run. The author ran two separate commands, archive export --env staging and archive verify --env staging, and verification confirmed matching filenames. Keep those commands on separate lines. No UI changed. Use only supplied facts; do not access the fictional repository."
+    },
+    {
       "id": "commit",
       "expect": "no-load",
       "prompt": "Write a commit message for my staged change, which renames the helper formatDate to formatDay in src/date.ts."
