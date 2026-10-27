@@ -83,9 +83,11 @@ and omit irrelevant setup, logins, waiting, and unrelated navigation. Split
 unrelated demonstrations rather than making one long tour.
 
 When behavior differs, show the same Before and After scenario if feasible.
-Do not speed up, splice, or otherwise edit away the timing or ordering that is
-under review. Disclose meaningful cuts. New functionality may need only one
-complete flow. A caption should explain what to notice, not restate every click.
+Do not speed up, splice, or otherwise edit away timing or ordering under review.
+Disclose meaningful cuts or image sequences presented as video, and any limits
+on the timing or ordering they establish. Captions explain what to notice,
+not every click or production step. Include capture metrics only when they
+affect interpretation of the evidence.
 
 ## Inspect and publish
 

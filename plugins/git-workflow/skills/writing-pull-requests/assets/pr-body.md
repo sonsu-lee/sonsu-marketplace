@@ -14,20 +14,19 @@ body section, unless the repository requires body disclosure.
 
 ## What changes
 
-<!-- Describe the approach and important decision reasons, not each diff line.
-Include relevant issue links, dependencies, or compatibility notes here.
+<!-- Explain the observable change and decisions the diff cannot explain.
+Keep only context needed for review; link issues rather than copying them.
 Use closing keywords only for issues this PR actually completes. -->
 
 ## Author checks
 
-<!-- Record situations actually checked and observed results, not CI status.
-Use short prose or ordinary bullets, not checkboxes. Do not invent checks.
-Omit if unnecessary; disclose material unverified behavior rather than hide it.
--->
+<!-- Summarize the relevant scenario and observed result, not execution logs.
+Use prose or bullets; include commands only when needed to reproduce the result.
+Omit if unnecessary; preserve material blockers and unverified behavior. -->
 
 ## UI evidence
 
-<!-- Include marked screenshots, focused video, or both when informative.
-Caption what changed and what to look at. Omit if not applicable; explain a
-non-obvious omission. A capture/upload blocker is not evidence of completion. -->
+<!-- Show the change with marked screenshots or focused video when useful.
+Caption the visible result and meaningful limits, not the recording process.
+Omit if not applicable; disclose missing required evidence. -->
 ```
