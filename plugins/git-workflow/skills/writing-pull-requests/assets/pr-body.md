@@ -22,12 +22,14 @@ Use closing keywords only for issues this PR actually completes. -->
 
 ## Author checks
 
-<!-- Group routine successes by check type; do not narrate individual fixtures.
-For example: "Default profile: activation checks passed; output comparison tied."
-Adapt to observed facts, not this example's results. Omit configuration inventories
-and cleanup notes unless explicitly required or needed to explain a failure.
-Preserve material blockers and unverified behavior;
-omit this section if unnecessary. -->
+<!-- Select evidence before writing: what does each result establish about
+this change? Group successful runs with the same check type and outcome.
+Write each group as: [profile name if required]: [check type] — [observed result].
+This is a review summary, not a reproduction guide: keep successful test inputs
+and setup in the logs, rather than retelling the supplied notes.
+Report failures, important limits, and unverified behavior separately.
+Preserve explicitly required details. Use only observed results; omit this
+section if there is no relevant evidence or material verification gap. -->
 
 ## UI evidence
 

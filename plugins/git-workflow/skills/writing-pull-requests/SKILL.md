@@ -100,14 +100,14 @@ trackers' own completion-link rules.
 
 ## Record author checks, not CI status
 
-Report check types and outcomes, not fixture stories or cleanup. Reporting a
-profile means its name (e.g. `default`), not its model/tool inventory, unless
-explicitly required or needed to explain a failure, limit, or reproduction.
-Link accessible evidence, not local trace paths.
+Select evidence for the change's correctness, not a record of the work.
+For routine success, group results by check type and report the aggregate
+outcome with the required profile name, not its settings. Individual test
+inputs matter only when they explain a failure or limit. Preserve explicitly
+required details, material blockers, and unverified behavior.
 
-Use prose or bullets, not checkboxes. Keep material blockers and unverified
-behavior explicit; omit irrelevant untested items. Distinguish plans from
-observed results and agent checks from human review.
+Use prose or bullets, not checkboxes. Distinguish plans and agent checks from
+observed results and human review. Link accessible evidence, not local paths.
 
 ## Provide UI evidence
 
