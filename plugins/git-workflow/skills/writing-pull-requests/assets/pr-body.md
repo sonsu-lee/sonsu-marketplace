@@ -10,11 +10,9 @@ body section, unless the repository requires body disclosure.
 ## Selecting author checks
 
 The reviewer needs the result and what it proves, not a compressed work log.
-Extract check type, outcome, required profile name, and material coverage limits;
-write from those facts instead of shortening each supplied note. Removing
-temporary test artifacts after a run does not make that run unverified.
-Keep supplied execution gaps separate from successful checks: a passing local
-check does not establish an unrun deployment or another environment.
+Extract check type, outcome, required profile name, and checks or environments
+not exercised. Write from these facts instead of shortening each supplied note.
+Removing temporary test artifacts after a run does not make it unverified.
 
 These examples illustrate selection, not results to claim:
 
