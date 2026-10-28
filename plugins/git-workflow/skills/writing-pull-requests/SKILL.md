@@ -100,15 +100,14 @@ trackers' own completion-link rules.
 
 ## Record author checks, not CI status
 
-Report scenarios and outcomes, not an execution diary. Required profile/results
-reporting means names and outcomes, not an environment inventory. Keep execution
-details only to explain failures, limits, or reproduction. Link evidence
-reviewers can access, not local trace paths.
+Summarize routine checks as scenario categories and outcomes, naming the profile
+when required. Omit model/tool inventories, fixture internals, and cleanup notes
+unless they explain a failure, limitation, or reproduction requirement. Link
+accessible evidence, not local trace paths.
 
-Use prose or ordinary bullets, not task checkboxes. Omit optional checks when
-unnecessary; do not enumerate everything not tested. Keep material blockers
-and unverified behavior explicit, and distinguish plans from completed checks.
-Agent execution is not evidence of human review.
+Use prose or bullets, not checkboxes. Keep material blockers and unverified
+behavior explicit; omit irrelevant untested items. Distinguish plans from
+observed results and agent checks from human review.
 
 ## Provide UI evidence
 
