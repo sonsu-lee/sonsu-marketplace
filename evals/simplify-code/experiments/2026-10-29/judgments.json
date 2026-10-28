@@ -1,0 +1,558 @@
+{
+  "seed": 20261029,
+  "method": "compare_skill.judge with randomized A/B labels; source and immutable contract outcomes; winner derived from criterion scores, not prose style preference",
+  "pairs": [
+    {
+      "case": "TS01",
+      "rep": 1,
+      "A": "baseline",
+      "scores": {
+        "baseline": 2,
+        "candidate": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "두 답안은 내용이 완전히 같습니다. 둘 다 `label`의 반환 타입을 `string`으로 좁혀 불필요한 `undefined` 검사를 없앴으며, 원래 producer는 `undefined`를 반환하지 않으므로 `\"label missing\"` 오류는 실행될 수 없었고 출력도 그대로 유지됩니다."
+      },
+      "judge_trace_sha256": "93a65bf8f2265fe71574cbc3c88c5f19a1c4eb1fc152fffa0e12fb4af98c66ee",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS01",
+      "rep": 2,
+      "A": "candidate",
+      "scores": {
+        "candidate": 2,
+        "baseline": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "두 답변은 동일하며, 둘 다 반환 타입을 실제로 항상 반환되는 `string`으로 좁히고 도달할 수 없던 `undefined` 검사를 제거해 기존 출력은 그대로 유지하고 실제로 발생할 수 있던 오류도 없애지 않았습니다."
+      },
+      "judge_trace_sha256": "afa7d1348a0e6055725f7f6ee23a68f31695d2432a8cde2e35b186e7cceb70ab",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS01",
+      "rep": 3,
+      "A": "baseline",
+      "scores": {
+        "baseline": 2,
+        "candidate": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "Both answers are identical: each narrows `label` to return `string` and drops the `label missing` check, which could never run, so outputs stay the same and no reachable error is lost."
+      },
+      "judge_trace_sha256": "23ac83d054d470ddf8b61e866987489e1396d026ec0b56af66d4e84e4bda30c0",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS02",
+      "rep": 1,
+      "A": "baseline",
+      "scores": {
+        "baseline": 3,
+        "candidate": 3
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 3,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "Both answers change the code in the same way: Result becomes a discriminated union with required data/message fields, view narrows on state, and the unreachable undefined checks are removed. The only difference is blank lines, so each answer meets all three criteria and passes the mechanical type and runtime checks."
+      },
+      "judge_trace_sha256": "ce93b3b7a48cf05b74a0b1ef5df4f10a076d17c243e9331051a9ec1e01880320",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS02",
+      "rep": 2,
+      "A": "baseline",
+      "scores": {
+        "baseline": 3,
+        "candidate": 3
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 3,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "Both answers use the same discriminated union and the same narrowed view logic, differing only in blank lines, so they meet all three criteria equally."
+      },
+      "judge_trace_sha256": "9cbdf32cf0d9a7b4d22c9d6c8f5df22e4bd7da9799a787fec966ac9f2106a0d0",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS02",
+      "rep": 3,
+      "A": "candidate",
+      "scores": {
+        "candidate": 3,
+        "baseline": 3
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 3,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "두 답안 모두 같은 판별 유니온(discriminated union)을 정의해 타입 좁히기를 지원하고 잘못된 state/필드 조합을 거부하며, ready와 error 결과의 동작이 같습니다. 차이는 if 문과 삼항 연산자뿐이므로 채점 기준과 무관합니다."
+      },
+      "judge_trace_sha256": "8ff2ca6a4eeed504dbcf970543a11d85768049bc8dd5cc2a1da9e47b53785ead",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS03",
+      "rep": 1,
+      "A": "baseline",
+      "scores": {
+        "baseline": 2,
+        "candidate": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "Both answers have the same code: generic `box<T>` keeps the caller's value type, returns the original value in `{ value }`, and removes the unneeded check in `shout`."
+      },
+      "judge_trace_sha256": "0f673df3c717cbc41862eefec95e0166d22dd993ee9b223476b51d90e28fadd4",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS03",
+      "rep": 2,
+      "A": "baseline",
+      "scores": {
+        "baseline": 2,
+        "candidate": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "Both answers are identical: the generic `box<T>(value: T): { value: T }` keeps the input type, including object and literal types, returns the original value unchanged at runtime, and lets `shout` drop the check it no longer needs."
+      },
+      "judge_trace_sha256": "2de96f239610ab7c36b8f3d36d1d80db7b6cba443ef037033f22c4f9915c16e9",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS03",
+      "rep": 3,
+      "A": "candidate",
+      "scores": {
+        "candidate": 2,
+        "baseline": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "Both answers are the same: each uses a generic `box<T>` that returns `{ value }` with the original value and removes the unneeded runtime check, and both passed the type and runtime checks, so neither is better."
+      },
+      "judge_trace_sha256": "3edce4f30e37bcf68353d75ec9d195a190779c0d1d9dacbda463689c963417cb",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS04",
+      "rep": 1,
+      "A": "baseline",
+      "scores": {
+        "baseline": 3,
+        "candidate": 3
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 3,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "A and B are the same: each one drops the unreachable hasName/typeof checks and the helper, leaves report/summary outputs unchanged, uses no type assertions, and passes the type and runtime contract checks."
+      },
+      "judge_trace_sha256": "04371a6d24792f483a293d8c428aeddbf428750365a5a2fd1f69006208dedb51",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS04",
+      "rep": 2,
+      "A": "baseline",
+      "scores": {
+        "baseline": 2,
+        "candidate": 3
+      },
+      "winner": "candidate",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": false,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 3,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "B",
+        "reason": "A keeps the `typeof name !== \"string\"` check even though `name` is typed `string` and every caller is internal, so the check can never fail; B removes both unreachable checks and the `hasName` helper, and both answers keep the same outputs without type assertions."
+      },
+      "judge_trace_sha256": "c164068dba14fde9f335f427a637313f7870f46f80362d3f8346ff2820ce7063",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS04",
+      "rep": 3,
+      "A": "candidate",
+      "scores": {
+        "candidate": 3,
+        "baseline": 3
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 3,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "Both answers have the same file contents: each removes the unreachable checks and the hasName helper, keeps both report outputs unchanged, and uses no type assertions."
+      },
+      "judge_trace_sha256": "e43c7389e068db3a952678f47a43856464b9417332783215c76f3c270ddec102",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS05",
+      "rep": 1,
+      "A": "baseline",
+      "scores": {
+        "baseline": 2,
+        "candidate": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "A의 `as Record<string, unknown>`는 값을 `unknown`으로 읽은 뒤 런타임에서 다시 검사하므로 안전하고, JSON 배열에는 `host` 속성이 없어 같은 \"invalid config\" 오류가 나므로 A와 원본을 그대로 둔 B 모두 두 기준을 충족합니다."
+      },
+      "judge_trace_sha256": "323859b5bf988e80f208681925c4e80d0c277601c3c99e5254821e82de50fe13",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS05",
+      "rep": 2,
+      "A": "candidate",
+      "scores": {
+        "candidate": 2,
+        "baseline": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "Both answers check the parsed value at runtime, return the same valid configs and throw the same \"invalid config\" error; B's flagged `as Record<string, unknown>` cast runs only after the non-null, non-array object check, so it does not change behavior under these two criteria."
+      },
+      "judge_trace_sha256": "e12c9afcc6a7103e79a6d0053bf04415e7e6a7906dbc048d6230b18cf2bdd106",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS05",
+      "rep": 3,
+      "A": "candidate",
+      "scores": {
+        "candidate": 2,
+        "baseline": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "A leaves the valid reader unchanged, and B still checks the parsed fields at runtime; dropping the array check does not change B's results because JSON.parse never gives arrays host or port fields."
+      },
+      "judge_trace_sha256": "dc85fdbcfa3649478e9867105bce34a5c6ccbdd2f6213316ebef6fdaea788e80",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS06",
+      "rep": 1,
+      "A": "baseline",
+      "scores": {
+        "baseline": 2,
+        "candidate": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "Both answers are the same as the original code, so the runtime check for missing entries, including after deletion, is kept, and existing entries and the `missing: ${key}` error message are unchanged; the case allows an unchanged TS06."
+      },
+      "judge_trace_sha256": "53486a1e57f6a520d69f54c8ddb98544d006f6d5a3895c627369bdab70e0d32e",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS06",
+      "rep": 2,
+      "A": "baseline",
+      "scores": {
+        "baseline": 2,
+        "candidate": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "Both answers match the original code exactly, so both still handle missing entries, including after remove(), and both keep existing values and the `missing: ${key}` error unchanged; leaving TS06 unchanged is allowed."
+      },
+      "judge_trace_sha256": "6cf910bbe1cb2b4e063db026a988a477176be217db4b574887a6a2f8a73741bf",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    },
+    {
+      "case": "TS06",
+      "rep": 3,
+      "A": "candidate",
+      "scores": {
+        "candidate": 2,
+        "baseline": 2
+      },
+      "winner": "tie",
+      "judge": {
+        "criteria": [
+          {
+            "n": 1,
+            "A": true,
+            "B": true
+          },
+          {
+            "n": 2,
+            "A": true,
+            "B": true
+          }
+        ],
+        "winner": "tie",
+        "reason": "두 답안은 원본과 같으며, 삭제 후에도 누락 항목을 처리하는 런타임 검사, 기존 항목의 동작, 오류 메시지를 그대로 유지하고, TS06에서는 변경하지 않아도 올바른 답으로 인정된다."
+      },
+      "judge_trace_sha256": "4d17e0d56bb6af67f00fbc88f9828e57ddf7f590ffda9f328d3a50b8d588b7a8",
+      "observed_judge_model": "claude-opus-5-5",
+      "observed_judge_effort": "high"
+    }
+  ]
+}

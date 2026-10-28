@@ -1,0 +1,50 @@
+{
+  "skill": "candidate:simplify-code",
+  "queries": [
+    {
+      "id": "upstream-guards",
+      "expect": "load",
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "prompt": "Simplify this TypeScript code by fixing upstream type information instead of repeating unnecessary guards. function label(id: number): string | undefined { return `item-${id}`; } function display(id: number) { const x = label(id); if (x === undefined) throw new Error(\"missing\"); return x.toUpperCase(); }\nReturn your answer in this conversation without creating or editing any files or publishing anything."
+    },
+    {
+      "id": "internal-guards",
+      "expect": "load",
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "prompt": "Remove redundant defensive branches from this closed internal TypeScript flow while preserving behavior. function make() { return {name: \"Ada\", count: 2}; } function report() { const row = make(); if (typeof row.name !== \"string\") throw new Error(\"invalid\"); return row.name + \":\" + row.count; } There are no other callers or external inputs.\nReturn your answer in this conversation without creating or editing any files or publishing anything."
+    },
+    {
+      "id": "feature",
+      "expect": "no-load",
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "prompt": "Add a boolean parameter named uppercase, defaulting to false, to this function and apply it to the returned greeting. Do not refactor unrelated code. export function greet(name: string): string { return `Hello ${name}`; }\nReturn your answer in this conversation without creating or editing any files or publishing anything."
+    },
+    {
+      "id": "review-only",
+      "expect": "no-load",
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "prompt": "Review whether the guard in this TypeScript code is necessary; do not implement a change. function greet(name: string) { if (typeof name !== \"string\") throw new Error(\"invalid\"); return `Hello ${name}`; } It is exported from a library used by JavaScript callers.\nReturn your answer in this conversation without creating or editing any files or publishing anything."
+    },
+    {
+      "id": "pr-description",
+      "expect": "no-load",
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "prompt": "Draft only the pull request description for an already completed change: an Express orders API now supports cursor pagination; existing authorization is unchanged; 12 integration tests passed; UI is unchanged. Do not publish or implement anything.\nReturn your answer in this conversation without creating or editing any files or publishing anything."
+    }
+  ]
+}

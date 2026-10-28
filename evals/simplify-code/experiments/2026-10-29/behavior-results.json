@@ -1,0 +1,1361 @@
+{
+  "profile": "default",
+  "client": "omp/18.13.3",
+  "model": "anthropic/claude-opus-5-5",
+  "effort": "high",
+  "evaluator_commit": "5a180ed",
+  "candidate_sha256": "3f2396cd8b787bdc4091485bf6f9983b2d36fb2dcb5e83c52e71abc8300b00d6",
+  "method": "6 cases x 3 repetitions x baseline/candidate; immutable type and runtime contracts; explicit full candidate reads; submitted code rechecked after syntax-only rejection was removed",
+  "runs": [
+    {
+      "case": "TS01",
+      "rep": 1,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The producer exposes its actual non-null string result to typed callers without consumer assertions.",
+          "Existing callers retain their outputs and errors."
+        ]
+      },
+      "reported_total_tokens": 42357,
+      "trace_sha256": "63c9769543a02c289b10e4ffc112f818e94fa6d5a4053b8267e29b06737fb906",
+      "submitted": {
+        "src/producer.ts": "export function label(id: number): string {\n  return `item-${id}`;\n}\n",
+        "src/consumer.ts": "import { label } from \"./producer.js\";\nexport function display(id: number): string {\n  return label(id).toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS01",
+      "rep": 1,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The producer exposes its actual non-null string result to typed callers without consumer assertions.",
+          "Existing callers retain their outputs and errors."
+        ]
+      },
+      "reported_total_tokens": 62396,
+      "trace_sha256": "2dd64ba3d4b65a21116960237806fa152e6a6ac561dc72e1cf48b06f3956ab16",
+      "submitted": {
+        "src/producer.ts": "export function label(id: number): string {\n  return `item-${id}`;\n}\n",
+        "src/consumer.ts": "import { label } from \"./producer.js\";\nexport function display(id: number): string {\n  return label(id).toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS01",
+      "rep": 2,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The producer exposes its actual non-null string result to typed callers without consumer assertions.",
+          "Existing callers retain their outputs and errors."
+        ]
+      },
+      "reported_total_tokens": 62674,
+      "trace_sha256": "55c79cd1ac105719f335b6075ed6ffb68c55c496cfc071f06b14dc9ef2d56723",
+      "submitted": {
+        "src/producer.ts": "export function label(id: number): string {\n  return `item-${id}`;\n}\n",
+        "src/consumer.ts": "import { label } from \"./producer.js\";\nexport function display(id: number): string {\n  return label(id).toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS01",
+      "rep": 2,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The producer exposes its actual non-null string result to typed callers without consumer assertions.",
+          "Existing callers retain their outputs and errors."
+        ]
+      },
+      "reported_total_tokens": 42268,
+      "trace_sha256": "623b8f84c8246c1a295eefc62537579108c133bbea74ad0c29a7ddd866e32d45",
+      "submitted": {
+        "src/producer.ts": "export function label(id: number): string {\n  return `item-${id}`;\n}\n",
+        "src/consumer.ts": "import { label } from \"./producer.js\";\nexport function display(id: number): string {\n  return label(id).toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS01",
+      "rep": 3,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The producer exposes its actual non-null string result to typed callers without consumer assertions.",
+          "Existing callers retain their outputs and errors."
+        ]
+      },
+      "reported_total_tokens": 28147,
+      "trace_sha256": "7212b4e2f879cc5d6607185a5c0f9d7c08624ab28d8e3ec2e969bc74925f6c14",
+      "submitted": {
+        "src/producer.ts": "export function label(id: number): string {\n  return `item-${id}`;\n}\n",
+        "src/consumer.ts": "import { label } from \"./producer.js\";\nexport function display(id: number): string {\n  return label(id).toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS01",
+      "rep": 3,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The producer exposes its actual non-null string result to typed callers without consumer assertions.",
+          "Existing callers retain their outputs and errors."
+        ]
+      },
+      "reported_total_tokens": 62195,
+      "trace_sha256": "dd06a170aa93b534ed1cb32f0b621d8769853c4441f97474be9d68ba591c64e3",
+      "submitted": {
+        "src/producer.ts": "export function label(id: number): string {\n  return `item-${id}`;\n}\n",
+        "src/consumer.ts": "import { label } from \"./producer.js\";\nexport function display(id: number): string {\n  return label(id).toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS02",
+      "rep": 1,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Typed callers can narrow a ready result to its data and an error result to its message.",
+          "Invalid state and data combinations are rejected by the type contract.",
+          "Ready and error results retain their observable behavior."
+        ]
+      },
+      "reported_total_tokens": 57065,
+      "trace_sha256": "113d919b5b01f656992a086e8f57dad6f7046b94f56cdb45b457ce78b1f53056",
+      "submitted": {
+        "src/loader.ts": "export type Result =\n  | { state: \"ready\"; data: string }\n  | { state: \"error\"; message: string };\n\nexport function load(key: string): Result {\n  return key ? { state: \"ready\", data: key.toUpperCase() } : { state: \"error\", message: \"empty key\" };\n}\n",
+        "src/view.ts": "import { load } from \"./loader.js\";\n\nexport function view(key: string): string {\n  const result = load(key);\n  return result.state === \"ready\" ? result.data : `Error: ${result.message}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS02",
+      "rep": 1,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Typed callers can narrow a ready result to its data and an error result to its message.",
+          "Invalid state and data combinations are rejected by the type contract.",
+          "Ready and error results retain their observable behavior."
+        ]
+      },
+      "reported_total_tokens": 79253,
+      "trace_sha256": "33e9e1a2beafb5df7de8c70b78c830c1d1cf7d92add05273e7605184718f4e13",
+      "submitted": {
+        "src/loader.ts": "export type Result =\n  | { state: \"ready\"; data: string }\n  | { state: \"error\"; message: string };\nexport function load(key: string): Result {\n  return key ? { state: \"ready\", data: key.toUpperCase() } : { state: \"error\", message: \"empty key\" };\n}\n",
+        "src/view.ts": "import { load } from \"./loader.js\";\nexport function view(key: string): string {\n  const result = load(key);\n  return result.state === \"ready\" ? result.data : `Error: ${result.message}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS02",
+      "rep": 2,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Typed callers can narrow a ready result to its data and an error result to its message.",
+          "Invalid state and data combinations are rejected by the type contract.",
+          "Ready and error results retain their observable behavior."
+        ]
+      },
+      "reported_total_tokens": 46378,
+      "trace_sha256": "224a86e64886e9e0be2b73872a681421db8ce8a8532626d1e264177d6ac9861a",
+      "submitted": {
+        "src/loader.ts": "export type Result =\n  | { state: \"ready\"; data: string }\n  | { state: \"error\"; message: string };\nexport function load(key: string): Result {\n  return key ? { state: \"ready\", data: key.toUpperCase() } : { state: \"error\", message: \"empty key\" };\n}\n",
+        "src/view.ts": "import { load } from \"./loader.js\";\nexport function view(key: string): string {\n  const result = load(key);\n  return result.state === \"ready\" ? result.data : `Error: ${result.message}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS02",
+      "rep": 2,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Typed callers can narrow a ready result to its data and an error result to its message.",
+          "Invalid state and data combinations are rejected by the type contract.",
+          "Ready and error results retain their observable behavior."
+        ]
+      },
+      "reported_total_tokens": 56498,
+      "trace_sha256": "20ee70003e7c3573c62fd7d5cb52dee99638bc61e9b5c17e942b8cd25223233e",
+      "submitted": {
+        "src/loader.ts": "export type Result =\n  | { state: \"ready\"; data: string }\n  | { state: \"error\"; message: string };\n\nexport function load(key: string): Result {\n  return key ? { state: \"ready\", data: key.toUpperCase() } : { state: \"error\", message: \"empty key\" };\n}\n",
+        "src/view.ts": "import { load } from \"./loader.js\";\n\nexport function view(key: string): string {\n  const result = load(key);\n  return result.state === \"ready\" ? result.data : `Error: ${result.message}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS02",
+      "rep": 3,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Typed callers can narrow a ready result to its data and an error result to its message.",
+          "Invalid state and data combinations are rejected by the type contract.",
+          "Ready and error results retain their observable behavior."
+        ]
+      },
+      "reported_total_tokens": 42501,
+      "trace_sha256": "73b454041d2e8487198a325b7eef5eeb8fb42b6449f1d7d49c5f18ee0f4853ca",
+      "submitted": {
+        "src/loader.ts": "export type Result =\n  | { state: \"ready\"; data: string }\n  | { state: \"error\"; message: string };\n\nexport function load(key: string): Result {\n  return key ? { state: \"ready\", data: key.toUpperCase() } : { state: \"error\", message: \"empty key\" };\n}\n",
+        "src/view.ts": "import { load } from \"./loader.js\";\n\nexport function view(key: string): string {\n  const result = load(key);\n  return result.state === \"ready\" ? result.data : `Error: ${result.message}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS02",
+      "rep": 3,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Typed callers can narrow a ready result to its data and an error result to its message.",
+          "Invalid state and data combinations are rejected by the type contract.",
+          "Ready and error results retain their observable behavior."
+        ]
+      },
+      "reported_total_tokens": 80144,
+      "trace_sha256": "2586762f00e77b474188015dfae61169a774702071e59c2b4ff981033ddfd489",
+      "submitted": {
+        "src/loader.ts": "export type Result =\n  | { state: \"ready\"; data: string }\n  | { state: \"error\"; message: string };\nexport function load(key: string): Result {\n  return key ? { state: \"ready\", data: key.toUpperCase() } : { state: \"error\", message: \"empty key\" };\n}\n",
+        "src/view.ts": "import { load } from \"./loader.js\";\nexport function view(key: string): string {\n  const result = load(key);\n  if (result.state === \"ready\") return result.data;\n  return `Error: ${result.message}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS03",
+      "rep": 1,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The transformation preserves the input value type for typed callers, including object and literal inputs.",
+          "The returned wrapper retains the original value at runtime."
+        ]
+      },
+      "reported_total_tokens": 56692,
+      "trace_sha256": "fa7a60f243b7119afdd90cf79db0bf3ecf81139d1cda7cd5ea0f37265a019d94",
+      "submitted": {
+        "src/box.ts": "export function box<T>(value: T): { value: T } {\n  return { value };\n}\n",
+        "src/use.ts": "import { box } from \"./box.js\";\nexport function shout(value: string): string {\n  return box(value).value.toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS03",
+      "rep": 1,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The transformation preserves the input value type for typed callers, including object and literal inputs.",
+          "The returned wrapper retains the original value at runtime."
+        ]
+      },
+      "reported_total_tokens": 79172,
+      "trace_sha256": "8f0e17a8bdd26080d9b462db7f44edf821a8e5618249df14ea817a0dc16c5655",
+      "submitted": {
+        "src/box.ts": "export function box<T>(value: T): { value: T } {\n  return { value };\n}\n",
+        "src/use.ts": "import { box } from \"./box.js\";\nexport function shout(value: string): string {\n  return box(value).value.toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS03",
+      "rep": 2,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The transformation preserves the input value type for typed callers, including object and literal inputs.",
+          "The returned wrapper retains the original value at runtime."
+        ]
+      },
+      "reported_total_tokens": 62039,
+      "trace_sha256": "34091192b6e0faa39543a3e5c0092940bbb02d003c72319c50a0eb2f8f2ed21a",
+      "submitted": {
+        "src/box.ts": "export function box<T>(value: T): { value: T } {\n  return { value };\n}\n",
+        "src/use.ts": "import { box } from \"./box.js\";\nexport function shout(value: string): string {\n  return box(value).value.toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS03",
+      "rep": 2,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The transformation preserves the input value type for typed callers, including object and literal inputs.",
+          "The returned wrapper retains the original value at runtime."
+        ]
+      },
+      "reported_total_tokens": 42403,
+      "trace_sha256": "c8db95f79f3bd8eb953e1124beb22cd2a1b44e4deb6a9abc04e9e34c47b7bc5c",
+      "submitted": {
+        "src/box.ts": "export function box<T>(value: T): { value: T } {\n  return { value };\n}\n",
+        "src/use.ts": "import { box } from \"./box.js\";\nexport function shout(value: string): string {\n  return box(value).value.toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS03",
+      "rep": 3,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The transformation preserves the input value type for typed callers, including object and literal inputs.",
+          "The returned wrapper retains the original value at runtime."
+        ]
+      },
+      "reported_total_tokens": 42472,
+      "trace_sha256": "cdfc7ed20e10430e267a3feaa841b4b9c88f7b8620bb925c41f3f16100aaab91",
+      "submitted": {
+        "src/box.ts": "export function box<T>(value: T): { value: T } {\n  return { value };\n}\n",
+        "src/use.ts": "import { box } from \"./box.js\";\nexport function shout(value: string): string {\n  return box(value).value.toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS03",
+      "rep": 3,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The transformation preserves the input value type for typed callers, including object and literal inputs.",
+          "The returned wrapper retains the original value at runtime."
+        ]
+      },
+      "reported_total_tokens": 79070,
+      "trace_sha256": "55abf5ba26de00e80a2f8c3f0683ec207556867eb7d940e9fed1e21dc217441e",
+      "submitted": {
+        "src/box.ts": "export function box<T>(value: T): { value: T } {\n  return { value };\n}\n",
+        "src/use.ts": "import { box } from \"./box.js\";\nexport function shout(value: string): string {\n  return box(value).value.toUpperCase();\n}\n"
+      }
+    },
+    {
+      "case": "TS04",
+      "rep": 1,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The closed internal flow no longer retains unreachable defensive checks or their now-unused helper.",
+          "Public report outputs are unchanged.",
+          "No type assertion is used to bypass the contract."
+        ]
+      },
+      "reported_total_tokens": 58235,
+      "trace_sha256": "5d51a2abf96f3691e727066796c6a0a109dfde82c442ea2ce82ca036ad53b8f4",
+      "submitted": {
+        "src/report.ts": "import { format } from \"./format.js\";\nexport function report(name: string): string {\n  return format({ name, count: name.length });\n}\nexport function summary(): string {\n  return format({ name: \"all\", count: 0 });\n}\n",
+        "src/format.ts": "type Row = { name: string; count: number };\nexport function format(row: Row): string {\n  return `${row.name}:${row.count}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS04",
+      "rep": 1,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The closed internal flow no longer retains unreachable defensive checks or their now-unused helper.",
+          "Public report outputs are unchanged.",
+          "No type assertion is used to bypass the contract."
+        ]
+      },
+      "reported_total_tokens": 79996,
+      "trace_sha256": "777c567e63d70908d89bc0ab2f0871d7e860aae5e92fdbc066b0aa45a8e2851a",
+      "submitted": {
+        "src/report.ts": "import { format } from \"./format.js\";\nexport function report(name: string): string {\n  return format({ name, count: name.length });\n}\nexport function summary(): string {\n  return format({ name: \"all\", count: 0 });\n}\n",
+        "src/format.ts": "type Row = { name: string; count: number };\nexport function format(row: Row): string {\n  return `${row.name}:${row.count}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS04",
+      "rep": 2,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The closed internal flow no longer retains unreachable defensive checks or their now-unused helper.",
+          "Public report outputs are unchanged.",
+          "No type assertion is used to bypass the contract."
+        ]
+      },
+      "reported_total_tokens": 80041,
+      "trace_sha256": "4f3692e63a45979e76ec48da679db4fbf87f879b38b420f366477a647013a797",
+      "submitted": {
+        "src/report.ts": "import { format } from \"./format.js\";\nexport function report(name: string): string {\n  return format({ name, count: name.length });\n}\nexport function summary(): string {\n  return format({ name: \"all\", count: 0 });\n}\n",
+        "src/format.ts": "type Row = { name: string; count: number };\nexport function format(row: Row): string {\n  return `${row.name}:${row.count}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS04",
+      "rep": 2,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The closed internal flow no longer retains unreachable defensive checks or their now-unused helper.",
+          "Public report outputs are unchanged.",
+          "No type assertion is used to bypass the contract."
+        ]
+      },
+      "reported_total_tokens": 43100,
+      "trace_sha256": "279dbf3d04edd3043ef614297a4504b70a838ccf9e86d41bf77b627f9144a103",
+      "submitted": {
+        "src/report.ts": "import { format } from \"./format.js\";\nexport function report(name: string): string {\n  return format(name, name.length);\n}\nexport function summary(): string {\n  return format(\"all\", 0);\n}\n",
+        "src/format.ts": "export function format(name: string, count: number): string {\n  if (typeof name !== \"string\") throw new Error(\"invalid name\");\n  return `${name}:${count}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS04",
+      "rep": 3,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The closed internal flow no longer retains unreachable defensive checks or their now-unused helper.",
+          "Public report outputs are unchanged.",
+          "No type assertion is used to bypass the contract."
+        ]
+      },
+      "reported_total_tokens": 73184,
+      "trace_sha256": "82cac6d7439d29f0f99b6b97bf032a4d83a0dcc39f77bad4c233e8672dcad5cf",
+      "submitted": {
+        "src/format.ts": "type Row = { name: string; count: number };\nexport function format(row: Row): string {\n  return `${row.name}:${row.count}`;\n}\n",
+        "src/report.ts": "import { format } from \"./format.js\";\nexport function report(name: string): string {\n  return format({ name, count: name.length });\n}\nexport function summary(): string {\n  return format({ name: \"all\", count: 0 });\n}\n"
+      }
+    },
+    {
+      "case": "TS04",
+      "rep": 3,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "The closed internal flow no longer retains unreachable defensive checks or their now-unused helper.",
+          "Public report outputs are unchanged.",
+          "No type assertion is used to bypass the contract."
+        ]
+      },
+      "reported_total_tokens": 65118,
+      "trace_sha256": "e425bcdcf7300dbc96e9e81f0d8259ede50b11eca6c37090df16de4910fef385",
+      "submitted": {
+        "src/report.ts": "import { format } from \"./format.js\";\nexport function report(name: string): string {\n  return format({ name, count: name.length });\n}\nexport function summary(): string {\n  return format({ name: \"all\", count: 0 });\n}\n",
+        "src/format.ts": "type Row = { name: string; count: number };\nexport function format(row: Row): string {\n  return `${row.name}:${row.count}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS05",
+      "rep": 1,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [
+          "src/config.ts: AsExpression:value as Record<string, unknown>"
+        ],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Untrusted parsed input is validated at runtime before use.",
+          "Valid values and the documented errors remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 59337,
+      "trace_sha256": "710b11f33276f4ed02f678fd2e59dd9114d1505905c674a116e932c68b5d4ccc",
+      "submitted": {
+        "src/config.ts": "export type Config = { host: string; port: number };\nexport function parseConfig(json: string): Config {\n  const value: unknown = JSON.parse(json);\n  if (typeof value !== \"object\" || value === null) throw new Error(\"invalid config\");\n  const { host, port } = value as Record<string, unknown>;\n  if (typeof host !== \"string\" || typeof port !== \"number\" || !Number.isInteger(port) || port < 1 || port > 65535) throw new Error(\"invalid config\");\n  return { host, port };\n}\n",
+        "src/address.ts": "import { parseConfig } from \"./config.js\";\nexport function address(json: string): string {\n  const config = parseConfig(json);\n  return `${config.host}:${config.port}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS05",
+      "rep": 1,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Untrusted parsed input is validated at runtime before use.",
+          "Valid values and the documented errors remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 47364,
+      "trace_sha256": "44e57a6b1b6a41341695eb6ccb0d83278077bafc58b0bcd38241d2f5ab9bed66",
+      "submitted": {
+        "src/config.ts": "export type Config = { host: string; port: number };\nexport function parseConfig(json: string): Config {\n  const value: unknown = JSON.parse(json);\n  if (typeof value !== \"object\" || value === null || Array.isArray(value)) throw new Error(\"invalid config\");\n  if (!(\"host\" in value) || typeof value.host !== \"string\" || !(\"port\" in value) || typeof value.port !== \"number\" || !Number.isInteger(value.port) || value.port < 1 || value.port > 65535) throw new Error(\"invalid config\");\n  return { host: value.host, port: value.port };\n}\n",
+        "src/address.ts": "import { parseConfig } from \"./config.js\";\nexport function address(json: string): string {\n  const config = parseConfig(json);\n  return `${config.host}:${config.port}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS05",
+      "rep": 2,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Untrusted parsed input is validated at runtime before use.",
+          "Valid values and the documented errors remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 64504,
+      "trace_sha256": "58b170bcd7ed21ea31e988c0a819015e5c5df07ad3b4fd6069e4a7e4edac6cef",
+      "submitted": {
+        "src/config.ts": "export type Config = { host: string; port: number };\nexport function parseConfig(json: string): Config {\n  const value: unknown = JSON.parse(json);\n  if (typeof value !== \"object\" || value === null || Array.isArray(value)) throw new Error(\"invalid config\");\n  if (!(\"host\" in value) || typeof value.host !== \"string\" || !(\"port\" in value) || typeof value.port !== \"number\" || !Number.isInteger(value.port) || value.port < 1 || value.port > 65535) throw new Error(\"invalid config\");\n  return { host: value.host, port: value.port };\n}\n",
+        "src/address.ts": "import { parseConfig } from \"./config.js\";\nexport function address(json: string): string {\n  const config = parseConfig(json);\n  return `${config.host}:${config.port}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS05",
+      "rep": 2,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [
+          "src/config.ts: AsExpression:value as Record<string, unknown>"
+        ],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Untrusted parsed input is validated at runtime before use.",
+          "Valid values and the documented errors remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 73961,
+      "trace_sha256": "a133b8cd3aec895f8676483142f00db6823dbb0b42358235c52c1c91ec6e282e",
+      "submitted": {
+        "src/config.ts": "export type Config = { host: string; port: number };\n\nexport function parseConfig(json: string): Config {\n  const value: unknown = JSON.parse(json);\n  if (typeof value !== \"object\" || value === null || Array.isArray(value)) throw new Error(\"invalid config\");\n  const { host, port } = value as Record<string, unknown>;\n  if (typeof host !== \"string\" || typeof port !== \"number\" || !Number.isInteger(port) || port < 1 || port > 65535) {\n    throw new Error(\"invalid config\");\n  }\n  return { host, port };\n}\n",
+        "src/address.ts": "import { parseConfig } from \"./config.js\";\nexport function address(json: string): string {\n  const config = parseConfig(json);\n  return `${config.host}:${config.port}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS05",
+      "rep": 3,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [
+          "src/config.ts: AsExpression:value as Record<string, unknown>"
+        ],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Untrusted parsed input is validated at runtime before use.",
+          "Valid values and the documented errors remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 58435,
+      "trace_sha256": "8fb00719ee4f26cac522be167e6c30dd87c1ddbe7f3c6bde5f8e1d0e993184e1",
+      "submitted": {
+        "src/config.ts": "export type Config = { host: string; port: number };\n\nexport function parseConfig(json: string): Config {\n  const value: unknown = JSON.parse(json);\n  if (typeof value !== \"object\" || value === null) throw new Error(\"invalid config\");\n  const { host, port } = value as Record<string, unknown>;\n  if (typeof host !== \"string\" || typeof port !== \"number\" || !Number.isInteger(port) || port < 1 || port > 65535) {\n    throw new Error(\"invalid config\");\n  }\n  return { host, port };\n}\n",
+        "src/address.ts": "import { parseConfig } from \"./config.js\";\nexport function address(json: string): string {\n  const config = parseConfig(json);\n  return `${config.host}:${config.port}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS05",
+      "rep": 3,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Untrusted parsed input is validated at runtime before use.",
+          "Valid values and the documented errors remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 64433,
+      "trace_sha256": "e9835f32d6ee5ceb23de835c314feb3678e6a9fcddb812ced1bd4574b662a87f",
+      "submitted": {
+        "src/config.ts": "export type Config = { host: string; port: number };\nexport function parseConfig(json: string): Config {\n  const value: unknown = JSON.parse(json);\n  if (typeof value !== \"object\" || value === null || Array.isArray(value)) throw new Error(\"invalid config\");\n  if (!(\"host\" in value) || typeof value.host !== \"string\" || !(\"port\" in value) || typeof value.port !== \"number\" || !Number.isInteger(value.port) || value.port < 1 || value.port > 65535) throw new Error(\"invalid config\");\n  return { host: value.host, port: value.port };\n}\n",
+        "src/address.ts": "import { parseConfig } from \"./config.js\";\nexport function address(json: string): string {\n  const config = parseConfig(json);\n  return `${config.host}:${config.port}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS06",
+      "rep": 1,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Missing entries remain handled for public callers, including after deletion.",
+          "Existing entries and error messages remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 56494,
+      "trace_sha256": "ad7218b4a4b82f0a731df2d709d7c36c683191dae0d92568ca9e4a89736c7dc8",
+      "submitted": {
+        "src/registry.ts": "export class Registry {\n  private items = new Map<string, string>();\n  set(key: string, value: string): void { this.items.set(key, value); }\n  remove(key: string): void { this.items.delete(key); }\n  get(key: string): string {\n    const value = this.items.get(key);\n    if (value === undefined) throw new Error(`missing: ${key}`);\n    return value;\n  }\n}\n",
+        "src/service.ts": "import { Registry } from \"./registry.js\";\nexport function greet(registry: Registry, key: string): string {\n  return `Hello ${registry.get(key)}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS06",
+      "rep": 1,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Missing entries remain handled for public callers, including after deletion.",
+          "Existing entries and error messages remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 62641,
+      "trace_sha256": "8321224aab626caa187391f9ebf0b5cbcf16f5e7cd8ff197918c020be5bdef27",
+      "submitted": {
+        "src/registry.ts": "export class Registry {\n  private items = new Map<string, string>();\n  set(key: string, value: string): void { this.items.set(key, value); }\n  remove(key: string): void { this.items.delete(key); }\n  get(key: string): string {\n    const value = this.items.get(key);\n    if (value === undefined) throw new Error(`missing: ${key}`);\n    return value;\n  }\n}\n",
+        "src/service.ts": "import { Registry } from \"./registry.js\";\nexport function greet(registry: Registry, key: string): string {\n  return `Hello ${registry.get(key)}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS06",
+      "rep": 2,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Missing entries remain handled for public callers, including after deletion.",
+          "Existing entries and error messages remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 46701,
+      "trace_sha256": "9c8226fb32ebddfa09de1ef86fd448d0219a7334c014683f00d5bd1cbab4af09",
+      "submitted": {
+        "src/registry.ts": "export class Registry {\n  private items = new Map<string, string>();\n  set(key: string, value: string): void { this.items.set(key, value); }\n  remove(key: string): void { this.items.delete(key); }\n  get(key: string): string {\n    const value = this.items.get(key);\n    if (value === undefined) throw new Error(`missing: ${key}`);\n    return value;\n  }\n}\n",
+        "src/service.ts": "import { Registry } from \"./registry.js\";\nexport function greet(registry: Registry, key: string): string {\n  return `Hello ${registry.get(key)}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS06",
+      "rep": 2,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Missing entries remain handled for public callers, including after deletion.",
+          "Existing entries and error messages remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 28377,
+      "trace_sha256": "5a3df024f40dff9fae076a35698e80706f166e9108ca52a1f43c2d101c1c9047",
+      "submitted": {
+        "src/registry.ts": "export class Registry {\n  private items = new Map<string, string>();\n  set(key: string, value: string): void { this.items.set(key, value); }\n  remove(key: string): void { this.items.delete(key); }\n  get(key: string): string {\n    const value = this.items.get(key);\n    if (value === undefined) throw new Error(`missing: ${key}`);\n    return value;\n  }\n}\n",
+        "src/service.ts": "import { Registry } from \"./registry.js\";\nexport function greet(registry: Registry, key: string): string {\n  return `Hello ${registry.get(key)}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS06",
+      "rep": 3,
+      "side": "baseline",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": null,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Missing entries remain handled for public callers, including after deletion.",
+          "Existing entries and error messages remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 28459,
+      "trace_sha256": "5bda9954080f724964b0ccf9b039b34b81f58cd1572bcef0b734673651d86f7f",
+      "submitted": {
+        "src/registry.ts": "export class Registry {\n  private items = new Map<string, string>();\n  set(key: string, value: string): void { this.items.set(key, value); }\n  remove(key: string): void { this.items.delete(key); }\n  get(key: string): string {\n    const value = this.items.get(key);\n    if (value === undefined) throw new Error(`missing: ${key}`);\n    return value;\n  }\n}\n",
+        "src/service.ts": "import { Registry } from \"./registry.js\";\nexport function greet(registry: Registry, key: string): string {\n  return `Hello ${registry.get(key)}`;\n}\n"
+      }
+    },
+    {
+      "case": "TS06",
+      "rep": 3,
+      "side": "candidate",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "observed_model": "claude-opus-5-5",
+      "observed_effort": "high",
+      "candidate_loaded": true,
+      "error": "",
+      "contract": {
+        "type_escape_flags": [],
+        "suppression_violations": [],
+        "types": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "runtime": {
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "contract_pass": true,
+        "improvement": "requires_review",
+        "criteria": [
+          "Missing entries remain handled for public callers, including after deletion.",
+          "Existing entries and error messages remain unchanged."
+        ]
+      },
+      "reported_total_tokens": 46383,
+      "trace_sha256": "28c097303c800c7600a9f04527b1a2f07165638b388c668817819900c730625a",
+      "submitted": {
+        "src/registry.ts": "export class Registry {\n  private items = new Map<string, string>();\n  set(key: string, value: string): void { this.items.set(key, value); }\n  remove(key: string): void { this.items.delete(key); }\n  get(key: string): string {\n    const value = this.items.get(key);\n    if (value === undefined) throw new Error(`missing: ${key}`);\n    return value;\n  }\n}\n",
+        "src/service.ts": "import { Registry } from \"./registry.js\";\nexport function greet(registry: Registry, key: string): string {\n  return `Hello ${registry.get(key)}`;\n}\n"
+      }
+    }
+  ]
+}
