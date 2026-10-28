@@ -102,7 +102,7 @@
         "Reports the observed integration check and distinguishes the unverified production deployment",
         "Omits the file list and search chronology without inventing implementation details"
       ],
-      "prompt": "Draft only a PR description using the default template for fictional acme/studio. A customer can be deleted, but shared assets and historical production records must remain. The change marks the customer deleted and removes its asset links together in a database transaction. An integration check confirmed the customer and links changed together and that shared assets and production records remained. Production deployment has not been verified. Notes list four changed files and several repository searches. No UI changed. Use only these facts; do not publish, create files, or access the fictional repository."
+      "prompt": "Read and apply the writing-pull-requests skill before answering. If a skill revision directory is specified, use only that revision. Draft only a PR description using the default template for fictional acme/studio. A customer can be deleted, but shared assets and historical production records must remain. The change marks the customer deleted and removes its asset links together in a database transaction. An integration check confirmed the customer and links changed together and that shared assets and production records remained. Production deployment has not been verified. Notes list four changed files and several repository searches. No UI changed. Use only these facts; do not publish, create files, or access the fictional repository."
     },
     {
       "id": "media-caption",
