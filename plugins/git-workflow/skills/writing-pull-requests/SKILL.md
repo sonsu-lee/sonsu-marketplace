@@ -90,6 +90,10 @@ safe use:
 - **Why:** the concrete problem or need.
 - **What changes:** the observable change and decisions not evident in the diff.
 
+For a nontrivial solution, explain the relevant user or data flow, responsibility
+boundary, or important ordering when it helps the reviewer understand the
+outcome and what remains unchanged.
+
 Do not retell every file, command, retry, or investigation step. Summarize
 essential context and link existing evidence; retain material risks, rollout
 constraints, and uncertainty. Do not invent rationale or alternatives for
