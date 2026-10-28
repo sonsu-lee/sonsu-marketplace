@@ -26,7 +26,8 @@ Use closing keywords only for issues this PR actually completes. -->
 For example: "Default profile: activation checks passed; output comparison tied."
 Adapt to observed facts, not this example's results. Omit configuration inventories
 and cleanup notes unless explicitly required or needed to explain a failure.
-Preserve material blockers and unverified behavior; omit this section if unnecessary. -->
+Preserve material blockers and unverified behavior;
+omit this section if unnecessary. -->
 
 ## UI evidence
 
