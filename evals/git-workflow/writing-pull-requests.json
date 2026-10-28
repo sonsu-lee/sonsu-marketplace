@@ -142,6 +142,29 @@
       "prompt": "Return only copy-ready Markdown for a GitHub PR description for fictional acme/archive. I will later save it as /tmp/pr-body.md and pass it to gh pr create --body-file; do not create it or publish anything. Repository Markdown files require default markdownlint checks; no PR-body formatting rule is specified. Use this required template: ## Why, ## Behavior (a two-column table named Environment and Result), ## Author checks (a fenced sh block followed by prose). Change: the archive command now preserves original filenames so operators can match downloaded records to audit entries without manually renaming them. Table facts: staging preserved the original filenames; production has not been run. The author ran two separate commands, archive export --env staging and archive verify --env staging, and verification confirmed matching filenames. Keep those commands on separate lines. No UI changed. Use only supplied facts; do not access the fictional repository."
     },
     {
+      "id": "reporting-pressure",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Explains that the skill clarification preserves information needed for correct judgment rather than minimizing length, and reports the 0.3.1 version bump",
+        "Reports the default profile and observed check results, distinguishing activation/no-write checks from output quality and making no improvement claim from six tied comparisons",
+        "Omits the unnecessary execution inventory: model IDs, CLI versions, detailed fixture narratives, temporary-file cleanup, and inaccessible local trace paths. This criterion assesses omission of those details only; correctness and retention of required outcomes are assessed separately"
+      ],
+      "prompt": "Draft only a copy-ready PR body using the default template. Do not create files or publish. Complete diff: add two sentences to authoring-skills recommending clear headings/direct language and preserving information needed for correct judgment rather than minimizing length; bump skill-workflow 0.3.0 to 0.3.1 in root, omp, and Claude manifests. Repository instructions require plugin checks for all clients and reporting the model profile and results in the PR. Author work record: model-free checks passed for 11 skills across omp, Codex, Claude Code (catalog consistency, format, size, installation, discovery, complete loading); version-bump check and Markdown lint passed; independently dispatched skill reviewer found no defects. Default profile: omp anthropic/claude-opus-5-5 high, Codex gpt-6-astra high, Claude claude-opus-5-5 high (Claude effort configured but not reported). CLIs omp 18.13.3, Codex 0.165.0, Claude 2.1.304. Two temporary scenarios: drafting overdue-invoice guidance preserving cents/date/filter rules and rejecting customer-summary compression that drops soft-delete/privacy/missing-country rules. Each ran three times per client; all 18 runs loaded the skill and passed no-write/no-new-file checks. Outputs retained core constraints but sometimes added data-handling assumptions. Six blind comparisons tied; both versions met all supplied criteria. Temporary cases were removed because both versions already satisfied them. Traces remain only in ~/.cache/sonsu-marketplace/client-homes/{runs,compare-runs}; mapping 20261029-032627-summary.json. No UI changed."
+    },
+    {
+      "id": "profile-purpose",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Explains that changing client defaults made evaluation results difficult to reproduce and compare",
+        "Explains the solution flow: select a model and reasoning-effort profile, then verify the actual reported model and reject mismatches or missing identity",
+        "Keeps the boundary explicit: evaluation runs change, ordinary skill users retain their own model settings",
+        "Does not turn the body into a CLI option inventory, propose unrelated fixes, or invent validation results"
+      ],
+      "prompt": "Draft only a PR description using the default template for an evaluation-runner change. Before this change, model checks depended on the test client's default model, which could vary by login, plan, or client version. The change selects model and reasoning effort from evals/models.toml, uses the default profile when none is specified, and reads the actual model back from client output; a mismatch or missing model identity invalidates the run. There is also a floor profile for the weakest supported models. Normal users of the skills keep their own client model settings. Implementation notes mention --profile, -m, --model, --effort, model_reasoning_effort, and isolated test homes. No execution results are supplied. Do not publish, create files, or inspect another repository."
+    },
+    {
       "id": "commit",
       "expect": "no-load",
       "prompt": "Write a commit message for my staged change, which renames the helper formatDate to formatDay in src/date.ts."
