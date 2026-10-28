@@ -49,6 +49,30 @@ review for qualities such as clarity or visual usefulness. Require evidence
 for each claimed pass and review the criteria themselves: checks that always
 pass in both conditions may not measure the skill's contribution.
 
+Separate three kinds of evidence for each criterion:
+
+- **Answer:** what the agent reports or proposes. This can establish report
+  content, but not that an action happened or an outcome was achieved.
+- **Trace:** observed tool calls, their results, and worker completion events.
+  A dispatch acknowledgment is not a completed worker, and an attempted
+  command is not a successful one. Preserve the relevant raw events.
+- **Final state:** inspect the resulting files or other isolated observable
+  state against the intended outcome, including unchanged boundaries. Compare
+  with the starting state where the outcome depends on a change.
+
+Choose the necessary evidence before running a case. For example, a controller
+claiming that it reviewed and verified a change requires completed worker
+results and runtime evidence tied to the reviewed revision, not just a
+plausible final report. A blocked or unavailable runtime is unverified even
+when the report accurately describes the blocker. If a trace or state is not
+available, mark that criterion unmeasured rather than inferring it from text.
+
+Calibrate graders with known passing and failing examples, including a
+convincing answer with missing or contradictory trace or state. Check both
+false positives and false negatives and use human adjudication for ambiguous
+cases. Automated answer graders assess only the evidence they receive; do not
+interpret their score as proof of actions, state, or overall task success.
+
 Read execution traces to explain the results. A correct answer reached through
 unnecessary checks or unrelated changes may still indicate a poor instruction.
 Compare time and token cost when available, without claiming small samples

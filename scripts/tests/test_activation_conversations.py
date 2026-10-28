@@ -152,7 +152,8 @@ class ConversationTests(unittest.TestCase):
             {"prompt": "second", "expect": "no-load", "forbid": ["new-files"]}]})
         spec = ca.Spec(self.spec_path, "demo", "case", [query])
         def fake_execute(client, base, root, pin, prompt, target, identity, inventory, session,
-                         session_dir, resume=False, timeout=ca.RUN_TIMEOUT, coverage=None):
+                         session_dir, resume=False, timeout=ca.RUN_TIMEOUT, coverage=None,
+                         writable=False, sandbox_readonly=False):
             trace = ca.Trace(reached=True, session="exact-session", model="m", effort="high")
             if resume:
                 (target / "unexpected.txt").write_text("agent output")
