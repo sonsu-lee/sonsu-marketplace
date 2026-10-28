@@ -13,12 +13,15 @@ The reviewer needs the result and what it proves, not a compressed work log.
 Extract check type, outcome, required profile name, and material coverage limits;
 write from those facts instead of shortening each supplied note. Removing
 temporary test artifacts after a run does not make that run unverified.
+Keep supplied execution gaps separate from successful checks: a passing local
+check does not establish an unrun deployment or another environment.
 
 These examples illustrate selection, not results to claim:
 
 - Notes: "Blue profile; eight parser checks passed, covering quoted fields,
-  empty rows, and Unicode; tool v7; deleted temporary samples; local log saved."
-  Summary: "Blue profile: eight parser checks passed."
+  empty rows, and Unicode; tool v7; deleted temporary samples; local log saved;
+  staging not run."
+  Summary: "Blue profile: eight parser checks passed; staging remains unverified."
 - Notes: "Blue profile; parser failed on quoted commas; staging not run;
   repository requires tool v7 and the reproduction command `parse sample.csv`."
   Summary: "Blue profile: parser check failed on quoted commas with tool v7
@@ -42,7 +45,7 @@ Use closing keywords only for issues this PR actually completes. -->
 ## Author checks
 
 <!-- Summarize selected evidence as [profile if required]: [check type] — [result].
-Group matching outcomes. Keep failures, material coverage limits, and explicitly
+Group matching outcomes. Keep failures, supplied execution gaps, and explicitly
 required details. Successful fixture descriptions, environment inventories, and
 temporary-artifact cleanup belong in work logs, not this section.
 Use observed facts, not the examples' results. Omit this section only when there
