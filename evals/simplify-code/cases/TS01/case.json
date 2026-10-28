@@ -1,0 +1,12 @@
+{
+  "id": "TS01",
+  "prompt": "Simplify the producer and its consumers so the published value contract matches the values the producer actually returns. Preserve the existing runtime behavior and error messages.",
+  "editable": [
+    "src/producer.ts",
+    "src/consumer.ts"
+  ],
+  "criteria": [
+    "The producer exposes its actual non-null string result to typed callers without consumer assertions.",
+    "Existing callers retain their outputs and errors."
+  ]
+}

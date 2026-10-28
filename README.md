@@ -902,6 +902,60 @@ final output. Follow the
 and report smoke checks separately from measured trigger rates or comparative
 quality results.
 
+For the TypeScript simplification pilot, use the separate behavioral evaluator.
+It does not install a plugin or claim that passing contracts proves a useful
+simplification. Node.js 22.12 or newer, npm, Python 3.11 or newer, and the omp
+CLI are required. Install the pinned TypeScript toolchain, then exercise the
+reference solutions and deliberately broken alternatives:
+
+```sh
+npm ci --prefix evals/simplify-code/toolchain
+python3 scripts/evaluate_simplification.py selfcheck
+```
+
+Cases live in `evals/simplify-code/cases/TS01` through `TS06`. Their `case.json`
+defines the prompt, editable source paths, and review criteria. The fixture,
+external type contract, and runtime checks are separate; submitted changes
+cannot replace tests or compiler settings. TS01–TS03 require restoring
+producer/state/generic type information. TS04 requires removing unreachable
+checks in a closed internal flow. TS05–TS06 preserve external-input and
+missing-value protections. References are examples, not mandatory code shapes.
+Initial TS01–TS03 fail the stronger type contracts; that is expected.
+
+Run an omp-only baseline using the dedicated login prepared above:
+
+```sh
+python3 scripts/evaluate_simplification.py run --reps 3 \
+  --output /tmp/simplification-baseline
+```
+
+To compare an unpublished candidate, add `--candidate /absolute/path/SKILL.md`
+and choose a new output directory outside the candidate directory. Keep the
+candidate and cases unchanged during a run. Each case gets fresh baseline and
+candidate contexts with the same `default` model profile; arm order alternates
+between repetitions. A successful tool result must contain the full candidate
+body, not merely an attempted read. These explicit reads do not measure
+automatic activation. The runner rejects a dedicated home containing a
+discoverable `simplify-code` copy. It never copies live client settings or
+credentials.
+
+Answers contain complete replacement source files as JSON (plain or one
+unambiguous JSON code block), not workspace edits. The evaluator checks the
+exact editable allowlist, new compiler escapes,
+types, and runtime behavior. Logs, submissions, diffs, and results remain in the
+output directory. Generated code runs locally with a temporary HOME; this is
+not a security sandbox. Use only authorized inputs on a disposable environment,
+without production secrets or services. Model runs stay local, never in CI.
+
+Exit 0 means all executed contracts passed, 1 means a contract failed, and 2
+means execution was blocked or incomplete. Every contract result keeps
+`improvement: requires_review`: review the submitted diff against the case
+criteria, including remaining redundant checks and implicit type escapes.
+Use blinded labels for comparative judgment; no-op TS04 must not be called a
+successful simplification, while justified no-op TS05–TS06 can be correct.
+Neither line counts nor preferred class/function styles are quality scores.
+Keep pilot observations separate from evidence across frameworks or languages.
+
 For other model runs, reuse the test homes:
 
 ```sh

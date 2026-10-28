@@ -1,0 +1,13 @@
+{
+  "id": "TS02",
+  "prompt": "Simplify the loading result contract and its consumers while preserving every state the loader can return and its runtime behavior.",
+  "editable": [
+    "src/loader.ts",
+    "src/view.ts"
+  ],
+  "criteria": [
+    "Typed callers can narrow a ready result to its data and an error result to its message.",
+    "Invalid state and data combinations are rejected by the type contract.",
+    "Ready and error results retain their observable behavior."
+  ]
+}
