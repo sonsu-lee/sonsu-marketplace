@@ -1,0 +1,141 @@
+{
+  "skill": "review-workflow:reviewing-code",
+  "queries": [
+    {
+      "id": "retry-preserves-queued-data",
+      "expect": "load",
+      "reads": ["references/review-lenses.md"],
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Reports that removing the queued item before a failed send loses it, so a retry cannot deliver it",
+        "Connects the failure to the changed ordering and identifies a test that makes send fail once and checks the eventual delivered item or retained queue",
+        "Does not claim that a happy-path test proves retry behavior",
+        "Does not edit files, publish comments, or claim runtime verification"
+      ],
+      "prompt": "Read and apply the reviewing-code skill before answering. If a skill revision directory is specified, use only that revision. Act as the focused reviewer for this self-contained change. Review only the supplied snapshot; the target workspace is empty. Do not edit, execute code, or publish. The requirement is that each queued message remains available until send succeeds, including after a transient failure. The caller invokes flush again after a rejected send. Before the change, flush awaited send(queue[0]) and then shifted the item. The changed implementation is:\n\nasync function flush(queue, send) {\n  while (queue.length > 0) {\n    const message = queue.shift();\n    await send(message);\n  }\n}\n\nThe only test starts with ['hello'], has send resolve, and asserts that send received 'hello' and the queue is empty. Identify concrete findings and meaningful test gaps, or say there are none."
+    },
+    {
+      "id": "unique-conflict-wait",
+      "expect": "load",
+      "reads": ["references/review-lenses.md"],
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Identifies that transaction B's conflicting unique insert waits for transaction A to finish, while the test waits for B before committing A",
+        "Explains that this ordering can hang or time out and is introduced by the test",
+        "Recommends deterministic coordination that lets A finish before awaiting B's completion, with bounded cleanup or timeout handling",
+        "Does not invent an application production deadlock from the test alone",
+        "Does not edit files, publish comments, or claim runtime verification"
+      ],
+      "prompt": "Read and apply the reviewing-code skill before answering. If a skill revision directory is specified, use only that revision. Act as the focused reviewer for this self-contained test change. Review only the supplied snapshot; the target workspace is empty. Do not edit, execute code, or publish. The application uses PostgreSQL and the test gets two distinct connections to an isolated database. The table is CREATE TABLE jobs (key text PRIMARY KEY, value text NOT NULL). Before the change the test used only connection A. The new test does:\n\nawait a.query('BEGIN');\nawait a.query(\"INSERT INTO jobs VALUES ('same', 'first')\");\nawait b.query('BEGIN');\nawait b.query(\"INSERT INTO jobs VALUES ('same', 'second') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value\");\nawait a.query('COMMIT');\nawait b.query('COMMIT');\nconst result = await b.query(\"SELECT value FROM jobs WHERE key = 'same'\");\nassert.equal(result.rows[0].value, 'second');\n\nThe test has no other tasks or timeout, and cleanup happens only after these statements return. Review the test's reachable ordering and outcome, not unrelated production behavior."
+    },
+    {
+      "id": "valid-boundary",
+      "expect": "load",
+      "reads": ["references/review-lenses.md"],
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Finds no defect in the supplied implementation or its tests on the stated requirements",
+        "Does not require an HTTP endpoint or HTTP status for this internal function",
+        "Does not insist that timestamps use database now() or that comments have numbered phases",
+        "Does not invent an identifier canonicalization or timestamp standard beyond the supplied contract",
+        "Does not edit files, publish comments, or claim runtime verification"
+      ],
+      "prompt": "Read and apply the reviewing-code skill before answering. If a skill revision directory is specified, use only that revision. Act as the focused reviewer for this self-contained change. Review only the supplied snapshot; the target workspace is empty. Do not edit, execute code, or publish. This is an internal in-memory function, not an HTTP or database path. Its complete contract is: preserve the caller's exact case-sensitive identifier and record the supplied event time as milliseconds since the Unix epoch; reject an empty identifier. The only consumer reads id and occurredAt unchanged. The changed implementation is:\n\nfunction record(id, occurredAt) {\n  if (id === '') throw new Error('empty id');\n  return { id, occurredAt };\n}\n\nTests assert record('AbC', 1700000000000) equals { id: 'AbC', occurredAt: 1700000000000 }, and assert record('', 1700000000000) throws. There are no numbered comments. No other identifier or timestamp rules are specified. Identify concrete findings, or say there are none."
+    },
+    {
+      "id": "redundant-guards-after-validation",
+      "expect": "load",
+      "reads": [
+        "references/review-lenses.md"
+      ],
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "criteria": [
+        "Traces both entry points through parseProduct and identifies the internal undefined and empty-name guards as unreachable under the stated caller and mutation contracts",
+        "Explains duplicated validation policy and dead fallback branches as the concrete maintenance cost without claiming an observed production failure or inflated severity",
+        "Recommends a small removal of redundant internal guards while preserving rejection of invalid input at parseProduct",
+        "Does not claim that the string type alone excludes empty strings, or replace guards with casts or non-null assertions",
+        "Does not edit files, publish comments, or claim runtime verification"
+      ],
+      "prompt": "Read and apply the reviewing-code skill before answering. If a skill revision directory is specified, use only that revision. Read references/review-lenses.md. Act as a focused reviewer for this self-contained change. Review only the supplied snapshot; the target workspace is empty. Do not edit, create files, execute code, or publish. The complete requirement is to reject malformed products at entry and otherwise display their nonempty name unchanged. These are the only callers; internal helpers are not exported, and nothing mutates the parsed product. Before this change label returned product.name and badge returned `Product: ${product.name}` without internal validation. The change adds the guards below while retaining the same entry validation.\n\n```ts\ntype Product = { readonly name: string };\nfunction parseProduct(input: unknown): Product {\n  if (input === null || typeof input !== 'object' || !('name' in input)) {\n    throw new Error('invalid product');\n  }\n  const name = input.name;\n  if (typeof name !== 'string' || name === '') throw new Error('invalid product');\n  return { name };\n}\nfunction label(product: Product): string {\n  if (product === undefined) return '';\n  if (product.name === undefined || product.name === '') return '';\n  return product.name;\n}\nfunction badge(product: Product): string {\n  if (product === undefined) return '';\n  if (product.name === undefined || product.name === '') return '';\n  return `Product: ${product.name}`;\n}\nexport function preview(input: unknown): string { return label(parseProduct(input)); }\nexport function summary(input: unknown): string { return badge(parseProduct(input)); }\n```\n\nReview the new guards and any concrete maintenance cost. Distinguish a redundant internal condition from necessary boundary validation; do not invent a current runtime failure or call a stylistic preference a blocker."
+    },
+    {
+      "id": "optional-state-hides-invariant",
+      "expect": "load",
+      "reads": [
+        "references/review-lenses.md"
+      ],
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "criteria": [
+        "Identifies that the changed optional-field state type permits impossible status/payload combinations and forces repeated fallback guards despite the complete producer invariant",
+        "Explains the present maintenance cost or risk from duplicated guards and a type that no longer enforces the producer-consumer contract, without inventing an observed runtime failure",
+        "Recommends a discriminated union with success requiring product and error requiring error, plus minimal producer and consumer changes",
+        "Does not propose casts, non-null assertions, a new state framework, or elimination of genuinely reachable error handling",
+        "Does not edit files, publish comments, or claim runtime verification"
+      ],
+      "prompt": "Read and apply the reviewing-code skill before answering. If a skill revision directory is specified, use only that revision. Read references/review-lenses.md. Act as a focused reviewer for this self-contained change. Review only the supplied snapshot; the target workspace is fresh and empty. Do not use write commands, create files, edit, execute code, or publish. All state producers and consumers are shown; state is not mutated or constructed elsewhere. The contract is that every successful load carries a product and every failed load carries an error. The fetchProduct function either resolves to a Product or rejects with an Error.\n\nBefore, the loader returned `Promise<Product>` and consumers handled rejection. The change stores the outcome for two consumers:\n```ts\ntype Product = { name: string };\ntype State = { status: 'success' | 'error'; product?: Product; error?: Error };\ndeclare function fetchProduct(): Promise<Product>;\nfunction load(): Promise<State> {\n  return fetchProduct().then(\n    product => ({ status: 'success', product }),\n    (error: Error) => ({ status: 'error', error }),\n  );\n}\nfunction title(state: State): string {\n  if (state.status === 'success') {\n    if (!state.product) return 'Missing product';\n    return state.product.name;\n  }\n  if (!state.error) return 'Unknown error';\n  return state.error.message;\n}\nfunction summary(state: State): string {\n  if (state.status === 'success') {\n    if (!state.product) return 'Missing product';\n    return `Product: ${state.product.name}`;\n  }\n  if (!state.error) return 'Unknown error';\n  return `Failed: ${state.error.message}`;\n}\n```\nReview the introduced state representation and repeated guards against the actual producer contract. Suggest the smallest correction; do not add a state framework. Report scope, findings, and limits."
+    },
+    {
+      "id": "retain-boundary-and-lookup-guards",
+      "expect": "load",
+      "reads": [
+        "references/review-lenses.md"
+      ],
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "criteria": [
+        "Recognizes that network JSON is untrusted and the TypeScript annotation does not validate it at runtime, so the boundary guard must remain",
+        "Recognizes that an absent Map entry is a reachable undefined value even for a validated nonempty ID, so the lookup guard must remain",
+        "Finds no defect merely because these guards exist and does not recommend deleting them as redundant",
+        "Distinguishes malformed input rejection from the valid-but-unknown ID outcome and traces the supplied entry point and consumer",
+        "Does not edit files, publish comments, or claim runtime verification"
+      ],
+      "prompt": "Read and apply the reviewing-code skill before answering. If a skill revision directory is specified, use only that revision. Read references/review-lenses.md. Act as a focused reviewer for this self-contained change. Review only the supplied snapshot; the target workspace is fresh and empty. Do not use write commands, create files, edit, execute code, or publish. The complete requirement is to reject malformed network input, return 'not found' for a valid ID absent from the catalog, and return the product name for a present ID. Network JSON can be any JSON value; IDs are nonempty strings, case-sensitive, with no normalization. The catalog may omit any valid ID. The response consumer displays the returned string unchanged.\n\nBefore, the entry point did not exist. After:\n```ts\ntype Product = { name: string };\nfunction respond(body: unknown, catalog: Map<string, Product>): string {\n  if (body === null || typeof body !== 'object' || !('id' in body) ||\n      typeof body.id !== 'string' || body.id === '') {\n    throw new Error('invalid request');\n  }\n  const product = catalog.get(body.id);\n  if (product === undefined) return 'not found';\n  return product.name;\n}\nfunction onNetworkJson(json: unknown, catalog: Map<string, Product>): string {\n  return respond(json, catalog);\n}\n```\nReview whether either guard is redundant based on actual inputs and callers. Report scope, findings, and limits."
+    },
+    {
+      "id": "refreshed-selected-entity",
+      "expect": "load",
+      "reads": [
+        "references/review-lenses.md"
+      ],
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "criteria": [
+        "Reports that selecting an item stores a stale object snapshot, so a subsequent refresh of that same item's label does not update the selected label",
+        "Traces the defect through the supplied refresh caller and identifies selection by stable ID with the displayed item derived from the current items as a sufficient correction",
+        "Preserves the separate editable note draft and does not demand a new state-management framework",
+        "Does not report duplicated state as a defect merely as a preference without connecting it to the reachable stale-label behavior",
+        "Does not edit files, publish comments, or claim runtime verification"
+      ],
+      "prompt": "Read and apply the reviewing-code skill before answering. If a skill revision directory is specified, use only that revision. Read references/review-lenses.md. Act as the focused reviewer for this self-contained change. Review only the supplied snapshot; the target workspace is fresh and empty. Do not edit files, create files, execute code, or publish. The contract is that a selected item's label always reflects the latest server items after refresh while selection remains on the same ID. Items have unique stable IDs; refresh returns a new array containing the selected ID and may change its label. The separate note is an editable local draft and must survive refresh.\n\nBefore, the component kept selectedId and rendered items.find(item => item.id === selectedId)?.label. The change replaces that selection logic with the following complete component and caller:\n\n```tsx\nimport * as React from 'react';\ntype Item = { id: string; label: string };\n\ndeclare function fetchItems(): Promise<Item[]>;\n\nfunction ItemPicker({ items }: { items: Item[] }) {\n  const [selected, setSelected] = React.useState<Item | null>(null);\n  const [note, setNote] = React.useState('');\n  return <>\n    {items.map(item => <button key={item.id} onClick={() => setSelected(item)}>{item.label}</button>)}\n    <span>Selected: {selected?.label ?? 'none'}</span>\n    <input value={note} onChange={event => setNote(event.target.value)} />\n  </>;\n}\n\nfunction Page({ initialItems }: { initialItems: Item[] }) {\n  const [items, setItems] = React.useState(initialItems);\n  async function refresh() { setItems(await fetchItems()); }\n  return <><button onClick={refresh}>Refresh</button><ItemPicker items={items} /></>;\n}\n```\n\nReview the changed behavior and propose the smallest sufficient outcome; distinguish a concrete regression from state-management preferences. Do not claim the code was executed."
+    },
+    {
+      "id": "persistence-test-observable-outcome",
+      "expect": "load",
+      "reads": [
+        "references/review-lenses.md"
+      ],
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "criteria": [
+        "Reports that saving an edited document writes to the currently selected document ID instead of the document ID and can overwrite a different document while leaving the intended document unchanged",
+        "Connects the mock-only test to its false confidence: it checks that a function was called but not the persisted destination, saved value, or preservation of the unrelated record",
+        "Proposes a minimal behavioral test through saveEditedDocument using a stateful in-memory repository or equivalent, asserting the edited document changes and the unrelated document remains intact",
+        "Does not require an end-to-end suite, a particular mocking library, or tests of unrelated paths",
+        "Does not edit files, publish comments, or claim runtime verification"
+      ],
+      "prompt": "Read and apply the reviewing-code skill before answering. If a skill revision directory is specified, use only that revision. Read references/review-lenses.md. Act as the focused reviewer for this self-contained change. Review only the supplied snapshot; the target workspace is fresh and empty. Do not edit files, create files, execute code, or publish. Repository contract: put(id, document) replaces only the document at that exact ID; get(id) returns the document stored there. Existing records are preserved unless their own ID is passed to put. The actual caller passes the edited document ID and the currently selected document ID independently; both are nonempty strings and can differ. For the concrete reachable case, document 'doc-1' initially has title 'Old', document 'doc-2' has title 'Keep', and the caller saves title 'New' for 'doc-1' while 'doc-2' is selected. The user can start editing doc-1, select doc-2, and then save the still-open doc-1 draft; the saved draft must stay associated with doc-1.\n\nBefore:\n```ts\ntype Document = { title: string };\ntype Repository = {\n  put(id: string, document: Document): Promise<void>;\n  get(id: string): Promise<Document | undefined>;\n};\nasync function saveEditedDocument(repo: Repository, documentId: string, activeDocumentId: string, title: string) {\n  await repo.put(documentId, { title });\n}\n```\n\nAfter:\n```ts\nasync function saveEditedDocument(repo: Repository, documentId: string, activeDocumentId: string, title: string) {\n  await repo.put(activeDocumentId, { title });\n}\n\nasync function onSave(repo: Repository, editedDocumentId: string, activeDocumentId: string, draftTitle: string) {\n  await saveEditedDocument(repo, editedDocumentId, activeDocumentId, draftTitle);\n}\n\ntest('saves the edit', async () => {\n  const repo: Repository = { put: jest.fn().mockResolvedValue(undefined), get: jest.fn() };\n  await onSave(repo, 'doc-1', 'doc-2', 'New');\n  expect(repo.put).toHaveBeenCalled();\n});\n```\n\nReview the changed persistence behavior and test value. Describe a smallest useful behavioral assertion that catches the concrete defect without requiring a full end-to-end test. Do not claim the code or test was executed."
+    }
+  ]
+}
