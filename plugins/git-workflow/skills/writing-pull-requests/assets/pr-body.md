@@ -10,20 +10,22 @@ body section, unless the repository requires body disclosure.
 ## Selecting author checks
 
 The reviewer needs the result and what it proves, not a compressed work log.
-Extract check type, outcome, required profile name, and checks or environments
-not exercised. Write from these facts instead of shortening each supplied note.
-Removing temporary test artifacts after a run does not make it unverified.
+Extract check type, outcome, required profile name, and material coverage limits;
+write from those facts instead of shortening each supplied note. Removing
+temporary test artifacts after a run does not make that run unverified.
 
 These examples illustrate selection, not results to claim:
 
 - Notes: "Blue profile; eight parser checks passed, covering quoted fields,
-  empty rows, and Unicode; tool v7; deleted temporary samples; local log saved;
-  staging not run."
-  Summary: "Blue profile: eight parser checks passed; staging remains unverified."
+  empty rows, and Unicode; tool v7; deleted temporary samples; local log saved."
+  Summary: "Blue profile: eight parser checks passed."
 - Notes: "Blue profile; parser failed on quoted commas; staging not run;
   repository requires tool v7 and the reproduction command `parse sample.csv`."
   Summary: "Blue profile: parser check failed on quoted commas with tool v7
   (`parse sample.csv`); staging remains unverified."
+- Notes: "Green profile; upload smoke passed for small files, large files,
+  and renamed files; production execution not performed."
+  Summary: "Green profile: upload smoke passed; production remains unverified."
 
 ## Body
 
@@ -42,12 +44,12 @@ Use closing keywords only for issues this PR actually completes. -->
 
 ## Author checks
 
-<!-- Fill these outcome summaries from observed facts; omit unused placeholders.
-Group successful runs by check family, not by fixture. Preserve required details
-and failed or unrun checks. Do not copy the examples' facts or outcomes. -->
-[Required profile name, if any]: [check family and aggregate result; other results].
-
-[Failures, explicitly unrun checks/environments, and material limits, if any].
+<!-- Summarize selected evidence as [profile if required]: [check type] — [result].
+Group matching outcomes. Keep failures, material coverage limits, and explicitly
+required details. Successful fixture descriptions, environment inventories, and
+temporary-artifact cleanup belong in work logs, not this section.
+Use observed facts, not the examples' results. Omit this section only when there
+is no relevant evidence or material verification gap. -->
 
 ## UI evidence
 
