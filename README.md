@@ -756,7 +756,8 @@ prints one line per check:
   and in Claude Code's `init` event without this marketplace's agents.
 - `loading`: invoking each skill sends its complete `SKILL.md` body to a local
   receiver that records and rejects model requests, and Codex reports no
-  truncation.
+  truncation. The omp check waits for the invocation request rather than
+  stopping on an earlier routing-hint request.
 
 Skills come from `skills/*/SKILL.md` in each catalog package, so a new skill
 needs no script change. Any `FAIL` line names the client and check and makes
