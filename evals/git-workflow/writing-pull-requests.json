@@ -165,6 +165,28 @@
       "prompt": "Draft only a PR description using the default template for an evaluation-runner change. Before this change, model checks depended on the test client's default model, which could vary by login, plan, or client version. The change selects model and reasoning effort from evals/models.toml, uses the default profile when none is specified, and reads the actual model back from client output; a mismatch or missing model identity invalidates the run. There is also a floor profile for the weakest supported models. Normal users of the skills keep their own client model settings. Implementation notes mention --profile, -m, --model, --effort, model_reasoning_effort, and isolated test homes. No execution results are supplied. Do not publish, create files, or inspect another repository."
     },
     {
+      "id": "aggregate-success-transfer",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Explains the cursor fix and preservation of export ordering",
+        "Reports the release profile, passing smoke/ordering checks and unverified production without claiming deployment",
+        "Keeps successful fixture contents, setup inventory, and local logs out of the PR body"
+      ],
+      "prompt": "Draft only a copy-ready PR body using the default template for a CSV export cursor fix. Rows previously repeated at page boundaries; the fix advances the cursor after the last emitted row and preserves selected column order. Repository policy requires the test profile name and results, not a specific environment inventory. Work notes: release profile used Model-X high on CLI 4.2; 12 export smoke cases passed, including names with accents, empty departments, 21-row pages, and country grouping; 4 column-order tests passed. Ran a local parser twice, installed a package, removed sample outputs, and kept logs only at /tmp/export-smoke.json. Production deployment has not been performed. No UI changed. Do not publish or create files."
+    },
+    {
+      "id": "required-failure-details-transfer",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Retains CLI 4.2 and the exact command export --verify sample.csv because the repository explicitly requires them",
+        "Reports smoke as failed and column-order checks as passed, without presenting the overall run as successful",
+        "Preserves the accented-name corruption and production unverified status without copying unrelated setup chronology"
+      ],
+      "prompt": "Draft only a PR body using the default template for an export cursor fix. The cursor now advances after the last emitted row instead of repeating boundary rows. Repository policy explicitly requires the CLI version and exact failing reproduction command in Author checks. Observed: release profile, CLI 4.2; export --verify sample.csv failed because accented names were corrupted; column-order checks passed. Production has not run. Work notes also list package-install retries, terminal configuration, and deleting temporary samples. Do not publish, create files, invent passing checks, or claim the accent bug is fixed."
+    },
+    {
       "id": "commit",
       "expect": "no-load",
       "prompt": "Write a commit message for my staged change, which renames the helper formatDate to formatDay in src/date.ts."
