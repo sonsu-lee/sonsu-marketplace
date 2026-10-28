@@ -21,6 +21,7 @@ import sys
 import tempfile
 import threading
 import time
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -98,12 +99,23 @@ class Receiver:
             bodies = list(self.bodies)
         return any(wanted in squash(s) for body in bodies for s in decoded_strings(body))
 
+    def request_contains(self, marker: str, text: str) -> bool:
+        wanted = squash(text)
+        with self.lock:
+            bodies = list(self.bodies)
+        for body in bodies:
+            strings = decoded_strings(body)
+            if any(marker in s for s in strings) and any(wanted in squash(s) for s in strings):
+                return True
+        return False
+
     def count(self) -> int:
         with self.lock:
             return len(self.bodies)
 
     def close(self) -> None:
         self.server.shutdown()
+        self.server.server_close()
 
 
 def squash(text: str) -> str:
@@ -320,8 +332,9 @@ def check_omp(root: Path, market: str, plugins: list[str], skills: list[Skill],
         missing = []
         for skill in skills:
             receiver.reset()
+            marker = f"check-{uuid.uuid4().hex}"
             prompt = json.dumps({"id": "check", "type": "prompt",
-                                 "message": f"/skill:{skill.name} check"})
+                                 "message": f"/skill:{skill.name} {marker}"})
             child = subprocess.Popen(
                 ["omp", "--mode", "rpc", "--no-session", "--model", "check/check-model"],
                 env=env, cwd=target, stdin=subprocess.PIPE,
@@ -330,16 +343,16 @@ def check_omp(root: Path, market: str, plugins: list[str], skills: list[Skill],
                 child.stdin.write(prompt + "\n")
                 child.stdin.flush()
                 deadline = time.monotonic() + REQUEST_TIMEOUT
-                while receiver.count() == 0 and time.monotonic() < deadline:
+                while not receiver.contains(marker) and time.monotonic() < deadline:
                     if child.poll() is not None:
                         break
                     time.sleep(0.2)
             finally:
                 child.kill()
                 child.wait()
-            if not receiver.contains(skill.body):
+            if not receiver.request_contains(marker, skill.body):
                 missing.append(f"{skill.name}"
-                               + ("" if receiver.count() else " (no request)"))
+                               + ("" if receiver.contains(marker) else " (no invocation request)"))
         results.append(Result("omp", "loading", not missing,
                               "incomplete body: " + ", ".join(missing) if missing else ""))
     finally:

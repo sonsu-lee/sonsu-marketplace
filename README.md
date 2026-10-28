@@ -484,7 +484,7 @@ For root and plugin READMEs:
   and follow the plugin test procedure below, including Codex's `CODEX_HOME`
   and Claude Code's `CLAUDE_CONFIG_DIR`.
 
-All Markdown documents follow the lint policy in
+Repository Markdown files follow the lint policy in
 [ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
 agent instructions, skills, commands, and rules. Before pushing, use Node.js 22
 or newer and npm to check the files added or modified by your change, using the
@@ -500,6 +500,14 @@ Markdown; lint does not verify Standard Readme compliance or visual layout.
 Untouched documents do not need a repository-wide reformat. This is a validation
 step, not automatic formatting; the `checks` workflow runs the same command on
 the Markdown files a pull request adds or modifies.
+
+This file-lint policy and its line-length rule do not apply to PR bodies, even
+when saved to a temporary `.md` file for `--body-file`. Follow the
+[PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md#choose-the-body-format):
+keep each prose paragraph on one source line, with blank lines between
+paragraphs and structural newlines for lists, tables, and code blocks. GitHub
+renders single newlines in PR bodies as visible line breaks, unlike repository
+`.md` files.
 
 ### Decision records
 
@@ -756,7 +764,8 @@ prints one line per check:
   and in Claude Code's `init` event without this marketplace's agents.
 - `loading`: invoking each skill sends its complete `SKILL.md` body to a local
   receiver that records and rejects model requests, and Codex reports no
-  truncation.
+  truncation. The omp check waits for the invocation request rather than
+  stopping on an earlier routing-hint request.
 
 Skills come from `skills/*/SKILL.md` in each catalog package, so a new skill
 needs no script change. Any `FAIL` line names the client and check and makes
@@ -959,6 +968,15 @@ Use blinded labels for comparative judgment; no-op TS04 must not be called a
 successful simplification, while justified no-op TS05–TS06 can be correct.
 Neither line counts nor preferred class/function styles are quality scores.
 Keep pilot observations separate from evidence across frameworks or languages.
+
+The [focused review cases](evals/review-workflow/reviewing-code.json) explicitly
+request the skill. They cover data preservation, reachable waits, redundant
+internal guards versus necessary boundary checks, state typing, refreshed UI
+state, and assertions that miss incorrect writes. A runner pass establishes
+loading, reference reads, and safety, not the semantic `criteria`: inspect
+the answers separately. Use the blind revision comparison above to assess
+whether changed guidance improves results; these cases do not measure
+automatic skill selection or end-to-end review orchestration.
 
 For other model runs, reuse the test homes:
 
