@@ -42,12 +42,12 @@ Use closing keywords only for issues this PR actually completes. -->
 
 ## Author checks
 
-<!-- Summarize selected evidence as [profile if required]: [check type] — [result].
-Group matching outcomes. Keep failures, supplied execution gaps, and explicitly
-required details. Successful fixture descriptions, environment inventories, and
-temporary-artifact cleanup belong in work logs, not this section.
-Use observed facts, not the examples' results. Omit this section only when there
-is no relevant evidence or material verification gap. -->
+<!-- Fill these outcome summaries from observed facts; omit unused placeholders.
+Group successful runs by check family, not by fixture. Preserve required details
+and failed or unrun checks. Do not copy the examples' facts or outcomes. -->
+[Required profile name, if any]: [check family and aggregate result; other results].
+
+[Failures, explicitly unrun checks/environments, and material limits, if any].
 
 ## UI evidence
 
