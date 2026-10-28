@@ -22,9 +22,11 @@ Use closing keywords only for issues this PR actually completes. -->
 
 ## Author checks
 
-<!-- Summarize check types and outcomes, not fixture content or execution logs.
-Name required profiles; include execution details only when needed to judge a result.
-Omit if unnecessary; preserve material blockers and unverified behavior. -->
+<!-- Group routine successes by check type; do not narrate individual fixtures.
+For example: "Default profile: activation checks passed; output comparison tied."
+Adapt to observed facts, not this example's results. Omit configuration inventories
+and cleanup notes unless explicitly required or needed to explain a failure.
+Preserve material blockers and unverified behavior; omit this section if unnecessary. -->
 
 ## UI evidence
 
