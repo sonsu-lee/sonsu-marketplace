@@ -22,8 +22,8 @@ Use closing keywords only for issues this PR actually completes. -->
 
 ## Author checks
 
-<!-- Summarize the relevant scenario and observed result, not execution logs.
-Use prose or bullets; include commands only when needed to reproduce the result.
+<!-- Summarize check types and outcomes, not fixture content or execution logs.
+Name required profiles; include execution details only when needed to judge a result.
 Omit if unnecessary; preserve material blockers and unverified behavior. -->
 
 ## UI evidence

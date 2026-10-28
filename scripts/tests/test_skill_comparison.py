@@ -46,21 +46,29 @@ class ComparisonTests(unittest.TestCase):
         self.assertEqual(cs.exit_status([self.grade({})], []), 2)
         self.assertEqual(cs.exit_status([cs.Verdict(criteria=[{"head": False}]), cs.Verdict(error="incomplete")], []), 2)
 
-    def test_single_answer_is_graded_once_without_second_answer(self):
-        result = {"criteria": [{"n": 1, "A": True}, {"n": 2, "A": False}]}
-        with patch.object(cs, "judge", return_value=(result, "log")) as judge:
-            verdict = cs.compare(Path(), Path(), None, self.query,
-                                 {"head": self.answer("head")}, random.Random(0), "run")
-        self.assertIsNone(judge.call_args.args[5])
+    def test_single_answer_failure_rejects_candidate(self):
+        result = {"criteria": [{"n": 1, "A": True, "reason": "first met"},
+                               {"n": 2, "A": False, "reason": "second absent"}]}
+        verdict = self.grade(result, {"head": self.answer("head")})
         self.assertEqual(cs.exit_status([verdict], []), 1)
+
+    def test_missing_or_blank_evidence_invalidates_judgment(self):
+        for evidence in (None, "", "   "):
+            item = {"n": 1, "A": True}
+            if evidence is not None:
+                item["reason"] = evidence
+            with self.subTest(evidence=evidence):
+                verdict = self.grade({"criteria": [item,
+                    {"n": 2, "A": True, "reason": "second met"}]},
+                    {"head": self.answer("head")})
+                self.assertEqual(cs.exit_status([verdict], []), 2)
 
     def test_calibration_detects_false_acceptance_and_rejection(self):
         cases = [(self.query, [{"id": "bad", "text": "bad", "expected": [False, True]},
                                {"id": "good", "text": "good", "expected": [True, True]}])]
         def fake_judge(base, root, pin, query, first, second, label):
-            self.assertIsNone(second)
-            return {"criteria": [{"n": 1, "A": first.text == "bad"},
-                                 {"n": 2, "A": True}]}, "log"
+            return {"criteria": [{"n": 1, "A": first.text == "bad", "reason": "first"},
+                                 {"n": 2, "A": True, "reason": "second"}]}, "log"
         with patch.object(cs, "judge", side_effect=fake_judge):
             results = cs.calibrate(Path(), Path(), None, cases, "stamp")
         self.assertEqual([r["error"] for r in results], ["calibration misclassification"] * 2)

@@ -100,10 +100,10 @@ trackers' own completion-link rules.
 
 ## Record author checks, not CI status
 
-Summarize routine checks as scenario categories and outcomes, naming the profile
-when required. Omit model/tool inventories, fixture internals, and cleanup notes
-unless they explain a failure, limitation, or reproduction requirement. Link
-accessible evidence, not local trace paths.
+Report check types and outcomes, not fixture stories or cleanup. Reporting a
+profile means its name (e.g. `default`), not its model/tool inventory, unless
+explicitly required or needed to explain a failure, limit, or reproduction.
+Link accessible evidence, not local trace paths.
 
 Use prose or bullets, not checkboxes. Keep material blockers and unverified
 behavior explicit; omit irrelevant untested items. Distinguish plans from

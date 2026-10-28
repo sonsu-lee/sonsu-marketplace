@@ -188,11 +188,12 @@ def grade(base: Path, root: Path, pin: ca.Pin, query: ca.Query,
     if (any(type(n) is not int for n in numbers)
             or set(numbers) != set(range(1, len(query.criteria) + 1))
             or not all(isinstance(item.get(k), bool) for item in items for k in letters)
-            or not all(isinstance(item.get("reason", ""), str) for item in items)):
+            or not all(isinstance(item.get("reason"), str) and item["reason"].strip()
+                       for item in items)):
         return Verdict(error="judge did not grade every criterion with true or false")
     records = [{"n": item["n"], "criterion": query.criteria[item["n"] - 1],
                 **{side: item[letter] for letter, side in letters.items()},
-                "reason": item.get("reason", "")} for item in sorted(items, key=lambda x: x["n"])]
+                "reason": item["reason"]} for item in sorted(items, key=lambda x: x["n"])]
     return Verdict(winner=letters.get(winner, winner),
                    reason=str(result.get("reason", ""))[:200], a_side=sides[0],
                    passed={side: sum(item[side] for item in records) for side in sides},
