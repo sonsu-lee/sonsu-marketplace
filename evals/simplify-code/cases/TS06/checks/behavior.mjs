@@ -1,0 +1,12 @@
+import assert from "node:assert/strict";
+import { Registry } from "../dist/src/registry.js";
+import { greet } from "../dist/src/service.js";
+const registry = new Registry();
+assert.throws(() => registry.get("x"), { message: "missing: x" });
+assert.throws(() => greet(registry, "x"), { message: "missing: x" });
+registry.set("x", "Ada");
+assert.equal(greet(registry, "x"), "Hello Ada");
+registry.set("empty", "");
+assert.equal(registry.get("empty"), "");
+registry.remove("x");
+assert.throws(() => registry.get("x"), { message: "missing: x" });

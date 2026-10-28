@@ -1,0 +1,12 @@
+{
+  "id": "TS06",
+  "prompt": "Simplify the registry and its callers where safe without changing the public API behavior, including after registry mutations.",
+  "editable": [
+    "src/registry.ts",
+    "src/service.ts"
+  ],
+  "criteria": [
+    "Missing entries remain handled for public callers, including after deletion.",
+    "Existing entries and error messages remain unchanged."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "TS03",
+  "prompt": "Simplify the transformation and callers while preserving the relationship between a supplied value and the returned value in the public type contract and at runtime.",
+  "editable": [
+    "src/box.ts",
+    "src/use.ts"
+  ],
+  "criteria": [
+    "The transformation preserves the input value type for typed callers, including object and literal inputs.",
+    "The returned wrapper retains the original value at runtime."
+  ]
+}

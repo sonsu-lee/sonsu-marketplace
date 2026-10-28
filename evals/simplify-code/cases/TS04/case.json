@@ -1,0 +1,13 @@
+{
+  "id": "TS04",
+  "prompt": "Simplify the internal formatting flow. Its only callers are in this project; preserve the public report outputs for all supported inputs.",
+  "editable": [
+    "src/report.ts",
+    "src/format.ts"
+  ],
+  "criteria": [
+    "The closed internal flow no longer retains unreachable defensive checks or their now-unused helper.",
+    "Public report outputs are unchanged.",
+    "No type assertion is used to bypass the contract."
+  ]
+}

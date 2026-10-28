@@ -1,0 +1,12 @@
+{
+  "id": "TS05",
+  "prompt": "Simplify the JSON configuration reader where safe, preserving its public behavior for external input and all supported callers.",
+  "editable": [
+    "src/config.ts",
+    "src/address.ts"
+  ],
+  "criteria": [
+    "Untrusted parsed input is validated at runtime before use.",
+    "Valid values and the documented errors remain unchanged."
+  ]
+}
