@@ -83,16 +83,11 @@ unless required for PR bodies, even in a temporary `.md` file for `--body-file`.
 
 ## Explain the reason and approach
 
-Select content before drafting or polishing; investigation notes are not the
-body to reproduce. Keep details only if they affect understanding, review, or
-safe use:
+Keep what reviewers need to understand and safely use the change:
 
-- **Why:** the concrete problem or need.
-- **What changes:** the observable change and decisions not evident in the diff.
-
-For a nontrivial solution, explain the relevant user or data flow, responsibility
-boundary, or important ordering when it helps the reviewer understand the
-outcome and what remains unchanged.
+- **Why:** the concrete problem.
+- **What changes:** observable results and non-obvious decisions. For nontrivial
+  changes, explain relevant flow, responsibility, or ordering and what is preserved.
 
 Do not retell every file, command, retry, or investigation step. Summarize
 essential context and link existing evidence; retain material risks, rollout
