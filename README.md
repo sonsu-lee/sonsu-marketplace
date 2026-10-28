@@ -987,7 +987,7 @@ inspect writable results manually rather than claim semantic correctness.
 
 ```sh
 python3 scripts/check_activation.py --clients codex run \
-  --spec evals/review-workflow/controller.json
+  --spec evals/planning-workflow/mechanical-changes.json --writable-fixtures
 ```
 
 Writable trials currently require macOS and dedicated homes outside this
