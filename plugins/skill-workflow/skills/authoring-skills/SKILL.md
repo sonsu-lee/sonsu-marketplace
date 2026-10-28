@@ -19,6 +19,10 @@ Ground the skill in real requests, successful work, corrections, and project
 artifacts. Establish the outcome, when it applies, and nearby tasks it excludes.
 Ask only about consequential gaps that available context cannot resolve.
 
+Return text-only proposals as text; do not create even temporary files when
+writes are prohibited. Authoring checks grant no permission to write, install,
+or publish, and reviewing a proposal is not validating a saved artifact.
+
 Would omitting an instruction cause a meaningful mistake? Keep domain knowledge,
 project conventions, decision criteria, and non-obvious constraints. Omit general
 knowledge and ordinary tool usage. Test uncertain omissions rather than assuming
@@ -29,14 +33,9 @@ not source-document chapters; do not invent expertise to fill an outline.
 
 ## Identify the target environment
 
-Start from common Agent Skills principles; no client is the default. Identify
-the intended consumer from the request and project instructions, manifests,
-installation layout, or runtime documentation. A portable manifest or shared
-skills directory alone does not identify a client.
-
-The authoring session's client may not be the skill's consumer. An explicit
-target takes precedence. Read only the established target's reference and
-apply its relevant differences:
+Identify intended consumers from the request and project evidence, not the
+authoring client or a portable manifest alone. An explicit target wins. Read
+only the applicable client references:
 
 | Intended consumer | Conditional reference |
 | --- | --- |
@@ -73,9 +72,8 @@ not a standard set of empty directories.
 ## Write actionable guidance
 
 Use the [Agent Skills specification][specification] for metadata and layout.
-Its fewer-than-500-lines and 5,000-token guidance is not a size target or a
-guarantee against client truncation. Check the intended client's actual loading
-limits in its reference. Set `compatibility` only for applicable requirements.
+Its size guidance is not a target or a loading guarantee; check client limits
+in the applicable reference. Set `compatibility` only for real requirements.
 
 Describe user intent, implicit uses, and boundaries with adjacent work. Front-load
 the key use case, not implementation steps or keywords for individual failed
@@ -88,6 +86,10 @@ minimum length; preserve information needed for correct judgment.
 Give a short path from input to observable result. Choose a default; explain why
 when useful and prescribe exact steps where variation risks correctness or
 safety. Do not turn flexible judgment into an inflexible checklist.
+
+Separate defaults from binding host, security, project, and user constraints,
+and say when a default yields. When a skill stops or redirects authorized work,
+cite the instruction; do not invent approvals or weaken permission boundaries.
 
 Use examples only to resolve ambiguity. Keep consequential gotchas visible before
 the agent can make the mistake; conditional references need recognizable triggers.
@@ -127,14 +129,15 @@ observation, the skill's responsibility, and the fix separately; missing tool
 examples alone are not defects. Generalize recurring failures with the
 smallest sufficient change, including deletion.
 
-In omp, for a new skill or a revision that changes behavior, dispatch the
-`skill-workflow-reviewer` agent before delivery with a fresh brief: purpose,
-intended consumers, changed files, and project requirements, not your drafting
-rationale. Skip it for formatting-only edits or when you are that reviewer.
-In other clients, independent review is optional: only on explicit request,
-start a fresh subagent with the same brief and have it read this `SKILL.md` by
-absolute path as its review criteria. Verify its findings before revising; it
-does not replace behavior checks.
+For new skills or behavioral changes, obtain independent skill-criteria review
+before delivery. Give a fresh reviewer the purpose, consumers, changed files,
+project requirements, and review question, not the drafting rationale.
+Skip formatting-only changes or when you are that reviewer. One execution or
+review controller owns dispatch; do not duplicate its skill review. In omp use
+`skill-workflow-reviewer`; in Codex or Claude Code use a fresh generic worker
+with this `SKILL.md`'s absolute path. Follow `reviewing-code` when it controls
+the review. Disclose unavailable review and verify findings before revising.
+Review does not replace behavior checks.
 
 Deliver the requested skill or revision with the checks actually performed
 and any material limitations. Keep authoring evaluations separate from the

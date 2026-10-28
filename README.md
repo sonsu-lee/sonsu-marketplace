@@ -257,8 +257,9 @@ Install with `omp plugin install skill-workflow@sonsu-marketplace`,
   `authoring-skills` and reviews a fixed skill change read-only, without
   running checks. In omp, `authoring-skills` dispatches it after creating a
   skill or changing its behavior, and `reviewing-code` adds it when a reviewed
-  change touches a skill. Codex and Claude Code have no such agent; they start
-  an equivalent generic worker only on explicit request.
+  change touches a skill. Codex and Claude Code use a fresh generic worker for
+  behavioral skill authoring too. One controller owns each review assignment;
+  authoring and execution do not launch duplicate skill reviewers.
 
 This plugin does not install skills or configure projects. Plugin packaging
 and marketplace checks remain in the contributor procedures below.
@@ -348,9 +349,9 @@ local-first reporting.
   provider pair. When a reviewed change touches a skill, omp adds
   `skill-workflow-reviewer` if `skill-workflow` is installed; for a skill-only
   change it replaces `review-workflow-focused`. Codex and Claude Code add a
-  skill-criteria worker only on explicit request. Runtime
-  verification and high-risk red-team challenges are separate, bounded work
-  rather than repeated full reviews.
+  skill-criteria worker on an explicit user request or an implementation
+  controller's assignment for behavioral skill changes. Runtime verification
+  and high-risk red-team challenges remain separate, bounded work.
 - Reviews report locally by default. Comment drafting and explicit publication
   use [review-comment guidance](plugins/review-workflow/skills/reviewing-code/references/review-comments.md)
   that preserves evidence, uncertainty, and the difference between fixes and
@@ -381,9 +382,16 @@ Install with `omp plugin install planning-workflow@sonsu-marketplace`,
   plan follows a required output format and stays resumable from the latest
   agreement. See the
   [planning procedure](plugins/planning-workflow/skills/planning-work/SKILL.md).
+- **`executing-work`** coordinates authorized work through implementation,
+  independent review, scoped cleanup, and final-revision validation. It reuses
+  a valid plan, keeps commit, push, publication, merge, and deployment permissions
+  separate, and delegates testing or cleanup only when useful. One controller
+  owns review dispatch, including skill-criteria review when applicable. See the
+  [execution procedure](plugins/planning-workflow/skills/executing-work/SKILL.md).
 
-Small, clear changes need no plan. The plugin does not implement the work,
-write tickets, ADRs, or pull requests, or install hooks that require a plan.
+Small, clear changes need no plan. The skills guide agent behavior; they do not
+install hooks or grant permissions. Use the relevant ticket, ADR, and Git skills
+for those specialized artifacts.
 
 ### design-workflow
 
@@ -1004,9 +1012,10 @@ For skill reviews, use a disposable target whose skill change moves a safety
 instruction into a reference without a loading condition. In omp with both
 `review-workflow` and `skill-workflow` loaded, the review batch must include
 `skill-workflow-reviewer`, and a code-only change must not. Creating or
-changing a skill with `authoring-skills` in omp must also dispatch it. Without
-an explicit request, Codex and Claude Code reviews add no skill-criteria worker;
-with one, the extra worker must read the loaded `authoring-skills`.
+changing a behavioral skill must also obtain this review. For standalone
+Codex and Claude Code reviews, the extra worker remains user opt-in. An
+implementation controller's skill-review assignment also triggers it without
+another approval; the worker must read the loaded `authoring-skills`.
 
 Exercise the writing-workflow helpers from the directory each client loaded
 them from, preserving identifiers, numbers, URLs, and fenced code. Then remove

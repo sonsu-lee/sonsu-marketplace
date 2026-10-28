@@ -119,8 +119,9 @@ threads first; it never approves the PR or requests changes on your behalf.
   `authoring-skills`, and exercises the changed skill as the runtime step. If
   that agent does not resolve, `review-workflow-focused` takes an ordinary
   focused question and skill-criteria coverage is reported missing.
-  Codex and Claude Code add a generic skill-criteria worker only when the user
-  explicitly asks for skill review.
+  Codex and Claude Code add a generic skill-criteria worker on an explicit user
+  request or an authorized implementation controller's assignment. One controller
+  owns dispatch; do not run a second skill reviewer outside that review.
 - Common criteria proceed from original purpose through flow, failure/state,
   architecture/current cost, and implementation details such as data
   structures, APIs, types, guards, and comments. Findings need concrete
