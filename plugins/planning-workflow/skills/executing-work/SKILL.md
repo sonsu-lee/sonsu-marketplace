@@ -44,6 +44,10 @@ give each worker its scope, interfaces, constraints, and ownership. Avoid
 conflicting edits and integrate their results before final checks. A worker's
 report is not proof that its output is correct.
 
+For repeated changes across files or syntax-aware transformations, read
+[mechanical changes](references/mechanical-changes.md) before selecting the
+transformation method. Tiny isolated edits do not require a codemod.
+
 Code and behavioral skill changes require independent review. Only a binding
 instruction prohibiting review or an unavailable facility can prevent it.
 A small diff is not an exception. Do not mark the workflow complete when
