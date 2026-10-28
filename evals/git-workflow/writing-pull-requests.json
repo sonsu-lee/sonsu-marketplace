@@ -93,6 +93,18 @@
       "prompt": "Draft only the PR description for fictional acme/reports, with the default template. Supplied change: the cleanup command now selects only expired report files older than 30 days. Newer reports are preserved. Deletion is irreversible, so the agreed rollout requires reviewing dry-run output and explicit operator confirmation before any production deletion. A staging run preserved newer files and selected only eligible expired files; production execution has not been performed. Working notes also list directory searches, three dependency-install retries, terminal setup, and individual formatting commands. No UI changed. Use only these supplied facts; do not publish, create files, or access the fictional repository."
     },
     {
+      "id": "data-flow",
+      "expect": "load",
+      "forbid": ["write-command", "new-files"],
+      "criteria": [
+        "Explains why deleting a customer must remove its asset links but preserve shared assets and historical production records",
+        "Explains that the customer deletion and link removal happen together in one transaction",
+        "Reports the observed integration check and distinguishes the unverified production deployment",
+        "Omits the file list and search chronology without inventing implementation details"
+      ],
+      "prompt": "Read and apply the writing-pull-requests skill before answering. If a skill revision directory is specified, use only that revision. Draft only a PR description using the default template for fictional acme/studio. A customer can be deleted, but shared assets and historical production records must remain. The change marks the customer deleted and removes its asset links together in a database transaction. An integration check confirmed the customer and links changed together and that shared assets and production records remained. Production deployment has not been verified. Notes list four changed files and several repository searches. No UI changed. Use only these facts; do not publish, create files, or access the fictional repository."
+    },
+    {
       "id": "media-caption",
       "expect": "load",
       "reads": ["references/ui-evidence.md"],
