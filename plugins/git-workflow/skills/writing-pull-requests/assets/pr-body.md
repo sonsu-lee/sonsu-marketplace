@@ -8,6 +8,8 @@ Record AI assistance with PR labels as described in the skill, not an additional
 body section, unless the repository requires body disclosure.
 
 ```markdown
+<!-- Keep each prose paragraph on one source line; do not hard-wrap. -->
+
 ## Why
 
 <!-- Explain the concrete problem or need, not a generic claim of improvement. -->

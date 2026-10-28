@@ -84,7 +84,8 @@ the stated contract. Their type/runtime checks passed before and after the
 classification correction. That correction has a dedicated regression test.
 
 Final local checks: six references passed; all fourteen deliberate regressions
-were rejected; all twenty-two runner regressions passed. Valid alternative
+were rejected; all twenty-four runner regressions passed after integrating the
+current trunk (twenty-two at the recorded evaluator revision). Valid alternative
 TypeScript declarations were also exercised, and signal termination was observed
 as incomplete rather than a contract rejection. Skill format validation and
 Markdown lint passed. No published plugin changed, so catalog/version changes
