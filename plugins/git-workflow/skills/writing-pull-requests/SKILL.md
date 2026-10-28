@@ -100,12 +100,10 @@ trackers' own completion-link rules.
 
 ## Record author checks, not CI status
 
-Report the relevant scenario and observed result, not an execution diary or
-CI checklist. A requirement to report a profile and results calls for their
-names and outcomes, not the full execution inventory. Keep model IDs, tool
-versions, fixture details, and commands only when they explain a failure,
-limitation, or reproduction requirement. Link detailed evidence only when the
-reviewer can access it; a local trace path is not a useful PR reference.
+Report scenarios and outcomes, not an execution diary. Required profile/results
+reporting means names and outcomes, not an environment inventory. Keep execution
+details only to explain failures, limits, or reproduction. Link evidence
+reviewers can access, not local trace paths.
 
 Use prose or ordinary bullets, not task checkboxes. Omit optional checks when
 unnecessary; do not enumerate everything not tested. Keep material blockers
