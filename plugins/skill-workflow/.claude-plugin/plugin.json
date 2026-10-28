@@ -1,6 +1,6 @@
 {
   "name": "skill-workflow",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Create, refine, and independently review focused agent skills, delegating mechanical work to existing tools.",
   "author": {
     "name": "sonsu-lee",
