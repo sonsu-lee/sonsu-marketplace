@@ -76,6 +76,11 @@ template or filling optional sections merely because they exist. If no template
 applies, use the [bundled body](assets/pr-body.md). An explicit CLI or API body
 must already incorporate the selected template.
 
+Keep paragraphs on one source line, including within list items: GitHub renders
+single newlines in PR bodies as line breaks, unlike `.md` files. Preserve blank
+lines and list, table, and code structure. Do not apply file-lint or column limits
+unless required for PR bodies, even in a temporary `.md` file for `--body-file`.
+
 ## Explain the reason and approach
 
 Select content before drafting or polishing; investigation notes are not the
