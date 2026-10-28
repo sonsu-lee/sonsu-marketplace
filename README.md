@@ -902,6 +902,15 @@ final output. Follow the
 and report smoke checks separately from measured trigger rates or comparative
 quality results.
 
+The [focused review cases](evals/review-workflow/reviewing-code.json) explicitly
+request the skill. They cover data preservation, reachable waits, redundant
+internal guards versus necessary boundary checks, state typing, refreshed UI
+state, and assertions that miss incorrect writes. A runner pass establishes
+loading, reference reads, and safety, not the semantic `criteria`: inspect
+the answers separately. Use the blind revision comparison above to assess
+whether changed guidance improves results; these cases do not measure
+automatic skill selection or end-to-end review orchestration.
+
 For other model runs, reuse the test homes:
 
 ```sh
