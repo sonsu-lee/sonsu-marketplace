@@ -110,6 +110,7 @@ def verify(case_root: Path, data: dict, overlay: dict[str, str]) -> dict:
         home = Path(tmp) / 'home'
         home.mkdir()
         escapes = []
+        suppressions = []
         for rel, content in overlay.items():
             safe_path(rel)
             if rel not in data['editable']:
@@ -123,12 +124,16 @@ def verify(case_root: Path, data: dict, overlay: dict[str, str]) -> dict:
             check = run_process(['node', str(TOOLCHAIN / 'escapes.mjs'), str(original), str(target)], work, home)
             if check['exit'] != 0:
                 raise ValueError(f"escape checker failed: {check['stderr']}")
-            escapes.extend(f'{rel}: {line}' for line in check['stdout'].splitlines())
+            for flag in check['stdout'].splitlines():
+                escapes.append(f'{rel}: {flag}')
+                if flag.startswith('directive:'):
+                    suppressions.append(f'{rel}: {flag}')
         types = run_process(['node', str(TSC), '--project', 'tsconfig.json'], work, home)
         runtime = (run_process(['node', 'checks/behavior.mjs'], work, home)
                    if types['exit'] == 0 else None)
-        return {'escape_violations': escapes, 'types': types, 'runtime': runtime,
-                'contract_pass': not escapes and types['exit'] == 0 and runtime is not None and runtime['exit'] == 0,
+        return {'type_escape_flags': escapes, 'suppression_violations': suppressions,
+                'types': types, 'runtime': runtime,
+                'contract_pass': not suppressions and types['exit'] == 0 and runtime is not None and runtime['exit'] == 0,
                 'improvement': 'requires_review', 'criteria': data['criteria']}
 
 

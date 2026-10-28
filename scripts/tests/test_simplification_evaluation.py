@@ -96,6 +96,24 @@ class SubmissionTests(unittest.TestCase):
             self.assertEqual(failure['exit'], 1)
 
     @unittest.skipUnless(evaluation.TSC.is_file(), 'install the pinned TS toolchain')
+    def test_boundary_assertion_is_reviewed_but_suppression_fails(self):
+        root, data = evaluation.load_case('TS05')
+        source = '''export type Config = { host: string; port: number };
+export function parseConfig(json: string): Config {
+  const value: unknown = JSON.parse(json);
+  if (typeof value !== "object" || value === null || Array.isArray(value)) throw new Error("invalid config");
+  const { host, port } = value as Record<string, unknown>;
+  if (typeof host !== "string" || typeof port !== "number" || !Number.isInteger(port) || port < 1 || port > 65535) throw new Error("invalid config");
+  return { host, port };
+}
+'''
+        result = evaluation.verify(root, data, {'src/config.ts': source})
+        self.assertTrue(result['contract_pass'])
+        self.assertEqual(result['improvement'], 'requires_review')
+        suppressed = evaluation.verify(root, data, {'src/config.ts': '// @ts-nocheck\n' + source})
+        self.assertFalse(suppressed['contract_pass'])
+
+    @unittest.skipUnless(evaluation.TSC.is_file(), 'install the pinned TS toolchain')
     def test_escape_checks_distinguish_const_inference_and_suppression(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

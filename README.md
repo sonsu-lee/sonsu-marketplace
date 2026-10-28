@@ -941,8 +941,12 @@ credentials.
 
 Answers contain complete replacement source files as JSON (plain or one
 unambiguous JSON code block), not workspace edits. The evaluator checks the
-exact editable allowlist, new compiler escapes,
-types, and runtime behavior. Logs, submissions, diffs, and results remain in the
+exact editable allowlist, compiler suppression directives, types, and runtime
+behavior. New assertions, explicit `any`, and non-null assertions are recorded
+as `type_escape_flags` for semantic review, not rejected by syntax alone.
+A boundary assertion followed by real validation is not automatically a defect;
+an assertion that hides a broken upstream contract or missing validation is.
+Logs, submissions, diffs, and results remain in the
 output directory. Generated code runs locally with a temporary HOME; this is
 not a security sandbox. Use only authorized inputs on a disposable environment,
 without production secrets or services. Model runs stay local, never in CI.

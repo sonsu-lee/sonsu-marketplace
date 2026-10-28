@@ -18,14 +18,14 @@ function escapes(path) {
   visit(source);
   // TypeScript identifies directives in comments, not in strings or ordinary code.
   for (const directive of source.commentDirectives || []) {
-    found.push(text.slice(directive.range.pos, directive.range.end).trim());
+    found.push('directive:' + text.slice(directive.range.pos, directive.range.end).trim());
   }
   const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, ts.LanguageVariant.Standard, text);
   for (let token = scanner.scan(); token !== ts.SyntaxKind.EndOfFileToken; token = scanner.scan()) {
     if ((token === ts.SyntaxKind.SingleLineCommentTrivia ||
          token === ts.SyntaxKind.MultiLineCommentTrivia) &&
         /@ts-nocheck\b/.test(scanner.getTokenText())) {
-      found.push('@ts-nocheck');
+      found.push('directive:@ts-nocheck');
     }
   }
   return found;
