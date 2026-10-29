@@ -23,6 +23,7 @@ packages.
   - [writing-workflow](#writing-workflow)
   - [review-workflow](#review-workflow)
   - [planning-workflow](#planning-workflow)
+  - [design-workflow](#design-workflow)
 - [Layout](#layout)
 - [Contributing](#contributing)
   - [Code review](#code-review)
@@ -164,6 +165,11 @@ Codex and Claude Code use independent custom general and focused subagents.
 Explicit native-only requests retain `/review`, `codex review`, or Claude
 Code's `/code-review` without orchestration. Reviews stay local unless you
 request publication; a comment draft is not posted.
+
+Ask for an interface proposal, a read-only design review, or standalone graphics
+to use `design-workflow`. Its optional omp runtime requires explicit operator
+approval and real capture/check evidence; the shared skills alone do not enforce
+that workflow. See the [design guide](plugins/design-workflow/README.md).
 
 For omp, fetch catalog changes, then upgrade installed plugins:
 
@@ -375,6 +381,25 @@ Install with `omp plugin install planning-workflow@sonsu-marketplace`,
 
 Small, clear changes need no plan. The plugin does not implement the work,
 write tickets, ADRs, or pull requests, or install hooks that require a plan.
+
+### design-workflow
+
+Install with `omp plugin install design-workflow@sonsu-marketplace`,
+`codex plugin add design-workflow@sonsu-marketplace`, or
+`claude plugin install design-workflow@sonsu-marketplace`.
+
+- **`designing-interfaces`** creates or improves interface layouts, hierarchy,
+  responsive behavior and interaction states, including proposals without edits.
+- **`reviewing-designs`** evaluates existing designs without modifying them and
+  distinguishes observed issues from assumptions.
+- **`designing-graphics`** creates standalone icons, illustration and identity
+  assets with reproduction and handoff constraints.
+
+The [plugin guide](plugins/design-workflow/README.md) describes an optional omp
+extension with operator-approved scope, controlled tools, real browser/process
+receipts, revision-bound review and explicit non-success exits. Codex and Claude
+Code receive guidance only. This is not an OS sandbox or an automatic design
+quality certification.
 
 ## Layout
 
@@ -793,6 +818,11 @@ the exit status nonzero. A missing CLI is a failure, not a skip;
 a local path, which loads packages in place; to inspect the cached copies a
 Git-backed marketplace installs, add a committed clone over Git instead.
 
+For `design-workflow` runtime changes, also follow its
+[runtime verification procedure](plugins/design-workflow/README.md#verification):
+exercise actual browser and process execution and SDK lifecycle gates. Discovery
+and prompt loading do not establish that extension behavior works.
+
 #### Evaluating skills
 
 The model-free checks above do not show whether a skill helps or when it
@@ -1051,6 +1081,11 @@ secrets, and enforces the agreed rules a machine can check:
 - `script-tests`: the model-free tests in `scripts/tests`, when files under
   `plugins/` or `scripts/` change. They cover the `evaluating-skills` runner,
   every skill's evaluation files, and the plugin-loading receiver.
+- `design-workflow-tests`: the plugin's TypeScript check and model-free engine,
+  real Chromium/process and SDK lifecycle regressions when its package changes.
+  TypeScript and the browser installation CLI are locked in `.github/ci-clients`;
+  the pinned browser package selects its Chromium revision. Operator UI choices
+  in the SDK regression are simulated; visual quality is still human judgment.
 
 The `pr-title` workflow checks the pull request title, which becomes the squash
 commit subject, with the

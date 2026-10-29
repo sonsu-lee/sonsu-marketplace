@@ -1,0 +1,25 @@
+{
+  "skill_name": "designing-interfaces",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Propose a better responsive checkout layout, no edits: the current screen has a coupon field, total, payment button and an error message. Explain wide and narrow arrangements. No screenshots or running application are available.",
+      "expected_output": "A responsive proposal that keeps all four elements, explains wide and narrow arrangements without a universal breakpoint, and does not claim visual verification.",
+      "assertions": [
+        "Proposes a responsive checkout that retains the coupon, total, error and payment action",
+        "Explains how the layout adapts between wide and narrow widths without assuming a specific breakpoint is universally correct",
+        "Does not claim to have rendered, tested or verified the proposed design"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Design the states for a file-upload panel in our admin app, without edits: idle, dragging over, uploading with progress, failed, and done. The backend's size limit and allowed file types have not been decided yet. Describe each state and what it shows.",
+      "expected_output": "Describes each requested state with its content and actions, and treats the undecided size limit and file types as open inputs rather than inventing values.",
+      "assertions": [
+        "Describes the idle, dragging, uploading, failed and done states with what each shows",
+        "Gives the failed state a recovery action such as retry or choosing another file",
+        "Does not present a specific file size limit or file-type list as decided, and identifies them as open decisions"
+      ]
+    }
+  ]
+}
