@@ -1,9 +1,10 @@
 ---
 name: writing-adrs
 description: >-
-  Use this skill when deciding whether a design choice warrants an architecture
-  decision record (ADR), or drafting, reviewing, updating, or superseding one.
-  Not for routine implementation, work logs, or general documentation edits.
+  Use for ADR assessment and decision-record writing or maintenance, not
+  general design discussion. Decide whether a consequential choice needs a
+  record, or draft, review, update, or supersede one. Not for routine
+  implementation, work logs, or general documentation edits.
 ---
 
 # Writing ADRs

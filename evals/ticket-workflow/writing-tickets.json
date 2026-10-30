@@ -157,6 +157,425 @@
       "id": "fixbug",
       "expect": "no-load",
       "prompt": "Fix the bug where clicking Save twice on the invoice form creates two invoices. The handler is in src/invoice.ts."
+    },
+    {
+      "id": "boundary-outcome-not-recipe",
+      "prompt": "Draft a GitHub issue: clicking Save twice creates two orders. The desired result is one order per submission; debouncing is only an unverified idea. No publication.",
+      "expect": "load",
+      "purpose": "Tests in-scope outcome not recipe intent.",
+      "family": "duplicate-save-ticket",
+      "split": "validation",
+      "origin": "history-inspired",
+      "criteria": [
+        "States the observable single-order outcome without presenting debouncing as the established cause or mandatory solution."
+      ],
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-split-parent",
+      "prompt": "Draft a parent and independently completable child issues for importing customer records and exporting them. Both share the goal of account portability; do not create them.",
+      "expect": "load",
+      "purpose": "Tests in-scope split parent intent.",
+      "family": "t-split-parent",
+      "split": "train",
+      "origin": "history-inspired",
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-metadata-proposals",
+      "prompt": "Draft a Linear issue for delayed invoice emails and suggest appropriate metadata only from these available values: priority High or Low, team Billing. The impact and assignee are unknown.",
+      "expect": "load",
+      "purpose": "Tests in-scope metadata proposals intent.",
+      "family": "t-metadata-proposals",
+      "split": "train",
+      "origin": "history-inspired",
+      "criteria": [
+        "Distinguishes proposed metadata from confirmed values and does not invent an assignee or impact."
+      ],
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-security-private",
+      "prompt": "Draft a private security issue for our tracker about a possible cross-tenant access bug. Tenant A could view tenant B’s invoice in one observed request; the cause and scope are unknown. Return the draft only; do not create or publish it.",
+      "expect": "load",
+      "purpose": "Tests in-scope security private intent.",
+      "family": "t-security-private",
+      "split": "train",
+      "origin": "synthetic-boundary",
+      "criteria": [
+        "Keeps the disclosure private, identifies uncertainty, and does not publish or create a repository file."
+      ],
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-maintenance-cost",
+      "prompt": "Draft an issue for an agreed dependency upgrade: the current library is no longer supported and the team has decided to move to its maintained successor. Compatibility details are unknown.",
+      "expect": "load",
+      "purpose": "Tests in-scope maintenance cost intent.",
+      "family": "t-maintenance-cost",
+      "split": "train",
+      "origin": "synthetic-boundary",
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-investigation-deliverable",
+      "prompt": "Draft an investigation issue: nightly imports sometimes stop before completion. Logs show a timeout but the cause is unknown; the outcome should be a diagnosis and a decision on remediation.",
+      "expect": "load",
+      "purpose": "Tests in-scope investigation deliverable intent.",
+      "family": "t-investigation-deliverable",
+      "split": "train",
+      "origin": "synthetic-boundary",
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-rewrite-existing",
+      "prompt": "Rewrite this draft issue to focus on the result, not the implementation: Title: Add a queue. Body: invoice emails take up to 30 minutes; replace the sender with a queue. Return a draft.",
+      "expect": "load",
+      "purpose": "Tests in-scope rewrite existing intent.",
+      "family": "t-rewrite-existing",
+      "split": "train",
+      "origin": "synthetic-boundary",
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-feedback-quote",
+      "prompt": "Draft a feature issue using this customer feedback verbatim: “I need to download my past invoices for accounting.” No export format was specified.",
+      "expect": "load",
+      "purpose": "Tests in-scope feedback quote intent.",
+      "family": "t-feedback-quote",
+      "split": "validation",
+      "origin": "synthetic-boundary",
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-japanese-ticket",
+      "prompt": "次の不具合の GitHub issue の下書きを日本語で作ってください。保存後、一覧に戻ると変更前の名前が表示されます。原因と再現頻度は不明です。",
+      "expect": "load",
+      "purpose": "Tests in-scope japanese ticket intent.",
+      "family": "t-japanese-ticket",
+      "split": "validation",
+      "origin": "synthetic-boundary",
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-korean-acceptance",
+      "prompt": "티켓 초안을 작성해 주세요. 주문 취소 후에도 결제 내역이 취소 전 상태로 보입니다. 원인은 모르며, 완료 조건은 고객이 취소 상태를 확인할 수 있는 것입니다.",
+      "expect": "load",
+      "purpose": "Tests in-scope korean acceptance intent.",
+      "family": "t-korean-acceptance",
+      "split": "validation",
+      "origin": "synthetic-boundary",
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-template-preserve",
+      "prompt": "Draft an issue using this required template: Problem, Acceptance Criteria, <!-- automation: triage -->. The observed problem is duplicate invoices after repeated save; preserve the marker.",
+      "expect": "load",
+      "purpose": "Tests in-scope template preserve intent.",
+      "family": "duplicate-save-ticket",
+      "split": "validation",
+      "origin": "synthetic-boundary",
+      "criteria": [
+        "Preserves the requested template and automation marker while expressing observable completion."
+      ],
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-scope-split",
+      "prompt": "Turn these independent requests into separate draft issues: administrators need user export, and customers need invoice download. Do not split tests from either outcome.",
+      "expect": "load",
+      "purpose": "Tests in-scope scope split intent.",
+      "family": "t-scope-split",
+      "split": "validation",
+      "origin": "history-inspired",
+      "forbid": [
+        "publish-command"
+      ]
+    },
+    {
+      "id": "boundary-lookup-only",
+      "prompt": "From this fictional tracker snapshot, list open issues assigned to me and summarize their titles and statuses: T-1, invoice export fails, Open, assigned to me; T-2, login typo, Done, assigned to me; T-3, slow search, Open, assigned to Alex. Do not contact a tracker.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope lookup only intent.",
+      "family": "t-lookup-only",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-explain-issue",
+      "prompt": "Explain what this issue asks for: “Customers cannot download invoices; they need a CSV export.”",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope explain issue intent.",
+      "family": "t-explain-issue",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-implement-issue",
+      "prompt": "Implement this settled change in the supplied code: the issue says the timeout should be 20 seconds; current code is const timeout = 10;.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope implement issue intent.",
+      "family": "t-implement-issue",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-verify-acceptance",
+      "prompt": "Assess whether this evidence meets the stated acceptance condition: the requirement is one order per save; two repeated saves produced two separate orders.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope verify acceptance intent.",
+      "family": "t-verify-acceptance",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-tracker-integration",
+      "prompt": "Explain how GitHub and Linear issue synchronization works in general; do not change integrations.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope tracker integration intent.",
+      "family": "t-tracker-integration",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-review-pr",
+      "prompt": "Review this diff for a bug: -return total; +return 0; The function should return the calculated total.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope review pr intent.",
+      "family": "t-review-pr",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-search-duplicates",
+      "prompt": "Search this fictional issue snapshot for an existing issue tracking invoice exports and report the result; no ticket text is requested. T-10: Export invoices to CSV, Open. T-11: Email invoices, Closed. Do not contact a tracker.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope search duplicates intent.",
+      "family": "t-search-duplicates",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-metadata-inspect",
+      "prompt": "List the labels and priorities in this fictional project metadata snapshot without modifying tickets: labels: bug, feature, billing; priorities: High, Medium, Low. Do not contact a tracker.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope metadata inspect intent.",
+      "family": "t-metadata-inspect",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-lookup-then-draft",
+      "turns": [
+        {
+          "prompt": "Summarize this issue: “Exports fail on large accounts; a 50,000-row export times out.”",
+          "expect": "no-load",
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Turn that observation into a concise issue draft with an observable outcome. The root cause is unknown.",
+          "expect": "load",
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the lookup then draft transition across real user turns.",
+      "family": "t-lookup-then-draft",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-draft-revise",
+      "turns": [
+        {
+          "prompt": "Draft an issue: uploaded files disappear after refresh. Reproduction frequency and root cause are unknown.",
+          "expect": "load",
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Shorten the draft and retain the missing facts as unknown rather than guessing them.",
+          "expect": "load",
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the draft revise transition across real user turns.",
+      "family": "t-draft-revise",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-draft-to-explain",
+      "turns": [
+        {
+          "prompt": "Draft an issue about invoice downloads failing on Safari; no cause is established.",
+          "expect": "load",
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Explain what Safari is in one sentence.",
+          "expect": "no-load",
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the draft to explain transition across real user turns.",
+      "family": "safari-invoice-ticket-and-versioned-api-record",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-scope-correction",
+      "turns": [
+        {
+          "prompt": "Draft an issue for order export; CSV is required, delivery method is undecided.",
+          "expect": "load",
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Actually, PDF export is an independent request. Split the draft into two independent issues, keeping the delivery decision open.",
+          "expect": "load",
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the scope correction transition across real user turns.",
+      "family": "t-scope-correction",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "workflow-ticket-plan",
+      "turns": [
+        {
+          "prompt": "Draft an issue for an export that currently times out above 50,000 rows; the desired result is reliable export, and the cause is unknown.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "ticket-workflow:writing-tickets"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Now design how to deliver large exports without tying up web requests, and present the tradeoffs before implementation.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "planning-workflow:planning-work"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the staged boundary from ticket to plan without conflating skill selection.",
+      "family": "large-export-design",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "workflow-ticket-branch",
+      "turns": [
+        {
+          "prompt": "Draft an issue for invoice downloads failing on Safari; the cause is unknown.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "ticket-workflow:writing-tickets"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "A separate existing issue is numbered 42. Suggest a Git branch name for fixing its invoice download bug; do not create a branch.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "git-workflow:naming-branches"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the staged boundary from ticket to branch without conflating skill selection.",
+      "family": "safari-invoice-ticket-and-versioned-api-record",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "workflow-ticket-review",
+      "turns": [
+        {
+          "prompt": "Draft an issue describing that a repeated save creates two orders; desired outcome is one order per submission.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "ticket-workflow:writing-tickets"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Review this independent code diff for correctness: -return total; +return 0; The function must return the calculated total.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "review-workflow:reviewing-code"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the staged boundary from ticket to review without conflating skill selection.",
+      "family": "duplicate-save-ticket",
+      "split": "validation",
+      "origin": "synthetic-boundary"
     }
   ]
 }

@@ -13,8 +13,10 @@ import compare_skill as cs
 
 class ComparisonTests(unittest.TestCase):
     def setUp(self):
-        self.query = cs.ca.Query(id="q", prompt="request", expect="load", criteria=["first", "second"])
-        self.answer = lambda side: cs.Answer(side, cs.ca.Trace(reached=True, loaded=True), side, Path(side))
+        self.query = cs.ca.Query(id="q", steps=[cs.ca.Step(prompt="request", expect="load")],
+                                 criteria=["first", "second"])
+        self.answer = lambda side: cs.Answer(
+            side, cs.ca.Trace(reached=True, successful={"p:s"}), side, Path(side))
         self.answers = {side: self.answer(side) for side in ("base", "head")}
 
     def grade(self, result, answers=None):
@@ -42,7 +44,7 @@ class ComparisonTests(unittest.TestCase):
             with self.subTest(criteria=criteria):
                 verdict = self.grade({"winner": "tie", "criteria": criteria})
                 self.assertEqual(cs.exit_status([verdict], []), 2)
-        self.answers["head"].trace.loaded = False
+        self.answers["head"].trace.successful = set()
         self.assertEqual(cs.exit_status([self.grade({})], []), 2)
         self.assertEqual(cs.exit_status([cs.Verdict(criteria=[{"head": False}]), cs.Verdict(error="incomplete")], []), 2)
 

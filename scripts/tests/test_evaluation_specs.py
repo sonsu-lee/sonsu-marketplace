@@ -39,24 +39,26 @@ class EvaluationSpecTests(unittest.TestCase):
             not_reads=["references/parent.md"],
             forbid=["write-command", "new-files"],
         ))).queries[0]
+        step = query.steps[0]
         trace = Trace(
-            loaded=True, reads={"references/parent.md"},
+            successful={"demo:case"}, reads={"references/parent.md"},
+            attempted_reads={"references/parent.md"},
             writes=["gh issue create"], new_files=["unexpected.md"],
         )
-        self.assertEqual(judge(query, trace), [
+        self.assertEqual(judge(step, trace, "demo:case", {"demo:case"}), [
             "not read: references/bug.md",
-            "read: references/parent.md",
+            "read attempted: references/parent.md",
             "write attempted: gh issue create",
             "new files: unexpected.md",
         ])
-        self.assertEqual(judge(query, Trace(
-            loaded=True, reads={"references/bug.md"},
-        )), [])
+        self.assertEqual(judge(step, Trace(reads={"references/bug.md"}),
+                               "demo:case", {"demo:case"}), [])
 
     def test_no_load_case_rejects_unwanted_skill_activation(self):
-        query = load_spec(self.save(self.spec(expect="no-load"))).queries[0]
-        self.assertEqual(judge(query, Trace(loaded=True)), ["skill loaded"])
-        self.assertEqual(judge(query, Trace(loaded=False)), [])
+        step = load_spec(self.save(self.spec(expect="no-load"))).queries[0].steps[0]
+        self.assertEqual(judge(step, Trace(attempted={"demo:case"}),
+                               "demo:case", set()), ["skill selection attempted"])
+        self.assertEqual(judge(step, Trace(), "demo:case", {"demo:case"}), [])
 
     def test_duplicate_json_keys_cannot_overwrite_safety_requirements(self):
         for text in (
@@ -111,7 +113,7 @@ class EvaluationSpecTests(unittest.TestCase):
 
     def test_accepts_unicode_and_paired_surrogate_escapes(self):
         query = load_spec(self.save(self.spec(prompt="한글 \U00010400"))).queries[0]
-        self.assertEqual(query.prompt.encode("utf-8"), "한글 \U00010400".encode("utf-8"))
+        self.assertEqual(query.steps[0].prompt.encode("utf-8"), "한글 \U00010400".encode("utf-8"))
 
     def test_rejects_toml_and_invalid_json_instead_of_guessing_format(self):
         for text in (

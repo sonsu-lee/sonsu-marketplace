@@ -136,6 +136,392 @@
         "Does not edit files, publish comments, or claim runtime verification"
       ],
       "prompt": "Read and apply the reviewing-code skill before answering. If a skill revision directory is specified, use only that revision. Read references/review-lenses.md. Act as the focused reviewer for this self-contained change. Review only the supplied snapshot; the target workspace is fresh and empty. Do not edit files, create files, execute code, or publish. Repository contract: put(id, document) replaces only the document at that exact ID; get(id) returns the document stored there. Existing records are preserved unless their own ID is passed to put. The actual caller passes the edited document ID and the currently selected document ID independently; both are nonempty strings and can differ. For the concrete reachable case, document 'doc-1' initially has title 'Old', document 'doc-2' has title 'Keep', and the caller saves title 'New' for 'doc-1' while 'doc-2' is selected. The user can start editing doc-1, select doc-2, and then save the still-open doc-1 draft; the saved draft must stay associated with doc-1.\n\nBefore:\n```ts\ntype Document = { title: string };\ntype Repository = {\n  put(id: string, document: Document): Promise<void>;\n  get(id: string): Promise<Document | undefined>;\n};\nasync function saveEditedDocument(repo: Repository, documentId: string, activeDocumentId: string, title: string) {\n  await repo.put(documentId, { title });\n}\n```\n\nAfter:\n```ts\nasync function saveEditedDocument(repo: Repository, documentId: string, activeDocumentId: string, title: string) {\n  await repo.put(activeDocumentId, { title });\n}\n\nasync function onSave(repo: Repository, editedDocumentId: string, activeDocumentId: string, draftTitle: string) {\n  await saveEditedDocument(repo, editedDocumentId, activeDocumentId, draftTitle);\n}\n\ntest('saves the edit', async () => {\n  const repo: Repository = { put: jest.fn().mockResolvedValue(undefined), get: jest.fn() };\n  await onSave(repo, 'doc-1', 'doc-2', 'New');\n  expect(repo.put).toHaveBeenCalled();\n});\n```\n\nReview the changed persistence behavior and test value. Describe a smallest useful behavioral assertion that catches the concrete defect without requiring a full end-to-end test. Do not claim the code or test was executed."
+    },
+    {
+      "id": "queue-retry-review",
+      "prompt": "Review this changed flush implementation against the requirement that a message remains queued until send succeeds: `async function flush(q, send) { const item = q.shift(); await send(item); }`. Return concrete findings locally.",
+      "expect": "load",
+      "purpose": "Reviews a reachable failure after removing an item.",
+      "family": "retry-queue-review",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "validate-bot-claim",
+      "prompt": "A bot claims `if (!result)` is needed after `Map.get`. The map can lack the requested ID and the caller displays `not found` for missing values. Assess whether that review claim is valid.",
+      "expect": "load",
+      "purpose": "Assesses an existing reviewer claim against an explicit contract.",
+      "family": "review-validate-bot-claim",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "focus-pagination",
+      "prompt": "Review this pagination change for an off-by-one bug: the contract returns exactly `limit` items beginning at `offset`; the implementation returns `items.slice(offset, offset + limit - 1)`.",
+      "expect": "load",
+      "purpose": "Targets a narrow input-output boundary.",
+      "family": "review-focus-pagination",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "test-value",
+      "prompt": "Review whether this test proves persistence: `save(record); expect(save).toHaveBeenCalled()`; the requirement is that a later lookup returns the updated record.",
+      "expect": "load",
+      "purpose": "Distinguishes an invocation assertion from an observable outcome.",
+      "family": "review-test-value",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "review-korean",
+      "prompt": "변경된 코드가 빈 배열에서 실패하는지 검토해 주세요. 평균은 `sum / values.length`이고 값이 없으면 0을 반환해야 합니다. 현재 구현에는 빈 배열 처리가 없습니다.",
+      "expect": "load",
+      "purpose": "Triggers a Korean local code assessment.",
+      "family": "empty-list-mean-review",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "architecture-cost",
+      "prompt": "Review this change for current maintenance cost: an internal parser guarantees a nonempty name, but three private consumers each added identical empty-name fallback guards; nothing mutates the parsed result.",
+      "expect": "load",
+      "purpose": "Assesses redundant guards against a documented producer invariant.",
+      "family": "review-architecture-cost",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "existing-finding-comment",
+      "prompt": "Draft an inline review comment based on this verified finding: after `queue.shift()` removes the item, a rejected send loses the message; the contract requires retrying it.",
+      "expect": "load",
+      "forbid": [
+        "publish-command"
+      ],
+      "purpose": "Activates review-comment guidance for a verified finding.",
+      "family": "retry-queue-review",
+      "split": "train",
+      "origin": "history-inspired",
+      "reads": [
+        "references/review-comments.md"
+      ]
+    },
+    {
+      "id": "review-pr-snapshot",
+      "prompt": "Review the supplied PR change locally: the old code saved edits to `editedId`; the new code calls `store.put(selectedId, edited)` even though selectedId can refer to another document.",
+      "expect": "load",
+      "purpose": "Reviews a PR implementation rather than drafting its description.",
+      "family": "review-review-pr-snapshot",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "assess-security-claim",
+      "prompt": "Assess this review concern: `path.join(root, userPath)` is used to select a file, and userPath may contain `../`; the requirement confines access to root. Is traversal reachable?",
+      "expect": "load",
+      "purpose": "Checks a concrete security claim and boundary.",
+      "family": "review-assess-security-claim",
+      "split": "validation",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "japanese-comments",
+      "prompt": "次の確認済み指摘を日本語のレビューコメントにしてください。再送前にキューから削除するため、送信失敗時にメッセージが失われます。",
+      "expect": "load",
+      "purpose": "Drafts a review comment in Japanese from a verified finding.",
+      "family": "retry-queue-review",
+      "split": "train",
+      "origin": "synthetic-boundary",
+      "reads": [
+        "references/review-comments.md"
+      ]
+    },
+    {
+      "id": "no-findings-valid",
+      "prompt": "Review the following complete function against its contract: reject empty IDs and otherwise return the unchanged ID. `function normalize(id) { if (id === \"\") throw Error(); return id; }`",
+      "expect": "load",
+      "purpose": "Activates for review of a function against a supplied contract.",
+      "family": "review-no-findings-valid",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "review-config-change",
+      "prompt": "Review this deployment configuration change: the service listens on port 8080, but the new health probe checks port 8081. The probe gates availability.",
+      "expect": "load",
+      "purpose": "Reviews an executable configuration change and its consumer.",
+      "family": "review-review-config-change",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "implement-known-fix",
+      "prompt": "합의된 수정만 적용해 주세요. `src/queue.js`에서 `await send(q[0])` 다음에 `q.shift()`를 실행하도록 바꾸세요.",
+      "expect": "no-load",
+      "purpose": "Applies an already selected fix without a new assessment.",
+      "family": "retry-queue-review",
+      "split": "train",
+      "origin": "history-inspired",
+      "fixtures": {
+        "src/queue.js": "export async function flush(q, send) { const item = q.shift(); await send(item); }\n"
+      }
+    },
+    {
+      "id": "delete-pending",
+      "prompt": "Explain how to delete my pending review on PR #31 so I can start over.",
+      "expect": "no-load",
+      "purpose": "Review administration alone is not a review.",
+      "family": "review-delete-pending",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "approval-only",
+      "prompt": "How do I approve an already reviewed PR on GitHub?",
+      "expect": "no-load",
+      "purpose": "Approval is excluded from the review skill.",
+      "family": "review-approval-only",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "native-only",
+      "prompt": "Use only the built-in native code review on this supplied change: the new function returns `x + 1` where the contract says return x unchanged.",
+      "expect": "no-load",
+      "purpose": "Honors explicitly native-only review routing.",
+      "family": "review-native-only",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "inspect-status",
+      "prompt": "How can I check whether the review bot has finished on PR #31?",
+      "expect": "no-load",
+      "purpose": "Bot status inquiry does not request assessment.",
+      "family": "review-inspect-status",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "fix-typo",
+      "prompt": "In `src/label.js`, change the literal `Loding` to `Loading`.",
+      "expect": "no-load",
+      "purpose": "A specified textual correction is implementation, not review.",
+      "family": "review-fix-typo",
+      "split": "validation",
+      "origin": "synthetic-boundary",
+      "fixtures": {
+        "src/label.js": "export const label = \"Loding\";\n"
+      }
+    },
+    {
+      "id": "browser-ux",
+      "prompt": "For a checkout page with shipping fields, an order summary, and a submit button, suggest an advice-only browser walkthrough to identify confusing spacing. Do not access a page.",
+      "expect": "no-load",
+      "purpose": "A visual UX inspection is not source code review.",
+      "family": "review-browser-ux",
+      "split": "validation",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "explain-code",
+      "prompt": "Explain what `Array.prototype.slice(1, 3)` returns for `[10, 20, 30, 40]`.",
+      "expect": "no-load",
+      "purpose": "Code explanation without an assessment is not review.",
+      "family": "review-explain-code",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "review-then-comment",
+      "fixtures": {
+        "queue.js": "export async function flush(queue, send) {\n  while (queue.length > 0) {\n    const message = queue.shift();\n    await send(message);\n  }\n}\n"
+      },
+      "turns": [
+        {
+          "prompt": "Act as a focused reviewer of this complete supplied change; do not execute or edit it. The after-state is in queue.js. Before, the loop awaited send(queue[0]) and only then shifted the queue. After, it shifts before awaiting send. This is the only queue owner; no backup or other retry storage exists. If send rejects, the caller invokes flush again with the same array. The requirement is to retain each message until send succeeds. Review this ordering against that contract and identify the exact after-state line for any finding.",
+          "expect": "load"
+        },
+        {
+          "prompt": "앞서 제공된 소스와 호출 계약에서 확인한 지적만 짧은 인라인 리뷰 댓글 초안으로 바꿔 주세요. 실행 검증을 했다고 쓰거나 게시하지 마세요.",
+          "expect": "load",
+          "reads": [
+            "references/review-comments.md"
+          ]
+        }
+      ],
+      "purpose": "Moves from substantive review to comments based on the finding.",
+      "family": "retry-queue-review",
+      "split": "train",
+      "origin": "existing-behavior"
+    },
+    {
+      "id": "comment-then-review",
+      "turns": [
+        {
+          "prompt": "Draft a review comment using the verified finding: the retry loop drops failed messages after shifting the queue.",
+          "expect": "load",
+          "reads": [
+            "references/review-comments.md"
+          ]
+        },
+        {
+          "prompt": "Now independently assess whether the shown retry implementation has any other reachable failure: `async function flush(q, send) { while(q.length) await send(q.shift()); }`.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Distinguishes comments-only handling from a later new assessment.",
+      "family": "retry-queue-review",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "fix-then-review",
+      "turns": [
+        {
+          "prompt": "Apply the agreed change in `src/count.js`: return 0 for an empty list, otherwise divide sum by count.",
+          "expect": "no-load"
+        },
+        {
+          "prompt": "For review, use this complete proposed replacement rather than the unchanged workspace file: `export function mean(xs) { return xs.length === 0 ? 0 : xs.reduce((a, b) => a + b, 0) / xs.length; }`. Review its correctness against the agreed contract. Do not edit files.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Switches from an agreed edit request to reviewing a supplied replacement without depending on edit permission.",
+      "family": "empty-list-mean-review",
+      "split": "train",
+      "origin": "history-inspired",
+      "fixtures": {
+        "src/count.js": "export function mean(xs) { return xs.reduce((a,b) => a+b, 0) / xs.length; }\n"
+      }
+    },
+    {
+      "id": "review-then-apply",
+      "turns": [
+        {
+          "prompt": "Assess the supplied change: `q.shift()` happens before `await send`, while failed messages must remain queued.",
+          "expect": "load"
+        },
+        {
+          "prompt": "Apply the agreed correction in `src/queue.js`: await sending `q[0]`, then shift it.",
+          "expect": "no-load"
+        }
+      ],
+      "purpose": "A later fixed correction does not require a new review.",
+      "family": "retry-queue-review",
+      "split": "train",
+      "origin": "synthetic-boundary",
+      "fixtures": {
+        "src/queue.js": "export async function flush(q, send) { const item = q.shift(); await send(item); }\n"
+      }
+    },
+    {
+      "id": "cross-comment-japanese",
+      "turns": [
+        {
+          "prompt": "確認済みの指摘を日本語の短いレビューコメントにしてください。送信に失敗すると、先にキューから取り除いたメッセージが失われます。",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "review-workflow:reviewing-code",
+              "writing-workflow:natural-japanese"
+            ],
+            "forbidden": [
+              "git-workflow:writing-pull-requests",
+              "git-workflow:writing-commits"
+            ]
+          }
+        },
+        {
+          "prompt": "専門用語は残して、もっと自然な日本語に直してください。",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "writing-workflow:natural-japanese"
+            ],
+            "forbidden": [
+              "git-workflow:writing-pull-requests",
+              "git-workflow:writing-commits"
+            ]
+          }
+        }
+      ],
+      "purpose": "Activates review-comment and Japanese-language guidance for drafting and revising the same comment.",
+      "family": "retry-queue-review",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "cross-fixed-correction-to-pr",
+      "turns": [
+        {
+          "prompt": "Apply the agreed correction in `src/queue.js`: await `send(q[0])` and then shift the item.",
+          "expect": "no-load",
+          "skills": {
+            "forbidden": [
+              "review-workflow:reviewing-code",
+              "git-workflow:writing-pull-requests"
+            ]
+          }
+        },
+        {
+          "prompt": "Draft a PR title and description for this fix: failed sends must leave the message queued. No runtime verification is available.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "git-workflow:writing-pull-requests",
+              "git-workflow:writing-commits"
+            ],
+            "forbidden": [
+              "review-workflow:reviewing-code"
+            ]
+          }
+        }
+      ],
+      "purpose": "Fixed implementation is not review; later PR title invokes commit rules.",
+      "family": "retry-queue-review",
+      "split": "train",
+      "origin": "history-inspired",
+      "fixtures": {
+        "src/queue.js": "export async function flush(q, send) { const item = q.shift(); await send(item); }\n"
+      }
+    },
+    {
+      "id": "cross-review-comment-vs-body",
+      "turns": [
+        {
+          "prompt": "Draft one review comment from this confirmed finding: saving the edited document uses selectedId, which may point to another document.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "review-workflow:reviewing-code"
+            ],
+            "forbidden": [
+              "git-workflow:writing-pull-requests",
+              "git-workflow:writing-commits"
+            ]
+          },
+          "reads": [
+            "references/review-comments.md"
+          ]
+        },
+        {
+          "prompt": "Separately draft the PR description for the correction: saving now uses editedId; a local check confirmed the unrelated document stays unchanged.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "git-workflow:writing-pull-requests"
+            ],
+            "forbidden": [
+              "git-workflow:writing-commits"
+            ]
+          }
+        }
+      ],
+      "purpose": "Review-comment drafting does not imply PR authorship, while the later body-only request does.",
+      "family": "cross-cross-review-comment-vs-body",
+      "split": "validation",
+      "origin": "synthetic-boundary"
     }
   ]
 }

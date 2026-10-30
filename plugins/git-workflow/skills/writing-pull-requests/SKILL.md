@@ -1,6 +1,6 @@
 ---
 name: writing-pull-requests
-description: Use this skill when drafting, creating, or updating a pull request, writing its title or description, preparing UI evidence for a pull request, or marking it ready for review.
+description: Use for PR content, publishing/readiness, stacks, and merge messages; not code review/status lookup. Includes titles, descriptions, UI evidence, and dependent PR setup. Not for code fixes.
 compatibility: >-
   Requires Git and the bundled writing-commits skill. Publishing requires
   authenticated GitHub tooling; native media uploads require gh with --attach
@@ -10,9 +10,10 @@ compatibility: >-
 # Writing pull requests
 
 Write for reviewers in plain language: say what changes and why, using
-established technical terms rather than formal filler. Follow repository rules,
-templates, and AI policy first. These defaults do not authorize settings
-changes or bypassing required checks.
+established technical terms rather than formal filler. For prose drafts/edits,
+also read the matching language skill if listed; retain these PR rules. Follow
+repository rules, templates, and AI policy first. These defaults do not
+authorize settings changes or bypassing required checks.
 
 ## Choose the requested work
 
@@ -58,9 +59,9 @@ the exact proposed title as a one-line message before presenting it as ready or
 publishing it, and revalidate after edits. Describe the final change, not the
 work sequence. Keep draft state in GitHub's Draft field, not a `WIP` prefix.
 
-Squash does not guarantee GitHub uses the PR title or body; to prepare a merge,
-read [Merge message](references/publishing.md#merge-message). Never merge merely
-to write or open a PR.
+To prepare a merge, read
+[Merge message](references/publishing.md#merge-message). Never merge merely to
+write or open a PR.
 
 ## Choose the body format
 

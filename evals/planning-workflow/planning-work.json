@@ -102,6 +102,362 @@
       "id": "prdesc",
       "expect": "no-load",
       "prompt": "Write the pull request description for my current branch, which adds CSV export of order history."
+    },
+    {
+      "id": "boundary-sync-conflicts",
+      "prompt": "Before building a shared notes feature, compare server-wins and user-resolved conflicts. Notes can be edited offline on two devices; propose a direction and ask for approval.",
+      "expect": "load",
+      "purpose": "Tests in-scope sync conflicts intent.",
+      "family": "offline-note-conflicts",
+      "split": "train",
+      "origin": "history-inspired",
+      "criteria": [
+        "Compares the stated conflict approaches, distinguishes assumptions from facts, and requests approval before implementation."
+      ]
+    },
+    {
+      "id": "boundary-ownership",
+      "prompt": "We have one DNS zone for three teams. Should ownership stay central or move to each team? Design a migration that preserves existing records, then present the tradeoffs before changes.",
+      "expect": "load",
+      "purpose": "Tests in-scope ownership intent.",
+      "family": "p-ownership",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "boundary-upload-flow",
+      "prompt": "Sketch the product and screen flow for uploading 500 photos, recovering interrupted uploads, and reviewing rejected items. The app has Button, ProgressBar and Alert components.",
+      "expect": "load",
+      "purpose": "Tests in-scope upload flow intent.",
+      "family": "p-upload-flow",
+      "split": "train",
+      "origin": "history-inspired",
+      "criteria": [
+        "Connects required features to screens and existing components; does not invent a settled product decision."
+      ]
+    },
+    {
+      "id": "boundary-rollout",
+      "prompt": "Our service reads a legacy account ID from cookies; new services need UUIDs. Design a staged transition that keeps old clients working across several deployments.",
+      "expect": "load",
+      "purpose": "Tests in-scope rollout intent.",
+      "family": "p-rollout",
+      "split": "train",
+      "origin": "synthetic-boundary",
+      "criteria": [
+        "Describes how old clients remain usable across dependent rollout stages."
+      ]
+    },
+    {
+      "id": "boundary-offline-queue",
+      "prompt": "Design how a mobile inventory app should queue writes offline and reconcile them when connectivity returns. Users can change the same item on different devices.",
+      "expect": "load",
+      "purpose": "Tests in-scope offline queue intent.",
+      "family": "p-offline-queue",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-access-model",
+      "prompt": "We need per-project access controls in an app currently using organization-wide roles. Work out the domain boundaries, migration and tradeoffs before coding.",
+      "expect": "load",
+      "purpose": "Tests in-scope access model intent.",
+      "family": "p-access-model",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-import-design",
+      "prompt": "How should our CSV import handle partial failures? The 10,000-row file can have duplicates, and customers must see which rows were rejected. Propose a design first.",
+      "expect": "load",
+      "purpose": "Tests in-scope import design intent.",
+      "family": "p-import-design",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-refactor-boundary",
+      "prompt": "The billing and notification modules currently share transaction code. Design a refactor that separates their responsibilities while keeping existing invoice behavior.",
+      "expect": "load",
+      "purpose": "Tests in-scope refactor boundary intent.",
+      "family": "p-refactor-boundary",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-search-ui",
+      "prompt": "検索画面を作り直したいです。候補の絞り込み、結果ゼロ、選択後の詳細表示をどう構成するか、画面と操作を提案してください。既存部品は Input、Select、Card です。",
+      "expect": "load",
+      "purpose": "Tests in-scope search ui intent.",
+      "family": "p-search-ui",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-retention-policy",
+      "prompt": "Design a retention and deletion flow for uploaded documents. Legal requires deletion after 90 days; users can request deletion earlier, and exports may be running.",
+      "expect": "load",
+      "purpose": "Tests in-scope retention policy intent.",
+      "family": "p-retention-policy",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-multi-pr-interface",
+      "prompt": "Propose an ordered series of independently reviewable changes to replace a shared synchronous API with queued processing, preserving callers throughout rollout.",
+      "expect": "load",
+      "purpose": "Tests in-scope multi pr interface intent.",
+      "family": "p-multi-pr-interface",
+      "split": "validation",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "boundary-dashboard-product",
+      "prompt": "A team wants a dashboard for failed jobs with retry and audit history. Define goals, screen structure, and open product decisions before anyone implements it.",
+      "expect": "load",
+      "purpose": "Tests in-scope dashboard product intent.",
+      "family": "p-dashboard-product",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-rename-clear",
+      "prompt": "Rename getUsr to getUser in this local snippet and update its single call: function getUsr() {} ; getUsr().",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope rename clear intent.",
+      "family": "p-rename-clear",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-typo-fix",
+      "prompt": "Correct the spelling of “recieve” in this comment: // recieve a packet.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope typo fix intent.",
+      "family": "p-typo-fix",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-approved-execution",
+      "prompt": "The following design is approved: replace a constant timeout of 10 with 20 seconds in the provided snippet. Apply exactly that change: const timeout = 10;",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope approved execution intent.",
+      "family": "p-approved-execution",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-status-explanation",
+      "prompt": "Explain what an HTTP 429 response means and when a client might retry.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope status explanation intent.",
+      "family": "p-status-explanation",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-diagram-established",
+      "prompt": "Render this established deployment sequence as arrows: build, run tests, deploy to staging, then deploy to production.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope diagram established intent.",
+      "family": "p-diagram-established",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-ticket-draft-only",
+      "prompt": "Draft an issue: the login button is hidden on narrow screens; expected behavior is that it remains visible. Return a draft.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope ticket draft only intent.",
+      "family": "p-ticket-draft-only",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-adr-draft-only",
+      "prompt": "Draft a decision record: the team accepted keeping the API versioned for client compatibility despite extra maintenance.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope adr draft only intent.",
+      "family": "p-adr-draft-only",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-order-fixed",
+      "prompt": "Change the supplied select options from [red, blue, green] to [green, red, blue]; no other behavior changes.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope order fixed intent.",
+      "family": "p-order-fixed",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-compare-to-design",
+      "turns": [
+        {
+          "prompt": "For an educational example unrelated to any planned change, compare a central queue with a queue per region for a hypothetical service with regional data residency requirements. Explain the tradeoffs.",
+          "expect": "no-load"
+        },
+        {
+          "prompt": "Now design the service changes and staged rollout around regional queues; show open decisions before we build.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Tests the compare to design transition across real user turns.",
+      "family": "p-compare-to-design",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-draft-to-approved",
+      "turns": [
+        {
+          "prompt": "Design a flow for users to export large datasets without holding a web request open. Delivery method and expiry are undecided; return a draft for approval.",
+          "expect": "load"
+        },
+        {
+          "prompt": "I approve the draft direction; summarize the approved design in two sentences for the team.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Tests the draft to approved transition across real user turns.",
+      "family": "large-export-design",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-reopen-assumption",
+      "turns": [
+        {
+          "prompt": "Design conflict handling for notes edited offline by two users. Offer a direction without implementing it.",
+          "expect": "load"
+        },
+        {
+          "prompt": "I reject automatic server-wins. Rework the design around a user-visible conflict and identify what remains undecided.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Tests the reopen assumption transition across real user turns.",
+      "family": "offline-note-conflicts",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-small-to-feature",
+      "turns": [
+        {
+          "prompt": "Change the literal timeout from 10 to 20 in this snippet: const timeout = 10;",
+          "expect": "no-load"
+        },
+        {
+          "prompt": "Separately, design a resilient retry system for all API clients, including backoff and a way to avoid duplicate writes.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Tests the small to feature transition across real user turns.",
+      "family": "p-small-to-feature",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "workflow-design-ticket",
+      "turns": [
+        {
+          "prompt": "Design a bulk invoice export flow that does not block normal requests; delivery is undecided. Present the design for approval.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "planning-workflow:planning-work"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "After the design discussion, draft a ticket for the observable outcome: customers can export invoice history. Delivery is still undecided.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "ticket-workflow:writing-tickets"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the staged boundary from design to ticket without conflating skill selection.",
+      "family": "large-export-design",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "workflow-design-adr",
+      "turns": [
+        {
+          "prompt": "Design a migration from local sessions to a shared session store without logging users out. Present the tradeoffs.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "planning-workflow:planning-work"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Draft a proposed decision record for the chosen shared store: it supports multiple instances but increases operational dependence. Acceptance remains pending.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "decision-workflow:writing-adrs"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the staged boundary from design to adr without conflating skill selection.",
+      "family": "workflow-design-adr",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "workflow-design-pr",
+      "turns": [
+        {
+          "prompt": "Design a multi-stage migration from integer IDs to UUIDs while old clients remain supported.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "planning-workflow:planning-work"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Now draft a PR description for a separate completed change: it adds a UUID column while preserving integer IDs; tests passed locally. Do not publish.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "git-workflow:writing-pull-requests"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the staged boundary from design to pr without conflating skill selection.",
+      "family": "uuid-rollout-design",
+      "split": "validation",
+      "origin": "synthetic-boundary"
     }
   ]
 }
