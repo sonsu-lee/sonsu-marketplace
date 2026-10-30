@@ -141,6 +141,23 @@ class EvidenceTests(unittest.TestCase):
         self.assertTrue(ca.judge(ca.Step("no guidance", "no-load"), complete,
                                  "demo:case", complete.successful))
 
+    def test_qualified_catalog_search_is_not_workflow_selection(self):
+        for step in (ca.Step("search the catalog", "no-load"),
+                     ca.Step("search the catalog", "load", skills={"forbidden": ["demo:case"]})):
+            with self.subTest(expect=step.expect):
+                trace = ca.parse_codex(stream(command_event(
+                    "rg 'demo:case' catalog.json", '{"name": "demo:case"}\n')),
+                    "other:skill", self.inventory)
+                self.assertEqual(trace.attempted, set())
+                problems = ca.judge(step, trace, "demo:case", trace.successful)
+                self.assertNotIn("skill selection attempted", problems)
+                self.assertFalse(any("forbidden" in p for p in problems))
+        # 同じ修飾名でも本文を読めば起動として残る。
+        read = ca.parse_codex(stream(command_event(
+            f"rg -n demo:case catalog.json && cat {self.skill}/SKILL.md", self.main)),
+            "demo:case", self.inventory)
+        self.assertIn("demo:case", read.attempted)
+
     def test_metadata_inspection_does_not_erase_a_denied_main_load(self):
         trace = ca.parse_codex(stream(
             command_event(f"cat {self.skill}/SKILL.md", "permission denied", 1),

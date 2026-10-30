@@ -392,14 +392,6 @@ def main() -> int:
             print(f"omp unavailable: {problem}")
             return 2
         calibration_results = calibrate(base, root, pin, calibration_cases, stamp)
-        if args.calibration_only:
-            summary = base / "compare-runs" / f"{stamp}-calibration.json"
-            summary.parent.mkdir(parents=True, exist_ok=True)
-            summary.write_text(json.dumps(calibration_results, indent=2), encoding="utf-8")
-            for item in calibration_results:
-                print(f"{'NONE' if item['error'] else 'PASS'}  {item['case']}/{item['example']} {item['error']}")
-            print(f"calibration: {summary}")
-            return 2 if authentication.sync_status == "failed" else exit_status([], calibration_results)
         jobs = [(qi, rep, side) for qi in range(len(queries))
                 for rep in range(1, args.reps + 1) for side in sides]
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
@@ -417,6 +409,18 @@ def main() -> int:
                 for qi in range(len(queries)) for rep in range(1, args.reps + 1)}
             verdicts = {key: f.result() for key, f in verdicts.items()}
 
+    # The lease saves refreshed credentials on exit, so read its status only here.
+    auth_failed = authentication.sync_status == "failed"
+    if args.calibration_only:
+        summary = base / "compare-runs" / f"{stamp}-calibration.json"
+        summary.parent.mkdir(parents=True, exist_ok=True)
+        summary.write_text(json.dumps(calibration_results, indent=2), encoding="utf-8")
+        if auth_failed:
+            print(f"NONE authentication: {authentication.error}")
+        for item in calibration_results:
+            print(f"{'NONE' if item['error'] else 'PASS'}  {item['case']}/{item['example']} {item['error']}")
+        print(f"calibration: {summary}")
+        return 2 if auth_failed else exit_status([], calibration_results)
     if len(sides) == 1:
         print(f"{args.skill}: head {args.head} ({refs['head'][:7]}) evaluated by omp "
               f"{pin.model} ({pin.effort}, profile {args.profile})")
@@ -424,7 +428,6 @@ def main() -> int:
         print(f"{args.skill}: base {args.base} ({refs['base'][:7]}) vs head {args.head} "
               f"({refs['head'][:7]}), answered and judged blind by omp {pin.model} "
               f"({pin.effort}, profile {args.profile})")
-    auth_failed = authentication.sync_status == "failed"
     if auth_failed:
         print(f"NONE authentication: {authentication.error}")
     for item in calibration_results:

@@ -630,7 +630,12 @@ def note_command(trace: Trace, target: str, cmd: str, inventory: dict[str, Path]
                       if "SKILL.md" in segment and (
                           identifies_skill(segment, identity)
                           or re.search(r"(?:^|[\s'\"])SKILL\.md(?=$|[\s'\"])", segment))]
-        if selections and all(inspects_metadata(segment, inventory[identity]) for segment in selections):
+        name = re.escape(identity.split(":")[1])
+        # 修飾名だけを含むコマンドはカタログ検索であり、スキルのファイルへのアクセスではない。
+        catalog_only = not selections and not re.search(
+            rf"(?:skill://|skills/){name}(?![\w-])|(?<![\w-]){name}/(?:SKILL\.md|references/)", cmd)
+        if catalog_only or (selections and all(inspects_metadata(segment, inventory[identity])
+                                               for segment in selections)):
             trace.inspected.add(identity)
             if identity not in previous:
                 trace.attempted.discard(identity)
