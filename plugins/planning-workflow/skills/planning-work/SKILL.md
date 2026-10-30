@@ -21,12 +21,22 @@ permission to implement.
 Read what exists first: the code, docs, designs, tickets, and prior decisions
 that bear on the work. Looking facts up is your job; deciding is the user's.
 
+Separate the requested deliverable or proposed means from the intended outcome.
+Use the outcome to assess whether the requested approach can work, not as
+permission to replace the deliverable or expand scope. Preserve explicit
+constraints; propose a material change as an alternative for approval.
+
 Sort each fact the plan depends on as confirmed (name the source), inferred
 (name the basis), or unknown. Ask only about unknowns and inferences that would
 change the plan. Give each question a recommended answer and a one-line reason,
 and word it so "yes" accepts the recommendation. Ask the questions that do not
 depend on each other together, then ask what their answers unblock. Do not
 interrogate on points the plan can state as an assumption and move on.
+
+When a consequential assumption affects the direction, seek the most direct
+available evidence, such as raw records rather than a summary, and identify
+what observation would disprove it. If that evidence is unavailable, say so
+and keep the assumption open rather than treating an inference as a fact.
 
 ## Shape the plan
 
@@ -45,6 +55,10 @@ interrogate on points the plan can state as an assumption and move on.
   requirement with no children is a gap. Check both directions before
   presenting.
 
+Where uncertainty warrants it, draw on concrete methods or tools from relevant
+fields to investigate the problem, not expert-role vocabulary or role-play.
+Choose methods proportionate to the decision and within the agreed scope.
+
 Size the plan to the work: a small change needs a page, not a template.
 
 ## Edge cases
@@ -60,6 +74,12 @@ Derive scenarios from the goals and the kept edge cases. For each, choose the
 lowest test level that proves it, and state the plausible bug the test would
 catch. A scenario that names no bug does not need a test. Include how the final
 result will be observed to work, for example a command, screen, or output.
+
+For consequential claims, identify an external check, such as observed data,
+an executable test, or an independent measurement, and what result would
+falsify the claim. An independent reader can expose ambiguity but is not proof
+that the plan or its assumptions work. If no external check is available,
+state the limitation.
 
 ## Split delivery
 
@@ -85,12 +105,17 @@ perform a self-review and disclose that no independent reader was available;
 do not present rereading your own work as a fresh-reader test. Fix gaps in the
 plan rather than explaining them away in the review brief.
 
+When the plan belongs in the reply, pass its text directly to the reader.
+Do not create a scratch plan file merely to arrange that review, especially
+when the request forbids writes; the reader check does not grant write permission.
+
 ## Approval and records
 
 Present the plan with its state, assumptions still open, and the decision you
-need. Wait for explicit approval before implementing, creating branches or
-tickets, or editing files beyond the plan. Return the plan in the reply unless
-the user or project names a location for it.
+need. Return it in the reply; write a plan file only when the user or project
+specifies that destination and the request permits writes. Planning and reader
+review do not authorize temporary files. Wait for explicit approval before
+implementing, creating branches or tickets, or making other file changes.
 
 If implementation shows the plan is wrong, say what changed and why before
 continuing, and update the plan. If a decision sets lasting direction or is
@@ -110,6 +135,8 @@ following its conventions; the plan itself is not that record.
   rounds. The wording here is original.
 - [Doc co-authoring][coauthoring]: testing a document with a reader that lacks
   the author's context. No text is reused.
+- [How to be more ambitious][ambitious]: distinguish outcomes from means,
+  examine raw evidence, use concrete methods, and seek outside validation.
 
 [google]: https://www.industrialempathy.com/posts/design-docs-at-google/
 [rfd1]: https://rfd.shared.oxide.computer/rfd/0001
@@ -118,3 +145,4 @@ following its conventions; the plan itself is not that record.
 [clarify]: https://github.com/github/spec-kit/blob/main/templates/commands/clarify.md
 [grilling]: https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md
 [coauthoring]: https://github.com/anthropics/skills/blob/main/skills/doc-coauthoring/SKILL.md
+[ambitious]: https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/
