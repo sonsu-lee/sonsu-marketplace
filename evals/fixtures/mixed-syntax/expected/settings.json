@@ -1,0 +1,5 @@
+{
+  "max_retries": 3,
+  "retry_count_backup": 4,
+  "note": "retry_count"
+}

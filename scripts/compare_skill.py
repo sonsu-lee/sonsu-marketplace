@@ -92,6 +92,8 @@ def final_text(stdout: str) -> tuple[str, str]:
 
 def answer(base: Path, root: Path, pin: ca.Pin, skill_dir: Path, plugin: str, skill: str,
            query: ca.Query, side: str, label: str) -> Answer:
+    if query.fixture:
+        raise ValueError("fixture comparisons are unsupported; use check_activation.py")
     work = base / "compare-runs" / label
     target = work / "target"
     ca.prepare_target(target, query.fixtures)
@@ -282,7 +284,8 @@ def exit_status(verdicts: list[Verdict], calibration: list[dict]) -> int:
 
 
 def select_queries(spec: ca.Spec, wanted: list[str] | None) -> list[ca.Query]:
-    queries = [q for q in spec.queries if q.criteria]
+    # フィクスチャの最終状態は check_activation.py が判定する。比較では回答本文しか採点できない。
+    queries = [q for q in spec.queries if q.criteria and not q.fixture]
     if wanted:
         unknown = set(wanted) - {q.id for q in queries}
         if unknown:

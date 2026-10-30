@@ -967,6 +967,38 @@ manual permissions with unanswerable prompts denied, no Chrome integration,
 and no ambient MCP configuration. These restrictions do not replace inspection
 of attempted actions or prove complete workflow execution.
 
+For populated local trials, `fixture` names `evals/fixtures/<name>/input`.
+The runner copies it into a fresh target. `fixture_mode` is `readonly` by
+default; any target mutation fails that trial. Set it to `writable` only for
+an explicitly authorized transformation and opt in with `--writable-fixtures`.
+An `outcome` identifier selects an independent final-state grader; otherwise
+inspect writable results manually rather than claim semantic correctness.
+
+```sh
+python3 scripts/check_activation.py --clients codex run \
+  --spec evals/review-workflow/controller.json
+```
+
+Writable trials currently require macOS and dedicated homes outside this
+repository. omp and Claude use `sandbox-exec` to limit writes to the target
+and test home; Codex retains its native `workspace-write` sandbox rather than
+nesting OS sandboxes. Read-only fixtures retain their read-only boundary.
+Model networking remains enabled and the agent process can access test-home
+credentials. These are not safe environments for untrusted public submissions.
+Use public synthetic fixtures, not production repositories or data. Other
+platforms report writable execution as unsupported; do not bypass the boundary.
+Preview cases keep their target read-only. Parse failures and skipped cases
+are not successful transformations.
+
+The mechanical cases compare modified Python syntax or JSON values while
+preserving non-target files. The CSV outcome checks source-only copies in a
+network-denied sandbox; generated Python bytecode is neither rejected nor loaded.
+Trace inspection still judges method selection, coverage, and efficiency:
+a final-state pass alone does not prove those.
+`compare_skill.py` skips fixture cases, comparing the remaining
+answer-only cases; it stops if none remain. Its judge cannot establish fixture
+outcomes. Use the fixture runner for stateful behavior.
+
 Run the model-free evaluation regression tests after changing the runners:
 
 ```sh
@@ -1076,6 +1108,11 @@ above for changed guidance; focused worker cases do not establish end-to-end
 controller orchestration.
 
 [review-cases]: evals/review-workflow/reviewing-code.json
+
+The [controller cases](evals/review-workflow/controller.md) add populated
+targets for local orchestration and unavailable-runtime checks. Supplied worker
+failure checkpoints test reporting decisions, not actual failure injection.
+Review the trace, outcome, and answer separately before recording a pass.
 
 For other model runs, reuse the test homes:
 

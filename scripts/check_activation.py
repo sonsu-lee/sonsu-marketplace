@@ -47,7 +47,8 @@ RUN_TIMEOUT = 900
 PREFLIGHT_PROMPT = "Reply with the single word OK."
 FORBIDS = {"write-command", "publish-command", "new-files"}
 STEP_KEYS = {"prompt", "expect", "reads", "not_reads", "forbid", "skills"}
-QUERY_KEYS = STEP_KEYS | {"id", "turns", "criteria", "fixtures", "purpose", "family", "split", "origin"}
+QUERY_KEYS = STEP_KEYS | {"id", "turns", "criteria", "fixtures", "purpose", "family", "split", "origin",
+                          "fixture", "fixture_mode", "outcome"}
 QUALIFIED = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*:[a-z0-9]+(?:-[a-z0-9]+)*$")
 SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 QUOTED = re.compile(r"'[^']*'|\"(?:\\.|[^\"\\])*\"")
@@ -85,6 +86,9 @@ class Query:
     family: str = ""
     split: str = "behavior"
     origin: str = ""
+    fixture: str = ""  # evals/fixtures/<name>/input copied into the target
+    fixture_mode: str = "readonly"
+    outcome: str = ""  # deterministic final-state check in fixture_outcomes.py
 
 
 @dataclass
@@ -227,9 +231,21 @@ def load_spec(path: Path) -> Spec:
             raise ValueError("invalid split")
         if raw.get("origin", "") not in {"", "history-inspired", "synthetic-boundary", "existing-behavior"}:
             raise ValueError("invalid origin")
+        fixture, mode, outcome = (raw.get("fixture", ""), raw.get("fixture_mode", "readonly"),
+                                  raw.get("outcome", ""))
+        if not isinstance(fixture, str) or (fixture and not SLUG.fullmatch(fixture)):
+            raise ValueError(f"{path}: invalid fixture name for {ident}")
+        if mode not in ("readonly", "writable"):
+            raise ValueError(f"{path}: invalid fixture mode for {ident}")
+        if not isinstance(outcome, str) or (outcome and not SLUG.fullmatch(outcome)):
+            raise ValueError(f"{path}: invalid outcome for {ident}")
+        if not fixture and (mode != "readonly" or outcome):
+            raise ValueError(f"{path}: fixture mode and outcome require a fixture")
+        if fixture and fixtures:
+            raise ValueError(f"{path}: use either a fixture directory or inline fixtures in {ident}")
         queries.append(Query(ident, steps, criteria, fixtures, raw.get("purpose", ""),
                              raw.get("family", ""), raw.get("split", "behavior"),
-                             raw.get("origin", "")))
+                             raw.get("origin", ""), fixture, mode, outcome))
     return Spec(path, plugin, skill, queries)
 
 
@@ -359,34 +375,40 @@ def load_pins(root: Path, profile: str) -> dict[str, Pin]:
 
 
 def command(client: str, prompt: str, root: Path, pin: Pin, session: str,
-            session_dir: Path, resume: bool) -> list[str]:
+            session_dir: Path, resume: bool, writable: bool = False) -> list[str]:
+    # 書き込み可能なフィクスチャだけが承認を外す。境界は execute の sandbox が強制する。
     if client == "omp":
         cmd = ["omp", "-p", "--mode", "json", "--session-dir", str(session_dir),
                "--no-context-files", "--no-extensions", "--no-rules",
-               "--approval-mode", "always-ask", "--model", pin.model,
+               "--approval-mode", "yolo" if writable else "always-ask", "--model", pin.model,
                "--slow", pin.model, "--thinking", pin.effort]
         if resume:
             cmd.append(f"--resume={session}")
         return cmd + [prompt]
     if client == "codex":
+        sandbox = "workspace-write" if writable else "read-only"
         cmd = ["codex", "--no-daemon", "exec"]
         if resume:
             cmd.append("resume")
-        cmd += ["--json", "--skip-git-repo-check", "-c", 'sandbox_mode="read-only"',
+        cmd += ["--json", "--skip-git-repo-check", "-c", f'sandbox_mode="{sandbox}"',
                 "-c", "features.apps=false", "-c", "features.browser_use=false",
                 "-c", "features.computer_use=false", "-m", pin.model,
                 "-c", f'model_reasoning_effort="{pin.effort}"']
         if not resume:
-            cmd += ["--sandbox", "read-only"]
+            cmd += ["--sandbox", sandbox]
         else:
             cmd.append(session)
         return cmd + [prompt]
-    return ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
-            "--permission-prompts", "none", "--permission-mode", "manual",
-            "--strict-mcp-config", "--setting-sources", "user", "--no-chrome",
-            "--add-dir", str(root / "plugins"),
-            "--resume" if resume else "--session-id", session,
-            "--model", pin.model, "--effort", pin.effort]
+    cmd = ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
+           "--permission-prompts", "none",
+           "--permission-mode", "bypassPermissions" if writable else "manual",
+           "--strict-mcp-config", "--setting-sources", "user", "--no-chrome",
+           "--add-dir", str(root / "plugins"),
+           "--resume" if resume else "--session-id", session,
+           "--model", pin.model, "--effort", pin.effort]
+    if writable:
+        cmd += ["--tools", "Read,Write,Edit,Glob,Grep,Bash,Skill,Agent"]
+    return cmd
 
 
 def pin_mismatch(client: str, trace: Trace, pin: Pin) -> str:
@@ -823,12 +845,36 @@ def codex_contexts(env: dict[str, str], session: str) -> list[dict]:
 def execute(client: str, base: Path, root: Path, pin: Pin, prompt: str, target: Path,
             identity: str, inventory: dict[str, Path], session: str, session_dir: Path,
             resume: bool = False, timeout: int = RUN_TIMEOUT,
-            coverage: dict[str, set[int] | None] | None = None) -> tuple[subprocess.CompletedProcess[str], Trace]:
+            coverage: dict[str, set[int] | None] | None = None, writable: bool = False,
+            sandbox_readonly: bool = False) -> tuple[subprocess.CompletedProcess[str], Trace]:
     env, _ = client_env(client, base)
     previous_contexts = len(codex_contexts(env, session)) if client == "codex" and resume else 0
     session_dir.mkdir(parents=True, exist_ok=True)
-    proc = cp.run(command(client, prompt, root, pin, session, session_dir, resume),
-                  env, target, timeout=timeout)
+    cmd = command(client, prompt, root, pin, session, session_dir, resume, writable)
+    # 1. 書き込み可能なフィクスチャは OS の sandbox で対象ディレクトリとテストホームに閉じ込める。
+    #    読み取り専用フィクスチャも可能なら同じ仕組みで書き込みを拒否する。
+    if writable or (sandbox_readonly and sys.platform == "darwin" and shutil.which("sandbox-exec")):
+        if sys.platform != "darwin" or not shutil.which("sandbox-exec"):
+            raise RuntimeError("writable fixtures require macOS sandbox-exec; other platforms are unsupported")
+        env["PYTHONDONTWRITEBYTECODE"] = "1"
+        home, _ = homes_for(base, client)
+        tmp = home / "fixture-tmp" / target.parent.name
+        tmp.mkdir(parents=True, exist_ok=True)
+        cache = home / ".cache"
+        cache.mkdir(parents=True, exist_ok=True)
+        env.update(TMPDIR=str(tmp.resolve()), XDG_CACHE_HOME=str(cache.resolve()))
+        if client == "claude":
+            env["CLAUDE_CODE_TMPDIR"] = str(tmp.resolve())
+        workspace_rule = f" (subpath {json.dumps(str(target.resolve()))})" if writable else ""
+        profile = ("(version 1)(allow default)(deny file-write*)"
+                   f"(allow file-write*{workspace_rule}"
+                   f" (subpath {json.dumps(str(home.resolve()))})"
+                   f" (subpath {json.dumps(str(session_dir.resolve()))})"
+                   " (literal \"/dev/null\"))")
+        # Codex は独自の read-only/workspace-write sandbox を使う。入れ子にするとツールが止まる。
+        if client != "codex":
+            cmd = ["sandbox-exec", "-p", profile, *cmd]
+    proc = cp.run(cmd, env, target, timeout=timeout)
     trace = PARSERS[client](proc.stdout, identity, inventory, coverage)
     if client == "omp":
         paths = list(session_dir.glob("*.jsonl"))
@@ -879,6 +925,52 @@ def target_files(target: Path) -> set[str]:
             if p.is_file() and ".git" not in p.relative_to(target).parts}
 
 
+def fixture_input(root: Path, name: str) -> Path:
+    if not SLUG.fullmatch(name):
+        raise ValueError(f"invalid fixture name: {name}")
+    fixtures = root / "evals" / "fixtures"
+    directory = fixtures / name / "input"
+    if (fixtures.is_symlink() or (fixtures / name).is_symlink() or directory.is_symlink()
+            or not directory.is_dir() or any(p.is_symlink() for p in directory.rglob("*"))):
+        raise ValueError(f"invalid fixture directory: {directory}")
+    if (directory / ".git").exists():
+        raise ValueError(f"fixture input cannot contain .git: {directory}")
+    return directory
+
+
+def tree_files(directory: Path) -> dict[str, bytes]:
+    result = {}
+    for path in directory.rglob("*"):
+        relative = path.relative_to(directory)
+        if path.is_symlink():
+            raise ValueError(f"fixture output contains symlink: {path}")
+        if relative.parts[0] == ".git":
+            continue
+        if path.is_file():
+            result[relative.as_posix()] = path.read_bytes()
+    return result
+
+
+def output_text(stdout: str) -> str:
+    """Return the final assistant answer from any client's event stream."""
+    final = ""
+    for event in events(stdout):
+        message = event.get("message", {})
+        if (event.get("type") in ("message_end", "assistant")
+                and isinstance(message, dict) and message.get("role") == "assistant"):
+            texts = [str(block.get("text", "")) for block in message.get("content", [])
+                     if isinstance(block, dict) and block.get("type") in ("text", "output_text")]
+            if texts:
+                final = "\n".join(texts)
+        if event.get("type") == "item.completed":
+            item = event.get("item", {})
+            if item.get("type") == "agent_message":
+                final = str(item.get("text", ""))
+        if event.get("type") == "result" and isinstance(event.get("result"), str):
+            final = event["result"]
+    return final
+
+
 def judge_safety(step: Step, trace: Trace) -> list[str]:
     problems = []
     if "write-command" in step.forbid and trace.writes:
@@ -923,18 +1015,31 @@ def judge(step: Step, trace: Trace, target: str, available: set[str],
 
 
 def run_once(client: str, base: Path, root: Path, pin: Pin, spec: Spec, query: Query,
-             label: str) -> list[dict]:
+             label: str, allow_writable: bool = False) -> list[dict]:
+    writable = query.fixture_mode == "writable"
+    if writable and not allow_writable:
+        raise ValueError("writable fixtures require --writable-fixtures")
     # 1. フィクスチャを基準にして、入力ファイルをエージェントの追加と区別する。
     work = base / "runs" / label
     target, sessions = work / "target", work / "sessions"
-    initial = prepare_target(target, query.fixtures)
+    prepare_target(target, query.fixtures)
+    source = fixture_input(root, query.fixture) if query.fixture else None
+    if source:
+        shutil.copytree(source, target, dirs_exist_ok=True)
+    initial, before = target_files(target), tree_files(target)
     identity, inventory = f"{spec.plugin}:{spec.skill}", skill_files(root)
     session, available, outcomes = str(uuid.uuid4()), set(), []
     coverage, available_reads = {}, set()
+    final, finished = "", True
     # 2. 同じセッションだけを再開し、前のターンで読めた指示を引き継ぐ。
     for index, step in enumerate(query.steps):
-        proc, trace = execute(client, base, root, pin, step.prompt, target, identity,
-                              inventory, session, sessions, resume=index > 0, coverage=coverage)
+        prompt = step.prompt
+        if source and index == 0:
+            prompt += ("\n\nWork only in this disposable fixture directory. Do not access other "
+                       "repositories or credentials, contact external services, or publish.")
+        proc, trace = execute(client, base, root, pin, prompt, target, identity,
+                              inventory, session, sessions, resume=index > 0, coverage=coverage,
+                              writable=writable, sandbox_readonly=bool(source and not writable))
         log = work / f"turn-{index + 1}.jsonl"
         log.write_text(proc.stdout, encoding="utf-8")
         trace.new_files = sorted(target_files(target) - initial)
@@ -942,6 +1047,7 @@ def run_once(client: str, base: Path, root: Path, pin: Pin, spec: Spec, query: Q
         if complete:
             available.update(trace.successful)
             available_reads.update(trace.reads)
+            final = output_text(proc.stdout)
         problems = (judge(step, trace, identity, available, available_reads) if complete
                     else judge_prohibitions(step, trace, identity))
         outcomes.append({"turn": index + 1, "status": "fail" if problems else ("pass" if complete else "unmeasured"),
@@ -955,8 +1061,23 @@ def run_once(client: str, base: Path, root: Path, pin: Pin, spec: Spec, query: Q
                          "model": trace.model, "effort": trace.effort, "error": trace.error or trace.refused,
                          "session": trace.session, "log": str(log)})
         if not complete:
+            finished = False
             break
         session = trace.session
+    # 3. フィクスチャの安全性は未完了でも判定し、最終状態の成果は会話が完了した場合だけ判定する。
+    fixture_problems = []
+    if source:
+        try:
+            if not writable and tree_files(target) != before:
+                fixture_problems.append("readonly fixture was modified")
+            if query.outcome and finished:
+                import fixture_outcomes
+                fixture_problems.extend(fixture_outcomes.grade(query.outcome, source, target, final))
+        except (OSError, ValueError) as exc:
+            fixture_problems.append(f"fixture boundary unverifiable: {exc}")
+    if fixture_problems and outcomes:
+        outcomes[-1]["problems"] = outcomes[-1]["problems"] + fixture_problems
+        outcomes[-1]["status"] = "fail"
     return outcomes
 
 
@@ -1203,17 +1324,27 @@ def cmd_run(args: argparse.Namespace) -> int:
         base, root, hashes = new_campaign(source)
         spec_dir = base / "specs"
         spec_dir.mkdir()
-        specs = []
+        specs, skipped = [], 0
         for index, path in enumerate(paths):
             copy = spec_dir / f"{index}.json"
             copy.write_bytes(path.read_bytes())
             hashes[f"case-specs/{index}.json"] = hashlib.sha256(copy.read_bytes()).hexdigest()
             spec = load_spec(copy)
             spec.queries = [q for q in spec.queries if q.split in selected and (not ids or q.id in ids)]
+            skipped += sum(q.fixture_mode == "writable" for q in spec.queries) if not args.writable_fixtures else 0
+            if not args.writable_fixtures:
+                spec.queries = [q for q in spec.queries if q.fixture_mode != "writable"]
             if spec.queries:
                 specs.append(spec)
+        if skipped:
+            print(f"skipped {skipped} writable fixture queries; use --writable-fixtures")
         if not specs:
             raise ValueError("filters selected no queries")
+        if any(q.fixture_mode == "writable" for s in specs for q in s.queries):
+            if sys.platform != "darwin" or not shutil.which("sandbox-exec"):
+                raise ValueError("writable fixtures require macOS sandbox-exec; other platforms are unsupported")
+            print("Writable fixtures use a filesystem sandbox; network is not sandboxed. "
+                  "The agent process can access its dedicated test-home credentials.")
         selected_ids = {q.id for spec in specs for q in spec.queries}
         if ids - selected_ids:
             raise ValueError(f"query IDs excluded by filters: {', '.join(sorted(ids - selected_ids))}")
@@ -1258,7 +1389,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
             futures = {(si, qi, client, rep): pool.submit(
                 run_once, client, base, root, pins[client], specs[si], specs[si].queries[qi],
-                f"s{si}-q{qi}-{client}-{rep}") for si, qi, client, rep in jobs}
+                f"s{si}-q{qi}-{client}-{rep}", args.writable_fixtures) for si, qi, client, rep in jobs}
             for si, spec in enumerate(specs):
                 for qi, query in enumerate(spec.queries):
                     for client in args.clients:
@@ -1316,6 +1447,8 @@ def main() -> int:
     runp.add_argument("--split", help="comma-separated train,validation,fresh,behavior")
     runp.add_argument("--query", action="append", default=[], help="exact query ID; repeatable")
     runp.add_argument("--report", type=Path, help="JSON report destination")
+    runp.add_argument("--writable-fixtures", action="store_true",
+                      help="include writable disposable fixtures (macOS sandbox-exec only)")
     args = parser.parse_args()
     args.clients = [c.strip() for c in args.clients.split(",") if c.strip()]
     unknown = [c for c in args.clients if c not in cp.CLIENTS]

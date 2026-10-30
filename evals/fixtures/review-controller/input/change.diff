@@ -1,0 +1,9 @@
+--- a/message_queue.py
++++ b/message_queue.py
+@@ -1,4 +1,4 @@
+ def flush(queue, send):
+     while queue:
+-        send(queue[0])
+-        queue.pop(0)
++        message = queue.pop(0)
++        send(message)
