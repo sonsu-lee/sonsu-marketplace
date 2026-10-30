@@ -42,7 +42,7 @@
       "name": "planning-workflow",
       "source": "./plugins/planning-workflow",
       "description": "Plan non-trivial work as a reviewable design, with questions, alternatives, verification, and approval before implementation.",
-      "version": "0.1.2"
+      "version": "0.2.0"
     }
   ]
 }
