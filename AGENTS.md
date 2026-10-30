@@ -5,6 +5,13 @@ Use the current procedures in the README and skills below. Identify which
 requirements apply to the task and read their linked procedures before making
 changes.
 
+* For non-trivial work, use the
+  [planning procedure](plugins/planning-workflow/skills/planning-work/SKILL.md)
+  before implementation; a plan-only request does not authorize
+  implementation. For authorized work, follow the
+  [execution procedure](plugins/planning-workflow/skills/executing-work/SKILL.md)
+  to coordinate review, cleanup, and validation of the final revision.
+
 * Add or change plugins, including support for another client, using the
   [plugin-authoring procedure](README.md#adding-a-plugin). Keep shared sources
   and client-specific execution separate, and verify each added client.

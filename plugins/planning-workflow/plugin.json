@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "planning-workflow",
-  "version": "0.2.0",
-  "description": "Plan non-trivial work as a reviewable design, with questions, alternatives, verification, and approval before implementation.",
+  "version": "0.3.0",
+  "description": "Plan non-trivial work as a reviewable design and coordinate authorized execution through independent review and final validation.",
   "author": {
     "name": "sonsu-lee",
     "url": "https://github.com/sonsu-lee"
