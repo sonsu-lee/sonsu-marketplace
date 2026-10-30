@@ -80,6 +80,10 @@ Describe user intent, implicit uses, and boundaries with adjacent work. Front-lo
 the key use case, not implementation steps or keywords for individual failed
 prompts. Client wording preferences are not common format rules.
 
+Use clear headings and direct language to make conditions, constraints, and
+decision criteria easy to distinguish. Optimize for sufficient guidance, not
+minimum length; preserve information needed for correct judgment.
+
 Give a short path from input to observable result. Choose a default; explain why
 when useful and prescribe exact steps where variation risks correctness or
 safety. Do not turn flexible judgment into an inflexible checklist.
