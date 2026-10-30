@@ -47,6 +47,43 @@
       "prompt": "Plan the UI for a self-service returns flow in our shop's React app, which uses a design system with Button, TextField, Select, Stepper, and Dialog components. Customers must pick an order, choose items and a reason, and get a prepaid label. Start from the features and work down to screens, wireframes, and which components each screen uses."
     },
     {
+      "id": "outcome-and-means",
+      "expect": "load",
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "criteria": [
+        "Distinguishes the requested weekly PDF from the goal of helping managers detect delayed orders",
+        "Plans the PDF within the stated constraints rather than replacing it with a dashboard or silently expanding the work",
+        "Identifies an observable way to check whether the PDF helps managers detect delays and does not treat an independent reader as proof"
+      ],
+      "prompt": "Plan a weekly PDF report for warehouse managers to detect delayed orders. We must deliver a PDF by email, use existing order data, and make no changes to warehouse operations. Do not implement it."
+    },
+    {
+      "id": "raw-evidence",
+      "expect": "load",
+      "forbid": [
+        "write-command",
+        "new-files"
+      ],
+      "criteria": [
+        "Treats the claimed onboarding cause as an assumption rather than an established fact",
+        "Identifies relevant raw customer and event records and a concrete comparison or analysis that could disprove the assumption",
+        "Names an external check or measurement for the conclusion and acknowledges any unavailable evidence without inventing results",
+        "Keeps the plan focused on the requested investigation instead of proposing an unapproved product rebuild"
+      ],
+      "prompt": "Plan an investigation into why customers cancel. Our leadership summary says onboarding is the cause, but customer event logs and cancellation records may be available. We need an evidence-backed decision on whether to improve onboarding, not a product redesign. Do not perform the investigation or change anything yet."
+    },
+    {
+      "id": "small-nonexpansion",
+      "expect": "no-load",
+      "criteria": [
+        "Returns only the supplied markup with the requested label change, without claiming a repository edit or proposing a broader redesign or planning process"
+      ],
+      "prompt": "Change only the label in this markup from 'Send now' to 'Send': <button type=\"submit\">Send now</button>. Return the revised markup; keep behavior and layout unchanged."
+    },
+    {
       "id": "short",
       "expect": "load",
       "prompt": "Before we build it, plan how we should add rate limiting to our public REST API. We run several instances behind a load balancer."

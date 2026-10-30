@@ -346,13 +346,14 @@ Install with `omp plugin install planning-workflow@sonsu-marketplace`,
 
 - **`planning-work`** plans non-trivial work, such as a feature, a change
   spanning several pull requests, or product and UI planning, as a design to
-  approve before implementation. It reads available context first and asks
-  only about unknowns that would change the plan, each with a recommended
-  answer. The plan states goals and non-goals, a structure diagram, and for
-  each element what, why, how, and rejected alternatives. It traces items to
-  requirements, keeps only reachable edge cases, derives verification from the
-  plan, and splits delivery by purpose. It marks the plan Draft or Decided,
-  uses an independent reader where available (otherwise disclosing self-review),
+  approve before implementation. It distinguishes the requested deliverable
+  from the intended outcome without expanding scope, reads available context,
+  and asks only about unknowns that would change the plan. Where consequential
+  assumptions are uncertain, it seeks direct evidence, concrete methods, and
+  external checks that could disprove them. It traces requirements through the
+  design, considers reachable edge cases, plans verification and delivery,
+  and marks the plan Draft or Decided. It uses an independent reader where
+  available (otherwise disclosing self-review), which is not proof the plan works,
   and waits for explicit approval. See the
   [planning procedure](plugins/planning-workflow/skills/planning-work/SKILL.md).
 
