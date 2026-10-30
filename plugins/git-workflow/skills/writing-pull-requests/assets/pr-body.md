@@ -7,6 +7,28 @@ unknowns rather than leaving empty fields or implying that checks passed.
 Record AI assistance with PR labels as described in the skill, not an additional
 body section, unless the repository requires body disclosure.
 
+## Selecting author checks
+
+The reviewer needs the result and what it proves, not a compressed work log.
+Extract check type, outcome, required profile name, and material coverage limits;
+write from those facts instead of shortening each supplied note. Removing
+temporary test artifacts after a run does not make that run unverified.
+
+These examples illustrate selection, not results to claim:
+
+- Notes: "Blue profile; eight parser checks passed, covering quoted fields,
+  empty rows, and Unicode; tool v7; deleted temporary samples; local log saved."
+  Summary: "Blue profile: eight parser checks passed."
+- Notes: "Blue profile; parser failed on quoted commas; staging not run;
+  repository requires tool v7 and the reproduction command `parse sample.csv`."
+  Summary: "Blue profile: parser check failed on quoted commas with tool v7
+  (`parse sample.csv`); staging remains unverified."
+- Notes: "Green profile; upload smoke passed for small files, large files,
+  and renamed files; production execution not performed."
+  Summary: "Green profile: upload smoke passed; production remains unverified."
+
+## Body
+
 ```markdown
 <!-- Keep each prose paragraph on one source line; do not hard-wrap. -->
 
@@ -22,9 +44,12 @@ Use closing keywords only for issues this PR actually completes. -->
 
 ## Author checks
 
-<!-- Summarize the relevant scenario and observed result, not execution logs.
-Use prose or bullets; include commands only when needed to reproduce the result.
-Omit if unnecessary; preserve material blockers and unverified behavior. -->
+<!-- Summarize selected evidence as [profile if required]: [check type] — [result].
+Group matching outcomes. Keep failures, material coverage limits, and explicitly
+required details. Successful fixture descriptions, environment inventories, and
+temporary-artifact cleanup belong in work logs, not this section.
+Use observed facts, not the examples' results. Omit this section only when there
+is no relevant evidence or material verification gap. -->
 
 ## UI evidence
 

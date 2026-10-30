@@ -100,14 +100,14 @@ trackers' own completion-link rules.
 
 ## Record author checks, not CI status
 
-Report the relevant scenario and observed result, not an execution diary or
-CI checklist. Link detailed logs instead of copying them; include commands,
-counts, or environment details only when needed to reproduce or judge a result.
+Select evidence for the change's correctness, not a record of the work.
+For routine success, group results by check type and report the aggregate
+outcome with the required profile name, not its settings. Individual test
+inputs matter only when they explain a failure or limit. Preserve explicitly
+required details, material blockers, and unverified behavior.
 
-Use prose or ordinary bullets, not task checkboxes. Omit optional checks when
-unnecessary; do not enumerate everything not tested. Keep material blockers
-and unverified behavior explicit, and distinguish plans from completed checks.
-Agent execution is not evidence of human review.
+Use prose or bullets, not checkboxes. Distinguish plans and agent checks from
+observed results and human review. Link accessible evidence, not local paths.
 
 ## Provide UI evidence
 

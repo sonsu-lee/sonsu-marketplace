@@ -895,14 +895,50 @@ tools to grade the two answers, shown as A and B in random order, against the
 criteria. Only then
 does it map A and B back to base and head. Each line shows the winner or
 `TIE`, the criteria each revision met, the references each read, and the
-judge's reason with the side it saw as A; a summary file maps each pair's
-traces to base, head, and judge. A pair prints `NONE`, and the exit status is
-2, when either answer did not finish normally or did not read its `SKILL.md`,
-or the judge did not grade every criterion. The runs use the skill by path
+judge's reason with the side it saw as A. The summary stores each criterion's
+base/head result and rationale alongside the answer and judge traces. Exit 1
+means the candidate (`head`) missed at least one criterion, regardless of the
+relative winner; a baseline failure alone does not fail the candidate. Exit 2
+takes precedence for incomplete runs, missing skill reads, invalid judge
+responses, or failed calibration. Exit 0 means all candidate criteria passed.
+The runs use the skill by path
 rather than through an installed plugin, and the same omp model answers and
 judges, so the result supports review rather than replacing it. Each query is
 compared three times by default; `--reps` changes the count, and a few runs
 show a direction, not a reliable rate.
+
+To evaluate the current skill without changing it, use `--evaluate --head HEAD`.
+Use repeatable `--query <id>` options to select relevant cases; without them,
+all queries with criteria run. Identical skill revisions also run head-only.
+For example, reproduce the real PR reporting feedback before revising guidance:
+
+```sh
+python3 scripts/compare_skill.py git-workflow:writing-pull-requests \
+  --evaluate --query reporting-pressure --query profile-purpose
+```
+
+Calibrate the judge against recorded rejected and approved outputs before
+trusting its quality decisions. The
+[PR reporting fixtures](evals/calibration/writing-pull-requests/README.md)
+document their provenance and distinguish observed feedback from synthetic
+counterexamples. Calibration JSON has a `cases` array; each case has `id`,
+`prompt`, `criteria`, and `examples`. Each example has `id`, `text`, and an
+`expected` boolean array in criterion order. Expected labels are not sent to
+the judge. Missing, malformed, or misclassified judgments invalidate calibration
+rather than count as a skill failure. Calibration runs once per example;
+`--reps` controls generated skill answers, not calibration repetitions.
+
+```sh
+python3 scripts/compare_skill.py git-workflow:writing-pull-requests \
+  --calibration evals/calibration/writing-pull-requests/pr-reporting.json \
+  --calibration-only
+```
+
+Omit `--calibration-only` to calibrate alongside generation and comparison.
+Both modes write criterion-level results and trace paths under the test home's
+`compare-runs` directory. These are local evaluation signals, not CI gates or
+proof that arbitrary outputs are correct. Keep important constraints in the
+criteria: a shorter answer that hides a failure must not pass.
 
 Also exercise representative tasks and boundary cases in isolated repositories
 without publishing fixtures, and inspect reference reads and actions as well as
