@@ -1,0 +1,366 @@
+{
+  "skill": "skill-workflow:authoring-skills",
+  "queries": [
+    {
+      "id": "boundary-create-scope",
+      "prompt": "Create an agent skill for triaging bug reports: distinguish observed behavior from suspected causes and route sensitive details privately. The intended client is not specified.",
+      "expect": "load",
+      "purpose": "Tests in-scope create scope intent.",
+      "family": "s-create-scope",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-trim-workflow",
+      "prompt": "Revise this agent skill guidance to remove generic Git tutorials while retaining its decision rule: draft PR text only after inspecting the diff and repository template.",
+      "expect": "load",
+      "purpose": "Tests in-scope trim workflow intent.",
+      "family": "s-trim-workflow",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "boundary-conditional-reference",
+      "prompt": "A skill currently loads a 300-line reference for every request, but its platform-specific details are needed only for Linear tickets. Revise the instructions to make that reference conditional.",
+      "expect": "load",
+      "purpose": "Tests in-scope conditional reference intent.",
+      "family": "s-conditional-reference",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-split-skill",
+      "prompt": "Review whether a single agent skill covering branch naming and writing PR descriptions should be split into independently usable workflows. Give reasons and a proposed boundary.",
+      "expect": "load",
+      "purpose": "Tests in-scope split skill intent.",
+      "family": "s-split-skill",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "boundary-trigger-evaluation",
+      "prompt": "Design an evaluation of when our agent skill for drafting tickets activates: include genuine requests, close negatives, and multi-turn transitions. Do not change its description yet.",
+      "expect": "load",
+      "purpose": "Tests in-scope trigger evaluation intent.",
+      "family": "s-trigger-evaluation",
+      "split": "train",
+      "origin": "history-inspired",
+      "criteria": [
+        "Separates activation checks from behavior checks and includes genuine, near-miss and conversational cases."
+      ]
+    },
+    {
+      "id": "boundary-validator-delegation",
+      "prompt": "Revise this agent skill instruction: 'Check manifest format yourself, then decide whether the guidance is useful.' The repository already pins validator example-validator 1.2.0 in package.json and runs it as `npx example-validator --config validator.json`; validator.json checks manifest format. Delegate the format check to that existing command while retaining semantic judgment. Do not introduce a wrapper.",
+      "expect": "load",
+      "purpose": "Tests in-scope validator delegation intent.",
+      "family": "s-validator-delegation",
+      "split": "train",
+      "origin": "synthetic-boundary",
+      "criteria": [
+        "Reuses the existing pinned validator and distinguishes format validation from semantic judgment."
+      ]
+    },
+    {
+      "id": "boundary-explicit-client",
+      "prompt": "Draft a reusable agent skill for Codex that guides invoice-bug triage. Explicitly target Codex; do not infer another client from the current environment.",
+      "expect": "load",
+      "purpose": "Tests in-scope explicit client intent.",
+      "family": "s-explicit-client",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-description-review",
+      "prompt": "Review this agent skill description for scope and likely false positives: “Use for anything related to code.” Its intended job is reviewing pull request diffs.",
+      "expect": "load",
+      "purpose": "Tests in-scope description review intent.",
+      "family": "s-description-review",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-skill-examples",
+      "prompt": "Improve a skill’s examples so they distinguish a genuine security boundary check from redundant validation of a trusted internal value. Keep examples short and actionable.",
+      "expect": "load",
+      "purpose": "Tests in-scope skill examples intent.",
+      "family": "s-skill-examples",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-scripts-criteria",
+      "prompt": "Assess whether an agent skill should bundle a script: three observed runs reconstructed a complex report command incorrectly, while an existing CLI handles the report itself.",
+      "expect": "load",
+      "purpose": "Tests in-scope scripts criteria intent.",
+      "family": "s-scripts-criteria",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-korean-skill",
+      "prompt": "에이전트 스킬의 다음 지침을 다듬어 주세요: ‘티켓을 작성하기 전에 매번 ticket-cli를 설치하세요. 관찰된 현상과 추정 원인을 구분하고, 민감한 정보는 비공개로 전달하세요. 티켓을 작성한 뒤에도 ticket-cli를 설치하세요.’ 업무는 티켓 초안 작성입니다. 반복되는 설치 절차를 줄이되 의미 있는 제약은 남겨 주세요.",
+      "expect": "load",
+      "purpose": "Tests in-scope korean skill intent.",
+      "family": "s-korean-skill",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-portable-metadata",
+      "prompt": "Review this portable agent skill manifest and its scope: `name: ticket-draft`, `description: Draft issue titles and bodies from supplied observations`, `allowed-tools: Bash`. Its intended job is drafting issues, not publishing them. No target client is specified; decide what metadata can be justified without assuming one.",
+      "expect": "load",
+      "purpose": "Tests in-scope portable metadata intent.",
+      "family": "s-portable-metadata",
+      "split": "validation",
+      "origin": "synthetic-boundary",
+      "criteria": [
+        "Avoids inventing an intended client or client-specific metadata."
+      ]
+    },
+    {
+      "id": "boundary-find-skill",
+      "prompt": "Find an installable agent skill that helps create architecture diagrams; report the available options.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope find skill intent.",
+      "family": "s-find-skill",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-install-skill",
+      "prompt": "For a fictional agent client whose documented discovery directory is `~/.example-agent/skills/`, explain how to install the fictional local skill package at `./packages/invoice-triage/` into that directory. Give advice only; do not execute commands or edit instructions.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope install skill intent.",
+      "family": "s-install-skill",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-client-config",
+      "prompt": "A fictional agent client reads `config/agent.json`. Its documented `skillDirectories` setting is an array of roots; relative entries resolve from this repository's root, and each root is scanned for child directories containing SKILL.md. Show the configuration change needed to also discover the existing `./team-skills/` directory, preserving the current roots. Advice only: do not edit or create files or run configuration-changing commands.",
+      "expect": "no-load",
+      "forbid": ["write-command", "new-files"],
+      "fixtures": {
+        "config/agent.json": "{\"skillDirectories\": [\"/opt/example-agent/skills\"]}\n",
+        "team-skills/triage-notes/SKILL.md": "---\nname: triage-notes\ndescription: Summarize a bug report into observed behavior and open questions.\n---\n\nWrite the summary as two short lists.\n"
+      },
+      "purpose": "Keeps known client discovery configuration separate from authoring, with a concrete directory and API contract instead of implicit snapshot research.",
+      "family": "s-client-config",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-ordinary-docs",
+      "prompt": "Edit this ordinary README sentence for clarity: “Users may click the button in order to save.”",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope ordinary docs intent.",
+      "family": "s-ordinary-docs",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-plugin-config",
+      "prompt": "Inspect this application plugin configuration and explain which port it uses: {\"port\": 8080}.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope plugin config intent.",
+      "family": "s-plugin-config",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-list-installed",
+      "prompt": "List the currently installed agent skills and their versions.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope list installed intent.",
+      "family": "s-list-installed",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-generic-rules",
+      "prompt": "Explain what this configuration value does: {\"maxRetries\": 3}.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope generic rules intent.",
+      "family": "s-generic-rules",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "boundary-tool-setup",
+      "prompt": "Diagnose why a browser connector cannot start from this error: executable not found. The agent skill content is unchanged.",
+      "expect": "no-load",
+      "purpose": "Distinguishes out-of-scope tool setup intent.",
+      "family": "s-tool-setup",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-install-to-author",
+      "turns": [
+        {
+          "prompt": "Explain how to install a local agent skill using the client’s documented discovery directory.",
+          "expect": "no-load"
+        },
+        {
+          "prompt": "Now revise this existing skill description: ‘Use for all issue tasks.’ It should trigger for drafting issues, but not for merely reading them.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Tests the install to author transition across real user turns.",
+      "family": "s-install-to-author",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-author-to-config",
+      "turns": [
+        {
+          "prompt": "Review this agent skill instruction: “Always install a new validator before every task.” Its intended job is ticket drafting.",
+          "expect": "load"
+        },
+        {
+          "prompt": "Separately, explain what the configuration value {\"port\":8080} means.",
+          "expect": "no-load"
+        }
+      ],
+      "purpose": "Tests the author to config transition across real user turns.",
+      "family": "s-author-to-config",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-revise-then-evaluate",
+      "turns": [
+        {
+          "prompt": "Revise this skill guidance: “Draft issues by listing implementation steps.” It should instead describe observable outcomes.",
+          "expect": "load"
+        },
+        {
+          "prompt": "Suggest activation and behavior cases for that revision, including lookup-only requests.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Tests the revise then evaluate transition across real user turns.",
+      "family": "outcome-ticket-skill",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "conversation-trigger-observation",
+      "turns": [
+        {
+          "prompt": "An agent skill for PR drafting loads on requests to merge a PR. Diagnose whether its description’s scope is too broad; its current description is “Use for all PR tasks.”",
+          "expect": "load"
+        },
+        {
+          "prompt": "Revise the description to cover authoring but exclude merge-only operations.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Tests the trigger observation transition across real user turns.",
+      "family": "s-trigger-observation",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "workflow-skill-ticket",
+      "turns": [
+        {
+          "prompt": "Revise this agent skill guidance to describe ticket outcomes instead of prescribing implementation: ‘Draft issues by listing the implementation steps the developer must follow.’",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "skill-workflow:authoring-skills"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Now draft an issue about duplicate orders after repeated save. The cause is unknown; return a draft only.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "ticket-workflow:writing-tickets"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the staged boundary from skill to ticket without conflating skill selection.",
+      "family": "outcome-ticket-skill",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "workflow-skill-plan",
+      "turns": [
+        {
+          "prompt": "Review the scope of an agent skill that bundles planning and PR writing; explain whether these are independently useful workflows.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "skill-workflow:authoring-skills"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Separately design a staged migration from integer IDs to UUIDs while old clients remain supported.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "planning-workflow:planning-work"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the staged boundary from skill to plan without conflating skill selection.",
+      "family": "uuid-rollout-design",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "workflow-skill-adr",
+      "turns": [
+        {
+          "prompt": "Revise an agent skill description intended for drafting decision records so it does not activate on general architecture discussions.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "skill-workflow:authoring-skills"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        },
+        {
+          "prompt": "Now draft a proposed decision record: versioned APIs protect existing clients but increase maintenance, compared with an unversioned API.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "decision-workflow:writing-adrs"
+            ]
+          },
+          "forbid": [
+            "publish-command"
+          ]
+        }
+      ],
+      "purpose": "Tests the staged boundary from skill to adr without conflating skill selection.",
+      "family": "safari-invoice-ticket-and-versioned-api-record",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    }
+  ]
+}

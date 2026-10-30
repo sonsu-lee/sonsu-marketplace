@@ -34,8 +34,9 @@ correctness fields in the native review report. Do not fill finding quotas or
 rewrite evidence to sound more certain or more polite.
 Natural tone does not mean pretending to be human: never invent personal
 runtime experience, identity, or independent verification. Preserve required
-AI disclosure. A general humanizer is optional, not a dependency; it must not
-change obligation, scope, uncertainty, technical facts, or evidence.
+AI disclosure. When drafting or editing comment prose, also read the matching
+language skill if listed; retain these review rules. Language guidance must
+not change obligation, scope, uncertainty, technical facts, or evidence.
 
 ## Examples, not findings
 

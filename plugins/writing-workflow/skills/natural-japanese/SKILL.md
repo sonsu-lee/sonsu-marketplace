@@ -1,13 +1,13 @@
 ---
 name: natural-japanese
 description: >-
-  Write, revise, or diagnose natural, readable Japanese prose, including
-  technical documents, README and API documentation, design documents,
-  runbooks, release notes, technical blogs, PR descriptions, meeting minutes,
-  reports, guides, research memos, proposals, email, slides, and essays.
-  Use for awkward, verbose, translation-like, or formulaic Japanese and
-  requests to learn the author's style. Diagnosis does not rewrite the text.
-  Not for translation, other-language prose, or authorship detection.
+  Draft/edit/diagnose Japanese prose, also PR/ticket/review text; not
+  input/locale/code-only tasks. Use alongside the applicable artifact
+  workflow. Covers technical and everyday texts, prose around code,
+  and learning an author's style. Not for translation, other-language
+  prose, or authorship detection.
+  Merely answering in Japanese is not a trigger.
+  Diagnosis does not authorize rewriting.
 license: MIT
 compatibility: >-
   Script review requires uv and Python 3.10+ (uv resolves the Sudachi
@@ -144,7 +144,8 @@ the previous JSON. Follow [finishing](references/finishing.md) for convergence,
 `newfacts.py`, and scratch files. Save and compare the exact pre-edit source;
 remove unsupported additions. `newfacts.py` misses ordinary-noun details,
 certainty changes, lost conditions, and swapped speakers: compare manually
-even with empty output. Publish nothing.
+even with empty output. This skill publishes nothing; an authorized artifact
+workflow (PR, ticket, or review comment) owns any publication.
 
 ## Sources
 

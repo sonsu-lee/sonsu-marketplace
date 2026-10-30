@@ -1,11 +1,10 @@
 ---
 name: ce-noslop
 description: >-
-  Rewrite, check, or draft English prose so it carries no AI writing tells,
-  reads plainly on the first read, and keeps every source fact. Use when asked
-  to make English writing plainer or free of those tells, to check writing for
-  them, or when drafting from supplied content, including technical documents.
-  Not for non-English prose, translation, or authorship attribution.
+  Draft, edit, or check plain English prose: docs, runbooks, short copy,
+  PR/ticket/review text. Covers technical and everyday prose and prose around
+  code. Not for translation, non-English prose, authorship attribution, or
+  code-only work.
 license: MIT
 metadata:
   source: https://github.com/EveryInc/compound-engineering-plugin

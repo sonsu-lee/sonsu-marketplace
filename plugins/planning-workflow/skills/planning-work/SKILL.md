@@ -1,11 +1,11 @@
 ---
 name: planning-work
 description: >-
-  Use this skill before implementing non-trivial work, such as a feature, a
-  refactor, a change spanning several pull requests, or product and UI planning
-  from features to screens, wireframes, and component usage. It produces a
-  design plan and waits for approval. Not for small, clear changes, and not for
-  writing tickets, ADRs, or pull requests.
+  Use to plan or design non-trivial work before implementation, including
+  features, refactors, multi-PR changes, and product/UI work from features
+  to screens, wireframes, and component usage. Produces a design plan and
+  waits for approval. Not for small, clear changes or writing tickets,
+  ADRs, or pull requests.
 ---
 
 # Planning work

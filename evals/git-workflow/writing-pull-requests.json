@@ -33,7 +33,7 @@
       "id": "stack-closing",
       "expect": "load",
       "reads": [
-        "references/publishing.md"
+        "references/publishing.md#closing-issues-from-a-stack"
       ],
       "forbid": [
         "write-command",
@@ -52,7 +52,7 @@
       "id": "release-trunk",
       "expect": "load",
       "reads": [
-        "references/publishing.md"
+        "references/publishing.md#stack-dependent-pull-requests"
       ],
       "forbid": [
         "write-command",
@@ -190,6 +190,396 @@
       "id": "commit",
       "expect": "no-load",
       "prompt": "Write a commit message for my staged change, which renames the helper formatDate to formatDay in src/date.ts."
+    },
+    {
+      "id": "title-only-export",
+      "prompt": "CSV 내보내기에서 따옴표가 포함된 필드를 올바르게 처리했습니다. PR 제목만 영어로 제안해 주세요.",
+      "expect": "load",
+      "skills": {
+        "required": [
+          "git-workflow:writing-pull-requests",
+          "git-workflow:writing-commits"
+        ],
+        "allowed": [
+          "writing-workflow:ce-noslop"
+        ]
+      },
+      "purpose": "Title-only PR work invokes the commit-message dependency.",
+      "family": "pr-title-only-export",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "draft-risk",
+      "prompt": "Draft a PR description for a cleanup command that deletes expired files older than 30 days. Staging selected the right files; production has not been run, and operators must review a dry run before deletion.",
+      "expect": "load",
+      "forbid": [
+        "publish-command"
+      ],
+      "purpose": "Activates for a PR description draft with rollout constraints and staging evidence.",
+      "family": "pr-draft-risk",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "update-body-evidence",
+      "prompt": "Rewrite this PR description after the check changed: \"The import was verified in production.\" The import was tested only in staging, where accented names were preserved.",
+      "expect": "load",
+      "purpose": "Activates for revising a PR description with corrected verification facts.",
+      "family": "pr-update-body-evidence",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "template-body",
+      "prompt": "Draft the PR body for a cache fix: logout now clears the user cache; a local test confirmed it. Follow the repository template.",
+      "expect": "load",
+      "purpose": "Reads supplied repository PR template.",
+      "family": "logout-cache-pr",
+      "split": "train",
+      "origin": "synthetic-boundary",
+      "fixtures": {
+        ".github/PULL_REQUEST_TEMPLATE.md": "## Problem\n\n## Change\n\n## Verification\n"
+      }
+    },
+    {
+      "id": "stacked-base-draft",
+      "prompt": "Prepare a PR title and body for a UI change on `feature/filter-ui`, based on unmerged `feature/filter-api`; it calls that API and completes search filters. The repository permits stacked PRs.",
+      "expect": "load",
+      "purpose": "Authors a dependent PR while preserving merge order.",
+      "family": "stacked-ui-pr",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "independent-split",
+      "prompt": "Draft titles and descriptions for two independent changes: a CI dependency update and a password-reset bug fix. Both branch from `develop`.",
+      "expect": "load",
+      "purpose": "Distinguishes independent PRs from a stack.",
+      "family": "pr-independent-split",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "japanese-pr-body",
+      "prompt": "次の変更について日本語でPR本文を下書きしてください。ログアウト時にキャッシュを消し、ローカル確認で別ユーザーのデータが表示されないことを確認しました。",
+      "expect": "load",
+      "purpose": "Drafts Japanese PR prose from supplied facts.",
+      "family": "logout-cache-pr",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "ui-evidence-choice",
+      "prompt": "For a PR changing the checkout confirmation screen, select the evidence a reviewer needs. The only available capture is a still of the confirmation after submission; timing has not been recorded.",
+      "expect": "load",
+      "purpose": "Routes PR UI evidence to the relevant reference.",
+      "family": "pr-ui-evidence-choice",
+      "split": "validation",
+      "origin": "synthetic-boundary",
+      "reads": [
+        "references/ui-evidence.md"
+      ]
+    },
+    {
+      "id": "disclosure-policy",
+      "prompt": "Draft a PR body for a parser fix. The repository policy requires an AI assistance disclosure in the body, and AI was used to draft the patch. A local parser test passed.",
+      "expect": "load",
+      "purpose": "Activates for a PR body draft with an explicit disclosure policy.",
+      "family": "pr-disclosure-policy",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "ready-requirements",
+      "prompt": "Our draft PR changes the export parser and has one unresolved required check. What must be resolved before marking it ready for review?",
+      "expect": "load",
+      "purpose": "Treats readiness as a PR stage, not approval.",
+      "family": "pr-ready-requirements",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "body-only-korean",
+      "prompt": "PR 설명을 한국어로 작성해 주세요. 변경: 주문 ID를 로그에서 제거합니다. 로컬 테스트에서 ID가 기록되지 않았습니다.",
+      "expect": "load",
+      "purpose": "Produces Korean PR prose without forcing a title.",
+      "family": "pr-body-only-korean",
+      "split": "validation",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "caption-provenance",
+      "prompt": "Write a short caption for PR evidence: a staging screenshot shows the empty cart message after removing the last item. No recording exists.",
+      "expect": "load",
+      "purpose": "Activates for a PR evidence caption based on a still screenshot.",
+      "family": "pr-caption-provenance",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "lookup-pr",
+      "prompt": "How can I see whether PR #23 is still open and which branch it targets?",
+      "expect": "no-load",
+      "purpose": "Status lookup is not PR authoring.",
+      "family": "pr-base-lookup",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "merge-concepts",
+      "prompt": "Explain the difference between a fast-forward merge and a three-way merge in Git.",
+      "expect": "no-load",
+      "purpose": "General Git merge concepts do not require PR-content guidance.",
+      "family": "git-merge-education",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "merge-message-preservation",
+      "prompt": "Explain how to merge an already approved PR using its existing title and body.",
+      "expect": "load",
+      "reads": [
+        "references/publishing.md#merge-message"
+      ],
+      "forbid": [
+        "publish-command"
+      ],
+      "purpose": "Selects the existing merge-message preparation guidance without executing a merge.",
+      "family": "pr-merge-message-preparation",
+      "split": "train",
+      "origin": "existing-behavior"
+    },
+    {
+      "id": "resolve-conflict",
+      "prompt": "PR #23 has a conflict in `settings.json`. Apply this agreed correction: keep the timeout at 30 and the new retry count at 3.",
+      "expect": "no-load",
+      "purpose": "Fixed conflict resolution is not PR content work.",
+      "family": "pr-resolve-conflict",
+      "split": "train",
+      "origin": "history-inspired",
+      "fixtures": {
+        "settings.json": "{\"timeout\": 20, \"retries\": 1}\n"
+      }
+    },
+    {
+      "id": "branch-rebase",
+      "prompt": "Explain the commands to rebase an existing local branch `fix/export` onto `develop` and resolve a hypothetical lockfile conflict by keeping the version from develop. Do not execute them.",
+      "expect": "no-load",
+      "purpose": "Mechanical branch maintenance is not PR authorship.",
+      "family": "pr-branch-rebase",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "commit-only",
+      "prompt": "Write a Git commit message for replacing an obsolete README command with `npm run dev`.",
+      "expect": "no-load",
+      "purpose": "A commit message alone is not a PR title.",
+      "family": "pr-commit-only",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "pr-review",
+      "prompt": "Review this change for correctness: `const avg = sum / (items.length - 1)` should average all items. Return findings locally.",
+      "expect": "no-load",
+      "purpose": "Reviewing code is not authoring PR content.",
+      "family": "pr-pr-review",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "pr-history",
+      "prompt": "Explain why a squash merge can yield a different commit hash than the PR head.",
+      "expect": "no-load",
+      "purpose": "Explaining merge mechanics does not author a PR.",
+      "family": "pr-pr-history",
+      "split": "validation",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "check-ci",
+      "prompt": "How can I inspect which CI check is failing on an existing PR?",
+      "expect": "no-load",
+      "purpose": "Check status lookup is not PR drafting.",
+      "family": "pr-check-ci",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "body-shorter",
+      "turns": [
+        {
+          "prompt": "Draft a PR description: the export keeps selected column order, and a staging check confirmed that order. Previously the export sorted columns.",
+          "expect": "load"
+        },
+        {
+          "prompt": "더 짧게 고쳐 주세요. 검증 범위는 그대로 남겨 주세요.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Activates for shortening a PR description while retaining its stated verification scope.",
+      "family": "pr-body-shorter",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "title-then-body",
+      "turns": [
+        {
+          "prompt": "Suggest only a PR title for fixing case-sensitive duplicate email checks.",
+          "expect": "load"
+        },
+        {
+          "prompt": "Now add a body: an integration check confirmed duplicates are rejected regardless of case.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Adds body scope after a title-only request.",
+      "family": "pr-title-then-body",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "status-then-draft",
+      "turns": [
+        {
+          "prompt": "How can I find the base branch of an existing PR?",
+          "expect": "no-load"
+        },
+        {
+          "prompt": "Draft a PR description for a separate change that removes customer IDs from logs; the local test passed.",
+          "expect": "load"
+        }
+      ],
+      "purpose": "Transitions from PR lookup to content creation.",
+      "family": "pr-base-lookup",
+      "split": "train",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "draft-then-merge-info",
+      "turns": [
+        {
+          "prompt": "Draft a PR body for the local docs change replacing `npm start` with `npm run dev`; the new command starts the app.",
+          "expect": "load"
+        },
+        {
+          "prompt": "What does squash merging do to the commits?",
+          "expect": "no-load"
+        }
+      ],
+      "purpose": "Does not reselect PR writing for a later merge explanation.",
+      "family": "pr-draft-then-merge-info",
+      "split": "validation",
+      "origin": "synthetic-boundary"
+    },
+    {
+      "id": "cross-pr-title-korean",
+      "turns": [
+        {
+          "prompt": "PR 제목과 설명을 작성해 주세요. 변경: 로그아웃하면 사용자 캐시가 삭제됩니다. 로컬 확인이 통과했습니다. 설명은 자연스러운 한국어로 작성해 주세요.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "git-workflow:writing-pull-requests",
+              "git-workflow:writing-commits",
+              "writing-workflow:humanize-korean"
+            ],
+            "forbidden": [
+              "review-workflow:reviewing-code"
+            ]
+          }
+        },
+        {
+          "prompt": "이제 PR 제목은 그대로 두고 본문에서 로컬 검증 범위가 분명하게 보이게 고쳐 주세요.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "git-workflow:writing-pull-requests",
+              "writing-workflow:humanize-korean"
+            ],
+            "forbidden": [
+              "review-workflow:reviewing-code"
+            ]
+          }
+        }
+      ],
+      "purpose": "A Korean PR artifact combines title validation and language editing, then revises only the body.",
+      "family": "logout-cache-pr",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "cross-review-to-pr-description",
+      "turns": [
+        {
+          "prompt": "Review this cache change against the stated requirement: user A’s cached data must not appear after logout; the new logout function does not clear the cache.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "review-workflow:reviewing-code"
+            ],
+            "forbidden": [
+              "git-workflow:writing-pull-requests",
+              "git-workflow:writing-commits"
+            ]
+          }
+        },
+        {
+          "prompt": "The fix now clears the cache at logout. The title is already fixed as `fix: clear cached user data on logout`; keep it unchanged and return only a PR description based on the fix. No runtime check has been performed.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "git-workflow:writing-pull-requests"
+            ]
+          }
+        }
+      ],
+      "purpose": "Activates for a body-only PR draft after a separate code review.",
+      "criteria": [
+        "Returns only the requested PR body without adding or rewriting a title or commit message",
+        "Preserves that the runtime behavior has not been verified"
+      ],
+      "family": "cross-cross-review-to-pr-description",
+      "split": "train",
+      "origin": "history-inspired"
+    },
+    {
+      "id": "cross-branch-pr-stack",
+      "turns": [
+        {
+          "prompt": "Suggest a Git branch name for the UI half of issue ENG-45. It adds search filters using an already proposed API.",
+          "expect": "no-load",
+          "skills": {
+            "required": [
+              "git-workflow:naming-branches"
+            ],
+            "forbidden": [
+              "git-workflow:writing-pull-requests",
+              "review-workflow:reviewing-code"
+            ]
+          }
+        },
+        {
+          "prompt": "Draft a PR title and description for it. The UI branch is based on the unmerged `feature/search-api` branch, which it needs; this repository supports stacks.",
+          "expect": "load",
+          "skills": {
+            "required": [
+              "git-workflow:writing-pull-requests",
+              "git-workflow:writing-commits"
+            ],
+            "forbidden": [
+              "review-workflow:reviewing-code"
+            ]
+          }
+        }
+      ],
+      "purpose": "Combines branch naming with a separately staged dependent PR and title validation.",
+      "family": "stacked-ui-pr",
+      "split": "train",
+      "origin": "history-inspired"
     }
   ]
 }

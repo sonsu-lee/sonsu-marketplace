@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "review-workflow",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Evidence-driven code review with independent general and focused reviewers and local-first reporting.",
   "author": {
     "name": "sonsu-lee",

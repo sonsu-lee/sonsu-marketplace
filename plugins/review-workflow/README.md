@@ -172,8 +172,9 @@ incomplete review, not permission to silently substitute a sequential pass.
 - [Claude Code execution](skills/reviewing-code/references/claude-code.md),
   loaded for Claude Code runs.
 - [Review comments](skills/reviewing-code/references/review-comments.md), loaded
-  when drafting or posting comments. A general humanizer is optional, not a
-  dependency; this reference owns certainty, intent, and publication semantics.
+  when drafting or posting comments. When drafting or editing comment prose, it
+  also reads the matching language skill if listed; that is not a dependency, and
+  this reference still owns certainty, intent, and publication semantics.
 
 ## Contributing
 

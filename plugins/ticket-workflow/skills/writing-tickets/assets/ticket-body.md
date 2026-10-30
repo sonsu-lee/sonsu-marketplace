@@ -19,3 +19,9 @@ complex work, only the sections that help:
 
 Stop when the purpose and completion are clear. Do not repeat the title,
 add empty sections, or turn the ticket into a design document.
+
+## Sources
+
+[Linear's Write issues not user stories](https://linear.app/method/write-issues-not-user-stories)
+informs the outcome focus; this fallback body and the outcome guidance are this
+plugin's defaults.

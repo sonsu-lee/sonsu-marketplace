@@ -15,12 +15,10 @@ import argparse
 import json
 import random
 import re
-import shutil
 import subprocess
 import sys
 import tarfile
-import tempfile
-import time
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -94,23 +92,41 @@ def final_text(stdout: str) -> tuple[str, str]:
 
 def answer(base: Path, root: Path, pin: ca.Pin, skill_dir: Path, plugin: str, skill: str,
            query: ca.Query, side: str, label: str) -> Answer:
-    target = base / "compare-runs" / label
-    shutil.rmtree(target, ignore_errors=True)
-    target.mkdir(parents=True)
-    subprocess.run(["git", "init", "-q", str(target)], check=True)
-    prompt = (f"Follow the agent skill in {skill_dir}: read {skill_dir}/SKILL.md "
-              "first, read the files it points to when they apply, then handle "
-              f"this request.\n\n{query.prompt}")
-    proc, trace = ca.execute("omp", base, root, pin, prompt, target, plugin, skill)
-    log = base / "compare-runs" / f"{label}.jsonl"
-    log.write_text(proc.stdout, encoding="utf-8")
-    text, stop = final_text(proc.stdout)
-    # Only a final message that stopped normally is a complete answer.
-    if proc.returncode == 124 or stop != "stop":
-        trace.failed = True
-        trace.error = trace.error or (f"last message stopped with {stop!r}" if stop
-                                      else cp.tail(proc))
-    return Answer(side, trace, text, log)
+    work = base / "compare-runs" / label
+    target = work / "target"
+    ca.prepare_target(target, query.fixtures)
+    inventory = ca.skill_files(root)
+    identity = f"{plugin}:{skill}"
+    inventory[identity] = skill_dir
+    session, result = str(uuid.uuid4()), ca.Trace()
+    texts = []
+    coverage = {}
+    for index, step in enumerate(query.steps):
+        prompt = step.prompt
+        if index == 0:
+            prompt = (f"Follow the agent skill in {skill_dir}: read {skill_dir}/SKILL.md "
+                      "first, read the files it points to when they apply, then handle "
+                      f"this request.\n\n{prompt}")
+        proc, trace = ca.execute("omp", base, root, pin, prompt, target, identity,
+                                 inventory, session, work / "sessions", resume=index > 0,
+                                 coverage=coverage)
+        log = work / f"turn-{index + 1}.jsonl"
+        log.write_text(proc.stdout, encoding="utf-8")
+        text, stop = final_text(proc.stdout)
+        texts.append(text)
+        if index == 0 and identity not in trace.successful:
+            result.failed = True
+            result.error = trace.error or "assigned revision was not loaded for the first answer"
+            break
+        result.successful.update(trace.successful & {identity})
+        result.reads.update(trace.reads)
+        result.reached = trace.reached
+        if trace.failed or trace.refused or stop != "stop":
+            result.failed, result.refused = True, trace.refused
+            result.error = trace.error or f"last message stopped with {stop!r}"
+            break
+        session = trace.session
+    return Answer(side, result, "\n\n".join(texts), work)
 
 
 def judge(base: Path, root: Path, pin: ca.Pin, query: ca.Query, first: Answer,
@@ -122,7 +138,9 @@ def judge(base: Path, root: Path, pin: ca.Pin, query: ca.Query, first: Answer,
         f"You are grading {'two answers' if pair else 'one answer'} to the same request. "
         "Judge only the answers against the numbered criteria; ignore style and length "
         "unless a criterion names them.\n\n"
-        f"Request:\n{query.prompt}\n\nCriteria:\n{criteria}\n\n"
+        "Requests in conversation order:\n" + "\n\n".join(
+            f"Turn {i}: {step.prompt}" for i, step in enumerate(query.steps, 1)) +
+        f"\n\nCriteria:\n{criteria}\n\n"
         f"<answer id=\"A\">\n{first.text}\n</answer>\n\n"
         + (f"<answer id=\"B\">\n{second.text}\n</answer>\n\n" if pair else "")
         + "Reply with only this JSON object: "
@@ -133,20 +151,21 @@ def judge(base: Path, root: Path, pin: ca.Pin, query: ca.Query, first: Answer,
            '"reason": "one sentence"}'))
     env, _ = ca.client_env("omp", base)
     target = base / "compare-runs" / f"{label}-judge"
-    shutil.rmtree(target, ignore_errors=True)
     target.mkdir(parents=True)
     proc = cp.run(["omp", "-p", "--no-session", "--mode", "json", "--no-tools",
+                   "--no-context-files", "--no-extensions", "--no-rules",
                    "--model", pin.model, "--thinking", pin.effort, prompt],
                   env, target, timeout=JUDGE_TIMEOUT)
     log = base / "compare-runs" / f"{label}-judge.jsonl"
     log.write_text(proc.stdout, encoding="utf-8")
     # The judge decides the winner, so it must have run on the selected profile.
-    mismatch = ca.pin_mismatch("omp", ca.parse_omp(proc.stdout, "", ""), pin)
+    trace = ca.parse_omp(proc.stdout, "", {})
+    if proc.returncode or trace.failed or trace.refused or not trace.reached or not trace.complete:
+        raise ValueError(f"judge did not complete: {trace.error or trace.refused or cp.tail(proc)}")
+    mismatch = ca.pin_mismatch("omp", trace, pin)
     if mismatch:
         raise ValueError(f"judge off profile: {mismatch}")
-    text, stop = final_text(proc.stdout)
-    if proc.returncode != 0 or stop != "stop":
-        raise ValueError(f"judge did not complete: {stop or cp.tail(proc)}")
+    text, _ = final_text(proc.stdout)
     match = re.search(r"\{.*\}", text, re.S)
     if not match:
         raise ValueError(f"judge gave no JSON: {text[:120] or cp.tail(proc)}")
@@ -164,7 +183,8 @@ def grade(base: Path, root: Path, pin: ca.Pin, query: ca.Query,
             if trace.refused or trace.failed or not trace.reached or not answers[side].text:
                 reason = trace.refused and "refused by provider" or trace.error or "no answer"
                 problems.append(f"{side} did not complete: {reason}")
-            elif not trace.loaded:
+            elif not trace.successful:
+                # An answer that never read its revision does not measure that revision.
                 problems.append(f"{side} did not read its SKILL.md")
         if problems:
             return Verdict(error="; ".join(problems))
@@ -232,7 +252,8 @@ def load_calibration(path: Path) -> list[tuple[ca.Query, list[dict]]]:
                     or any(type(value) is not bool for value in example["expected"])):
                 raise ValueError(f"invalid calibration example in {ident}")
             example_ids.add(example["id"])
-        cases.append((ca.Query(id=ident, prompt=prompt, expect="load", criteria=criteria), examples))
+        cases.append((ca.Query(id=ident, steps=[ca.Step(prompt=prompt, expect="load")],
+                               criteria=criteria), examples))
     return cases
 
 
@@ -260,6 +281,16 @@ def exit_status(verdicts: list[Verdict], calibration: list[dict]) -> int:
     return 1 if any(any(not item["head"] for item in v.criteria) for v in verdicts) else 0
 
 
+def select_queries(spec: ca.Spec, wanted: list[str] | None) -> list[ca.Query]:
+    queries = [q for q in spec.queries if q.criteria]
+    if wanted:
+        unknown = set(wanted) - {q.id for q in queries}
+        if unknown:
+            raise ValueError(f"unknown query IDs: {', '.join(sorted(unknown))}")
+        queries = [q for q in queries if q.id in wanted]
+    return queries
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("skill", help="<plugin>:<skill> to compare")
@@ -285,112 +316,120 @@ def main() -> int:
         parser.error("--reps and --jobs must be at least 1")
     if args.calibration_only and not args.calibration:
         parser.error("--calibration-only requires --calibration")
-    plugin, _, skill = args.skill.partition(":")
-    if not plugin or not skill:
+    if not ca.QUALIFIED.fullmatch(args.skill):
         parser.error("skill must be <plugin>:<skill>")
-    root, base = args.root.resolve(), Path(args.homes).resolve()
-    if not (base / "omp-home").is_dir():
-        print(f"{base} has no omp home; run `check_activation.py --clients omp prepare`")
+    plugin, skill = args.skill.split(":")
+    source, auth_base = args.root.resolve(), Path(args.homes).resolve()
+    if not (auth_base / "omp-home").is_dir():
+        print(f"{auth_base} has no omp home; run `check_activation.py --clients omp prepare`")
         return 2
     try:
-        spec = None if args.calibration_only else ca.load_spec(root / "evals" / plugin / f"{skill}.json")
-        pin = ca.load_pins(root, args.profile)["omp"]
+        queries = ([] if args.calibration_only else
+                   select_queries(ca.load_spec(source / "evals" / plugin / f"{skill}.json"),
+                                  args.query))
+        pin = ca.load_pins(source, args.profile)["omp"]
         calibration_cases = load_calibration(args.calibration) if args.calibration else []
     except (OSError, ValueError) as exc:
         print(f"spec error: {exc}")
         return 2
-    queries = [q for q in spec.queries if q.criteria] if spec else []
-    if args.query:
-        unknown = set(args.query) - {q.id for q in queries}
-        if unknown:
-            print(f"unknown query IDs: {', '.join(sorted(unknown))}")
-            return 2
-        queries = [q for q in queries if q.id in args.query]
     if not queries and not args.calibration_only:
-        print(f"{spec.path} has no query with `criteria`")
+        print(f"evals/{plugin}/{skill}.json has no selected query with `criteria`")
         return 2
-    stamp = time.strftime("%Y%m%d-%H%M%S")
-    if args.calibration_only:
-        problem = ca.preflight("omp", base, root, pin)
-        if problem:
-            print(f"omp unavailable: {problem}")
-            return 2
-        results = calibrate(base, root, pin, calibration_cases, stamp)
-        summary = base / "compare-runs" / f"{stamp}-calibration.json"
-        summary.write_text(json.dumps(results, indent=2), encoding="utf-8")
-        for item in results:
-            print(f"{'NONE' if item['error'] else 'PASS'}  {item['case']}/{item['example']} {item['error']}")
-        print(f"calibration: {summary}")
-        return exit_status([], results)
+    sides = ("head",) if args.evaluate else ("base", "head")
     refs = {}
-    for side, ref in (("head", args.head),) if args.evaluate else (("base", args.base), ("head", args.head)):
-        proc = git("rev-parse", "--verify", f"{ref}^{{commit}}", cwd=root)
-        if proc.returncode != 0:
-            print(f"unknown revision: {ref}")
-            return 2
-        refs[side] = proc.stdout.strip()
+    if not args.calibration_only:
+        for side, ref in ((s, args.base if s == "base" else args.head) for s in sides):
+            proc = git("rev-parse", "--verify", f"{ref}^{{commit}}", cwd=source)
+            if proc.returncode != 0:
+                print(f"unknown revision: {ref}")
+                return 2
+            refs[side] = proc.stdout.strip()
 
     rng = random.Random(args.seed)
-    work = Path(tempfile.mkdtemp(prefix="skill-revisions-"))
+    base, root, hashes = ca.new_campaign(source)
     try:
-        dirs = {}
-        sides = ("head",) if args.evaluate else ("base", "head")
-        for side in sides:
-            label = f"rev-{rng.getrandbits(32):08x}"
-            try:
-                dirs[side] = extract(root, refs[side], plugin, skill, work / label)
-            except ValueError as exc:
-                print(exc)
-                return 2
-        if not args.evaluate and files(dirs["base"]) == files(dirs["head"]):
-            sides = ("head",)
-        # The answers must follow only the extracted revisions, so remove the
-        # installed copy that `prepare` added; `check_activation.py run`
-        # reinstalls it.
-        market = cp.load_marketplace(root)[0]
-        env, target = ca.client_env("omp", base)
-        cp.run(["omp", "plugin", "uninstall", f"{plugin}@{market}"], env, target)
-        listing = cp.run(["omp", "skill", "list"], env, target)
-        if any(line.split(None, 1)[0] == skill
-               for line in listing.stdout.splitlines() if line.strip()):
-            print(f"omp still lists the installed {skill}; cannot compare blind")
+        pin = ca.load_pins(root, args.profile)["omp"]
+        if not args.calibration_only:
+            queries = select_queries(ca.load_spec(root / "evals" / plugin / f"{skill}.json"),
+                                     args.query)
+            if not queries:
+                raise ValueError("snapshot has no selected query with criteria")
+    except (OSError, ValueError) as exc:
+        print(f"snapshot error: {exc}")
+        return 2
+    dirs = {}
+    for side in () if args.calibration_only else sides:
+        label = f"rev-{rng.getrandbits(64):016x}"
+        try:
+            dirs[side] = extract(source, refs[side], plugin, skill, base / "revisions" / label)
+        except ValueError as exc:
+            print(exc)
             return 2
-        problem = ca.preflight("omp", base, root, pin)
+    if len(dirs) == 2 and files(dirs["base"]) == files(dirs["head"]):
+        # Identical revisions cannot differ; grade the candidate alone.
+        sides = ("head",)
+    stamp = "compare"
+    with ca.AuthLease("omp", auth_base, base) as authentication:
+        problem = authentication.error
+        if not args.calibration_only:
+            market, plugins, _, results = cp.load_marketplace(root)
+            if not all(r.ok for r in results):
+                problem = problem or "snapshot catalogs are inconsistent"
+            if not problem:
+                problem = "; ".join(ca.install("omp", root, market,
+                                              [p for p in plugins if p != plugin], base)[1])
+            if not problem:
+                problem = "; ".join(ca.installed_problems("omp", base, root, market, {plugin}))
+            if not problem:
+                env, target = ca.client_env("omp", base)
+                listing = cp.run(["omp", "skill", "list"], env, target)
+                if listing.returncode or any(line.split(None, 1)[0] == skill
+                                             for line in listing.stdout.splitlines() if line.strip()):
+                    problem = "target skill still discoverable; cannot compare blind"
+        if not problem:
+            problem = ca.preflight("omp", base, root, pin)
         if problem:
             print(f"omp unavailable: {problem}")
             return 2
-
         calibration_results = calibrate(base, root, pin, calibration_cases, stamp)
         jobs = [(qi, rep, side) for qi in range(len(queries))
                 for rep in range(1, args.reps + 1) for side in sides]
-        try:
-            with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-                futures = {
-                    (qi, rep, side): pool.submit(
-                        answer, base, root, pin, dirs[side], plugin, skill, queries[qi], side,
-                        f"{stamp}-{queries[qi].id}-{rep}-{rng.getrandbits(32):08x}")
-                    for qi, rep, side in jobs}
-                answers = {key: f.result() for key, f in futures.items()}
-                verdicts = {
-                    (qi, rep): pool.submit(
-                        compare, base, root, pin, queries[qi],
-                        {s: answers[(qi, rep, s)] for s in sides},
-                        random.Random(rng.getrandbits(64)), f"{stamp}-{queries[qi].id}-{rep}")
-                    for qi in range(len(queries)) for rep in range(1, args.reps + 1)}
-                verdicts = {key: f.result() for key, f in verdicts.items()}
-        except (OSError, subprocess.SubprocessError, ValueError) as exc:
-            print(f"execution error: {exc}")
-            return 2
-    finally:
-        shutil.rmtree(work, ignore_errors=True)
+        with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+            futures = {
+                (qi, rep, side): pool.submit(
+                    answer, base, root, pin, dirs[side], plugin, skill, queries[qi], side,
+                    f"q{qi}-{rep}-{rng.getrandbits(64):016x}")
+                for qi, rep, side in jobs}
+            answers = {key: f.result() for key, f in futures.items()}
+            verdicts = {
+                (qi, rep): pool.submit(
+                    compare, base, root, pin, queries[qi],
+                    {s: answers[(qi, rep, s)] for s in sides},
+                    random.Random(rng.getrandbits(64)), f"{stamp}-q{qi}-{rep}")
+                for qi in range(len(queries)) for rep in range(1, args.reps + 1)}
+            verdicts = {key: f.result() for key, f in verdicts.items()}
 
-    if args.evaluate or len(sides) == 1:
+    # The lease saves refreshed credentials on exit, so read its status only here.
+    auth_failed = authentication.sync_status == "failed"
+    if args.calibration_only:
+        summary = base / "compare-runs" / f"{stamp}-calibration.json"
+        summary.parent.mkdir(parents=True, exist_ok=True)
+        summary.write_text(json.dumps(calibration_results, indent=2), encoding="utf-8")
+        if auth_failed:
+            print(f"NONE authentication: {authentication.error}")
+        for item in calibration_results:
+            print(f"{'NONE' if item['error'] else 'PASS'}  {item['case']}/{item['example']} {item['error']}")
+        print(f"calibration: {summary}")
+        return 2 if auth_failed else exit_status([], calibration_results)
+    if len(sides) == 1:
         print(f"{args.skill}: head {args.head} ({refs['head'][:7]}) evaluated by omp "
               f"{pin.model} ({pin.effort}, profile {args.profile})")
     else:
         print(f"{args.skill}: base {args.base} ({refs['base'][:7]}) vs head {args.head} "
               f"({refs['head'][:7]}), answered and judged blind by omp {pin.model} "
               f"({pin.effort}, profile {args.profile})")
+    if auth_failed:
+        print(f"NONE authentication: {authentication.error}")
     for item in calibration_results:
         print(f"{'NONE' if item['error'] else 'PASS'}  calibration {item['case']}/{item['example']} {item['error']}")
     for qi, query in enumerate(queries):
@@ -409,22 +448,24 @@ def main() -> int:
             print(f"{verdict.winner.upper():<5} {name:<14} criteria {scores}; "
                   f"reads {readout}; judge (A={verdict.a_side}): {verdict.reason}")
     summary = base / "compare-runs" / f"{stamp}-summary.json"
-    summary.write_text(json.dumps([
+    summary.write_text(json.dumps({"source_hashes": hashes, "revisions": refs,
+        "profile": args.profile, "model": pin.model, "effort": pin.effort,
+        "auth_sync": authentication.sync_status, "cases": [
         {"query": query.id, "rep": rep,
          "base": str(answers[(qi, rep, "base")].log) if "base" in sides else None,
          "head": str(answers[(qi, rep, "head")].log),
-         "judge": str(base / "compare-runs" / f"{stamp}-{query.id}-{rep}-judge.jsonl"),
+         "judge": str(base / "compare-runs" / f"{stamp}-q{qi}-{rep}-judge.jsonl"),
          "a_side": verdicts[(qi, rep)].a_side,
          "winner": verdicts[(qi, rep)].winner, "error": verdicts[(qi, rep)].error,
          "reason": verdicts[(qi, rep)].reason, "criteria": verdicts[(qi, rep)].criteria}
-        for qi, query in enumerate(queries) for rep in range(1, args.reps + 1)],
+        for qi, query in enumerate(queries) for rep in range(1, args.reps + 1)]},
         indent=2), encoding="utf-8")
     if calibration_cases:
         calibration_summary = base / "compare-runs" / f"{stamp}-calibration.json"
         calibration_summary.write_text(json.dumps(calibration_results, indent=2), encoding="utf-8")
         print(f"calibration: {calibration_summary}")
     print(f"\ntraces: {base / 'compare-runs'}; base/head mapping: {summary}")
-    return exit_status(list(verdicts.values()), calibration_results)
+    return 2 if auth_failed else exit_status(list(verdicts.values()), calibration_results)
 
 
 if __name__ == "__main__":

@@ -1,10 +1,11 @@
 ---
 name: reviewing-code
 description: >-
-  Review code changes, pull requests, or implementations against their purpose,
-  and draft or explicitly publish review comments. Coordinate independent and
-  focused review; use existing findings when only comments are requested.
-  Not for native-only reviews, applying fixes, or approving changes.
+  Use for code/test/PR reviews, feedback, and comments; not review administration
+  or status-only tasks. Includes reviewing supplied changes or snippets,
+  validating findings, and drafting or explicitly posting comments from
+  established findings. Not for applying agreed fixes, approving changes,
+  or native-only reviews.
 ---
 
 # Reviewing code

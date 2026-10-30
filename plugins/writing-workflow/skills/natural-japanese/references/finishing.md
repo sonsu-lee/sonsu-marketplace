@@ -62,4 +62,5 @@ Keep lint JSON, disposition notes, original copies, and draft backups in the
 environment's scratch directory or a directory created with `mktemp -d`, not
 beside the target. Remove only your temporary working files when finished.
 Leave only the requested final document and, when explicitly requested, an
-author profile in the user's project. Do not publish or transmit target text.
+author profile in the user's project. This workflow does not publish or
+transmit target text; an authorized artifact workflow owns publication.

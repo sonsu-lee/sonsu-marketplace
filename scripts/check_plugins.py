@@ -118,8 +118,39 @@ class Receiver:
         self.server.server_close()
 
 
+def normalize_table_separators(text: str) -> str:
+    lines, previous, fence, in_table = [], "", None, False
+    for line in text.splitlines():
+        stripped = line.lstrip(" ")
+        marker = re.match(r"(`{3,}|~{3,})", stripped) if len(line) - len(stripped) <= 3 else None
+        if marker:
+            token = marker.group(1)
+            if fence is None:
+                fence = (token[0], len(token))
+            elif token[0] == fence[0] and len(token) >= fence[1] and not stripped[len(token):].strip():
+                fence = None
+            in_table = False
+        elif fence is None and len(line) - len(stripped) <= 3:
+            bordered = stripped.strip().startswith("|") and stripped.strip().endswith("|")
+            header = (len(previous) - len(previous.lstrip(" ")) <= 3
+                      and previous.lstrip(" ").startswith("|")
+                      and previous.rstrip().endswith("|"))
+            if not in_table and bordered and header:
+                cells = stripped.strip()[1:-1].split("|")
+                matches = [re.fullmatch(r"(:?)-{3,}(:?)", cell.strip()) for cell in cells]
+                if cells and all(matches):
+                    # omp は区切り行のハイフンを短縮する。配置指定と本文・コードは保持する。
+                    line = "|" + "|".join(match[1] + "---" + match[2] for match in matches) + "|"
+                    in_table = True
+            elif not bordered:
+                in_table = False
+        lines.append(line)
+        previous = line
+    return "\n".join(lines)
+
+
 def squash(text: str) -> str:
-    return re.sub(r"\s+", "", text)
+    return re.sub(r"\s+", "", normalize_table_separators(text))
 
 
 def decoded_strings(body: str) -> list[str]:

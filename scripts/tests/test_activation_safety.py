@@ -7,15 +7,15 @@ import unittest
 SCRIPTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SCRIPTS))
 
-from check_activation import Query, Trace, judge_safety, note_command  # noqa: E402
+from check_activation import Step, Trace, judge_safety, note_command  # noqa: E402
 
 
 class ActivationSafetyTests(unittest.TestCase):
     def problems(self, command):
         trace = Trace()
-        note_command(trace, "writing-pull-requests", command)
-        query = Query(
-            id="draft-only", prompt="Draft only", expect="load",
+        note_command(trace, "demo:writing-pull-requests", command, {})
+        query = Step(
+            prompt="Draft only", expect="load",
             forbid=["write-command", "new-files"],
         )
         return judge_safety(query, trace)
@@ -53,6 +53,7 @@ class ActivationSafetyTests(unittest.TestCase):
             "gh stack --help",
             "gh stack link --help",
             "gh stack submit -h",
+            "/bin/zsh -lc 'gh stack link --help'",
             "gh help stack",
         ):
             with self.subTest(command=command):
@@ -62,7 +63,8 @@ class ActivationSafetyTests(unittest.TestCase):
         for command in (
             "gh stack link --help && gh stack link 41 42",
             "gh stack view; gh stack submit --auto",
-            'gh stack link "--help" feature/ui',
+            "/bin/zsh -lc 'gh stack link --help && gh stack link 41 42'",
+            'gh pr create --body "--help"',
         ):
             with self.subTest(command=command):
                 self.assertEqual(self.problems(command),

@@ -13,8 +13,10 @@ import compare_skill as cs
 
 class ComparisonTests(unittest.TestCase):
     def setUp(self):
-        self.query = cs.ca.Query(id="q", prompt="request", expect="load", criteria=["first", "second"])
-        self.answer = lambda side: cs.Answer(side, cs.ca.Trace(reached=True, loaded=True), side, Path(side))
+        self.query = cs.ca.Query(id="q", steps=[cs.ca.Step(prompt="request", expect="load")],
+                                 criteria=["first", "second"])
+        self.answer = lambda side: cs.Answer(
+            side, cs.ca.Trace(reached=True, successful={"p:s"}), side, Path(side))
         self.answers = {side: self.answer(side) for side in ("base", "head")}
 
     def grade(self, result, answers=None):
@@ -42,7 +44,7 @@ class ComparisonTests(unittest.TestCase):
             with self.subTest(criteria=criteria):
                 verdict = self.grade({"winner": "tie", "criteria": criteria})
                 self.assertEqual(cs.exit_status([verdict], []), 2)
-        self.answers["head"].trace.loaded = False
+        self.answers["head"].trace.successful = set()
         self.assertEqual(cs.exit_status([self.grade({})], []), 2)
         self.assertEqual(cs.exit_status([cs.Verdict(criteria=[{"head": False}]), cs.Verdict(error="incomplete")], []), 2)
 
@@ -89,6 +91,31 @@ class ComparisonTests(unittest.TestCase):
             path.write_text(json.dumps({"cases": [case, case]}))
             with self.assertRaises(ValueError):
                 cs.load_calibration(path)
+
+    def test_calibration_only_reports_credential_save_failure(self):
+        class SaveFails:
+            # 認証の保存は lease を抜けるときに行われ、そこで失敗する。
+            error, sync_status = "", "active"
+            def __init__(self, *args): pass
+            def __enter__(self): return self
+            def __exit__(self, *args):
+                self.sync_status, self.error = "failed", "could not preserve refreshed authentication"
+        passing = [{"case": "c", "example": "e", "error": "", "criteria": []}]
+        with tempfile.TemporaryDirectory() as temp:
+            temp = Path(temp)
+            (temp / "homes/omp-home").mkdir(parents=True)
+            (temp / "campaign").mkdir()
+            argv = ["compare_skill.py", "p:s", "--homes", str(temp / "homes"), "--root", str(temp),
+                    "--calibration", str(temp / "c.json"), "--calibration-only"]
+            with patch.object(sys, "argv", argv), \
+                    patch.object(cs, "load_calibration", return_value=[]), \
+                    patch.object(cs.ca, "load_pins", return_value={"omp": None}), \
+                    patch.object(cs.ca, "new_campaign", return_value=(temp / "campaign", temp, {})), \
+                    patch.object(cs.ca, "AuthLease", SaveFails), \
+                    patch.object(cs.ca, "preflight", return_value=""), \
+                    patch.object(cs, "calibrate", return_value=passing), \
+                    patch("builtins.print"):
+                self.assertEqual(cs.main(), 2)
 
 
 if __name__ == "__main__":

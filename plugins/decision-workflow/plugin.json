@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "decision-workflow",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Select consequential design decisions and write lightweight ADRs using repository conventions first.",
   "author": {
     "name": "sonsu-lee",

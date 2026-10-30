@@ -13,9 +13,11 @@ compatibility: >-
 
 # Writing tickets
 
-A ticket agrees on the problem and observable result, not an implementation
-recipe. Use plain, direct language and established technical terms. Give the
-assignee context to choose a solution, not your investigation diary.
+Agree on the problem and observable outcome, not an implementation recipe.
+Use plain language and established technical terms; give the assignee context
+to choose a solution, not your investigation diary.
+For prose drafts/edits, also read the matching language skill if listed;
+retain these ticket rules.
 
 ## Establish the request and context
 
@@ -84,9 +86,9 @@ These are optional content, not required sections:
 - **Context:** necessary decisions, constraints, evidence, and dependencies.
   Summarize enough to stand alone, link the details, and omit when unnecessary.
 
-Keep detail only if its omission could change the task or completion judgment.
-Preserve security, compatibility, external contracts, and material unknowns;
-omit generic cautions, exhaustive exclusions, and routine test/command lists.
+Keep only detail that could change the task or completion judgment. Preserve
+security, compatibility, external contracts, and material unknowns; omit
+generic cautions, exhaustive exclusions, and routine test/command lists.
 Describe restored capability: "Repeated saves produce one record", not
 "Debounce the button". Leave storage, timing, and code structure to the assignee
 unless required; label proposed approaches tentative or omit them.
@@ -149,5 +151,4 @@ Read back the issue and separately stored project fields to confirm
 destination, content, metadata, and relationships.
 Report the real ID, URL, and incomplete actions; never call a draft published.
 
-Source: [Linear's Write issues not user stories](https://linear.app/method/write-issues-not-user-stories);
-the fallback body and outcome guidance are this plugin's defaults.
+Sources: [body guidance](assets/ticket-body.md#sources).
