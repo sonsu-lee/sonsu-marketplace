@@ -856,11 +856,13 @@ mkdir -p "$HOMES"/{omp-home,codex-home,claude-home}
 HOME="$HOMES/omp-home" omp login
 HOME="$HOMES/codex-home" CODEX_HOME="$HOMES/codex-home/.codex" \
   codex login --device-auth
-CC="HOME=$HOMES/claude-home CLAUDE_CONFIG_DIR=$HOMES/claude-home/.claude"
-env $CC claude setup-token
-(umask 077; read -rs t; printf "%s" "$t" > "$HOMES/claude-home/oauth-token")
-env $CC claude plugin marketplace add anthropics/claude-plugins-official
-env $CC claude plugin install skill-creator@claude-plugins-official
+C="$HOMES/claude-home"
+HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" claude setup-token
+(umask 077; read -rs t; printf "%s" "$t" > "$C/oauth-token")
+HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" \
+  claude plugin marketplace add anthropics/claude-plugins-official
+HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" \
+  claude plugin install skill-creator@claude-plugins-official
 ```
 
 **4. Run in omp and Codex** from the marketplace root, with the models above.
@@ -868,6 +870,7 @@ This example compares `writing-adrs` with its version on `origin/main` in omp;
 use `--client codex --home "$HOMES/codex-home"` for Codex:
 
 ```sh
+HOMES="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
 EVAL=plugins/skill-workflow/skills/evaluating-skills
 SKILL=plugins/decision-workflow/skills/writing-adrs
 WS="${XDG_CACHE_HOME:-$HOME/.cache}/skill-evals/writing-adrs-workspace"
@@ -893,8 +896,10 @@ python3 "$EVAL/scripts/run_trigger_eval.py" "${RUN[@]}" \
 **5. Run in Claude Code** from an empty directory:
 
 ```sh
+C="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes/claude-home"
 cd "$(mktemp -d)"
-env $CC CLAUDE_CODE_OAUTH_TOKEN="$(cat "$HOMES/claude-home/oauth-token")" \
+HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" \
+  CLAUDE_CODE_OAUTH_TOKEN="$(cat "$C/oauth-token")" \
   claude --model claude-opus-5-5 --effort high
 ```
 
