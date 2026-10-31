@@ -1,0 +1,82 @@
+[
+  {
+    "query": "The plan in docs/plans/export-queue.md is approved. Implement it: move the order CSV export into the background job queue, update the tests, and have the change reviewed before you report back. Don't push.",
+    "should_trigger": true
+  },
+  {
+    "query": "ok go ahead with the retry fix we talked about in payments/client.py — add exponential backoff, update test_client.py and run the tests. local changes only pls",
+    "should_trigger": true
+  },
+  {
+    "query": "Rename fetchUsr to fetchUser everywhere in this repo, update the callers, and make sure the build and tests still pass.",
+    "should_trigger": true
+  },
+  {
+    "query": "Implement the approved per-project roles design: the migration, the Role model changes in app/models/role.rb, and request specs. Committing locally is fine; opening a PR is not.",
+    "should_trigger": true
+  },
+  {
+    "query": "Fix the off-by-one in api/pagination.go that drops the last item on every page and add a regression test for it.",
+    "should_trigger": true
+  },
+  {
+    "query": "Steps 2–4 of docs/plans/upload-retries.md are approved (step 1 is already merged). Carry them out and run the focused tests after each step.",
+    "should_trigger": true
+  },
+  {
+    "query": "Apply the agreed fix so the date parser rejects 2026-02-30, update its unit tests, and give me the final verification results.",
+    "should_trigger": true
+  },
+  {
+    "query": "You're cleared to do the logger migration: replace the console.log calls in packages/server with our shared logger, then run lint and tests.",
+    "should_trigger": true
+  },
+  {
+    "query": "Our approved plan replaces the hand-rolled CSV quoting in exporter.py with the csv module without changing export_csv's signature. Please make that change and verify it with the existing tests.",
+    "should_trigger": true
+  },
+  {
+    "query": "bump the upload limit from 10 MB to 25 MB in config/limits.yaml, fix the matching validation message, and run the affected tests",
+    "should_trigger": true
+  },
+  {
+    "query": "Plan how we would move the account export to a background job. Don't implement anything yet; I want to review the plan first.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review my working changes for bugs before I commit. Report findings only and don't edit anything.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft a PR description for feature/upload-retries; the branch is already pushed.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a commit message for the staged changes that add retry backoff to the payments client.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain how the retry logic in payments/client.py works and where the backoff is configured.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft a GitHub issue: exporting 50,000 orders times out, and it should finish in the background instead.",
+    "should_trigger": false
+  },
+  {
+    "query": "Should we stream CSV exports directly or queue them for accounts with up to 50k orders? Compare the options; no code changes.",
+    "should_trigger": false
+  },
+  {
+    "query": "Give me a step-by-step plan for renaming fetchUsr to fetchUser across the monorepo, including how to verify it, but don't make the change yet.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run only the native code review on my last commit; no extra reviewers.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write an ADR recording our decision to queue exports instead of streaming them.",
+    "should_trigger": false
+  }
+]

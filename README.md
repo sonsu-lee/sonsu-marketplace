@@ -1017,6 +1017,16 @@ Codex and Claude Code reviews, the extra worker remains user opt-in. An
 implementation controller's skill-review assignment also triggers it without
 another approval; the worker must read the loaded `authoring-skills`.
 
+For execution, copy the contents of
+`plugins/planning-workflow/skills/executing-work/evals/files/executing-csv/`
+into a disposable Git target with one initial commit, load `planning-workflow`
+and `review-workflow`, and send the prompt of eval 1 in that skill's
+`evals/evals.json`. The client must load `executing-work`, change and test the
+exporter, then load `reviewing-code` and complete its general and focused
+workers on the final revision before reporting completion, without
+committing, pushing, or publishing. Run omp with `--approval-mode yolo` only
+in such disposable targets, as `run_evals.py` does, and report that choice.
+
 Exercise the writing-workflow helpers from the directory each client loaded
 them from, preserving identifiers, numbers, URLs, and fenced code. Then remove
 one helper from a disposable copy (a copy of `plugins/writing-workflow` passed

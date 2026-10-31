@@ -19,9 +19,9 @@ Ground the skill in real requests, successful work, corrections, and project
 artifacts. Establish the outcome, when it applies, and nearby tasks it excludes.
 Ask only about consequential gaps that available context cannot resolve.
 
-Return text-only proposals as text; do not create even temporary files when
+Return text-only proposals as text; create no files, even temporary ones, when
 writes are prohibited. Authoring checks grant no permission to write, install,
-or publish, and reviewing a proposal is not validating a saved artifact.
+or publish.
 
 Would omitting an instruction cause a meaningful mistake? Keep domain knowledge,
 project conventions, decision criteria, and non-obvious constraints. Omit general
@@ -89,7 +89,7 @@ safety. Do not turn flexible judgment into an inflexible checklist.
 
 Separate defaults from binding host, security, project, and user constraints,
 and say when a default yields. When a skill stops or redirects authorized work,
-cite the instruction; do not invent approvals or weaken permission boundaries.
+cite the instruction; never invent approvals or weaken permission boundaries.
 
 Use examples only to resolve ambiguity. Keep consequential gotchas visible before
 the agent can make the mistake; conditional references need recognizable triggers.
@@ -130,14 +130,13 @@ examples alone are not defects. Generalize recurring failures with the
 smallest sufficient change, including deletion.
 
 For new skills or behavioral changes, obtain independent skill-criteria review
-before delivery. Give a fresh reviewer the purpose, consumers, changed files,
-project requirements, and review question, not the drafting rationale.
-Skip formatting-only changes or when you are that reviewer. One execution or
-review controller owns dispatch; do not duplicate its skill review. In omp use
-`skill-workflow-reviewer`; in Codex or Claude Code use a fresh generic worker
-with this `SKILL.md`'s absolute path. Follow `reviewing-code` when it controls
-the review. Disclose unavailable review and verify findings before revising.
-Review does not replace behavior checks.
+before delivery unless the change is formatting-only or you are that reviewer.
+Give a fresh reviewer the purpose, consumers, changed files, requirements, and
+review question, not your rationale. One execution or review controller owns
+dispatch; do not duplicate it. In omp use `skill-workflow-reviewer`; in Codex
+or Claude Code, a generic worker given this `SKILL.md`'s absolute path.
+Disclose unavailable review; verify findings before revising. Review does not
+replace behavior checks.
 
 Deliver the requested skill or revision with the checks actually performed
 and any material limitations. Keep authoring evaluations separate from the

@@ -1,6 +1,6 @@
 {
   "name": "review-workflow",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Evidence-driven code review with independent general and focused reviewers and local-first reporting.",
   "author": {
     "name": "sonsu-lee",
