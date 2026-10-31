@@ -42,6 +42,11 @@ def preflight(client, settings: Settings, skill_dir: Path, name: str, descriptio
     problem = check_home(client, settings, name)
     if problem:
         return problem
+    return setup_problem(client, settings, skill_dir, name, description)
+
+
+def setup_problem(client, settings: Settings, skill_dir: Path, name: str, description: str):
+    """Return a problem string when the client would not load this description."""
     workdir = init_workdir("skill-trigger-probe-")
     try:
         client.place_trigger_skill(workdir, skill_dir, name, description)
@@ -55,15 +60,17 @@ def measure(client, settings: Settings, skill_dir: Path, name: str, description:
     """Run one query in a fresh project, retrying once on a measurement error."""
     error = None
     for _ in range(2):
-        workdir = init_workdir("skill-trigger-")
+        workdir = None
         try:
+            workdir = init_workdir("skill-trigger-")
             skill_md = client.place_trigger_skill(workdir, skill_dir, name, description)
             status, error = client.detect_trigger(query, workdir, name, skill_md, settings,
                                                   max_tool_calls)
         except Exception as exc:  # One broken run must not stop the others.
             status, error = ERROR, f"{type(exc).__name__}: {exc}"
         finally:
-            shutil.rmtree(workdir, ignore_errors=True)
+            if workdir is not None:
+                shutil.rmtree(workdir, ignore_errors=True)
         if status != ERROR:
             return status, None
     return ERROR, error

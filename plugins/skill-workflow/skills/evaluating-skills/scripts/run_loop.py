@@ -36,7 +36,7 @@ from scripts.clients.base import Settings
 from scripts.evalsets import EvalSetError, load_queries
 from scripts.generate_report import generate_html
 from scripts.improve_description import improve_description
-from scripts.run_trigger_eval import preflight, run_trigger_eval
+from scripts.run_trigger_eval import preflight, run_trigger_eval, setup_problem
 from scripts.utils import parse_skill_md
 
 CLIENT_NAMES = ("omp", "codex")
@@ -82,6 +82,8 @@ def merge_results(per_client: dict) -> list:
             "errors": sum(r["errors"] for r in rows.values()),
             "trigger_rate": triggers / runs if runs else None,
             "pass": all(r["pass"] for r in rows.values()),
+            # A query no run measured in some client is not a real failure.
+            "unmeasured": any(r["runs"] == 0 for r in rows.values()),
             "clients": {
                 name: {key: r[key] for key in ("triggers", "runs", "errors", "trigger_rate", "pass")}
                 for name, r in rows.items()
@@ -217,6 +219,7 @@ def run_loop(
             partial_output = {
                 "original_description": original_description,
                 "best_description": current_description,
+                "best_iteration": select_best(history, bool(test_set))["iteration"],
                 "best_score": "in progress",
                 "iterations_run": len(history),
                 "holdout": holdout,
@@ -276,20 +279,33 @@ def run_loop(
                 for client_name, scores in h["client_scores"].items()
             }
             blinded_history.append(entry)
-        new_description = improve_description(
-            skill_name=name,
-            skill_content=content,
-            current_description=current_description,
-            eval_results=train_results,
-            history=blinded_history,
-            complete=lambda prompt: improver_client.complete(prompt, improver_settings),
-            log_dir=log_dir,
-            iteration=iteration,
-        )
+        try:
+            new_description = improve_description(
+                skill_name=name,
+                skill_content=content,
+                current_description=current_description,
+                eval_results=train_results,
+                history=blinded_history,
+                complete=lambda prompt: improver_client.complete(prompt, improver_settings),
+                log_dir=log_dir,
+                iteration=iteration,
+            )
+        except RuntimeError as error:
+            # Keep the iterations measured so far instead of losing them.
+            exit_reason = f"improver_failed (iteration {iteration}): {error}"
+            break
         improve_elapsed = time.time() - t0
 
         if verbose:
             print(f"Proposed ({improve_elapsed:.1f}s): {new_description}", file=sys.stderr)
+
+        # A candidate a client refuses to load would measure as never
+        # triggering, so it must not be measured, let alone selected.
+        problems = [f"{client_name}: {problem}" for client_name, (client, settings) in clients.items()
+                    if (problem := setup_problem(client, settings, skill_path, name, new_description))]
+        if problems:
+            exit_reason = f"candidate_not_loadable (iteration {iteration + 1}): {'; '.join(problems)}"
+            break
 
         current_description = new_description
 
@@ -306,6 +322,7 @@ def run_loop(
         print(f"Best score: {best_score} (iteration {best['iteration']})", file=sys.stderr)
 
     return {
+        "best_iteration": best["iteration"],
         "exit_reason": exit_reason,
         "original_description": original_description,
         "best_description": best["description"],

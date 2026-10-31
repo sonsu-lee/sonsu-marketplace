@@ -40,12 +40,15 @@ def improve_description(
     iteration: int | None = None,
 ) -> str:
     """Ask the client model to improve the description based on eval results."""
+    # Queries with no measured run in some client are not evidence of a miss
+    # or a false trigger, so they stay out of both lists.
+    measured = [r for r in eval_results["results"] if not (r.get("unmeasured") or r.get("error"))]
     failed_triggers = [
-        r for r in eval_results["results"]
+        r for r in measured
         if r["should_trigger"] and not r["pass"]
     ]
     false_triggers = [
-        r for r in eval_results["results"]
+        r for r in measured
         if not r["should_trigger"] and not r["pass"]
     ]
 

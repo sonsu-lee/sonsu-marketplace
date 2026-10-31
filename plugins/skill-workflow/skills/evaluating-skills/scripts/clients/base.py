@@ -123,6 +123,22 @@ def _kill_group(proc: subprocess.Popen) -> None:
         pass
 
 
+# Client sessions run in their own process groups, so a terminal interrupt
+# reaches only Python; stop_all() lets an interrupted script end them.
+_ACTIVE: set = set()
+_ACTIVE_LOCK = threading.Lock()
+INTERRUPTED = threading.Event()
+
+
+def stop_all() -> None:
+    """Mark the run interrupted and kill every client session still running."""
+    INTERRUPTED.set()
+    with _ACTIVE_LOCK:
+        procs = list(_ACTIVE)
+    for proc in procs:
+        _kill_group(proc)
+
+
 def stream(cmd: list, env: dict, cwd: Path, timeout: int,
            on_event: Optional[Callable[[dict], Optional[str]]] = None):
     """Run cmd and parse its JSON lines as they arrive.
@@ -130,11 +146,15 @@ def stream(cmd: list, env: dict, cwd: Path, timeout: int,
     Returns (returncode, timed_out, decision, stderr_tail, lines, duration_ms).
     A non-None decision from on_event stops the whole process group early.
     """
+    if INTERRUPTED.is_set():
+        raise RuntimeError("interrupted")
     start = time.monotonic()
     proc = subprocess.Popen(cmd, env=env, cwd=cwd, stdin=subprocess.DEVNULL,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             text=True, encoding="utf-8", errors="replace",
                             start_new_session=True)
+    with _ACTIVE_LOCK:
+        _ACTIVE.add(proc)
     stderr: list = [""]
 
     def drain() -> None:
@@ -174,7 +194,13 @@ def stream(cmd: list, env: dict, cwd: Path, timeout: int,
                 _kill_group(proc)
     proc.wait()
     _kill_group(proc)
+    with _ACTIVE_LOCK:
+        _ACTIVE.discard(proc)
     reader.join(timeout=2)
+    proc.stdout.close()
+    proc.stderr.close()
+    if INTERRUPTED.is_set():
+        raise RuntimeError("interrupted")
     duration_ms = int((time.monotonic() - start) * 1000)
     return proc.returncode, timed_out[0] and decision is None, decision, stderr[0], lines, duration_ms
 

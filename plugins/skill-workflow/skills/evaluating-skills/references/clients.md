@@ -72,7 +72,9 @@ mkdir -p "$H" && HOME="$H" CODEX_HOME="$H/.codex" codex login --device-auth
   a run that finishes without reading it.
 - A run that fails to measure is retried by rerunning the command
   (`run_evals.py`) or once automatically (trigger runs); one that still fails
-  is reported as unmeasured, never as a pass or a miss.
+  is reported as unmeasured, never as a pass or a miss. Interrupting
+  `run_evals.py` ends the client sessions it started and records the runs in
+  flight as unmeasured.
 - With a `python3` older than 3.11, each script prints its version and the
   equivalent `uv run --no-project --python 3.12 python <script> <args>`
   command and exits with 1. Run that command instead.

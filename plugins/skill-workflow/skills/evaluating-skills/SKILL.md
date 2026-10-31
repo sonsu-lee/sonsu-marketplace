@@ -52,8 +52,9 @@ client.
 
 1. **Test cases.** Keep two or three realistic prompts with an
    `expected_output` in the skill's `evals/evals.json` and input files under
-   `evals/files/`. Vary the phrasing and include one boundary case. Show the
-   cases to the user before running.
+   `evals/files/`. Vary the phrasing and include one boundary case. Keep each
+   eval self-contained: no paths outside its inputs, network services, or
+   credentials. Show the cases to the user before running.
 2. **Baseline.** A new skill is compared with no skill (`--baseline without`).
    For a revision, replace `<workspace>/skill-snapshot` with the previous
    version, not a copy into an existing snapshot, and use `--baseline old`.
@@ -63,15 +64,19 @@ client.
    baseline, three times each by default, in fresh sessions and temporary
    directories. Rerun the same command to retry failed runs; exit status 2
    means some runs were not measured. It refuses an existing iteration whose
-   skill, snapshot, prompts, or settings differ.
+   skill, plugin, snapshot, prompts, or settings differ. Model-calling scripts
+   run for many minutes and need network access and writes to the workspace,
+   home, and temporary directories: start them as background jobs, outside
+   any host sandbox (in Codex, with approved escalation), and never move the
+   workspace or home into the project to get around one.
 4. **Assertions.** While runs execute, draft objectively verifiable
    assertions, explain them to the user, and add them to `evals.json`. Do not
    assert exact wording; leave subjective quality to human review. The grader
    sees only the transcript, the final message, and files the run saved or
    changed (text up to 20,000 bytes each, binaries by name and size).
-5. **Grade.** `scripts/grade.py <iteration-dir>` grades measured runs without
-   a `grading.json` using [agents/grader.md](agents/grader.md); add `--force`
-   after changing assertions.
+5. **Grade.** `scripts/grade.py <iteration-dir>` grades measured runs using
+   [agents/grader.md](agents/grader.md), regrading any graded against other
+   assertions; `--force` regrades all.
 6. **Benchmark.** `scripts/aggregate_benchmark.py <iteration-dir> --skill-name
    <name> --skill-path <skill>` writes `benchmark.json` and `benchmark.md`.
    Then apply [agents/analyzer.md](agents/analyzer.md) to that benchmark and

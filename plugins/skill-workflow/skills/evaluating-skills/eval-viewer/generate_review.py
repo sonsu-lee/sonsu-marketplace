@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Modified from anthropics/skills@b9e19e6 skills/skill-creator/eval-viewer/generate_review.py (Apache-2.0, see LICENSE.txt): reads eval_metadata.json two levels up, never kills processes on the port, and checks the Python version.
+# Modified from anthropics/skills@b9e19e6 skills/skill-creator/eval-viewer/generate_review.py (Apache-2.0, see LICENSE.txt): reads eval_metadata.json two levels up, shows nested output files and unmeasured runs, never kills processes on the port, and checks the Python version.
 """Generate and serve a review page for eval results.
 
 Reads the workspace directory, discovers runs (directories with outputs/),
@@ -127,15 +127,27 @@ def build_run(root: Path, run_dir: Path) -> dict | None:
     if not prompt:
         prompt = "(No prompt found)"
 
+    # Runs that failed to measure stay visible, but marked, so reviewers do
+    # not judge a partial answer as a finished one.
+    try:
+        run_error = json.loads((run_dir / "timing.json").read_text()).get("error")
+    except (OSError, json.JSONDecodeError):
+        run_error = None
+    if run_error:
+        prompt = f"[UNMEASURED RUN: {run_error}]\n\n{prompt}"
+
     run_id = str(run_dir.relative_to(root)).replace("/", "-").replace("\\", "-")
 
-    # Collect output files
+    # Collect output files, including nested ones such as working-directory/
     outputs_dir = run_dir / "outputs"
     output_files: list[dict] = []
     if outputs_dir.is_dir():
-        for f in sorted(outputs_dir.iterdir()):
-            if f.is_file() and f.name not in METADATA_FILES:
-                output_files.append(embed_file(f))
+        for f in sorted(outputs_dir.rglob("*")):
+            relative = f.relative_to(outputs_dir).as_posix()
+            if f.is_file() and relative not in METADATA_FILES:
+                entry = embed_file(f)
+                entry["name"] = relative
+                output_files.append(entry)
 
     # Load grading if present
     grading = None

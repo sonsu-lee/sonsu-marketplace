@@ -44,6 +44,10 @@ every client.
 - Never name a file `SKILL.md` anywhere under `evals/`, because some clients
   register nested skill files. When an eval needs a skill's text as input,
   put the text inline in the prompt.
+- Keep each eval self-contained: take inputs only from `evals/files/`, and do
+  not depend on paths outside the working directory, network services, or
+  credentials. omp task runs have no OS sandbox, and Codex runs have no
+  network.
 
 ## `evals/eval_queries.json`
 
@@ -83,10 +87,13 @@ every client.
 
 - `iteration.json`: `client`, `model`, `effort`, `home`, `skill_path`,
   `skill_name`, `baseline` (`without` or `old`), `runs`, `snapshot`,
-  `skill_digest`, `snapshot_digest`, `cases_digest`, and `created`. A rerun
-  into the same iteration must match all of them except `skill_name` and
-  `created`. The digests cover the skill and the snapshot without `evals/`,
-  and the eval prompts and input files without assertions.
+  `skill_digest`, `snapshot_digest`, `plugin_digest`, `cases_digest`, and
+  `created`. A rerun into the same iteration must match all of them except
+  `skill_name` and `created`. The digests cover the skill, the snapshot, and
+  the containing plugin without any `evals/`, and the eval prompts and input
+  files without assertions.
+- `.lock`: held while `run_evals.py` or `grade.py` writes the iteration; a
+  second script on the same iteration exits instead of mixing files.
 - `eval_metadata.json`: `eval_id`, `eval_name`, `prompt`, `expected_output`,
   `files`, and `assertions`. `grade.py` refreshes `assertions` from
   `evals.json`.
@@ -107,9 +114,14 @@ every client.
   `summary` (`passed`, `failed`, `total`, `pass_rate`), `execution_metrics`,
   optional `claims` and `eval_feedback`, and `grader` (`client`, `model`,
   `effort`). The viewer requires the `expectations` field names exactly.
+  `grade.py` deletes and regrades a grading whose texts differ from the
+  current assertions.
 - `benchmark.json` and `benchmark.md`: written by `aggregate_benchmark.py`.
   `run_summary` has one entry per configuration and a `delta` of with_skill
-  minus the baseline.
+  minus the baseline. `metadata.coverage` lists expected, measured, and
+  graded runs per eval and configuration, and `metadata.coverage_complete` is
+  false when any run is missing; `benchmark.md` then lists the gaps, and the
+  averages and delta cover different runs.
 - `feedback.json`: written by the viewer's server, as
   `{"reviews": [{"run_id", "feedback", "timestamp"}], "status"}`. A page
   written with `--static` downloads it instead, normally to `~/Downloads`;
@@ -130,13 +142,17 @@ every client.
 - `summary`: `total`, `passed`, and `failed`.
 
 `run_loop.py` writes `results.json` to a timestamped directory under
-`--results-dir` with `exit_reason`, `original_description`,
+`--results-dir` with `best_iteration`, `exit_reason`, `original_description`,
 `best_description`, `best_score`, `best_train_score`, `best_test_score`,
 `final_description`, `iterations_run`, `holdout`, `train_size`, `test_size`,
 `history`, `clients`, `best_client_scores`, and `unmeasured_runs`. A query's
 merged result passes only when it passes in every client; its per-client
-counts are under `clients`. Each `history` item adds `client_scores` with each
-client's train and test pass counts.
+counts are under `clients`, and `unmeasured` marks a query with no measured
+run in some client, which the description rewrite ignores. Each `history`
+item adds `client_scores` with each client's train and test pass counts. The
+loop stops early, keeping what it measured, with `exit_reason`
+`improver_failed` or `candidate_not_loadable` when a rewrite fails or a client
+would not load the new description.
 
 ## Reviewing queries in a browser
 

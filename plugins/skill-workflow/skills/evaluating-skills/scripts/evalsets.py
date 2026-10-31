@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import shutil
+import sys
 from pathlib import Path
 
 from scripts.utils import parse_skill_md
@@ -148,3 +150,18 @@ def default_workspace(name: str) -> Path:
     """Return the per-user workspace for a skill, outside any installed package."""
     base = os.environ.get("XDG_CACHE_HOME") or str(Path.home() / ".cache")
     return Path(base) / "skill-evals" / f"{name}-workspace"
+
+
+def lock_iteration(iteration_dir: Path):
+    """Hold an exclusive lock on an iteration; exit if another script holds it.
+
+    Keep the returned file open while writing run or grading files.
+    """
+    handle = open(Path(iteration_dir) / ".lock", "w")
+    try:
+        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        handle.close()
+        sys.exit(f"another evaluating-skills script is using {iteration_dir}; "
+                 "wait for it to finish")
+    return handle

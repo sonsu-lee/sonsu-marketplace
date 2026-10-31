@@ -33,8 +33,9 @@ models. For a Claude Code plugin, `claude plugin validate --strict` on its
 `skills/` directory checks skill files; a marketplace run does not open them.
 The `system` `init` event of `claude -p --output-format stream-json --verbose`
 lists discovered skills before any model request. For complete loading, inspect
-the injected body in an actual request. For output quality and activation,
-use the [skill-creator plugin][creator]
+the injected body in an actual request. For output quality and activation in a
+project without its own evaluation setup, use the
+[skill-creator plugin][creator]
 (`/plugin install skill-creator@claude-plugins-official`), which runs the Agent
 Skills evaluation loops on `evals/evals.json`; `claude plugin eval` is a
 separate tool with its own case format, and neither reads the other's files.

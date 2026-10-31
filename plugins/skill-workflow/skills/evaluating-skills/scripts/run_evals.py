@@ -36,9 +36,11 @@ from datetime import datetime, timezone
 
 from scripts.clients import get_client
 from scripts.clients.base import (
-    Settings, check_home, init_workdir, model_matches, plugin_root,
+    Settings, check_home, init_workdir, model_matches, plugin_root, stop_all,
 )
-from scripts.evalsets import EvalSetError, copy_inputs, default_workspace, load_evals
+from scripts.evalsets import (
+    EvalSetError, copy_inputs, default_workspace, load_evals, lock_iteration,
+)
 from scripts.utils import parse_skill_md
 
 RUNNER_FILES = {"final_message.md", "metrics.json"}
@@ -46,7 +48,7 @@ WORKDIR_OUTPUTS = "working-directory"
 # A rerun into an existing iteration must match all of these, including the
 # content of the skill, its previous version, and the eval prompts and inputs.
 MATCHED_KEYS = ("client", "model", "effort", "home", "skill_path", "baseline", "runs",
-                "skill_digest", "snapshot_digest", "cases_digest")
+                "skill_digest", "snapshot_digest", "plugin_digest", "cases_digest")
 PRINT_LOCK = threading.Lock()
 
 
@@ -187,13 +189,18 @@ def run_one(client, settings: Settings, skill_dir: Path, case: dict, arm,
 
 
 def tree_digest(root: Path, skip_evals: bool) -> str:
-    """Hash a directory's files, ignoring caches, workspaces, and optionally evals/."""
+    """Hash a directory's files, ignoring caches, workspaces, and optionally evals/.
+
+    With skip_evals, both a skill's own evals/ and, for a plugin root, each
+    skills/<name>/evals/ are left out, since assertions may change freely.
+    """
     digest = hashlib.sha256()
     for path in sorted(p for p in Path(root).rglob("*") if p.is_file()):
         parts = path.relative_to(root).parts
         if "__pycache__" in parts or any(part.endswith("-workspace") for part in parts):
             continue
-        if skip_evals and parts[0] == "evals":
+        if skip_evals and (parts[0] == "evals"
+                           or (parts[0] == "skills" and len(parts) > 2 and parts[2] == "evals")):
             continue
         digest.update("/".join(parts).encode() + b"\0" + path.read_bytes() + b"\0")
     return digest.hexdigest()
@@ -262,6 +269,10 @@ def main() -> None:
         sys.exit(f"--baseline old needs the previous version in {snapshot}")
     baseline = "old_skill" if args.baseline == "old" else "without_skill"
     iteration_dir = workspace / args.client / f"iteration-{args.iteration}"
+    iteration_dir.mkdir(parents=True, exist_ok=True)
+    # Two writers would mix their files into the same run directories.
+    lock = lock_iteration(iteration_dir)
+    plugin = plugin_root(skill_dir)
     prepare_iteration(iteration_dir, {
         "client": args.client, "model": args.model, "effort": args.effort,
         "home": str(home), "skill_path": str(skill_dir), "skill_name": name,
@@ -269,6 +280,8 @@ def main() -> None:
         "snapshot": str(snapshot) if args.baseline == "old" else None,
         "skill_digest": tree_digest(skill_dir, skip_evals=True),
         "snapshot_digest": tree_digest(snapshot, skip_evals=True) if args.baseline == "old" else None,
+        # omp arms load the whole plugin, so its agents and sibling skills count.
+        "plugin_digest": tree_digest(plugin, skip_evals=True) if plugin else None,
         "cases_digest": cases_digest(skill_dir, data["evals"]),
         "created": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     })
@@ -278,9 +291,9 @@ def main() -> None:
         sys.exit("no evals match --eval-id")
 
     tmp = Path(tempfile.mkdtemp(prefix="skill-eval-arms-"))
+    pool = ThreadPoolExecutor(max_workers=max(1, args.workers))
     try:
         # 4. Prepare skill copies without evals/ so answers cannot leak.
-        plugin = plugin_root(skill_dir)
         arms = [client.prepare_arm("with_skill", skill_dir, tmp, plugin)]
         if baseline == "old_skill":
             arms.append(client.prepare_arm("old_skill", snapshot, tmp, plugin))
@@ -309,12 +322,20 @@ def main() -> None:
                     jobs.append((case, arm, run_dir, number))
 
         say(f"[{args.client}] {len(jobs)} runs to execute in {iteration_dir}")
-        with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
-            outcomes = list(pool.map(
-                lambda job: run_one(client, settings, skill_dir, job[0], job[1], job[2], job[3]),
-                jobs))
+        futures = [pool.submit(run_one, client, settings, skill_dir, *job) for job in jobs]
+        # 7. On interrupt, end the client sessions first, so in-flight runs are
+        #    recorded as unmeasured before their skill copies are removed.
+        try:
+            outcomes = [future.result() for future in futures]
+        except KeyboardInterrupt:
+            stop_all()
+            pool.shutdown(wait=True, cancel_futures=True)
+            print("interrupted; in-flight runs are recorded as unmeasured", file=sys.stderr)
+            sys.exit(130)
     finally:
+        pool.shutdown(wait=True)
         shutil.rmtree(tmp, ignore_errors=True)
+        lock.close()
 
     print(iteration_dir)
     if not all(outcomes):

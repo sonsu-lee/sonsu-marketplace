@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
+import threading
 import unittest
 
 REPO = Path(__file__).resolve().parents[2]
@@ -25,6 +26,11 @@ from scripts.run_evals import (  # noqa: E402
     collect_outputs, file_digests, prepare_iteration, tree_digest,
 )
 from scripts.run_loop import select_best  # noqa: E402
+from scripts.improve_description import improve_description  # noqa: E402
+from scripts.clients import base  # noqa: E402
+
+sys.path.insert(0, str(SKILL / "eval-viewer"))
+import generate_review  # noqa: E402
 
 SKILL_MD = """---
 name: demo
@@ -312,6 +318,60 @@ class RunCollectionTests(TempDirTest):
         self.assertIn("skill_digest", str(caught.exception.code))
 
 
+class InterruptTests(TempDirTest):
+    def tearDown(self):
+        base.INTERRUPTED.clear()
+
+    def test_stop_all_ends_running_client_and_marks_it_failed(self):
+        errors = []
+
+        def run():
+            try:
+                base.stream(["sleep", "30"], {"PATH": "/bin:/usr/bin"}, self.tmp, 60)
+            except RuntimeError as error:
+                errors.append(str(error))
+
+        worker = threading.Thread(target=run)
+        worker.start()
+        for _ in range(50):
+            if base._ACTIVE:
+                break
+            threading.Event().wait(0.05)
+        base.stop_all()
+        worker.join(timeout=5)
+        self.assertFalse(worker.is_alive())
+        self.assertEqual(errors, ["interrupted"])
+
+
+class ReviewViewerTests(TempDirTest):
+    def test_shows_nested_outputs_and_marks_unmeasured_runs(self):
+        run = self.tmp / "eval-1" / "with_skill" / "run-1"
+        (run / "outputs/working-directory/docs").mkdir(parents=True)
+        (run / "outputs/working-directory/docs/adr.md").write_text("adr")
+        (run / "outputs/metrics.json").write_text("{}")
+        (run / "timing.json").write_text(json.dumps({"error": "timed out after 900s"}))
+        (self.tmp / "eval-1/eval_metadata.json").write_text(json.dumps({"eval_id": 1, "prompt": "p"}))
+        built = generate_review.build_run(self.tmp, run)
+        self.assertEqual([o["name"] for o in built["outputs"]], ["working-directory/docs/adr.md"])
+        self.assertTrue(built["prompt"].startswith("[UNMEASURED RUN: timed out after 900s]"))
+
+
+class ImproverTests(unittest.TestCase):
+    def test_unmeasured_queries_are_not_reported_as_failures(self):
+        prompts = []
+        results = {"results": [
+            {"query": "never measured", "should_trigger": False, "pass": False, "triggers": 0,
+             "runs": 3, "unmeasured": True},
+            {"query": "real false trigger", "should_trigger": False, "pass": False,
+             "triggers": 3, "runs": 3},
+        ], "summary": {"passed": 0, "total": 2}}
+        improve_description("demo", "body", "old", results, [],
+                            lambda prompt: prompts.append(prompt) or "<new_description>x</new_description>")
+        failures = prompts[0].split("</scores_summary>")[0]
+        self.assertIn("real false trigger", failures)
+        self.assertNotIn("never measured", failures)
+
+
 class AggregateTests(TempDirTest):
     def test_delta_is_with_skill_minus_old_skill(self):
         for config, passed, seconds in (("old_skill", 1, 10), ("with_skill", 3, 30)):
@@ -324,6 +384,24 @@ class AggregateTests(TempDirTest):
                                                          "total_tokens": 100}))
         delta = aggregate_benchmark.generate_benchmark(self.tmp)["run_summary"]["delta"]
         self.assertEqual((delta["pass_rate"], delta["time_seconds"]), ("+0.67", "+20.0"))
+
+    def test_unmeasured_runs_mark_coverage_incomplete(self):
+        (self.tmp / "iteration.json").write_text(json.dumps({"runs": 2}))
+        for config in ("with_skill", "without_skill"):
+            for number in (1, 2):
+                run = self.tmp / "eval-1" / config / f"run-{number}"
+                run.mkdir(parents=True)
+                timed_out = config == "with_skill" and number == 2
+                (run / "timing.json").write_text(json.dumps(
+                    {"error": "timed out" if timed_out else None, "total_duration_seconds": 1}))
+                if not timed_out:
+                    (run / "grading.json").write_text(json.dumps({
+                        "expectations": [], "summary": {"passed": 1, "failed": 0, "total": 1,
+                                                        "pass_rate": 1.0}}))
+        benchmark = aggregate_benchmark.generate_benchmark(self.tmp)
+        self.assertFalse(benchmark["metadata"]["coverage_complete"])
+        self.assertIn("eval-1 with_skill: 1 graded, 1 measured of 2 runs",
+                      aggregate_benchmark.generate_markdown(benchmark))
 
 
 class GradingTests(unittest.TestCase):

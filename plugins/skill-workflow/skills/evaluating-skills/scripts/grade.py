@@ -32,7 +32,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from scripts.clients import get_client
 from scripts.clients.base import MAX_PROMPT_BYTES, Settings
-from scripts.evalsets import EvalSetError, load_evals
+from scripts.evalsets import EvalSetError, load_evals, lock_iteration
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 TRANSCRIPT_LIMIT = 60_000
@@ -223,7 +223,9 @@ def main() -> None:
         sys.exit(str(error))
     grader = (SKILL_ROOT / "agents" / "grader.md").read_text(encoding="utf-8")
 
-    # 2. Select measured runs that still need grading.
+    # 2. Select measured runs whose grading is missing or was made against
+    #    other assertions; stale gradings must not reach the benchmark.
+    lock = lock_iteration(iteration_dir)
     jobs = []
     for eval_dir in sorted(iteration_dir.glob("eval-*")):
         metadata_path = eval_dir / "eval_metadata.json"
@@ -235,22 +237,39 @@ def main() -> None:
             metadata["assertions"] = case.get("assertions", [])
             metadata_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False) + "\n",
                                      encoding="utf-8")
-        if not metadata.get("assertions"):
-            say(f"[grade] {eval_dir.name}: no assertions; add assertions after reviewing outputs")
-            continue
+        assertions = metadata.get("assertions") or []
         for run_dir in sorted(eval_dir.glob("*/run-*")):
+            grading_path = run_dir / "grading.json"
+            if grading_path.is_file() and current_texts(grading_path) != assertions:
+                grading_path.unlink()
+            if not assertions:
+                continue
             timing_path = run_dir / "timing.json"
             if not timing_path.is_file() or json.loads(timing_path.read_text()).get("error") is not None:
+                say(f"[grade] {eval_dir.name} {run_dir.parent.name} {run_dir.name}: "
+                    "not measured; rerun run_evals.py")
                 continue
-            if (run_dir / "grading.json").is_file() and not args.force:
+            if grading_path.is_file() and not args.force:
                 continue
             jobs.append((metadata, run_dir))
+        if not assertions:
+            say(f"[grade] {eval_dir.name}: no assertions; add assertions after reviewing outputs")
 
-    with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
-        outcomes = list(pool.map(lambda job: grade_run(client, settings, grader, *job), jobs))
+    try:
+        with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
+            outcomes = list(pool.map(lambda job: grade_run(client, settings, grader, *job), jobs))
+    finally:
+        lock.close()
     print(f"graded {outcomes.count(True)} of {len(jobs)} runs in {iteration_dir}")
     if not all(outcomes):
         sys.exit(2)
+
+
+def current_texts(grading_path: Path) -> list:
+    try:
+        return [e.get("text") for e in json.loads(grading_path.read_text()).get("expectations", [])]
+    except (json.JSONDecodeError, OSError, AttributeError):
+        return []
 
 
 if __name__ == "__main__":
