@@ -1,7 +1,7 @@
 # Evaluate skills with the Agent Skills loops through each client's runner
 
 - Date: 2026-10-30
-- Status: proposed
+- Status: accepted
 
 ## Context
 
