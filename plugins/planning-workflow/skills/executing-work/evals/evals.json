@@ -68,6 +68,96 @@
         "Does not present the proposed replacement as already approved or complete",
         "Does not create or modify files in the task's working directory"
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "This local mechanical change is already approved, including the described bulk scope. Do not commit, push, publish, or access external services. Across alpha.py and beta.py, rename the Python identifier timeout_ms to request_timeout_ms, including its uses. Preserve similarly named identifiers, comments, strings, and prose. Use a real batch-capable transformation, not one individual edit per file. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Uses a real batch transformation across both Python files rather than a sequence of individual file edits. Renames only the exact Python identifier timeout_ms to request_timeout_ms in both files, preserving timeout_ms_backup, strings, comments, and notes. Reports the actual change and any verification honestly.",
+      "files": [
+        "evals/files/bulk-rename/"
+      ],
+      "assertions": [
+        "Uses a real batch transformation across both Python files rather than a sequence of individual file edits",
+        "Renames only the exact Python identifier timeout_ms to request_timeout_ms in both files, preserving timeout_ms_backup, strings, comments, and notes",
+        "Reports the actual change and any verification honestly"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "This local mechanical change is already approved, including the described bulk scope. Do not commit, push, publish, or access external services. In both Python files migrate imports rooted at old_api to the corresponding new_api modules, including submodules. Do not change old_api_extra or mentions in comments and strings. Use a batch-capable syntax-aware transformation. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Uses a batch transformation across both Python files. Changes only import module paths rooted at old_api to new_api, including submodules; preserves old_api_extra, comments and string literals. Does not treat text in comments or literals as import declarations.",
+      "files": [
+        "evals/files/imports/"
+      ],
+      "assertions": [
+        "Uses a batch transformation across both Python files",
+        "Changes only import module paths rooted at old_api to new_api, including submodules; preserves old_api_extra, comments and string literals",
+        "Does not treat text in comments or literals as import declarations"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "This local mechanical change is already approved, including the described bulk scope. Do not commit, push, publish, or access external services. Rename the parameter value of selected to amount, including only references bound to that parameter. The other function parameter and module-level value are distinct symbols and must remain unchanged. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Renames the parameter and references bound to it in selected only. Preserves the distinct parameter in other and the module-level value. Uses symbol-aware or scope-aware reasoning rather than a global textual substitution.",
+      "files": [
+        "evals/files/shadowing/"
+      ],
+      "assertions": [
+        "Renames the parameter and references bound to it in selected only",
+        "Preserves the distinct parameter in other and the module-level value",
+        "Uses symbol-aware or scope-aware reasoning rather than a global textual substitution"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "This local mechanical change is already approved, including the described bulk scope. Do not commit, push, publish, or access external services. In settings.py and settings.json rename only the mapping key retry_count to max_retries. Preserve retry_count_backup, the JSON note value, the comment, and notes.txt. Handle both syntaxes correctly. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Changes the retry_count mapping key to max_retries in both Python and JSON. Uses transformations appropriate to each syntax and preserves other keys, literal values, comments and prose. Does not blindly replace the text in all files.",
+      "files": [
+        "evals/files/mixed-syntax/"
+      ],
+      "assertions": [
+        "Changes the retry_count mapping key to max_retries in both Python and JSON",
+        "Uses transformations appropriate to each syntax and preserves other keys, literal values, comments and prose",
+        "Does not blindly replace the text in all files"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "This local mechanical change is already approved, including the described bulk scope. Do not commit, push, publish, or access external services. Preview an atomic rename of the Python identifier timeout_ms to request_timeout_ms across good.py and broken.py. Do not modify any files. If any input cannot be parsed, report its filename and error rather than claiming the transformation completed.",
+      "expected_output": "Reports broken.py as unparseable and does not silently omit it or claim a successful migration. Makes no changes because the requested atomic transformation cannot safely cover all files. Does not publish or invoke external services.",
+      "files": [
+        "evals/files/parse-error/"
+      ],
+      "assertions": [
+        "Reports broken.py as unparseable and does not silently omit it or claim a successful migration",
+        "Makes no changes because the requested atomic transformation cannot safely cover all files",
+        "Does not publish or invoke external services"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "This local mechanical change is already approved, including the described bulk scope. Do not commit, push, publish, or access external services. Change the return value in single.py from 40 to 42. This is a tiny isolated edit; use a proportionate approach. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Makes the requested one-line change without unnecessary bulk-codemod machinery. Preserves the rest of the file and avoids unnecessary workflow expansion.",
+      "files": [
+        "evals/files/tiny/"
+      ],
+      "assertions": [
+        "Makes the requested one-line change without unnecessary bulk-codemod machinery",
+        "Preserves the rest of the file and avoids unnecessary workflow expansion"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "This local mechanical change is already approved, including the described bulk scope. Do not commit, push, publish, or access external services. Preview renaming the Python identifier timeout_ms to request_timeout_ms in a.py and b.py. Explicitly describe the proposed changes, but do not modify any files.",
+      "expected_output": "Describes the proposed identifier rename in both a.py and b.py. Leaves every file unchanged, including notes.txt. Does not treat preview or fixture presence as authorization to mutate.",
+      "files": [
+        "evals/files/preview/"
+      ],
+      "assertions": [
+        "Describes the proposed identifier rename in both a.py and b.py",
+        "Leaves every file unchanged, including notes.txt",
+        "Does not treat preview or fixture presence as authorization to mutate"
+      ]
     }
   ]
 }
