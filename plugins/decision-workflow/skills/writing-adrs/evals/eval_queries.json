@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Write a proposed decision record: we prefer portable packages over client-specific bundles because two clients must consume the same package. Client-specific bundles were considered but duplicate maintenance; acceptance is pending.",
+    "should_trigger": true
+  },
+  {
+    "query": "Assess whether the choice to put authorization checks at the API boundary rather than in each client merits an architecture decision record. No decision has been accepted yet.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a durable record of why the team chose a shared non-production account over one account per environment: lower operational overhead, with isolation enforced by resource policies. The team accepted this choice.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a record of a rejected proposal to store sessions solely in browser storage: the team rejected it because shared-device sessions could persist after logout. Server-side sessions remain the accepted approach.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a replacement decision for an accepted record choosing one database per tenant. The proposed shared database uses row-level isolation to reduce operational overhead; acceptance is pending. Explain old status.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review this proposed decision record for missing rationale: “Decision: use a queue. Consequences: jobs run asynchronously.” The actual alternatives and constraints have not been supplied.",
+    "should_trigger": true
+  },
+  {
+    "query": "Revise this proposed record in the reply: “Use one global queue to simplify operations.” New constraint: regional data cannot leave its region. The replacement is one queue per region; acceptance is unknown.",
+    "should_trigger": true
+  },
+  {
+    "query": "Does selecting a lint command warrant an architecture decision record? It does not change system boundaries or supported contracts. Give an assessment, not a file.",
+    "should_trigger": true
+  },
+  {
+    "query": "決定の記録を日本語で下書きしてください。外部 API は互換性のため REST を維持し、内部イベントは非同期にする方針を承認済みです。代替案や具体的なコストは未確認です。",
+    "should_trigger": true
+  },
+  {
+    "query": "An accepted decision record has a broken link to its referenced design. Propose the minimal correction without rewriting the historical rationale; the correct link is docs/design.md.",
+    "should_trigger": true
+  },
+  {
+    "query": "Prepare a proposed decision record for retaining a versioned public API rather than an unversioned one. Versioning preserves existing clients but adds maintenance; no decision-maker acceptance was given.",
+    "should_trigger": true
+  },
+  {
+    "query": "Assess whether we need a new record: an accepted decision requires encrypted backups, and a recent review reaffirmed it without changing the choice or rationale.",
+    "should_trigger": true
+  },
+  {
+    "query": "Compare relational and document storage for a small inventory service. Explain the tradeoffs without recording a decision.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain the current architecture from this description: a browser calls an API that reads Postgres and sends work to a queue.",
+    "should_trigger": false
+  },
+  {
+    "query": "Rewrite this README sentence for clarity: “The server does things with incoming requests.”",
+    "should_trigger": false
+  },
+  {
+    "query": "Update this manifest snippet from version 1.0 to 1.1: version: 1.0. The release decision is already made.",
+    "should_trigger": false
+  },
+  {
+    "query": "Fix this function to return the calculated total instead of zero: function total(a,b) { return 0; }",
+    "should_trigger": false
+  },
+  {
+    "query": "Summarize today’s work log: fixed login redirect, updated dependencies, and reviewed a pull request.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draw a simple diagram of the already-established browser → API → database flow.",
+    "should_trigger": false
+  },
+  {
+    "query": "Should a small service use a background queue or process requests synchronously? Compare options; no choice has been made.",
+    "should_trigger": false
+  }
+]

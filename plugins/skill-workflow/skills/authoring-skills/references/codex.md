@@ -50,11 +50,12 @@ should not load the skill. Confirm required references are actually read, not
 merely linked. The [evaluation guide][evals] explains trace inspection; verify
 version-sensitive commands before reuse.
 
-Reuse existing evaluation tools rather than requiring a new framework. A local
-request capture can establish prompt loading without completing a model call,
-but not reference following or task behavior. If authorized model access is
-unavailable, report those checks as unverified. Do not claim Codex compatibility
-from discovery, another client's run, or text-only review.
+Codex ships no evaluation runner; use the `evaluating-skills` skill for output
+and trigger evaluations, or the project's own tooling. A local request capture
+can establish prompt loading without completing a model call, but not
+reference following or task behavior. If authorized model access is
+unavailable, report those checks as unverified. Do not claim Codex
+compatibility from discovery, another client's run, or text-only review.
 
 [skills]: https://learn.chatgpt.com/docs/build-skills
 [plugins]: https://developers.openai.com/plugins/build/skills

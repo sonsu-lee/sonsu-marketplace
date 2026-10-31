@@ -1,0 +1,98 @@
+[
+  {
+    "query": "다음 메모만으로 동료에게 보낼 자연스러운 일본어 메시지를 작성해 줘: API 계약 변경을 논의하고 싶다. 기존 동작에 미치는 영향은 아직 확인하지 않았다.",
+    "should_trigger": true
+  },
+  {
+    "query": "次の障害報告を自然な日本語に直してください。原因の確度は変えないでください。「キャッシュが原因である可能性があります。影響範囲はまだ確認できていません。」",
+    "should_trigger": true
+  },
+  {
+    "query": "READMEの日本語を読みやすく直してください。コマンドはそのまま: 「設定の確認を行う場合は `app config` の実行を行ってください。」",
+    "should_trigger": true
+  },
+  {
+    "query": "以下の文章の不自然さを診断し、問題点だけを挙げてください。書き換えは不要です。「本件においては、確認の実施が行われます。また、調整の実施が行われます。」",
+    "should_trigger": true
+  },
+  {
+    "query": "次の3つの自分の短文から文体の傾向を学び、その文体で新しい連絡文を書いてください。例:「明日、確認します。」「結果は後で共有します。」「変更はありません。」事実: 設定の確認は金曜日、結果は確認後に共有。",
+    "should_trigger": true
+  },
+  {
+    "query": "会議メモから読みやすい日本語の議事録を作成してください。決定: 金曜に試験開始。未決定: 本番開始日。担当: 試験は運用チーム。",
+    "should_trigger": true
+  },
+  {
+    "query": "Please edit this Japanese paragraph for naturalness, keeping the number and URL intact: 「詳細については https://example.org を参照することが可能です。期限は7日です。」",
+    "should_trigger": true
+  },
+  {
+    "query": "次の契約上の説明を自然に直し、条件と可能性を保ってください。「契約が更新されない場合、利用を停止する可能性があります。」",
+    "should_trigger": true
+  },
+  {
+    "query": "この技術ブログの文を読みやすく直してください。「クライアントは確認後にファイルを送信するという処理を行います。送信に失敗した場合には下書きが保持されます。」",
+    "should_trigger": true
+  },
+  {
+    "query": "次の事実のみで日本語のスライド説明文を作ってください: 月次集計は手作業、集計に2時間、改善案は未決定。",
+    "should_trigger": true
+  },
+  {
+    "query": "日本語の文章を自然に直してください。直接引用は変えないでください: 担当者は「金曜日までに確認する」と述べた。その後において結果の共有が行われます。",
+    "should_trigger": true
+  },
+  {
+    "query": "日本語のエラーメッセージを短く自然に直してください。条件は変えないで: 「ファイルのサイズは10 MB以下である必要があります。」",
+    "should_trigger": true
+  },
+  {
+    "query": "次の英語を日本語に翻訳するだけでいいです: “The upload has failed.”",
+    "should_trigger": false
+  },
+  {
+    "query": "この日本語はAIが書いた文章ですか、人間が書いた文章ですか: 「確認を行いました。」",
+    "should_trigger": false
+  },
+  {
+    "query": "管理画面の表示言語を日本語に変更する手順を教えてください。",
+    "should_trigger": false
+  },
+  {
+    "query": "アップロード済みかどうかを表す変数名を英語で提案してください。",
+    "should_trigger": false
+  },
+  {
+    "query": "다음 한국어를 자연스럽게 다듬어 줘: “확인이 수행되어집니다.”",
+    "should_trigger": false
+  },
+  {
+    "query": "「ご査収ください」の意味を韓国語で説明して。",
+    "should_trigger": false
+  },
+  {
+    "query": "日本語入力中に文字の順序が入れ替わります。原因の調べ方を教えてください。",
+    "should_trigger": false
+  },
+  {
+    "query": "Rewrite this English sentence in plain language: “Our seamless tool facilitates the processing of files.”",
+    "should_trigger": false
+  },
+  {
+    "query": "架空のPR作成練習として、次の完全なメモだけから日本語の仮タイトルと本文を自然に下書きしてください。CSVにヘッダーを追加し、空の出力はヘッダーのみになりました。テストは未実行です。固有テンプレートや追加ポリシーはありません。リポジトリとdiffの確認は未解決なので、公開可能な完成版として扱わず、実際のリポジトリへの接続や公開はしないでください。",
+    "should_trigger": true
+  },
+  {
+    "query": "次の事実から自然な日本語のバグチケットを下書きしてください。現状: 空の名前を保存できる。期待: エラーが表示される。タイトルと完了条件を含め、投稿はしないでください。",
+    "should_trigger": true
+  },
+  {
+    "query": "次の2言語の案内文を翻訳せず、それぞれ自然に直してください。可能性は変えないでください。日本語: 「この薬により眠気が生じる可能性があります。」韓国語: “이 약을 복용하면 졸음이 생길 수 있습니다.”",
+    "should_trigger": true
+  },
+  {
+    "query": "Edit both messages in their original languages for natural wording, keeping the speaker's first-person voice: Japanese: 「私は設定の確認を行う予定です。」 English: “I will undertake the execution of a review of the configuration.”",
+    "should_trigger": true
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "query": "I just rewrote the writing-commits skill in our marketplace repo. Before I open the PR, run its evals in omp against the version on main and show me the benchmark.",
+    "should_trigger": true
+  },
+  {
+    "query": "can you check whether our ticket-drafting skill actually makes codex's answers better than having no skill at all? the test prompts are already in its evals folder",
+    "should_trigger": true
+  },
+  {
+    "query": "People keep asking for changelog updates and our release-notes skill never kicks in. Measure how often it activates on realistic requests and tune its description.",
+    "should_trigger": true
+  },
+  {
+    "query": "Grade iteration 2 of the csv-cleanup skill evals against the assertions and open the review viewer so I can leave feedback on each output.",
+    "should_trigger": true
+  },
+  {
+    "query": "Set up evals for skills/sql-review: write three realistic test prompts with expected outputs, then do a first with-skill and without-skill run in Codex.",
+    "should_trigger": true
+  },
+  {
+    "query": "Is the new version of the planning skill worth it? Compare it with the old one on the same prompts, including time and token cost.",
+    "should_trigger": true
+  },
+  {
+    "query": "Our pr-description skill also fires when someone only wants a commit message. Build should-trigger and near-miss queries and fix the over-triggering.",
+    "should_trigger": true
+  },
+  {
+    "query": "벤치마크 결과에서 두 구성 모두 항상 통과하는 assertion이 뭔지 분석하고 다음 iteration을 돌려 줘. 지금 omp에서 작업 중이야.",
+    "should_trigger": true
+  },
+  {
+    "query": "Run the trigger eval for skills/review-helper with the candidate description in notes/description.txt, three runs per query, and tell me which near-misses still trigger.",
+    "should_trigger": true
+  },
+  {
+    "query": "I need numbers on the incident-report skill: pass rate, duration, and tokens with and without it on the prompts in its evals.json.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write unit tests for the date parser in src/dates.ts and make sure they pass.",
+    "should_trigger": false
+  },
+  {
+    "query": "Evaluate this sentiment model's accuracy on data/test.csv and plot a confusion matrix.",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a new agent skill that drafts weekly status reports from our Linear issues.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review my SKILL.md for vague instructions and anything that should move into a reference file.",
+    "should_trigger": false
+  },
+  {
+    "query": "Install the skill-workflow plugin in Codex and confirm its skills show up.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run scripts/check_plugins.py and fix whatever catalog error it reports.",
+    "should_trigger": false
+  },
+  {
+    "query": "Set up promptfoo to compare two system prompts for our support chatbot.",
+    "should_trigger": false
+  },
+  {
+    "query": "Benchmark how fast omp answers a 2k-token prompt with opus versus sonnet.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this pull request for correctness issues before I merge it.",
+    "should_trigger": false
+  },
+  {
+    "query": "이 스킬 설명 문장을 더 자연스러운 한국어로 다듬어 줘: '커밋 메시지를 작성할 때 사용한다.'",
+    "should_trigger": false
+  }
+]

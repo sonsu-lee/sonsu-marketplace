@@ -1,0 +1,38 @@
+{
+  "skill_name": "writing-commits",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a Git commit message for adding an audit-log endpoint, following this repository’s rules.",
+      "expected_output": "A commit message whose subject starts with `CHANGE:` and a short sentence about adding the audit-log endpoint, as CONTRIBUTING.md requires.",
+      "files": [
+        "evals/files/custom-commit-policy/"
+      ],
+      "assertions": [
+        "The proposed subject starts with `CHANGE:` followed by a short sentence about adding the audit-log endpoint",
+        "Follows the repository rule instead of replacing it with Conventional Commits types such as `feat:`",
+        "Does not create or amend a commit"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Draft a Git commit message: the API changes `createdAt` from a local timestamp to UTC with an offset; clients parsing offset-free values must update.",
+      "expected_output": "A commit message that marks the `createdAt` change as breaking and tells clients that parse offset-free values to update.",
+      "assertions": [
+        "Marks the change as breaking, for example with `!` after the type or a `BREAKING CHANGE:` footer",
+        "Tells clients that parse offset-free `createdAt` values that they must update",
+        "Does not create or amend a commit"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Improve and check this proposed Git commit message for a test-only change adding a retry failure case: `test: add Tests.`",
+      "expected_output": "A corrected `test` commit message that describes the retry failure case, validated with commitlint or reported as unvalidated, without creating a commit.",
+      "assertions": [
+        "Proposes a message that keeps the `test` type and describes the added retry failure case instead of `add Tests.`",
+        "Validates the complete proposed message with commitlint (the repository's setup or the pinned fallback with the skill's bundled configuration) and reports the actual result, or says why validation could not run instead of claiming a pass",
+        "Does not create or amend a commit"
+      ]
+    }
+  ]
+}

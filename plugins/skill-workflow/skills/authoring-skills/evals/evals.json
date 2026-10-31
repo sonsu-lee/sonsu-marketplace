@@ -1,0 +1,33 @@
+{
+  "skill_name": "authoring-skills",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Design a skill that Codex will load from our team plugin to draft release notes from merged pull requests. Give me the SKILL.md frontmatter and a short outline of the body, and don't create any files.",
+      "expected_output": "Standard Agent Skills frontmatter and a short body outline for a Codex plugin skill, based on Codex-specific guidance only, with no files created.",
+      "assertions": [
+        "Reads the authoring skill's Codex reference, references/codex.md",
+        "Does not read the omp or Claude references, references/omp.md or references/claude.md",
+        "Uses only standard Agent Skills frontmatter fields, without omp- or Claude-only fields such as `hide` or `argument-hint`",
+        "Mentions keeping the main SKILL.md within Codex's 8,000-byte plugin-skill limit or measuring its size",
+        "Does not create files"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Revise this agent skill instruction: 'Check manifest format yourself, then decide whether the guidance is useful.' The repository already pins validator example-validator 1.2.0 in package.json and runs it as `npx example-validator --config validator.json`; validator.json checks manifest format. Delegate the format check to that existing command while retaining semantic judgment. Do not introduce a wrapper.",
+      "expected_output": "Reuses the existing pinned validator and distinguishes format validation from semantic judgment.",
+      "assertions": [
+        "Reuses the existing pinned validator and distinguishes format validation from semantic judgment."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review this portable agent skill manifest and its scope: `name: ticket-draft`, `description: Draft issue titles and bodies from supplied observations`, `allowed-tools: Bash`. Its intended job is drafting issues, not publishing them. No target client is specified; decide what metadata can be justified without assuming one.",
+      "expected_output": "Avoids inventing an intended client or client-specific metadata.",
+      "assertions": [
+        "Avoids inventing an intended client or client-specific metadata."
+      ]
+    }
+  ]
+}

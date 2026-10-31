@@ -1,0 +1,29 @@
+{
+  "skill_name": "writing-adrs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft a durable record of why the team chose a shared non-production account over one account per environment: lower operational overhead, with isolation enforced by resource policies. The team accepted this choice.",
+      "expected_output": "Records the stated tradeoff and accepted choice without inventing additional evidence.",
+      "assertions": [
+        "Records the stated tradeoff and accepted choice without inventing additional evidence."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Draft a replacement decision for an accepted record choosing one database per tenant. The proposed shared database uses row-level isolation to reduce operational overhead; acceptance is pending. Explain old status.",
+      "expected_output": "Leaves the old record accepted while the replacement is only proposed.",
+      "assertions": [
+        "Leaves the old record accepted while the replacement is only proposed."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Assess whether we need a new record: an accepted decision requires encrypted backups, and a recent review reaffirmed it without changing the choice or rationale.",
+      "expected_output": "Explains why reaffirming an unchanged accepted decision does not itself require a new record.",
+      "assertions": [
+        "Explains why reaffirming an unchanged accepted decision does not itself require a new record."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "skill_name": "naming-branches",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "For a bug in image resizing, suggest a Git branch name using the rules in the project policy.",
+      "expected_output": "Suggests a branch name that follows the policy in CONTRIBUTING.md: the `bug/` prefix followed by a lowercase, hyphenated description of the image-resizing fix.",
+      "files": [
+        "evals/files/custom-convention/"
+      ],
+      "assertions": [
+        "Suggests a name that starts with `bug/` followed by a lowercase, hyphenated description of the image-resizing fix",
+        "Validates the proposed name with Git ref syntax and the repository rule or the pinned commit-check fallback, and reports the actual result or why validation could not run",
+        "Does not create or rename a branch"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Can Git branch `fix/resize..crash` be presented as ready? Check the name and explain any blocker.",
+      "expected_output": "Says the name is not ready because Git does not allow `..` in branch names, and offers a valid replacement.",
+      "assertions": [
+        "Says `fix/resize..crash` is not ready because Git does not allow `..` in a branch name",
+        "Offers a replacement name without `..` that keeps the `fix/` prefix",
+        "Does not create or rename a branch"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "For a Git branch that adds audit logs, use the explicitly requested `agent/` prefix and propose a complete name.",
+      "expected_output": "Proposes one complete name that starts with `agent/` and describes adding audit logs in lowercase, hyphenated words.",
+      "assertions": [
+        "Proposes exactly one complete name that starts with `agent/`",
+        "Describes adding audit logs in lowercase, hyphenated words after the prefix",
+        "Does not create or rename a branch"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+[
+  {
+    "query": "로그인 만료 시 500 대신 401을 반환하도록 바꿨습니다. 이 변경의 Git 커밋 메시지를 작성해 주세요.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a Git commit message: the API changes `createdAt` from a local timestamp to UTC with an offset; clients parsing offset-free values must update.",
+    "should_trigger": true
+  },
+  {
+    "query": "The last Git commit message says `fix stuff`; propose a replacement for its change: reject empty email addresses at signup.",
+    "should_trigger": true
+  },
+  {
+    "query": "Suggest separate Git commit messages for these two changes: update the CI Node version; fix CSV quoting for embedded commas.",
+    "should_trigger": true
+  },
+  {
+    "query": "README의 설치 명령을 `npm start`에서 `npm run dev`로 수정했습니다. 커밋 메시지를 제안해 주세요.",
+    "should_trigger": true
+  },
+  {
+    "query": "For a change that removes an unnecessary allocation in the image decoder, write a concise Git commit message.",
+    "should_trigger": true
+  },
+  {
+    "query": "Check whether this Git commit subject is suitable for fixing a retry timeout: `Fix things.`",
+    "should_trigger": true
+  },
+  {
+    "query": "커밋 메시지는 영어로 써 주세요. 변경 내용은 대시보드에서 빈 보고서 목록을 표시하는 것입니다.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a commit message for preserving the original CSV column order. Previously alphabetical sorting broke a downstream import; the import format is unchanged.",
+    "should_trigger": true
+  },
+  {
+    "query": "Suggest the Git commit message for reverting the change that enabled an experimental compression mode, because it corrupted archived files.",
+    "should_trigger": true
+  },
+  {
+    "query": "Improve and check this proposed Git commit message for a test-only change adding a retry failure case: `test: add Tests.`",
+    "should_trigger": true
+  },
+  {
+    "query": "PostgreSQL에서 BEGIN, INSERT, COMMIT이 각각 무엇을 하는지 예제로 설명해 주세요.",
+    "should_trigger": false
+  },
+  {
+    "query": "I already committed the change. Explain how to push my current Git branch to its configured upstream.",
+    "should_trigger": false
+  },
+  {
+    "query": "Show me how to inspect the last five Git commits and their authors.",
+    "should_trigger": false
+  },
+  {
+    "query": "What does the short Git commit hash `a1b2c3d` identify, and why might it become ambiguous?",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain how to rebase an existing branch onto `develop` while preserving its existing commit messages.",
+    "should_trigger": false
+  },
+  {
+    "query": "How can I inspect the staged diff before deciding what to commit?",
+    "should_trigger": false
+  },
+  {
+    "query": "Write SQL to update a row in a transaction and commit the transaction.",
+    "should_trigger": false
+  },
+  {
+    "query": "What is the difference between the Git author and committer fields?",
+    "should_trigger": false
+  }
+]

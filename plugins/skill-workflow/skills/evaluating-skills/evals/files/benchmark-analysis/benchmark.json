@@ -1,0 +1,473 @@
+{
+  "metadata": {
+    "skill_name": "sql-review",
+    "skill_path": "/work/skills/sql-review",
+    "executor_model": "example-model",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-10-30T19:13:24Z",
+    "evals_run": [
+      1,
+      2
+    ],
+    "runs_per_configuration": 3,
+    "client": "omp"
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "missing-index",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 96,
+        "tokens": 39000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Recommends an index on orders.customer_id",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Does not claim the query was executed",
+          "passed": true,
+          "evidence": "Observed in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "missing-index",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 104,
+        "tokens": 41000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Recommends an index on orders.customer_id",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Does not claim the query was executed",
+          "passed": true,
+          "evidence": "Observed in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "missing-index",
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 92,
+        "tokens": 38000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Recommends an index on orders.customer_id",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Does not claim the query was executed",
+          "passed": true,
+          "evidence": "Observed in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "n-plus-one",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 120,
+        "tokens": 44000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Identifies the per-row query inside the loop",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Proposes a single join or batched query",
+          "passed": true,
+          "evidence": "Observed in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "n-plus-one",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 0.3333,
+        "passed": 1,
+        "failed": 2,
+        "total": 3,
+        "time_seconds": 131,
+        "tokens": 47000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Identifies the per-row query inside the loop",
+          "passed": false,
+          "evidence": "Not found in the output."
+        },
+        {
+          "text": "Proposes a single join or batched query",
+          "passed": false,
+          "evidence": "Not found in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "n-plus-one",
+      "configuration": "with_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 118,
+        "tokens": 43000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Identifies the per-row query inside the loop",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Proposes a single join or batched query",
+          "passed": true,
+          "evidence": "Observed in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "missing-index",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6667,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 48,
+        "tokens": 18000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Recommends an index on orders.customer_id",
+          "passed": false,
+          "evidence": "Not found in the output."
+        },
+        {
+          "text": "Does not claim the query was executed",
+          "passed": true,
+          "evidence": "Observed in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "missing-index",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 0.3333,
+        "passed": 1,
+        "failed": 2,
+        "total": 3,
+        "time_seconds": 52,
+        "tokens": 19000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Recommends an index on orders.customer_id",
+          "passed": false,
+          "evidence": "Not found in the output."
+        },
+        {
+          "text": "Does not claim the query was executed",
+          "passed": false,
+          "evidence": "Not found in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "missing-index",
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 0.6667,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 50,
+        "tokens": 18500,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Recommends an index on orders.customer_id",
+          "passed": false,
+          "evidence": "Not found in the output."
+        },
+        {
+          "text": "Does not claim the query was executed",
+          "passed": true,
+          "evidence": "Observed in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "n-plus-one",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.3333,
+        "passed": 1,
+        "failed": 2,
+        "total": 3,
+        "time_seconds": 55,
+        "tokens": 20000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Identifies the per-row query inside the loop",
+          "passed": false,
+          "evidence": "Not found in the output."
+        },
+        {
+          "text": "Proposes a single join or batched query",
+          "passed": false,
+          "evidence": "Not found in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "n-plus-one",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 0.3333,
+        "passed": 1,
+        "failed": 2,
+        "total": 3,
+        "time_seconds": 58,
+        "tokens": 21000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Identifies the per-row query inside the loop",
+          "passed": false,
+          "evidence": "Not found in the output."
+        },
+        {
+          "text": "Proposes a single join or batched query",
+          "passed": false,
+          "evidence": "Not found in the output."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "n-plus-one",
+      "configuration": "without_skill",
+      "run_number": 3,
+      "result": {
+        "pass_rate": 0.3333,
+        "passed": 1,
+        "failed": 2,
+        "total": 3,
+        "time_seconds": 49,
+        "tokens": 19000,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Names the table being scanned",
+          "passed": true,
+          "evidence": "Observed in the output."
+        },
+        {
+          "text": "Identifies the per-row query inside the loop",
+          "passed": false,
+          "evidence": "Not found in the output."
+        },
+        {
+          "text": "Proposes a single join or batched query",
+          "passed": false,
+          "evidence": "Not found in the output."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.8889,
+        "stddev": 0.2722,
+        "min": 0.3333,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 110.1667,
+        "stddev": 15.237,
+        "min": 92,
+        "max": 131
+      },
+      "tokens": {
+        "mean": 42000.0,
+        "stddev": 3346.6401,
+        "min": 38000,
+        "max": 47000
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.4444,
+        "stddev": 0.1722,
+        "min": 0.3333,
+        "max": 0.6667
+      },
+      "time_seconds": {
+        "mean": 52.0,
+        "stddev": 3.8471,
+        "min": 48,
+        "max": 58
+      },
+      "tokens": {
+        "mean": 19250.0,
+        "stddev": 1083.9742,
+        "min": 18000,
+        "max": 21000
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.44",
+      "time_seconds": "+58.2",
+      "tokens": "+22750"
+    }
+  },
+  "notes": []
+}

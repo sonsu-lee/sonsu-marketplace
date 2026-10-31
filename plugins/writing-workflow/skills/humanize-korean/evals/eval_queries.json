@@ -1,0 +1,98 @@
+[
+  {
+    "query": "다음 사실만으로 관리팀에 보낼 자연스러운 한국어 보고문을 작성해 줘: 4월에 저장소를 이전했고, 배포는 5월부터 새 저장소에서 진행했다. 비용 영향은 확인 중이다.",
+    "should_trigger": true
+  },
+  {
+    "query": "이 README 문장을 자연스러운 한국어로 다듬어 줘. 명령어와 조건은 그대로 유지해: “설정 파일이 존재하지 않는 경우에 있어서 `app start`의 실행은 실패하게 됩니다.”",
+    "should_trigger": true
+  },
+  {
+    "query": "이 안내문을 매끄럽게 다듬되 가능성 표현을 그대로 유지해: “이 약을 복용하면 졸음이 생길 수 있다. 운전에 있어서 주의가 필요하다.”",
+    "should_trigger": true
+  },
+  {
+    "query": "내 말투를 살려 이 문장만 조금 자연스럽게 해 줘: “나는 그 문제에 대해서 한참을 고민했고, 결국에는 다시 확인을 해 보게 됐다.”",
+    "should_trigger": true
+  },
+  {
+    "query": "영어로 설명할게요: please make only the Korean prose in this code comment sound natural; leave executable code unchanged. `# 요청에 대한 검증이 수행되어집니다`\n`validate(request)`",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a natural Korean release note from these facts only: version 2.3 adds CSV headers; an empty export contains the header alone.",
+    "should_trigger": true
+  },
+  {
+    "query": "이 절차의 한국어를 매끄럽게 고치되 번호와 각 필수 조건은 유지해: 1. 사용자는 로그인해야 한다. 2. 사용자는 파일을 선택해야 한다. 3. 사용자는 전송을 확인해야 한다.",
+    "should_trigger": true
+  },
+  {
+    "query": "다음 글을 자연스럽게 고쳐 줘. 직접 인용과 API 용어는 보존해: 팀은 “이번 주에는 배포하지 않는다”라고 말했다. API의 변경에 대해서 검토를 진행하였다.",
+    "should_trigger": true
+  },
+  {
+    "query": "다음 설계 설명을 이해하기 쉽게 한국어로 다듬어 줘: “파일의 업로드에 있어서는 사용자의 확인이 이루어진 이후에 전송이 시작되며, 실패 시에는 초안이 유지되어진다.”",
+    "should_trigger": true
+  },
+  {
+    "query": "다음 블로그 초안의 반복적인 표현을 자연스럽게 바꿔 줘: “먼저, 기록을 남겼다. 반면, 기록을 다시 읽었다. 결국, 빠진 날짜를 찾았다.”",
+    "should_trigger": true
+  },
+  {
+    "query": "Please revise this Korean paragraph for naturalness without translating it: “검토에 있어서 문서의 변경 사항에 대한 확인이 이루어졌습니다.”",
+    "should_trigger": true
+  },
+  {
+    "query": "한국어 설명만 자연스럽게 고쳐 줘. `retry_count`와 경로는 바꾸지 마: “`retry_count`에 대한 값의 확인은 `/var/log/app`에서 이루어집니다.”",
+    "should_trigger": true
+  },
+  {
+    "query": "맞춤법과 띄어쓰기만 고쳐 줘. 표현이나 문체는 그대로: “할수 있는 일이예요.”",
+    "should_trigger": false
+  },
+  {
+    "query": "이 일본어를 한국어로 번역만 해 줘: 「確認後に送信します。」",
+    "should_trigger": false
+  },
+  {
+    "query": "이 한국어 문장이 AI가 쓴 글인지 판별해 줘: “오늘 회의를 진행했습니다.”",
+    "should_trigger": false
+  },
+  {
+    "query": "이 일본어 문장을 자연스럽게 다듬어 줘: 「確認の実施が行われます。」",
+    "should_trigger": false
+  },
+  {
+    "query": "클라우드 콘솔의 표시 언어를 한국어로 바꾸는 방법을 알려 줘.",
+    "should_trigger": false
+  },
+  {
+    "query": "결제 완료 여부를 나타내는 Python 변수 이름을 하나 추천해 줘.",
+    "should_trigger": false
+  },
+  {
+    "query": "한국어로 HTTP 401과 403의 차이를 설명해 줘.",
+    "should_trigger": false
+  },
+  {
+    "query": "다음 영어 알림의 의미가 뭔지 한국어로 설명해 줘: “Your access has expired.”",
+    "should_trigger": false
+  },
+  {
+    "query": "버그 티켓 초안을 한국어로 작성하고 자연스럽게 다듬어 줘. 관찰: 빈 이름으로 저장된다. 기대: 오류가 표시된다. 제목과 완료 조건을 포함하고 게시하지 마.",
+    "should_trigger": true
+  },
+  {
+    "query": "가상의 PR 작성 연습으로 한국어 제목과 본문 초안을 작성해 줘. 제공된 전체 메모: CSV에 헤더를 추가했고 빈 출력에는 헤더만 남는다. 테스트는 실행하지 않았다. 별도 프로젝트 템플릿이나 추가 정책은 없다. 저장소와 diff 확인은 미해결이므로 게시 가능한 완성본으로 제시하지 마. 제공된 사실만 읽기 쉽게 쓰고 실제 저장소 접속이나 게시는 하지 마.",
+    "should_trigger": true
+  },
+  {
+    "query": "한국어와 일본어 회의 메모를 각각 자연스럽게 다듬어 줘. 제목과 미결 사항은 유지해. 한국어: “## 일정\n본 배포 일정에 대한 결정이 이루어지지 않았습니다.” 일본어: 「## 日程\n本番の日程についての決定は行われていません。」",
+    "should_trigger": true
+  },
+  {
+    "query": "각 언어를 번역하지 말고 상태 보고문을 자연스럽게 고쳐 줘. 원인에 대한 가능성은 유지해. 한국어: “캐시가 원인일 수 있으며, 확인이 수행되어집니다.” English: “The cache may be the cause. An investigation is being undertaken to perform confirmation.”",
+    "should_trigger": true
+  }
+]
