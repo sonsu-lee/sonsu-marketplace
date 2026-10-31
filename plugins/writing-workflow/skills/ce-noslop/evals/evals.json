@@ -1,0 +1,36 @@
+{
+  "skill_name": "ce-noslop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Edit the English explanation, not the shell block or URL:\n“Utilize the following powerful command to facilitate inspection of the archive.”\n```sh\narchive list --all\n```\nReference: https://example.org/archive",
+      "expected_output": "A plainer rewrite of the English sentence; the shell block and the URL stay exactly as given.",
+      "assertions": [
+        "Rewrites the sentence about the archive command in plainer English without words such as 'utilize', 'powerful', or 'facilitate'",
+        "Leaves the fenced `archive list --all` block unchanged",
+        "Leaves the URL `https://example.org/archive` unchanged"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Make this English incident update concise without increasing confidence: “The cache may be responsible for the stale response. We have not confirmed whether the purge finished.”",
+      "expected_output": "A shorter update that still says the cache may be responsible and that the purge is unconfirmed.",
+      "assertions": [
+        "Still presents the cache as a possible cause, not a confirmed one",
+        "Still says the purge has not been confirmed to finish",
+        "Is no longer than the original update"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Rewrite this English customer notice in plain language without changing what we commit to: “We are thrilled to announce that, effective March 3, 2027, our robust billing platform will seamlessly migrate your invoices. We will refund any duplicate charge within 14 days, and support remains available 24/7.”",
+      "expected_output": "A plainer notice without promotional filler that keeps the March 3, 2027 date, the 14-day refund commitment, and 24/7 support unchanged.",
+      "assertions": [
+        "Keeps the date March 3, 2027 unchanged",
+        "Keeps the commitment to refund any duplicate charge within 14 days without weakening or strengthening it",
+        "Keeps that support is available 24/7",
+        "Removes the promotional words 'thrilled', 'robust', and 'seamlessly'"
+      ]
+    }
+  ]
+}

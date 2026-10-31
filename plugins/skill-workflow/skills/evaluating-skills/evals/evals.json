@@ -1,0 +1,30 @@
+{
+  "skill_name": "evaluating-skills",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here is a skill I just wrote. Draft its evals/evals.json for the first evaluation round; don't run anything yet.\n\n```markdown\n---\nname: changelog-entries\ndescription: Use this skill when adding an entry to CHANGELOG.md for a merged change, following Keep a Changelog sections and the project's version headings.\n---\n\n# Changelog entries\n\n1. Read the merged change and find the user-visible effect.\n2. Add one line under the right `## [Unreleased]` section: Added, Changed, Deprecated, Removed, Fixed, or Security.\n3. Write it for users, not developers: say what changed for them, and link the PR number.\n4. Never edit released version sections.\n```",
+      "expected_output": "A JSON object for evals/evals.json with skill_name changelog-entries and two or three realistic prompts with expected outputs, including a boundary case, and no claim of having run evaluations.",
+      "assertions": [
+        "Returns a JSON object with skill_name set to changelog-entries and an evals array of two or three items, each with an integer id, a prompt, and an expected_output",
+        "At least one prompt gives concrete change details such as a PR number, a file, or a behavior instead of a generic request",
+        "Includes a boundary case such as an internal-only change or a request to edit a released version section",
+        "Does not claim to have run evaluations or model calls"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "benchmark.json in the working directory is from iteration 2 of evaluating our sql-review skill in omp. Analyze it and tell me what to change before iteration 3. Don't run anything.",
+      "expected_output": "Flags the assertion that passes in every run of both configurations, the unstable with-skill results of eval 2, and the roughly doubled time and tokens, and proposes concrete next steps without running anything.",
+      "files": [
+        "evals/files/benchmark-analysis/"
+      ],
+      "assertions": [
+        "Identifies 'Names the table being scanned' as passing in every run of both configurations and recommends replacing or removing it",
+        "Points out that eval 2 with the skill passes only some runs and treats it as flaky or ambiguous guidance to investigate in transcripts",
+        "Reports that the skill roughly doubles time and tokens and weighs that against the pass-rate gain",
+        "Does not run evaluation scripts or claim new results"
+      ]
+    }
+  ]
+}

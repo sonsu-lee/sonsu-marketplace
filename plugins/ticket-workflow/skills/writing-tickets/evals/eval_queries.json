@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Draft a GitHub issue: clicking Save twice creates two orders. The desired result is one order per submission; debouncing is only an unverified idea. No publication.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a parent and independently completable child issues for importing customer records and exporting them. Both share the goal of account portability; do not create them.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a Linear issue for delayed invoice emails and suggest appropriate metadata only from these available values: priority High or Low, team Billing. The impact and assignee are unknown.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a private security issue for our tracker about a possible cross-tenant access bug. Tenant A could view tenant B’s invoice in one observed request; the cause and scope are unknown. Return the draft only; do not create or publish it.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft an issue for an agreed dependency upgrade: the current library is no longer supported and the team has decided to move to its maintained successor. Compatibility details are unknown.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft an investigation issue: nightly imports sometimes stop before completion. Logs show a timeout but the cause is unknown; the outcome should be a diagnosis and a decision on remediation.",
+    "should_trigger": true
+  },
+  {
+    "query": "Rewrite this draft issue to focus on the result, not the implementation: Title: Add a queue. Body: invoice emails take up to 30 minutes; replace the sender with a queue. Return a draft.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a feature issue using this customer feedback verbatim: “I need to download my past invoices for accounting.” No export format was specified.",
+    "should_trigger": true
+  },
+  {
+    "query": "次の不具合の GitHub issue の下書きを日本語で作ってください。保存後、一覧に戻ると変更前の名前が表示されます。原因と再現頻度は不明です。",
+    "should_trigger": true
+  },
+  {
+    "query": "티켓 초안을 작성해 주세요. 주문 취소 후에도 결제 내역이 취소 전 상태로 보입니다. 원인은 모르며, 완료 조건은 고객이 취소 상태를 확인할 수 있는 것입니다.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft an issue using this required template: Problem, Acceptance Criteria, <!-- automation: triage -->. The observed problem is duplicate invoices after repeated save; preserve the marker.",
+    "should_trigger": true
+  },
+  {
+    "query": "Turn these independent requests into separate draft issues: administrators need user export, and customers need invoice download. Do not split tests from either outcome.",
+    "should_trigger": true
+  },
+  {
+    "query": "From this fictional tracker snapshot, list open issues assigned to me and summarize their titles and statuses: T-1, invoice export fails, Open, assigned to me; T-2, login typo, Done, assigned to me; T-3, slow search, Open, assigned to Alex. Do not contact a tracker.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain what this issue asks for: “Customers cannot download invoices; they need a CSV export.”",
+    "should_trigger": false
+  },
+  {
+    "query": "Implement this settled change in the supplied code: the issue says the timeout should be 20 seconds; current code is const timeout = 10;.",
+    "should_trigger": false
+  },
+  {
+    "query": "Assess whether this evidence meets the stated acceptance condition: the requirement is one order per save; two repeated saves produced two separate orders.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain how GitHub and Linear issue synchronization works in general; do not change integrations.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this diff for a bug: -return total; +return 0; The function should return the calculated total.",
+    "should_trigger": false
+  },
+  {
+    "query": "Search this fictional issue snapshot for an existing issue tracking invoice exports and report the result; no ticket text is requested. T-10: Export invoices to CSV, Open. T-11: Email invoices, Closed. Do not contact a tracker.",
+    "should_trigger": false
+  },
+  {
+    "query": "List the labels and priorities in this fictional project metadata snapshot without modifying tickets: labels: bug, feature, billing; priorities: High, Medium, Low. Do not contact a tracker.",
+    "should_trigger": false
+  }
+]

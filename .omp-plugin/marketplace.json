@@ -11,43 +11,43 @@
       "name": "git-workflow",
       "source": "./plugins/git-workflow",
       "description": "Name branches, write commits, and prepare draft pull requests by repository conventions.",
-      "version": "0.4.6"
+      "version": "0.4.7"
     },
     {
       "name": "skill-workflow",
       "source": "./plugins/skill-workflow",
-      "description": "Create, refine, and independently review focused agent skills, delegating mechanical work to existing tools.",
-      "version": "0.3.1"
+      "description": "Create, refine, evaluate, and independently review focused agent skills, delegating mechanical work to existing tools.",
+      "version": "0.4.0"
     },
     {
       "name": "ticket-workflow",
       "source": "./plugins/ticket-workflow",
       "description": "Write small, outcome-centered GitHub and Linear tickets while leaving implementation to the assignee.",
-      "version": "0.3.3"
+      "version": "0.3.4"
     },
     {
       "name": "decision-workflow",
       "source": "./plugins/decision-workflow",
       "description": "Select consequential design decisions and write lightweight ADRs using repository conventions first.",
-      "version": "0.2.1"
+      "version": "0.2.2"
     },
     {
       "name": "writing-workflow",
       "source": "./plugins/writing-workflow",
       "description": "Write and refine natural Korean, English, and Japanese prose while preserving meaning and author voice.",
-      "version": "0.2.1"
+      "version": "0.2.2"
     },
     {
       "name": "review-workflow",
       "source": "./plugins/review-workflow",
       "description": "Evidence-driven code review with independent general and focused reviewers and local-first reporting.",
-      "version": "0.6.2"
+      "version": "0.6.3"
     },
     {
       "name": "planning-workflow",
       "source": "./plugins/planning-workflow",
       "description": "Plan non-trivial work as a reviewable design, with questions, alternatives, verification, and approval before implementation.",
-      "version": "0.1.2"
+      "version": "0.1.3"
     }
   ]
 }

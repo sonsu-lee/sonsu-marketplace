@@ -65,9 +65,10 @@ verify each client rather than combining incompatible extensions.
   not adequately cover. Bundle it when actual runs show repeated reinvention
   or consequential command-construction errors, not just to add a directory.
 
-Keep installation, marketplace registration, and contributor evaluation in
-project documentation unless those are the skill's task. Create supporting
-files only when needed, not a standard set of empty directories.
+Keep installation, marketplace registration, and evaluation procedures in
+project documentation unless those are the skill's task; put evaluation cases
+in the skill's `evals/` directory. Create supporting files only when needed,
+not a standard set of empty directories.
 
 ## Write actionable guidance
 
@@ -110,16 +111,21 @@ are not hooks, CI enforcement, or permission boundaries.
 
 ## Verify and refine
 
-Read [Choosing evaluation](references/evaluation.md) when selecting checks or
-investigating activation and output. Verify format, discovery, complete main
-prompt loading, and task behavior separately using project procedures. Reuse
-the official format validator; do not build another parser for its rules.
+Check format, discovery, and complete main-prompt loading with project
+procedures and the official validator, not a new parser. These checks do not
+show that the skill helps.
 
-Inspect outcomes and traces for unnecessary references, repeated helpers,
-irrelevant checks, and scope expansion. Evaluate an observation, the skill's
-responsibility, and the proposed solution separately. Missing tool examples
-alone are not defects. Correct actual errors or consequential ambiguity with
-the smallest sufficient change, including deletion; generalize recurring failures.
+For behavior, run the [Agent Skills loop][evaluation]: realistic prompts in
+the skill's `evals/evals.json`, run with and without the skill or its previous
+version in fresh contexts, then graded assertions, a benchmark, and human
+review. Read [Choosing evaluation](references/evaluation.md) to pick checks
+and runners.
+
+Revise from failed assertions, feedback, and transcripts. Look for unneeded
+references, repeated helpers, irrelevant checks, and scope expansion. Judge an
+observation, the skill's responsibility, and the fix separately; missing tool
+examples alone are not defects. Generalize recurring failures with the
+smallest sufficient change, including deletion.
 
 In omp, for a new skill or a revision that changes behavior, dispatch the
 `skill-workflow-reviewer` agent before delivery with a fresh brief: purpose,
@@ -138,7 +144,6 @@ procedures that users of the resulting skill must perform on every task.
 
 - [Best practices][practices]: scope, context economy, and calibrated guidance.
 - [Optimizing descriptions][descriptions]: intent and activation boundaries.
-- [Evaluating skills][evaluation]: baseline comparisons and trace-driven revision.
 - [Using scripts][scripts]: reuse existing commands and bundle repeated work.
 
 [specification]: https://agentskills.io/specification

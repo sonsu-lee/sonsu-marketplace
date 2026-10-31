@@ -27,7 +27,8 @@ Follow the target project's validation and installation procedure. For local
 checks, use a temporary `HOME`, not the user's live installation. Inspect
 `omp skill list` for the intended skill and warning lines; a readable file is
 not proof of discovery. Exercise relevant requests separately to check actual
-loading and behavior, and report any unverified behavior.
+loading and behavior, and report any unverified behavior. Use the
+`evaluating-skills` skill for output and trigger evaluations.
 
 Marketplace catalog fields, versioning, and publication remain in the owning
 project's procedures. Consult the [official marketplace guide][marketplaces]

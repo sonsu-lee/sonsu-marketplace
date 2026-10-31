@@ -1,0 +1,33 @@
+{
+  "skill_name": "natural-japanese",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "次の障害報告を自然な日本語に直してください。原因の確度は変えないでください。「キャッシュが原因である可能性があります。影響範囲はまだ確認できていません。」",
+      "expected_output": "Natural Japanese that keeps the cache as a possible cause and the impact scope as unconfirmed.",
+      "assertions": [
+        "Keeps the cache as a possible cause, not a confirmed one",
+        "Keeps that the impact scope has not been confirmed yet"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "以下の文章の不自然さを診断し、問題点だけを挙げてください。書き換えは不要です。「本件においては、確認の実施が行われます。また、調整の実施が行われます。」",
+      "expected_output": "A list of the unnatural expressions, such as the repeated 「の実施が行われます」, without a rewrite.",
+      "assertions": [
+        "Identifies the repeated 「の実施が行われます」 construction as unnatural and explains why",
+        "Does not provide a rewritten version of the text"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Please edit this Japanese paragraph for naturalness, keeping the number and URL intact: 「詳細については https://example.org を参照することが可能です。期限は7日です。」",
+      "expected_output": "Natural Japanese with `https://example.org` and the 7-day deadline unchanged.",
+      "assertions": [
+        "Keeps `https://example.org` and the 7-day deadline unchanged",
+        "Rewrites 「参照することが可能です」 more naturally, for example as 「参照してください」 or 「参照できます」",
+        "Returns Japanese text without translating it into English"
+      ]
+    }
+  ]
+}
