@@ -95,7 +95,10 @@ Current scores ({scores_summary}):
             if "results" in h:
                 prompt += "Train results:\n"
                 for r in h["results"]:
-                    status = "PASS" if r["pass"] else "FAIL"
+                    if r.get("unmeasured") or r.get("error"):
+                        status = "UNMEASURED"
+                    else:
+                        status = "PASS" if r["pass"] else "FAIL"
                     prompt += f'  [{status}] "{r["query"][:80]}" (triggered {r["triggers"]}/{r["runs"]})\n'
             if h.get("note"):
                 prompt += f'Note: {h["note"]}\n'

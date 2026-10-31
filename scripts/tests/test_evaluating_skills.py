@@ -23,9 +23,9 @@ from scripts.clients.base import (  # noqa: E402
 from scripts.evalsets import EvalSetError, copy_inputs, load_evals, load_queries  # noqa: E402
 from scripts.grade import parse_grading  # noqa: E402
 from scripts.run_evals import (  # noqa: E402
-    collect_outputs, file_digests, prepare_iteration, tree_digest,
+    collect_outputs, file_digests, prepare_iteration, run_one, tree_digest,
 )
-from scripts.run_loop import select_best  # noqa: E402
+from scripts.run_loop import merge_results, select_best  # noqa: E402
 from scripts.improve_description import improve_description  # noqa: E402
 from scripts.clients import base  # noqa: E402
 
@@ -365,11 +365,40 @@ class ImproverTests(unittest.TestCase):
             {"query": "real false trigger", "should_trigger": False, "pass": False,
              "triggers": 3, "runs": 3},
         ], "summary": {"passed": 0, "total": 2}}
-        improve_description("demo", "body", "old", results, [],
+        history = [{"description": "old", "train_passed": 0, "train_total": 2,
+                    "results": results["results"]}]
+        improve_description("demo", "body", "old", results, history,
                             lambda prompt: prompts.append(prompt) or "<new_description>x</new_description>")
-        failures = prompts[0].split("</scores_summary>")[0]
+        summary = prompts[0].split("</scores_summary>")[0]
+        failures = summary.split("PREVIOUS ATTEMPTS")[0]
         self.assertIn("real false trigger", failures)
         self.assertNotIn("never measured", failures)
+        self.assertIn('[UNMEASURED] "never measured"', summary)
+        self.assertNotIn('[FAIL] "never measured"', summary)
+
+    def test_measured_failure_survives_another_clients_missing_runs(self):
+        def row(runs, triggers, passed):
+            return {"query": "q", "should_trigger": False, "triggers": triggers, "runs": runs,
+                    "errors": 3 - runs, "trigger_rate": None, "pass": passed}
+        missing = merge_results({"omp": {"results": [row(0, 0, False)]},
+                                 "codex": {"results": [row(3, 3, False)]}})[0]
+        only_missing = merge_results({"omp": {"results": [row(0, 0, False)]},
+                                      "codex": {"results": [row(3, 0, True)]}})[0]
+        self.assertFalse(missing["unmeasured"])
+        self.assertTrue(only_missing["unmeasured"])
+
+
+class InterruptedRunTests(TempDirTest):
+    def tearDown(self):
+        base.INTERRUPTED.clear()
+
+    def test_queued_run_after_interrupt_keeps_earlier_result(self):
+        run_dir = self.tmp / "run-1"
+        run_dir.mkdir()
+        (run_dir / "timing.json").write_text(json.dumps({"error": None}))
+        base.INTERRUPTED.set()
+        self.assertFalse(run_one(None, None, self.tmp, {"id": 1}, None, run_dir, 1))
+        self.assertEqual(json.loads((run_dir / "timing.json").read_text()), {"error": None})
 
 
 class AggregateTests(TempDirTest):

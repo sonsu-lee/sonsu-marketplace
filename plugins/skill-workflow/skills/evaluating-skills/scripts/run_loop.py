@@ -82,8 +82,10 @@ def merge_results(per_client: dict) -> list:
             "errors": sum(r["errors"] for r in rows.values()),
             "trigger_rate": triggers / runs if runs else None,
             "pass": all(r["pass"] for r in rows.values()),
-            # A query no run measured in some client is not a real failure.
-            "unmeasured": any(r["runs"] == 0 for r in rows.values()),
+            # Set when the query fails only because some client measured no
+            # run; a failure in a measured client stays a real failure.
+            "unmeasured": (not all(r["pass"] for r in rows.values())
+                           and all(r["pass"] for r in rows.values() if r["runs"] > 0)),
             "clients": {
                 name: {key: r[key] for key in ("triggers", "runs", "errors", "trigger_rate", "pass")}
                 for name, r in rows.items()

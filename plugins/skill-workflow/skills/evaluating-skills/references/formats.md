@@ -147,12 +147,12 @@ every client.
 `final_description`, `iterations_run`, `holdout`, `train_size`, `test_size`,
 `history`, `clients`, `best_client_scores`, and `unmeasured_runs`. A query's
 merged result passes only when it passes in every client; its per-client
-counts are under `clients`, and `unmeasured` marks a query with no measured
-run in some client, which the description rewrite ignores. Each `history`
-item adds `client_scores` with each client's train and test pass counts. The
-loop stops early, keeping what it measured, with `exit_reason`
-`improver_failed` or `candidate_not_loadable` when a rewrite fails or a client
-would not load the new description.
+counts are under `clients`, and `unmeasured` marks a query that fails only
+because some client measured no run; the description rewrite ignores it.
+Each `history` item adds `client_scores` with each client's train and test
+pass counts. The loop stops early, keeping what it measured, with
+`exit_reason` `improver_failed` or `candidate_not_loadable` when a rewrite
+fails or a client would not load the new description.
 
 ## Reviewing queries in a browser
 

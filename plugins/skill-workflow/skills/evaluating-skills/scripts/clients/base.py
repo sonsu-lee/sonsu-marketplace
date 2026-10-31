@@ -155,6 +155,10 @@ def stream(cmd: list, env: dict, cwd: Path, timeout: int,
                             start_new_session=True)
     with _ACTIVE_LOCK:
         _ACTIVE.add(proc)
+        # An interrupt between the check above and registration would miss
+        # this session, so check again now that stop_all() can see it.
+        if INTERRUPTED.is_set():
+            _kill_group(proc)
     stderr: list = [""]
 
     def drain() -> None:

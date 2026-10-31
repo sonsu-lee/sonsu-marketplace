@@ -36,7 +36,7 @@ from datetime import datetime, timezone
 
 from scripts.clients import get_client
 from scripts.clients.base import (
-    Settings, check_home, init_workdir, model_matches, plugin_root, stop_all,
+    INTERRUPTED, Settings, check_home, init_workdir, model_matches, plugin_root, stop_all,
 )
 from scripts.evalsets import (
     EvalSetError, copy_inputs, default_workspace, load_evals, lock_iteration,
@@ -145,14 +145,17 @@ def collect_outputs(scratch: Path, workdir: Path, inputs: dict, outputs: Path) -
 
 def run_one(client, settings: Settings, skill_dir: Path, case: dict, arm,
             run_dir: Path, run_number: int) -> bool:
-    # 1. Start from an empty run directory so stale outputs cannot be graded.
+    # 1. After an interrupt, leave queued runs and their earlier results alone.
+    if INTERRUPTED.is_set():
+        return False
+    # 2. Start from an empty run directory so stale outputs cannot be graded.
     shutil.rmtree(run_dir, ignore_errors=True)
     outputs = run_dir / "outputs"
     outputs.mkdir(parents=True)
     label = f"[{client.name}] eval-{case['id']} {arm.config} run-{run_number}"
     workdir = scratch = None
     try:
-        # 2. Give the agent a fresh git directory holding only the inputs, and
+        # 3. Give the agent a fresh git directory holding only the inputs, and
         #    a temporary outputs directory outside the workspace, whose eval
         #    metadata holds the expected output and assertions.
         workdir = init_workdir("skill-eval-")
@@ -160,14 +163,14 @@ def run_one(client, settings: Settings, skill_dir: Path, case: dict, arm,
         copy_inputs(skill_dir, case.get("files", []), workdir)
         inputs = file_digests(workdir)
         brief = build_brief(case["prompt"], arm.skill_dir, sorted(inputs), scratch)
-        # 3. Run the task, then reject runs on another model or effort.
+        # 4. Run the task, then reject runs on another model or effort.
         result = client.run_task(brief, workdir, scratch, arm, settings)
         error = result.error
         if error is None and result.model and not model_matches(settings.model, result.model):
             error = f"off-profile: ran {result.model}, requested {settings.model}"
         if error is None and result.effort and result.effort != settings.effort:
             error = f"off-profile: ran {result.effort}, requested {settings.effort}"
-        # 4. Record everything, including failures, for review and retries.
+        # 5. Record everything, including failures, for review and retries.
         collect_outputs(scratch, workdir, inputs, outputs)
         write_run(run_dir, case, brief, result, client.name, settings, error)
     except Exception as exc:  # A crashed run stays unmeasured; others continue.
