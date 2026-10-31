@@ -26,15 +26,15 @@ Name the branch for the purpose of the work. Use
 
 | Type | Use for |
 | --- | --- |
-| `feature` | New features or enhancements |
-| `fix` | Bug fixes |
+| `feat` | New features or enhancements |
+| `bugfix` | Bug fixes |
 | `hotfix` | Urgent production fixes |
 | `release` | Release preparation |
 | `chore` | Maintenance: dependencies, docs, CI, and refactoring |
 
-* **Type:** use `feature`, not `feat`, and `fix`, not `bugfix`. Choose the
+* **Type:** use `feat`, not `feature`, and `bugfix`, not `fix`. Choose the
   purpose of the whole branch, not an individual commit's type. Commit
-  messages retain their own conventions, including `feat`.
+  messages retain their own conventions, including `fix`.
 * **Description:** keep it concise and specific. Use lowercase ASCII letters,
   digits, and hyphens between words. Dots are allowed between alphanumeric
   segments, including outside release versions. Start and end with a letter
@@ -73,8 +73,8 @@ only `main`, `master`, and `develop` are unprefixed branch names.
 ## Examples
 
 ```text
-feature/eng-123-add-login-page
-fix/issue-45-header-overflow
+feat/eng-123-add-login-page
+bugfix/issue-45-header-overflow
 hotfix/payment-outage
 release/v1.2.0
 chore/upgrade-node-v20.11

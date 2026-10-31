@@ -36,7 +36,7 @@
     "should_trigger": true
   },
   {
-    "query": "Can Git branch `fix/resize..crash` be presented as ready? Check the name and explain any blocker.",
+    "query": "Can Git branch `bugfix/resize..crash` be presented as ready? Check the name and explain any blocker.",
     "should_trigger": true
   },
   {

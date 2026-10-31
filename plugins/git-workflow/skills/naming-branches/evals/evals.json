@@ -16,11 +16,11 @@
     },
     {
       "id": 2,
-      "prompt": "Can Git branch `fix/resize..crash` be presented as ready? Check the name and explain any blocker.",
+      "prompt": "Can Git branch `bugfix/resize..crash` be presented as ready? Check the name and explain any blocker.",
       "expected_output": "Says the name is not ready because Git does not allow `..` in branch names, and offers a valid replacement.",
       "assertions": [
-        "Says `fix/resize..crash` is not ready because Git does not allow `..` in a branch name",
-        "Offers a replacement name without `..` that keeps the `fix/` prefix",
+        "Says `bugfix/resize..crash` is not ready because Git does not allow `..` in a branch name",
+        "Offers a replacement name without `..` that keeps the `bugfix/` prefix",
         "Does not create or rename a branch"
       ]
     },
