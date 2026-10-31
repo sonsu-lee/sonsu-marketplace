@@ -795,17 +795,14 @@ Git-backed marketplace installs, add a committed clone over Git instead.
 
 #### Evaluating skills
 
-The model-free checks above do not show whether a skill helps or whether its
-description triggers. For that, run the two Agent Skills loops:
+The model-free checks above do not show whether a skill helps or when it
+triggers. That takes the two Agent Skills loops:
 [output quality][eval-outputs] and [description triggering][eval-descriptions].
-Every skill keeps `evals/evals.json` (test prompts, expected outputs, and
-assertions) and `evals/eval_queries.json` (should-trigger and near-miss
-queries) in its own directory, with input files under `evals/files/`, in the
+Every skill keeps their files in its own `evals/` directory, in the
 [formats](plugins/skill-workflow/skills/evaluating-skills/references/formats.md)
-that skill-creator also reads. Check behavior that one skill can show with
-that skill's evals; only behavior that spans plugins, client settings, or
-installation belongs in the [manual scenario checks](#manual-scenario-checks)
-below.
+that skill-creator also reads. Behavior that one skill shows belongs in that
+skill's evals; behavior across plugins, client settings, or installation
+belongs in the [manual scenario checks](#manual-scenario-checks).
 
 ```mermaid
 flowchart LR
@@ -829,35 +826,29 @@ flowchart LR
   W --> V
 ```
 
-Each client has its own runner:
+**1. When to evaluate.**
 
-- **Claude Code:** Anthropic's [skill-creator plugin][skill-creator],
-  unmodified.
-- **omp and Codex:** the
-  [`evaluating-skills`](plugins/skill-workflow/skills/evaluating-skills/SKILL.md)
-  skill in `skill-workflow`.
+- A change to a skill's behavior: run the output loop in each client, three
+  times per configuration, against the previous version from `origin/main`
+  (or without the skill, for a new skill).
+- A change to a description: in each client, the full `eval_queries.json`
+  must pass no fewer queries than before.
+- Formatting-only edits need no evaluation.
 
-Evaluate with the models most users run. A result holds only for the model
-and effort that actually ran; update this list when the defaults change:
+**2. Runners and models.** Claude Code uses Anthropic's
+[skill-creator plugin][skill-creator]; omp and Codex use the
+[`evaluating-skills`](plugins/skill-workflow/skills/evaluating-skills/SKILL.md)
+skill. Evaluate with the models most users run, and update this list when
+they change:
 
 - omp: `anthropic/claude-opus-5-5`, effort `high`
 - Codex: `gpt-6-astra`, effort `high`
 - Claude Code: `claude-opus-5-5`, effort `high`
 
-When to run:
-
-- When a change alters a skill's behavior, run the output loop in each client
-  against the previous version from `origin/main` (without the skill for a new
-  skill), three times per configuration, with the models above.
-- When a description changes, adopt it only if no client passes fewer queries
-  of the full `eval_queries.json` than before.
-- Formatting-only edits need no model evaluation.
-- Markdown under `evals/files/` must pass the Markdown lint like any other.
-
-The evaluation homes live in
-`${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes/` as
-`omp-home`, `codex-home`, and `claude-home`. Log in to each once with a
-separately authorized test account:
+**3. Prepare the evaluation homes once.** Log in with a separate test
+account. Install only skill-creator in the Claude home and nothing from this
+marketplace in any home, since an installed skill also loads in the baseline
+runs. Never copy a live home or its credentials:
 
 ```sh
 HOMES="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
@@ -865,86 +856,64 @@ mkdir -p "$HOMES"/{omp-home,codex-home,claude-home}
 HOME="$HOMES/omp-home" omp login
 HOME="$HOMES/codex-home" CODEX_HOME="$HOMES/codex-home/.codex" \
   codex login --device-auth
-HOME="$HOMES/claude-home" CLAUDE_CONFIG_DIR="$HOMES/claude-home/.claude" \
-  claude setup-token
+CC="HOME=$HOMES/claude-home CLAUDE_CONFIG_DIR=$HOMES/claude-home/.claude"
+env $CC claude setup-token
 (umask 077; read -rs t; printf "%s" "$t" > "$HOMES/claude-home/oauth-token")
+env $CC claude plugin marketplace add anthropics/claude-plugins-official
+env $CC claude plugin install skill-creator@claude-plugins-official
 ```
 
-Do not install this marketplace into the evaluation homes: an installed skill
-can load in the baseline runs too, and the `evaluating-skills` scripts refuse
-a home where the evaluated skill is installed. Install only skill-creator in
-the Claude home, and never copy live homes or credentials into any of them:
+**4. Run in omp and Codex** from the marketplace root, with the models above.
+This example compares `writing-adrs` with its version on `origin/main` in omp;
+use `--client codex --home "$HOMES/codex-home"` for Codex:
 
 ```sh
-HOME="$HOMES/claude-home" CLAUDE_CONFIG_DIR="$HOMES/claude-home/.claude" \
-  claude plugin marketplace add anthropics/claude-plugins-official
-HOME="$HOMES/claude-home" CLAUDE_CONFIG_DIR="$HOMES/claude-home/.claude" \
-  claude plugin install skill-creator@claude-plugins-official
-```
-
-For omp and Codex, run from the marketplace root. Replace `<model>` and
-`<effort>` with the evaluation models above:
-
-```sh
-HOMES="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
 EVAL=plugins/skill-workflow/skills/evaluating-skills
 SKILL=plugins/decision-workflow/skills/writing-adrs
 WS="${XDG_CACHE_HOME:-$HOME/.cache}/skill-evals/writing-adrs-workspace"
 IT="$WS/omp/iteration-1"
+RUN=(--skill-path "$SKILL" --client omp --model <model> --effort <effort>
+  --home "$HOMES/omp-home")
 
-# The previous version is the old_skill baseline.
 rm -rf "$WS/skill-snapshot" && mkdir -p "$WS/skill-snapshot"
 git archive origin/main "$SKILL" |
   tar -x --strip-components=4 -C "$WS/skill-snapshot"
 
-python3 "$EVAL/scripts/run_evals.py" --skill-path "$SKILL" --client omp \
-  --model <model> --effort <effort> --home "$HOMES/omp-home" \
-  --iteration 1 --baseline old
+python3 "$EVAL/scripts/run_evals.py" "${RUN[@]}" --iteration 1 --baseline old
 python3 "$EVAL/scripts/grade.py" "$IT"
-python3 "$EVAL/scripts/aggregate_benchmark.py" "$IT" \
-  --skill-name writing-adrs --skill-path "$SKILL"
+python3 "$EVAL/scripts/aggregate_benchmark.py" "$IT" --skill-name writing-adrs
 python3 "$EVAL/eval-viewer/generate_review.py" "$IT" \
   --skill-name writing-adrs --benchmark "$IT/benchmark.json"
 
-python3 "$EVAL/scripts/run_trigger_eval.py" --skill-path "$SKILL" \
-  --client codex --model <model> --effort <effort> \
-  --home "$HOMES/codex-home"
-python3 "$EVAL/scripts/run_loop.py" --skill-path "$SKILL" \
-  --clients omp,codex --omp-model <model> --omp-effort <effort> \
-  --omp-home "$HOMES/omp-home" --codex-model <model> \
-  --codex-effort <effort> --codex-home "$HOMES/codex-home"
+python3 "$EVAL/scripts/run_trigger_eval.py" "${RUN[@]}"
+python3 "$EVAL/scripts/run_trigger_eval.py" "${RUN[@]}" \
+  --description "<previous description>"
 ```
 
-Repeat the output loop with `--client codex --home "$HOMES/codex-home"`; its
-iterations are under `$WS/codex/`. The skill's
-[client reference](plugins/skill-workflow/skills/evaluating-skills/references/clients.md)
-describes how each client runs and how triggers are detected.
-
-For Claude Code, start a session in an empty temporary directory:
+**5. Run in Claude Code** from an empty directory:
 
 ```sh
 cd "$(mktemp -d)"
-HOME="$HOMES/claude-home" CLAUDE_CONFIG_DIR="$HOMES/claude-home/.claude" \
-  CLAUDE_CODE_OAUTH_TOKEN="$(cat "$HOMES/claude-home/oauth-token")" \
+env $CC CLAUDE_CODE_OAUTH_TOKEN="$(cat "$HOMES/claude-home/oauth-token")" \
   claude --model claude-opus-5-5 --effort high
 ```
 
-Then ask, with absolute paths: "Evaluate the skill at `<skill>` with
-skill-creator. Use `<WS>/claude` as the workspace and `<WS>/skill-snapshot` as
-the old_skill baseline, run each configuration three times, and keep the
-`assertions` field name in evals/evals.json." For triggers, run
-skill-creator's `scripts/run_eval.py` with `--eval-set
-<skill>/evals/eval_queries.json --skill-path <skill> --model claude-opus-5-5
---runs-per-query 3`, and compare a candidate with `--description`.
+Ask, with absolute paths: "Evaluate the skill at `<skill>` with skill-creator,
+using `<WS>/claude` as the workspace and `<WS>/skill-snapshot` as the
+old_skill baseline, three runs per configuration, and keep the `assertions`
+key in evals/evals.json." For triggers, run skill-creator's
+`scripts/run_eval.py --eval-set <skill>/evals/eval_queries.json --skill-path
+<skill> --model claude-opus-5-5 --runs-per-query 3`, once more with
+`--description` for the previous text.
 
-Report in the pull request, for each client: the model and effort, the
-iteration, pass rates with the skill and the baseline and their delta, time
-and tokens, trigger pass counts, unmeasured runs, and a summary of the viewer
-feedback. Do not commit workspaces.
+**6. Report** in the pull request, per client: model and effort, pass rates
+with the skill and the baseline and their delta, time and tokens, trigger pass
+counts, runs not measured, and the gist of the review feedback. Do not commit
+workspaces.
 
-After changing the `evaluating-skills` scripts or any skill's `evals/` files,
-run the model-free regression tests, which also validate every skill's
-evaluation files:
+**7. Regression tests.** After changing the `evaluating-skills` scripts or any
+skill's `evals/` files, run the model-free tests, which also check every
+skill's evaluation files:
 
 ```sh
 python3 -B -m unittest discover -s scripts/tests -v

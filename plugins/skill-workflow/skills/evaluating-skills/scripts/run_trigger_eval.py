@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Measure how often a skill's description triggers on a query set.
 
-Each run places the candidate skill in a fresh temporary project for the
-client, sends one query, and watches the client's events until the agent
-reads the skill (triggered) or makes enough other tool calls, finishes, or
-times out (not triggered).
+Each run places the skill, with the description under test, in a fresh
+temporary project, sends one query, and judges the agent's first tool call:
+reading the skill is a trigger, anything else or no tool call is not.
 
 Exit status: 0 when every run was measured, 1 for invalid input or a failed
 preflight check, 2 when some runs were not measured.
@@ -38,15 +37,11 @@ from scripts.utils import parse_skill_md
 
 
 def preflight(client, settings: Settings, skill_dir: Path, name: str, description: str):
-    """Return a problem string when the home or the trigger setup is unusable."""
+    """Return a problem when the home has the skill or the client would not
+    discover the placed copy, since every run would then measure nothing."""
     problem = check_home(client, settings, name)
     if problem:
         return problem
-    return setup_problem(client, settings, skill_dir, name, description)
-
-
-def setup_problem(client, settings: Settings, skill_dir: Path, name: str, description: str):
-    """Return a problem string when the client would not load this description."""
     workdir = init_workdir("skill-trigger-probe-")
     try:
         client.place_trigger_skill(workdir, skill_dir, name, description)
@@ -56,74 +51,49 @@ def setup_problem(client, settings: Settings, skill_dir: Path, name: str, descri
 
 
 def measure(client, settings: Settings, skill_dir: Path, name: str, description: str,
-            query: str, max_tool_calls: int):
-    """Run one query in a fresh project, retrying once on a measurement error."""
-    error = None
-    for _ in range(2):
-        workdir = None
-        try:
-            workdir = init_workdir("skill-trigger-")
-            skill_md = client.place_trigger_skill(workdir, skill_dir, name, description)
-            status, error = client.detect_trigger(query, workdir, name, skill_md, settings,
-                                                  max_tool_calls)
-        except Exception as exc:  # One broken run must not stop the others.
-            status, error = ERROR, f"{type(exc).__name__}: {exc}"
-        finally:
-            if workdir is not None:
-                shutil.rmtree(workdir, ignore_errors=True)
-        if status != ERROR:
-            return status, None
-    return ERROR, error
+            query: str) -> tuple:
+    workdir = init_workdir("skill-trigger-")
+    try:
+        client.place_trigger_skill(workdir, skill_dir, name, description)
+        return client.detect_trigger(query, workdir, name, settings)
+    except RuntimeError as error:
+        return ERROR, str(error)
+    finally:
+        shutil.rmtree(workdir, ignore_errors=True)
 
 
 def run_trigger_eval(client, settings: Settings, skill_dir: Path, name: str, description: str,
-                     queries: list, runs_per_query: int, threshold: float, max_tool_calls: int,
-                     workers: int, verbose: bool) -> dict:
-    jobs = [(index, item["query"]) for index, item in enumerate(queries)
-            for _ in range(runs_per_query)]
+                     queries: list, runs_per_query: int, threshold: float, workers: int,
+                     verbose: bool) -> dict:
+    jobs = [item["query"] for item in queries for _ in range(runs_per_query)]
 
-    def work(job):
-        index, query = job
-        status, error = measure(client, settings, skill_dir, name, description, query,
-                                max_tool_calls)
+    def work(query: str) -> tuple:
+        status, error = measure(client, settings, skill_dir, name, description, query)
         if verbose:
-            detail = f" ({error})" if error else ""
-            print(f"[{client.name}] {status}{detail}: {query[:70]}", file=sys.stderr, flush=True)
-        return index, status, error
+            print(f"[{client.name}] {status}{f' ({error})' if error else ''}: {query[:70]}",
+                  file=sys.stderr, flush=True)
+        return query, status, error
 
-    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+    with ThreadPoolExecutor(max_workers=workers) as pool:
         outcomes = list(pool.map(work, jobs))
 
-    results = []
-    error_messages = []
-    for index, item in enumerate(queries):
-        statuses = [(s, e) for i, s, e in outcomes if i == index]
-        measured = [s for s, _ in statuses if s != ERROR]
-        errors = [e for s, e in statuses if s == ERROR]
-        error_messages += [f"{item['query'][:60]}: {e}" for e in errors]
-        triggers = sum(1 for s in measured if s == TRIGGERED)
-        runs = len(measured)
+    # A query passes when its trigger rate over measured runs is on the right
+    # side of the threshold; a query with no measured run fails as unmeasured.
+    results, errors = [], []
+    for item in queries:
+        statuses = [s for q, s, _ in outcomes if q == item["query"] and s != ERROR]
+        errors += [f"{q[:60]}: {e}" for q, s, e in outcomes if q == item["query"] and s == ERROR]
+        runs, triggers = len(statuses), statuses.count(TRIGGERED)
         rate = triggers / runs if runs else None
-        if runs == 0:
-            passed = False
-        elif item["should_trigger"]:
-            passed = rate >= threshold
-        else:
-            passed = rate < threshold
-        results.append({
-            "query": item["query"], "should_trigger": item["should_trigger"],
-            "triggers": triggers, "runs": runs, "errors": len(errors),
-            "trigger_rate": rate, "pass": passed, "error": runs == 0,
-        })
-    passed = sum(1 for r in results if r["pass"])
-    return {
-        "skill_name": name,
-        "description": description,
-        "client": client.name,
-        "results": results,
-        "summary": {"total": len(results), "passed": passed, "failed": len(results) - passed},
-        "errors": error_messages,
-    }
+        passed = runs > 0 and (rate >= threshold) == item["should_trigger"]
+        results.append({"query": item["query"], "should_trigger": item["should_trigger"],
+                        "triggers": triggers, "runs": runs, "trigger_rate": rate,
+                        "pass": passed, "unmeasured": runs == 0})
+    passed = sum(r["pass"] for r in results)
+    return {"skill_name": name, "description": description, "client": client.name,
+            "results": results,
+            "summary": {"total": len(results), "passed": passed, "failed": len(results) - passed},
+            "errors": errors}
 
 
 def main() -> None:
@@ -135,10 +105,9 @@ def main() -> None:
     parser.add_argument("--home", required=True, type=Path, help="Dedicated client home")
     parser.add_argument("--eval-set", type=Path, default=None,
                         help="Query set (default: <skill>/evals/eval_queries.json)")
-    parser.add_argument("--description", default=None, help="Candidate description to test")
+    parser.add_argument("--description", default=None, help="Description to test")
     parser.add_argument("--runs-per-query", type=int, default=3)
     parser.add_argument("--trigger-threshold", type=float, default=0.5)
-    parser.add_argument("--max-tool-calls", type=int, default=3)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--timeout", type=int, default=180)
     parser.add_argument("--output", type=Path, default=None)
@@ -146,22 +115,21 @@ def main() -> None:
     args = parser.parse_args()
 
     skill_dir = args.skill_path.resolve()
+    name, current, _ = parse_skill_md(skill_dir)
     try:
-        name, current, _ = parse_skill_md(skill_dir)
         queries = load_queries(args.eval_set or skill_dir / "evals" / "eval_queries.json")
-    except (EvalSetError, ValueError, OSError) as error:
+    except (EvalSetError, OSError, json.JSONDecodeError) as error:
         sys.exit(str(error))
-    description = args.description if args.description is not None else current
+    description = current if args.description is None else args.description
     client = get_client(args.client)
     settings = Settings(args.model, args.effort, args.home.expanduser().resolve(), args.timeout)
-
     problem = preflight(client, settings, skill_dir, name, description)
     if problem:
         sys.exit(problem)
 
     output = run_trigger_eval(client, settings, skill_dir, name, description, queries,
-                              args.runs_per_query, args.trigger_threshold, args.max_tool_calls,
-                              args.workers, args.verbose)
+                              args.runs_per_query, args.trigger_threshold, args.workers,
+                              args.verbose)
     text = json.dumps(output, indent=2, ensure_ascii=False)
     if args.output:
         args.output.write_text(text + "\n", encoding="utf-8")

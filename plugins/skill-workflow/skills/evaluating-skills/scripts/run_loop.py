@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-# Modified from anthropics/skills@b9e19e6 skills/skill-creator/scripts/run_loop.py (Apache-2.0, see LICENSE.txt): measures triggers in omp and Codex instead of Claude Code, merges per-client results, selects the candidate with the best weakest-client held-out score, and checks the Python version.
+# Modified from anthropics/skills@b9e19e6 skills/skill-creator/scripts/run_loop.py (Apache-2.0, see LICENSE.txt): measures triggers in omp or Codex instead of Claude Code, has that client write the revisions, and checks the Python version.
 """Run the eval + improve loop until all pass or max iterations reached.
 
-Combines run_trigger_eval.py and improve_description.py in a loop, tracking
-history and returning the best description found. Supports train/test split to
-prevent overfitting. Every query is measured in each selected client; a query
-passes only when it passes in all of them.
+Combines run_trigger_eval.py and improve_description.py in a loop, tracking history
+and returning the best description found. Supports train/test split to prevent
+overfitting.
 """
 
 import shlex
@@ -33,14 +32,11 @@ import webbrowser
 
 from scripts.clients import get_client
 from scripts.clients.base import Settings
-from scripts.evalsets import EvalSetError, load_queries
+from scripts.evalsets import load_queries
 from scripts.generate_report import generate_html
 from scripts.improve_description import improve_description
-from scripts.run_trigger_eval import preflight, run_trigger_eval, setup_problem
+from scripts.run_trigger_eval import preflight, run_trigger_eval
 from scripts.utils import parse_skill_md
-
-CLIENT_NAMES = ("omp", "codex")
-IMPROVER_TIMEOUT = 600
 
 
 def split_eval_set(eval_set: list[dict], holdout: float, seed: int = 42) -> tuple[list[dict], list[dict]]:
@@ -66,79 +62,24 @@ def split_eval_set(eval_set: list[dict], holdout: float, seed: int = 42) -> tupl
     return train_set, test_set
 
 
-def merge_results(per_client: dict) -> list:
-    """Combine per-client trigger results query by query."""
-    names = list(per_client)
-    merged = []
-    for position, first in enumerate(per_client[names[0]]["results"]):
-        rows = {name: per_client[name]["results"][position] for name in names}
-        triggers = sum(r["triggers"] for r in rows.values())
-        runs = sum(r["runs"] for r in rows.values())
-        merged.append({
-            "query": first["query"],
-            "should_trigger": first["should_trigger"],
-            "triggers": triggers,
-            "runs": runs,
-            "errors": sum(r["errors"] for r in rows.values()),
-            "trigger_rate": triggers / runs if runs else None,
-            "pass": all(r["pass"] for r in rows.values()),
-            # Set when the query fails only because some client measured no
-            # run; a failure in a measured client stays a real failure.
-            "unmeasured": (not all(r["pass"] for r in rows.values())
-                           and all(r["pass"] for r in rows.values() if r["runs"] > 0)),
-            "clients": {
-                name: {key: r[key] for key in ("triggers", "runs", "errors", "trigger_rate", "pass")}
-                for name, r in rows.items()
-            },
-        })
-    return merged
-
-
-def select_best(history: list, has_test: bool) -> dict:
-    """Pick the iteration whose weakest client scores best, then the best total.
-
-    Ties keep the earliest iteration.
-    """
-    key = "test_passed" if has_test else "train_passed"
-
-    def score(entry: dict) -> tuple:
-        values = [scores[key] or 0 for scores in entry["client_scores"].values()]
-        return (min(values), sum(values))
-
-    return max(history, key=score)
-
-
-def _summary(results: list) -> dict:
-    passed = sum(1 for r in results if r["pass"])
-    return {"passed": passed, "failed": len(results) - passed, "total": len(results)}
-
-
 def run_loop(
     eval_set: list[dict],
     skill_path: Path,
     description_override: str | None,
-    clients: dict,
-    improver: str,
+    client,
+    settings: Settings,
     num_workers: int,
     max_iterations: int,
     runs_per_query: int,
     trigger_threshold: float,
-    max_tool_calls: int,
     holdout: float,
     verbose: bool,
     live_report_path: Path | None = None,
     log_dir: Path | None = None,
 ) -> dict:
-    """Run the eval + improvement loop.
-
-    clients maps a client name to (client, Settings); improver names the
-    client whose model rewrites the description.
-    """
+    """Run the eval + improvement loop."""
     name, original_description, content = parse_skill_md(skill_path)
     current_description = description_override or original_description
-    improver_client, improver_settings = clients[improver]
-    improver_settings = Settings(improver_settings.model, improver_settings.effort,
-                                 improver_settings.home, max(improver_settings.timeout, IMPROVER_TIMEOUT))
 
     # Split into train/test if holdout > 0
     if holdout > 0:
@@ -152,6 +93,9 @@ def run_loop(
     history = []
     exit_reason = "unknown"
     unmeasured = 0
+    # Rewrites can take longer than one trigger query.
+    improver_settings = Settings(settings.model, settings.effort, settings.home,
+                                 max(settings.timeout, 600))
 
     for iteration in range(1, max_iterations + 1):
         if verbose:
@@ -160,42 +104,33 @@ def run_loop(
             print(f"Description: {current_description}", file=sys.stderr)
             print(f"{'='*60}", file=sys.stderr)
 
-        # 1. Measure train and test queries together in each client, one
-        #    client at a time so their runs do not compete for workers.
+        # Evaluate train + test together in one batch for parallelism
         all_queries = train_set + test_set
         t0 = time.time()
-        per_client = {}
-        for client_name, (client, settings) in clients.items():
-            per_client[client_name] = run_trigger_eval(
-                client, settings, skill_path, name, current_description, all_queries,
-                runs_per_query, trigger_threshold, max_tool_calls, num_workers, verbose)
-            unmeasured += len(per_client[client_name]["errors"])
+        all_results = run_trigger_eval(
+            client, settings, skill_path, name, current_description, all_queries,
+            runs_per_query, trigger_threshold, num_workers, verbose)
+        unmeasured += len(all_results["errors"])
         eval_elapsed = time.time() - t0
 
-        # 2. Merge clients, then split back into train/test by query text.
-        merged = merge_results(per_client)
+        # Split results back into train/test by matching queries
         train_queries_set = {q["query"] for q in train_set}
-        train_result_list = [r for r in merged if r["query"] in train_queries_set]
-        test_result_list = [r for r in merged if r["query"] not in train_queries_set]
-        train_summary = _summary(train_result_list)
+        train_result_list = [r for r in all_results["results"] if r["query"] in train_queries_set]
+        test_result_list = [r for r in all_results["results"] if r["query"] not in train_queries_set]
+
+        train_passed = sum(1 for r in train_result_list if r["pass"])
+        train_total = len(train_result_list)
+        train_summary = {"passed": train_passed, "failed": train_total - train_passed, "total": train_total}
         train_results = {"results": train_result_list, "summary": train_summary}
+
         if test_set:
-            test_summary = _summary(test_result_list)
+            test_passed = sum(1 for r in test_result_list if r["pass"])
+            test_total = len(test_result_list)
+            test_summary = {"passed": test_passed, "failed": test_total - test_passed, "total": test_total}
             test_results = {"results": test_result_list, "summary": test_summary}
         else:
             test_results = None
             test_summary = None
-
-        client_scores = {}
-        for client_name in clients:
-            train_rows = [r["clients"][client_name] for r in train_result_list]
-            test_rows = [r["clients"][client_name] for r in test_result_list]
-            client_scores[client_name] = {
-                "train_passed": sum(1 for r in train_rows if r["pass"]),
-                "train_total": len(train_rows),
-                "test_passed": sum(1 for r in test_rows if r["pass"]) if test_set else None,
-                "test_total": len(test_rows) if test_set else None,
-            }
 
         history.append({
             "iteration": iteration,
@@ -213,7 +148,6 @@ def run_loop(
             "failed": train_summary["failed"],
             "total": train_summary["total"],
             "results": train_results["results"],
-            "client_scores": client_scores,
         })
 
         # Write live report if path provided
@@ -221,7 +155,6 @@ def run_loop(
             partial_output = {
                 "original_description": original_description,
                 "best_description": current_description,
-                "best_iteration": select_best(history, bool(test_set))["iteration"],
                 "best_score": "in progress",
                 "iterations_run": len(history),
                 "holdout": holdout,
@@ -267,56 +200,39 @@ def run_loop(
                 print(f"\nMax iterations reached ({max_iterations}).", file=sys.stderr)
             break
 
-        # 3. Improve the description from train results only.
+        # Improve the description based on train results
         if verbose:
             print(f"\nImproving description...", file=sys.stderr)
 
         t0 = time.time()
         # Strip test scores from history so improvement model can't see them
-        blinded_history = []
-        for h in history:
-            entry = {k: v for k, v in h.items() if not k.startswith("test_") and k != "client_scores"}
-            entry["client_scores"] = {
-                client_name: {k: v for k, v in scores.items() if not k.startswith("test_")}
-                for client_name, scores in h["client_scores"].items()
-            }
-            blinded_history.append(entry)
-        try:
-            new_description = improve_description(
-                skill_name=name,
-                skill_content=content,
-                current_description=current_description,
-                eval_results=train_results,
-                history=blinded_history,
-                complete=lambda prompt: improver_client.complete(prompt, improver_settings),
-                log_dir=log_dir,
-                iteration=iteration,
-            )
-        except RuntimeError as error:
-            # Keep the iterations measured so far instead of losing them.
-            exit_reason = f"improver_failed (iteration {iteration}): {error}"
-            break
+        blinded_history = [
+            {k: v for k, v in h.items() if not k.startswith("test_")}
+            for h in history
+        ]
+        new_description = improve_description(
+            skill_name=name,
+            skill_content=content,
+            current_description=current_description,
+            eval_results=train_results,
+            history=blinded_history,
+            complete=lambda prompt: client.complete(prompt, improver_settings),
+            log_dir=log_dir,
+            iteration=iteration,
+        )
         improve_elapsed = time.time() - t0
 
         if verbose:
             print(f"Proposed ({improve_elapsed:.1f}s): {new_description}", file=sys.stderr)
 
-        # A candidate a client refuses to load would measure as never
-        # triggering, so it must not be measured, let alone selected.
-        problems = [f"{client_name}: {problem}" for client_name, (client, settings) in clients.items()
-                    if (problem := setup_problem(client, settings, skill_path, name, new_description))]
-        if problems:
-            exit_reason = f"candidate_not_loadable (iteration {iteration + 1}): {'; '.join(problems)}"
-            break
-
         current_description = new_description
 
-    # 4. Pick the iteration with the best held-out score in its weakest client
-    #    (train score if there is no test set).
-    best = select_best(history, bool(test_set))
+    # Find the best iteration by TEST score (or train if no test set)
     if test_set:
+        best = max(history, key=lambda h: h["test_passed"] or 0)
         best_score = f"{best['test_passed']}/{best['test_total']}"
     else:
+        best = max(history, key=lambda h: h["train_passed"])
         best_score = f"{best['train_passed']}/{best['train_total']}"
 
     if verbose:
@@ -324,7 +240,6 @@ def run_loop(
         print(f"Best score: {best_score} (iteration {best['iteration']})", file=sys.stderr)
 
     return {
-        "best_iteration": best["iteration"],
         "exit_reason": exit_reason,
         "original_description": original_description,
         "best_description": best["description"],
@@ -337,8 +252,6 @@ def run_loop(
         "train_size": len(train_set),
         "test_size": len(test_set),
         "history": history,
-        "clients": list(clients),
-        "best_client_scores": best["client_scores"],
         "unmeasured_runs": unmeasured,
     }
 
@@ -347,16 +260,13 @@ def main():
     parser = argparse.ArgumentParser(description="Run eval + improve loop")
     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
     parser.add_argument("--eval-set", default=None, help="Path to eval set JSON file (default: <skill>/evals/eval_queries.json)")
-    parser.add_argument("--clients", required=True, help="Comma-separated clients to measure: omp, codex")
-    for client_name in CLIENT_NAMES:
-        parser.add_argument(f"--{client_name}-model", default=None, help=f"Model for {client_name}")
-        parser.add_argument(f"--{client_name}-effort", default=None, help=f"Reasoning effort for {client_name}")
-        parser.add_argument(f"--{client_name}-home", default=None, help=f"Dedicated {client_name} home")
-    parser.add_argument("--improver", default=None, help="Client whose model rewrites the description (default: first of --clients)")
+    parser.add_argument("--client", required=True, choices=["omp", "codex"], help="Client to measure and to write revisions")
+    parser.add_argument("--model", required=True, help="Model for measuring and revising")
+    parser.add_argument("--effort", required=True, help="Reasoning effort")
+    parser.add_argument("--home", required=True, help="Dedicated client home")
     parser.add_argument("--description", default=None, help="Override starting description")
-    parser.add_argument("--workers", type=int, default=4, help="Number of parallel runs per client")
+    parser.add_argument("--num-workers", type=int, default=4, help="Number of parallel workers")
     parser.add_argument("--timeout", type=int, default=180, help="Timeout per query in seconds")
-    parser.add_argument("--max-tool-calls", type=int, default=3, help="Tool calls without reading the skill that count as not triggered")
     parser.add_argument("--max-iterations", type=int, default=5, help="Max improvement iterations")
     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
     parser.add_argument("--trigger-threshold", type=float, default=0.5, help="Trigger rate threshold")
@@ -367,43 +277,14 @@ def main():
     args = parser.parse_args()
 
     skill_path = Path(args.skill_path).resolve()
-    if not (skill_path / "SKILL.md").exists():
-        print(f"Error: No SKILL.md found at {skill_path}", file=sys.stderr)
-        sys.exit(1)
-
-    # Every selected client needs its own model, effort, and dedicated home.
-    names = [n.strip() for n in args.clients.split(",") if n.strip()]
-    if not names or any(n not in CLIENT_NAMES for n in names) or len(set(names)) != len(names):
-        print(f"Error: --clients must list distinct clients from {', '.join(CLIENT_NAMES)}", file=sys.stderr)
-        sys.exit(1)
-    clients = {}
-    for client_name in names:
-        values = [getattr(args, f"{client_name}_{field}") for field in ("model", "effort", "home")]
-        if not all(values):
-            print(f"Error: --{client_name}-model, --{client_name}-effort, and --{client_name}-home are required", file=sys.stderr)
-            sys.exit(1)
-        model, effort, home = values
-        clients[client_name] = (get_client(client_name),
-                                Settings(model, effort, Path(home).expanduser().resolve(), args.timeout))
-    improver = args.improver or names[0]
-    if improver not in clients:
-        print("Error: --improver must be one of --clients", file=sys.stderr)
-        sys.exit(1)
-
-    try:
-        eval_set = load_queries(Path(args.eval_set) if args.eval_set else skill_path / "evals" / "eval_queries.json")
-    except EvalSetError as error:
-        print(f"Error: {error}", file=sys.stderr)
-        sys.exit(1)
-
+    eval_set = load_queries(Path(args.eval_set) if args.eval_set else skill_path / "evals" / "eval_queries.json")
     name, current, _ = parse_skill_md(skill_path)
-
-    # Check every client's home and trigger setup before spending model calls.
-    for client_name, (client, settings) in clients.items():
-        problem = preflight(client, settings, skill_path, name, args.description or current)
-        if problem:
-            print(f"Error: [{client_name}] {problem}", file=sys.stderr)
-            sys.exit(1)
+    client = get_client(args.client)
+    settings = Settings(args.model, args.effort, Path(args.home).expanduser().resolve(), args.timeout)
+    problem = preflight(client, settings, skill_path, name, args.description or current)
+    if problem:
+        print(f"Error: {problem}", file=sys.stderr)
+        sys.exit(1)
 
     # Set up live report path
     if args.report != "none":
@@ -432,13 +313,12 @@ def main():
         eval_set=eval_set,
         skill_path=skill_path,
         description_override=args.description,
-        clients=clients,
-        improver=improver,
-        num_workers=args.workers,
+        client=client,
+        settings=settings,
+        num_workers=args.num_workers,
         max_iterations=args.max_iterations,
         runs_per_query=args.runs_per_query,
         trigger_threshold=args.trigger_threshold,
-        max_tool_calls=args.max_tool_calls,
         holdout=args.holdout,
         verbose=args.verbose,
         live_report_path=live_report_path,

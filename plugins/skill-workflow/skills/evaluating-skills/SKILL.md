@@ -16,112 +16,85 @@ compatibility: Requires Python 3.11+, git, and the omp or Codex CLI.
 
 # Evaluating skills
 
-Run the [Agent Skills evaluation loops][evaluating] against omp and Codex:
-output quality against a baseline, then [description triggering][descriptions]
-when activation is in question. The scripts drive those clients from any shell.
-Claude Code results come from Anthropic's `skill-creator` plugin running in
-Claude Code (`/plugin install skill-creator@claude-plugins-official`).
+Run the two [Agent Skills evaluation loops][evaluating] against omp and Codex:
+output quality first, then [description triggering][descriptions] when
+activation is in question. Claude Code results come from Anthropic's
+`skill-creator` plugin instead
+(`/plugin install skill-creator@claude-plugins-official`).
 
-Scripts live in this skill's `scripts/` and `eval-viewer/` directories. Run
-them with `python3` and absolute paths under the directory this file was
-loaded from (in omp, `realpath skill://evaluating-skills`). Read
-[references/formats.md](references/formats.md) before writing eval files and
-[references/clients.md](references/clients.md) before the first run against a
-client.
+The scripts are in this skill's `scripts/` and `eval-viewer/` directories.
+Call them by absolute path under the directory this file was loaded from (in
+omp, `realpath skill://evaluating-skills`). File formats and the workspace
+layout are in [references/formats.md](references/formats.md); how each client
+runs is in [references/clients.md](references/clients.md).
 
-## Prepare
+## Before running
 
-- **Client and model:** evaluate each omp or Codex client the skill targets.
-  When none is named, use the client you are running in if it is one of
-  them, with your session's model and effort, unless the project names
-  others. Results hold only for that client, model, and effort.
-- **Client home:** every script that calls a model needs `--home`, a dedicated
-  client home with a test login where the evaluated skill is not installed;
-  the scripts refuse a home where it is installed. Never pass the user's live
-  home; if the project names none, create one as `references/clients.md`
-  describes.
-- **Cost:** every eval runs once per configuration and repetition. Confirm the
-  scope with the user before large runs.
-- **Workspace:** results default to
-  `${XDG_CACHE_HOME:-~/.cache}/skill-evals/<skill>-workspace`, outside any
-  package that clients install. It persists per skill name across sessions,
-  so start each new evaluation in an unused iteration number. Do not commit
-  workspaces.
+- **Client, model, effort:** use the ones the user or project names;
+  otherwise the client, model, and effort you are running with, if that
+  client is omp or Codex. Results hold only for that combination.
+- **Home:** pass `--home`, a dedicated client home with a test login where the
+  evaluated skill is not installed (the scripts refuse one where it is).
+  Never pass the user's own home; `references/clients.md` shows how to make
+  one.
+- **Launch:** scripts that call a model run for many minutes and need network
+  access and writes under `~/.cache` and the temporary directory. Start them
+  as background jobs outside any sandbox of your own client.
+- **Cost:** each eval runs once per configuration and repetition. Agree on
+  the scope with the user before a large run.
 
 ## Evaluate output quality
 
-1. **Test cases.** Keep two or three realistic prompts with an
-   `expected_output` in the skill's `evals/evals.json` and input files under
-   `evals/files/`. Vary the phrasing and include one boundary case. Keep each
-   eval self-contained: no paths outside its inputs, network services, or
-   credentials. Show the cases to the user before running.
-2. **Baseline.** A new skill is compared with no skill (`--baseline without`).
-   For a revision, replace `<workspace>/skill-snapshot` with the previous
-   version, not a copy into an existing snapshot, and use `--baseline old`.
+1. **Cases.** Keep two or three realistic prompts with an `expected_output`
+   in the skill's `evals/evals.json`, with input files under `evals/files/`.
+   Include one boundary case. Show the cases to the user.
+2. **Baseline.** A new skill is compared with no skill
+   (`--baseline without`). For a revision, put the previous version in
+   `<workspace>/skill-snapshot` and use `--baseline old`.
 3. **Run.** `scripts/run_evals.py --skill-path <skill> --client <omp|codex>
    --model <model> --effort <effort> --home <home> --iteration <N>
    --baseline <without|old>` runs every eval with the skill and with the
-   baseline, three times each by default, in fresh sessions and temporary
-   directories. Rerun the same command to retry failed runs; exit status 2
-   means some runs were not measured. It refuses an existing iteration whose
-   skill, plugin, snapshot, prompts, or settings differ. Model-calling scripts
-   run for many minutes and need network access and writes to the workspace,
-   home, and temporary directories: start them as background jobs, outside
-   any host sandbox (in Codex, with approved escalation), and never move the
-   workspace or home into the project to get around one.
-4. **Assertions.** While runs execute, draft objectively verifiable
-   assertions, explain them to the user, and add them to `evals.json`. Do not
-   assert exact wording; leave subjective quality to human review. The grader
-   sees only the transcript, the final message, and files the run saved or
-   changed (text up to 20,000 bytes each, binaries by name and size).
-5. **Grade.** `scripts/grade.py <iteration-dir>` grades measured runs using
-   [agents/grader.md](agents/grader.md), regrading any graded against other
-   assertions; `--force` regrades all.
+   baseline, three times each. Use a new `<N>` for each evaluation; exit
+   status 2 means some runs were not measured, so rerun with `--resume`.
+4. **Assertions.** While the runs execute, write objectively checkable
+   assertions into `evals.json` and explain them to the user. The grader sees
+   only the transcript and the files the run saved, so assert on those.
+5. **Grade.** `scripts/grade.py <iteration-dir>` grades each measured run with
+   [agents/grader.md](agents/grader.md). Rerun it after changing assertions.
 6. **Benchmark.** `scripts/aggregate_benchmark.py <iteration-dir> --skill-name
-   <name> --skill-path <skill>` writes `benchmark.json` and `benchmark.md`.
-   Then apply [agents/analyzer.md](agents/analyzer.md) to that benchmark and
-   add your notes to the `notes` array in `benchmark.json`.
+   <name>` writes `benchmark.json` and `benchmark.md`. Apply
+   [agents/analyzer.md](agents/analyzer.md) to the benchmark and add your
+   notes to its `notes` array.
 7. **Review.** Start `eval-viewer/generate_review.py <iteration-dir>
    --skill-name <name> --benchmark <iteration-dir>/benchmark.json` in the
-   background, adding `--previous-workspace <previous-iteration-dir>` after the
-   first iteration, or write `--static <file>.html` without a browser. Ask the
-   user to review the outputs and submit feedback, then read
-   `<iteration-dir>/feedback.json`; empty feedback means the output was fine.
-   A static page downloads `feedback.json` instead; copy it into the
-   iteration directory first, and treat a missing file as no review yet.
-8. **Improve.** Use failed assertions, feedback, and transcripts together.
-   Generalize instead of patching single prompts, remove instructions that
-   cause wasted work, explain why requirements matter, and bundle helpers that
-   every run reinvents. Rerun into the next iteration with the same baseline
-   until the user is satisfied or results stop improving.
+   background and ask the user to review each output. Their feedback is saved
+   to `<iteration-dir>/feedback.json`.
+8. **Improve.** Revise the skill from failed assertions, feedback, and
+   transcripts, generalizing rather than patching single prompts. Repeat from
+   step 3 with the next iteration until the user is satisfied.
 
 ## Tune the description
 
-Do this only when activation is the question.
-
-1. Keep about 20 realistic queries in `evals/eval_queries.json`: 8 to 10 that
-   should trigger, including some that never name the skill's domain, and 8
-   to 10 near-misses that share vocabulary but need something else. Review
-   them with the user; `assets/eval_review.html` offers an editable view.
-2. To check an edited description, run `scripts/run_trigger_eval.py` on the
-   full query set in each client, once as is and once with `--description
-   "<previous description>"`, and compare the passed counts.
-3. To search for a better description, run `scripts/run_loop.py --skill-path
-   <skill> --clients <client>[,<client>]` with each listed client's
-   `--<client>-model`, `--<client>-effort`, and `--<client>-home`. It measures
-   each query three times, holds out 40% of the queries, revises the
-   description from training failures only, and selects the candidate with
-   the best held-out result in its weakest client.
-4. Show the user `best_description` with before and after scores, keep it
-   under 1,024 characters, and check it on 5 to 10 fresh queries with
-   `scripts/run_trigger_eval.py --description`. If other clients also load
-   the skill, check them before adopting the change.
+1. **Queries.** Keep about 20 realistic queries in `evals/eval_queries.json`:
+   half that should trigger the skill, half near-misses that share its
+   vocabulary but need something else. Review them with the user.
+2. **Compare an edit.** Run `scripts/run_trigger_eval.py --skill-path <skill>
+   --client <client> --model <model> --effort <effort> --home <home>` once
+   as is and once with `--description "<previous description>"`. Adopt the
+   edit only if it passes no fewer queries.
+3. **Search.** To have the client propose descriptions, run
+   `scripts/run_loop.py` with the same arguments. It holds out 40% of the
+   queries, revises from the rest, and reports `best_description` by its
+   held-out score.
+4. **Other clients.** If other clients load the skill, repeat step 2 in each
+   before adopting the change.
 
 ## Report
 
-Report the client, model and effort, iteration, pass rates and delta, time and
-token costs, trigger pass counts, unmeasured runs, and checks not performed. A
-few runs show a direction, not a reliable rate.
+Report the client, model, effort, and iteration; pass rates with the skill
+and the baseline and their delta; time and tokens; trigger pass counts; and
+runs that were not measured or graded. A few runs show a direction, not a
+reliable rate.
 
 [evaluating]: https://agentskills.io/skill-creation/evaluating-skills
 [descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions

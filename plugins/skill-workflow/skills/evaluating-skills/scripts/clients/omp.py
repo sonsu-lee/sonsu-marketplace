@@ -1,10 +1,8 @@
-"""omp adapter: runs tasks, detects skill loads, and makes tool-less calls."""
+"""omp adapter: run a task, detect a skill load, and make a tool-less call."""
 
 from __future__ import annotations
 
 import json
-import os
-import re
 import shutil
 import subprocess
 import tempfile
@@ -12,12 +10,17 @@ from pathlib import Path
 from typing import Optional
 
 from scripts.clients.base import (
-    ERROR, NOT_TRIGGERED, TRIGGERED, Arm, RunResult, Settings, check_prompt,
-    client_env, copy_skill, name_matches, stream, strip_selector, truncate,
+    ERROR, NOT_TRIGGERED, TRIGGERED, Arm, RunResult, Settings, client_env,
+    copy_skill, name_matches, stream, truncate,
 )
 from scripts.utils import parse_skill_md
 
-LIST_TIMEOUT = 120
+
+def base_command(settings: Settings) -> list:
+    return ["omp", "-p", "--mode", "json", "--no-session", "--no-title",
+            "--no-context-files", "--no-rules", "--no-extensions",
+            "--model", settings.model, "--slow", settings.model,
+            "--thinking", settings.effort]
 
 
 def text_content(value) -> str:
@@ -30,140 +33,70 @@ def text_content(value) -> str:
     return ""
 
 
-def base_command(settings: Settings, slow: bool = True) -> list:
-    cmd = ["omp", "-p", "--mode", "json", "--no-session", "--no-title",
-           "--no-context-files", "--no-rules", "--no-extensions",
-           "--model", settings.model]
-    if slow:
-        cmd += ["--slow", settings.model]
-    return cmd + ["--thinking", settings.effort]
-
-
-def _assistant_text(message: dict) -> str:
-    return "".join(block.get("text", "") for block in message.get("content") or []
-                   if isinstance(block, dict) and block.get("type") == "text")
-
-
 def parse_run(lines: list) -> RunResult:
     """Turn omp JSON events into a run result and a readable transcript."""
     result = RunResult(raw_lines=list(lines))
-    sections: list = []
-    names: dict = {}
-    assistant_seen = False
+    sections, names = [], {}
     for line in lines:
-        try:
-            event = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if not isinstance(event, dict):
-            continue
+        event = json.loads(line) if line.startswith("{") else {}
         kind = event.get("type")
         if kind == "tool_execution_start":
-            name = str(event.get("toolName") or "unknown")
+            name = event.get("toolName", "unknown")
             names[event.get("toolCallId")] = name
             result.tool_calls[name] = result.tool_calls.get(name, 0) + 1
             args = truncate(json.dumps(event.get("args") or {}, ensure_ascii=False), 2000)
             sections.append(f"### Tool call: {name}\n\n````json\n{args}\n````")
         elif kind == "tool_execution_end":
-            name = names.get(event.get("toolCallId")) or str(event.get("toolName") or "unknown")
+            name = names.get(event.get("toolCallId"), "unknown")
             failed = bool(event.get("isError"))
-            if failed:
-                result.tool_errors += 1
-            raw = event.get("result")
-            if isinstance(raw, str):
-                text = raw
-            else:
-                text = text_content((raw or {}).get("content") if isinstance(raw, dict) else raw)
-                if not text:
-                    text = json.dumps(raw, ensure_ascii=False)
+            result.tool_errors += failed
+            text = text_content((event.get("result") or {}).get("content"))
             label = f"### Tool result: {name}" + (" (error)" if failed else "")
             sections.append(f"{label}\n\n````text\n{truncate(text, 4000)}\n````")
-        elif kind == "message_end":
-            message = event.get("message") or {}
-            if message.get("role") != "assistant":
-                continue
-            assistant_seen = True
-            usage = message.get("usage") or {}
-            total = usage.get("totalTokens")
-            if total is None:
-                total = sum(int(usage.get(k) or 0) for k in ("input", "output", "cacheRead", "cacheWrite"))
-            result.total_tokens += int(total or 0)
+        elif kind == "message_end" and event["message"].get("role") == "assistant":
+            message = event["message"]
+            result.total_tokens += (message.get("usage") or {}).get("totalTokens", 0)
             result.model = message.get("model") or result.model
-            effort = ((message.get("requestControls") or {}).get("effort") or {}).get("topLevel")
-            result.effort = effort or result.effort
-            text = _assistant_text(message)
+            result.effort = ((message.get("requestControls") or {}).get("effort") or {}).get(
+                "topLevel") or result.effort
+            text = "".join(b.get("text", "") for b in message.get("content", [])
+                           if b.get("type") == "text")
             if text.strip():
                 sections.append(f"### Assistant\n\n{text}")
                 result.final_text = text
             if message.get("stopReason") == "error":
                 result.error = message.get("errorMessage") or "assistant error"
-    if not assistant_seen:
-        result.error = result.error or "no assistant message"
+    if result.model is None and result.error is None:
+        result.error = "no assistant message"
     result.transcript = "\n\n".join(sections)
     return result
 
 
 class TriggerDetector:
-    """Decide from omp events whether the candidate skill was loaded."""
+    """Judge the first tool call other than todo, as skill-creator does.
 
-    def __init__(self, name: str, skill_md: Path, workdir: Path, max_tool_calls: int):
-        self.name = name
-        self.skill_md = os.path.realpath(skill_md)
-        self.workdir = Path(workdir)
-        self.max_tool_calls = max_tool_calls
-        self.count = 0
+    It is a trigger when that call reads the skill, by skill://<name> or by
+    the placed .omp/skills/<name> path.
+    """
+
+    def __init__(self, name: str):
+        self.markers = (f"skill://{name}", f".omp/skills/{name}/")
         self.error: Optional[str] = None
-        self.skill_uri = re.compile(r"^skill://" + re.escape(name) + r"(/SKILL\.md)?(:[^/]*)?/?$")
-        self.skill_prefix = f"skill://{name}/"
 
     def feed(self, event: dict) -> Optional[str]:
         kind = event.get("type")
-        if kind == "message_end":
-            message = event.get("message") or {}
-            if message.get("role") == "assistant" and message.get("stopReason") == "error":
-                self.error = message.get("errorMessage") or "assistant error"
-                return ERROR
-            return None
-        if kind != "tool_execution_start":
-            return None
-        tool = event.get("toolName")
-        args = event.get("args") or {}
-        if tool == "todo":
-            return None
-        if tool == "read":
-            path = str(args.get("path", ""))
-            if self.skill_uri.match(path):
-                return TRIGGERED
-            if path.startswith(self.skill_prefix):
-                return None
-            if not path.startswith("skill://"):
-                local = Path(strip_selector(path)).expanduser()
-                if not local.is_absolute():
-                    local = self.workdir / local
-                if os.path.realpath(local) == self.skill_md:
-                    return TRIGGERED
-        elif tool == "bash":
-            command = str(args.get("command", ""))
-            if f".omp/skills/{self.name}/SKILL.md" in command or f"skill://{self.name}" in command:
-                return TRIGGERED
-        self.count += 1
-        if self.count >= self.max_tool_calls:
-            return NOT_TRIGGERED
+        if kind == "tool_execution_start" and event.get("toolName") != "todo":
+            args = json.dumps(event.get("args") or {})
+            return TRIGGERED if any(m in args for m in self.markers) else NOT_TRIGGERED
+        message = event.get("message") or {}
+        if kind == "message_end" and message.get("stopReason") == "error":
+            self.error = message.get("errorMessage") or "assistant error"
+            return ERROR
         return None
 
     def finish(self, returncode: Optional[int], timed_out: bool) -> str:
-        if timed_out:
-            return NOT_TRIGGERED if self.count > 0 else ERROR
-        if returncode == 0:
-            return NOT_TRIGGERED
-        return ERROR
-
-
-def _ignore_plugin(directory: str, names: list) -> set:
-    skipped = {"__pycache__"}
-    if Path(directory).parent.name == "skills":
-        skipped.add("evals")
-    return {name for name in names if name in skipped or name.endswith("-workspace")}
+        # Answering without any tool call means the skill was not used.
+        return NOT_TRIGGERED if returncode == 0 and not timed_out else ERROR
 
 
 class OmpClient:
@@ -174,30 +107,30 @@ class OmpClient:
 
     def prepare_arm(self, config: str, source: Optional[Path], tmp: Path,
                     plugin_dir: Optional[Path]) -> Arm:
-        if source is None:
-            return Arm(config, None, None)
-        source = Path(source)
-        # The snapshot directory is not named after the skill, so read the name.
-        name = parse_skill_md(source)[0] or source.name
-        if plugin_dir is not None:
-            # Every arm loads its own copy of the same plugin, so agents and
-            # sibling resources resolve and only the evaluated skill differs:
-            # without_skill drops it, the other arms swap in their version.
-            plugin_copy = Path(tmp) / config / Path(plugin_dir).name
-            shutil.copytree(plugin_dir, plugin_copy, ignore=_ignore_plugin)
-            skill_dir = plugin_copy / "skills" / name
-            shutil.rmtree(skill_dir, ignore_errors=True)
+        """Prepare one configuration.
+
+        source is the arm's skill version; without_skill passes the evaluated
+        skill so it can be left out of the plugin copy. A plugin skill runs
+        inside a copy of its plugin, so the plugin's agents and sibling skills
+        are present in every arm and only the evaluated skill differs.
+        """
+        name = parse_skill_md(Path(source))[0]
+        if plugin_dir is None:
             if config == "without_skill":
-                return Arm(config, None, plugin_copy)
-            copy_skill(source, skill_dir)
-            return Arm(config, skill_dir, plugin_copy)
+                return Arm(config, None, None)
+            return Arm(config, copy_skill(source, Path(tmp) / config / name), None)
+        plugin_copy = Path(tmp) / config / Path(plugin_dir).name
+        shutil.copytree(plugin_dir, plugin_copy,
+                        ignore=lambda d, names: {n for n in names if n in ("evals", "__pycache__")})
+        skill_dir = plugin_copy / "skills" / name
+        shutil.rmtree(skill_dir)
         if config == "without_skill":
-            return Arm(config, None, None)
-        return Arm(config, copy_skill(source, Path(tmp) / config / name), None)
+            return Arm(config, None, plugin_copy)
+        copy_skill(source, skill_dir)
+        return Arm(config, skill_dir, plugin_copy)
 
     def run_task(self, brief: str, workdir: Path, outputs_dir: Path, arm: Arm,
                  settings: Settings) -> RunResult:
-        check_prompt(brief)
         cmd = base_command(settings) + ["--approval-mode", "yolo"]
         cmd += ["--plugin-dir", str(arm.plugin_dir)] if arm.plugin_dir else ["--no-skills"]
         code, timed_out, _, stderr, lines, duration = stream(
@@ -206,67 +139,51 @@ class OmpClient:
         result.duration_ms = duration
         if timed_out:
             result.error = f"timed out after {settings.timeout}s"
-        elif code != 0 and not result.error:
+        elif code != 0 and result.error is None:
             result.error = f"omp exited {code}: {stderr.strip()[-500:]}"
         return result
 
     def place_trigger_skill(self, workdir: Path, skill_dir: Path, name: str,
-                            description: str) -> Path:
-        target = copy_skill(skill_dir, Path(workdir) / ".omp" / "skills" / name, description)
-        return target / "SKILL.md"
+                            description: str) -> None:
+        copy_skill(skill_dir, Path(workdir) / ".omp" / "skills" / name, description)
 
     def list_skills(self, cwd: Path, settings: Settings) -> list:
-        try:
-            proc = subprocess.run(["omp", "skill", "list"], env=self.env(settings), cwd=cwd,
-                                  capture_output=True, text=True, timeout=LIST_TIMEOUT,
-                                  stdin=subprocess.DEVNULL)
-        except (OSError, subprocess.TimeoutExpired) as error:
-            raise RuntimeError(str(error)) from None
+        proc = subprocess.run(["omp", "skill", "list"], env=self.env(settings), cwd=cwd,
+                              capture_output=True, text=True, stdin=subprocess.DEVNULL)
         if proc.returncode != 0:
-            raise RuntimeError((proc.stderr or proc.stdout).strip()[-500:] or f"exit {proc.returncode}")
-        text = proc.stdout + proc.stderr
-        # Each listing line starts with the skill name; warnings mention names too.
-        return [(line.split(None, 1)[0], None) for line in text.splitlines()
+            raise RuntimeError(proc.stderr.strip()[-500:] or f"exit {proc.returncode}")
+        # Each line starts with the skill name; warning lines mention names too.
+        return [(line.split(None, 1)[0], None) for line in proc.stdout.splitlines()
                 if line.strip() and "warning:" not in line]
 
     def check_trigger_setup(self, workdir: Path, name: str, settings: Settings) -> Optional[str]:
-        try:
-            listed = self.list_skills(workdir, settings)
-        except RuntimeError as error:
-            return f"could not list omp skills: {error}"
-        found = [entry[0] for entry in listed if name_matches(entry[0], name)]
+        found = [n for n, _ in self.list_skills(workdir, settings) if name_matches(n, name)]
         if found != [name]:
-            return f"expected exactly one omp skill named {name}, found: {', '.join(found) or 'none'}"
+            return f"expected one omp skill named {name}, found: {', '.join(found) or 'none'}"
         return None
 
-    def detect_trigger(self, query: str, workdir: Path, name: str, skill_md: Path,
-                       settings: Settings, max_tool_calls: int) -> tuple:
-        check_prompt(query)
-        detector = TriggerDetector(name, skill_md, workdir, max_tool_calls)
+    def detect_trigger(self, query: str, workdir: Path, name: str,
+                       settings: Settings) -> tuple:
+        detector = TriggerDetector(name)
         cmd = base_command(settings) + ["--approval-mode", "always-ask", "--skills", name, query]
         code, timed_out, decision, stderr, _, _ = stream(
             cmd, self.env(settings), workdir, settings.timeout, detector.feed)
         status = decision or detector.finish(code, timed_out)
         if status != ERROR:
             return status, None
-        error = detector.error or stderr.strip()[-500:] or (
-            "timed out before any tool call" if timed_out else f"omp exited {code}")
-        return status, error
+        return status, detector.error or stderr.strip()[-500:] or f"omp exited {code}"
 
     def complete(self, prompt: str, settings: Settings) -> str:
-        check_prompt(prompt)
         workdir = Path(tempfile.mkdtemp(prefix="skill-eval-complete-"))
-        cmd = base_command(settings, slow=False) + ["--no-tools", "--no-skills", prompt]
+        cmd = ["omp", "-p", "--mode", "json", "--no-session", "--no-title",
+               "--no-context-files", "--no-rules", "--no-extensions", "--no-tools",
+               "--no-skills", "--model", settings.model, "--thinking", settings.effort, prompt]
         try:
             code, timed_out, _, stderr, lines, _ = stream(cmd, self.env(settings), workdir,
                                                           settings.timeout)
         finally:
             shutil.rmtree(workdir, ignore_errors=True)
         result = parse_run(lines)
-        if timed_out:
-            raise RuntimeError(f"omp completion timed out after {settings.timeout}s")
-        if result.error or code != 0:
+        if timed_out or code != 0 or result.error or not result.final_text.strip():
             raise RuntimeError(result.error or f"omp exited {code}: {stderr.strip()[-500:]}")
-        if not result.final_text.strip():
-            raise RuntimeError("omp returned an empty response")
         return result.final_text

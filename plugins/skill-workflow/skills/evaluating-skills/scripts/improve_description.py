@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-# Modified from anthropics/skills@b9e19e6 skills/skill-creator/scripts/improve_description.py (Apache-2.0, see LICENSE.txt): takes a client completion function instead of calling claude, uses client-neutral wording, and reports per-client trigger counts.
+# Modified from anthropics/skills@b9e19e6 skills/skill-creator/scripts/improve_description.py (Apache-2.0, see LICENSE.txt): takes a client completion function instead of calling claude, uses client-neutral wording, and leaves unmeasured queries out of the failures.
 """Improve a skill description based on eval results.
 
-Takes eval results (from run_trigger_eval.py or run_loop.py) and generates an
-improved description with a tool-less completion from the selected client.
+Takes eval results (from run_trigger_eval.py) and generates an improved
+description with a tool-less completion from the evaluated client.
 """
 
 import argparse
@@ -19,15 +19,6 @@ if __package__ in (None, ""):
 from scripts.utils import parse_skill_md
 
 
-def _trigger_counts(result: dict) -> str:
-    """Format trigger counts, per client when the result merges several."""
-    clients = result.get("clients")
-    if clients:
-        parts = [f"{name} {c['triggers']}/{c['runs']}" for name, c in clients.items()]
-        return "(" + ", ".join(parts) + ")"
-    return f"(triggered {result['triggers']}/{result['runs']} times)"
-
-
 def improve_description(
     skill_name: str,
     skill_content: str,
@@ -40,9 +31,8 @@ def improve_description(
     iteration: int | None = None,
 ) -> str:
     """Ask the client model to improve the description based on eval results."""
-    # Queries with no measured run in some client are not evidence of a miss
-    # or a false trigger, so they stay out of both lists.
-    measured = [r for r in eval_results["results"] if not (r.get("unmeasured") or r.get("error"))]
+    # A query with no measured run is not evidence of a miss or a false trigger.
+    measured = [r for r in eval_results["results"] if not r.get("unmeasured")]
     failed_triggers = [
         r for r in measured
         if r["should_trigger"] and not r["pass"]
@@ -75,13 +65,13 @@ Current scores ({scores_summary}):
     if failed_triggers:
         prompt += "FAILED TO TRIGGER (should have triggered but didn't):\n"
         for r in failed_triggers:
-            prompt += f'  - "{r["query"]}" {_trigger_counts(r)}\n'
+            prompt += f'  - "{r["query"]}" (triggered {r["triggers"]}/{r["runs"]} times)\n'
         prompt += "\n"
 
     if false_triggers:
         prompt += "FALSE TRIGGERS (triggered but shouldn't have):\n"
         for r in false_triggers:
-            prompt += f'  - "{r["query"]}" {_trigger_counts(r)}\n'
+            prompt += f'  - "{r["query"]}" (triggered {r["triggers"]}/{r["runs"]} times)\n'
         prompt += "\n"
 
     if history:
@@ -95,10 +85,7 @@ Current scores ({scores_summary}):
             if "results" in h:
                 prompt += "Train results:\n"
                 for r in h["results"]:
-                    if r.get("unmeasured") or r.get("error"):
-                        status = "UNMEASURED"
-                    else:
-                        status = "PASS" if r["pass"] else "FAIL"
+                    status = "UNMEASURED" if r.get("unmeasured") else "PASS" if r["pass"] else "FAIL"
                     prompt += f'  [{status}] "{r["query"][:80]}" (triggered {r["triggers"]}/{r["runs"]})\n'
             if h.get("note"):
                 prompt += f'Note: {h["note"]}\n'
@@ -195,23 +182,12 @@ def main():
     from scripts.clients.base import Settings
 
     skill_path = Path(args.skill_path)
-    if not (skill_path / "SKILL.md").exists():
-        print(f"Error: No SKILL.md found at {skill_path}", file=sys.stderr)
-        sys.exit(1)
-
     eval_results = json.loads(Path(args.eval_results).read_text())
-    history = []
-    if args.history:
-        history = json.loads(Path(args.history).read_text())
-
+    history = json.loads(Path(args.history).read_text()) if args.history else []
     name, _, content = parse_skill_md(skill_path)
     current_description = eval_results["description"]
     client = get_client(args.client)
     settings = Settings(args.model, args.effort, args.home.resolve(), args.timeout)
-
-    if args.verbose:
-        print(f"Current: {current_description}", file=sys.stderr)
-        print(f"Score: {eval_results['summary']['passed']}/{eval_results['summary']['total']}", file=sys.stderr)
 
     new_description = improve_description(
         skill_name=name,

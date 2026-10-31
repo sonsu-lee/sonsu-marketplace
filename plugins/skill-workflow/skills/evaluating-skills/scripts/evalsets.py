@@ -1,167 +1,98 @@
-"""Load and validate a skill's Agent Skills evaluation files."""
+"""Load and check a skill's Agent Skills evaluation files."""
 
 from __future__ import annotations
 
-import fcntl
 import json
 import os
 import shutil
-import sys
 from pathlib import Path
 
 from scripts.utils import parse_skill_md
 
 EVAL_KEYS = {"id", "prompt", "expected_output", "files", "assertions"}
-REQUIRED_EVAL_KEYS = {"id", "prompt", "expected_output"}
 
 
 class EvalSetError(ValueError):
-    """An evaluation file does not follow the Agent Skills format."""
+    """An evaluation file does not follow the format in references/formats.md."""
 
 
-def _read_json(path: Path):
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        raise EvalSetError(f"{path} does not exist") from None
-    except json.JSONDecodeError as error:
-        raise EvalSetError(f"{path} is not valid JSON: {error}") from None
+def _require(condition: bool, message: str) -> None:
+    if not condition:
+        raise EvalSetError(message)
 
 
-def _check_files(skill_dir: Path, where: str, files) -> None:
-    if not isinstance(files, list) or not all(isinstance(f, str) and f for f in files):
-        raise EvalSetError(f"{where}: files must be a list of non-empty strings")
-    root = (skill_dir / "evals" / "files").resolve()
-    for entry in files:
-        parts = Path(entry).parts
-        if Path(entry).is_absolute() or ".." in parts:
-            raise EvalSetError(f"{where}: {entry!r} must be a relative path without '..'")
-        target = (skill_dir / entry).resolve()
-        if root not in target.parents:
-            raise EvalSetError(f"{where}: {entry!r} must be under evals/files/")
-        if entry.endswith("/"):
-            if not target.is_dir():
-                raise EvalSetError(f"{where}: directory {entry!r} does not exist")
-        elif not target.is_file():
-            raise EvalSetError(f"{where}: file {entry!r} does not exist (end directories with '/')")
+def _strings(value) -> bool:
+    return isinstance(value, list) and all(isinstance(v, str) and v.strip() for v in value)
 
 
 def load_evals(skill_dir: Path) -> dict:
-    """Return evals/evals.json after checking it against the format rules."""
+    """Return evals/evals.json after checking it."""
     skill_dir = Path(skill_dir)
     path = skill_dir / "evals" / "evals.json"
-    data = _read_json(path)
-    if not isinstance(data, dict) or set(data) != {"skill_name", "evals"}:
-        raise EvalSetError(f"{path}: top-level keys must be exactly skill_name and evals")
-    name, _, _ = parse_skill_md(skill_dir)
-    if data["skill_name"] != name:
-        raise EvalSetError(f"{path}: skill_name {data['skill_name']!r} does not match SKILL.md name {name!r}")
-    evals = data["evals"]
-    if not isinstance(evals, list) or not evals:
-        raise EvalSetError(f"{path}: evals must be a non-empty list")
-    seen: set[int] = set()
-    for index, case in enumerate(evals):
-        where = f"{path}: evals[{index}]"
-        if not isinstance(case, dict):
-            raise EvalSetError(f"{where} must be an object")
-        if "expectations" in case:
-            raise EvalSetError(f"{where}: use `assertions` (Agent Skills format), not `expectations`")
-        unknown = set(case) - EVAL_KEYS
-        if unknown:
-            raise EvalSetError(f"{where}: unknown keys {sorted(unknown)}")
-        missing = REQUIRED_EVAL_KEYS - set(case)
-        if missing:
-            raise EvalSetError(f"{where}: missing keys {sorted(missing)}")
-        case_id = case["id"]
-        if not isinstance(case_id, int) or isinstance(case_id, bool):
-            raise EvalSetError(f"{where}: id must be an integer")
-        if case_id in seen:
-            raise EvalSetError(f"{where}: duplicate id {case_id}")
-        seen.add(case_id)
-        if not isinstance(case["prompt"], str) or not case["prompt"].strip():
-            raise EvalSetError(f"{where}: prompt must be a non-empty string")
-        if not isinstance(case["expected_output"], str):
-            raise EvalSetError(f"{where}: expected_output must be a string")
-        if "assertions" in case:
-            assertions = case["assertions"]
-            if not isinstance(assertions, list) or not all(
-                isinstance(a, str) and a.strip() for a in assertions
-            ):
-                raise EvalSetError(f"{where}: assertions must be a list of non-empty strings")
-        if "files" in case:
-            _check_files(skill_dir, where, case["files"])
-    nested = sorted(str(p.relative_to(skill_dir)) for p in (skill_dir / "evals").rglob("SKILL.md"))
-    if nested:
-        raise EvalSetError(
-            f"{skill_dir}: files named SKILL.md under evals/ may be registered as skills: {nested}"
-        )
+    data = json.loads(path.read_text(encoding="utf-8"))
+    _require(isinstance(data, dict) and set(data) == {"skill_name", "evals"},
+             f"{path}: keys must be exactly skill_name and evals")
+    _require(data["skill_name"] == parse_skill_md(skill_dir)[0],
+             f"{path}: skill_name must equal the name in SKILL.md")
+    _require(isinstance(data["evals"], list) and data["evals"], f"{path}: evals must not be empty")
+    ids = [case.get("id") for case in data["evals"]]
+    _require(len(set(ids)) == len(ids), f"{path}: ids must be unique")
+    files_root = (skill_dir / "evals" / "files").resolve()
+    for case in data["evals"]:
+        where = f"{path}: eval {case.get('id')}"
+        _require("expectations" not in case, f"{where}: use `assertions`, not `expectations`")
+        _require(set(case) <= EVAL_KEYS and {"id", "prompt", "expected_output"} <= set(case),
+                 f"{where}: keys must be id, prompt, expected_output, and optionally files "
+                 "and assertions")
+        _require(isinstance(case["id"], int) and isinstance(case["prompt"], str)
+                 and case["prompt"].strip() and isinstance(case["expected_output"], str),
+                 f"{where}: id must be an integer, prompt and expected_output strings")
+        _require(_strings(case.get("assertions", [])), f"{where}: assertions must be strings")
+        _require(_strings(case.get("files", [])), f"{where}: files must be strings")
+        for entry in case.get("files", []):
+            target = (skill_dir / entry).resolve()
+            exists = target.is_dir() if entry.endswith("/") else target.is_file()
+            _require(files_root in target.parents and exists,
+                     f"{where}: {entry} must exist under evals/files/ "
+                     "(end directories with /)")
+    # Codex registers every SKILL.md it finds under a skill directory.
+    nested = list((skill_dir / "evals").rglob("SKILL.md"))
+    _require(not nested, f"{skill_dir}: rename files named SKILL.md under evals/: {nested}")
     return data
 
 
-def load_queries(path: Path) -> list[dict]:
-    """Return a trigger query set after checking its format."""
-    path = Path(path)
-    data = _read_json(path)
-    if not isinstance(data, list) or not data:
-        raise EvalSetError(f"{path}: must be a non-empty array")
-    seen: set[str] = set()
-    for index, item in enumerate(data):
-        where = f"{path}: [{index}]"
-        if not isinstance(item, dict) or set(item) != {"query", "should_trigger"}:
-            raise EvalSetError(f"{where}: keys must be exactly query and should_trigger")
-        if not isinstance(item["query"], str) or not item["query"].strip():
-            raise EvalSetError(f"{where}: query must be a non-empty string")
-        if not isinstance(item["should_trigger"], bool):
-            raise EvalSetError(f"{where}: should_trigger must be true or false")
-        # run_loop matches train and test results by query text.
-        if item["query"] in seen:
-            raise EvalSetError(f"{where}: duplicate query")
-        seen.add(item["query"])
+def load_queries(path: Path) -> list:
+    """Return a trigger query set after checking it."""
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    _require(isinstance(data, list) and data, f"{path}: must be a non-empty array")
+    for item in data:
+        _require(isinstance(item, dict) and set(item) == {"query", "should_trigger"}
+                 and isinstance(item["query"], str) and item["query"].strip()
+                 and isinstance(item["should_trigger"], bool),
+                 f"{path}: each item is {{query: string, should_trigger: boolean}}")
+    queries = [item["query"] for item in data]
+    # run_loop matches train and test results by query text.
+    _require(len(set(queries)) == len(queries), f"{path}: queries must be unique")
     return data
 
 
-def copy_inputs(skill_dir: Path, files: list[str], workdir: Path) -> list[str]:
-    """Copy an eval's input files into workdir and return their relative paths."""
-    skill_dir, workdir = Path(skill_dir), Path(workdir)
-    sources: dict[Path, Path] = {}
+def copy_inputs(skill_dir: Path, files: list, workdir: Path) -> list:
+    """Copy input files into workdir and return their paths relative to it.
 
-    def add(key: Path, item: Path) -> None:
-        if sources.setdefault(key, item) != item:
-            raise EvalSetError(f"input files collide at {key}")
-
+    A file keeps its base name; a directory entry ending in / copies its
+    contents to the top of workdir.
+    """
     for entry in files:
-        source = skill_dir / entry
+        source = Path(skill_dir) / entry
         if entry.endswith("/"):
-            for item in sorted(source.rglob("*")):
-                if item.is_file():
-                    add(item.relative_to(source), item)
+            shutil.copytree(source, workdir, dirs_exist_ok=True)
         else:
-            add(Path(source.name), source)
-    for relative, source in sources.items():
-        target = workdir / relative
-        if target.exists():
-            raise EvalSetError(f"input file {relative} collides with an existing path")
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, target)
-    return sorted(str(relative) for relative in sources)
+            shutil.copy2(source, Path(workdir) / source.name)
+    return sorted(p.relative_to(workdir).as_posix() for p in Path(workdir).rglob("*")
+                  if p.is_file() and ".git" not in p.relative_to(workdir).parts)
 
 
 def default_workspace(name: str) -> Path:
-    """Return the per-user workspace for a skill, outside any installed package."""
+    """Per-user workspace outside any installed package."""
     base = os.environ.get("XDG_CACHE_HOME") or str(Path.home() / ".cache")
     return Path(base) / "skill-evals" / f"{name}-workspace"
-
-
-def lock_iteration(iteration_dir: Path):
-    """Hold an exclusive lock on an iteration; exit if another script holds it.
-
-    Keep the returned file open while writing run or grading files.
-    """
-    handle = open(Path(iteration_dir) / ".lock", "w")
-    try:
-        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except BlockingIOError:
-        handle.close()
-        sys.exit(f"another evaluating-skills script is using {iteration_dir}; "
-                 "wait for it to finish")
-    return handle

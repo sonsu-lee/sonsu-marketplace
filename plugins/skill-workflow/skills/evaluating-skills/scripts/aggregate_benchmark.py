@@ -307,41 +307,17 @@ def generate_benchmark(benchmark_dir: Path, skill_name: str = "", skill_path: st
     }
     if iteration.get("client"):
         benchmark["metadata"]["client"] = iteration["client"]
-    coverage = run_coverage(benchmark_dir, iteration.get("runs"))
-    benchmark["metadata"]["coverage"] = coverage
-    benchmark["metadata"]["coverage_complete"] = all(
-        c["graded"] == c["expected"] for c in coverage)
+    # Unmeasured or ungraded runs have no grading.json, so record how many
+    # runs each average covers; otherwise configurations compare unequal sets.
+    expected = iteration.get("runs") or runs_per_configuration
+    benchmark["metadata"]["coverage"] = [
+        {"eval": eval_dir.name, "configuration": config_dir.name, "expected": expected,
+         "graded": len(list(config_dir.glob("run-*/grading.json")))}
+        for eval_dir in sorted(benchmark_dir.glob("eval-*"))
+        for config_dir in sorted(p for p in eval_dir.iterdir() if p.is_dir())
+    ]
 
     return benchmark
-
-
-def run_coverage(benchmark_dir: Path, expected_runs) -> list:
-    """Count expected, measured, and graded runs per eval and configuration.
-
-    Unmeasured runs have no grading.json, so without this record the averages
-    would silently cover fewer runs in one configuration than the other.
-    """
-    coverage = []
-    for eval_dir in sorted(benchmark_dir.glob("eval-*")):
-        for config_dir in sorted(p for p in eval_dir.iterdir() if p.is_dir()):
-            run_dirs = sorted(config_dir.glob("run-*"))
-            if not run_dirs:
-                continue
-            measured = 0
-            for run_dir in run_dirs:
-                try:
-                    timing = json.loads((run_dir / "timing.json").read_text())
-                except (OSError, json.JSONDecodeError):
-                    continue
-                measured += timing.get("error") is None
-            coverage.append({
-                "eval": eval_dir.name,
-                "configuration": config_dir.name,
-                "expected": expected_runs or len(run_dirs),
-                "measured": measured,
-                "graded": sum(1 for r in run_dirs if (r / "grading.json").is_file()),
-            })
-    return coverage
 
 
 def generate_markdown(benchmark: dict) -> str:
@@ -366,11 +342,10 @@ def generate_markdown(benchmark: dict) -> str:
     ]
     gaps = [c for c in metadata.get("coverage", []) if c["graded"] != c["expected"]]
     if gaps:
-        lines.append("**Coverage: incomplete.** Averages and the delta cover different runs:")
+        lines.append("**Incomplete:** these averages cover fewer runs than expected:")
         lines.append("")
         for c in gaps:
-            lines.append(f"- {c['eval']} {c['configuration']}: {c['graded']} graded, "
-                         f"{c['measured']} measured of {c['expected']} runs")
+            lines.append(f"- {c['eval']} {c['configuration']}: {c['graded']} of {c['expected']} graded")
         lines.append("")
     lines += [
         "## Summary",
@@ -471,8 +446,8 @@ def main():
         label = config.replace("_", " ").title()
         print(f"  {label}: {pr*100:.1f}% pass rate")
     print(f"  Delta:         {delta.get('pass_rate', '—')}")
-    if not benchmark["metadata"]["coverage_complete"]:
-        print("  Coverage:      incomplete; see benchmark.md before comparing")
+    if any(c["graded"] != c["expected"] for c in benchmark["metadata"]["coverage"]):
+        print("  Incomplete:    some runs are not graded; see benchmark.md")
 
 
 if __name__ == "__main__":

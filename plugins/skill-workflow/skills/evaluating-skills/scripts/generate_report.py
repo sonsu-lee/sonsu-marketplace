@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Modified from anthropics/skills@b9e19e6 skills/skill-creator/scripts/generate_report.py (Apache-2.0, see LICENSE.txt): highlights the iteration run_loop selected.
+# Copied from anthropics/skills@b9e19e6 skills/skill-creator/scripts/generate_report.py (Apache-2.0, see LICENSE.txt).
 """Generate an HTML report from run_loop.py output.
 
 Takes the JSON output from run_loop.py and generates a visual HTML report
@@ -203,11 +203,8 @@ def generate_html(data: dict, auto_refresh: bool = False, skill_name: str = "") 
         <tbody>
 """)
 
-    # Highlight the iteration run_loop selected; its multi-client rule
-    # differs from the merged test count.
-    if data.get("best_iteration") is not None:
-        best_iter = data["best_iteration"]
-    elif test_queries:
+    # Find best iteration for highlighting
+    if test_queries:
         best_iter = max(history, key=lambda h: h.get("test_passed") or 0).get("iteration")
     else:
         best_iter = max(history, key=lambda h: h.get("train_passed", h.get("passed", 0))).get("iteration")
