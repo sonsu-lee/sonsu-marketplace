@@ -214,8 +214,8 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`,
   1.1.0, reusing repository validation first. Without an execution setup it runs
   pinned `commit-check` through `uvx`; repository configuration still takes
   precedence over bundled defaults. This is a Python CLI, not an npm package.
-  The skill's default prefixes are `feature/` (not `feat/`), `fix/` (not
-  `bugfix/`), `hotfix/`, `release/`, and `chore/`. See the
+  The skill's default prefixes are `feat/` (not `feature/`), `bugfix/` (not
+  `fix/`), `hotfix/`, `release/`, and `chore/`. See the
   [skill's validation procedure](plugins/git-workflow/skills/naming-branches/SKILL.md#required-validation).
 - **`writing-pull-requests`** writes plain, repository-aware PR descriptions,
   selecting review-relevant context instead of reproducing work logs. It records
@@ -223,8 +223,8 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`,
   use GitHub stacks where available; new PRs are Draft by default. See the
   [PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md).
 
-Branch prefixes do not change commit types: a `feature/` branch can contain
-`feat`, `fix`, and other commits. A missing dependency or failed configured
+Branch prefixes do not change commit types: a `bugfix/` branch can contain
+`fix`, `test`, and other commits. A missing dependency or failed configured
 validator is not an absent setup and must not trigger a fallback. These skills
 provide agent workflow instructions, not Git hooks or CI enforcement.
 
