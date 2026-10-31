@@ -283,8 +283,10 @@ def main() -> None:
         "snapshot": str(snapshot) if args.baseline == "old" else None,
         "skill_digest": tree_digest(skill_dir, skip_evals=True),
         "snapshot_digest": tree_digest(snapshot, skip_evals=True) if args.baseline == "old" else None,
-        # omp arms load the whole plugin, so its agents and sibling skills count.
-        "plugin_digest": tree_digest(plugin, skip_evals=True) if plugin else None,
+        # omp arms load the whole plugin, so its agents and sibling skills
+        # count; Codex arms get only the skill's path.
+        "plugin_digest": (tree_digest(plugin, skip_evals=True)
+                          if plugin and args.client == "omp" else None),
         "cases_digest": cases_digest(skill_dir, data["evals"]),
         "created": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     })

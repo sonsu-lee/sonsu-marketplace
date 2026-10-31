@@ -90,8 +90,8 @@ every client.
   `skill_digest`, `snapshot_digest`, `plugin_digest`, `cases_digest`, and
   `created`. A rerun into the same iteration must match all of them except
   `skill_name` and `created`. The digests cover the skill, the snapshot, and
-  the containing plugin without any `evals/`, and the eval prompts and input
-  files without assertions.
+  the containing plugin (omp only) without any `evals/`, and the eval prompts
+  and input files without assertions.
 - `.lock`: held while `run_evals.py` or `grade.py` writes the iteration; a
   second script on the same iteration exits instead of mixing files.
 - `eval_metadata.json`: `eval_id`, `eval_name`, `prompt`, `expected_output`,
