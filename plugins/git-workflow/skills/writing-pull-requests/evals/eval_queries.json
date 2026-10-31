@@ -1,0 +1,78 @@
+[
+  {
+    "query": "CSV 내보내기에서 따옴표가 포함된 필드를 올바르게 처리했습니다. PR 제목만 영어로 제안해 주세요.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a PR description for a cleanup command that deletes expired files older than 30 days. Staging selected the right files; production has not been run, and operators must review a dry run before deletion.",
+    "should_trigger": true
+  },
+  {
+    "query": "Rewrite this PR description after the check changed: \"The import was verified in production.\" The import was tested only in staging, where accented names were preserved.",
+    "should_trigger": true
+  },
+  {
+    "query": "Prepare a PR title and body for a UI change on `feature/filter-ui`, based on unmerged `feature/filter-api`; it calls that API and completes search filters. The repository permits stacked PRs.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft titles and descriptions for two independent changes: a CI dependency update and a password-reset bug fix. Both branch from `develop`.",
+    "should_trigger": true
+  },
+  {
+    "query": "次の変更について日本語でPR本文を下書きしてください。ログアウト時にキャッシュを消し、ローカル確認で別ユーザーのデータが表示されないことを確認しました。",
+    "should_trigger": true
+  },
+  {
+    "query": "For a PR changing the checkout confirmation screen, select the evidence a reviewer needs. The only available capture is a still of the confirmation after submission; timing has not been recorded.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a PR body for a parser fix. The repository policy requires an AI assistance disclosure in the body, and AI was used to draft the patch. A local parser test passed.",
+    "should_trigger": true
+  },
+  {
+    "query": "Our draft PR changes the export parser and has one unresolved required check. What must be resolved before marking it ready for review?",
+    "should_trigger": true
+  },
+  {
+    "query": "PR 설명을 한국어로 작성해 주세요. 변경: 주문 ID를 로그에서 제거합니다. 로컬 테스트에서 ID가 기록되지 않았습니다.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a short caption for PR evidence: a staging screenshot shows the empty cart message after removing the last item. No recording exists.",
+    "should_trigger": true
+  },
+  {
+    "query": "How can I see whether PR #23 is still open and which branch it targets?",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain the difference between a fast-forward merge and a three-way merge in Git.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain how to merge an already approved PR using its existing title and body.",
+    "should_trigger": true
+  },
+  {
+    "query": "Explain the commands to rebase an existing local branch `fix/export` onto `develop` and resolve a hypothetical lockfile conflict by keeping the version from develop. Do not execute them.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a Git commit message for replacing an obsolete README command with `npm run dev`.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this change for correctness: `const avg = sum / (items.length - 1)` should average all items. Return findings locally.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain why a squash merge can yield a different commit hash than the PR head.",
+    "should_trigger": false
+  },
+  {
+    "query": "How can I inspect which CI check is failing on an existing PR?",
+    "should_trigger": false
+  }
+]

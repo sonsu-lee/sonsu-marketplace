@@ -17,23 +17,28 @@ changes.
   `.omp-plugin/marketplace.json` version together with every plugin change,
   along with its Claude Code catalog entry or `.claude-plugin/plugin.json`.
   Keep all client catalogs pointed at the same package directories.
-* After changing a plugin, run the
+* After changing a plugin, run the model-free checks in the
   [plugin test procedure](README.md#testing-a-plugin) for every client.
   Require every expected skill exactly once without loading errors; omp
-  discovery must have no `warning:` lines. Exercise representative tasks
-  separately, three runs each by default, with the `default` model profile in
-  `evals/models.toml`; listing is not proof of execution. Run model checks
-  locally, never in CI or with credentials in repository secrets, and report
-  the profile and results in the pull request.
-* When changing evaluation runners or case formats, follow the evaluation
-  guidance and model-free regression checks in
-  [Testing a plugin](README.md#testing-a-plugin).
+  discovery must have no `warning:` lines. Listing is not proof of execution.
+* When a change alters a skill's behavior or description, evaluate it in every
+  client with the [skill evaluation procedure](README.md#evaluating-skills) and
+  the applicable [manual scenario checks](README.md#manual-scenario-checks):
+  output evals against the previous version, three runs per configuration by
+  default, and trigger evals when the description changes, with the
+  evaluation models listed there. Run model checks locally, never in CI or
+  with credentials in repository secrets, and report the models and results
+  in the pull request.
+* When changing the `evaluating-skills` scripts or any skill's `evals/` files,
+  run the model-free regression tests in
+  [Evaluating skills](README.md#evaluating-skills).
 * Use dedicated test client homes: `HOME` for omp, both `HOME` and
   `CODEX_HOME` for Codex, and both `HOME` and `CLAUDE_CONFIG_DIR` for Claude
-  Code. They may persist between runs to keep their test logins. Do not install
-  into live clients or copy real settings or credentials into the test homes.
-  Use `--no-daemon` for Codex model smoke runs and report unavailable
-  authorized authentication as an execution blocker.
+  Code. They may persist between runs to keep their test logins. Do not
+  install into live clients, copy real settings or credentials into the test
+  homes, or install this marketplace into the evaluation homes. Use
+  `--no-daemon` for Codex model smoke runs and report unavailable authorized
+  authentication as an execution blocker.
 * Follow the [commit skill](plugins/git-workflow/skills/writing-commits/SKILL.md)
   when writing commit messages and the
   [branch skill](plugins/git-workflow/skills/naming-branches/SKILL.md)

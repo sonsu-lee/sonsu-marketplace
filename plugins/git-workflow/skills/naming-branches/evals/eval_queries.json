@@ -1,0 +1,78 @@
+[
+  {
+    "query": "ENG-314 작업으로 대시보드에 CSV 내보내기를 추가합니다. 작업할 Git 브랜치 이름을 추천해 주세요.",
+    "should_trigger": true
+  },
+  {
+    "query": "Our payment webhook is failing in production. Suggest a Git branch name for the urgent repair.",
+    "should_trigger": true
+  },
+  {
+    "query": "We are preparing version 2.4.1 for release; what should the Git branch be called?",
+    "should_trigger": true
+  },
+  {
+    "query": "문서의 오래된 설치 명령만 고치는 작업입니다. Git 브랜치 이름을 정해 주세요.",
+    "should_trigger": true
+  },
+  {
+    "query": "Is git branch `feat/cache-warming` the right name for a cache-warming enhancement? Check it against our conventions.",
+    "should_trigger": true
+  },
+  {
+    "query": "The current Git branch is `tmp`; suggest a replacement for fixing issue #62, where timeouts are incorrectly treated as success.",
+    "should_trigger": true
+  },
+  {
+    "query": "이슈 번호 없이 Node 22로 CI 런타임을 올립니다. 적절한 Git 브랜치 이름을 골라 주세요.",
+    "should_trigger": true
+  },
+  {
+    "query": "Does the existing Git branch `develop` need a type prefix under the normal branch naming rules?",
+    "should_trigger": true
+  },
+  {
+    "query": "For a Git branch that adds audit logs, use the explicitly requested `agent/` prefix and propose a complete name.",
+    "should_trigger": true
+  },
+  {
+    "query": "Can Git branch `fix/resize..crash` be presented as ready? Check the name and explain any blocker.",
+    "should_trigger": true
+  },
+  {
+    "query": "캐시 만료 버그를 고치는 Git 브랜치 이름을 정해 주세요. 설명은 영어로 써 주세요.",
+    "should_trigger": true
+  },
+  {
+    "query": "정리된 Git 브랜치 `fix/old-cache`를 로컬에서 삭제하는 명령만 알려 주세요.",
+    "should_trigger": false
+  },
+  {
+    "query": "Finished worktree `../report-work` is no longer needed. Explain the safe Git command to remove that worktree.",
+    "should_trigger": false
+  },
+  {
+    "query": "로컬과 원격에 이미 있는 Git 브랜치 목록을 확인하는 방법을 알려 주세요.",
+    "should_trigger": false
+  },
+  {
+    "query": "How do I rebase the already existing branch `fix/cache` onto `develop`? Explain conflict handling.",
+    "should_trigger": false
+  },
+  {
+    "query": "Suggest a Docker image tag for build 314 of the invoice service.",
+    "should_trigger": false
+  },
+  {
+    "query": "Suggest a recognizable label for a read-only staging API key used by the billing service.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain what requiring two approvals on the existing `release/2.4` branch protects against.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain how to see commits on `feature/export` that are not on `develop`.",
+    "should_trigger": false
+  }
+]

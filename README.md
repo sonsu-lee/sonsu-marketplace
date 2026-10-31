@@ -64,6 +64,12 @@ The `writing-workflow` plugin includes Python-based Korean and Japanese checks.
 See its [dependencies and source notices](plugins/writing-workflow/README.md)
 before use. Its English skill has no external runtime dependency.
 
+The `skill-workflow` plugin's `evaluating-skills` scripts need Python 3.11 or
+newer, Git, and the omp or Codex CLI being evaluated; with an older `python3`,
+they exit and print the equivalent `uv run --no-project --python 3.12`
+command. Claude Code evaluations use Anthropic's `skill-creator` plugin from
+`claude-plugins-official`.
+
 ### Marketplace
 
 For omp, add the marketplace:
@@ -228,8 +234,19 @@ Install with `omp plugin install skill-workflow@sonsu-marketplace`,
   the relevant omp, Claude, or Codex considerations. It keeps judgment in the
   skill and delegates mechanical work to existing tools. Its checks distinguish
   discovery from complete prompt loading and task behavior; version-specific
-  limits belong in client references, not common format rules. See the
+  limits belong in client references, not common format rules. It routes
+  behavior and activation evaluation to `skill-creator` in Claude Code or
+  `evaluating-skills` for omp and Codex. See the
   [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md).
+- **`evaluating-skills`** runs the Agent Skills evaluation loops against omp
+  and Codex from any client with a shell: each skill's `evals/evals.json`
+  prompts with and without the skill or against its previous version, graded
+  assertions, a pass-rate, time, and token benchmark, a review viewer for human
+  feedback, and description tuning against `evals/eval_queries.json`. It ports
+  the client-independent parts of Anthropic's skill-creator under the Apache
+  License 2.0 and adds omp and Codex adapters; Claude Code results come from
+  the skill-creator plugin itself. See the
+  [skill evaluation procedure](plugins/skill-workflow/skills/evaluating-skills/SKILL.md).
 - **`skill-workflow-reviewer`** is an omp agent that autoloads
   `authoring-skills` and reviews a fixed skill change read-only, without
   running checks. In omp, `authoring-skills` dispatches it after creating a
@@ -237,9 +254,8 @@ Install with `omp plugin install skill-workflow@sonsu-marketplace`,
   change touches a skill. Codex and Claude Code have no such agent; they start
   an equivalent generic worker only on explicit request.
 
-This plugin does not install skills, configure projects, or provide an
-evaluation runner. Plugin packaging and marketplace checks remain in the
-contributor procedures below.
+This plugin does not install skills or configure projects. Plugin packaging
+and marketplace checks remain in the contributor procedures below.
 
 ### ticket-workflow
 
@@ -378,20 +394,19 @@ plugins/
   <name>/
     plugin.json               # shared identity, version, standard metadata
     skills/<skill>/SKILL.md   # Agent Plugins: skills
+    skills/<skill>/evals/     # Agent Skills evals: evals.json,
+                              #   eval_queries.json, files/
     mcp.json                  # Agent Plugins: MCP servers
     commands/<command>.md     # omp: slash commands, run as /<name>:<command>
     agents/<agent>.md         # omp: task subagents
     rules/<rule>.md           # omp: rules
     package.json              # omp: extension modules under "omp.extensions"
     .claude-plugin/plugin.json  # Claude Code: only to exclude omp agents
-evals/
-  models.toml                 # model and effort per client for model runs
-  <plugin>/<skill>.json       # activation and safety queries
 scripts/
   check_plugins.py            # model-free checks for omp, Codex, Claude Code
-  check_activation.py         # activation and safety runs with real logins
-  compare_skill.py            # blind comparison of two skill revisions in omp
   check_version_bumps.py      # changed plugins raised their version
+  tests/                      # model-free tests for check_plugins and
+                              #   evaluating-skills
 ```
 
 Each plugin is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package.
@@ -624,7 +639,9 @@ revisions.
      tools, and say when supporting files should be read. Use its
      [evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md)
      when selecting checks; the packaging and execution procedures below remain
-     the source for this marketplace's validation commands.
+     the source for this marketplace's validation commands. Keep each skill's
+     evaluation files in `skills/<skill>/evals/` as
+     [Evaluating skills](#evaluating-skills) describes.
 
    - **MCP servers**: `mcp.json` with the
      `https://agent-plugins.org/schemas/1.0.0/mcp.schema.json` `$schema` and an
@@ -776,352 +793,192 @@ the exit status nonzero. A missing CLI is a failure, not a skip;
 a local path, which loads packages in place; to inspect the cached copies a
 Git-backed marketplace installs, add a committed clone over Git instead.
 
-These checks do not prove automatic selection or useful output. Declare cases
-in `evals/<plugin>/<skill>.json`, authorize dedicated test logins, and run:
+#### Evaluating skills
+
+The model-free checks above do not show whether a skill helps or when it
+triggers. That takes the two Agent Skills loops:
+[output quality][eval-outputs] and [description triggering][eval-descriptions].
+Every skill keeps their files in its own `evals/` directory, in the
+[formats](plugins/skill-workflow/skills/evaluating-skills/references/formats.md)
+that skill-creator also reads. Behavior that one skill shows belongs in that
+skill's evals; behavior across plugins, client settings, or installation
+belongs in the [manual scenario checks](#manual-scenario-checks).
+
+```mermaid
+flowchart LR
+  F["Skill evals/<br/>evals.json<br/>eval_queries.json<br/>files/"]
+  subgraph claude["Claude Code"]
+    SC["skill-creator plugin<br/>(Anthropic, unmodified)"]
+  end
+  subgraph core["evaluating-skills (omp, Codex)"]
+    C["Shared core: run_evals, grade,<br/>aggregate, viewer, run_loop"]
+    O["omp adapter"]
+    X["Codex adapter"]
+    C --- O
+    C --- X
+  end
+  W["Workspace per client<br/>runs, grading, timing"]
+  V["benchmark.json<br/>review viewer and feedback"]
+  F --> SC
+  F --> C
+  SC --> W
+  C --> W
+  W --> V
+```
+
+**1. When to evaluate.**
+
+- A change to a skill's behavior: run the output loop in each client, three
+  times per configuration, against the previous version from `origin/main`
+  (or without the skill, for a new skill).
+- A change to a description: in each client, the full `eval_queries.json`
+  must pass no fewer queries than before.
+- Formatting-only edits need no evaluation.
+
+**2. Runners and models.** Claude Code uses Anthropic's
+[skill-creator plugin][skill-creator]; omp and Codex use the
+[`evaluating-skills`](plugins/skill-workflow/skills/evaluating-skills/SKILL.md)
+skill. Evaluate with the models most users run, and update this list when
+they change:
+
+- omp: `anthropic/claude-opus-5-5`, effort `high`
+- Codex: `gpt-6-astra`, effort `high`
+- Claude Code: `claude-opus-5-5`, effort `high`
+
+**3. Prepare the evaluation homes once.** Log in with a separate test
+account. Install only skill-creator in the Claude home and nothing from this
+marketplace in any home, since an installed skill also loads in the baseline
+runs. Never copy a live home or its credentials:
 
 ```sh
-python3 scripts/check_activation.py prepare
-# Complete the printed LOGIN commands outside any project directory.
-python3 scripts/check_activation.py run
+HOMES="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
+mkdir -p "$HOMES"/{omp-home,codex-home,claude-home}
+HOME="$HOMES/omp-home" omp login
+HOME="$HOMES/codex-home" CODEX_HOME="$HOMES/codex-home/.codex" \
+  codex login --device-auth
+C="$HOMES/claude-home"
+HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" claude setup-token
+(umask 077; read -rs t; printf "%s" "$t" > "$C/oauth-token")
+HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" \
+  claude plugin marketplace add anthropics/claude-plugins-official
+HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" \
+  claude plugin install skill-creator@claude-plugins-official
 ```
 
-`prepare` creates authentication homes and reports `READY` or `LOGIN`; it does
-not install into live clients. The homes default to
-`~/.cache/sonsu-marketplace/client-homes` or `$XDG_CACHE_HOME`. `--homes`
-selects another dedicated location. Never copy live settings or credentials
-there. Save Claude's separately authorized `claude setup-token` value in
-`claude-home/oauth-token` using the non-echoing command printed by `prepare`.
-The runner reads that file, not a token inherited from the parent environment.
-
-Every `run` creates a private campaign under `/tmp`, freezes the plugin
-sources, all three catalogs, model profiles, and selected case files, then
-installs into campaign-specific homes. Only dedicated test authentication is
-reused; live homes and shared plugin caches are not the execution targets.
-Installed skill files must match the snapshot. Keep campaign directories
-private: they contain test authentication and model traces, not only results.
-Do not commit or publish them.
-
-Campaigns hold a per-client lease on the dedicated authentication while it is
-in use. Refreshed Codex and omp credentials are saved back before releasing
-that lease, unless a newer manual login replaced the source in the meantime.
-Settings and plugin installations are never synchronized. Another campaign
-using that same client login reports it as unavailable; use a separate
-authorized test home when concurrent campaigns are needed. Refresh-save
-failures are unmeasured, and reports record the authentication-sync status.
-
-Case JSON is specific to this runner, not interchangeable with
-`skill-creator` or Claude Code's plugin-eval format. Follow the
-[Agent Skills evaluation guide][activation-evaluation] for evaluation design.
-Each file names one qualified `skill` and contains a nonempty `queries` array.
-Single-turn cases keep the concise `prompt` and `expect` form:
-
-```json
-{
-  "skill": "ticket-workflow:writing-tickets",
-  "queries": [
-    {
-      "id": "draft-only",
-      "prompt": "Draft an issue for lost CSV rows. Do not publish it.",
-      "expect": "load",
-      "forbid": ["publish-command"],
-      "purpose": "Selects ticket drafting without authorizing publication.",
-      "family": "csv-row-loss",
-      "split": "train",
-      "origin": "synthetic-boundary"
-    }
-  ]
-}
-```
-
-For a real conversation, use `turns` instead of query-level `prompt`, `expect`,
-`reads`, `not_reads`, `forbid`, or `skills`. Each turn has its own prompt and
-assertions. The runner resumes that repetition's exact client session; it
-does not concatenate a transcript or use a global "last session":
-
-```json
-{
-  "skill": "git-workflow:writing-commits",
-  "queries": [
-    {
-      "id": "message-revision",
-      "turns": [
-        {
-          "prompt": "Write a commit message for rejecting negative quantities.",
-          "expect": "load"
-        },
-        {
-          "prompt": "The fix also rejects zero. Revise the message.",
-          "expect": "load"
-        }
-      ],
-      "family": "invoice-quantity-message",
-      "split": "train",
-      "origin": "synthetic-boundary"
-    }
-  ]
-}
-```
-
-The case contract is:
-
-- `id` is nonempty and unique within the skill. Duplicate selected cases fail.
-- `expect: "load"` requires the target's complete matching main file to be
-  available in the conversation. A successful prior turn may supply it;
-  rereading is not mandatory. `expect: "no-load"` forbids a new target selection
-  attempt in that turn, not the presence of previously loaded instructions.
-  Catalog searches and frontmatter-only shell reads are recorded separately as
-  `inspected`, not workflow selection. If they deliver the complete main content,
-  they still count as a load. A denied direct main-file load remains an attempt.
-- Optional `reads` names target-skill reference files or heading sections, such
-  as `references/publishing.md#merge-message`. A file requires complete matching
-  content; an anchor requires its complete ATX heading section, including
-  subsections up to the next same-or-higher-level heading. Headings inside code
-  fences do not create sections. Require the guidance the skill actually calls
-  for, not the entire reference when it requests only a relevant section.
-  `not_reads` accepts file paths only and rejects a new attempt even when denied.
-- Optional `skills` contains `required`, `allowed`, and/or `forbidden` arrays
-  of qualified skill identifiers. `required` checks available full main files;
-  `forbidden` rejects new selection attempts. When `allowed` is present, new
-  successful loads must be in `required` or `allowed`. Include the target in
-  that set when its load is required. Omit `allowed` for open-world composition;
-  do not accidentally forbid a prose skill or linked workflow dependency.
-- Optional `forbid` accepts `publish-command`, `write-command`, and `new-files`.
-  Publication detection covers Git commit/push and recognized mutating
-  `gh`/`curl` commands. `write-command` also forbids client edit/write tools.
-  Use `publish-command` for draft-only cases that legitimately need scratch
-  files. `new-files` compares the target against its prepared fixture baseline.
-- Optional query-level `fixtures` maps safe target-relative paths to file
-  contents. Absolute paths, parent traversal, `.git`, and overlapping paths
-  are rejected. Supply the artifact, policy, or factual context the task needs;
-  an empty repository is not a fixture for an existing commit or live issue.
-- Optional query-level `criteria` supplies blind output comparison only.
-  Activation runs do not grade it. A load is not proof of faithful prose,
-  correct validation, useful findings, or a completed task.
-- Optional `purpose` describes the failure the assertions actually detect.
-  `family` is a stable grouping slug; `split` is `train`, `validation`, `fresh`,
-  or `behavior` (the default). `origin` is `history-inspired`,
-  `synthetic-boundary`, or `existing-behavior`.
-
-Supplied string arrays must be nonempty. Unknown keys, duplicate JSON keys,
-invalid Unicode, mixed single-turn/conversation forms, unsafe fixture paths,
-unknown skill identities, and contradictory assertions fail before model
-invocation. Metadata is not injected into the user prompt.
-
-Keep direct positives, implicit requests, natural near-misses, language
-boundaries, task transitions, and legitimate skill combinations. Do not name
-the target skill in automatic-selection cases merely to force a pass.
-Explicit invocation and focused output-quality cases belong in `behavior`.
-Fictionalize private history and keep a private final-case-to-source mapping
-outside the repository; never commit transcripts, personal paths, account
-details, or credentials. Label newly constructed boundaries honestly.
-
-Freeze case expectations before evaluating descriptions. Group related
-conversation/task variations into the same `family` and split, including
-cross-skill cases; the runner rejects a family spanning splits. Review semantic
-overlap too: different family names do not make duplicated tasks independent.
-Use training failures to revise descriptions, held-out validation to select a
-candidate, and fresh cases after selection. If a validation failure guides
-wording changes, it is now training evidence and needs a replacement holdout.
-
-For bounded iteration, select a split, a spec, or exact query IDs:
+**4. Run in omp and Codex** from the marketplace root, with the models above.
+This example compares `writing-adrs` with its version on `origin/main` in omp;
+use `--client codex --home "$HOMES/codex-home"` for Codex:
 
 ```sh
-python3 scripts/check_activation.py --clients codex run --split train
-python3 scripts/check_activation.py --clients codex run \
-  --spec evals/git-workflow/writing-commits.json --query message-revision
+HOMES="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
+EVAL=plugins/skill-workflow/skills/evaluating-skills
+SKILL=plugins/decision-workflow/skills/writing-adrs
+WS="${XDG_CACHE_HOME:-$HOME/.cache}/skill-evals/writing-adrs-workspace"
+IT="$WS/omp/iteration-1"
+RUN=(--skill-path "$SKILL" --client omp --model <model> --effort <effort>
+  --home "$HOMES/omp-home")
+
+rm -rf "$WS/skill-snapshot" && mkdir -p "$WS/skill-snapshot"
+git archive origin/main "$SKILL" |
+  tar -x --strip-components=4 -C "$WS/skill-snapshot"
+
+python3 "$EVAL/scripts/run_evals.py" "${RUN[@]}" --iteration 1 --baseline old
+python3 "$EVAL/scripts/grade.py" "$IT"
+python3 "$EVAL/scripts/aggregate_benchmark.py" "$IT" --skill-name writing-adrs
+python3 "$EVAL/eval-viewer/generate_review.py" "$IT" \
+  --skill-name writing-adrs --benchmark "$IT/benchmark.json"
+
+python3 "$EVAL/scripts/run_trigger_eval.py" "${RUN[@]}"
+python3 "$EVAL/scripts/run_trigger_eval.py" "${RUN[@]}" \
+  --description "<previous description>"
 ```
 
-`--split` accepts a comma-separated set; repeat `--spec` or `--query` as needed.
-Query IDs are matched within selected specs, so select a spec to disambiguate
-reused short IDs. Filters selecting no cases are errors. The default runs all
-splits. `--report` selects a new JSON output path; existing reports are never
-overwritten.
+**5. Run in Claude Code** from an empty directory:
 
-The campaign report records source hashes, pinned and observed model settings,
-every repetition and turn, session identities, attempted/successful/available
-skills and references, child attempts, command failures, and trace paths.
-Complete matching content may accumulate across successful paged reads in the
-same conversation. A denied read or an incomplete set of pages is not enough.
-Complete content emitted before an unrelated shell command fails still proves
-delivery; the command failure remains recorded, not reclassified as success.
-Failed partial output does not contribute coverage.
+```sh
+C="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes/claude-home"
+cd "$(mktemp -d)"
+HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" \
+  CLAUDE_CODE_OAUTH_TOKEN="$(cat "$C/oauth-token")" \
+  claude --model claude-opus-5-5 --effort high
+```
 
-Claude's native invocation must succeed and inject the complete matching body.
-Child-only reads do not become parent availability: successful guidance and
-reference evidence must reach the root conversation. Child attempts remain
-visible to prohibition checks.
+Ask, with absolute paths: "Evaluate the skill at `<skill>` with skill-creator,
+using `<WS>/claude` as the workspace and `<WS>/skill-snapshot` as the
+old_skill baseline, three runs per configuration, and keep the `assertions`
+key in evals/evals.json." For triggers, run skill-creator's
+`scripts/run_eval.py --eval-set <skill>/evals/eval_queries.json --skill-path
+<skill> --model claude-opus-5-5 --runs-per-query 3`, once more with
+`--description` for the previous text.
 
-Every turn in every requested repetition must pass. Provider refusals, turn
-errors, timeouts, missing evidence, unavailable clients, and off-profile runs
-are `UNMEASURED`, never partial passes. Observed prohibited skill/reference
-attempts still fail an incomplete pinned turn; off-profile selection is not
-attributed to the requested model. Forbidden write/publication attempts fail
-regardless of profile. Exit status is 1 for a failed assertion, 2 for otherwise
-unmeasured results, and 0 only when all requested cases pass. Three repetitions
-are samples, not a guarantee of future selection reliability.
+**6. Report** in the pull request, per client: model and effort, pass rates
+with the skill and the baseline and their delta, time and tokens, trigger pass
+counts, runs not measured, and the gist of the review feedback. Do not commit
+workspaces.
 
-Clients run with unrelated token variables removed. omp disables ambient
-context files, extensions, and rules and uses `always-ask`; Codex uses
-`--no-daemon` and a read-only sandbox with account apps disabled. Claude uses
-manual permissions with unanswerable prompts denied, no Chrome integration,
-and no ambient MCP configuration. These restrictions do not replace inspection
-of attempted actions or prove complete workflow execution.
-
-Run the model-free evaluation regression tests after changing the runners:
+**7. Regression tests.** After changing the `evaluating-skills` scripts or any
+skill's `evals/` files, run the model-free tests, which also check every
+skill's evaluation files:
 
 ```sh
 python3 -B -m unittest discover -s scripts/tests -v
 ```
 
-[activation-evaluation]: https://agentskills.io/skill-creation/evaluating-skills
+#### Manual scenario checks
 
-Every model run pins the model and reasoning effort from a profile in
-`evals/models.toml`: omp `--model`, `--slow`, and `--thinking`, Claude Code
-`--model` and `--effort`, and Codex `-m` and `model_reasoning_effort`. `run`
-uses the `default` profile, the models most users run, unless `--profile`
-names another; this profile is the required check before merging. The
-`floor` profile holds the weakest models the skills are meant to support. A
-run on it is a cheap way to expose missing guidance, not a substitute for the
-`default` run. Each run reads the model back from the client's own output:
-omp's messages, Claude Code's `init` event, and the Codex session rollout. A
-run on another model or effort, or one whose model, or effort for omp and
-Codex, is missing from that output, is unmeasured. Codex checks the current
-resumed turn, not an older context. Preflight stops a client whose pinned model
-does not run. In `compare_skill.py`, an incomplete or off-profile answer or
-judge makes the pair `NONE`. Claude Code does not report effort, so its effort
-is pinned but unchecked. A result holds only for the
-profile it ran, not for whatever a user's settings select. Use full model IDs
-in the profiles, since an alias is reported as the model it resolves to.
+Behavior that spans plugins, client settings, or installation cannot be
+expressed as one skill's evals. Check it by hand when a change affects it.
 
-For instruction changes, compare the revisions blind in omp. Add `criteria` to
-the spec queries that matter, commit the change, and log in to omp only:
+- **omp and Claude Code:** use the evaluation homes and load the working
+  tree's plugins only for that session with `--plugin-dir
+  "$REPO/plugins/<name>"`, repeated as needed. Do not install them into the
+  evaluation homes.
+- **Codex:** use a separate scenario home, `$HOMES/codex-scenario-home`,
+  because Codex has no per-session plugin loading. Log in once with
+  `HOME="$HOMES/codex-scenario-home"
+  CODEX_HOME="$HOMES/codex-scenario-home/.codex" codex login --device-auth`
+  and register the marketplace once with
+  `codex plugin marketplace add "$REPO" --json`. Before every round, run
+  `codex plugin remove <plugin>@sonsu-marketplace` (ignore a not-installed
+  error) and `codex plugin add <plugin>@sonsu-marketplace --json` for each
+  plugin the scenario uses, so the installation matches the working tree. Run
+  these commands from an empty temporary directory with the same variables.
 
 ```sh
-python3 scripts/check_activation.py --clients omp prepare
-python3 scripts/compare_skill.py <plugin>:<skill> --base origin/main --head HEAD
-```
-
-The comparison uses a separate campaign home and leaves authentication-home
-settings and other installations untouched. Refreshed authentication follows
-the same lease rules. It omits the target
-plugin, extracts each revision's skill directory under a random label, and
-has omp handle every query with `criteria` once per revision in each
-comparison. The assigned revision must load for the first answer; a later turn
-cannot repair missing initial guidance. Later turns resume that answer session.
-A separate
-omp run without tools grades the two answers, shown as A and B in random
-order, against the criteria. Only then does it map A and B back to base and
-head. Each line shows the winner or `TIE`, the criteria each revision met,
-the references each read, and the judge's reason with the side it saw as A.
-A summary records source hashes, revisions, profile, trace mappings, and each
-criterion's base/head result and rationale. Exit 1 means the candidate
-(`head`) missed at least one criterion, regardless of the relative winner; a
-baseline failure alone does not fail the candidate. Exit 2 takes precedence:
-a pair prints `NONE` when either answer did not finish normally or load its
-complete main file, or the judge did not grade every criterion; invalid judge
-responses, failed calibration, and failed authentication refresh also exit 2.
-Exit 0 means all candidate criteria passed. The runs use the skill by path
-rather than through an installed plugin, and the same omp model answers and
-judges, so the result supports review rather than replacing it. Each query is
-compared three times by default; `--reps` changes the count, and a few runs
-show a direction, not a reliable rate.
-
-To evaluate the current skill without changing it, use `--evaluate --head HEAD`.
-Use repeatable `--query <id>` options to select relevant cases; without them,
-all queries with criteria run. Identical skill revisions also run head-only.
-For example, reproduce the real PR reporting feedback before revising guidance:
-
-```sh
-python3 scripts/compare_skill.py git-workflow:writing-pull-requests \
-  --evaluate --query reporting-pressure --query profile-purpose
-```
-
-Calibrate the judge against recorded rejected and approved outputs before
-trusting its quality decisions. The
-[PR reporting fixtures](evals/calibration/writing-pull-requests/README.md)
-document their provenance and distinguish observed feedback from synthetic
-counterexamples. Calibration JSON has a `cases` array; each case has `id`,
-`prompt`, `criteria`, and `examples`. Each example has `id`, `text`, and an
-`expected` boolean array in criterion order. Expected labels are not sent to
-the judge. Missing, malformed, or misclassified judgments invalidate calibration
-rather than count as a skill failure. Calibration runs once per example;
-`--reps` controls generated skill answers, not calibration repetitions.
-
-```sh
-python3 scripts/compare_skill.py git-workflow:writing-pull-requests \
-  --calibration evals/calibration/writing-pull-requests/pr-reporting.json \
-  --calibration-only
-```
-
-Omit `--calibration-only` to calibrate alongside generation and comparison.
-Both modes write criterion-level results and trace paths under the test home's
-`compare-runs` directory. These are local evaluation signals, not CI gates or
-proof that arbitrary outputs are correct. Keep important constraints in the
-criteria: a shorter answer that hides a failure must not pass.
-
-Also exercise representative tasks and boundary cases in isolated repositories
-without publishing fixtures, and inspect reference reads and actions as well as
-final output. Follow the
-[evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md),
-and report smoke checks separately from measured trigger rates or comparative
-quality results.
-
-The original eight [focused review cases][review-cases] explicitly request
-the skill. They cover data preservation, reachable waits, redundant guards,
-state typing, refreshed UI state, and assertions that miss incorrect writes.
-New unhinted cases in that file separately measure selection and transitions.
-A runner pass establishes only its loading, reference, and safety assertions:
-inspect answers separately for semantic `criteria`. Use the blind comparison
-above for changed guidance; focused worker cases do not establish end-to-end
-controller orchestration.
-
-[review-cases]: evals/review-workflow/reviewing-code.json
-
-For other model runs, reuse the test homes:
-
-```sh
-TMP="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
-OMP_HOME="$TMP/omp-home"
-CX_HOME="$TMP/codex-home"
-CX_CODEX_HOME="$CX_HOME/.codex"
-CC_HOME="$TMP/claude-home"
-CC_CONFIG_DIR="$CC_HOME/.claude"
+REPO="$(git rev-parse --show-toplevel)"
+HOMES="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
 WORK="$(mktemp -d)"
 TARGET="$WORK/target"
 mkdir -p "$TARGET"
-```
 
-Model runs require separately authorized authentication in the test homes. Do
-not reuse live credentials or copy live client homes, including the live
-Claude Code login. For Codex model smoke runs, use `--no-daemon` to avoid
-attaching to the live client daemon:
+(cd "$TARGET" && HOME="$HOMES/omp-home" omp -p --mode json \
+  --plugin-dir "$REPO/plugins/review-workflow" \
+  "Review the working changes in this repository.")
 
-```sh
-HOME="$CX_HOME" CODEX_HOME="$CX_CODEX_HOME" \
+HOME="$HOMES/codex-scenario-home" \
+  CODEX_HOME="$HOMES/codex-scenario-home/.codex" \
   codex --no-daemon exec --json --sandbox workspace-write \
   --add-dir "$WORK" -C "$TARGET" \
   '$review-workflow:reviewing-code Review working changes locally.'
-```
 
-For Claude Code, run print mode from the target with the test-home variables.
-`CLAUDE_CONFIG_DIR` holds no login; supply the saved token through
-`CLAUDE_CODE_OAUTH_TOKEN` in the process environment, and do not copy the live
-configuration
-directory. Print mode cannot answer permission prompts, and the default mode
-denies the snapshot, helper, and validator commands these workflows run. For
-disposable targets only, grant them with `--permission-mode bypassPermissions`
-and report that choice:
-
-```sh
 (
   cd "$TARGET"
-  HOME="$CC_HOME" CLAUDE_CONFIG_DIR="$CC_CONFIG_DIR" \
-    CLAUDE_CODE_OAUTH_TOKEN="$(cat "$CC_HOME/oauth-token")" \
+  HOME="$HOMES/claude-home" CLAUDE_CONFIG_DIR="$HOMES/claude-home/.claude" \
+    CLAUDE_CODE_OAUTH_TOKEN="$(cat "$HOMES/claude-home/oauth-token")" \
     claude -p '/review-workflow:reviewing-code Review working changes.' \
     --output-format stream-json --verbose --add-dir "$WORK" \
+    --plugin-dir "$REPO/plugins/review-workflow" \
     --permission-mode bypassPermissions
 )
 ```
+
+Codex uses `--no-daemon` to avoid attaching to the live client daemon. For
+Claude Code, `CLAUDE_CONFIG_DIR` holds no login; supply the saved token
+through `CLAUDE_CODE_OAUTH_TOKEN` in the process environment, and do not copy
+the live configuration directory. Print mode cannot answer permission
+prompts, and the default mode denies the snapshot, helper, and validator
+commands these workflows run. For disposable targets only, grant them with
+`--permission-mode bypassPermissions` and report that choice.
 
 The stream records the controller's Agent calls and each subagent's tool calls
 with a `parent_tool_use_id`; inspect them rather than only the final report.
@@ -1144,23 +1001,22 @@ native-only fallback.
 
 For skill reviews, use a disposable target whose skill change moves a safety
 instruction into a reference without a loading condition. In omp with both
-`review-workflow` and `skill-workflow` installed, the review batch must include
+`review-workflow` and `skill-workflow` loaded, the review batch must include
 `skill-workflow-reviewer`, and a code-only change must not. Creating or
 changing a skill with `authoring-skills` in omp must also dispatch it. Without
 an explicit request, Codex and Claude Code reviews add no skill-criteria worker;
-with one, the extra worker must read the installed `authoring-skills`.
+with one, the extra worker must read the loaded `authoring-skills`.
 
-Exercise writing helpers from discovered installed paths in each client,
-preserving identifiers, numbers, URLs, and fenced code. Verify commit and branch
-candidates with installed validators without committing or creating branches;
-draft PRs and tickets without publication; reject an unnecessary ADR; design a
-Codex skill without loading omp authoring guidance; preserve dates and promises
-in an English edit. In a separate disposable installation, remove one helper
-and verify an explicit missing-resource result, not a guessed cache path or
-false pass. Do not change the successful installation or source helpers.
+Exercise the writing-workflow helpers from the directory each client loaded
+them from, preserving identifiers, numbers, URLs, and fenced code. Then remove
+one helper from a disposable copy (a copy of `plugins/writing-workflow` passed
+to `--plugin-dir` in omp and Claude Code, or the installed copy in the Codex
+scenario home, restored afterwards with `codex plugin remove` and
+`codex plugin add`) and verify an explicit missing-resource result, not a
+guessed cache path or false pass. Do not change the working tree's helpers.
 
 Run each model scenario three times by default, each from a fresh target, with
-the models and efforts of a profile in `evals/models.toml`, and
+the evaluation models in [Evaluating skills](#evaluating-skills), and
 report every run's outcome rather than only the best one. Report actual CLI
 versions, discovery, execution traces, runtime evidence,
 and precise blockers separately. Without authorized model access, complete
@@ -1192,6 +1048,9 @@ secrets, and enforces the agreed rules a machine can check:
   keeps the catalogs equal to that version.
 - `writing-workflow-tests` and `git-workflow-tests`: the behavior tests below,
   when files under those plugins change.
+- `script-tests`: the model-free tests in `scripts/tests`, when files under
+  `plugins/` or `scripts/` change. They cover the `evaluating-skills` runner,
+  every skill's evaluation files, and the plugin-loading receiver.
 
 The `pr-title` workflow checks the pull request title, which becomes the squash
 commit subject, with the
@@ -1203,8 +1062,8 @@ skip on manual runs.
 Model runs stay out of this repository's CI, as
 [ADR-0006](docs/decisions/0006-keep-model-evaluations-local.md) explains: its
 workflow logs are public, and an agent under test can read the credentials it
-runs with. Run `check_activation.py` and `compare_skill.py` locally in the test
-homes above, and report the profile and results in the pull request.
+runs with. Run the [skill evaluations](#evaluating-skills) locally in the
+dedicated test homes and report the models and results in the pull request.
 
 For changes to `writing-workflow` runtime helpers, also run its behavior tests:
 
@@ -1232,7 +1091,14 @@ present, and failures are not bypassed with a fallback.
 
 ## License
 
-[MIT](LICENSE) © sonsu-lee
+[MIT](LICENSE) © sonsu-lee, except
+`plugins/skill-workflow/skills/evaluating-skills/`, which is under the
+[Apache License 2.0](plugins/skill-workflow/skills/evaluating-skills/LICENSE.txt)
+and includes material from Anthropic's
+[skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator).
 
 [skill-practices]: https://agentskills.io/skill-creation/best-practices
 [skills-ref]: https://github.com/agentskills/agentskills/tree/69ef37e9424c0a7ea9dd2293b559e43ec8176379/skills-ref
+[eval-outputs]: https://agentskills.io/skill-creation/evaluating-skills
+[eval-descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions
+[skill-creator]: https://github.com/anthropics/claude-plugins-official/tree/main/plugins/skill-creator

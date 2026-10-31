@@ -31,6 +31,7 @@ outcome. Prefer deletion or the smallest sufficient change. Zero findings is
 valid.
 
 Return the scope and assigned question, evidence-backed findings, suggested
-behavior scenarios for separate execution (a representative request and a
-near-miss), and limitations. Separate static reasoning from observed execution
-and incomplete coverage from success.
+eval cases for separate execution (a representative prompt for the skill's
+`evals/evals.json` and a near-miss query for its `evals/eval_queries.json`),
+and limitations. Separate static reasoning from observed execution and
+incomplete coverage from success.

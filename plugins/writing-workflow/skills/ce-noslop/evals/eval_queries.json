@@ -1,0 +1,98 @@
+[
+  {
+    "query": "한국어로 지시할게요. 다음 사실만 사용해 IAM 권한 설명란에 들어갈 짧고 명확한 영어 문장을 작성해 주세요: 운영팀은 월별 청구서를 볼 수 있지만 결제 수단은 변경할 수 없습니다.",
+    "should_trigger": true
+  },
+  {
+    "query": "Simplify this English runbook paragraph, preserving the command and the precise threshold: “The monitor performs the execution of a retry when the queue has remained above 500 messages for 5 minutes. Run `queue status` to inspect it.”",
+    "should_trigger": true
+  },
+  {
+    "query": "Rewrite this README text in plain English: “Our robust and seamless importer gracefully handles invalid records. It skips each invalid row and logs its line number.”",
+    "should_trigger": true
+  },
+  {
+    "query": "Does this English announcement sound formulaic? Identify the suspect phrases and explain briefly; do not rewrite it: “In today’s landscape, our robust platform enables seamless workflows, showcasing a pivotal leap forward. Moreover, this journey will transform everything.”",
+    "should_trigger": true
+  },
+  {
+    "query": "Make this paragraph easier to read with minimal changes, keeping my slightly informal voice: “I spent Friday tracing the timeout, and the client was still retrying after the server had already closed the connection, which made the logs hard to follow.”",
+    "should_trigger": true
+  },
+  {
+    "query": "Make this English incident update concise without increasing confidence: “The cache may be responsible for the stale response. We have not confirmed whether the purge finished.”",
+    "should_trigger": true
+  },
+  {
+    "query": "メモだけを使って英語のリリースノートを自然に書いてください。変更: CSV export includes headers; empty exports contain only headers; rollout starts Monday.",
+    "should_trigger": true
+  },
+  {
+    "query": "Edit the English explanation, not the shell block or URL:\n“Utilize the following powerful command to facilitate inspection of the archive.”\n```sh\narchive list --all\n```\nReference: https://example.org/archive",
+    "should_trigger": true
+  },
+  {
+    "query": "Polish this English report while keeping the quotation exact: The team called the rollout “a measured trial”. In a significant and noteworthy development, two groups joined it.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft two clear English paragraphs for a design note from these facts only: the client saves a draft locally; it uploads the file after the user confirms; a failed upload leaves the draft available.",
+    "should_trigger": true
+  },
+  {
+    "query": "Check this English sentence for AI-style writing tells, without rewriting: “The migration was pivotal for the billing team because it removed a manual invoice import.”",
+    "should_trigger": true
+  },
+  {
+    "query": "Rewrite this English product blurb plainly without inventing features: “Our seamless, powerful dashboard makes reporting effortless. It displays daily order counts and supports CSV export.”",
+    "should_trigger": true
+  },
+  {
+    "query": "Translate into English only: “서버는 요청을 거부했습니다.”",
+    "should_trigger": false
+  },
+  {
+    "query": "Suggest an English identifier for a Boolean that indicates whether an invoice has been paid; I need a code variable name, not a sentence.",
+    "should_trigger": false
+  },
+  {
+    "query": "Was this passage written by an AI or a human? “The service retries failed requests twice.”",
+    "should_trigger": false
+  },
+  {
+    "query": "次の日本語を読みやすく直してください。「確認が実施されることになります。」",
+    "should_trigger": false
+  },
+  {
+    "query": "In Korean, explain what the English notice “The subscription renews automatically” means.",
+    "should_trigger": false
+  },
+  {
+    "query": "How do I change the console display language to English?",
+    "should_trigger": false
+  },
+  {
+    "query": "Rename the JavaScript variable `n` to `count` in this expression and return code only: `const n = items.length;`",
+    "should_trigger": false
+  },
+  {
+    "query": "다음 문장의 맞춤법만 고쳐 줘: “할수 있습니다.”",
+    "should_trigger": false
+  },
+  {
+    "query": "For a fictional PR-writing exercise, draft a provisional English title and body using only these complete notes: CSV export now includes a header row; an empty export contains only that header; tests were not run. No project template or additional policy applies. Repository/diff checks are unresolved and this must not be presented as publication-ready. Keep the prose plain; do not contact a repository or publish.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft an English bug ticket for review, not publication: saving an empty name currently succeeds; the expected behavior is an error. Write a concise problem and acceptance criterion in plain English.",
+    "should_trigger": true
+  },
+  {
+    "query": "Polish both README explanations in their original languages, without changing the fenced command: English: “Our seamless tool facilitates the inspection of logs.” Korean: “로그에 대한 확인이 수행되어집니다.”\n```sh\nlogs inspect --all\n```",
+    "should_trigger": true
+  },
+  {
+    "query": "Edit each passage for natural wording in its original language. English: “Our robust and seamless service performs the processing of requests.” Japanese: 「本サービスにおいては、リクエストの処理が実施されます。」",
+    "should_trigger": true
+  }
+]

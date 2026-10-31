@@ -1,0 +1,78 @@
+[
+  {
+    "query": "Create an agent skill for triaging bug reports: distinguish observed behavior from suspected causes and route sensitive details privately. The intended client is not specified.",
+    "should_trigger": true
+  },
+  {
+    "query": "Revise this agent skill guidance to remove generic Git tutorials while retaining its decision rule: draft PR text only after inspecting the diff and repository template.",
+    "should_trigger": true
+  },
+  {
+    "query": "A skill currently loads a 300-line reference for every request, but its platform-specific details are needed only for Linear tickets. Revise the instructions to make that reference conditional.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review whether a single agent skill covering branch naming and writing PR descriptions should be split into independently usable workflows. Give reasons and a proposed boundary.",
+    "should_trigger": true
+  },
+  {
+    "query": "Design an evaluation of when our agent skill for drafting tickets activates: include genuine requests, close negatives, and multi-turn transitions. Do not change its description yet.",
+    "should_trigger": true
+  },
+  {
+    "query": "Revise this agent skill instruction: 'Check manifest format yourself, then decide whether the guidance is useful.' The repository already pins validator example-validator 1.2.0 in package.json and runs it as `npx example-validator --config validator.json`; validator.json checks manifest format. Delegate the format check to that existing command while retaining semantic judgment. Do not introduce a wrapper.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a reusable agent skill for Codex that guides invoice-bug triage. Explicitly target Codex; do not infer another client from the current environment.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review this agent skill description for scope and likely false positives: “Use for anything related to code.” Its intended job is reviewing pull request diffs.",
+    "should_trigger": true
+  },
+  {
+    "query": "Improve a skill’s examples so they distinguish a genuine security boundary check from redundant validation of a trusted internal value. Keep examples short and actionable.",
+    "should_trigger": true
+  },
+  {
+    "query": "Assess whether an agent skill should bundle a script: three observed runs reconstructed a complex report command incorrectly, while an existing CLI handles the report itself.",
+    "should_trigger": true
+  },
+  {
+    "query": "에이전트 스킬의 다음 지침을 다듬어 주세요: ‘티켓을 작성하기 전에 매번 ticket-cli를 설치하세요. 관찰된 현상과 추정 원인을 구분하고, 민감한 정보는 비공개로 전달하세요. 티켓을 작성한 뒤에도 ticket-cli를 설치하세요.’ 업무는 티켓 초안 작성입니다. 반복되는 설치 절차를 줄이되 의미 있는 제약은 남겨 주세요.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review this portable agent skill manifest and its scope: `name: ticket-draft`, `description: Draft issue titles and bodies from supplied observations`, `allowed-tools: Bash`. Its intended job is drafting issues, not publishing them. No target client is specified; decide what metadata can be justified without assuming one.",
+    "should_trigger": true
+  },
+  {
+    "query": "Find an installable agent skill that helps create architecture diagrams; report the available options.",
+    "should_trigger": false
+  },
+  {
+    "query": "For a fictional agent client whose documented discovery directory is `~/.example-agent/skills/`, explain how to install the fictional local skill package at `./packages/invoice-triage/` into that directory. Give advice only; do not execute commands or edit instructions.",
+    "should_trigger": false
+  },
+  {
+    "query": "Edit this ordinary README sentence for clarity: “Users may click the button in order to save.”",
+    "should_trigger": false
+  },
+  {
+    "query": "Inspect this application plugin configuration and explain which port it uses: {\"port\": 8080}.",
+    "should_trigger": false
+  },
+  {
+    "query": "List the currently installed agent skills and their versions.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain what this configuration value does: {\"maxRetries\": 3}.",
+    "should_trigger": false
+  },
+  {
+    "query": "Diagnose why a browser connector cannot start from this error: executable not found. The agent skill content is unchanged.",
+    "should_trigger": false
+  }
+]

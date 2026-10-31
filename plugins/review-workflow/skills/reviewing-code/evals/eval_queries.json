@@ -1,0 +1,74 @@
+[
+  {
+    "query": "Review this changed flush implementation against the requirement that a message remains queued until send succeeds: `async function flush(q, send) { const item = q.shift(); await send(item); }`. Return concrete findings locally.",
+    "should_trigger": true
+  },
+  {
+    "query": "A bot claims `if (!result)` is needed after `Map.get`. The map can lack the requested ID and the caller displays `not found` for missing values. Assess whether that review claim is valid.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review this pagination change for an off-by-one bug: the contract returns exactly `limit` items beginning at `offset`; the implementation returns `items.slice(offset, offset + limit - 1)`.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review whether this test proves persistence: `save(record); expect(save).toHaveBeenCalled()`; the requirement is that a later lookup returns the updated record.",
+    "should_trigger": true
+  },
+  {
+    "query": "변경된 코드가 빈 배열에서 실패하는지 검토해 주세요. 평균은 `sum / values.length`이고 값이 없으면 0을 반환해야 합니다. 현재 구현에는 빈 배열 처리가 없습니다.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review this change for current maintenance cost: an internal parser guarantees a nonempty name, but three private consumers each added identical empty-name fallback guards; nothing mutates the parsed result.",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft an inline review comment based on this verified finding: after `queue.shift()` removes the item, a rejected send loses the message; the contract requires retrying it.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review the supplied PR change locally: the old code saved edits to `editedId`; the new code calls `store.put(selectedId, edited)` even though selectedId can refer to another document.",
+    "should_trigger": true
+  },
+  {
+    "query": "Assess this review concern: `path.join(root, userPath)` is used to select a file, and userPath may contain `../`; the requirement confines access to root. Is traversal reachable?",
+    "should_trigger": true
+  },
+  {
+    "query": "次の確認済み指摘を日本語のレビューコメントにしてください。再送前にキューから削除するため、送信失敗時にメッセージが失われます。",
+    "should_trigger": true
+  },
+  {
+    "query": "Review the following complete function against its contract: reject empty IDs and otherwise return the unchanged ID. `function normalize(id) { if (id === \"\") throw Error(); return id; }`",
+    "should_trigger": true
+  },
+  {
+    "query": "Review this deployment configuration change: the service listens on port 8080, but the new health probe checks port 8081. The probe gates availability.",
+    "should_trigger": true
+  },
+  {
+    "query": "Explain how to delete my pending review on PR #31 so I can start over.",
+    "should_trigger": false
+  },
+  {
+    "query": "How do I approve an already reviewed PR on GitHub?",
+    "should_trigger": false
+  },
+  {
+    "query": "Use only the built-in native code review on this supplied change: the new function returns `x + 1` where the contract says return x unchanged.",
+    "should_trigger": false
+  },
+  {
+    "query": "How can I check whether the review bot has finished on PR #31?",
+    "should_trigger": false
+  },
+  {
+    "query": "For a checkout page with shipping fields, an order summary, and a submit button, suggest an advice-only browser walkthrough to identify confusing spacing. Do not access a page.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain what `Array.prototype.slice(1, 3)` returns for `[10, 20, 30, 40]`.",
+    "should_trigger": false
+  }
+]

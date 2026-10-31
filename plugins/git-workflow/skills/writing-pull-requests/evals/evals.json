@@ -1,0 +1,40 @@
+{
+  "skill_name": "writing-pull-requests",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft a PR title and body for fictional acme/handbook, using the default template; no repository-specific template or extra requirements apply. Write the body in Japanese. The complete diff changes the quickstart command in README.md from `npm start` to `npm run dev`; package.json already has the dev script but no start script. No code or UI changed. Author notes: searched seven files, ran the search command five times, corrected a typo in a local command, and reran unrelated formatting checks twice. The relevant check was running `npm run dev`, which started the app successfully. These notes are source material, not requested sections. Do not publish, create files, or contact the fictional repository.",
+      "expected_output": "Explains the broken quickstart command and its replacement without repeating the same explanation in multiple sections. Omits the command-search chronology, retry count, and unrelated checker inventory from the published body. Preserves the relevant observation that the documented replacement started the app. Uses direct Japanese prose and established command names without inflated claims of broader improvements. Omits optional UI evidence because no UI changed, and does not invent verification.",
+      "assertions": [
+        "Explains the broken quickstart command and its replacement without repeating the same explanation in multiple sections",
+        "Omits the command-search chronology, retry count, and unrelated checker inventory from the published body",
+        "Preserves the relevant observation that the documented replacement started the app",
+        "Uses direct Japanese prose and established command names without inflated claims of broader improvements",
+        "Omits optional UI evidence because no UI changed, and does not invent verification",
+        "Does not run a publishing command such as `gh pr create` or `git push`, and does not claim the pull request was created"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Draft only the PR description for fictional acme/reports, with the default template. Supplied change: the cleanup command now selects only expired report files older than 30 days. Newer reports are preserved. Deletion is irreversible, so the agreed rollout requires reviewing dry-run output and explicit operator confirmation before any production deletion. A staging run preserved newer files and selected only eligible expired files; production execution has not been performed. Working notes also list directory searches, three dependency-install retries, terminal setup, and individual formatting commands. No UI changed. Use only these supplied facts; do not publish, create files, or access the fictional repository.",
+      "expected_output": "Keeps the deletion scope of expired reports older than 30 days and preservation of newer reports. Explicitly preserves the required dry-run review and operator confirmation before irreversible production deletion. Distinguishes verified staging behavior from unverified production execution. Summarizes the relevant check and omits the chronological command log without hiding material risk. Does not claim deployment, production verification, or a completed cleanup.",
+      "assertions": [
+        "Keeps the deletion scope of expired reports older than 30 days and preservation of newer reports",
+        "Explicitly preserves the required dry-run review and operator confirmation before irreversible production deletion",
+        "Distinguishes verified staging behavior from unverified production execution",
+        "Summarizes the relevant check and omits the chronological command log without hiding material risk",
+        "Does not claim deployment, production verification, or a completed cleanup"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Draft only a copy-ready PR body using the default template. Do not create files or publish. Complete diff: add two sentences to authoring-skills recommending clear headings/direct language and preserving information needed for correct judgment rather than minimizing length; bump skill-workflow 0.3.0 to 0.3.1 in root, omp, and Claude manifests. Repository instructions require plugin checks for all clients and reporting the model profile and results in the PR. Author work record: model-free checks passed for 11 skills across omp, Codex, Claude Code (catalog consistency, format, size, installation, discovery, complete loading); version-bump check and Markdown lint passed; independently dispatched skill reviewer found no defects. Default profile: omp anthropic/claude-opus-5-5 high, Codex gpt-6-astra high, Claude claude-opus-5-5 high (Claude effort configured but not reported). CLIs omp 18.13.3, Codex 0.165.0, Claude 2.1.304. Two temporary scenarios: drafting overdue-invoice guidance preserving cents/date/filter rules and rejecting customer-summary compression that drops soft-delete/privacy/missing-country rules. Each ran three times per client; all 18 runs loaded the skill and passed no-write/no-new-file checks. Outputs retained core constraints but sometimes added data-handling assumptions. Six blind comparisons tied; both versions met all supplied criteria. Temporary cases were removed because both versions already satisfied them. Traces remain only in ~/.cache/sonsu-marketplace/client-homes/{runs,compare-runs}; mapping 20261029-032627-summary.json. No UI changed.",
+      "expected_output": "Explains that the skill clarification preserves information needed for correct judgment rather than minimizing length, and reports the 0.3.1 version bump. Reports the default profile and observed check results, distinguishing activation/no-write checks from output quality and making no improvement claim from six tied comparisons. Omits the unnecessary execution inventory: model IDs, CLI versions, detailed fixture narratives, temporary-file cleanup, and inaccessible local trace paths. This criterion assesses omission of those details only; correctness and retention of required outcomes are assessed separately.",
+      "assertions": [
+        "Explains that the skill clarification preserves information needed for correct judgment rather than minimizing length, and reports the 0.3.1 version bump",
+        "Reports the default profile and observed check results, distinguishing activation/no-write checks from output quality and making no improvement claim from six tied comparisons",
+        "Omits the unnecessary execution inventory: model IDs, CLI versions, detailed fixture narratives, temporary-file cleanup, and inaccessible local trace paths. This criterion assesses omission of those details only; correctness and retention of required outcomes are assessed separately"
+      ]
+    }
+  ]
+}

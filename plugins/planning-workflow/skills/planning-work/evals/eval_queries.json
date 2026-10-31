@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Before building a shared notes feature, compare server-wins and user-resolved conflicts. Notes can be edited offline on two devices; propose a direction and ask for approval.",
+    "should_trigger": true
+  },
+  {
+    "query": "We have one DNS zone for three teams. Should ownership stay central or move to each team? Design a migration that preserves existing records, then present the tradeoffs before changes.",
+    "should_trigger": true
+  },
+  {
+    "query": "Sketch the product and screen flow for uploading 500 photos, recovering interrupted uploads, and reviewing rejected items. The app has Button, ProgressBar and Alert components.",
+    "should_trigger": true
+  },
+  {
+    "query": "Our service reads a legacy account ID from cookies; new services need UUIDs. Design a staged transition that keeps old clients working across several deployments.",
+    "should_trigger": true
+  },
+  {
+    "query": "Design how a mobile inventory app should queue writes offline and reconcile them when connectivity returns. Users can change the same item on different devices.",
+    "should_trigger": true
+  },
+  {
+    "query": "We need per-project access controls in an app currently using organization-wide roles. Work out the domain boundaries, migration and tradeoffs before coding.",
+    "should_trigger": true
+  },
+  {
+    "query": "How should our CSV import handle partial failures? The 10,000-row file can have duplicates, and customers must see which rows were rejected. Propose a design first.",
+    "should_trigger": true
+  },
+  {
+    "query": "The billing and notification modules currently share transaction code. Design a refactor that separates their responsibilities while keeping existing invoice behavior.",
+    "should_trigger": true
+  },
+  {
+    "query": "検索画面を作り直したいです。候補の絞り込み、結果ゼロ、選択後の詳細表示をどう構成するか、画面と操作を提案してください。既存部品は Input、Select、Card です。",
+    "should_trigger": true
+  },
+  {
+    "query": "Design a retention and deletion flow for uploaded documents. Legal requires deletion after 90 days; users can request deletion earlier, and exports may be running.",
+    "should_trigger": true
+  },
+  {
+    "query": "Propose an ordered series of independently reviewable changes to replace a shared synchronous API with queued processing, preserving callers throughout rollout.",
+    "should_trigger": true
+  },
+  {
+    "query": "A team wants a dashboard for failed jobs with retry and audit history. Define goals, screen structure, and open product decisions before anyone implements it.",
+    "should_trigger": true
+  },
+  {
+    "query": "Rename getUsr to getUser in this local snippet and update its single call: function getUsr() {} ; getUsr().",
+    "should_trigger": false
+  },
+  {
+    "query": "Correct the spelling of “recieve” in this comment: // recieve a packet.",
+    "should_trigger": false
+  },
+  {
+    "query": "The following design is approved: replace a constant timeout of 10 with 20 seconds in the provided snippet. Apply exactly that change: const timeout = 10;",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain what an HTTP 429 response means and when a client might retry.",
+    "should_trigger": false
+  },
+  {
+    "query": "Render this established deployment sequence as arrows: build, run tests, deploy to staging, then deploy to production.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft an issue: the login button is hidden on narrow screens; expected behavior is that it remains visible. Return a draft.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft a decision record: the team accepted keeping the API versioned for client compatibility despite extra maintenance.",
+    "should_trigger": false
+  },
+  {
+    "query": "Change the supplied select options from [red, blue, green] to [green, red, blue]; no other behavior changes.",
+    "should_trigger": false
+  }
+]

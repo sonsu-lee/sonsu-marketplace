@@ -1,0 +1,34 @@
+{
+  "skill_name": "humanize-korean",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "이 README 문장을 자연스러운 한국어로 다듬어 줘. 명령어와 조건은 그대로 유지해: “설정 파일이 존재하지 않는 경우에 있어서 `app start`의 실행은 실패하게 됩니다.”",
+      "expected_output": "Natural Korean that keeps `app start` and the condition that it fails when the settings file is missing.",
+      "assertions": [
+        "Keeps `app start` unchanged",
+        "Keeps the condition that `app start` fails when the settings file does not exist",
+        "Replaces the stiff phrasing '경우에 있어서' and '실행은 실패하게 됩니다' with natural Korean"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "이 안내문을 매끄럽게 다듬되 가능성 표현을 그대로 유지해: “이 약을 복용하면 졸음이 생길 수 있다. 운전에 있어서 주의가 필요하다.”",
+      "expected_output": "Smoother Korean that keeps drowsiness as a possibility and keeps the caution about driving.",
+      "assertions": [
+        "Keeps drowsiness as a possibility, as in '수 있다', not a certainty",
+        "Keeps the caution about driving",
+        "Replaces the stiff phrase '운전에 있어서' with natural Korean"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "한국어 설명만 자연스럽게 고쳐 줘. `retry_count`와 경로는 바꾸지 마: “`retry_count`에 대한 값의 확인은 `/var/log/app`에서 이루어집니다.”",
+      "expected_output": "Natural Korean with `retry_count` and `/var/log/app` unchanged.",
+      "assertions": [
+        "Keeps `retry_count` and `/var/log/app` unchanged",
+        "Replaces '값의 확인은 … 이루어집니다' with a natural Korean sentence that keeps the same meaning"
+      ]
+    }
+  ]
+}

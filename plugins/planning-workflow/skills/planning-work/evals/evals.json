@@ -1,0 +1,35 @@
+{
+  "skill_name": "planning-work",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Plan a feature for our Express and Postgres web app: customers should be able to export their order history as CSV from the account page. Orders have up to 50,000 rows for large accounts, and exports must not slow down the site for other users. We have not decided how to deliver the file.",
+      "expected_output": "Does not implement or create files; asks for the unresolved delivery decision with a recommendation before treating the design as approved. Distinguishes known requirements from the unresolved delivery choice. Explains how the recommended delivery approach addresses large accounts without slowing other users. Does not require a finalized design or test plan before the user answers the delivery question.",
+      "assertions": [
+        "Does not implement or create files; asks for the unresolved delivery decision with a recommendation before treating the design as approved",
+        "Distinguishes known requirements from the unresolved delivery choice",
+        "Explains how the recommended delivery approach addresses large accounts without slowing other users",
+        "Does not require a finalized design or test plan before the user answers the delivery question"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Plan an investigation into why customers cancel. Our leadership summary says onboarding is the cause, but customer event logs and cancellation records may be available. We need an evidence-backed decision on whether to improve onboarding, not a product redesign. Do not perform the investigation or change anything yet.",
+      "expected_output": "Treats the claimed onboarding cause as an assumption rather than an established fact. Identifies relevant raw customer and event records and a concrete comparison or analysis that could disprove the assumption. Names an external check or measurement for the conclusion and acknowledges any unavailable evidence without inventing results. Keeps the plan focused on the requested investigation instead of proposing an unapproved product rebuild.",
+      "assertions": [
+        "Treats the claimed onboarding cause as an assumption rather than an established fact",
+        "Identifies relevant raw customer and event records and a concrete comparison or analysis that could disprove the assumption",
+        "Names an external check or measurement for the conclusion and acknowledges any unavailable evidence without inventing results",
+        "Keeps the plan focused on the requested investigation instead of proposing an unapproved product rebuild"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Change only the label in this markup from 'Send now' to 'Send': <button type=\"submit\">Send now</button>. Return the revised markup; keep behavior and layout unchanged.",
+      "expected_output": "Returns only the supplied markup with the requested label change, without claiming a repository edit or proposing a broader redesign or planning process.",
+      "assertions": [
+        "Returns only the supplied markup with the requested label change, without claiming a repository edit or proposing a broader redesign or planning process"
+      ]
+    }
+  ]
+}

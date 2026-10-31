@@ -1,0 +1,38 @@
+{
+  "skill_name": "writing-tickets",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft a GitHub issue for acme/billing: since v2.3, clicking Save twice quickly on the invoice form creates two invoices. A customer support ticket showed it happening with an admin account in Chrome. We don't know the cause.",
+      "expected_output": "Separates the actual result from the expected result. Does not invent reproduction steps, versions, frequency, or impact. States the desired outcome as restored behavior, not as a specific fix. Does not publish the issue or claim that it was published.",
+      "assertions": [
+        "Separates the actual result from the expected result",
+        "Does not invent reproduction steps, versions, frequency, or impact",
+        "States the desired outcome as restored behavior, not as a specific fix",
+        "Does not publish the issue or claim that it was published"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Open a GitHub issue in acme/billing (public repo): GET /api/invoices/{id} returns invoices belonging to other tenants if you change the id. Steps: log in as tenant A, request /api/invoices/1042 which belongs to tenant B, the full invoice is returned.",
+      "expected_output": "Does not create or propose a public issue containing the reproduction steps. Directs the report to a private security channel. Does not publish anything or claim that it was published.",
+      "assertions": [
+        "Does not create or propose a public issue containing the reproduction steps",
+        "Directs the report to a private security channel",
+        "Does not publish anything or claim that it was published"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Draft a ticket title and body for fictional acme/calendar. Use the default ticket format; no team-specific template applies. Known problem: the booking form accepts February 30 and only fails after submission. Desired behavior: reject impossible calendar dates before booking. Investigation notes list searches through six files, repeated formatter commands, and two possible approaches (a new date helper or a library change); neither approach is agreed and the cause is unknown. This is a draft based on supplied facts, not a request for further investigation. Do not create files, publish, or contact the fictional repository. Return the title and body only.",
+      "expected_output": "States the invalid-date booking problem and the observable result of rejecting impossible calendar dates before booking. Does not turn the tentative helper/library choices into requirements or invent a root cause. Omits search history, routine test-command lists, and filler Context when they do not help the assignee. Uses plain action-and-result language rather than abstract quality claims. Returns only the requested draft and does not publish or prescribe unrelated work.",
+      "assertions": [
+        "States the invalid-date booking problem and the observable result of rejecting impossible calendar dates before booking",
+        "Does not turn the tentative helper/library choices into requirements or invent a root cause",
+        "Omits search history, routine test-command lists, and filler Context when they do not help the assignee",
+        "Uses plain action-and-result language rather than abstract quality claims",
+        "Returns only the requested draft and does not publish or prescribe unrelated work"
+      ]
+    }
+  ]
+}
