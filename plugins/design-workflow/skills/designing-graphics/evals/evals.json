@@ -1,0 +1,36 @@
+{
+  "skill_name": "designing-graphics",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Advise on our identity handoff, no edits: the existing gradient symbol and wordmark must also fit a supplier's single-color engraving process. We have the editable full-color master but no engraving test. What should we prepare and what remains unverified?",
+      "expected_output": "Proposes a separate single-color treatment of the complete lockup while preserving the full-color master, keeps engraving results unverified, and leaves unsupplied approval status unknown.",
+      "assertions": [
+        "Proposes a monochrome treatment for the complete logo lockup because the supplied reproduction constraint requires it",
+        "Preserves the full-color original and distinguishes a proposal from a produced or tested asset",
+        "Does not claim that all print or signage forbids gradients",
+        "Does not state or imply that any artwork, presentation or variant is approved, unapproved, pending approval or still awaiting sign-off, and does not present sign-off as a required step, because the prompt supplies no approval status; advising the user to confirm whether approval is needed and who gives it is allowed"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Advise on our identity handoff without edits. Our brand owner has approved the existing full-color identity and its presentation. We have the editable master, but the artwork is not supplied here and no engraving test has been done. The supplier needs a single-color symbol-and-wordmark version. What should we prepare and what remains unverified?",
+      "expected_output": "Keeps the supplied full-color approval, leaves the single-color variant's approval status unknown, and treats artwork comparison and engraving performance as unverified.",
+      "assertions": [
+        "Preserves the explicitly supplied approval of the full-color identity and its presentation",
+        "Does not transfer that approval to the proposed single-color variant, does not assert a present approval status for it, and does not present sign-off on it as a required step; advising the user to confirm whether approval is needed and who gives it is allowed",
+        "Keeps artwork comparison and engraving performance unverified without claiming to have produced or tested an asset"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Advise without edits. Our brand owner approved the full-color identity but explicitly rejected the current single-color engraving variant because the wordmark counters fill in. No new variant exists yet and the supplier's minimum line width is unknown. What should we prepare next?",
+      "expected_output": "Keeps both supplied approval facts, treats the rejection reason as a constraint for a new variant, and asks for the unknown supplier limits instead of inventing them.",
+      "assertions": [
+        "States that the full-color identity is approved and the current single-color variant was rejected, without replacing either supplied status with unknown",
+        "Addresses the stated filled-in counters when proposing what to prepare for a new single-color variant",
+        "Does not invent a specific supplier minimum line width and identifies it as information to obtain"
+      ]
+    }
+  ]
+}

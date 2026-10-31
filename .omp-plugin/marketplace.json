@@ -48,6 +48,12 @@
       "source": "./plugins/planning-workflow",
       "description": "Plan non-trivial work as a reviewable design, with questions, alternatives, verification, and approval before implementation.",
       "version": "0.1.3"
+    },
+    {
+      "name": "design-workflow",
+      "source": "./plugins/design-workflow",
+      "description": "Design and review interfaces and graphics with scoped evidence and an optional omp verification harness.",
+      "version": "0.1.0"
     }
   ]
 }

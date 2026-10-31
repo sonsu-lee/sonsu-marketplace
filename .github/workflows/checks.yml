@@ -36,6 +36,7 @@ jobs:
       writing: ${{ steps.diff.outputs.writing }}
       git: ${{ steps.diff.outputs.git }}
       scripts: ${{ steps.diff.outputs.scripts }}
+      design: ${{ steps.diff.outputs.design }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -54,7 +55,8 @@ jobs:
             echo "plugins=$(grep -q '^plugins/' <<< "$files" && echo true)"
             echo "writing=$(grep -q '^plugins/writing-workflow/' <<< "$files" && echo true)"
             echo "git=$(grep -q '^plugins/git-workflow/' <<< "$files" && echo true)"
-            echo "scripts=$(grep -qE '^(plugins|scripts)/' <<< "$files" && echo true)"; } >> "$GITHUB_OUTPUT"
+            echo "scripts=$(grep -qE '^(plugins|scripts)/' <<< "$files" && echo true)"
+            echo "design=$(grep -q '^plugins/design-workflow/' <<< "$files" && echo true)"; } >> "$GITHUB_OUTPUT"
 
   markdown:
     needs: changes
@@ -114,3 +116,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: python3 -B -m unittest discover -s scripts/tests -v
+
+  design-workflow-tests:
+    needs: changes
+    if: needs.changes.outputs.design == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-clients
+      - run: bun install --frozen-lockfile --cwd plugins/design-workflow
+      - run: playwright-core install --with-deps chromium
+      - run: |
+          browser="$(node -e 'console.log(require("./.github/ci-clients/node_modules/playwright-core").chromium.executablePath())')"
+          echo "DESIGN_WORKFLOW_CHROME=$browser" >> "$GITHUB_ENV"
+      - run: tsc --noEmit -p plugins/design-workflow/tsconfig.json
+      - run: bun test --timeout 150000 plugins/design-workflow/tests

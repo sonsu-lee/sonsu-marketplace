@@ -1,0 +1,22 @@
+[
+  {"query": "Propose a better responsive checkout layout: coupon field, total, payment button and an error message. Explain wide and narrow arrangements; don't edit anything.", "should_trigger": true},
+  {"query": "Redesign our settings page so the most-used options are easier to find. It currently lists 40 toggles in one long column.", "should_trigger": true},
+  {"query": "Design the empty, loading and error states for a search results list in our mobile app.", "should_trigger": true},
+  {"query": "How should the navigation of our web app adapt from a sidebar on desktop to a phone layout?", "should_trigger": true},
+  {"query": "Implement a pricing page section with three plan cards in our React app using the existing design tokens.", "should_trigger": true},
+  {"query": "Our signup form has eight fields on one screen. Propose a clearer layout and inline validation behavior.", "should_trigger": true},
+  {"query": "Improve the visual hierarchy of this dashboard header: title, date range picker, three KPIs and an export button.", "should_trigger": true},
+  {"query": "Design a confirmation flow for deleting a project, including what happens if the deletion fails.", "should_trigger": true},
+  {"query": "モバイルの注文履歴画面を、タップしやすく情報が見やすいレイアウトに作り直す案を出してください。", "should_trigger": true},
+  {"query": "Lay out an onboarding screen for a habit tracker with a goal picker, reminder time and a continue button.", "should_trigger": true},
+  {"query": "Fix this TypeScript parser's null handling without changing any UI: parseUser(null) currently throws instead of returning an error.", "should_trigger": false},
+  {"query": "Review this checkout screenshot description for usability issues and tell me what evidence is missing; don't propose a new layout.", "should_trigger": false},
+  {"query": "Design a set of line icons for our settings screen that read at 16 px.", "should_trigger": false},
+  {"query": "Write unit tests for the cart total calculation function.", "should_trigger": false},
+  {"query": "Optimize this SQL query that lists orders by customer; it scans the whole table.", "should_trigger": false},
+  {"query": "Explain the difference between CSS grid and flexbox in general terms.", "should_trigger": false},
+  {"query": "Rename the API endpoint /getUser to /users/{id} and update its callers.", "should_trigger": false},
+  {"query": "Write release notes for version 2.3 that mention the new export feature.", "should_trigger": false},
+  {"query": "Our logo must be engraved in one color; how should the symbol change?", "should_trigger": false},
+  {"query": "Set up ESLint and Prettier for this TypeScript project.", "should_trigger": false}
+]

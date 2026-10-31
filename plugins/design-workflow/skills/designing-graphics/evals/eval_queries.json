@@ -1,0 +1,22 @@
+[
+  {"query": "Our gradient logo has to be laser engraved in one color. What should the single-color version of the symbol and wordmark look like, and what should we hand the supplier?", "should_trigger": true},
+  {"query": "Design a set of six line icons for a settings screen: account, privacy, notifications, storage, language and help. They must read clearly at 16 px.", "should_trigger": true},
+  {"query": "Our app icon looks muddy at 29 px on iOS. How should I simplify the illustration so it still reads at that size?", "should_trigger": true},
+  {"query": "Propose an illustration style for empty states in our onboarding flow that matches a flat brand palette of navy, coral and cream.", "should_trigger": true},
+  {"query": "We need a favicon from our full wordmark logo. How should we reduce it without losing recognition?", "should_trigger": true},
+  {"query": "These five icons were drawn by different people and look inconsistent. How do I unify stroke weight, corners and visual size across the family?", "should_trigger": true},
+  {"query": "Prepare our logo files for a print vendor: which versions, color modes and formats should the handoff include, and what can't be verified until a proof?", "should_trigger": true},
+  {"query": "Before I outline the text and merge the shapes in this logo for production, what should I keep so the mark stays editable later?", "should_trigger": true},
+  {"query": "ロゴのシンボルとワードマークを、名刺用の小さいサイズでも読めるように調整したい。どこを簡略化すべきですか？", "should_trigger": true},
+  {"query": "Design a mascot illustration for our product launch page: friendly, geometric, and usable both large on the hero and small in a sticker.", "should_trigger": true},
+  {"query": "How do I remove skin blemishes from a portrait photograph in Photoshop while keeping skin texture natural?", "should_trigger": false},
+  {"query": "What should a junior graphic designer negotiate in a first job offer?", "should_trigger": false},
+  {"query": "Which drawing tablet should I buy for illustration work under 300 dollars?", "should_trigger": false},
+  {"query": "Write an Instagram caption announcing our new logo to followers.", "should_trigger": false},
+  {"query": "Redesign our checkout page layout so the coupon field and payment button work on mobile.", "should_trigger": false},
+  {"query": "Review this dashboard screenshot description for usability problems: dense tables, no filters, and a hidden export button.", "should_trigger": false},
+  {"query": "Convert this SVG file to PNG at 512 px from the command line.", "should_trigger": false},
+  {"query": "Fix the color grading on my travel video so the skies are less blue.", "should_trigger": false},
+  {"query": "How do I price a logo design project for a small bakery client?", "should_trigger": false},
+  {"query": "Explain the history of the Swiss International Typographic Style.", "should_trigger": false}
+]

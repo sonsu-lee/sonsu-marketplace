@@ -1,0 +1,22 @@
+[
+  {"query": "Review this checkout state for design problems: a disabled Pay button, an error saying 'Something went wrong', and no visible next step. Don't edit anything.", "should_trigger": true},
+  {"query": "Critique our pricing page from this description: three plan cards, the recommended plan isn't highlighted, and the annual toggle is below the fold.", "should_trigger": true},
+  {"query": "Do a design walkthrough of our onboarding screens and tell me where users are likely to get stuck. I'll describe each screen.", "should_trigger": true},
+  {"query": "What usability issues do you see in this form description: placeholder-only labels, a tiny red error under the button, and a grey submit button?", "should_trigger": true},
+  {"query": "Review the visual hierarchy of this dashboard header without changing it: title, date picker, three KPIs, export button all the same size.", "should_trigger": true},
+  {"query": "Give me an evidence-bound critique of this mobile settings screen. I only have a text description, no screenshot.", "should_trigger": true},
+  {"query": "Is anything wrong with this empty state design? It just says 'No data' with no action.", "should_trigger": true},
+  {"query": "Audit our app's navigation design as described: five tabs, two of which open the same page, and no back button inside settings.", "should_trigger": true},
+  {"query": "この申込みフォームのデザインをレビューしてください。修正はせず、問題点と根拠が足りない点を挙げてください。", "should_trigger": true},
+  {"query": "Critique this error dialog design: title 'Error', body 'Code 0x80', and a single OK button.", "should_trigger": true},
+  {"query": "Review this database retry function for race conditions; there is no user interface or visual design involved.", "should_trigger": false},
+  {"query": "Propose a new responsive layout for our checkout page with the coupon field and payment button.", "should_trigger": false},
+  {"query": "Review this pull request that refactors the authentication middleware.", "should_trigger": false},
+  {"query": "Design six line icons for our settings screen.", "should_trigger": false},
+  {"query": "Proofread this blog post for grammar and spelling.", "should_trigger": false},
+  {"query": "Check this Terraform plan for resources that will be destroyed.", "should_trigger": false},
+  {"query": "Implement the form validation for our signup page in React.", "should_trigger": false},
+  {"query": "Summarize the feedback from these five customer support tickets.", "should_trigger": false},
+  {"query": "Review my resume and suggest stronger bullet points.", "should_trigger": false},
+  {"query": "Explain how screen readers announce form errors in general.", "should_trigger": false}
+]

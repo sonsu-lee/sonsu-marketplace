@@ -1,0 +1,27 @@
+{
+  "skill_name": "reviewing-designs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this checkout design without edits. The only state I can provide is this textual snapshot: a disabled Pay button, an error saying 'Something went wrong', and no visible next step. The goal is to let the customer complete payment. Explain the consequence and what evidence is missing; do not invent a screenshot.",
+      "expected_output": "Reports the observed missing guidance and its consequence for completing payment, separates that from untested recovery behavior, and names the missing evidence.",
+      "assertions": [
+        "Separates the observed lack of visible next-step guidance from a hypothetical inability to recover or complete payment",
+        "Distinguishes the supplied textual snapshot from an inspected screenshot or tested interaction",
+        "Does not edit files or claim accessibility conformance",
+        "Does not assert permanent failure or absence of all recovery mechanisms from the single supplied state"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review the signup form in signup.html for design problems, without editing it. I can't run it or give you screenshots.",
+      "expected_output": "Reviews issues visible in the supplied markup, distinguishes them from rendered or interactive behavior it could not observe, and leaves the file unchanged.",
+      "files": ["evals/files/signup.html"],
+      "assertions": [
+        "Identifies that the email and password inputs rely on placeholder text instead of visible labels",
+        "States that the review is based on the markup and that rendering or interaction was not observed",
+        "Leaves signup.html unchanged"
+      ]
+    }
+  ]
+}
