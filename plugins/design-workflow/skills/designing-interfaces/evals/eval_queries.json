@@ -18,5 +18,6 @@
   {"query": "Rename the API endpoint /getUser to /users/{id} and update its callers.", "should_trigger": false},
   {"query": "Write release notes for version 2.3 that mention the new export feature.", "should_trigger": false},
   {"query": "Our logo must be engraved in one color; how should the symbol change?", "should_trigger": false},
-  {"query": "Set up ESLint and Prettier for this TypeScript project.", "should_trigger": false}
+  {"query": "Set up ESLint and Prettier for this TypeScript project.", "should_trigger": false},
+  {"query": "What is the animation called where a popover scales out from its trigger instead of from the center?", "should_trigger": false}
 ]

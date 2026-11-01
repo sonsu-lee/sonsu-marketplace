@@ -8,7 +8,11 @@ export type BrowserStep =
   | { action: 'fill'; selector: string; value: string }
   | { action: 'press'; selector: string; key: string }
   | { action: 'assert-visible'; selector: string }
-  | { action: 'assert-text'; selector: string; text: string };
+  | { action: 'assert-text'; selector: string; text: string }
+  | { action: 'assert-accessible'; selector: string }
+  | { action: 'assert-no-overflow'; selector: string };
+
+const ASSERTIONS = ['assert-visible', 'assert-text', 'assert-accessible', 'assert-no-overflow'];
 
 export interface CaptureSpec {
   id: string;
@@ -174,9 +178,9 @@ function parsePlan(input: unknown): DesignPlan {
     if (spec.steps !== undefined) {
       steps = list(spec.steps, 'browser steps', 64).map((item): BrowserStep => {
         const step = object(item, 'browser step');
-        const action = step.action;
-        if (action !== 'click' && action !== 'fill' && action !== 'press' && action !== 'assert-visible' && action !== 'assert-text') fail('Invalid browser action');
-        if (mode === 'review' && action !== 'assert-visible' && action !== 'assert-text') fail('Review mode permits assertion steps only');
+        const action = step.action as BrowserStep['action'];
+        if (action !== 'click' && action !== 'fill' && action !== 'press' && !ASSERTIONS.includes(action)) fail('Invalid browser action');
+        if (mode === 'review' && !ASSERTIONS.includes(action)) fail('Review mode permits assertion steps only');
         const extra = action === 'fill' ? 'value' : action === 'press' ? 'key' : action === 'assert-text' ? 'text' : undefined;
         keys(step, ['action', 'selector', ...(extra ? [extra] : [])], 'browser step');
         const selector = text(step.selector, 'selector', 2048);

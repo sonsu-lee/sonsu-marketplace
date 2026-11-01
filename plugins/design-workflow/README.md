@@ -9,6 +9,7 @@ omp verification harness.
   - [Dependencies](#dependencies)
 - [Usage](#usage)
   - [Portable skills](#portable-skills)
+  - [Related skills](#related-skills)
   - [Start an omp strict run](#start-an-omp-strict-run)
   - [Report and finish](#report-and-finish)
   - [Stop or change scope](#stop-or-change-scope)
@@ -41,9 +42,9 @@ Strict command checks require a POSIX platform; Windows checks are unsupported.
 login and the session's model and thinking level, so each attempt makes two
 model calls: one to write the report and one to review it.
 
-The package pins its browser transport in `package.json` and `bun.lock`. For
-explicit dependency setup, inspect `omp plugin list --json`, enter the
-`design-workflow` entry's `installPath`, and run:
+The package pins its browser transport and axe-core in `package.json` and
+`bun.lock`. For explicit dependency setup, inspect `omp plugin list --json`,
+enter the `design-workflow` entry's `installPath`, and run:
 
 ```sh
 bun install --production --frozen-lockfile
@@ -76,6 +77,21 @@ Design an icon family that stays legible in small monochrome reproduction.
 Each skill keeps its conditional research inside its own directory, so an
 isolated skill revision retains its support files. These are judgment guides on
 all three clients, not a quality guarantee or a permission boundary.
+
+### Related skills
+
+These skills cover what this plugin deliberately leaves out. Install them
+separately if you need them:
+
+- Vercel's
+  [`web-design-guidelines`](https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines)
+  checks UI code against concrete accessibility, form and interaction rules.
+- Emil Kowalski's [skills](https://github.com/emilkowalski/skills) give
+  opinionated motion and component values that these skills do not prescribe.
+- Anthropic's
+  [`frontend-design`](https://github.com/anthropics/skills/tree/main/skills/frontend-design)
+  explores a distinctive visual direction for a new interface without an
+  existing design system.
 
 ### Start an omp strict run
 
@@ -145,9 +161,18 @@ capture or writes are not supported by strict mode.
 Provide an already-running disposable server outside the agent's job queue for
 web targets; this extension does not manage server lifecycle.
 
-Capture steps are declarative `click`, `fill`, `press`, `assert-visible` or
-`assert-text` operations. Each has a `selector`; `fill` also has `value`,
-`press` has `key`, and `assert-text` has `text`. A `review` plan allows
+Capture steps are declarative `click`, `fill`, `press`, `assert-visible`,
+`assert-text`, `assert-accessible` or `assert-no-overflow` operations. Each has
+a `selector`; `fill` also has `value`, `press` has `key`, and `assert-text` has
+`text`. `assert-accessible` runs [axe-core](https://github.com/dequelabs/axe-core)
+on the selected element and fails on any violation it detects; automated rules
+find only part of the accessibility problems, so a pass is not conformance.
+`assert-no-overflow` fails when text inside the selection extends horizontally
+past the selection or past an ancestor that clips it. Text inside scrollable
+containers, text truncated with an ellipsis that takes effect, and text hidden
+with `clip` or `clip-path` (such as visually hidden labels) is not counted;
+field values and non-text boxes are not measured. To test worst-case content,
+point a `web` capture at a URL that serves that fixture. A `review` plan allows
 assertions only, no writes and no command checks. `graphics` uses the same
 controlled file path as `design`, typically an SVG target.
 
@@ -249,13 +274,18 @@ proposed until separately accepted by the decision-maker.
 
 ## Research scope
 
-Conditional references distill 48 contextual design observations and six handoff
-workflows from the reviewed Madia material. Source links and time intervals stay
-with each observation. They are not 48 universal rules or independently measured
-user outcomes. The package includes no source videos, captions, screenshots,
-private membership content or dependencies on the author's local research paths.
-Photoshop retouching, equipment promotion and career/business-only advice are
-outside these skills; mixed videos contribute only relevant design reasoning.
+Most conditional references distill 48 contextual design observations and six
+handoff workflows from the reviewed Madia material. Source links and time
+intervals stay with each observation. They are not 48 universal rules or
+independently measured user outcomes. The package includes no source videos,
+captions, screenshots, private membership content or dependencies on the
+author's local research paths. Photoshop retouching, equipment promotion and
+career/business-only advice are outside these skills; mixed videos contribute
+only relevant design reasoning. The worst-case data, touch web and motion
+references are local adaptations of Emil Kowalski's
+[skills](https://github.com/emilkowalski/skills/tree/a81dbca07f2217b7103e510c0f13f8d5b017afc9)
+at `a81dbca07f2217b7103e510c0f13f8d5b017afc9`, not automatic mirrors. Keep the
+upstream notice and revision reference when updating them.
 
 ## Contributing
 
@@ -291,4 +321,7 @@ rates. Model runs remain local, never in CI.
 
 ## License
 
-[MIT](../../LICENSE) © sonsu-lee.
+[MIT](../../LICENSE) for marketplace content, copyright sonsu-lee. Upstream
+portions retain their MIT notice, bundled with the
+[interface](skills/designing-interfaces/LICENSE-emilkowalski-skills) and
+[review](skills/reviewing-designs/LICENSE-emilkowalski-skills) skills.
