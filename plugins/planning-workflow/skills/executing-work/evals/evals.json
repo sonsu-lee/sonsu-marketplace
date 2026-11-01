@@ -68,6 +68,139 @@
         "Does not present the proposed replacement as already approved or complete",
         "Does not create or modify files in the task's working directory"
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "Local edits here are approved; do not commit, push, publish, or access external services. Rename the Python identifier timeout_ms to request_timeout_ms throughout this package. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Reads the mechanical-changes reference. Renames every identifier use of timeout_ms in config.py and all twelve svc modules with one batch or syntax-aware transformation, while preserving timeout_ms_backup, the LABEL strings, comments, and notes.txt. Reruns a coverage check that returns only the recorded non-targets. Leaves no helper file behind.",
+      "files": [
+        "evals/files/bulk-rename/"
+      ],
+      "assertions": [
+        "Reads references/mechanical-changes.md before editing",
+        "Renames every identifier use of timeout_ms to request_timeout_ms in config.py and all twelve svc modules, preserving timeout_ms_backup, the LABEL strings, the comments naming the upstream API field, and notes.txt",
+        "Applies the rename with one batch or syntax-aware transformation rather than separate edits per site or per file",
+        "After applying, reruns a coverage check and reports that the only remaining timeout_ms matches are the preserved non-targets",
+        "Leaves no helper script, tool configuration, or other new file in the working directory"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Local edits here are approved; do not commit, push, publish, or access external services. In both Python files migrate imports rooted at old_api to the corresponding new_api modules, including submodules. Do not change old_api_extra or mentions in comments and strings. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Changes only import module paths rooted at old_api to new_api, including submodules, and preserves old_api_extra, comments, and string literals. Leaves no new file in the working directory.",
+      "files": [
+        "evals/files/imports/"
+      ],
+      "assertions": [
+        "Changes only import module paths rooted at old_api to new_api, including submodules, in both files",
+        "Preserves old_api_extra, comments, and string literals",
+        "Leaves no helper script, tool configuration, or other new file in the working directory"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Local edits here are approved; do not commit, push, publish, or access external services. Rename the parameter value of selected to amount, including only references bound to that parameter. The other function parameter and module-level value are distinct symbols and must remain unchanged. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Renames the parameter and references bound to it in selected only. Preserves the distinct parameter in other and the module-level value. Uses symbol-aware or scope-aware reasoning rather than a global textual substitution.",
+      "files": [
+        "evals/files/shadowing/"
+      ],
+      "assertions": [
+        "Renames the parameter and references bound to it in selected only",
+        "Preserves the distinct parameter in other and the module-level value",
+        "Uses symbol-aware or scope-aware reasoning rather than a global textual substitution"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Local edits here are approved; do not commit, push, publish, or access external services. In settings.py and settings.json rename only the mapping key retry_count to max_retries. Preserve retry_count_backup, the JSON note value, the comment, and notes.txt. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Changes the retry_count mapping key to max_retries in both Python and JSON, keeps both files valid, and preserves other keys, literal values, comments, and notes.txt.",
+      "files": [
+        "evals/files/mixed-syntax/"
+      ],
+      "assertions": [
+        "Changes the retry_count mapping key to max_retries in both settings.py and settings.json, and both files remain valid",
+        "Preserves retry_count_backup, the JSON note value, the comment, and notes.txt"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Local edits here are approved; do not commit, push, publish, or access external services. Rename the Python identifier timeout_ms to request_timeout_ms across good.py and broken.py as one atomic change. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Reports that broken.py does not parse, naming the file and error, rather than skipping it silently or claiming a verified complete rename. Leaves no partial result: either neither file changes, or both are renamed with the string in broken.py preserved and the unparsed file disclosed.",
+      "files": [
+        "evals/files/parse-error/"
+      ],
+      "assertions": [
+        "Reports that broken.py does not parse, naming the file and the error, rather than skipping it silently or claiming a verified complete rename",
+        "Leaves no partial result: either neither file changes, or both identifiers are renamed with the string in broken.py preserved",
+        "Leaves notes.txt unchanged"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Local edits here are approved; do not commit, push, publish, or access external services. Change the return value in single.py from 40 to 42. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Changes only line 2 of single.py and creates no script, codemod rule, or other file.",
+      "files": [
+        "evals/files/tiny/"
+      ],
+      "assertions": [
+        "Changes only the return value on line 2 of single.py from 40 to 42 and nothing else",
+        "Creates no script, codemod rule, query tooling, or other new file"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Local edits here are approved; do not commit, push, publish, or access external services. Preview renaming the Python identifier timeout_ms to request_timeout_ms in a.py and b.py, and describe the proposed changes.",
+      "expected_output": "Describes the proposed identifier rename in both a.py and b.py. Leaves every file unchanged, including notes.txt. Does not treat the approval or fixture presence as permission to mutate during a preview.",
+      "files": [
+        "evals/files/preview/"
+      ],
+      "assertions": [
+        "Describes the proposed identifier rename in both a.py and b.py",
+        "Leaves every file unchanged, including notes.txt",
+        "Does not treat the approval or fixture presence as permission to mutate during a preview"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Local edits here are approved; do not commit, push, publish, or access external services. In every Python file here, convert calls of the form fetch(url, x) to keyword form fetch(url, timeout=x) when the second argument is positional. When you finish, show me the final contents of the files you changed. Also list any other files you created.",
+      "expected_output": "Reads the mechanical-changes reference. Converts every positional second argument of fetch calls across the ten job modules with one batch or syntax-aware transformation, leaving keyword calls, comments, strings, and client.py unchanged. Reruns a coverage check showing no positional call remains. Leaves no helper file behind.",
+      "files": [
+        "evals/files/positional-args/"
+      ],
+      "assertions": [
+        "Reads references/mechanical-changes.md before editing",
+        "Converts every positional second argument of fetch calls in all ten job modules to timeout=, leaving keyword calls, comments, strings, and client.py unchanged",
+        "Applies the conversion with one batch or syntax-aware transformation rather than separate edits per call or per file",
+        "After applying, reruns a coverage check showing that no positional second argument remains",
+        "Leaves no helper script, tool configuration, or other new file in the working directory"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "Local edits here are approved; do not commit, push, publish, or access external services. Make these three edits: in config.py set DEBUG to False; in README.md fix the typo 'recieve' to 'receive'; in util.py rename the local variable tmp in normalize to cleaned. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Makes exactly the three requested edits and preserves everything else, including the other function's tmp in util.py. Applies them as direct edits without writing a transformation script or codemod rule. Leaves no new file in the working directory.",
+      "files": [
+        "evals/files/heterogeneous/"
+      ],
+      "assertions": [
+        "Makes exactly the three requested edits and preserves everything else, including the other function's tmp in util.py",
+        "Applies them as direct edits without writing a transformation script or codemod rule",
+        "Leaves no new file in the working directory"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "Local edits here are approved; do not commit, push, publish, or access external services. Earlier in this task the Python identifier timeout_ms was renamed to request_timeout_ms across this directory. The recorded scope query was `grep -rnw timeout_ms --include=*.py .`, and legacy.py was an agreed exclusion that must keep timeout_ms. The earlier files were verified and have not changed since. Since then only new_a.py and new_b.py were added. Bring the change up to date. When you finish, show me the final contents of the files you changed.",
+      "expected_output": "Renames timeout_ms only in new_a.py and new_b.py, preserving timeout_ms_backup and the string. Leaves legacy.py and the verified files unchanged and does not open or read core.py or worker.py. Reruns a full-scope coverage check whose remaining matches are only the legacy.py exclusion and the string in new_b.py, or a syntax-aware check returning only legacy.py.",
+      "files": [
+        "evals/files/incremental/"
+      ],
+      "assertions": [
+        "Renames timeout_ms to request_timeout_ms only in new_a.py and new_b.py, preserving timeout_ms_backup and the MESSAGE string",
+        "Leaves legacy.py and the previously verified files unchanged, keeping the agreed exclusion",
+        "Does not open, read, or fully print core.py or worker.py; search output that lists matching lines from them is allowed",
+        "Reruns a full-scope coverage check whose remaining matches are only the legacy.py exclusion and the string in new_b.py, or a syntax-aware check that returns only legacy.py"
+      ]
     }
   ]
 }

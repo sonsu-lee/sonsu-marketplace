@@ -44,6 +44,10 @@ give each worker its scope, interfaces, constraints, and ownership. Avoid
 conflicting edits and integrate their results before final checks. A worker's
 report is not proof that its output is correct.
 
+When one rule repeats across many sites, or work continues on such a change
+after new edits, read [mechanical changes](references/mechanical-changes.md)
+before investigating or editing.
+
 Code and behavioral skill changes require independent review. Only a binding
 instruction prohibiting review or an unavailable facility can prevent it.
 A small diff is not an exception. Do not mark the workflow complete when

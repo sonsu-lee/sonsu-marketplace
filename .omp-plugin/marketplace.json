@@ -47,7 +47,7 @@
       "name": "planning-workflow",
       "source": "./plugins/planning-workflow",
       "description": "Plan non-trivial work as a reviewable design and coordinate authorized execution through independent review and final validation.",
-      "version": "0.3.1"
+      "version": "0.4.0"
     },
     {
       "name": "design-workflow",
