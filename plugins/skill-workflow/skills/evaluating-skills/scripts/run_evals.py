@@ -149,7 +149,7 @@ def main() -> None:
                         help="Retry the unmeasured runs of an existing iteration")
     parser.add_argument("--workspace", type=Path, default=None)
     parser.add_argument("--baseline", choices=["without", "old"], default="without")
-    parser.add_argument("--runs", type=int, default=3)
+    parser.add_argument("--runs", type=int, default=1)
     parser.add_argument("--eval-id", type=int, action="append", default=None)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--timeout", type=int, default=900)

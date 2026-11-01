@@ -55,9 +55,11 @@ runs is in [references/clients.md](references/clients.md).
    `<workspace>/skill-snapshot` and use `--baseline old`.
 3. **Run.** `scripts/run_evals.py --skill-path <skill> --client <omp|codex>
    --model <model> --effort <effort> --home <home> --iteration <N>
-   --baseline <without|old>` runs every eval with the skill and with the
-   baseline, three times each. Use a new `<N>` for each evaluation; exit
-   status 2 means some runs were not measured, so rerun with `--resume`.
+   --baseline <without|old>` runs every eval once with the skill and once with
+   the baseline. Use a new `<N>` for each evaluation; exit status 2 means some
+   runs were not measured, so rerun with `--resume`. Before claiming a delta
+   that rests on one assertion in one run, repeat the evaluation under a new
+   `<N>` with `--runs 3`.
 4. **Assertions.** While the runs execute, write objectively checkable
    assertions into `evals.json` and explain them to the user. The grader sees
    only the transcript and the files the run saved, so assert on those.
@@ -88,15 +90,16 @@ runs is in [references/clients.md](references/clients.md).
    `scripts/run_loop.py` with the same arguments. It holds out 40% of the
    queries, revises from the rest, and reports `best_description` by its
    held-out score.
-4. **Other clients.** If other clients load the skill, repeat step 2 in each
-   before adopting the change.
+4. **Other clients.** If the project or user requires other clients, repeat
+   step 2 in each before adopting the change.
 
 ## Report
 
 Report the client, model, effort, and iteration; pass rates with the skill
 and the baseline and their delta; time and tokens; trigger pass counts; and
 runs that were not measured or graded. A few runs show a direction, not a
-reliable rate.
+reliable rate; with one run, a standard deviation of 0 means variance was not
+measured.
 
 [evaluating]: https://agentskills.io/skill-creation/evaluating-skills
 [descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions
