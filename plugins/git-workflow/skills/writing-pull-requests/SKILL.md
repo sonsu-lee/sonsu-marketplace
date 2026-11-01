@@ -65,15 +65,10 @@ write or open a PR.
 
 ## Choose the body format
 
-Read contribution instructions and find the applicable PR template, including
-template directories. On GitHub, inspect `.github/`, the repository
-root, and `docs/`, in that precedence order. If none applies, check the owner's
-public `.github` repository for an inherited default (not in the target clone).
-Offered templates live on the default branch. Use an explicitly requested
-template when applicable.
-
-Preserve required fields and markers in CLI/API bodies too. Do not add a second
-template or fill unneeded sections. Otherwise follow the principles below.
+When the repository has a PR template, keep its required fields and automation
+markers, but do not fill optional sections merely because they exist. A body
+passed explicitly, as with `--body-file` or an API call, replaces the template,
+so it must already follow it.
 
 Keep paragraphs on one source line, including within list items: GitHub renders
 single newlines in PR bodies as line breaks, unlike `.md` files. Preserve blank
@@ -105,11 +100,11 @@ Use Mermaid for structure or flow only when clearer than prose; simple changes
 need no diagram. Do not repeat it in prose. Link maintained operating docs
 instead of copying procedures.
 
-Link related issues and dependencies without copying them.
-Use closing keywords only when this PR completes the issue; GitHub ignores
-them unless it targets the default branch
-([stacks](references/publishing.md#closing-issues-from-a-stack)). Follow other
-trackers' own completion-link rules.
+Link related issues and dependencies without copying them. Decide each
+issue's relationship from its stated outcome and the final diff: this PR
+completes it, advances part of it, or only relates to it. Link an issue this
+PR completes so that merging the PR closes it; link any other issue so that
+merging leaves it open.
 
 ## Provide UI evidence
 

@@ -95,6 +95,41 @@
         "Does not repeat the diagram's full flow as prose or a bullet list",
         "Preserves unchanged authentication and does not invent latency measurements or new ordering or retry behavior"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "Draft only the PR description for fictional acme/cli on GitHub; it has no PR template, and the PR targets main, the default branch. Complete diff: when a request fails with 401 because the access token expired, the CLI now refreshes the token once and retries the request instead of asking the user to log in again; if the refresh or the retried request fails, it still asks the user to log in. Issue #41, \"Expired tokens force a new login\", has two acceptance criteria: an expired token is refreshed without a new login, and a failed refresh still asks for login. Issue #38, \"Clarify auth error messages\", lists five messages to reword; this diff rewords one of them, the expired-session message. The author's notes end with \"Related to #41, #38.\" No UI changed. Use only these facts; do not publish, create files, or access the fictional repository.",
+      "expected_output": "Explains the refresh-and-retry-once behavior and the login fallback. Links #41 so that merging closes it, because the diff meets both of its acceptance criteria, and references #38 without closing it, because only one of its five messages changes, instead of copying the author's single \"Related to\" line for both.",
+      "assertions": [
+        "Explains that an expired token is refreshed once and the request retried, and that a failed refresh or retry still asks the user to log in",
+        "Links #41 with a closing keyword GitHub recognizes, such as Fixes, Closes, or Resolves",
+        "References #38 without a closing keyword and does not present the PR as completing it"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Draft only the PR description for fictional acme/billing on GitHub; it has no PR template. The team tracks work in Linear, whose GitHub integration links pull requests to Linear issues; the repository does not use GitHub issues. Linear issue ENG-231, \"Nightly invoice export fails on transient upload errors\", asks that the export retry a failed upload before marking the run failed. Complete diff: the nightly invoice export now retries a failed upload up to three times, 30 seconds apart, and marks the run failed only after the last attempt fails; a new unit test covers a transient failure followed by success. No UI changed. Use only these facts; do not publish, create files, or access the fictional repository.",
+      "expected_output": "Explains that failed uploads are retried up to three times before the run is marked failed. Links ENG-231 with a closing word that Linear's GitHub integration recognizes, such as Fixes ENG-231, and does not write it as a GitHub issue reference.",
+      "assertions": [
+        "Explains that a failed upload is retried up to three times, 30 seconds apart, before the run is marked failed",
+        "Links ENG-231 with a closing word Linear recognizes, such as Fixes, Closes, or Resolves, followed by the issue ID",
+        "Does not refer to the issue as a GitHub issue, for example as #231"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Draft only the copy-ready PR body for the repository in the current directory; it will be passed to `gh pr create --body-file`. Do not publish, push, or contact any remote. Complete diff: `acme sync` now skips files larger than the configured `max_size` and logs each skipped path, instead of aborting the whole sync at the first oversized file. The author ran `acme sync` on a local folder holding one 2 GB file and 40 small files: the 40 files synced and the skipped path was logged. No UI changed.",
+      "expected_output": "Follows .github/pull_request_template.md: fills its Summary, Release note, and How did you test this change? sections for this change, keeps the release-note-bot comment with a one-line user-facing note after it, reports the manual run with the 2 GB file under the testing section, and adds no invented content to the optional Screenshots section.",
+      "files": [
+        "evals/files/required-template/"
+      ],
+      "assertions": [
+        "Uses the template's Summary, Release note, and How did you test this change? sections, each filled for this change",
+        "Keeps the release-note-bot comment and puts a one-line user-facing release note on the line after it",
+        "Reports the manual run with one 2 GB file and 40 small files in the How did you test this change? section",
+        "Does not add screenshots or other invented content to the optional Screenshots section",
+        "Does not run a publishing command such as `gh pr create` or `git push`, and does not claim the pull request was created"
+      ]
     }
   ]
 }

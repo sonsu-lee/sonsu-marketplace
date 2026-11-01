@@ -90,17 +90,13 @@ GitHub rebases the next PR to target the stack base ([merging][stack-merge]).
 
 ### Closing issues from a stack
 
-GitHub interprets closing keywords only when the PR targets the default branch.
-For any other base they are ignored, no link is created, and merging does not
-affect the issue ([linking issues][issues]). In a stack, every PR above the
-bottom targets another PR's branch, and a stack on a non-default trunk has no
-PR that targets the default branch. Reference the issue there without a
-keyword. The bottom PR on the default branch may carry a keyword when it alone
-completes the issue.
-
-The stack docs do not say whether keywords take effect after a PR is retargeted
-to the stack base. After the PR that completes the issue lands, check the
-issue; report it if still open, or close it when the user asked.
+GitHub acts on closing keywords only in a PR that targets the default branch;
+for any other base they create no link, and merging does not close the issue
+([linking issues][issues]). Every PR above the bottom of a stack targets
+another PR's branch, and the stack docs do not say whether keywords take
+effect after GitHub retargets such a PR to the stack base. After the PR that
+completes the issue lands, check the issue; report it if still open, or close
+it when the user asked.
 
 ## Label AI assistance
 
@@ -238,7 +234,7 @@ requirements here.
 
 - [GitHub CLI attachments][attachments]: permissions, placement, and video.
 - [gh pr create][create] and [gh pr edit][edit]: flags and partial success.
-- [Repository templates][templates] and [inherited defaults][defaults].
+- [Repository templates][templates].
 - [Squash message configuration][squash]: title and body are not always used.
 - [Linking issues][issues]: closing keywords apply only to default-branch PRs.
 - [Stacked pull requests][stacks]: same repository, linear history, trunk.
@@ -252,7 +248,6 @@ requirements here.
 [create]: https://cli.github.com/manual/gh_pr_create
 [edit]: https://cli.github.com/manual/gh_pr_edit
 [templates]: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository
-[defaults]: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file
 [squash]: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/configuring-commit-squashing-for-pull-requests
 [issues]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue
 [stacks]: https://docs.github.com/en/pull-requests/reference/stacked-pull-requests
