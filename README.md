@@ -387,7 +387,10 @@ Install with `omp plugin install planning-workflow@sonsu-marketplace`,
   independent review, scoped cleanup, and final-revision validation. It reuses
   a valid plan, keeps commit, push, publication, merge, and deployment permissions
   separate, and delegates testing or cleanup only when useful. One controller
-  owns review dispatch, including skill-criteria review when applicable. See the
+  owns review dispatch, including skill-criteria review when applicable. A
+  change that repeats one rule across many sites uses a rerunnable query for
+  scope and coverage, the least machinery that applies it consistently, and
+  incremental updates instead of a fresh survey. See the
   [execution procedure](plugins/planning-workflow/skills/executing-work/SKILL.md).
 
 Small, clear changes need no plan. The skills guide agent behavior; they do not
