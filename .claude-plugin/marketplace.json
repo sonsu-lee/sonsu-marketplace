@@ -48,7 +48,7 @@
       "name": "design-workflow",
       "source": "./plugins/design-workflow",
       "description": "Design and review interfaces and graphics with scoped evidence and an optional omp verification harness.",
-      "version": "0.1.1"
+      "version": "0.2.0"
     }
   ]
 }

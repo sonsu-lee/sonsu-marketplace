@@ -282,7 +282,7 @@ describe('DesignRunEngine', () => {
     const { engine, plan } = await fixture('review');
     await expect(engine.start({ ...plan, checks: [{ id: 'run', command: 'echo', args: [], timeoutMs: 100 }] })).rejects.toThrow();
     await expect(engine.start({ ...plan, captures: [{ ...plan.captures[0], steps: [{ action: 'click', selector: 'button' }] }] })).rejects.toThrow();
-    await engine.start({ ...plan, captures: [{ ...plan.captures[0], steps: [{ action: 'assert-visible', selector: 'h1' }] }] });
+    await engine.start({ ...plan, captures: [{ ...plan.captures[0], steps: [{ action: 'assert-visible', selector: 'h1' }, { action: 'assert-accessible', selector: 'main' }, { action: 'assert-no-overflow', selector: 'main' }] }] });
     await expect(engine.write('index.html', 'changed')).rejects.toThrow();
     expect((await engine.stop('Human stopped', 'stopped')).phase).toBe('stopped');
     expect(engine.isActive()).toBe(false);

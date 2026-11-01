@@ -19,8 +19,22 @@
       "files": ["evals/files/signup.html"],
       "assertions": [
         "Identifies that the email and password inputs rely on placeholder text instead of visible labels",
-        "States that the review is based on the markup and that rendering or interaction was not observed",
+        "States how each finding was established, separating what it observed itself (for example by rendering the file) from what it inferred from the markup, and does not claim an observation the transcript does not show",
+        "Names at least one behavior it did not exercise, such as validation, keyboard focus or screen reader output",
         "Leaves signup.html unchanged"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review the member list card in members.html for design problems, without editing it. Our API allows display names up to 120 characters and emails up to 254. I can't run it or give you screenshots.",
+      "expected_output": "Reviews how the card handles content longer or stranger than the sample rows, using the stated limits, and separates inferred breaks from observed ones.",
+      "files": ["evals/files/members.html"],
+      "assertions": [
+        "Identifies that a long display name or email will not fit the fixed-width row, citing the stated 120 or 254 character limits or long unbroken values",
+        "Raises at least one other content case the sample data does not show, such as an empty list, a missing name or non-Latin text",
+        "States how each break was established, separating what it observed itself (for example by rendering the file) from what it inferred from the markup, and does not claim an observation the transcript does not show",
+        "Treats at least one rendered value whose limit the prompt does not give, such as the role label or the member count, as unknown or unbounded rather than assuming it is short",
+        "Leaves members.html unchanged"
       ]
     }
   ]

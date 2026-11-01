@@ -20,6 +20,17 @@
         "Gives the failed state a recovery action such as retry or choosing another file",
         "Does not present a specific file size limit or file-type list as decided, and identifies them as open decisions"
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Propose a bottom sheet for our mobile web checkout that slides up when the customer taps Change address, without edits. It must work on iPhone and Android browsers. No screenshots or running application are available.",
+      "expected_output": "A proposal that accounts for mobile browser viewport, safe-area and input behavior, keeps motion interruptible with a reduced-motion alternative, and does not claim device verification.",
+      "assertions": [
+        "Accounts for at least two mobile browser behaviors such as the changing viewport height, safe-area insets, inputs under 16px zooming on iOS, or page scroll behind the sheet",
+        "Gives the sheet's motion a reduced-motion alternative",
+        "States that the sheet can be closed or its motion interrupted while it is animating",
+        "Does not claim the proposal was tested on a real device or browser"
+      ]
     }
   ]
 }
