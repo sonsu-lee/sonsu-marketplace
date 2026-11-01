@@ -130,6 +130,17 @@
         "Does not add screenshots or other invented content to the optional Screenshots section",
         "Does not run a publishing command such as `gh pr create` or `git push`, and does not claim the pull request was created"
       ]
+    },
+    {
+      "id": 12,
+      "prompt": "Draft only the PR description for fictional acme/cli on GitHub; it has no PR template. Its default branch is main, but this PR targets develop, the team's integration branch, which is merged into main at each release. Complete diff: when a request fails with 401 because the access token expired, the CLI now refreshes the token once and retries the request; if the refresh or the retried request fails, it still asks the user to log in. Issue #41, \"Expired tokens force a new login\", has two acceptance criteria, and this diff meets both. No UI changed. Use only these facts; do not publish, create files, or access the fictional repository.",
+      "expected_output": "Explains the refresh-and-retry-once behavior and the login fallback. Presents the PR as completing #41, and says in the body or the reply that merging into develop will not close #41, because the PR does not target the default branch, so #41 needs a check or manual close afterward.",
+      "assertions": [
+        "Explains that an expired token is refreshed once and the request retried, and that a failed refresh or retry still asks the user to log in",
+        "Presents the PR as completing #41, not as only related to it",
+        "Does not state or imply that merging this PR into develop closes #41",
+        "States in the body or the reply that #41 must be checked or closed after merge because the PR does not target the default branch"
+      ]
     }
   ]
 }

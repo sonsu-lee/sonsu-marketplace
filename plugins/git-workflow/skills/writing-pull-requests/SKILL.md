@@ -101,10 +101,12 @@ need no diagram. Do not repeat it in prose. Link maintained operating docs
 instead of copying procedures.
 
 Link related issues and dependencies without copying them. Decide each
-issue's relationship from its stated outcome and the final diff: this PR
-completes it, advances part of it, or only relates to it. Link an issue this
-PR completes so that merging the PR closes it; link any other issue so that
-merging leaves it open.
+issue's relationship from its stated outcome and the final diff, counting work
+that lands before or with it: this PR completes it, advances part of it, or
+only relates to it. Link an issue this PR completes so that merging the PR
+closes it; link any other issue so that merging leaves it open. If the base is
+not the default branch, read
+[closing issues](references/publishing.md#closing-issues-outside-the-default-branch).
 
 ## Provide UI evidence
 

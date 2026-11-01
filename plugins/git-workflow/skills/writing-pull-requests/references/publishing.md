@@ -88,7 +88,7 @@ below it, and a mid-stack PR cannot merge alone. A request to merge one
 stacked PR therefore covers those below it; confirm that scope. Afterward,
 GitHub rebases the next PR to target the stack base ([merging][stack-merge]).
 
-### Closing issues from a stack
+### Closing issues outside the default branch
 
 GitHub acts on closing keywords only in a PR that targets the default branch;
 for any other base they create no link, and merging does not close the issue
