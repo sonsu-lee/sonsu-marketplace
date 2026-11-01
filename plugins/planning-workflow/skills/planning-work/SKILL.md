@@ -38,18 +38,21 @@ available evidence, such as raw records rather than a summary, and identify
 what observation would disprove it. If that evidence is unavailable, say so
 and keep the assumption open rather than treating an inference as a fact.
 
+Research only what could change the approach, scope, risk, or verification.
+For an authorized, bounded experiment, state what it decides, its success
+criterion, and its cost.
+
 ## Shape the plan
 
 - **Goals and non-goals.** A non-goal is something that could plausibly be a
   goal and is deliberately excluded, not a negated goal such as "must not
-  crash". Naming them is how scope disagreements surface early.
+  crash".
 - **Big picture first.** Draw the overall structure before details: components
   and data flow for code; for product or UI work, features to screens to
   wireframes to component usage. Use the project's own terms and its design
   system's existing components; a needed new one is a proposal, not a given.
 - **Each element.** For every element say what it is, why it is needed, how it
-  works, and which alternatives were rejected and why. The rejected
-  alternatives and their tradeoffs are the part most worth reading.
+  works, and which alternatives were rejected and why.
 - **Traceability.** Each lower-level item names the higher-level requirement
   that needs it. An item with no parent is cut or becomes a question; a
   requirement with no children is a gap. Check both directions before
@@ -60,6 +63,7 @@ fields to investigate the problem, not expert-role vocabulary or role-play.
 Choose methods proportionate to the decision and within the agreed scope.
 
 Size the plan to the work: a small change needs a page, not a template.
+Follow a required output format instead of adding sections.
 
 ## Edge cases
 
@@ -91,9 +95,7 @@ Do not split a change from the tests and documentation it needs.
 
 Mark the plan Draft or Decided at the top. Share a short draft first: goals,
 non-goals, the big-picture diagram, and open questions. Polish the detailed
-sections only after the direction is agreed. Early rough sharing and heavily
-rewritten memos are both established practices; the point is that polish spent
-on a rejected direction is wasted.
+sections only after the direction is agreed.
 
 ## Reader check
 
@@ -116,6 +118,10 @@ need. Return it in the reply; write a plan file only when the user or project
 specifies that destination and the request permits writes. Planning and reader
 review do not authorize temporary files. Wait for explicit approval before
 implementing, creating branches or tickets, or making other file changes.
+
+Build on the latest agreement; separate settled choices from open questions
+and do not reopen them without a reason. Keep a substantive plan resumable:
+agreed scope, remaining work, verification, and open decisions.
 
 If implementation shows the plan is wrong, say what changed and why before
 continuing, and update the plan. If a decision sets lasting direction or is

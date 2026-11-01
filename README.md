@@ -376,7 +376,10 @@ Install with `omp plugin install planning-workflow@sonsu-marketplace`,
   design, considers reachable edge cases, plans verification and delivery,
   and marks the plan Draft or Decided. It uses an independent reader where
   available (otherwise disclosing self-review), which is not proof the plan works,
-  and waits for explicit approval. See the
+  and waits for explicit approval. Research and experiments stop once they can
+  no longer change a decision and stay read-only for plan-only requests; the
+  plan follows a required output format and stays resumable from the latest
+  agreement. See the
   [planning procedure](plugins/planning-workflow/skills/planning-work/SKILL.md).
 
 Small, clear changes need no plan. The plugin does not implement the work,

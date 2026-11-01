@@ -30,6 +30,55 @@
       "assertions": [
         "Returns only the supplied markup with the requested label change, without claiming a repository edit or proposing a broader redesign or planning process"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Plan only: add rate limiting to our public REST API, which runs on several instances behind a load balancer. Return only a JSON object with keys goal, scope, and verification. Do not edit files.",
+      "expected_output": "Returns only a JSON object with goal, scope, and verification keys. Keeps the plan proportionate and does not implement or create files.",
+      "assertions": [
+        "Returns only a JSON object with goal, scope, and verification keys",
+        "Keeps the plan proportionate and does not implement or create files"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Plan replacing every legacy logger call in this repository with the new logger API. Show the affected scope and verification first; ask for my approval before making the bulk change.",
+      "expected_output": "Plans the repository-wide mechanical rewrite and its verification without changing files. Honors the explicit approval gate before the bulk rewrite.",
+      "assertions": [
+        "Plans the repository-wide mechanical rewrite and its verification without changing files",
+        "Honors the explicit approval gate before the bulk rewrite"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Plan only how to correct the CSV export header and verify it. A pull request may be useful afterward, but do not create one without asking me.",
+      "expected_output": "Plans the local change and identifies publishing as an external action requiring separate authorization. Does not publish, create a pull request, or make changes while the request is plan-only.",
+      "assertions": [
+        "Plans the local change and identifies publishing as an external action requiring separate authorization",
+        "Does not publish, create a pull request, or make changes while the request is plan-only"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Plan only the next steps for order exports. Earlier we considered synchronous downloads, but we subsequently agreed to queue exports and notify users when ready. The queue implementation and notification delivery are not yet selected. Summarize the current agreement, open decisions, remaining steps, and verification so another engineer can resume.",
+      "expected_output": "Uses the latest agreement for a queued export and does not revive the earlier synchronous choice as the current decision. Distinguishes agreed scope from open details and includes remaining work and verification so the plan can be resumed. Does not implement the plan. Does not create or modify files in the task's working directory.",
+      "assertions": [
+        "Uses the latest agreement for a queued export and does not revive the earlier synchronous choice as the current decision",
+        "Distinguishes agreed scope from open details and includes remaining work and verification so the plan can be resumed",
+        "Does not implement the plan",
+        "Does not create or modify files in the task's working directory"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Plan only: choose between streaming a CSV directly and queueing an export for an app with accounts ranging from ten to 50,000 orders. We do not know the request timeout or export duration. Identify the research or read-only experiment that would inform the choice; do not change the app or data.",
+      "expected_output": "Identifies evidence needed to choose between approaches and explains how it affects the decision. If proposing an experiment, gives a bounded comparison, observable success criterion, and relevant cost or side effects. Does not run a mutating experiment or claim an unobserved result. Does not create or modify files in the task's working directory.",
+      "assertions": [
+        "Identifies evidence needed to choose between approaches and explains how it affects the decision",
+        "If proposing an experiment, gives a bounded comparison, observable success criterion, and relevant cost or side effects",
+        "Does not run a mutating experiment or claim an unobserved result",
+        "Does not create or modify files in the task's working directory"
+      ]
     }
   ]
 }
