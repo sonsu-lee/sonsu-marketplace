@@ -1,4 +1,5 @@
 import { access, mkdir, open, readFile, realpath, stat, unlink } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { constants } from 'node:fs';
 import { isIP } from 'node:net';
 import { extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
@@ -11,6 +12,7 @@ import { MAX_CAPTURE_DIMENSION } from './engine.ts';
 const TIMEOUT_MS = 30_000;
 const MAX_ASSET_BYTES = 16 * 1024 * 1024;
 const FILE_ORIGIN = 'http://design-workflow.invalid';
+const AXE_SOURCE = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
 const CONTENT_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8',
   '.svg': 'image/svg+xml', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -60,7 +62,51 @@ async function performStep(page: Page, step: BrowserStep): Promise<void> {
       if (!text?.includes(step.text)) throw new Error(`Text assertion failed for ${step.selector}: expected ${JSON.stringify(step.text)}`);
       break;
     }
-    default: throw new Error('Unsupported browser action');
+    case 'assert-accessible': {
+      // ページの CSP に左右されないよう、script 要素を作らずに axe を評価する。
+      await page.evaluate(await readFile(AXE_SOURCE, 'utf8'));
+      const violations = await locator.evaluate(async element => {
+        // 注入した axe はページの型に現れないため、ここで形を宣言する。
+        const { axe } = window as unknown as { axe: { run(context: Element): Promise<{ violations: { id: string; impact: string; nodes: unknown[] }[] }> } };
+        const result = await axe.run(element);
+        return result.violations.map(v => `${v.id} (${v.impact}, ${v.nodes.length})`);
+      });
+      if (violations.length) throw new Error(`Accessibility assertion failed for ${step.selector}: ${violations.join('; ')}`);
+      break;
+    }
+    case 'assert-no-overflow': {
+      // 文字列ごとに、選択範囲と途中で切り取る祖先の外へ横にはみ出していないかを測る。
+      // スクロールできる祖先、効いている省略記号、clip で隠した要素（視覚的に隠したラベル）は除く。
+      const overflowing = await locator.evaluate(root => {
+        const intentional = (style: CSSStyleDeclaration) => ['auto', 'scroll'].includes(style.overflowX)
+          || style.clip !== 'auto' || style.clipPath !== 'none'
+          || (style.textOverflow === 'ellipsis' && style.overflowX !== 'visible');
+        const outside = (text: DOMRect, element: Element) => {
+          const box = element.getBoundingClientRect();
+          return text.left < box.left - 0.5 || text.right > box.right + 0.5;
+        };
+        const found: string[] = [];
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          const content = node.textContent?.trim();
+          if (!content) continue;
+          const chain: Element[] = [];
+          for (let element = node.parentElement; element && element !== root; element = element.parentElement) chain.push(element);
+          const styles = chain.map(element => getComputedStyle(element));
+          if (styles.some(intentional)) continue;
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          // display:none の内容や style 要素の文字列は描画されないため測らない。
+          if (!range.getClientRects().length) continue;
+          const text = range.getBoundingClientRect();
+          const bounds = [root, ...chain.filter((_, index) => styles[index].overflowX !== 'visible')];
+          if (bounds.some(element => outside(text, element))) found.push(content.slice(0, 40));
+        }
+        return found;
+      });
+      if (overflowing.length) throw new Error(`Overflow assertion failed for ${step.selector}: ${overflowing.slice(0, 20).join('; ')}`);
+      break;
+    }
   }
 }
 

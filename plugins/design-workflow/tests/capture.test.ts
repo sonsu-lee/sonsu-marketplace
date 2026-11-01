@@ -97,6 +97,37 @@ describe.skipIf(!executablePath)('isolated Chromium capture (DESIGN_WORKFLOW_CHR
     expect((await readFile(result.artifacts[0])).subarray(0, 4).toString('hex')).toBe('89504e47');
   });
 
+  test('accessibility assertion fails on detectable violations and passes on a labelled control, even under a strict CSP', async () => {
+    const csp = '<meta http-equiv="Content-Security-Policy" content="script-src \'none\'">';
+    const options = await fixture(`${csp}<title>A11y</title><main><button><svg width="16" height="16"></svg></button></main>`);
+    await expect(captureEvidence({ ...options, spec: fileSpec([{ action: 'assert-accessible', selector: 'main' }]) })).rejects.toThrow('button-name');
+    expect(await readdir(options.artifactRoot)).toEqual([]);
+    await writeFile(join(options.workspaceRoot, 'page.html'), `${csp}<title>A11y</title><main><button aria-label="Close"><svg width="16" height="16"></svg></button></main>`);
+    const result = await captureEvidence({ ...options, spec: fileSpec([{ action: 'assert-accessible', selector: 'main' }]) });
+    expect(JSON.parse(await readFile(result.artifacts[1], 'utf8')).actions).toEqual([{ action: 'assert-accessible', selector: 'main', result: 'passed' }]);
+  });
+
+  test('overflow assertion fails on spilled or clipped text and allows intentional truncation, scrolling, hidden labels and overhang', async () => {
+    const word = 'Unbreakable'.repeat(20);
+    const options = await fixture('');
+    const check = async (html: string) => {
+      await writeFile(join(options.workspaceRoot, 'page.html'), `<div id="card" style="width:120px;position:relative">${html}</div>`);
+      return captureEvidence({ ...options, spec: fileSpec([{ action: 'assert-no-overflow', selector: '#card' }]) });
+    };
+    await expect(check(`<p>${word}</p>`)).rejects.toThrow('UnbreakableUnbreakable');
+    await expect(check(`<p style="overflow:hidden">${word}</p>`)).rejects.toThrow('UnbreakableUnbreakable');
+    expect(await readdir(options.artifactRoot)).toEqual([]);
+    await check([
+      `<p style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${word}</p>`,
+      `<p style="overflow-wrap:anywhere">${word}</p>`,
+      '<div style="overflow-x:auto"><div style="width:600px">Wide table</div></div>',
+      '<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap">Close the navigation menu</span>',
+      '<span style="position:absolute;right:-8px;width:16px;height:16px;background:red"></span>',
+      '<input value="a-very-long-email-address-that-scrolls-inside-the-field@example.com" style="width:100px">',
+      '<ul hidden><li>Hidden menu item</li></ul><select><option>Option inside a closed select</option></select><style>p { color: black }</style>',
+    ].join(''));
+  });
+
   test('rejects missing, broken, outside and remote assets', async () => {
     const options = await fixture('<img src="missing.png">');
     await expect(captureEvidence({ ...options, spec: fileSpec() })).rejects.toThrow();

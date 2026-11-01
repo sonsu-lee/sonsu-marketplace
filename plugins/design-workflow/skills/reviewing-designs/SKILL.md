@@ -35,7 +35,9 @@ issue is supported, say so rather than inventing one.
 
 Read [critique evidence](references/evidence.md) when a specific visual or flow
 judgment, conflicting reference, or handoff question needs research context.
-These source-derived suggestions are not independent validation of the reviewed
+Read [worst-case data](references/worst-case-data.md) when the design renders
+user- or system-supplied values such as names, counts, dates or lists. These
+source-derived suggestions are not independent validation of the reviewed
 product or a substitute for applicable standards and tests.
 
 ## Optional omp strict run

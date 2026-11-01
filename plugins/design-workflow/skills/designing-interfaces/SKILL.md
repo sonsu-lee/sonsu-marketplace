@@ -36,8 +36,11 @@ Read only what fits the design decision: [visual judgments](references/visual.md
 for typography, spacing, imagery, icons or visual encoding; [flow judgments](references/flows.md)
 for responsive behavior, controls, state, service policy or design rationale;
 [handoff workflows](references/handoff.md) when editable deliverables, conflicting
-references, destructive edits or production handoff are relevant. These are
-contextual heuristics, not universal rules or evidence of user outcomes.
+references, destructive edits or production handoff are relevant;
+[motion](references/motion.md) when adding, changing or removing animation;
+[web on touch devices](references/web-touch-platform.md) when a web interface
+will be used on phones or tablets. These are contextual heuristics, not
+universal rules or evidence of user outcomes.
 
 ## Optional omp strict run
 

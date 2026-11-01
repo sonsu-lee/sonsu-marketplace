@@ -18,5 +18,6 @@
   {"query": "Implement the form validation for our signup page in React.", "should_trigger": false},
   {"query": "Summarize the feedback from these five customer support tickets.", "should_trigger": false},
   {"query": "Review my resume and suggest stronger bullet points.", "should_trigger": false},
-  {"query": "Explain how screen readers announce form errors in general.", "should_trigger": false}
+  {"query": "Explain how screen readers announce form errors in general.", "should_trigger": false},
+  {"query": "Run a QA sweep of our deployed app: click through every page and report console errors and failed network requests.", "should_trigger": false}
 ]
