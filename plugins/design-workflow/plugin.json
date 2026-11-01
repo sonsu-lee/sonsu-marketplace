@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "design-workflow",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Design and review interfaces and graphics with scoped evidence and an optional omp verification harness.",
   "author": {"name": "sonsu-lee", "url": "https://github.com/sonsu-lee"},
   "repository": "https://github.com/sonsu-lee/sonsu-marketplace",

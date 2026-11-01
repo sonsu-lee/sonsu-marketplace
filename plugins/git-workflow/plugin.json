@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "git-workflow",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Name branches, write commits, and prepare draft pull requests by repository conventions.",
   "author": {
     "name": "sonsu-lee",
