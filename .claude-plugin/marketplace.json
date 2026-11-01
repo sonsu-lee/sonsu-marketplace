@@ -10,7 +10,7 @@
       "name": "git-workflow",
       "source": "./plugins/git-workflow",
       "description": "Name branches, write commits, and prepare draft pull requests by repository conventions.",
-      "version": "0.5.0"
+      "version": "0.5.1"
     },
     {
       "name": "skill-workflow",
@@ -20,19 +20,19 @@
       "name": "ticket-workflow",
       "source": "./plugins/ticket-workflow",
       "description": "Write small, outcome-centered GitHub and Linear tickets while leaving implementation to the assignee.",
-      "version": "0.3.4"
+      "version": "0.3.5"
     },
     {
       "name": "decision-workflow",
       "source": "./plugins/decision-workflow",
       "description": "Select consequential design decisions and write lightweight ADRs using repository conventions first.",
-      "version": "0.2.2"
+      "version": "0.2.3"
     },
     {
       "name": "writing-workflow",
       "source": "./plugins/writing-workflow",
       "description": "Write and refine natural Korean, English, and Japanese prose while preserving meaning and author voice.",
-      "version": "0.2.2"
+      "version": "0.2.3"
     },
     {
       "name": "review-workflow",
@@ -42,13 +42,13 @@
       "name": "planning-workflow",
       "source": "./plugins/planning-workflow",
       "description": "Plan non-trivial work as a reviewable design and coordinate authorized execution through independent review and final validation.",
-      "version": "0.3.0"
+      "version": "0.3.1"
     },
     {
       "name": "design-workflow",
       "source": "./plugins/design-workflow",
       "description": "Design and review interfaces and graphics with scoped evidence and an optional omp verification harness.",
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   ]
 }

@@ -84,7 +84,9 @@ changes.
   which procedure to follow. Add or adjust that routing in the same change if
   needed. Never leave an active requirement only in an ADR; ADRs link to current
   instructions rather than duplicate commands or values.
-* Write documentation in English.
+* Write documentation in English. Korean translations of skill documents
+  are allowed only as described in
+  [Translations](README.md#translations).
 * When creating or updating a README, follow the
   [documentation checklist](README.md#writing-documentation) and its linked
   Standard Readme specification.

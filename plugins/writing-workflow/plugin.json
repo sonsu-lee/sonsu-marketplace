@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "writing-workflow",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Write and refine natural Korean, English, and Japanese prose while preserving meaning and author voice.",
   "author": {
     "name": "sonsu-lee",

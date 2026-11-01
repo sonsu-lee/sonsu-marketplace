@@ -511,7 +511,8 @@ actual review results, narrowing or removing rules that produce noise.
 
 ### Writing documentation
 
-Write documentation in English and follow the
+Write documentation in English, except the Korean skill translations described
+in [Translations](#translations), and follow the
 [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
 when creating or updating README files, as recorded in
 [ADR-0003](docs/decisions/0003-use-standard-readme.md).
@@ -560,6 +561,38 @@ keep each prose paragraph on one source line, with blank lines between
 paragraphs and structural newlines for lists, tables, and code blocks. GitHub
 renders single newlines in PR bodies as visible line breaks, unlike repository
 `.md` files.
+
+#### Translations
+
+Skill documents may have a Korean translation for human readers, stored next to
+the English source as `<name>.ko.md`, for example `SKILL.ko.md` or
+`references/craft.ko.md`. Translations cover only files inside a skill
+directory, `plugins/<plugin>/skills/<skill>/`: its `SKILL.md`, `references/`,
+and `agents/` files. Never translate plugin-level component directories such
+as `plugins/<plugin>/agents/`, which omp loads as task agents, `assets/`
+templates that skills copy into output, or `evals/` files.
+
+- The English file is authoritative. Clients discover and load only the
+  English files; a translation never adds or changes instructions.
+- Omit frontmatter so no loader can mistake a translation for a skill. Start
+  with the translated title, then this notice naming the source file and the
+  last commit that changed it:
+
+  ```markdown
+  > 영문 정본: [SKILL.md](SKILL.md) (`5b362ef` 기준 번역).
+  > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
+  ```
+
+- Translate prose only. Keep code, commands, paths, identifiers, and example
+  text whose language matters unchanged. Links into other files keep their
+  English targets; a link to a heading in the same file uses the translated
+  heading's anchor.
+- Updating a translation when its source changes is optional. Compare the
+  noted commit with `git log -1 --format=%h -- <source>` to see whether a
+  translation is behind, and refresh the notice whenever you update one.
+  Renaming or deleting a source renames or deletes its translation in the same
+  change.
+- Translations follow the same Markdown lint as other files.
 
 ### Decision records
 
