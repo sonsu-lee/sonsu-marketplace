@@ -73,42 +73,42 @@ Offered templates live on the default branch. Use an explicitly requested
 template when applicable.
 
 Preserve required fields and automation markers, without adding a second
-template or filling optional sections merely because they exist. If no template
-applies, use the [bundled body](assets/pr-body.md). An explicit CLI or API body
-must already incorporate the selected template.
+template or filling optional sections merely because they exist. Without a
+template, write from the principles below, not a fixed layout. An explicit CLI
+or API body must already incorporate the selected template.
 
 Keep paragraphs on one source line, including within list items: GitHub renders
 single newlines in PR bodies as line breaks, unlike `.md` files. Preserve blank
 lines and list, table, and code structure. Do not apply file-lint or column limits
 unless required for PR bodies, even in a temporary `.md` file for `--body-file`.
 
-## Explain the reason and approach
+## Write what reviewers need
 
-Keep what reviewers need to understand and safely use the change:
+Give reviewers what they need to understand and use the change:
 
-- **Why:** the concrete problem.
-- **What changes:** observable results and non-obvious decisions. For nontrivial
-  changes, explain relevant flow, responsibility, or ordering and what is preserved.
+- **Why:** the concrete problem or need.
+- **What changes:** the result and decisions the diff does not explain, such as
+  flow or ordering, what stays unchanged, and real costs.
+- **Always kept:** material risks, rollout constraints, unverified behavior, and
+  repository-required details.
+- **Supporting evidence for claims:** a measurement with the method and
+  environment needed to read it, or a manual check the diff and CI cannot show.
 
-Do not retell every file, command, retry, or investigation step. Summarize
-essential context and link existing evidence; retain material risks, rollout
-constraints, and uncertainty. Do not invent rationale or alternatives for
-obvious changes. Link related issues and dependencies without copying them.
+Report checks by type and outcome, naming a required profile, not its settings;
+add versions, inputs, or commands only if required or they explain a failure or
+limit. Omit CI-covered test, lint, and build results and work logs. Do not
+invent rationale. Distinguish plans and agent checks from observed results and
+human review. Link accessible evidence, not local paths.
+
+Scale length to the change; even a one-sentence body must say what and why
+without the diff. Use headings only for long bodies, named for content, such as
+`## Benchmark`. Use prose or bullets, not checkboxes.
+
+Link related issues and dependencies without copying them.
 Use closing keywords only when this PR completes the issue; GitHub ignores
 them unless it targets the default branch
 ([stacks](references/publishing.md#closing-issues-from-a-stack)). Follow other
 trackers' own completion-link rules.
-
-## Record author checks, not CI status
-
-Select evidence for the change's correctness, not a record of the work.
-For routine success, group results by check type and report the aggregate
-outcome with the required profile name, not its settings. Individual test
-inputs matter only when they explain a failure or limit. Preserve explicitly
-required details, material blockers, and unverified behavior.
-
-Use prose or bullets, not checkboxes. Distinguish plans and agent checks from
-observed results and human review. Link accessible evidence, not local paths.
 
 ## Provide UI evidence
 
@@ -128,7 +128,7 @@ label, or `ai-assisted` if none is designated. For authorized publication or lab
 updates, read the [label procedure](references/publishing.md#label-ai-assistance).
 For a draft, identify the intended label without creating or applying it.
 
-Do not add an AI section or checkbox to the default body, or repeat a label in
+Do not add an AI section or checkbox to the body, or repeat a label in
 a disclosure paragraph. Explain AI use in the body only when it affects review,
 such as substantial generated code needing focused inspection, or when policy
 requires it; tool names, models, and prompts are not required. An absent label

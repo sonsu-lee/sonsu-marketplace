@@ -217,10 +217,11 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`,
   The skill's default prefixes are `feat/` (not `feature/`), `bugfix/` (not
   `fix/`), `hotfix/`, `release/`, and `chore/`. See the
   [skill's validation procedure](plugins/git-workflow/skills/naming-branches/SKILL.md#required-validation).
-- **`writing-pull-requests`** writes plain, repository-aware PR descriptions,
-  selecting review-relevant context instead of reproducing work logs. It records
-  author checks, labels AI assistance, and prepares UI evidence. Dependent PRs
-  use GitHub stacks where available; new PRs are Draft by default. See the
+- **`writing-pull-requests`** writes plain, repository-aware PR descriptions
+  scaled to the change: why, what changes, and only the evidence reviewers
+  cannot get from the diff or CI, instead of a fixed template or work log. It
+  labels AI assistance and prepares UI evidence. Dependent PRs use GitHub
+  stacks where available; new PRs are Draft by default. See the
   [PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md).
 
 Branch prefixes do not change commit types: a `bugfix/` branch can contain

@@ -198,16 +198,28 @@ squash가 GitHub이 PR 제목이나 본문을 사용한다는 것을 보장하�
 
 Google은 필수 PR 템플릿이 아니라 내용과 변경 크기에 대한 원칙을 제공한다.
 
-- [좋은 CL 설명 쓰기][descriptions]: what, why, 결정 맥락, 정보를 담은 제목, 설명을
-  최신으로 유지하기.
+- [좋은 CL 설명 쓰기][descriptions]: what, why, 결정 맥락, 단점, 관련 있을 때의
+  benchmark 결과, 정보를 담은 제목, 설명을 최신으로 유지하기. "Fix bug"는 정보가
+  부족한 예로 든다.
 - [작은 CL][small]: 일관된 변경, 관련 테스트, 안전한 점진적 작업.
 - [코드 리뷰에서 살펴볼 것][review]: 설계, 기능, 코드만 읽어서는 부족할 때 쓸모 있는
   증거.
 
-대체 제목, 작성자 검사 정책, AI 공개, Draft 기본값은 이 플러그인의 선택이다. 비교할
-만한 자료로 [React의 템플릿][react], [Rust의 작성자 검사 및 공개 지침][rust],
-[LLVM의 사람 책임 정책][llvm]이 있다. 그 프로젝트 고유의 제한이 여기서 보편적인
-요건이 되지는 않는다.
+다른 가이드도 증거에 관해 같은 원칙을 둔다.
+
+- [Linux 커널: 패치 제출][kernel]: 한 줄 수정이라도 문제를 설명하고, 패치 하나에
+  문제 하나만 풀고, 성능이나 크기 개선 주장에는 수치와 trade-off를 붙인다.
+- [Rust의 LLM 기여 지침][rust]: CI가 어차피 돌리는 테스트는 보고하지 않고, 수동
+  테스트와 benchmark, 아직 확실하지 않은 점은 보고한다.
+- PR 템플릿이 없는 프로젝트의 [oxc #27816][oxc-example]: before/after 코드와 바뀌지
+  않는 것을 담은 요약, 이어서 측정 방법, 환경, 결과를 담은 benchmark.
+
+프로젝트는 자유 형식 설명과 필수 템플릿으로 나뉜다. [React의 템플릿][react]은
+요약과 "How did you test this change?" 섹션을 요구하고, 이 섹션을 비우면 PR이 닫힐
+가능성이 높다고 경고한다. 그래서 저장소 템플릿이 이 원칙보다 우선한다. 고정 구성이
+없는 자유 형식 본문, AI 공개, Draft 기본값은 이 플러그인의 선택이며,
+[LLVM의 사람 책임 정책][llvm]도 비교할 만하다. 다른 프로젝트의 제한이 여기서
+보편적인 요건이 되지는 않는다.
 
 ## 참고 자료
 
@@ -241,3 +253,5 @@ Google은 필수 PR 템플릿이 아니라 내용과 변경 크기에 대한 원
 [react]: https://github.com/facebook/react/blob/main/.github/PULL_REQUEST_TEMPLATE.md
 [rust]: https://rustc-dev-guide.rust-lang.org/llm-guidance/writing.html
 [llvm]: https://llvm.org/docs/AIToolPolicy.html
+[kernel]: https://docs.kernel.org/process/submitting-patches.html
+[oxc-example]: https://github.com/oxc-project/oxc/pull/27816

@@ -101,7 +101,7 @@ Before uploading, open every final image and play every final video. Check:
   customer data are exposed. Prefer sanitized test data; inspect any redaction.
 
 Use the repository template's evidence location, otherwise a dedicated area of
-the PR body. Keep author-check statements concise and point to the media rather
+the PR body. Keep verification statements concise and point to the media rather
 than repeating their descriptions. If the repository requires a separate
 comment, link it from the body so evidence remains discoverable.
 
