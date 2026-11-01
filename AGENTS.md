@@ -55,8 +55,9 @@ changes.
 * Follow the
   [PR skill](plugins/git-workflow/skills/writing-pull-requests/SKILL.md)
   when drafting, creating, updating, or marking a pull request ready, including
-  title validation, repository templates, author checks, and UI evidence.
-  Create new PRs as Draft by default; mark ready only on an explicit request.
+  title validation, repository templates, reviewer-needed evidence, and UI
+  evidence. Create new PRs as Draft by default; mark ready only on an explicit
+  request.
 * Follow the
   [ticket-writing procedure](plugins/ticket-workflow/skills/writing-tickets/SKILL.md)
   when drafting, creating, updating, or splitting GitHub Issues or Linear

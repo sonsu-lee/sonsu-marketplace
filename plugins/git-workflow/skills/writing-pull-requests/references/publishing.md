@@ -208,16 +208,31 @@ request merely to write or open a PR.
 Google supplies content and change-size principles, not a required PR template:
 
 - [Writing good CL descriptions][descriptions]: what, why, decision context,
-  informative titles, and keeping the description current.
+  shortcomings, benchmark results when relevant, informative titles, and
+  keeping the description current. "Fix bug" is its example of too little.
 - [Small CLs][small]: coherent changes, related tests, and safe incremental work.
 - [What to look for in a code review][review]: design, functionality, and useful
   evidence where reading code alone is insufficient.
 
-The fallback headings, author-check policy, AI disclosure, and Draft default are
-this plugin's choices. Useful comparisons are
-[React's template][react], [Rust's author-check and disclosure guidance][rust],
-and [LLVM's human-accountability policy][llvm]. Their project-specific
-restrictions do not become universal requirements here.
+Other guides agree on the evidence rule:
+
+- [Linux kernel: Submitting patches][kernel]: describe the problem even for a
+  one-line fix, solve one problem per patch, and back performance or size claims
+  with numbers and their trade-offs.
+- [Rust's LLM contribution guidance][rust]: do not report tests CI runs anyway;
+  report manual testing and benchmarking, and what remains uncertain.
+- [oxc #27816][oxc-example], from a project without a PR template: a summary
+  with before/after code and what stays unchanged, then a benchmark with method,
+  environment, and results.
+
+Projects divide between free-form descriptions and required templates.
+[React's template][react] requires a summary and a "How did you test this
+change?" section, warning that a PR leaving it empty will likely be closed.
+This is why a repository template takes precedence over these principles.
+Free-form bodies without a fixed layout, AI disclosure, and the Draft default
+are this plugin's choices; [LLVM's human-accountability policy][llvm] is a
+further comparison. Other projects' restrictions do not become universal
+requirements here.
 
 ## References
 
@@ -252,3 +267,5 @@ restrictions do not become universal requirements here.
 [react]: https://github.com/facebook/react/blob/main/.github/PULL_REQUEST_TEMPLATE.md
 [rust]: https://rustc-dev-guide.rust-lang.org/llm-guidance/writing.html
 [llvm]: https://llvm.org/docs/AIToolPolicy.html
+[kernel]: https://docs.kernel.org/process/submitting-patches.html
+[oxc-example]: https://github.com/oxc-project/oxc/pull/27816
