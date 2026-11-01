@@ -1,0 +1,32 @@
+{
+  "skill_name": "changelog-entries",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "PR #482 merged: the export dialog now remembers the last chosen format. Add the changelog entry.",
+      "expected_output": "One line under Changed in [Unreleased] that tells users the export dialog remembers their last format and links #482.",
+      "assertions": [
+        "Adds exactly one line under ### Changed in [Unreleased]",
+        "Links PR #482"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "we fixed the crash when uploading files over 2 GB (PR 517), can you log it",
+      "expected_output": "One line under Fixed in [Unreleased] that describes the large-upload crash fix for users and links #517.",
+      "assertions": [
+        "Adds the entry under ### Fixed in [Unreleased]",
+        "Describes the user-visible effect rather than the code change"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Add PR #530 to the 1.4.0 section of CHANGELOG.md; it removed the legacy CSV importer.",
+      "expected_output": "Leaves the released 1.4.0 section unchanged and adds the removal under Removed in [Unreleased], linking #530.",
+      "assertions": [
+        "Does not edit the released 1.4.0 section",
+        "Adds the entry under ### Removed in [Unreleased]"
+      ]
+    }
+  ]
+}

@@ -25,6 +25,20 @@
         "Reports that the skill roughly doubles time and tokens and weighs that against the pass-rate gain",
         "Does not run evaluation scripts or claim new results"
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "I revised our changelog-entries skill so internal-only changes get no entry; the new version is below. Its evals from earlier rounds are in changelog-entries/evals/evals.json. Update that file so the next evaluation covers this revision against the previous version; don't run anything yet. When you finish, show me the final contents of the files you changed.\n\n```markdown\n---\nname: changelog-entries\ndescription: Use this skill when adding an entry to CHANGELOG.md for a merged change, following Keep a Changelog sections and the project's version headings.\n---\n\n# Changelog entries\n\n1. Read the merged change and find the user-visible effect. If it has none, such as a CI, test, or refactoring change, add no entry and say why.\n2. Add one line under the right `## [Unreleased]` section: Added, Changed, Deprecated, Removed, Fixed, or Security.\n3. Write it for users, not developers: say what changed for them, and link the PR number.\n4. Never edit released version sections.\n```",
+      "expected_output": "Keeps the three existing cases with ids 1, 2, and 3 instead of trimming the set to two or three cases. Adds at least one case whose prompt describes an internal-only change, such as CI, test, or refactoring work, with an expected_output in which no changelog entry is added. Gives each added case a new integer id that does not reuse 1, 2, or 3, plus a prompt and an expected_output. Does not claim to have run evaluations or model calls.",
+      "files": [
+        "evals/files/changelog-revision/"
+      ],
+      "assertions": [
+        "Keeps the three existing cases with ids 1, 2, and 3 instead of trimming the set to two or three cases",
+        "Adds at least one case whose prompt describes an internal-only change, such as CI, test, or refactoring work, with an expected_output in which no changelog entry is added",
+        "Gives each added case a new integer id that does not reuse 1, 2, or 3, plus a prompt and an expected_output",
+        "Does not claim to have run evaluations or model calls"
+      ]
     }
   ]
 }

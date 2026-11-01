@@ -45,9 +45,11 @@ runs is in [references/clients.md](references/clients.md).
 
 ## Evaluate output quality
 
-1. **Cases.** Keep two or three realistic prompts with an `expected_output`
-   in the skill's `evals/evals.json`, with input files under `evals/files/`.
-   Include one boundary case. Show the cases to the user.
+1. **Cases.** Start with two or three realistic prompts with an
+   `expected_output` in the skill's `evals/evals.json`, with input files under
+   `evals/files/`, including one boundary case. Keep earlier cases and add
+   cases for a revised behavior or a gap the results reveal. Show the cases to
+   the user.
 2. **Baseline.** A new skill is compared with no skill
    (`--baseline without`). For a revision, put the previous version in
    `<workspace>/skill-snapshot` and use `--baseline old`.
