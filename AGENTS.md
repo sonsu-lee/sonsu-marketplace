@@ -21,14 +21,14 @@ changes.
   [plugin test procedure](README.md#testing-a-plugin) for every client.
   Require every expected skill exactly once without loading errors; omp
   discovery must have no `warning:` lines. Listing is not proof of execution.
-* When a change alters a skill's behavior or description, evaluate it in every
-  client with the [skill evaluation procedure](README.md#evaluating-skills) and
-  the applicable [manual scenario checks](README.md#manual-scenario-checks):
-  output evals against the previous version, three runs per configuration by
-  default, and trigger evals when the description changes, with the
-  evaluation models listed there. Run model checks locally, never in CI or
-  with credentials in repository secrets, and report the models and results
-  in the pull request.
+* When a change alters a skill's behavior or description, evaluate it in omp
+  with the [skill evaluation procedure](README.md#evaluating-skills), which
+  follows the Agent Skills guides for case counts and repetitions, and run the
+  applicable [manual scenario checks](README.md#manual-scenario-checks):
+  output evals against the previous version and trigger evals when the
+  description changes, with the model listed there. Run model checks
+  locally, never in CI or with credentials in repository secrets, and report
+  the model, runs per configuration, and results in the pull request.
 * When changing the `evaluating-skills` scripts or any skill's `evals/` files,
   run the model-free regression tests in
   [Evaluating skills](README.md#evaluating-skills).

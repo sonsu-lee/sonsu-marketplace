@@ -837,67 +837,45 @@ belongs in the [manual scenario checks](#manual-scenario-checks).
 ```mermaid
 flowchart LR
   F["Skill evals/<br/>evals.json<br/>eval_queries.json<br/>files/"]
-  subgraph claude["Claude Code"]
-    SC["skill-creator plugin<br/>(Anthropic, unmodified)"]
-  end
-  subgraph core["evaluating-skills (omp, Codex)"]
-    C["Shared core: run_evals, grade,<br/>aggregate, viewer, run_loop"]
-    O["omp adapter"]
-    X["Codex adapter"]
-    C --- O
-    C --- X
-  end
-  W["Workspace per client<br/>runs, grading, timing"]
+  C["evaluating-skills scripts<br/>run_evals, grade,<br/>aggregate, run_trigger_eval"]
+  W["omp workspace<br/>runs, grading, timing"]
   V["benchmark.json<br/>review viewer and feedback"]
-  F --> SC
-  F --> C
-  SC --> W
-  C --> W
-  W --> V
+  F --> C --> W --> V
 ```
+
+Follow the Agent Skills guides for case counts and repetitions; this
+repository adds only the client, the model, and what a pull request reports.
 
 **1. When to evaluate.**
 
-- A change to a skill's behavior: run the output loop in each client, three
-  times per configuration, against the previous version from `origin/main`
-  (or without the skill, for a new skill).
-- A change to a description: in each client, the full `eval_queries.json`
-  must pass no fewer queries than before.
+- A change to a skill's behavior: run the output loop against the previous
+  version from `origin/main` (or without the skill, for a new skill). Start
+  with two or three cases that exercise the changed behavior, including one
+  boundary case, and run each once per configuration. Keep earlier cases and
+  add cases for a revised behavior or a gap the results reveal. Before
+  claiming a delta that rests on one assertion in one run, repeat the
+  evaluation in a new iteration with `--runs 3`.
+- A change to a description: run each query in `eval_queries.json` three
+  times; the full set must pass no fewer queries than before.
 - Formatting-only edits need no evaluation.
 
-**2. Runners and models.** Claude Code uses Anthropic's
-[skill-creator plugin][skill-creator]; omp and Codex use the
+**2. Client and model.** Evaluate in omp with the
 [`evaluating-skills`](plugins/skill-workflow/skills/evaluating-skills/SKILL.md)
-skill. Evaluate with the models most users run, and update this list when
-they change:
+skill and the model most users run, `anthropic/claude-opus-5-5` with effort
+`high`. Update the model when that changes.
 
-- omp: `anthropic/claude-opus-5-5`, effort `high`
-- Codex: `gpt-6-astra`, effort `high`
-- Claude Code: `claude-opus-5-5`, effort `high`
-
-**3. Prepare the evaluation homes once.** Log in with a separate test
-account. Install only skill-creator in the Claude home and nothing from this
-marketplace in any home, since an installed skill also loads in the baseline
-runs. Never copy a live home or its credentials:
+**3. Prepare the evaluation home once.** Log in with a separate test account
+and install nothing from this marketplace, since an installed skill also loads
+in the baseline runs. Never copy a live home or its credentials:
 
 ```sh
 HOMES="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
-mkdir -p "$HOMES"/{omp-home,codex-home,claude-home}
+mkdir -p "$HOMES/omp-home"
 HOME="$HOMES/omp-home" omp login
-HOME="$HOMES/codex-home" CODEX_HOME="$HOMES/codex-home/.codex" \
-  codex login --device-auth
-C="$HOMES/claude-home"
-HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" claude setup-token
-(umask 077; read -rs t; printf "%s" "$t" > "$C/oauth-token")
-HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" \
-  claude plugin marketplace add anthropics/claude-plugins-official
-HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" \
-  claude plugin install skill-creator@claude-plugins-official
 ```
 
-**4. Run in omp and Codex** from the marketplace root, with the models above.
-This example compares `writing-adrs` with its version on `origin/main` in omp;
-use `--client codex --home "$HOMES/codex-home"` for Codex:
+**4. Run** from the marketplace root. This example compares `writing-adrs`
+with its version on `origin/main`:
 
 ```sh
 HOMES="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
@@ -905,8 +883,8 @@ EVAL=plugins/skill-workflow/skills/evaluating-skills
 SKILL=plugins/decision-workflow/skills/writing-adrs
 WS="${XDG_CACHE_HOME:-$HOME/.cache}/skill-evals/writing-adrs-workspace"
 IT="$WS/omp/iteration-1"
-RUN=(--skill-path "$SKILL" --client omp --model <model> --effort <effort>
-  --home "$HOMES/omp-home")
+RUN=(--skill-path "$SKILL" --client omp --model anthropic/claude-opus-5-5
+  --effort high --home "$HOMES/omp-home")
 
 rm -rf "$WS/skill-snapshot" && mkdir -p "$WS/skill-snapshot"
 git archive origin/main "$SKILL" |
@@ -923,30 +901,12 @@ python3 "$EVAL/scripts/run_trigger_eval.py" "${RUN[@]}" \
   --description "<previous description>"
 ```
 
-**5. Run in Claude Code** from an empty directory:
+**5. Report** in the pull request: model and effort, runs per configuration,
+pass rates with the skill and the baseline and their delta, time and tokens,
+trigger pass counts, runs not measured, and the gist of the review feedback.
+Do not commit workspaces.
 
-```sh
-C="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes/claude-home"
-cd "$(mktemp -d)"
-HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" \
-  CLAUDE_CODE_OAUTH_TOKEN="$(cat "$C/oauth-token")" \
-  claude --model claude-opus-5-5 --effort high
-```
-
-Ask, with absolute paths: "Evaluate the skill at `<skill>` with skill-creator,
-using `<WS>/claude` as the workspace and `<WS>/skill-snapshot` as the
-old_skill baseline, three runs per configuration, and keep the `assertions`
-key in evals/evals.json." For triggers, run skill-creator's
-`scripts/run_eval.py --eval-set <skill>/evals/eval_queries.json --skill-path
-<skill> --model claude-opus-5-5 --runs-per-query 3`, once more with
-`--description` for the previous text.
-
-**6. Report** in the pull request, per client: model and effort, pass rates
-with the skill and the baseline and their delta, time and tokens, trigger pass
-counts, runs not measured, and the gist of the review feedback. Do not commit
-workspaces.
-
-**7. Regression tests.** After changing the `evaluating-skills` scripts or any
+**6. Regression tests.** After changing the `evaluating-skills` scripts or any
 skill's `evals/` files, run the model-free tests, which also check every
 skill's evaluation files:
 
@@ -959,10 +919,18 @@ python3 -B -m unittest discover -s scripts/tests -v
 Behavior that spans plugins, client settings, or installation cannot be
 expressed as one skill's evals. Check it by hand when a change affects it.
 
-- **omp and Claude Code:** use the evaluation homes and load the working
-  tree's plugins only for that session with `--plugin-dir
-  "$REPO/plugins/<name>"`, repeated as needed. Do not install them into the
-  evaluation homes.
+- **omp:** use the evaluation home. **Claude Code:** use a test home with a
+  saved token, created once as below. In both, load the working tree's plugins
+  only for that session with `--plugin-dir "$REPO/plugins/<name>"`, repeated
+  as needed, and do not install them into the homes.
+
+  ```sh
+  C="$HOMES/claude-home"
+  mkdir -p "$C"
+  HOME="$C" CLAUDE_CONFIG_DIR="$C/.claude" claude setup-token
+  (umask 077; read -rs t; printf "%s" "$t" > "$C/oauth-token")
+  ```
+
 - **Codex:** use a separate scenario home, `$HOMES/codex-scenario-home`,
   because Codex has no per-session plugin loading. Log in once with
   `HOME="$HOMES/codex-scenario-home"
@@ -1045,8 +1013,12 @@ scenario home, restored afterwards with `codex plugin remove` and
 `codex plugin add`) and verify an explicit missing-resource result, not a
 guessed cache path or false pass. Do not change the working tree's helpers.
 
-Run each model scenario three times by default, each from a fresh target, with
-the evaluation models in [Evaluating skills](#evaluating-skills), and
+Run each model scenario once by default from a fresh target, and repeat it
+when results are inconsistent. Use the model in
+[Evaluating skills](#evaluating-skills) for omp, `gpt-6-astra` for Codex, and
+`claude-opus-5-5` for Claude Code, each with effort `high` passed explicitly
+(`--model` and `--thinking` in omp, `-m` and `-c model_reasoning_effort` in
+Codex, `--model` and `--effort` in Claude Code), and
 report every run's outcome rather than only the best one. Report actual CLI
 versions, discovery, execution traces, runtime evidence,
 and precise blockers separately. Without authorized model access, complete
@@ -1136,4 +1108,3 @@ and includes material from Anthropic's
 [skills-ref]: https://github.com/agentskills/agentskills/tree/69ef37e9424c0a7ea9dd2293b559e43ec8176379/skills-ref
 [eval-outputs]: https://agentskills.io/skill-creation/evaluating-skills
 [eval-descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions
-[skill-creator]: https://github.com/anthropics/claude-plugins-official/tree/main/plugins/skill-creator

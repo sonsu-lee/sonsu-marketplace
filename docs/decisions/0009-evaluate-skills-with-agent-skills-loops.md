@@ -1,7 +1,8 @@
 # Evaluate skills with the Agent Skills loops through each client's runner
 
 - Date: 2026-10-30
-- Status: accepted
+- Status: accepted; the choice of one runner per client is superseded by
+  [ADR-0011](0011-evaluate-skills-in-omp-at-the-guides-scale.md)
 
 ## Context
 
