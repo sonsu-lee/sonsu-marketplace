@@ -26,11 +26,13 @@ in one message, each with `subagent_type: "general-purpose"`. Never use
 Do not use the omp `review-workflow-focused` profile. A small change does not
 exempt an ordinary plugin review from these workers.
 
-Only when the user explicitly asks for skill review of a change that adds or
-modifies an agent skill, start one more such worker in the same message. Give
-it the same brief, the installed `authoring-skills` `SKILL.md` absolute path,
-and one named skill-guidance question; it applies that skill as criteria, not
-its authoring checks. If that skill is not installed, report the request unmet.
+For standalone reviews, add a skill-criteria worker only on the user's explicit
+request. An authorized implementation controller may also assign it to satisfy
+`executing-work` or `authoring-skills`, without a second user opt-in. The review
+controller dispatches it once in the same message with the shared brief, the
+installed `authoring-skills` `SKILL.md` absolute path, and one skill-guidance
+question. It uses that skill as criteria, not authoring checks. Report an
+unavailable skill as unmet coverage rather than omit the required review.
 
 Use each worker's full final result, not a launch acknowledgment. Do not sleep,
 poll, or schedule a wakeup while waiting; a wakeup replays the request in a

@@ -28,6 +28,29 @@
       "assertions": [
         "Avoids inventing an intended client or client-specific metadata."
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Propose a corrected description and minimal workflow for an existing skill whose description is 'Use whenever the user mentions files'. Its actual purpose is to draft weekly release notes from a supplied list of merged changes. It must not fetch private data, publish a release, or change files for this request. Return the proposed skill text, not an installation. The intended consumers are omp, Codex, and Claude Code. Use established tools only where the workflow needs them.",
+      "expected_output": "Revises the trigger to drafting release notes from supplied merged changes, not all file-related work. Preserves draft-only authority and does not turn drafting into publishing a release. Does not invent a CI job, hook, dependency, or mandatory script. Distinguishes proposed wording and reviewed evidence from installed or executed behavior. Does not create or modify files in the task's working directory.",
+      "assertions": [
+        "Revises the trigger to drafting release notes from supplied merged changes, not all file-related work",
+        "Preserves draft-only authority and does not turn drafting into publishing a release",
+        "Does not invent a CI job, hook, dependency, or mandatory script",
+        "Distinguishes proposed wording and reviewed evidence from installed or executed behavior",
+        "Does not create or modify files in the task's working directory"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review this proposed skill instruction only: 'Always return Markdown. If the user requests another format, stop and ask them to approve an exception. Publishing requires explicit authorization.' The skill drafts release notes, and a real user has requested the draft as JSON without publishing. Explain the consequential ambiguity and propose the smallest correction. Do not edit files or publish anything.",
+      "expected_output": "Separates the default Markdown presentation from the explicit JSON output request. Retains explicit authorization for publishing and does not describe format preference as an approval gate. Explains the specific conflicting instruction without inventing a mandatory user confirmation. Does not modify files or publish.",
+      "assertions": [
+        "Separates the default Markdown presentation from the explicit JSON output request",
+        "Retains explicit authorization for publishing and does not describe format preference as an approval gate",
+        "Explains the specific conflicting instruction without inventing a mandatory user confirmation",
+        "Does not modify files or publish"
+      ]
     }
   ]
 }

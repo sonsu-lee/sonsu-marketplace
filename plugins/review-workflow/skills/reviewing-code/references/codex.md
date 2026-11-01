@@ -73,12 +73,14 @@ report an execution limitation if that boundary cannot be guaranteed.
   call paths for bugs and regressions using the common criteria.
 - **Focused assignment:** answer one named, narrow question chosen from the
   common skill to complement, not repeat, the general pass.
-- **Skill-criteria assignment (opt-in):** only when the user explicitly asks
-  for skill review of a change that adds or modifies an agent skill, start one
-  more worker with the same brief, the installed `authoring-skills` `SKILL.md`
-  absolute path, and one named skill-guidance question. It applies that skill
-  as criteria, not its authoring checks. If that skill is not installed, report
-  the request unmet. Without the request, keep only the workers above.
+- **Skill-criteria assignment:** for a standalone review, add this worker only
+  when the user explicitly requests skill review. An authorized implementation
+  controller may also assign it to satisfy `executing-work` or `authoring-skills`;
+  that assignment does not need a second user opt-in. The review controller
+  dispatches it once with the same brief, the installed `authoring-skills`
+  `SKILL.md` absolute path, and one skill-guidance question. It uses that skill
+  as criteria, not authoring checks. Report an unavailable skill as unmet
+  coverage; without either trigger, keep only the workers above.
 
 All assignments forbid subdelegation, advisors, file edits, publication, and
 runtime execution. All return scope, findings, limits, and suggested runtime
