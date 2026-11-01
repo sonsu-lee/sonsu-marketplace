@@ -1,6 +1,6 @@
 # 풀 리퀘스트 게시
 
-> 영문 정본: [publishing.md](publishing.md) (`4f8dd21` 기준 번역).
+> 영문 정본: [publishing.md](publishing.md) (`1fbacac` 기준 번역).
 > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
 
 제목이나 본문을 초안으로 쓰는 것은 push, PR 생성, 머지의 허가가 아니다. 사용자가
@@ -86,16 +86,12 @@ base를 대상으로 하도록 리베이스한다([머지][stack-merge]).
 
 ### 스택에서 이슈 닫기
 
-GitHub는 PR이 기본 브랜치를 대상으로 할 때만 closing 키워드를 해석한다. 다른 base에서는
-무시되고, 링크가 만들어지지 않으며, 머지해도 이슈에 영향이 없다
-([이슈 연결][issues]). 스택에서는 맨 아래를 제외한 모든 PR이 다른 PR의 브랜치를 대상으로
-하며, 기본이 아닌 trunk 위의 스택에는 기본 브랜치를 대상으로 하는 PR이 없다. 그런
-곳에서는 키워드 없이 이슈를 참조한다. 기본 브랜치 위의 맨 아래 PR은 그 PR만으로 이슈가
-완료된다면 키워드를 달 수 있다.
-
-스택 문서는 PR이 스택 base로 대상이 바뀐 뒤에도 키워드가 효력을 갖는지 밝히지
-않는다. 이슈를 완료하는 PR이 반영된 뒤 이슈를 확인한다. 아직 열려 있으면 보고하고,
-사용자가 요청했다면 닫는다.
+GitHub는 PR이 기본 브랜치를 대상으로 할 때만 closing 키워드를 처리한다. 다른
+base에서는 링크가 만들어지지 않고, 머지해도 이슈가 닫히지 않는다
+([이슈 연결][issues]). 스택에서 맨 아래를 제외한 PR은 모두 다른 PR의 브랜치를
+대상으로 하며, 스택 문서는 그런 PR이 스택 base로 대상이 바뀐 뒤에도 키워드가
+효력을 갖는지 밝히지 않는다. 이슈를 완료하는 PR이 반영된 뒤 이슈를 확인한다.
+아직 열려 있으면 보고하고, 사용자가 요청했다면 닫는다.
 
 ## AI 지원 레이블 붙이기
 
@@ -225,7 +221,7 @@ Google은 필수 PR 템플릿이 아니라 내용과 변경 크기에 대한 원
 
 - [GitHub CLI 첨부][attachments]: 권한, 배치, 동영상.
 - [gh pr create][create]와 [gh pr edit][edit]: 플래그와 부분 성공.
-- [저장소 템플릿][templates]과 [상속되는 기본값][defaults].
+- [저장소 템플릿][templates].
 - [squash 메시지 설정][squash]: 제목과 본문이 항상 쓰이는 것은 아니다.
 - [이슈 연결][issues]: closing 키워드는 기본 브랜치 PR에만 적용된다.
 - [스택 풀 리퀘스트][stacks]: 같은 저장소, 선형 이력, trunk.
@@ -238,7 +234,6 @@ Google은 필수 PR 템플릿이 아니라 내용과 변경 크기에 대한 원
 [create]: https://cli.github.com/manual/gh_pr_create
 [edit]: https://cli.github.com/manual/gh_pr_edit
 [templates]: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository
-[defaults]: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file
 [squash]: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/configuring-commit-squashing-for-pull-requests
 [issues]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue
 [stacks]: https://docs.github.com/en/pull-requests/reference/stacked-pull-requests
