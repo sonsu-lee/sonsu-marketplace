@@ -39,11 +39,11 @@
     {
       "id": 4,
       "prompt": "Draft a PR title and body for fictional acme/geo; it has no PR template or extra requirements. Complete diff: replaces three identical copies of a distance-rounding helper in src/map.ts, src/route.ts, and src/search.ts with one shared `roundDistance` function in src/units.ts, because an upcoming rounding-precision change would otherwise need three matching edits. Behavior is unchanged; existing unit tests already cover all three call sites and run in CI. Author notes: ran `npm test`, `npm run lint`, and `tsc --noEmit` locally, all passed; renamed one local variable after a lint warning. No UI changed. Do not publish, create files, or contact the fictional repository.",
-      "expected_output": "A short body proportional to a mechanical refactor that says the duplicated helper is consolidated into one shared function with unchanged behavior and gives the upcoming precision change as the reason, so a reader understands what and why without the diff. No headings, empty sections, invented costs, or verification section listing the routine local test, lint, and type-check runs that CI also covers.",
+      "expected_output": "A short body proportional to a mechanical refactor that says the duplicated helper is consolidated into one shared function with unchanged behavior and gives the upcoming precision change as the reason, so a reader understands what and why without the diff. Uses a short heading without empty or repetitive sections, an unnecessary diagram, invented costs, or a verification section listing the routine local test, lint, and type-check runs that CI also covers.",
       "assertions": [
         "States that the three duplicated rounding helpers are consolidated into one shared function and that behavior is unchanged",
         "Gives the upcoming rounding-precision change as the reason and invents no other rationale or costs",
-        "Keeps the body to a few sentences without section headings or empty sections",
+        "Keeps the body to a few sentences under a short heading, without empty or repetitive sections or an unnecessary diagram",
         "Does not list the locally run test, lint, or type-check commands or a verification section for them",
         "Does not run a publishing command such as `gh pr create` or `git push`, and does not claim the pull request was created"
       ]
@@ -58,7 +58,7 @@
         "States that token output stayed identical on the corpus",
         "Discloses the peak memory increase from 410 MB to 425 MB as a cost of the change",
         "Omits the abandoned buffer-size attempts, the lint fix, and the routine CI test pass",
-        "Any headings are named for their content, such as Benchmark, rather than generic Why, What changes, Summary, or Testing sections"
+        "Uses short headings to distinguish the purpose, change, and benchmark evidence without repeating information"
       ]
     },
     {
@@ -70,6 +70,30 @@
         "Names the release profile and reports the smoke and column-order outcomes in aggregate",
         "Omits Model-X, CLI 4.2, individual smoke-case inputs, the CI unit-test and lint pass, the package install, sample cleanup, and the /tmp log path",
         "States that production has not been verified and does not claim deployment"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Draft only a copy-ready PR body in English for fictional acme/infra, which has no PR template. Purpose: prepare a development domain migration without interrupting the existing URL. Complete change: add a child DNS zone in the development account; request an ACM certificate in us-east-1 with the new domain as the primary name and the old domain as a SAN; export zone IDs and validation records for later work. DNS validation records, parent NS delegation, and the CloudFront cutover are explicitly outside this PR. Existing delivery remains unchanged. Certificate tag authorization has not been verified against live AWS. The preceding permissions PR is #41; this is one part of issue #42, not its completion. Maintained operating instructions are at https://example.com/docs/domain-migration. Work notes: searched six modules, retried a provider download twice, ran formatting, and inspected mock plan logs. Use only these facts; do not publish, create files, or access the fictional repository.",
+      "expected_output": "A concise sectioned body explaining the migration purpose, DNS and certificate additions, their relationship to existing delivery, and the deferred cutover. Preserves the live-AWS uncertainty, preceding PR, issue relation, and operating-document link without repeating the work log or copying procedures. A diagram is unnecessary for this simple preparation step.",
+      "assertions": [
+        "Uses short section headings and states the development-domain migration purpose",
+        "Explains the child zone, dual-domain certificate in us-east-1, and exported identifiers and validation records",
+        "States that existing delivery is unchanged and that validation records, NS delegation, and CloudFront cutover are deferred",
+        "Retains the live-AWS tag-authorization uncertainty, preceding PR #41, and non-closing relation to issue #42",
+        "Links the maintained operating instructions without copying procedures or the search, download, formatting, and mock-log work diary"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Draft only a copy-ready PR body for fictional acme/jobs. Its required template has exactly two headings: ## Context and ## Implementation, followed by the marker <!-- release-note -->. Preserve them; add no other headings. Purpose: decouple HTTP requests from document processing. Complete change: the API now writes jobs to a queue and immediately returns a job ID; a worker consumes the queue, writes the processed document to object storage, and records status in the jobs database; the API reads that database when clients poll by job ID. Existing authentication is unchanged. Include a Mermaid diagram showing these component relationships rather than repeating the flow as a bullet list. Delivery ordering and retries are unchanged and no latency measurements were taken. No UI changed. Use only these facts; do not publish, create files, or access the fictional repository.",
+      "expected_output": "Preserves the required headings and release marker rather than imposing default section names. Concisely explains decoupling and uses Mermaid for the supplied API, queue, worker, object-storage, and database relationships, without duplicating the flow in prose or inventing measurements or retry behavior.",
+      "assertions": [
+        "Preserves exactly the Context and Implementation headings and the release-note marker without adding default headings",
+        "Explains that requests return a job ID without waiting for document processing",
+        "Includes a Mermaid diagram showing API to queue, queue to worker, worker to object storage and jobs database, and API polling reads from the jobs database",
+        "Does not repeat the diagram's full flow as prose or a bullet list",
+        "Preserves unchanged authentication and does not invent latency measurements or new ordering or retry behavior"
       ]
     }
   ]
