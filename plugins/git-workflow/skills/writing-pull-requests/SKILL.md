@@ -72,10 +72,8 @@ public `.github` repository for an inherited default (not in the target clone).
 Offered templates live on the default branch. Use an explicitly requested
 template when applicable.
 
-Preserve required fields and automation markers, without adding a second
-template or filling optional sections merely because they exist. Without a
-template, write from the principles below, not a fixed layout. An explicit CLI
-or API body must already incorporate the selected template.
+Preserve required fields and markers in CLI/API bodies too. Do not add a second
+template or fill unneeded sections. Otherwise follow the principles below.
 
 Keep paragraphs on one source line, including within list items: GitHub renders
 single newlines in PR bodies as line breaks, unlike `.md` files. Preserve blank
@@ -84,25 +82,28 @@ unless required for PR bodies, even in a temporary `.md` file for `--body-file`.
 
 ## Write what reviewers need
 
-Give reviewers what they need to understand and use the change:
-
 - **Why:** the concrete problem or need.
-- **What changes:** the result and decisions the diff does not explain, such as
-  flow or ordering, what stays unchanged, and real costs.
-- **Always kept:** material risks, rollout constraints, unverified behavior, and
+- **What changes:** the result, component relationships, relevant flow or
+  ordering, preserved behavior, and real costs.
+- **Keep:** material risks, rollout constraints, unverified behavior, and
   repository-required details.
-- **Supporting evidence for claims:** a measurement with the method and
-  environment needed to read it, or a manual check the diff and CI cannot show.
+- **Evidence:** measurements with their method and environment, or manual
+  checks the diff and CI cannot show.
 
-Report checks by type and outcome, naming a required profile, not its settings;
-add versions, inputs, or commands only if required or they explain a failure or
-limit. Omit CI-covered test, lint, and build results and work logs. Do not
-invent rationale. Distinguish plans and agent checks from observed results and
-human review. Link accessible evidence, not local paths.
+Report check types and outcomes, naming required profiles. Add settings, inputs,
+or commands only if required or needed to explain a limit. Omit routine CI test,
+lint, and build results and work logs. Do not invent rationale or imply human
+review from agent checks. Distinguish plans from observations; link evidence,
+not local paths.
 
-Scale length to the change; even a one-sentence body must say what and why
-without the diff. Use headings only for long bodies, named for content, such as
-`## Benchmark`. Use prose or bullets, not checkboxes.
+Without a repository template, require `## Summary` to explain what changes
+and why. Add other sections only when useful, choosing headings for their
+content rather than a fixed layout. A brief PR may use Summary alone. Avoid
+repetition and scale length to the change. Use prose or bullets, not checkboxes.
+
+Use Mermaid for structure or flow only when clearer than prose; simple changes
+need no diagram. Do not repeat it in prose. Link maintained operating docs
+instead of copying procedures.
 
 Link related issues and dependencies without copying them.
 Use closing keywords only when this PR completes the issue; GitHub ignores
