@@ -218,8 +218,8 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`,
   `fix/`), `hotfix/`, `release/`, and `chore/`. See the
   [skill's validation procedure](plugins/git-workflow/skills/naming-branches/SKILL.md#required-validation).
 - **`writing-pull-requests`** writes plain, repository-aware PR descriptions
-  scaled to the change, with short sections for purpose, changes, and relevant
-  structure. It uses Mermaid only when a diagram explains the flow better and
+  scaled to the change. Without a repository template, only `Summary` is required;
+  other headings follow the content. It uses Mermaid when clearer than prose and
   keeps material constraints and evidence without copying work logs or operating
   procedures. It labels AI assistance and prepares UI evidence. Dependent PRs
   use GitHub stacks where available; new PRs are Draft by default. See the

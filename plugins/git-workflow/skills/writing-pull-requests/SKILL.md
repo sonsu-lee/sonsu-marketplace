@@ -96,11 +96,10 @@ lint, and build results and work logs. Do not invent rationale or imply human
 review from agent checks. Distinguish plans from observations; link evidence,
 not local paths.
 
-Use short headings even for brief bodies: `## Summary` for purpose, `## Changes`
-for implementation, and `## Notes` for caveats. Do not restate implementation
-in Summary. Combine sections for simple changes; otherwise rename or omit them
-as needed. Explain what and why without the diff. Use prose or bullets,
-not checkboxes.
+Without a repository template, require `## Summary` to explain what changes
+and why. Add other sections only when useful, choosing headings for their
+content rather than a fixed layout. A brief PR may use Summary alone. Avoid
+repetition and scale length to the change. Use prose or bullets, not checkboxes.
 
 Use Mermaid for structure or flow only when clearer than prose; simple changes
 need no diagram. Do not repeat it in prose. Link maintained operating docs
