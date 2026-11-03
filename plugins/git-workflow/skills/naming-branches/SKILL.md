@@ -72,8 +72,8 @@ Report blockers rather than claim an unchecked name passed.
 
 ## Gotchas
 
-- Review purpose, ticket IDs, and the choice of prefix separately.
-- The CLI also admits special CI ref names; without an explicit repository
+* Review purpose, ticket IDs, and the choice of prefix separately.
+* The CLI also admits special CI ref names; without an explicit repository
   exception, only `main`, `master`, and `develop` are unprefixed branch names.
 
 ## Examples

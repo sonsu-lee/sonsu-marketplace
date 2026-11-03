@@ -68,9 +68,9 @@ passed.
 
 ## Gotchas
 
-- An existing hook does not validate a draft before it runs.
+* An existing hook does not validate a draft before it runs.
 
-- The bundled defaults check types, lowercase scopes, subject style, blank-line
+* The bundled defaults check types, lowercase scopes, subject style, blank-line
   separators, and 72-character limits. Review accuracy, rationale, imperative
   wording, the initial lowercase letter, and breaking-change explanations
   separately. The body-length rule exempts URL-containing lines; check those
