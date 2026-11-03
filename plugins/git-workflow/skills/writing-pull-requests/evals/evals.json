@@ -73,48 +73,6 @@
     },
     {
       "id": 7,
-      "prompt": "Draft only a PR body for fictional acme/settings, with no PR template or extra requirements. Complete diff: change the default session timeout from 15 to 30 minutes. Ticket https://example.com/acme/issues/42 explains the product decision and rationale; do not repeat that rationale. Local unit tests passed. AI tools assisted the author. Do not publish, create files, or contact the fictional repository.",
-      "expected_output": "A concise body under a Summary heading states the timeout change and links the ticket for its rationale. It does not repeat the ticket's rationale, invent one, or report routine test results.",
-      "assertions": [
-        "Uses a Summary heading and states that the default session timeout changes from 15 to 30 minutes",
-        "Links https://example.com/acme/issues/42 without inventing or repeating the ticket's rationale",
-        "Does not report the routine local unit-test result",
-        "Does not add an AI disclosure section or propose applying an AI assistance label without a repository requirement"
-      ]
-    },
-    {
-      "id": 8,
-      "prompt": "Draft only a PR body for fictional acme/queue, with no PR template or extra requirements. Explain the changed request flow and discuss the key code selectively. Complete diff: on a cache hit, `handle` returns the cached value; on a miss, it awaits `load(key)`, stores the result with `cache.set(key, value)`, then returns it. A nearby variable was renamed from `v` to `value` without changing behavior. No UI changed. Do not publish, create files, or contact the fictional repository.",
-      "expected_output": "Uses a Summary heading and explains the cache-hit and cache-miss paths with a Mermaid diagram. Discusses the load/store/return mechanism selectively without treating the incidental variable rename as a significant change.",
-      "assertions": [
-        "Uses a Summary heading and describes both cache-hit and cache-miss behavior accurately",
-        "Includes a Mermaid diagram showing the hit and miss paths, including loading and storing on a miss",
-        "Discusses the relevant load and cache-store code without presenting the variable rename as a significant change"
-      ]
-    },
-    {
-      "id": 9,
-      "prompt": "Draft only a PR body for fictional acme/api. The repository requires this exact PR template and all its sections: `## Summary`, `## Verification`, and `## Release checklist`, with the checklist item `- [ ] Migration reviewed`. Complete diff: return HTTP 404 instead of 500 for a missing customer. The author ran the missing-customer integration test successfully; the migration review has not been performed. Do not publish, create files, or contact the fictional repository.",
-      "expected_output": "Follows all required template sections, summarizes the 404 change, reports the supplied integration-test result, and preserves the unchecked migration-review checkbox without claiming that review happened.",
-      "assertions": [
-        "Includes all three required template headings: Summary, Verification, and Release checklist",
-        "States that a missing customer now returns HTTP 404 instead of 500",
-        "Reports that the missing-customer integration test passed",
-        "Includes the required Migration reviewed checkbox unchecked and does not claim the review was completed"
-      ]
-    },
-    {
-      "id": 10,
-      "prompt": "Explain the base and publication plan for a dependent PR without executing it. Fictional acme/service supports GitHub stacks. Its default branch is main, but the user-selected trunk is release/2. The existing Draft PR for branch feature/parser targets release/2. The proposed branch feature/import contains feature/parser and depends on it; both branches are in the same repository. Read the relevant bundled reference before answering. Keep both PRs Draft. Do not contact GitHub, create files, push, link the stack, or merge.",
-      "expected_output": "Reads the stack reference, sets feature/import's base to feature/parser, and preserves release/2 as the stack trunk and the existing bottom PR's base. Describes Draft creation and linking without executing publication or implying readiness.",
-      "assertions": [
-        "Reads the bundled reference containing stack guidance before giving the plan",
-        "Uses feature/parser as the proposed PR base and preserves release/2 as the stack trunk rather than switching to main",
-        "Preserves Draft state for both PRs and does not execute publication, stack linking, or merging"
-      ]
-    },
-    {
-      "id": 11,
       "prompt": "Draft only a copy-ready PR body in English for fictional acme/infra, which has no PR template. Purpose: prepare a development domain migration without interrupting the existing URL. Complete change: add a child DNS zone in the development account; request an ACM certificate in us-east-1 with the new domain as the primary name and the old domain as a SAN; export zone IDs and validation records for later work. DNS validation records, parent NS delegation, and the CloudFront cutover are explicitly outside this PR. Existing delivery remains unchanged. Certificate tag authorization has not been verified against live AWS. The preceding permissions PR is #41; this is one part of issue #42, not its completion. Maintained operating instructions are at https://example.com/docs/domain-migration. Work notes: searched six modules, retried a provider download twice, ran formatting, and inspected mock plan logs. Use only these facts; do not publish, create files, or access the fictional repository.",
       "expected_output": "A concise sectioned body explaining the migration purpose, DNS and certificate additions, their relationship to existing delivery, and the deferred cutover. Preserves the live-AWS uncertainty, preceding PR, issue relation, and operating-document link without repeating the work log or copying procedures. A diagram is unnecessary for this simple preparation step.",
       "assertions": [
@@ -126,7 +84,7 @@
       ]
     },
     {
-      "id": 12,
+      "id": 8,
       "prompt": "Draft only a copy-ready PR body for fictional acme/jobs. Its required template has exactly two headings: ## Context and ## Implementation, followed by the marker <!-- release-note -->. Preserve them; add no other headings. Purpose: decouple HTTP requests from document processing. Complete change: the API now writes jobs to a queue and immediately returns a job ID; a worker consumes the queue, writes the processed document to object storage, and records status in the jobs database; the API reads that database when clients poll by job ID. Existing authentication is unchanged. Include a Mermaid diagram showing these component relationships rather than repeating the flow as a bullet list. Delivery ordering and retries are unchanged and no latency measurements were taken. No UI changed. Use only these facts; do not publish, create files, or access the fictional repository.",
       "expected_output": "Preserves the required headings and release marker rather than imposing default section names. Concisely explains decoupling and uses Mermaid for the supplied API, queue, worker, object-storage, and database relationships, without duplicating the flow in prose or inventing measurements or retry behavior.",
       "assertions": [
@@ -135,6 +93,48 @@
         "Includes a Mermaid diagram showing API to queue, queue to worker, worker to object storage and jobs database, and API polling reads from the jobs database",
         "Does not repeat the diagram's full flow as prose or a bullet list",
         "Preserves unchanged authentication and does not invent latency measurements or new ordering or retry behavior"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Draft only a PR body for fictional acme/settings, with no PR template or extra requirements. Complete diff: change the default session timeout from 15 to 30 minutes. Ticket https://example.com/acme/issues/42 explains the product decision and rationale; do not repeat that rationale. Local unit tests passed. AI tools assisted the author. Do not publish, create files, or contact the fictional repository.",
+      "expected_output": "A concise body under a Summary heading states the timeout change and links the ticket for its rationale. It does not repeat the ticket's rationale, invent one, or report routine test results.",
+      "assertions": [
+        "Uses a Summary heading and states that the default session timeout changes from 15 to 30 minutes",
+        "Links https://example.com/acme/issues/42 without inventing or repeating the ticket's rationale",
+        "Does not report the routine local unit-test result",
+        "Does not add an AI disclosure section or propose applying an AI assistance label without a repository requirement"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Draft only a PR body for fictional acme/queue, with no PR template or extra requirements. Explain the changed request flow and discuss the key code selectively. Complete diff: on a cache hit, `handle` returns the cached value; on a miss, it awaits `load(key)`, stores the result with `cache.set(key, value)`, then returns it. A nearby variable was renamed from `v` to `value` without changing behavior. No UI changed. Do not publish, create files, or contact the fictional repository.",
+      "expected_output": "Uses a Summary heading and explains the cache-hit and cache-miss paths with a Mermaid diagram. Discusses the load/store/return mechanism selectively without treating the incidental variable rename as a significant change.",
+      "assertions": [
+        "Uses a Summary heading and describes both cache-hit and cache-miss behavior accurately",
+        "Includes a Mermaid diagram showing the hit and miss paths, including loading and storing on a miss",
+        "Discusses the relevant load and cache-store code without presenting the variable rename as a significant change"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Draft only a PR body for fictional acme/api. The repository requires this exact PR template and all its sections: `## Summary`, `## Verification`, and `## Release checklist`, with the checklist item `- [ ] Migration reviewed`. Complete diff: return HTTP 404 instead of 500 for a missing customer. The author ran the missing-customer integration test successfully; the migration review has not been performed. Do not publish, create files, or contact the fictional repository.",
+      "expected_output": "Follows all required template sections, summarizes the 404 change, reports the supplied integration-test result, and preserves the unchecked migration-review checkbox without claiming that review happened.",
+      "assertions": [
+        "Includes all three required template headings: Summary, Verification, and Release checklist",
+        "States that a missing customer now returns HTTP 404 instead of 500",
+        "Reports that the missing-customer integration test passed",
+        "Includes the required Migration reviewed checkbox unchecked and does not claim the review was completed"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Explain the base and publication plan for a dependent PR without executing it. Fictional acme/service supports GitHub stacks. Its default branch is main, but the user-selected trunk is release/2. The existing Draft PR for branch feature/parser targets release/2. The proposed branch feature/import contains feature/parser and depends on it; both branches are in the same repository. Read the relevant bundled reference before answering. Keep both PRs Draft. Do not contact GitHub, create files, push, link the stack, or merge.",
+      "expected_output": "Reads the stack reference, sets feature/import's base to feature/parser, and preserves release/2 as the stack trunk and the existing bottom PR's base. Describes Draft creation and linking without executing publication or implying readiness.",
+      "assertions": [
+        "Reads the bundled reference containing stack guidance before giving the plan",
+        "Uses feature/parser as the proposed PR base and preserves release/2 as the stack trunk rather than switching to main",
+        "Preserves Draft state for both PRs and does not execute publication, stack linking, or merging"
       ]
     },
     {

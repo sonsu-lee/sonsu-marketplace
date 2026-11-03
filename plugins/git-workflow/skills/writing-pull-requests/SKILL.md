@@ -48,8 +48,9 @@ when the change needs them, naming each for its content rather than filling a
 fixed outline. A small change can use Summary alone.
 
 Read the applicable repository template and preserve its required fields and
-markers, including in CLI or API submissions. If its required layout differs,
-use its summary equivalent rather than adding a duplicate section.
+markers, including in CLI or API submissions. GitHub offers templates from the
+default branch. If its required layout differs, use its summary equivalent
+rather than adding a duplicate section.
 If no repository template applies on GitHub, check the owner's public `.github`
 repository for an inherited default; it is not part of the target checkout.
 
@@ -65,13 +66,14 @@ Select the details that help review this change:
   processing flow, without repeating it in prose.
 - **Constraints:** compatibility changes, rollout order, or known limitations
   that affect understanding or merging the change.
-- **UI changes:** marked screenshots or focused recordings prepared with
-  [UI evidence](references/ui-evidence.md), so reviewers see the changed
-  location and result without running the app.
+- **UI changes:** marked screenshots or focused recordings, prepared and
+  checked with [UI evidence](references/ui-evidence.md), so reviewers see the
+  changed location and result without running the app.
 
 Choose prose, lists, tables, or checkboxes to suit the content. Link the related
-ticket instead of repeating its motivation. Add decision context only when the
-ticket does not cover it and reviewers need it to understand the implementation.
+ticket instead of repeating its motivation; without an accessible ticket, state
+the problem briefly. Add decision context only when the ticket does not cover
+it and reviewers need it to understand the implementation.
 
 Do not add routine verification results, commands, or work logs. Include evidence
 only when the repository requires it or a claim needs support, such as a

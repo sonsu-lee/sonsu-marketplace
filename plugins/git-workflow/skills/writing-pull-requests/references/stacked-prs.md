@@ -1,12 +1,12 @@
 # Stacked pull requests
 
 Use a stack only for PRs that depend on unmerged PRs in the same repository.
-Independent PRs target the chosen trunk separately. A supported stack is one
-linear chain: each branch contains the branch below it, each PR targets that
-branch, and the bottom PR targets the user's destination or project target,
-otherwise the default branch. A fork head cannot be included. If the host or
-repository does not support stacking, or a constraint fails, target the trunk
-and state the dependency and merge order in the body.
+A supported stack is one linear chain: each branch contains the branch below
+it, each PR targets that branch, and the bottom PR targets the user's
+destination or project target, otherwise the default branch. A fork head cannot
+be included. If the host or repository does not support stacking, or a
+constraint fails, target the trunk and state the dependency and merge order in
+the body.
 
 Create each PR using the [publishing procedure](publishing.md), then link the
 chain using a supported stack tool. GitHub's website can create a stack or link

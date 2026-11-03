@@ -20,8 +20,7 @@ new screen may show After only; if the old state cannot be reproduced, say so.
 
 Keep enough context to identify the surface. Mark each screenshot's changed
 area with a box, arrow, or numbered callout without obscuring the result. Add
-descriptive alt text and a concise caption explaining the marker. If marking is
-unavailable, report the blocker rather than claiming completed evidence.
+descriptive alt text and a concise caption explaining the marker.
 
 For video, show a recognizable starting state, the action, and the result;
 identify the scenario and highlight the target when needed. Do not rely on

@@ -30,9 +30,8 @@ in place of an accurate, template-aware body. CLI `--dry-run` may still push.
 
 ## Edge cases
 
-- **Existing PR:** Read and preserve existing content and state when updating;
-  a body replacement replaces the entire body. Do not turn a ready PR back into
-  a Draft.
+- **Existing PR:** Read and preserve existing content and Draft or ready state
+  when updating; a body replacement replaces the entire body.
 - **Media:** Resolve local paths from the working directory. Check that the
   installed CLI supports attachment and that the user has the required push
   access. Otherwise use an authorized browser upload or report the blocker;
