@@ -41,8 +41,9 @@ report smoke observations separately from repeated measurements.
 - Discovery may read only metadata and miss body truncation.
 - A model saying it would use a skill is not evidence of activation.
 - Never name a file `SKILL.md` under `evals/`; some clients register it.
-- Keep workspaces outside installed packages, and never publish test
-  artifacts such as tickets, PRs, or messages to real projects.
+- Run manual checks in isolated workspaces kept outside installed packages,
+  and never publish test artifacts such as tickets, PRs, or messages to real
+  projects.
 - Results hold only for the client, model, and effort that ran. A shared
   description must not lose passing trigger queries in any client.
 - Keep evaluation out of the skill's everyday path; users of the skill do not

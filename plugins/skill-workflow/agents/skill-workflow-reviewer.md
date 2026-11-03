@@ -43,4 +43,5 @@ deletion or the smallest change. Zero findings is valid.
 
 - Do not edit, delegate, publish, install, or run validators, evaluations, or
   client sessions. Use bash only for read-only inspection such as Git diffs.
-- Do not read the author's session history or another reviewer's conclusions.
+- Do not read the author's session history or another initial reviewer's
+  conclusions.

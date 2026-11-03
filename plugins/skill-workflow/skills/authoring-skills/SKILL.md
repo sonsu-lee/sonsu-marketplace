@@ -51,7 +51,7 @@ existing tools. The target project's authoring requirements come first.
 - **scripts/:** only for logic agents repeatedly reinvent or get wrong, as
   shown by actual runs. See [Using scripts][scripts].
 - **evals/:** evaluation cases. Installation, registration, and evaluation
-  procedures stay in project documentation.
+  procedures stay in project documentation unless they are the skill's task.
 
 ## Write the guidance
 
@@ -74,7 +74,9 @@ existing tools. The target project's authoring requirements come first.
 ## Delegate to tools
 
 - Reuse the target repository's tool, version, and configuration. With no
-  setup, use an existing CLI at a pinned version.
+  runner, use an existing CLI at a pinned version; missing configuration is
+  not a missing runner, and a failing tool is not permission to swap in
+  another validator.
 - State each tool's trigger, exact input, success evidence, and the judgment
   left to the agent. Mechanical success is not semantic correctness.
 - Bundled scripts take non-interactive input, give helpful errors and
@@ -91,8 +93,9 @@ existing tools. The target project's authoring requirements come first.
 3. **Revise** from failed assertions, feedback, and transcripts. Generalize
    recurring failures with the smallest change, including deletion.
 4. **Review:** for new skills or behavior changes, get an independent
-   skill-criteria review with the purpose, consumers, changed files,
-   requirements, and review question, not your rationale. In omp use
+   skill-criteria review, unless you are that reviewer. Give the purpose,
+   consumers, changed files, requirements, and review question, not your
+   rationale. One controller owns dispatch; do not duplicate it. In omp use
    `skill-workflow-reviewer`; in Codex or Claude Code, a generic worker given
    this file's absolute path. Verify findings before revising.
 5. **Report** the checks actually performed and any limitations.
