@@ -4,7 +4,9 @@ Read this reference only when controlling a review in omp. Assigned custom
 focused reviewers use the common skill and their assignment, not this dispatch
 procedure. The common criteria are portable.
 
-## Select native and focused roles
+## Workflow
+
+### 1. Select native and focused roles
 
 For an ordinary natural-language review request, explicitly invoke one bundled
 `agent: "reviewer"` and at least one focused worker in the same native `task`
@@ -33,7 +35,7 @@ report the unmet request rather than silently substitute. Do not modify
 persistent user settings. An alias or frontmatter value is not proof of the
 resolved model; record observed execution metadata or `unknown`.
 
-## Add skill review for skill changes
+### 2. Add skill review for skill changes
 
 When the frozen change adds or modifies an agent skill (a `SKILL.md` or a file
 it loads), also dispatch `skill-workflow-reviewer` from `skill-workflow` in the
@@ -51,7 +53,7 @@ representative request with the changed skill in a temporary client home,
 using the target project's skill checks, and report loading separately from
 task behavior. Missing authorized model access is a runtime blocker.
 
-## Freeze the target and hand off constraints
+### 3. Freeze the target and hand off constraints
 
 Prepare an immutable, readable snapshot outside the user's working files and
 give workers its absolute root:
@@ -95,16 +97,14 @@ separate staged/unstaged patches when applicable, and untracked file contents.
 If the export has no Git metadata, tell the native reviewer to read those
 supplied diffs rather than run repository-relative Git commands in the export.
 
-## Dispatch one native batch
+### 4. Dispatch one native batch
 
-For example, after preparing `/tmp/review-export-42` and
-`local://export-review-brief.md`, call `task` once as below. The brief must
-contain the actual frozen IDs/manifest and constraints above, plus the export
-requirement: cancellation must leave neither a published partial export nor an
-owned temporary file. These names are an example, not a live target to assume.
-The brief also forbids edits, publication, subdelegation, advisors, and runtime
-execution. Its focused question covers cancellation between writing and
-publishing, including cleanup and consumer boundaries, with the custom report.
+For example, the following single `task` call reviews an export cancellation
+requirement. The brief contains the actual frozen IDs, manifest, and constraints;
+it forbids edits, publication, subdelegation, advisors, and runtime execution.
+The focused question covers cancellation between writing and publishing,
+including cleanup and consumer boundaries: cancellation must leave neither a
+published partial export nor an owned temporary file. The paths are examples.
 
 ```json
 {
@@ -143,7 +143,7 @@ use `unknown` when unavailable, not a model's self-description. Useful findings
 from failed or incomplete workers remain useful, but do not count as completed
 coverage. Report unmet explicit overrides and routing/fallback limitations.
 
-## Verify without applying changes
+### 5. Verify without applying changes
 
 The controller verifies concrete candidates and deduplicates root causes,
 without a third full scan. Preserve the native report; confidence, majority,
@@ -158,13 +158,6 @@ isolation API, read its current documentation first and verify `apply:false`,
 patch merge mode, and the frozen dispatch baseline; do not invent those fields
 on native task items.
 
-Neither native isolation nor copied directories are security sandboxes:
-network, subprocess, credential, shared database, and model-provider effects
-remain possible. Inspect startup/test configuration, use disposable local data
-and unique ports, avoid production endpoints and credentials, and stop only
-owned services. Report exact blockers and runtime unverified when safe execution
-is unavailable; a build or static check is not a substitute.
-
 After initial verification and the runtime step, an optional high-risk or
 explicitly requested redteam assignment uses the custom focused agent to
 challenge a named goal, assumption, or coverage claim with counterexamples.
@@ -172,6 +165,15 @@ It is not another general pass. Follow the common skill's single focused
 unresolved-candidate follow-up limit; no automatic restart, full rescan,
 source-fix loop, or publication. Missing workers, context gaps, and stopped runs
 remain explicit partial coverage in the local report.
+
+## Gotchas
+
+Neither native isolation nor copied directories are security sandboxes:
+network, subprocess, credential, shared database, and model-provider effects
+remain possible. Inspect startup/test configuration, use disposable local data
+and unique ports, avoid production endpoints and credentials, and stop only
+owned services. Report exact blockers and runtime unverified when safe execution
+is unavailable; a build or static check is not a substitute.
 
 ## Primary references
 
