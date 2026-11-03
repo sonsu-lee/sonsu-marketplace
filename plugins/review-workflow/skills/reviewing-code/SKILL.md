@@ -10,19 +10,22 @@ description: >-
 
 # Reviewing code
 
-Review the requested change, not an ideal system. Report locally by default;
-a draft is not a pending remote review. Do not edit, fix, commit, push, approve,
-or publish. Explicit posting permission authorizes comments using COMMENT, not
-approval or request-changes events. Read-only review still sends context to model
-providers; it is not an offline or confidentiality guarantee.
+Review the requested change, not an ideal system. Report locally by default.
+Do not edit, fix, commit, push, approve, or publish. Explicit posting permission
+authorizes comments using COMMENT, not approval or request-changes events.
+Read-only review still sends context to model providers; it is not an offline
+or confidentiality guarantee.
 
-## Select the requested work
+## Workflow
 
-For code review, continue below. For comments based only on existing findings,
-read [review comments](references/review-comments.md) without starting reviewers
-or runtime checks. Preserve verification status; ask for missing consequential
-facts rather than inventing them. Posting requires explicit authorization and
-the reference's revision/readback checks.
+1. For comments based only on existing findings, read
+   [review comments](references/review-comments.md), not the review workflow.
+   Start no reviewers or runtime checks. Preserve verification status; ask for
+   missing consequential facts. Posting requires explicit authorization and
+   the reference's revision and readback checks. Then stop.
+2. For code review, choose the role and establish the review contract.
+3. Select focus and review behavior.
+4. Verify and finish one round; report locally.
 
 ## Choose the role
 
@@ -32,8 +35,7 @@ the reference's revision/readback checks.
   [Codex execution](references/codex.md) in Codex, or
   [Claude Code execution](references/claude-code.md) in Claude Code. Only
   controllers read dispatch references. Explicit native-only requests retain the
-  selected native workflow without plugin orchestration. Skill selection is
-  model behavior, not a hook.
+  selected native workflow without plugin orchestration.
 - **General reviewer:** inspect the whole frozen change and relevant call paths
   for bugs/regressions. omp's native reviewer keeps its instructions and schema,
   including confidence/correctness fields. Codex and Claude Code custom
@@ -134,3 +136,8 @@ assigned coverage/question and suggested runtime scenarios without claiming
 execution. Leave consolidation to the controller; native reports stay native.
 Read [review comments](references/review-comments.md) only for comment drafting
 or explicit posting, not ordinary local reports.
+
+## Gotchas
+
+- A draft is not a pending remote review.
+- Skill selection is model behavior, not a hook.
