@@ -9,14 +9,11 @@ and `TARGET`.
 ## Runner and genre
 
 Choose `--genre tech`, `business`, or `essay` when known; omit it when
-uncertain. Python imports resolve beside the script, so no source checkout,
-development files, or corpus is needed. Use the project's configured runtime
-when one exists. Otherwise uv uses the scripts' inline dependency declarations.
+uncertain. Use the project's configured runtime when one exists; otherwise uv
+uses the scripts' inline dependency declarations. Python imports resolve beside
+the script, so no source checkout, development files, or corpus is needed.
 Do not change project configuration, global installations, user settings, or
 hooks to use this skill.
-
-Run lint even for short text in quick mode: a single sentence can trigger
-phrase checks even when statistical detectors have too little data.
 
 ## Failures and manual review
 

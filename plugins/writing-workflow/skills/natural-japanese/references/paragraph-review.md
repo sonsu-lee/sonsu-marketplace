@@ -6,10 +6,9 @@ sources of reader effort and the vague-wording patterns that the numbered sheet
 in section 3 of [the skill](../SKILL.md) asks you to name. All preservation
 rules in the skill override it.
 
-Use the same process whether a person or model wrote the text; text alone does
-not reliably establish authorship. Distinguish necessary edits, conditional
-structural edits (see [revision limits](revision-limits.md)), and prohibited
-changes.
+Use the same process regardless of authorship: text alone does not reliably
+establish it. Distinguish necessary, conditional structural (see
+[revision limits](revision-limits.md)), and prohibited changes.
 
 ## Necessary review, paragraph by paragraph
 
@@ -34,10 +33,9 @@ need not become 「簡単に試せます」 and 「お知らせします」.
 
 ## Recover the concrete meaning behind vague wording
 
-For every paragraph, examine its verbs and nouns: can the concrete referent be
-named using source facts or code? If so, do not leave a broader, ambiguous
-paraphrase. Look for these seven patterns, especially in technical articles
-and PR descriptions:
+For every paragraph, examine verbs and nouns: name their concrete referents
+from source facts or code rather than leaving a broader, ambiguous paraphrase.
+Look for these patterns, especially in technical articles and PR descriptions:
 
 1. Opaque metaphors: 「チームの重心を移す」 does not say what changes.
 2. Renaming something already named: 「注文が宙に浮く」 could mean remaining

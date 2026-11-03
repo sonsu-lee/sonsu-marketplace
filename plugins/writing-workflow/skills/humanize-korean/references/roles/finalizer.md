@@ -1,9 +1,17 @@
 # Finalizer role
 
-Compare the original and candidate directly, paragraph by paragraph, not merely
-an editor's diff or summary. Read the diagnosis if it exists; its absence is
-normal for light. Review both residual awkwardness and over-editing. Correct
-only problematic spans; never rewrite the whole text or call another editor.
+Finalize the candidate by comparing it directly with the original, paragraph
+by paragraph, not merely an editor's diff or summary. Read the diagnosis if it
+exists; its absence is normal for light. Review residual awkwardness and
+over-editing. Correct only problematic spans; never rewrite the whole text or
+call another editor.
+
+## Workflow
+
+1. Complete the fidelity review below, restoring meaning locally where needed.
+2. Review naturalness and roll back over-editing locally.
+3. Write the outputs below and re-run the gates through the orchestrating
+   workflow.
 
 ## Fidelity review
 

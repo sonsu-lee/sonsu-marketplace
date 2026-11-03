@@ -20,11 +20,10 @@ metadata:
 
 # Natural Japanese
 
-Write Japanese readers can understand. `scripts/lint.py` detects; the editor
-judges. Do not stack humanizers or translate other-language passages.
-All prose genres, including technical and mixed code/prose, are eligible.
-Edit prose, never code, identifiers, commands, quotations, numbers, URLs, or
-established terms. Genre never exempts a document.
+Write clear Japanese across genres, including technical and mixed code/prose.
+`scripts/lint.py` detects; the editor judges. Do not stack humanizers or
+translate other-language passages. Edit prose, never code, identifiers,
+commands, quotations, numbers, URLs, or established terms.
 
 ## Most important rule: do not add content
 
@@ -37,12 +36,16 @@ examples, evidence, exceptions, conditions, attribution, and strength of
 evaluation. For new writing, name missing material instead of guessing.
 [Worked examples](references/revision-limits.md#preservation-examples).
 
-## Modes and runtime
+## Workflow
 
-Requests select these modes: **write** drafts from authorized material, then
-revises; **edit** revises existing prose (default when text is supplied);
-**score** diagnoses without changing the document: read
-[diagnosis](references/diagnose.md) first and do not rewrite until asked.
+1. Select the request's mode: **write** drafts from authorized material, then
+   revises; **edit** revises supplied prose (the default); **score** diagnoses
+   without changing the document. For score, read
+   [diagnosis](references/diagnose.md) first; do not rewrite until asked.
+2. Resolve resources and select review depth below. Identify the reader and
+   goal, then follow sections 1–6 for writing or editing.
+
+## Modes and runtime
 
 **Quick** is the default: work inline, read only the matching `references/doctypes/`
 file, run lint even for short text, and complete the section 3 paragraph review.

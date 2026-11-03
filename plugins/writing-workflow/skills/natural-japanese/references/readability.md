@@ -24,15 +24,14 @@ uv run "$SKILL_DIR/scripts/lint.py" --reading-load --genre tech "$TARGET"
 
 ## Structure
 
-Lint examines surface patterns; sparse findings in minutes or slides say
-little about their structure. Read headings and paragraph openings
-consecutively. Check whether the argument can be followed; headings
-communicate useful content; repeated definitions, openings, or section
-structures obscure emphasis; and the conclusion arrives when the reader needs
-it. Do not force a suspense plot onto factual prose. Chronology can be
-evidence in incident analysis or intentional in an essay. For new reports,
-check supported next actions; for revisions, only assess those present in the
-source. Apply the matching document-type reference.
+Read headings and paragraph openings consecutively: check the argument, useful
+heading content, repeated definitions, openings or section structures that
+obscure emphasis, and whether the conclusion arrives when needed. Sparse lint
+findings in minutes or slides say little about structure. Do not force a
+suspense plot onto factual prose; chronology can be evidence in incident
+analysis or intentional in an essay. For new reports, check supported next
+actions; for revisions, assess only those in the source. Apply the matching
+document-type reference.
 
 ## Readability order
 

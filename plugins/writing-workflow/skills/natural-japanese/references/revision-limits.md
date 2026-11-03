@@ -9,14 +9,12 @@ this reference.
 
 ## Preservation examples
 
-When revising, an addition includes changing certainty (turning a further
-discussion into an agreement, a possibility into a decision, or a definite
-statement into a guess), inventing experience or endorsement (「これには何度も
-助けられた」, 「筆者としては〜をすすめる」), imposing a numerical framework absent
-from the source (「理由は3つある」), changing figures or table values (even
-apparent errors; report discrepancies), and adding generic warnings or
-explanatory paragraphs. Only directly supported clarification is allowed: an
-abbreviation's expansion, a short term explanation, or a connective expressing
+An addition includes changing certainty, inventing experience or endorsement
+(「これには何度も助けられた」, 「筆者としては〜をすすめる」), imposing an
+absent numerical framework (「理由は3つある」), changing figures or table
+values (even apparent errors; report discrepancies), or adding generic warnings
+or explanatory paragraphs. Only directly supported clarification is allowed:
+an abbreviation's expansion, a short term explanation, or a connective expressing
 an existing relationship. Never invent that relationship.
 
 For example, the source says:

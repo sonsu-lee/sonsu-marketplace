@@ -1,10 +1,17 @@
 # Runtime helpers
 
-Read when interpreting metrics, handling long or mixed-content documents, or
-resolving helper errors. These are the pinned upstream implementations, not the
-Codex wrapper scripts. Invoke them with Python 3.10 or newer by absolute path
-from the installed skill. Their resources are local; no third-party Python
-packages, external executables, credentials, or network calls are required.
+Use these runtime details when interpreting metrics, handling long or
+mixed-content documents, or resolving helper errors. Invoke the pinned upstream
+helpers, not the Codex wrappers, with Python 3.10 or newer by absolute path
+from the installed skill. Their local resources need no third-party Python
+packages, external executables, credentials, or network calls.
+
+## Workflow
+
+1. Prepare the input without sanitation and inspect any metric errors.
+2. Interpret metrics and the route suggestion in context.
+3. For chunked work, follow the manifest and reassemble strictly.
+4. Interpret gate diagnostics and directly review fidelity.
 
 ## Dependency closure
 
@@ -25,9 +32,11 @@ packages, external executables, credentials, or network calls are required.
 - `sanitize_text.py` and `checks.py` also use the bundled console helper when
   invoked as commands. Sanitation is disabled in the skill workflow.
 
+## Gotchas
+
 Legacy implementation comments and some diagnostic labels retain upstream
 Korean terminology. Rulebooks, role contracts, and generated editing guidance
-are English with Korean linguistic examples. Structured JSON field names remain
+are English with Korean linguistic examples; JSON field names remain
 upstream-compatible.
 
 ## Preparation and sanitation

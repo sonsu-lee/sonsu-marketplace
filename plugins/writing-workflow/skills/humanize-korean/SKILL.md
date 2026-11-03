@@ -17,15 +17,14 @@ metadata:
 
 # Humanize Korean
 
-Use the upstream diagnosis, targeted editing, deterministic gates, and local
-finalization workflow. This is the Korean editorial authority: do not stack
-another humanizer or translate other-language prose; route it to its own skill.
+Edit Korean prose for naturalness using diagnosis, targeted editing,
+deterministic gates, and local finalization. This is the Korean editorial
+authority: do not stack another humanizer or translate other-language prose;
+route it to its own skill. Technical prose is eligible. Preserve purpose,
+audience, terminology, and structure; draft new documents only from the user's
+authorized material, and treat that draft as the original.
 
 ## Scope and preservation
-
-All Korean prose is eligible, including technical files: preserve purpose,
-audience, terminology, and structure. Draft a new document only from the user's
-authorized material; that draft is the original for this workflow.
 
 1. Preserve facts, claims, dates, numbers, units, names, direct and legal
    quotations, causality, polarity, conditions, and content-bearing terms. Keep
@@ -47,6 +46,13 @@ authorized material; that draft is the original for this workflow.
    forbids acceptance and requires one conservative rollback attempt.
 
 These protections override stylistic quotas in the references.
+
+## Workflow
+
+1. Prepare the input and select a route.
+2. Execute the selected route.
+3. Run the common gates after editing and after any correction.
+4. Deliver the result and retain the run artifacts.
 
 ## Prepare
 
@@ -105,8 +111,6 @@ diagnosis.
   chunks, always reassemble with `--strict`, and finalize. It also governs second
   passes, targeted edits, and intensity/genre changes, with a three-round limit.
 
-Run the gates below after editing and after any correction.
-
 ## Common gates
 
 ```bash
@@ -125,6 +129,8 @@ python3 "$SKILL_ROOT/scripts/verify_gates.py" \
   problem; never bypass the gate.
 - If markup inflates the rate, cross-measure with `--ignore-markup` and report
   both values; it validates no code.
+
+## Gotchas
 
 The gate's change rate, not an editor's estimate, is authoritative. Never chase
 baselines by removing valid terms, code, hedges, or structure.

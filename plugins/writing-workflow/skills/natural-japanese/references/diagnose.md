@@ -10,7 +10,7 @@ text. Do not frame it as an authorship probability or a detector-evasion target.
 
 ## Depth
 
-Diagnosis depth differs from editing depth because there is no rewrite loop:
+There is no rewrite loop in diagnosis:
 
 - **quick**, default: run `lint.py --json` once, with `--genre` when known,
   and glance through headings and paragraph openings. No subagents.
@@ -39,12 +39,8 @@ mechanical_base = max(100 - penalty, 20)
 ```
 
 Use the complete document's character length, including Markdown and newlines.
-This is approximate length normalization: shorter documents give each finding
-more weight; longer documents are penalized for density rather than raw count.
-One critical finding weighs as much as two warnings or sixteen informational
-findings. The floor of 20 prevents mechanical findings alone driving the score
-near zero. If the document is empty or effectively too short (under 100
-characters), do not score it; say it is too short for diagnosis.
+If it is empty or effectively too short (under 100 characters), do not score
+it; say it is too short for diagnosis.
 
 For **quick**, use the mechanical base unchanged and explicitly call the result
 coarse. For **full**, apply an editorial adjustment within ±15 points:
