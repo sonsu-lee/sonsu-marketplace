@@ -9,15 +9,15 @@ compatibility: >-
 
 # Writing pull requests
 
-Explain what changed and where reviewers should focus. Follow the repository's
-contribution rules and required template fields. For prose drafting or editing,
-read the matching language skill when available.
+A PR description lets reviewers understand what changed and where to focus
+without reconstructing it from the diff; the linked ticket carries why the work
+was needed. Repository contribution rules and required template fields come
+first. For prose drafting or editing, also read the matching language skill.
 
 ## Choose the requested work
 
 - **Title only:** establish the change and validate the title.
-- **Draft content:** read the diff and write the description without pushing
-  or publishing.
+- **Draft content:** read the diff and write the description.
 - **Publish, update, or mark ready:** perform only the requested operation.
 
 ## Establish the change and scope
@@ -36,11 +36,10 @@ Independent PRs target the trunk separately.
 
 ## Write and validate the title
 
-Write the title as the resulting commit subject using
-[writing-commits](../writing-commits/SKILL.md), including its repository-first
-validation. Describe the final change, not the work sequence. Validate the exact
-title before presenting it as ready or publishing it, and revalidate edits.
-Use GitHub's Draft state rather than a title prefix.
+Write the title as the resulting commit subject and validate it with
+[writing-commits](../writing-commits/SKILL.md), again after any edit. Describe
+the final change, not the work sequence. Mark work in progress with GitHub's
+Draft state, not a title prefix.
 
 ## Write the body
 
@@ -62,12 +61,13 @@ Select the details that help review this change:
   a condition, processing order, data conversion, or responsibility boundary.
   Explain the relevant decision with a short excerpt or code link when useful;
   do not narrate the diff file by file.
-- **Structure or flow:** when explaining component relationships or processing
-  flow, include a Mermaid diagram. Do not repeat the diagram in prose. A change
-  that needs no structural explanation needs no diagram.
+- **Structure or flow:** a Mermaid diagram for component relationships or
+  processing flow, without repeating it in prose.
 - **Constraints:** compatibility changes, rollout order, or known limitations
   that affect understanding or merging the change.
-- **UI changes:** evidence showing the changed appearance or interaction.
+- **UI changes:** marked screenshots or focused recordings prepared with
+  [UI evidence](references/ui-evidence.md), so reviewers see the changed
+  location and result without running the app.
 
 Choose prose, lists, tables, or checkboxes to suit the content. Link the related
 ticket instead of repeating its motivation. Add decision context only when the
@@ -78,10 +78,9 @@ only when the repository requires it or a claim needs support, such as a
 performance improvement. Keep the method, environment, and trade-offs needed to
 interpret such evidence; distinguish observations from unverified claims.
 
-Keep each prose paragraph on one source line in the PR body, including list
-items, to avoid unintended rendered line breaks. Preserve structural newlines
-for lists, tables, and code. Repository Markdown file column limits do not apply
-to PR bodies unless the repository explicitly requires them there.
+Keep each prose paragraph, including list items, on one source line: GitHub
+renders single newlines in PR bodies as line breaks. Repository Markdown column
+limits do not apply to PR bodies.
 
 Link issues and dependencies without copying them. Decide each issue's
 relationship from its stated outcome and the final diff, counting work that
@@ -91,24 +90,10 @@ any other issue so that merging leaves it open. If the base is not GitHub's
 default branch, read
 [closing issues](references/publishing.md#edge-cases).
 
-## Provide UI evidence
-
-For UI changes, read [UI evidence](references/ui-evidence.md). Use marked
-screenshots for appearance, focused recordings for interaction, or both when
-they show different useful details. Reviewers should understand the changed
-location and result without running the app.
-
-If required evidence cannot be prepared, state what is missing rather than
-presenting it as complete. Keep evidence synchronized with the current diff.
-
 ## Publish and maintain the PR
 
-When publishing, updating, or marking ready, read
-[Publishing a pull request](references/publishing.md). Create new PRs as Draft.
-Mark ready only on an explicit request and after the repository's readiness
-requirements are met. Preserve others' content and the existing stage on updates.
-
-Keep the title, body, links, and media aligned with subsequent changes. For merge
-message preparation, read the publishing reference's
-[conditional procedures](references/publishing.md#edge-cases); preparing a message
-is not permission to merge.
+When publishing, updating, marking ready, or preparing a merge message, read
+[Publishing a pull request](references/publishing.md). Create new PRs as Draft,
+and mark one ready only when the user asks and the repository's readiness
+requirements are met. Keep the title, body, links, and media aligned with later
+changes.

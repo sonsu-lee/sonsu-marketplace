@@ -13,12 +13,11 @@ chain using a supported stack tool. GitHub's website can create a stack or link
 existing PRs with chained bases. The optional `gh stack` extension can link
 branches or PRs bottom to top; set its intended trunk explicitly. Linking can
 push branches and change PR bases; when extending a stack, its existing trunk
-is retained. Do not install the extension merely to publish.
+is retained.
 
 Stack tools can change state: the extension's `submit` editor defaults new PRs
 to ready, and `--open` on `submit` or `link` marks PRs ready. Inspect each PR's
-base, title, body, and Draft state and preserve existing states. Do not mark a
-Draft ready without an explicit request and satisfied repository requirements.
+base, title, body, and Draft state afterward and restore the intended states.
 
 Rebasing rewrites branches. Rebase a stack only when the user requests its
 update. Website-created or linked stacks do not automatically establish local
@@ -28,7 +27,7 @@ tracking; check out the remote stack before using local stack rebase commands.
 
 A stack merges bottom-up: merging a PR also merges all unmerged PRs below it.
 Confirm that scope before merging a mid-stack PR. GitHub then retargets the
-next PR to the stack base. Opening or updating a PR is not permission to merge.
+next PR to the stack base.
 
 Every PR above the bottom of a stack targets another PR's branch, so GitHub
 does not act on its closing keywords

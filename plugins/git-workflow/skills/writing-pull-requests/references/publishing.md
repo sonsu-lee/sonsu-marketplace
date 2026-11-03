@@ -1,6 +1,5 @@
 # Publishing a pull request
 
-Drafting a title or body does not authorize a push, PR creation, or merge.
 When publication is requested:
 
 1. Establish the intended repository, head, and base. Use the user's target or
@@ -10,8 +9,8 @@ When publication is requested:
    and inspect any required [UI evidence](ui-evidence.md) before uploading.
 3. Push only the intended commits to the intended remote and branch using the
    repository's workflow. Create a new PR as Draft or update the existing PR.
-   Do not force-push, merge, enable auto-merge, request reviewers, or change
-   repository settings merely to publish.
+   Publishing alone does not call for force-pushing, merging, enabling
+   auto-merge, requesting reviewers, or changing repository settings.
 4. Inspect the actual PR: confirm its head, base, title, body, state, and any
    rendered media. Report incomplete publication or evidence rather than
    inferring success from a command's exit status.
@@ -33,8 +32,7 @@ in place of an accurate, template-aware body. CLI `--dry-run` may still push.
 
 - **Existing PR:** Read and preserve existing content and state when updating;
   a body replacement replaces the entire body. Do not turn a ready PR back into
-  a Draft automatically. Mark a Draft ready only on explicit request and after
-  repository readiness requirements are met. Ready is not permission to merge.
+  a Draft.
 - **Media:** Resolve local paths from the working directory. Check that the
   installed CLI supports attachment and that the user has the required push
   access. Otherwise use an authorized browser upload or report the blocker;
@@ -54,8 +52,8 @@ in place of an accurate, template-aware body. CLI `--dry-run` may still push.
 - **Merge message:** A squash message depends on repository settings and may not
   use the PR title or body. When preparing a merge, inspect and validate the
   complete final message using [writing-commits](../../writing-commits/SKILL.md),
-  preserving important rationale, breaking changes, and attribution. A request
-  to write or open a PR does not authorize a merge.
+  preserving important rationale, breaking changes, and attribution. Merge only
+  when the user asks.
 
 ## References
 
