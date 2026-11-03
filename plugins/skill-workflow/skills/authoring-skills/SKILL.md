@@ -9,138 +9,102 @@ description: >-
 
 # Authoring skills
 
-Teach the judgment and minimum procedure needed for one coherent task.
-Delegate mechanical execution and checks to existing tools; a skill is not
-an exhaustive tool manual. Follow the target project's authoring requirements.
+A skill teaches an agent the judgment and minimum procedure for one coherent
+task. It is not a tool manual: delegate mechanical execution and checks to
+existing tools. The target project's authoring requirements come first.
 
-## Establish the task and added value
+## Workflow
 
-Ground the skill in real requests, successful work, corrections, and project
-artifacts. Establish the outcome, when it applies, and nearby tasks it excludes.
-Ask only about consequential gaps that available context cannot resolve.
+1. **Ground the task.** Start from real requests, successful work,
+   corrections, and project artifacts. Define the outcome, when the skill
+   applies, and the nearby tasks it excludes. Ask only about consequential
+   gaps the context cannot answer.
+2. **Scope one unit.** One reusable unit of work per skill. Split
+   independently useful workflows, not source-document chapters.
+3. **Identify consumers.** Use the request and project evidence, not the
+   client you are running in. Read only the matching references:
 
-Return text-only proposals as text; create no files, even temporary ones, when
-writes are prohibited. Authoring checks grant no permission to write, install,
-or publish.
+   | Consumer | Reference |
+   | --- | --- |
+   | omp | [omp](references/omp.md) |
+   | Claude Code, claude.ai, or Claude API | [Claude](references/claude.md) |
+   | Codex | [Codex](references/codex.md) |
 
-Would omitting an instruction cause a meaningful mistake? Keep domain knowledge,
-project conventions, decision criteria, and non-obvious constraints. Omit general
-knowledge and ordinary tool usage. Test uncertain omissions rather than assuming
-more detail is safer.
+   Without a named target, stay portable and add no client metadata.
+4. **Keep only what prevents mistakes.** For each instruction, ask whether
+   omitting it would cause a meaningful mistake. Keep domain knowledge,
+   project conventions, decision criteria, and non-obvious constraints; drop
+   general knowledge and ordinary tool usage. Test uncertain omissions.
+5. **Place each responsibility** (below), then write the guidance.
+6. **Verify and refine** (below).
 
-Scope one reusable unit of work. Split skills for independently useful workflows,
-not source-document chapters; do not invent expertise to fill an outline.
-
-## Identify the target environment
-
-Identify intended consumers from the request and project evidence, not the
-authoring client or a portable manifest alone. An explicit target wins. Read
-only the applicable client references:
-
-| Intended consumer | Conditional reference |
-| --- | --- |
-| omp | [omp authoring considerations](references/omp.md) |
-| Claude Code, claude.ai, or Claude API | [Claude authoring considerations](references/claude.md) |
-| Codex | [Codex authoring considerations](references/codex.md) |
-
-Without an established target, stay portable; do not load every client reference
-or add client metadata. Ask only if the choice affects a required capability.
-For shared skills, consult each named target, keep shared content standard, and
-verify each client rather than combining incompatible extensions.
-
-## Put each responsibility in the right place
+## Place each responsibility
 
 - **SKILL.md:** purpose, decision criteria, defaults, the minimum workflow, and
-  consequential constraints needed on ordinary runs.
-- **references/:** task-specific detail needed only under stated conditions.
-  Say when to read each file; moving text out of the body but always loading
-  it does not reduce context cost.
-- **Configuration and assets:** executable rule values and reusable output
-  structures. A brief rule may guide generation, but do not duplicate a
-  validator's implementation in prose.
-- **Existing tools:** mechanical execution and deterministic checks. Prefer a
-  direct invocation over a new wrapper.
-- **scripts/:** repeated logic that existing tools and simple invocations do
-  not adequately cover. Bundle it when actual runs show repeated reinvention
-  or consequential command-construction errors, not just to add a directory.
+  constraints needed on every run.
+- **references/:** detail needed only under a stated condition. Say when to
+  read each file.
+- **assets/ and configuration:** reusable output structures and executable
+  rule values. Do not restate a validator's logic in prose.
+- **Existing tools:** mechanical execution and deterministic checks, invoked
+  directly rather than through a new wrapper.
+- **scripts/:** only for logic agents repeatedly reinvent or get wrong, as
+  shown by actual runs. See [Using scripts][scripts].
+- **evals/:** evaluation cases. Installation, registration, and evaluation
+  procedures stay in project documentation.
 
-Keep installation, marketplace registration, and evaluation procedures in
-project documentation unless those are the skill's task; put evaluation cases
-in the skill's `evals/` directory. Create supporting files only when needed,
-not a standard set of empty directories.
+## Write the guidance
 
-## Write actionable guidance
+- Follow the [Agent Skills specification][specification] for metadata and
+  layout. Set `compatibility` only for real requirements.
+- **Description:** user intent, implicit uses, and boundaries with adjacent
+  work, key use case first. Do not add keywords for single failed prompts.
+- **Body:** clear headings and direct language. Use numbered steps for
+  ordered work, lists for independent rules, and prose only where a decision
+  needs its reasons.
+- **Defaults:** pick one and name alternatives briefly. Be exact only where
+  variation risks correctness or safety.
+- **Constraints:** separate defaults from binding host, security, project,
+  and user constraints, and say when a default yields. Never invent approvals
+  or weaken permission boundaries.
+- **Gotchas:** put non-obvious facts where the agent reads them before it can
+  make the mistake. Give conditional references recognizable triggers.
+- **Examples:** only to resolve ambiguity.
 
-Use the [Agent Skills specification][specification] for metadata and layout.
-Its size guidance is not a target or a loading guarantee; check client limits
-in the applicable reference. Set `compatibility` only for real requirements.
+## Delegate to tools
 
-Describe user intent, implicit uses, and boundaries with adjacent work. Front-load
-the key use case, not implementation steps or keywords for individual failed
-prompts. Client wording preferences are not common format rules.
-
-Use clear headings and direct language to make conditions, constraints, and
-decision criteria easy to distinguish. Optimize for sufficient guidance, not
-minimum length; preserve information needed for correct judgment.
-
-Give a short path from input to observable result. Choose a default; explain why
-when useful and prescribe exact steps where variation risks correctness or
-safety. Do not turn flexible judgment into an inflexible checklist.
-
-Separate defaults from binding host, security, project, and user constraints,
-and say when a default yields. When a skill stops or redirects authorized work,
-cite the instruction; never invent approvals or weaken permission boundaries.
-
-Use examples only to resolve ambiguity. Keep consequential gotchas visible before
-the agent can make the mistake; conditional references need recognizable triggers.
-
-## Delegate execution without losing the contract
-
-Reuse the target repository's tool, version, and configuration first. If no
-execution setup exists, use an appropriate existing CLI with a pinned version;
-missing configuration is a separate question from a missing runner. An existing
-tool's failure is not permission to bypass it with a different validator.
-Do not install hooks or alter project configuration merely to use a skill.
-
-Specify the tool's trigger, exact input, success evidence, and remaining judgment.
-Mechanical acceptance does not establish semantic correctness. Leave ordinary
-flags and exhaustive platform exceptions in tool documentation.
-
-For bundled scripts, read [Using scripts][scripts]. Provide non-interactive inputs,
-helpful errors, meaningful exit status, and bounded or structured output.
-Distinguish authorization from validation and disclose side effects; instructions
-are not hooks, CI enforcement, or permission boundaries.
+- Reuse the target repository's tool, version, and configuration. With no
+  setup, use an existing CLI at a pinned version.
+- State each tool's trigger, exact input, success evidence, and the judgment
+  left to the agent. Mechanical success is not semantic correctness.
+- Bundled scripts take non-interactive input, give helpful errors and
+  meaningful exit status, and disclose side effects.
 
 ## Verify and refine
 
-Check format, discovery, and complete main-prompt loading with project
-procedures and the official validator, not a new parser. These checks do not
-show that the skill helps.
+1. **Format and loading:** run the project's checks and the official
+   validator. They do not show that the skill helps.
+2. **Behavior:** run the [Agent Skills evaluation loop][evaluation] on
+   `evals/evals.json`, with and without the skill or its previous version.
+   Read [Choosing evaluation](references/evaluation.md) to pick checks and
+   runners.
+3. **Revise** from failed assertions, feedback, and transcripts. Generalize
+   recurring failures with the smallest change, including deletion.
+4. **Review:** for new skills or behavior changes, get an independent
+   skill-criteria review with the purpose, consumers, changed files,
+   requirements, and review question, not your rationale. In omp use
+   `skill-workflow-reviewer`; in Codex or Claude Code, a generic worker given
+   this file's absolute path. Verify findings before revising.
+5. **Report** the checks actually performed and any limitations.
 
-For behavior, run the [Agent Skills loop][evaluation]: realistic prompts in
-the skill's `evals/evals.json`, run with and without the skill or its previous
-version in fresh contexts, then graded assertions, a benchmark, and human
-review. Read [Choosing evaluation](references/evaluation.md) to pick checks
-and runners.
+## Gotchas
 
-Revise from failed assertions, feedback, and transcripts. Look for unneeded
-references, repeated helpers, irrelevant checks, and scope expansion. Judge an
-observation, the skill's responsibility, and the fix separately; missing tool
-examples alone are not defects. Generalize recurring failures with the
-smallest sufficient change, including deletion.
-
-For new skills or behavioral changes, obtain independent skill-criteria review
-before delivery unless the change is formatting-only or you are that reviewer.
-Give a fresh reviewer the purpose, consumers, changed files, requirements, and
-review question, not your rationale. One execution or review controller owns
-dispatch; do not duplicate it. In omp use `skill-workflow-reviewer`; in Codex
-or Claude Code, a generic worker given this `SKILL.md`'s absolute path.
-Disclose unavailable review; verify findings before revising. Review does not
-replace behavior checks.
-
-Deliver the requested skill or revision with the checks actually performed
-and any material limitations. Keep authoring evaluations separate from the
-procedures that users of the resulting skill must perform on every task.
+- Moving text into a reference that is always loaded saves no context.
+- Size guidance in the specification is not a loading guarantee; check the
+  client limit in its reference.
+- Authoring checks grant no permission to write, install, or publish. When
+  writes are prohibited, return proposals as text and create no files.
+- When a skill stops or redirects work, cite the instruction that requires it.
 
 ## Sources
 
