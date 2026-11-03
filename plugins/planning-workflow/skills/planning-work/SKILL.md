@@ -18,8 +18,8 @@ A plan-only request does not authorize implementation.
 ## Workflow
 
 1. Gather evidence and clarify consequential unknowns.
-2. Shape the plan, including edge cases, verification, and delivery.
-3. Share a short draft before detailing the agreed direction.
+2. Share a short draft and agree on the direction.
+3. Detail the plan, including edge cases, verification, and delivery.
 4. Check the plan with a fresh reader when available, then seek approval.
 5. Keep the agreed plan and decisions current during authorized execution.
 
