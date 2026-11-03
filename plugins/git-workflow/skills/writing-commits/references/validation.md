@@ -1,9 +1,12 @@
 # Commit validation
 
-Select the execution setup and configuration independently. Run from the target
-repository's root, not from the installed skill directory.
+Validate the exact proposed commit message without replacing an established
+repository validator or configuration. Select execution setup and configuration
+independently; run from the target repository root.
 
-## Reuse the repository's execution setup
+## Workflow
+
+### Reuse the repository's execution setup
 
 Inspect contributor instructions, package scripts, dependency declarations and
 lockfiles, and relevant hook or CI configuration. Use the documented validator
@@ -34,7 +37,7 @@ Use the repository's package-manager command instead when appropriate, such as
 for Yarn Plug'n'Play. Preserve its flags and warning policy; do not blindly add
 `--strict` to an existing command.
 
-## Use npx only without an existing execution setup
+### Use npx only without an existing execution setup
 
 The fallback requires Node.js 22.12.0 or newer and npm. Its first run requires
 npm registry access. It does not add a dependency to the target repository.
@@ -52,7 +55,7 @@ selected config, invalid config, or incompatible dependency is a blocker; do
 not replace it with the bundled defaults. Do not use `--default-config` to hide
 configuration problems.
 
-## Select defaults only when configuration is absent
+### Select defaults only when configuration is absent
 
 Only if no repository commitlint configuration is established, set `skill_dir`
 to the absolute directory containing the loaded `SKILL.md` and use its
@@ -78,7 +81,7 @@ The bundled configuration is self-contained ESM with no external presets or
 imports. It accepts `!`, a breaking-change footer, or both. It does not determine
 whether the message accurately describes the change.
 
-## Finish the check
+### Finish the check
 
 Require a successful exit and evidence that the intended message was checked.
 Respect existing repository warning levels; the bundled defaults require no

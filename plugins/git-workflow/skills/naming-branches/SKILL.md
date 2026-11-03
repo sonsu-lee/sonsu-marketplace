@@ -10,15 +10,21 @@ compatibility: >-
 
 # Naming branches
 
-Check and follow the repository's branch-naming rules, including its
-branch-name validator configuration, such as
-[commit-check](https://github.com/commit-check/commit-check). Use the defaults
-below where the repository specifies no rule.
+Choose a branch name that describes the purpose of the whole branch. Follow
+repository branch-naming rules, including validator configuration; use the
+defaults below where no rule is specified.
+
+## Workflow
+
+1. Check the repository's naming rules and the purpose of the work.
+2. Choose a name using the rules below.
+3. Before creating or renaming a branch, or presenting a name as ready,
+   follow [Required validation](#required-validation). Recheck every changed
+   proposal.
 
 ## Naming rules
 
-Name the branch for the purpose of the work. Use
-[Conventional Branch 1.1.0](https://conventionalbranch.org/v1.1.0/spec.json):
+Use [Conventional Branch 1.1.0](https://conventionalbranch.org/v1.1.0/spec.json):
 
 ```text
 <type>/<description>
@@ -48,9 +54,7 @@ Name the branch for the purpose of the work. Use
 
 ## Required validation
 
-Validate a proposed name before creating or renaming a branch, or presenting
-the name as ready. Follow the
-[validation procedure](references/validation.md):
+Follow the [validation procedure](references/validation.md):
 
 1. Check Git ref syntax and apply repository naming rules first.
 2. Use the repository's existing validation command, tool, and version.
@@ -66,9 +70,11 @@ branch or a skipped rule. Respect repository acceptance criteria. Do not
 create a branch just to validate its name, or install a hook or CI job.
 Report blockers rather than claim an unchecked name passed.
 
-Review purpose, ticket IDs, and the choice of prefix separately. The CLI
-also admits special CI ref names; without an explicit repository exception,
-only `main`, `master`, and `develop` are unprefixed branch names.
+## Gotchas
+
+- Review purpose, ticket IDs, and the choice of prefix separately.
+- The CLI also admits special CI ref names; without an explicit repository
+  exception, only `main`, `master`, and `develop` are unprefixed branch names.
 
 ## Examples
 
