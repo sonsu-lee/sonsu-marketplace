@@ -1,6 +1,6 @@
 # 스킬 평가
 
-> 영문 정본: [SKILL.md](SKILL.md) (`f9653c8` 기준 번역).
+> 영문 정본: [SKILL.md](SKILL.md) (`c523f3a` 기준 번역).
 > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
 
 omp나 Codex에서 두 가지 [Agent Skills 평가 루프][evaluating]를 실행한다. 먼저 출력
