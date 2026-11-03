@@ -47,12 +47,10 @@ Start with `## Summary` and briefly explain what changed. Add subsections only
 when the change needs them, naming each for its content rather than filling a
 fixed outline. A small change can use Summary alone.
 
-Read the applicable repository template and preserve its required fields and
-markers, including in CLI or API submissions. GitHub offers templates from the
-default branch. If its required layout differs, use its summary equivalent
-rather than adding a duplicate section.
-If no repository template applies on GitHub, check the owner's public `.github`
-repository for an inherited default; it is not part of the target checkout.
+If the repository has a PR template (on the default branch, or inherited from
+the owner's public `.github` repository), keep its required fields and markers,
+including in CLI or API submissions. Put the summary in its matching section
+instead of adding a duplicate.
 
 Select the details that help review this change:
 
