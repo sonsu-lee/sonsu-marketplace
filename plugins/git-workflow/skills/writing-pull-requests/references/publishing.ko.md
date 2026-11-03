@@ -1,6 +1,6 @@
 # 풀 리퀘스트 게시
 
-> 영문 정본: [publishing.md](publishing.md) (`84ebdc4`와 이후 작업 트리 변경 기준 번역).
+> 영문 정본: [publishing.md](publishing.md) (`ad8e9a6` 기준 번역).
 > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
 
 게시를 요청받으면 다음 순서로 진행한다.
