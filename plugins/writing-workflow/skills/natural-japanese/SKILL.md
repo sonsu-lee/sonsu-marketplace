@@ -39,8 +39,8 @@ evaluation. For new writing, name missing material instead of guessing.
 ## Workflow
 
 1. Select the request's mode: **write** drafts from authorized material, then
-   revises; **edit** revises supplied prose (the default); **score** diagnoses
-   without changing the document. For score, read
+   revises; **edit** revises supplied prose (the default when text is supplied);
+   **score** diagnoses without changing the document. For score, read
    [diagnosis](references/diagnose.md) first; do not rewrite until asked.
 2. Resolve resources and select review depth below. Identify the reader and
    goal, then follow sections 1–6 for writing or editing.

@@ -33,8 +33,9 @@ need not become 「簡単に試せます」 and 「お知らせします」.
 
 ## Recover the concrete meaning behind vague wording
 
-For every paragraph, examine verbs and nouns: name their concrete referents
-from source facts or code rather than leaving a broader, ambiguous paraphrase.
+For every paragraph, examine verbs and nouns. If their concrete referents can
+be named from source facts or code, do so rather than leaving a broader,
+ambiguous paraphrase.
 Look for these patterns, especially in technical articles and PR descriptions:
 
 1. Opaque metaphors: 「チームの重心を移す」 does not say what changes.
