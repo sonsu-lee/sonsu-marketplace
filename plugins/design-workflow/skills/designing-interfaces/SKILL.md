@@ -24,8 +24,8 @@ and reporting what was actually verified.
    readable groups, controls and responsive layouts around real content. Specify
    what stays fixed, resizes or rearranges, including at intermediate widths.
    Match state and action labels to actual behavior; do not claim success before
-   confirmation. Check keyboard access, accessible names and contrast against
-   applicable requirements using appropriate tools, not visual guesses.
+   confirmation. Consider keyboard access, accessible names and contrast using
+   applicable requirements and appropriate tools, not visual guesses.
 3. **Inspect and report.** Inspect relevant target sizes and states with actual
    assets. If a browser or state is unavailable, report the limitation rather
    than claiming visual verification. Distinguish observations from proposals,

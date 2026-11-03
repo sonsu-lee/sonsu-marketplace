@@ -18,7 +18,7 @@ available evidence and requested task.
    task. Establish user goal, requirements, actual content, states and viewing
    context. Inspect additional states or rendered views when available and
    authorized; otherwise state what is unobservable. Do not edit files, create
-   artifacts, run project-mutating commands or publish a read-only review.
+   design artifacts, run project-mutating commands or publish a read-only review.
 2. **Assess evidence.** Trace each consequential issue to an observed element
    and its impact on the task. Distinguish demonstrated defects from hypotheses
    or taste and explain missing evidence. Consider hierarchy, grouping, labels,

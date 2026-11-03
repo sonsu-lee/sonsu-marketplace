@@ -18,6 +18,7 @@ authorized scope and reporting only observed results.
    Preserve supplied proportions, meaningful content, required editability and
    existing treatments unless a change is authorized. Otherwise propose the
    change and ask whether to adopt it; this is a scope decision, not sign-off.
+   Do not invent approval or production requirements.
 2. **Design for the use.** Judge icons as a family by weight, corners and
    silhouettes, and inspect exports at actual size in the intended renderer.
    Simplify collapsed detail while preserving meaning. Make illustration and
@@ -42,8 +43,9 @@ The research is conditional guidance, not a universal recipe or measured outcome
   missing files or tests. Keep them unknown if not supplied; do not call them
   unapproved, not yet approved or undecided, or require sign-off. Advise
   confirming whether approval is needed and who gives it.
-- A preview is not an editable master. A vector canvas or still preview does
-  not establish manufacturing feasibility, color accuracy or approval.
+- Do not assume a preview is an editable master. A vector canvas or still
+  preview does not establish manufacturing feasibility, color accuracy or
+  approval.
 - Not every physical medium prohibits gradients.
 
 ## Optional omp strict run

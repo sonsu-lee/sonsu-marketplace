@@ -8,7 +8,7 @@ production approval or a performed workflow.
 
 - A source demonstration is not proof of usability or compatibility with every
   renderer.
-- A preview is neither an editable master nor production sign-off.
+- Do not assume a preview is the editable master or production sign-off.
 
 ## Icons and rendering
 
