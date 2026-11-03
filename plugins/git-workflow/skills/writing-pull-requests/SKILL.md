@@ -47,8 +47,7 @@ Include only what helps review:
   its method and environment.
 - **The problem,** briefly, only when no ticket is accessible.
 
-Leave out the ticket's motivation, file-by-file narration, routine
-verification results, and work logs.
+Leave out the ticket's motivation, file-by-file narration, and work logs.
 
 ## Link issues
 
@@ -58,6 +57,9 @@ before or with this PR. Only a completing link should close the issue on merge.
 
 ## Gotchas
 
+- Checks the author ran (local runs, staging runs, tests, lint, model or tool
+  versions) are not review content. Omit them unless the repository requires
+  them or they support a claim the body makes.
 - A repository PR template may be inherited from the owner's public `.github`
   repository. Keep its required fields and markers, even in `--body-file` or
   API bodies, and put the summary in its matching section.
