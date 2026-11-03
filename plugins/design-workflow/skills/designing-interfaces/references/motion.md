@@ -1,6 +1,6 @@
 # Motion
 
-Read this when a proposal adds, changes, reviews or removes animation.
+Use this when a proposal adds, changes, reviews or removes animation.
 
 ## Decide whether to animate
 
@@ -20,7 +20,7 @@ not to animate and why.
 - Motion starts where its cause is: a popover grows from its trigger, and an
   element leaves the way it entered.
 - Never block input during a transition; people must be able to interrupt or
-  reverse it. CSS transitions retarget mid-way, keyframe animations restart.
+  reverse it.
 - `prefers-reduced-motion: reduce` asks for gentler motion, not none: replace
   movement with short fades and keep changes that aid understanding. Also
   respect `prefers-reduced-transparency` and `prefers-contrast`.
@@ -45,7 +45,11 @@ Check for elements whose start state is hidden until an animation runs, code
 that waits for an animation to end, exits that delay unmounting, focus moved
 after an animation, and tests that wait for animation classes.
 
-Judging how motion feels needs a recording or a running build, not code alone.
+## Gotchas
+
+- Judging how motion feels needs a recording or running build, not code alone.
+- CSS transitions retarget mid-way; keyframe animations restart.
+
 For implementation detail, see Emil Kowalski's [motion skills][upstream]
 (MIT), from which these points are adapted.
 

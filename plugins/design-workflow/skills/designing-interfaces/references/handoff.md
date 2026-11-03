@@ -1,8 +1,13 @@
 # Conditional handoff and craft workflows
 
-These are analyst-organized procedures derived from one creator’s guidance, not
-independently validated outcomes or performed handoffs. Apply only when the
-actual task calls for them.
+Use these source-derived procedures only when the task calls for them. They
+are not independently validated outcomes or evidence of a performed handoff.
+
+## Gotchas
+
+- Do not infer approval, saved history, editability or successful production
+  from a presentation or still.
+- A reference conflict does not invalidate independently observed defects.
 
 ## W01: Keep the editable master consistent with its presentation
 

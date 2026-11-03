@@ -1,9 +1,14 @@
 # Conditional graphic craft and handoff
 
-Use these sections for the corresponding construction or delivery decision.
-Source passages and sampled frames support contextual advice, not universal
-recipes, measured outcomes, production approval or a performed workflow on the
-current asset. Keep the source's observation separate from current verification.
+Use this guidance for the matching construction or delivery decision. Source
+observations are not evidence of current verification, measured outcomes,
+production approval or a performed workflow.
+
+## Gotchas
+
+- A source demonstration is not proof of usability or compatibility with every
+  renderer.
+- A preview is neither an editable master nor production sign-off.
 
 ## Icons and rendering
 

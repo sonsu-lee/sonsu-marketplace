@@ -9,29 +9,34 @@ description: >-
 
 # Reviewing designs
 
-Review only the requested artifact and task. Establish the intended user goal,
-requirements, actual content, states and viewing context from available evidence.
-A screenshot or textual snapshot describes only the supplied state; it does not
-prove behavior, keyboard access, responsive transitions, compliance or user
-outcomes. Inspect additional states or rendered views when available and
-authorized; otherwise state what is not observable. Do not edit files, create
-design artifacts, execute commands that mutate the project, or publish findings
-as part of a read-only review.
+Review existing designs without modifying them, grounding findings in the
+available evidence and requested task.
 
-Scope negative findings to the evidence: no visible guidance in the supplied
-state is an observation; no recovery exists or the task cannot complete requires
-additional flow evidence. Do not label a blockage permanent from a single state.
-Describe possible impact conditionally. A closing caveat does not correct an
-earlier unqualified verdict.
+## Workflow
 
-Trace each consequential issue to a specific observed element and its impact on
-the stated task. Distinguish a demonstrated defect from a hypothesis or taste;
-explain any missing evidence. Consider hierarchy, meaningful grouping, accurate
-labels, interaction and recovery states, responsive content preservation and
-relevant accessibility requirements. Do not prescribe arbitrary font or spacing
-numbers or assert conformance from appearance alone. Rank actionable findings by
-impact, propose proportionate remedies, and report scope and limitations. If no
-issue is supported, say so rather than inventing one.
+1. **Establish scope and evidence.** Review only the requested artifact and
+   task. Establish user goal, requirements, actual content, states and viewing
+   context. Inspect additional states or rendered views when available and
+   authorized; otherwise state what is unobservable. Do not edit files, create
+   artifacts, run project-mutating commands or publish a read-only review.
+2. **Assess evidence.** Trace each consequential issue to an observed element
+   and its impact on the task. Distinguish demonstrated defects from hypotheses
+   or taste and explain missing evidence. Consider hierarchy, grouping, labels,
+   interaction and recovery states, responsive content preservation and relevant
+   accessibility requirements. Do not prescribe arbitrary font or spacing
+   numbers or assert conformance from appearance alone.
+3. **Report.** Rank actionable findings by impact, propose proportionate
+   remedies and report scope and limitations. If no issue is supported, say so.
+
+## Gotchas
+
+- A screenshot or textual snapshot describes only the supplied state; it does
+  not prove behavior, keyboard access, responsive transitions, compliance or
+  user outcomes.
+- Scope negative findings to evidence. No visible guidance is an observation;
+  no recovery or task completion requires additional flow evidence. Do not
+  call a blockage permanent from one state. Describe impact conditionally: a
+  closing caveat does not correct an earlier unqualified verdict.
 
 Read [critique evidence](references/evidence.md) when a specific visual or flow
 judgment, conflicting reference, or handoff question needs research context.

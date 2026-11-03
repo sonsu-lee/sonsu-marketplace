@@ -1,8 +1,12 @@
 # Worst-case data
 
-Read this when the reviewed design renders data: names, labels, counts, dates,
-lists, images or states that come from users or a system. A design shown with
-tidy sample content says nothing about the content it will actually receive.
+Use this when a reviewed design renders user- or system-supplied values,
+including names, labels, counts, dates, lists, images or states.
+
+## Gotchas
+
+- Tidy sample content does not establish how actual content will render.
+- Do not edit the design to produce a break.
 
 ## Find the real limits
 
@@ -45,7 +49,7 @@ Distinguish observed breaks from inferred ones. Render the design when you can;
 otherwise report breaks you can infer from the markup as inferred, and list
 values whose effect you cannot infer as open questions. In an omp strict run, a
 `web` capture can target a URL that serves a worst-case fixture, with
-`assert-no-overflow` steps. Do not edit the design to produce a break.
+`assert-no-overflow` steps.
 
 Adapted from Emil Kowalski's
 [`break-ui`](https://github.com/emilkowalski/skills/tree/a81dbca07f2217b7103e510c0f13f8d5b017afc9/skills/break-ui)
