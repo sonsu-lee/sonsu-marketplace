@@ -29,12 +29,14 @@ while implementing it. Explain one coherent decision to a future reader.
    leaves an accepted choice unchanged, no new ADR is needed. If the change does
    not warrant an ADR, say so briefly; use an operational document only when the
    requested work calls for it.
-3. **Write the decision** in the project template. Otherwise read and use the
-   [lightweight template](assets/adr.md): a decision-stating title, date and
-   status, then Context, Decision, Rejected alternatives, and Consequences.
-   Store it as `docs/decisions/NNNN-title-with-dashes.md`, with the next unused
-   sequential number padded to four digits. These are defaults, not Fowler
-   requirements. Follow the writing and lifecycle guidance below.
+3. **When a record is requested and warranted, write the decision** in the
+   project template. Otherwise read and use the [lightweight template](assets/adr.md)
+   if the project has no applicable template: a decision-stating title, date
+   and status, then Context, Decision, Rejected alternatives, and Consequences.
+   With no applicable location or naming convention, store it as
+   `docs/decisions/NNNN-title-with-dashes.md`, with the next unused sequential
+   number padded to four digits. These are defaults, not Fowler requirements.
+   Follow the writing and lifecycle guidance below.
 4. **Check the record with a fresh reader** before delivering a draft or revision.
    If subagents are available, give a fresh one only the record and linked files;
    ask what was decided, why, and what was rejected. Otherwise self-review and
