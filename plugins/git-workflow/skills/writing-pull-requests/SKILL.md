@@ -54,7 +54,7 @@ verification results, and work logs.
 
 For each issue, decide whether this PR completes it, advances part of it, or
 only relates to it, judging by the issue's stated outcome and the work landed
-with this PR. Only a completing link should close the issue on merge.
+before or with this PR. Only a completing link should close the issue on merge.
 
 ## Gotchas
 

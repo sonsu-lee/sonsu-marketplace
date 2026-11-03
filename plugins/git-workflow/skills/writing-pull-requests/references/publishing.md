@@ -1,58 +1,46 @@
 # Publishing a pull request
 
-When publication is requested:
+1. **Confirm the target.** Use the intended repository, head, and base, and
+   check for an existing PR. For a dependent PR, read
+   [stacked PRs](stacked-prs.md).
+2. **Prepare the content.** Use the validated title and the finished body;
+   prepare any [UI evidence](ui-evidence.md) first.
+3. **Push and create.** Push only the intended commits, then create a Draft or
+   update the existing PR. Publishing does not include force-pushing, merging,
+   auto-merge, reviewer requests, or settings changes.
+4. **Inspect the result.** Check the PR's head, base, title, body, Draft state,
+   and rendered media. Report anything incomplete; an exit code is not proof.
 
-1. Establish the intended repository, head, and base. Use the user's target or
-   project target, otherwise the default branch. Check for an existing PR for
-   that head and base. For a dependent PR, read [stacked PRs](stacked-prs.md).
-2. Prepare the validated title and complete, repository-compliant body. Prepare
-   and inspect any required [UI evidence](ui-evidence.md) before uploading.
-3. Push only the intended commits to the intended remote and branch using the
-   repository's workflow. Create a new PR as Draft or update the existing PR.
-   Publishing alone does not call for force-pushing, merging, enabling
-   auto-merge, requesting reviewers, or changing repository settings.
-4. Inspect the actual PR: confirm its head, base, title, body, state, and any
-   rendered media. Report incomplete publication or evidence rather than
-   inferring success from a command's exit status.
-
-Use the publishing tool required by the environment. With GitHub CLI, run from
-the target repository, setting `repo` to `OWNER/REPO`, `head` and `base` to
-the intended branches, `title` to the validated title, and `body_file` to the
-absolute path of the completed UTF-8 body file:
+With GitHub CLI, from the target repository:
 
 ```sh
 gh pr create --draft --repo "$repo" --base "$base" --head "$head" \
   --title "$title" --body-file "$body_file"
 ```
 
-A structured API call must explicitly set `draft: true`. Do not use `--fill`
-in place of an accurate, template-aware body. CLI `--dry-run` may still push.
+## Gotchas
+
+- An API call must set `draft: true` explicitly.
+- `--fill` does not replace a written body, and `--dry-run` can still push.
+- `--body-file` on `gh pr edit` replaces the whole body. Keep existing content
+  and the PR's Draft or ready state when updating.
+- Mark ready only on request and once the repository's readiness requirements
+  are met.
+- Media upload with `--attach` needs CLI support and push access. Otherwise use
+  an authorized browser upload or report the blocker; never invent URLs. See
+  [GitHub CLI attachments][attachments] for formats and limits.
+- A failed attachment can still leave the PR created or edited. Inspect the PR
+  before retrying, and attach only what is missing.
 
 ## Edge cases
 
-- **Existing PR:** Read and preserve existing content and Draft or ready state
-  when updating; a body replacement replaces the entire body.
-- **Media:** Resolve local paths from the working directory. Check that the
-  installed CLI supports attachment and that the user has the required push
-  access. Otherwise use an authorized browser upload or report the blocker;
-  do not change permissions, invent URLs, or silently omit required evidence.
-  Attach the inspected files, then inspect the rendered images, captions, and
-  video playback. Report any inspection limitation. See [GitHub CLI
-  attachments][attachments] for supported formats, placement, and limits.
-- **Partial success:** An attachment failure can leave the PR created or edited
-  even when the command fails. Inspect the actual PR and uploaded assets before
-  retrying; update the existing PR and attach only missing files, rather than
-  repeating creation.
-- **Closing issues:** GitHub acts on closing keywords only in a PR that targets
-  the default branch; for another base they create no link, and merging does
-  not close the issue ([linking issues][issues]). After the PR that completes
-  the issue lands, check the issue; report it if still open, or close it when
-  the user asked. For stacks, see the [stack guidance](stacked-prs.md).
-- **Merge message:** A squash message depends on repository settings and may not
-  use the PR title or body. When preparing a merge, inspect and validate the
-  complete final message using [writing-commits](../../writing-commits/SKILL.md),
-  preserving important rationale, breaking changes, and attribution. Merge only
-  when the user asks.
+- **Closing issues:** GitHub acts on closing keywords only when the PR targets
+  the default branch ([linking issues][issues]). After the completing PR lands,
+  check the issue; report it if still open, or close it when the user asked.
+- **Merge message:** Squash messages follow repository settings and may ignore
+  the PR title or body. When preparing a merge, validate the final message with
+  [writing-commits](../../writing-commits/SKILL.md), keeping rationale,
+  breaking changes, and attribution. Merge only when the user asks.
 
 ## References
 

@@ -1,44 +1,39 @@
 # UI evidence
 
-Follow repository evidence requirements first. Select the smallest useful set
-for the actual change: screenshots for static appearance, video for interaction,
-transitions, or timing, and both when each shows something distinct. Include the
-conditions needed to see the change. Evidence may be unnecessary when there is
-no observable UI or interaction change; explain when that is not obvious.
+Show reviewers the changed location and result without running the app.
+Repository evidence requirements come first.
 
-A failed capture, annotation, or upload is not unnecessary evidence. Report the
-missing evidence and prerequisite; an authorized Draft may record the gap but
-must not present it as complete.
+- **Screenshots** for appearance; **video** for interaction, transitions, or
+  timing; both only when each shows something different.
+- Skip evidence only when nothing visible changes, and say why if that is not
+  obvious.
 
-## Capture and mark
+## Capture
 
-Run the actual application or documented preview at the intended revision.
-Use safe test data and avoid production side effects. Never substitute a mockup,
-synthesized UI, or fabricated before-state. For an existing UI, prefer labeled,
-comparable Before and After views with matching conditions where possible. A
-new screen may show After only; if the old state cannot be reproduced, say so.
+1. Run the real app or documented preview at the intended revision, with safe
+   test data. Never use a mockup or a fabricated before-state.
+2. For an existing screen, show Before and After under the same conditions. A
+   new screen can show After only.
+3. Mark the changed area in each screenshot with a box, arrow, or numbered
+   callout, and add alt text and a short caption.
+4. For video, show the starting state, the action, and the result. Do not cut
+   timing or ordering under review.
 
-Keep enough context to identify the surface. Mark each screenshot's changed
-area with a box, arrow, or numbered callout without obscuring the result. Add
-descriptive alt text and a concise caption explaining the marker.
+## Check and publish
 
-For video, show a recognizable starting state, the action, and the result;
-identify the scenario and highlight the target when needed. Do not rely on
-audio alone. Do not edit away timing or ordering under review; disclose
-meaningful cuts or image sequences and limits on what they establish.
+1. Open every image and play every video. Confirm the revision, the change,
+   and legible markers.
+2. Check for credentials, tokens, personal data, and customer data.
+3. Put evidence where the repository requires it, otherwise in the PR body.
+   For uploads, follow [publishing](publishing.md).
+4. Check the rendered PR. Update evidence when the UI changes.
 
-## Inspect and publish
+## Gotchas
 
-Open every final image and play every video. Confirm the intended revision and
-change, legible markers and captions, and the relevant trigger and outcome.
-Inspect for credentials, tokens, personal information, private notifications,
-and customer data; use sanitized data and check any redactions.
-
-Place evidence where the repository requires it, or in the PR body; link a
-required separate comment. For authorized upload, follow the
-[publishing procedure](publishing.md#edge-cases). Inspect rendered placement and
-playback, and report any inspection limitation. Update or mark stale evidence
-when the UI changes. Do not commit media merely to obtain URLs.
+- A failed capture, marking, or upload does not make evidence unnecessary.
+  Report what is missing; a Draft may note the gap but must not present the
+  evidence as complete.
+- Do not commit media just to get a URL.
 
 ## References
 
