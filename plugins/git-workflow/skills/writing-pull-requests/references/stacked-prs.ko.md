@@ -1,6 +1,6 @@
 # 스택 풀 리퀘스트
 
-> 영문 정본: [stacked-prs.md](stacked-prs.md) (`ad8e9a6` 기준 번역).
+> 영문 정본: [stacked-prs.md](stacked-prs.md) (`fed67c3` 기준 번역).
 > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
 
 스택은 같은 저장소의 머지되지 않은 PR에 의존하는 PR에만 사용한다. 지원되는 스택은
