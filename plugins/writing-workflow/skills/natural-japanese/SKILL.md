@@ -42,8 +42,8 @@ evaluation. For new writing, name missing material instead of guessing.
    revises; **edit** revises supplied prose (the default when text is supplied);
    **score** diagnoses without changing the document. For score, read
    [diagnosis](references/diagnose.md) first; do not rewrite until asked.
-2. Resolve resources and select review depth below. Identify the reader and
-   goal, then follow sections 1–6 for writing or editing.
+2. Resolve resources, select review depth, and follow sections 1–6 for writing
+   or editing.
 
 ## Modes and runtime
 
@@ -55,14 +55,14 @@ editor owns the whole document. When uncertain, finish quick and mention full.
 
 ### Resolve installed resources before running scripts
 
-Relative links are relative to this skill's directory, never the caller's
-repository. In omp, Codex, or Claude Code, set `SKILL_DIR` to the absolute
-directory containing this actually loaded `SKILL.md`; Codex reads relative links
-under that root, Claude Code shows it as `Base directory for this skill`, and
-omp may also use `skill://natural-japanese/<relative-path>`. Pass absolute
-filesystem paths to Python/uv, never client URIs. If the loaded location or a
-resource cannot be resolved, report the installation or lookup error; do not
-guess a cache path, copy assets into the target repository, or bypass checks.
+Relative links resolve under this skill's directory, not the caller's repository.
+In omp, Codex, or Claude Code, set `SKILL_DIR` to the absolute directory of this
+loaded `SKILL.md`; Codex reads relative links under that root, Claude Code shows
+it as `Base directory for this skill`, and omp may also use
+`skill://natural-japanese/<relative-path>`. Pass absolute filesystem paths to
+Python/uv, never client URIs. If the location or a resource cannot be resolved,
+report the installation or lookup error; never guess a cache path, copy assets
+into the target repository, or bypass checks.
 Quote target paths; add `--genre tech`, `business`, or `essay` when known:
 
 ```sh
@@ -72,21 +72,20 @@ uv run "$SKILL_DIR/scripts/lint.py" --json --genre tech "$TARGET"
 Use the project's configured runtime; never change project configuration, global
 installs, or hooks. If execution is unavailable, use
 [manual review](references/manual-checklist.md) and disclose that no mechanical
-checks ran. A configured runner, dependency, input, or script failure is not
-permission to switch silently to manual review or another runner: report it,
-resolve the cause, label manual observations separately, and never fabricate
-scores. Inspect JSON and stderr; lint findings can still return exit 0. Read
+checks ran. A configured runner, dependency, input, or script failure does not
+permit silently switching to manual review or another runner: report it, resolve
+the cause, label manual observations separately, and never fabricate scores.
+Inspect JSON and stderr; findings can return exit 0. Read
 [runtime notes](references/runtime.md) for runner/genre selection, failures,
 warnings, baseline issues, or `exp` requests.
 
 ## 1. Decide before writing
 
-Identify the reader and their goal; ask only about
-missing material. For a known document type read the matching guide in
-`references/doctypes/`: `minutes`, `report`, `guide`, `memo`, or `slide`.
-If `style-profile.md` exists in the target project root or
-user-specified location, or the user asks to learn the author's style, read
-[author profile](references/author-profile.md).
+Identify the reader and goal; ask only about missing material. For a known
+document type, read its guide in `references/doctypes/`: `minutes`, `report`,
+`guide`, `memo`, or `slide`. If `style-profile.md` exists in the target project
+root or user-specified location, or the user asks to learn the author's style,
+read [author profile](references/author-profile.md).
 
 ## 2. Principles for writing
 

@@ -47,13 +47,6 @@ authorized material, and treat that draft as the original.
 
 These protections override stylistic quotas in the references.
 
-## Workflow
-
-1. Prepare the input and select a route.
-2. Execute the selected route.
-3. Run the common gates after editing and after any correction.
-4. Deliver the result and retain the run artifacts.
-
 ## Prepare
 
 1. Resolve `SKILL_ROOT` from the actual directory containing this loaded
@@ -112,6 +105,8 @@ diagnosis.
   passes, targeted edits, and intensity/genre changes, with a three-round limit.
 
 ## Common gates
+
+Run after editing and after any correction:
 
 ```bash
 python3 "$SKILL_ROOT/scripts/verify_gates.py" \
