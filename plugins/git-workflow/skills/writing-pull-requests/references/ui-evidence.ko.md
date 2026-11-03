@@ -1,6 +1,6 @@
 # UI 증거
 
-> 영문 정본: [ui-evidence.md](ui-evidence.md) (`PENDING` 기준 번역).
+> 영문 정본: [ui-evidence.md](ui-evidence.md) (`b57290e` 기준 번역).
 > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
 
 리뷰어가 앱을 실행하지 않아도 바뀐 위치와 결과를 볼 수 있게 한다. 저장소의 증거

@@ -1,6 +1,6 @@
 # 풀 리퀘스트 게시
 
-> 영문 정본: [publishing.md](publishing.md) (`PENDING` 기준 번역).
+> 영문 정본: [publishing.md](publishing.md) (`b57290e` 기준 번역).
 > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
 
 1. **대상 확인:** 의도한 저장소, head, base를 쓰고 기존 PR이 있는지 확인한다.

@@ -1,6 +1,6 @@
 # 스택 풀 리퀘스트
 
-> 영문 정본: [stacked-prs.md](stacked-prs.md) (`PENDING` 기준 번역).
+> 영문 정본: [stacked-prs.md](stacked-prs.md) (`b57290e` 기준 번역).
 > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
 
 같은 저장소의 미병합 PR에 의존하는 PR만 스택으로 쌓는다. 각 브랜치는 아래
