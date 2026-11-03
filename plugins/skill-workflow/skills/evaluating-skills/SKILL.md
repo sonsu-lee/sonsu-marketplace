@@ -70,8 +70,8 @@ setup: [references/clients.md](references/clients.md).
    the user.
 2. **Compare.** Run `scripts/run_trigger_eval.py --skill-path <skill>
    --client <client> --model <model> --effort <effort> --home <home>` as is
-   and with `--description "<previous>"`. Adopt the edit only if it passes no
-   fewer queries.
+   and with `--description "<previous description>"`. Adopt the edit only if
+   it passes no fewer queries.
 3. **Search.** `scripts/run_loop.py` with the same arguments proposes
    descriptions, holds out 40% of queries, and reports `best_description`.
 4. **Other clients.** Repeat step 2 in each client the project or user

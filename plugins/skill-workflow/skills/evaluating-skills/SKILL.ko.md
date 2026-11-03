@@ -52,7 +52,7 @@ Code는 Anthropic의 `skill-creator` 플러그인을 쓴다
    하고, 절반은 어휘를 공유하는 near-miss다. 사용자와 함께 검토한다.
 2. **비교:** `scripts/run_trigger_eval.py --skill-path <skill> --client <client>
    --model <model> --effort <effort> --home <home>`를 그대로 한 번,
-   `--description "<이전>"`으로 한 번 실행한다. 통과한 쿼리가 줄지 않을 때만 채택한다.
+   `--description "<이전 description>"`으로 한 번 실행한다. 통과한 쿼리가 줄지 않을 때만 채택한다.
 3. **탐색:** 같은 인자의 `scripts/run_loop.py`가 description을 제안하고, 쿼리 40%를
    떼어 두었다가 `best_description`을 보고한다.
 4. **다른 클라이언트:** 프로젝트나 사용자가 요구하는 클라이언트마다 2단계를 반복한다.
