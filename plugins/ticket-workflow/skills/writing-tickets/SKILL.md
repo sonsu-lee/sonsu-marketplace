@@ -13,11 +13,18 @@ compatibility: >-
 
 # Writing tickets
 
-Agree on the problem and observable outcome, not an implementation recipe.
-Use plain language and established technical terms; give the assignee context
-to choose a solution, not your investigation diary.
-For prose drafts/edits, also read the matching language skill if listed;
-retain these ticket rules.
+Write tickets that agree on the problem and observable outcome while leaving
+the solution to the assignee. Use plain language and established technical
+terms; for prose drafts or edits, also read the matching language skill if
+listed and retain these ticket rules.
+
+## Workflow
+
+1. Establish the request and context.
+2. Choose the format.
+3. Describe the problem and outcome; scope the work.
+4. Review metadata and relationships.
+5. Deliver the requested result.
 
 ## Establish the request and context
 
@@ -29,10 +36,10 @@ unrelated work, offer a ticket draft instead of expanding its scope; publish
 only when asked. Do not bypass a focused review's exclusion of unrelated debt.
 
 Identify the repository or Linear team and primary tracker from the request and
-project guidance. Support either platform; never copy a ticket into both.
-Respect established sync; do not set it up.
+project guidance. Never copy a ticket into both platforms or set up sync; respect
+established sync.
 
-Read the relevant ticket, discussion, evidence, and guidance. Before creating a
+Read relevant tickets, discussions, evidence, and guidance. Before creating a
 ticket, search the target tracker for the same problem; reuse or link an
 existing issue instead of duplicating it or rewriting someone else's ticket.
 
@@ -40,11 +47,6 @@ Separate observations, suspected causes, and proposed solutions. Preserve useful
 feedback verbatim and link its source when available. Never invent impact,
 reproduction steps, thresholds, prior decisions, or issue IDs. Ask only when
 context cannot resolve a material gap in problem, scope, destination, or completion.
-
-Treat a suspected security vulnerability as a disclosure: follow the project's
-security policy or private reporting channel, and never put exploit details or
-reproduction in a public or publicly synced ticket. Without a private path,
-return the draft in your reply, not a repository file, and say so.
 
 ## Choose the format
 
@@ -65,18 +67,16 @@ otherwise use the [body guidance](assets/ticket-body.md). Distinguish an
 unavailable template lookup from finding none: disclose it in a draft and resolve
 required fields before publishing.
 
-Preserve required fields and automation markers. Apply these principles inside
+Preserve required fields and automation markers. Apply these principles within
 the selected format, not a second template (for example, put outcomes in an
-existing Acceptance Criteria field). Do not assume a CLI or API applies a UI
-template to an explicit body.
+existing Acceptance Criteria field).
 
 ## Describe the problem and desired outcome
 
-Use a short title naming the problem or purpose. Select relevant facts before
-writing or polishing; source notes are not the body to reproduce.
-If the title communicates the request, omit the body unless the format requires
-one. Otherwise add only information not already clear from the title.
-These are optional content, not required sections:
+Use a short title naming the problem or purpose. Select relevant facts rather
+than reproducing source notes. If the title communicates the request, omit the
+body unless the format requires one; otherwise add only information not clear
+from the title. The following content is optional, not required sections:
 
 - **Problem:** current behavior or need, relevant conditions, and why it
   matters. Do not frame a feature request as a bug.
@@ -86,9 +86,9 @@ These are optional content, not required sections:
 - **Context:** necessary decisions, constraints, evidence, and dependencies.
   Summarize enough to stand alone, link the details, and omit when unnecessary.
 
-Keep only detail that could change the task or completion judgment. Preserve
-security, compatibility, external contracts, and material unknowns; omit
-generic cautions, exhaustive exclusions, and routine test/command lists.
+Keep details that could change the task or completion judgment, including
+security, compatibility, external contracts, and material unknowns. Omit
+generic cautions, exhaustive exclusions, and routine test or command lists.
 Describe restored capability: "Repeated saves produce one record", not
 "Debounce the button". Leave storage, timing, and code structure to the assignee
 unless required; label proposed approaches tentative or omit them.
@@ -99,11 +99,10 @@ belongs in the current change, or title a ticket `Follow-up`.
 
 ## Review and propose metadata
 
-Review metadata alongside the body: inspect fields, allowed values, template
-defaults, and repository or team conventions. Use explicit user choices and
-established rules first; propose grounded candidates for missing values, kept
-distinct from established ones. For per-field criteria and presentation, read
-[Metadata](references/metadata.md).
+Inspect fields, allowed values, template defaults, and repository or team
+conventions. Use explicit choices and established rules first; propose grounded
+candidates for missing values, distinct from established ones. For per-field
+criteria and presentation, read [Metadata](references/metadata.md).
 
 When publication is authorized, apply established values and project-supported
 choices; never silently promote proposals into assignments or commitments, or
@@ -113,10 +112,9 @@ absent or claiming it was applied.
 
 ## Keep a meaningful small scope
 
-Aim for one problem and one coherent outcome; split work whose parts can be
-prioritized, deferred, or completed independently. Never split code, necessary
-tests, and required documentation just to reduce size; file counts and time
-limits are not the criterion.
+Aim for one problem and coherent outcome; split independently prioritized,
+deferred, or completed parts. Never split code, necessary tests, and required
+documentation just to reduce size; file counts and time limits are not criteria.
 
 Read existing relationships before changing them. For genuine uncertainty, name
 the question and needed decision or deliverable; do not promise the eventual
@@ -150,5 +148,13 @@ metadata with the tracker tools, preserving unrelated content and properties.
 Read back the issue and separately stored project fields to confirm
 destination, content, metadata, and relationships.
 Report the real ID, URL, and incomplete actions; never call a draft published.
+
+## Gotchas
+
+- Treat a suspected security vulnerability as a disclosure: follow the project's
+  security policy or private reporting channel, and never put exploit details
+  or reproduction in a public or publicly synced ticket. Without a private path,
+  return the draft in your reply, not a repository file, and say so.
+- Do not assume a CLI or API applies a UI template to an explicit body.
 
 Sources: [body guidance](assets/ticket-body.md#sources).
