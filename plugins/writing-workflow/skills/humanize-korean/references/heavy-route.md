@@ -8,9 +8,10 @@ pass, selected category, requested paragraph, intensity change, new genre, or
 
 ## Workflow
 
+Limit automatic editorial rounds to three, then recommend review.
+
 1. For a follow-up pass, start a new run with the selected latest text as
-   `01_input.txt`; never overwrite an older run. Limit automatic editorial
-   rounds to three, then recommend review.
+   `01_input.txt`; never overwrite an older run.
 2. Diagnose exactly as in the standard route, creating `02_diagnosis.md`, then
    request the deterministic chunker:
 
