@@ -3,7 +3,9 @@
 Read this reference only when controlling an ordinary plugin review in Codex.
 Assigned custom reviewers read the common skill and their assignment instead.
 
-## Keep entry paths separate
+## Workflow
+
+### 1. Keep entry paths separate
 
 This procedure is independent of native review. Do not call `/review`,
 `codex review`, or `review/start` as an internal worker, intercept native
@@ -11,7 +13,7 @@ commands, or recursively launch another Codex CLI. An explicit native-only
 request keeps the native workflow and output, without plugin orchestration.
 Comment-only requests follow the common skill's separate entry path.
 
-## Freeze the target
+### 2. Freeze the target
 
 Create a controller-owned disposable snapshot outside the user's working files:
 
@@ -28,7 +30,7 @@ incomplete coverage rather than silently reviewing HEAD. Check target identity
 when creating the snapshot and attaching runtime evidence. Workers read only
 the frozen root, not their default cwd or live user files.
 
-## Prepare the shared brief
+### 3. Prepare the shared brief
 
 Include purpose, requirements, absolute snapshot root, comparison and target
 identity, included/excluded flows, cross-boundary contracts, repository/user
@@ -44,7 +46,7 @@ assume they inherit repository instructions: include the applicable constraints
 explicitly. Keep the brief identical across initial workers, varying only role,
 coverage, and the focused question.
 
-## Run independent general and focused reviews
+### 4. Run independent general and focused reviews
 
 Start one custom general reviewer and at least one complementary focused
 reviewer independently before collecting results. Assign those responsibilities
@@ -93,7 +95,7 @@ requests an override supported by the current API. Do not force a provider,
 and requested overrides; use `unknown` for unobservable values, not the model's
 self-description.
 
-## Collect completion and complete results
+### 5. Collect completion and complete results
 
 Use exposed completion events and full worker outputs, not spawn acknowledgments
 or truncated previews. If a close operation is exposed, close only workers this
@@ -105,7 +107,7 @@ workers, and truncated output mean incomplete review, not no findings. Preserve
 useful partial evidence, but do not silently substitute a sequential single-agent
 or native-only review and claim completion.
 
-## Verify and report locally
+### 6. Verify and report locally
 
 The controller verifies candidates against source, callers, and requirements,
 and deduplicates actionable root causes without starting a third general scan.
@@ -116,6 +118,8 @@ result, target identity, and limitations. A build or unit test alone is not
 runtime proof. Follow the common skill's bounded optional redteam and single
 focused follow-up rules, then return its local controller report. Do not fix
 source or publish automatically.
+
+## Gotchas
 
 Subagents inherit the parent's sandbox and permissions. Read-only instructions
 and disposable copies are not operating-system security boundaries. Inspect

@@ -3,40 +3,46 @@
 Read this reference when drafting review comments or explicitly asked to post
 reviews. Ordinary local findings do not require loading it.
 
-## Preserve the finding while improving the wording
+## Workflow
 
-Write to the developer about the code, not about the reviewer or the review
-process. Name the relevant condition, its consequence, and the smallest
-sufficient correction or required outcome. Include the precise location and
-supporting evidence, with enough surrounding context to understand the issue.
-For design concerns, explain a current responsibility or maintenance cost,
-not a hypothetical future preference. Follow the repository's comment format
-and disclosure rules; otherwise use plain, short prose.
+1. **Write to the developer about the code**, not the reviewer or review
+   process. Include the condition, consequence, smallest sufficient correction
+   or required outcome, precise location, evidence, and enough context to
+   understand the issue. For design concerns, explain a current responsibility
+   or maintenance cost, not a hypothetical future preference. Follow repository
+   comment format and disclosure rules; otherwise use plain, short prose.
+2. **Make the intent legible** without stock labels or phrase templates:
 
-Make intent legible without requiring stock labels or phrase templates:
+   - A **bug** states an evidenced defect and what needs to change. Do not
+     soften a required fix into an optional suggestion or hide it in a
+     rhetorical question. Keep uncertainty about the trigger explicit.
+   - A **question** identifies a consequential uncertainty that source,
+     callers, requirements, and existing discussion could not settle. Say what
+     intent or behavior needs confirmation; do not present an unverified bug
+     as established.
+   - An **optional suggestion** acknowledges that the current approach is
+     valid, names a concrete benefit, and is marked non-blocking. Omit
+     preference-only advice and unsolicited nits. A related existing issue is
+     also non-blocking and belongs separately from introduced defects.
 
-- A **bug** states an evidenced defect and what needs to change. Do not soften
-  a required fix into an optional suggestion or hide it in a rhetorical
-  question. Keep any uncertainty about the trigger explicit.
-- A **question** identifies a consequential uncertainty that source, callers,
-  requirements, and existing discussion could not settle. Say which intent or
-  behavior needs confirmation. Do not present an unverified bug as established.
-- An **optional suggestion** acknowledges that the current approach is valid
-  and names a concrete benefit. Mark it non-blocking; omit preference-only
-  advice and unsolicited nits. A related existing issue is also non-blocking
-  and belongs separately, not among defects introduced by this change.
+3. **Apply language guidance** when drafting or editing: read the matching
+   language skill if listed, while retaining these review rules. Language
+   guidance must not change obligation, scope, uncertainty, technical facts,
+   or evidence.
+4. **Keep drafts local or publish only with explicit authorization**, following
+   the procedure below.
 
-Avoid vague adjectives such as "safe" or "cleaner" when the code condition is
-more informative. Skip boilerplate headings, stock praise, and long preludes
-unless the repository requires that structure. Do not add confidence scores to
-comment prose or use them as evidence; preserve any required confidence and
-correctness fields in the native review report. Do not fill finding quotas or
-rewrite evidence to sound more certain or more polite.
-Natural tone does not mean pretending to be human: never invent personal
-runtime experience, identity, or independent verification. Preserve required
-AI disclosure. When drafting or editing comment prose, also read the matching
-language skill if listed; retain these review rules. Language guidance must
-not change obligation, scope, uncertainty, technical facts, or evidence.
+## Gotchas
+
+- Prefer informative code conditions to vague adjectives such as "safe" or
+  "cleaner". Skip boilerplate headings, stock praise, and long preludes unless
+  the repository requires them.
+- Do not add confidence scores to comment prose or use them as evidence;
+  preserve required confidence and correctness fields in the native review
+  report. Do not fill finding quotas or rewrite evidence to sound more certain
+  or polite.
+- Never invent personal runtime experience, identity, or independent
+  verification. Preserve required AI disclosure.
 
 ## Examples, not findings
 
