@@ -1,6 +1,6 @@
 # 스킬 평가
 
-> 영문 정본: [SKILL.md](SKILL.md) (`c523f3a` 기준 번역).
+> 영문 정본: [SKILL.md](SKILL.md) (`8a4cd19` 기준 번역).
 > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
 
 omp나 Codex에서 두 가지 [Agent Skills 평가 루프][evaluating]를 실행한다. 먼저 출력
@@ -32,7 +32,9 @@ Code는 Anthropic의 `skill-creator` 플러그인을 쓴다
    `<workspace>/skill-snapshot`에 두고 `--baseline old`.
 3. **실행:** `scripts/run_evals.py --skill-path <skill> --client <omp|codex>
    --model <model> --effort <effort> --home <home> --iteration <N>
-   --baseline <without|old>`. 차이를 주장하기 전에는 `--runs 3`을 더한다.
+   --baseline <without|old>`. 차이를 주장하기 전에는 `--runs 3`을 더한다. 평가마다
+   새 `<N>`을 쓰고, 종료 코드 2로 끝나면 측정되지 않은 실행이 있으므로 같은 명령에
+   `--resume`을 붙여 다시 실행한다.
 4. **assertion:** 실행 중에 객관적으로 확인 가능한 assertion을 `evals.json`에
    쓴다. 채점자는 transcript와 저장된 파일만 본다.
 5. **채점:** `scripts/grade.py <iteration-dir>`가 [agents/grader.md](agents/grader.md)로
@@ -64,8 +66,6 @@ Code는 Anthropic의 `skill-creator` 플러그인을 쓴다
 
 ## 주의할 점
 
-- 평가마다 새 `--iteration`이 필요하다. 이미 있는 번호는 거부된다.
-- 종료 코드 2는 측정되지 않은 실행이 있다는 뜻이다. `--resume`으로 다시 실행한다.
 - eval ID는 영구적인 키다. ID를 다른 케이스에 다시 쓰지 않고, ID의 의미가 바뀌면
   새 workspace를 쓴다.
 - 비교할 때마다 `skill-snapshot`을 의도한 기준 리비전에서 다시 만든다.
