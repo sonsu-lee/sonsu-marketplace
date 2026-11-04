@@ -1,8 +1,12 @@
 # Branch validation
 
-Select the execution setup and configuration independently. Run from the target
-repository's root. Set `branch_name` to the exact proposed name; do not use Git
-shorthand such as `@{-1}` or a full `refs/heads/` path.
+Validate the exact proposed branch name without replacing an established
+repository validator or configuration. Select execution setup and configuration
+independently; run from the target repository root. Set `branch_name` to the
+exact proposed name, not Git shorthand such as `@{-1}` or a full `refs/heads/`
+path.
+
+## Workflow
 
 First verify Git ref syntax:
 
@@ -12,7 +16,7 @@ git check-ref-format --branch "$branch_name"
 
 This checks Git syntax, not the repository's naming convention.
 
-## Reuse the repository's execution setup
+### Reuse the repository's execution setup
 
 Inspect contributor instructions, scripts, dependency declarations, managed tool
 versions, and relevant hook or CI configuration. Use the documented branch
@@ -41,7 +45,7 @@ Keep any repository wrapper, managed environment, and configured version in
 place. Confirm the installed version's input support before using this example.
 Do not invoke a hook wholesale if it also runs unrelated checks.
 
-## Use uvx only without an existing execution setup
+### Use uvx only without an existing execution setup
 
 [Conventional Branch](https://conventionalbranch.org/#tooling) links to
 [commit-check](https://github.com/commit-check/commit-check), a Python CLI.
@@ -61,7 +65,7 @@ existing `CCHK_*` settings. Do not pass flags that replace repository rules.
 A missing explicitly selected configuration or a broken setup is a blocker,
 not permission to switch to the bundled defaults.
 
-## Select defaults only when configuration is absent
+### Select defaults only when configuration is absent
 
 Only when no repository branch configuration is established, set `skill_dir`
 to the absolute directory containing the loaded `SKILL.md` and use its
@@ -89,7 +93,7 @@ repository's rule settings or an explicit per-run override for that choice,
 without broadening unrelated rules. The tool also admits special CI ref names;
 manually enforce the skill's trunk-name restriction.
 
-## Finish the check
+### Finish the check
 
 Require a successful exit and a branch-check result for the exact candidate.
 For commit-check JSON output, inspect the `CC201` entry's `value` and `status`;

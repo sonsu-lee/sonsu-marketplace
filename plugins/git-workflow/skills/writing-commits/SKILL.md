@@ -8,13 +8,21 @@ compatibility: >-
 
 # Writing commits
 
-Check and follow the repository's commit-message rules, including its
-commitlint configuration. Use the defaults below where the repository
-specifies no rule.
+Write a commit message that describes the actual change and helps readers
+understand its rationale. Follow repository commit-message rules, including
+commitlint configuration; use the defaults below where no rule is specified.
+
+## Workflow
+
+1. Read the actual changes and repository rules.
+2. Write the message using the rules below.
+3. Before creating or amending a commit, or presenting a message as ready,
+   validate the complete message using [Required validation](#required-validation).
+   Validate again after every edit.
 
 ## Message rules
 
-Base the message on the actual changes. Use Conventional Commits:
+Use Conventional Commits:
 
 ```text
 <type>(<scope>): <subject>
@@ -40,9 +48,7 @@ Base the message on the actual changes. Use Conventional Commits:
 
 ## Required validation
 
-Validate the complete proposed message before creating or amending a commit,
-or presenting the message as ready. Re-run validation after any message edit.
-Follow the [validation procedure](references/validation.md) to select the
+Follow the [validation procedure](references/validation.md), selecting the
 runner and configuration independently:
 
 1. Use the repository's existing validation command, tool, and version first,
@@ -58,14 +64,18 @@ runner and configuration independently:
 Respect repository acceptance criteria, including intentional warning levels.
 Do not bypass a failed check or install hooks, CI jobs, or project dependencies
 just to introduce the fallback. Report blockers rather than claim validation
-passed. An existing hook does not validate a draft before it runs.
+passed.
 
-The bundled defaults check types, lowercase scopes, subject style, blank-line
-separators, and 72-character limits. Review accuracy, rationale, imperative
-wording, the initial lowercase letter, and breaking-change explanations
-separately. The body-length rule exempts URL-containing lines; check those
-manually. Also review any skill defaults the repository validator leaves
-unchecked, without overriding an explicit repository rule.
+## Gotchas
+
+* An existing hook does not validate a draft before it runs.
+
+* The bundled defaults check types, lowercase scopes, subject style, blank-line
+  separators, and 72-character limits. Review accuracy, rationale, imperative
+  wording, the initial lowercase letter, and breaking-change explanations
+  separately. The body-length rule exempts URL-containing lines; check those
+  manually. Also review skill defaults the repository validator leaves
+  unchecked, without overriding an explicit repository rule.
 
 ## Example
 

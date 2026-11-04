@@ -1,11 +1,14 @@
 # 브랜치 검증
 
-> 영문 정본: [validation.md](validation.md) (`599da29` 기준 번역).
+> 영문 정본: [validation.md](validation.md) (`b589603` 기준 번역).
 > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
 
-실행 환경과 설정을 각각 독립적으로 선택한다. 대상 저장소의 루트에서 실행한다.
-`branch_name`은 제안하는 이름 그대로 설정한다. `@{-1}` 같은 Git 축약 표기나
-`refs/heads/`를 포함한 전체 경로는 쓰지 않는다.
+저장소에 정해진 검증기나 설정을 대체하지 않고 제안한 브랜치 이름 그대로
+검증한다. 실행 환경과 설정을 각각 독립적으로 선택하고 대상 저장소의 루트에서
+실행한다. `branch_name`은 제안하는 이름 그대로 설정한다. `@{-1}` 같은 Git
+축약 표기나 `refs/heads/`를 포함한 전체 경로는 쓰지 않는다.
+
+## 작업 순서
 
 먼저 Git ref 문법을 확인한다.
 
@@ -15,7 +18,7 @@ git check-ref-format --branch "$branch_name"
 
 이 명령은 Git 문법만 확인하며 저장소의 이름 규칙은 확인하지 않는다.
 
-## 저장소의 실행 환경 재사용
+### 저장소의 실행 환경 재사용
 
 기여자 안내문, 스크립트, 의존성 선언, 관리되는 도구 버전, 관련 hook이나 CI
 설정을 살펴본다. commit-check가 아닌 도구를 포함해, 문서화된 브랜치 검증기와
@@ -43,7 +46,7 @@ printf '%s\n' "$branch_name" | commit-check --branch --format json
 설치된 버전이 이 입력을 지원하는지 확인한다. hook이 관련 없는 검사까지 함께
 실행한다면 hook 전체를 호출하지 않는다.
 
-## 기존 실행 환경이 없을 때만 uvx 사용
+### 기존 실행 환경이 없을 때만 uvx 사용
 
 [Conventional Branch](https://conventionalbranch.org/#tooling)는
 [commit-check](https://github.com/commit-check/commit-check)를 링크한다. 이것은
@@ -64,7 +67,7 @@ printf '%s\n' "$branch_name" |
 명시적으로 선택한 설정이 없거나 환경이 망가졌다면 그것은 막힌 점이며,
 번들 기본값으로 바꿔도 된다는 허가가 아니다.
 
-## 설정이 없을 때만 기본값 선택
+### 설정이 없을 때만 기본값 선택
 
 저장소 브랜치 설정이 정해져 있지 않은 경우에만, `skill_dir`을 불러온 `SKILL.md`가
 있는 디렉터리의 절대 경로로 설정하고 그 안의 `assets/commit-check.toml`을
@@ -90,7 +93,7 @@ printf '%s\n' "$branch_name" |
 관련 없는 규칙을 넓히지 않는다. 이 도구는 특수한 CI ref 이름도 허용하므로 스킬의
 trunk 이름 제한은 직접 적용한다.
 
-## 검사 마무리
+### 검사 마무리
 
 정상 종료와, 정확히 그 후보 이름에 대한 브랜치 검사 결과를 요구한다.
 commit-check의 JSON 출력이라면 `CC201` 항목의 `value`와 `status`를 확인한다.
