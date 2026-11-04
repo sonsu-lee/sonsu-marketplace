@@ -1,8 +1,9 @@
 # Web on touch devices
 
-Read this when a web interface will be used on phones or tablets. These are
-browser behaviors, not taste; check current browser support before relying on
-a specific detail.
+Use this for web interfaces on phones or tablets. Check current browser support
+before relying on a specific behavior.
+
+## Platform behavior
 
 - **Hover sticks on touch.** A tap applies `:hover` and it stays. Put hover-only
   effects inside `@media (hover: hover) and (pointer: fine)`, give touch users
@@ -31,10 +32,11 @@ a specific detail.
   scheme to match the top of the page. Some browsers derive the tint from the
   page background instead.
 
-Desktop device emulation does not reproduce sticky hover, tap delay,
-rubber-banding, safe areas or the on-screen keyboard; simulators cover more
-but not touch feel. Say which behavior was checked on a real device and which
-only from code.
+## Gotchas
+
+Desktop emulation does not reproduce sticky hover, tap delay, rubber-banding,
+safe areas or the on-screen keyboard; simulators cover more but not touch feel.
+Report what was checked on a real device and what was checked only from code.
 
 Adapted from Emil Kowalski's
 [`mobile-native`](https://github.com/emilkowalski/skills/tree/a81dbca07f2217b7103e510c0f13f8d5b017afc9/skills/mobile-native)

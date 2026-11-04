@@ -1,9 +1,13 @@
 # Conditional critique evidence
 
-Use the relevant section when the requested critique needs research context.
-These observations come from reviewed source passages and sampled frames, not
-measured user outcomes or independent validation of the artifact under review. A
-source illustrates a judgment; the current artifact must support the finding.
+Use the relevant section when a visual, flow or handoff judgment needs research
+context. Sources illustrate judgments; findings must be supported by the
+artifact itself, not assumed from source observations.
+
+## Gotchas
+
+- Source passages and sampled frames are not measured user outcomes or
+  independent validation of the artifact under review.
 
 ## Visual judgments
 

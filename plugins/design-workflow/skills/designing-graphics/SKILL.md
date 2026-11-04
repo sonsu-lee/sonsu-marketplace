@@ -8,37 +8,45 @@ description: >-
 
 # Designing graphics
 
-Establish the purpose, audience, existing identity, authoritative assets,
-editable format, intended output and real reproduction constraints. Preserve
-supplied proportions, meaningful content, required editability and existing
-treatments unless the request authorizes a change. If a needed change is not
-authorized, propose it and ask whether to adopt it; that is a scope decision,
-not a sign-off requirement. Do not assume a preview is the editable master or
-invent approval or production requirements.
-Approval status and responsibility are project facts, not conclusions from
-missing files or tests. When not supplied, keep them unknown throughout the
-answer; do not turn unknown into "unapproved", "not yet approved" or "undecided",
-and do not prescribe sign-off as a required step. Advise confirming whether
-approval is needed and who gives it.
+Design or refine graphics for their intended use and delivery, preserving
+authorized scope and reporting only observed results.
 
-For icons, judge the family together: visual weight, corners and silhouettes,
-then inspect the export at its actual size and renderer. Preserve recognizable
-meaning while simplifying detail that collapses. For illustration and identity,
-make composition and treatment serve the brief and actual uses. If an operation
-would destroy a representation needed for later editing or comparison, preserve
-an appropriate earlier state. Where real reproduction constraints require an
-identity variant, account for the whole lockup and retain the full-color
-original; do not assume every physical medium prohibits gradients.
+## Workflow
 
-Inspect available output in context and report what was actually rendered,
-checked and delivered. A vector canvas or a still preview does not establish
-manufacturing feasibility, color-management accuracy or approval. State missing
-assets, rendering or production evidence rather than inventing results.
+1. **Establish the brief.** Identify purpose, audience, existing identity,
+   authoritative assets, editable format, output and reproduction constraints.
+   Preserve supplied proportions, meaningful content, required editability and
+   existing treatments unless a change is authorized. Otherwise propose the
+   change and ask whether to adopt it; this is a scope decision, not sign-off.
+   Do not invent approval or production requirements.
+2. **Design for the use.** Judge icons as a family by weight, corners and
+   silhouettes, and inspect exports at actual size in the intended renderer.
+   Simplify collapsed detail while preserving meaning. Make illustration and
+   identity serve the brief and uses. Before destroying a representation needed
+   for editing or comparison, preserve an appropriate earlier state. If actual
+   reproduction constraints require a variant, consider the whole lockup and
+   retain the full-color original.
+3. **Inspect and report.** Inspect available output in context and report what
+   was rendered, checked and delivered. State missing assets, rendering or
+   production evidence rather than inventing results.
+
+## Conditional research
 
 Read [graphic craft and handoff](references/craft.md) when icon construction,
 rendering, graphic encoding, editable stages, reproduction variants, or
 master/preview delivery need the corresponding research context.
 The research is conditional guidance, not a universal recipe or measured outcome.
+
+## Gotchas
+
+- Approval status and responsibility are project facts, not conclusions from
+  missing files or tests. Keep them unknown if not supplied; do not call them
+  unapproved, not yet approved or undecided, or require sign-off. Advise
+  confirming whether approval is needed and who gives it.
+- Do not assume a preview is an editable master. A vector canvas or still
+  preview does not establish manufacturing feasibility, color accuracy or
+  approval.
+- Not every physical medium prohibits gradients.
 
 ## Optional omp strict run
 

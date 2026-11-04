@@ -10,25 +10,30 @@ description: >-
 
 # Designing interfaces
 
-Establish the user's goal, audience, relevant constraints, existing design
-system and the intended deliverable. Inspect the existing interface and its
-real content before changing it. Preserve requirements, functionality,
-meaningful content and state, including error, empty and recovery paths; do
-not remove features or invent policy to make a composition look cleaner.
-Identify unknowns that materially change the solution.
+Design interfaces around real tasks and content while preserving functionality
+and reporting what was actually verified.
 
-Choose a hierarchy from the user's tasks, then compose readable groups,
-controls and responsive arrangements around real content. Specify what stays
-fixed, resizes or rearranges, and consider intermediate widths. Design state
-and action labels to match actual behavior; avoid claiming success before the
-system has confirmed it. Consider keyboard, accessible names and contrast using
-the applicable project requirements and appropriate tools, not a visual guess.
-No fixed font or spacing number is universally correct.
+## Workflow
 
-Inspect the result at relevant target sizes and states, including actual assets.
-If a browser or needed state is unavailable, report the limitation instead of
-claiming visual verification. Distinguish observations from proposals, list
-meaningful changes and checks performed, and identify unresolved tradeoffs.
+1. **Establish the brief.** Identify the user's goal, audience, constraints,
+   design system and deliverable. Inspect the interface and real content.
+   Preserve requirements, functionality, meaningful content and states,
+   including errors, empty states and recovery. Do not remove features or invent
+   policy to clean up the composition. Identify consequential unknowns.
+2. **Design the interface.** Choose hierarchy from user tasks and compose
+   readable groups, controls and responsive layouts around real content. Specify
+   what stays fixed, resizes or rearranges, including at intermediate widths.
+   Match state and action labels to actual behavior; do not claim success before
+   confirmation. Consider keyboard access, accessible names and contrast using
+   applicable requirements and appropriate tools, not visual guesses.
+3. **Inspect and report.** Inspect relevant target sizes and states with actual
+   assets. If a browser or state is unavailable, report the limitation rather
+   than claiming visual verification. Distinguish observations from proposals,
+   list meaningful changes and checks, and identify unresolved tradeoffs.
+
+## Gotchas
+
+- No fixed font or spacing number is universally correct.
 
 ## Conditional research
 
