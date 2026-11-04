@@ -48,7 +48,9 @@ setup: [references/clients.md](references/clients.md).
    version in `<workspace>/skill-snapshot` and use `--baseline old`.
 3. **Run.** `scripts/run_evals.py --skill-path <skill> --client <omp|codex>
    --model <model> --effort <effort> --home <home> --iteration <N>
-   --baseline <without|old>`. Add `--runs 3` before claiming a delta.
+   --baseline <without|old>`. Add `--runs 3` before claiming a delta. Use a
+   new `<N>` for each evaluation; exit status 2 means some runs were not
+   measured, so rerun the same command with `--resume`.
 4. **Assertions.** While runs execute, write objectively checkable assertions
    in `evals.json`. The grader sees only the transcript and saved files.
 5. **Grade.** `scripts/grade.py <iteration-dir>` grades with
@@ -85,8 +87,6 @@ graded.
 
 ## Gotchas
 
-- Each evaluation needs a new `--iteration`; existing ones are refused.
-- Exit status 2 means some runs were not measured; rerun with `--resume`.
 - Eval IDs are persistent keys. Never reassign an ID to a different case, and
   use a fresh workspace when IDs changed meaning.
 - Rebuild `skill-snapshot` from the intended baseline revision before each
