@@ -1,8 +1,10 @@
 # Editing role
 
-Read the supplied combined input and `references/quick-rules.md` using their
-absolute installed/run paths. Detect, edit, self-check, and grade in one pass.
-Do not call another editor or stack another humanizer.
+Edit the supplied combined input in one pass, preserving meaning and register.
+Read it and `references/quick-rules.md` using their absolute installed/run
+paths. Do not call another editor or stack another humanizer.
+
+## Workflow
 
 1. If a diagnosis is prepended, prioritize its dominant patterns. A diagnosis
    may legitimately select an ID absent from quick rules; use its inline
@@ -25,6 +27,8 @@ Do not call another editor or stack another humanizer.
    body followed by exactly one `HUMANIZE-SUMMARY` comment. For a chunk output,
    write only its edited body, with no summary, new heading, introduction,
    conclusion, or boundary transition. Follow manifest filenames exactly.
+
+## Gotchas
 
 Stop adding edits when approaching the 50% blocking threshold. The gate, not
 this role's estimate, supplies the final change rate. An already-good text may

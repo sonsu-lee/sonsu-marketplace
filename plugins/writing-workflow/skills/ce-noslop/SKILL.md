@@ -13,53 +13,38 @@ metadata:
 
 # Write without slop
 
-Prose that carries no AI tells and that a reader understands on the first read,
-with every fact the source stated still there. Both goals hold at once: text
-that is free of tells but still dense has failed, and text that is plain but
-changes how certain a claim is has failed.
+Write English prose that is understandable on the first read and free of AI
+tells without changing the source's facts or certainty. Preserve every fact,
+number, name, quote, and citation; add nothing the source or caller did not
+supply.
 
-**Done:** the mode's output is returned, every fact, number, name, quote, and
-citation in the input survives, and nothing was added that the source or the
-caller did not supply.
+## Workflow
 
-**Boundaries:** never touch code blocks, quoted text, frontmatter, link targets,
-identifiers, or a token the caller's own contract requires, unless the user
-names that content as the thing to fix. Never say whether text was written by
-a model. Write a named file in place only when the request asks for that;
-otherwise return the text.
+1. **Choose the mode.** Honor a `mode:` token. Otherwise, no draft means
+   **author**, an imperative on a draft means **edit**, and a question about a
+   draft means **detect**.
+2. **Choose the register** for the reader (below); the caller's interaction
+   contract takes precedence.
+3. **Apply the tests** to every English sentence. For edit and detect, and for
+   an author passage the tests alone do not settle, read
+   [the pattern catalog](references/patterns.md). For wording choices, read
+   [the terminology guidance](references/terminology.md).
+4. **Return the mode's output:**
+   - **Author:** hold the tests as constraints while the caller writes; return
+     nothing. When given content and asked to write, draft under the same tests.
+   - **Edit:** rewrite only sentences that fail a test; passing sentences stay
+     as written, so a second pass changes nothing. Return the text. Only if
+     asked, say what changed in one line outside the rewritten text and any
+     artifact.
+   - **Detect:** name each pattern found, quote the line, and give the fix in a
+     few words. Do not rewrite.
 
-**Language and scope:** apply this skill only to English prose, including
-README files, API docs, design docs, runbooks, release notes, technical blogs,
-and prose in mixed code/prose files. Protected content is not a reason to
-exclude the surrounding document. Leave other-language passages to their
-language's skill; do not translate them or stack another humanizer on English
-prose. Channel-specific marketing strategy is outside this skill; editing
-English marketing prose does not require another skill.
-
-## Mode
-
-Take a `mode:` token when one is given. Otherwise: no draft means **author**;
-an imperative on a draft means **edit**; a question about a draft means
-**detect**.
-
-- **author.** Hold the tests below while the caller writes; return nothing.
-  When handed content and asked to write, draft it under the same tests.
-- **edit.** Rewrite only the sentences a test fails on, and return the text.
-  A sentence that passes stays as written, so a second pass on the returned
-  text changes nothing. Say what changed in one line only when the caller
-  asks for it, and keep that line outside the rewritten text and out of any
-  artifact.
-- **detect.** Name each pattern found, quote the line, give the fix in a few
-  words. Do not rewrite.
-
-For edit and detect, and for an author passage the tests alone do not settle,
-read [the pattern catalog](references/patterns.md). Do not apply these tests
-or the catalog to non-English passages.
+Write a named file in place only when requested; otherwise return the text.
+Never say whether text was written by a model.
 
 ## Register
 
-Pick by who reads the result. The caller's own interaction contract wins over
-any line here.
+Pick by who reads the result:
 
 - **Agent talking to the user.** The reader is a teammate who knows the domain
   and did not watch the work. Write each sentence as you would say it to them.
@@ -90,8 +75,21 @@ edit or detect mode as checks.
 7. **Reader.** Can someone without the document or the code open act on this?
    Gloss the identifier or name the consequence.
 
-Keep exact identifiers, paths, commands, and thresholds. For wording choices,
-read [the terminology guidance](references/terminology.md).
+Keep exact identifiers, paths, commands, and thresholds.
+
+## Gotchas
+
+- Never touch code blocks, quoted text, frontmatter, link targets, identifiers,
+  or tokens required by the caller's contract unless the user names that
+  content as the thing to fix.
+- Apply this skill only to English prose, including prose around code and in
+  README files, API docs, design docs, runbooks, release notes, and technical
+  blogs. Protected content does not exclude the surrounding document.
+- Leave other-language passages to their language's skill; do not translate
+  them or apply these tests or the catalog to them. Do not stack another
+  humanizer on English prose.
+- Channel-specific marketing strategy is outside this skill; editing English
+  marketing prose does not require another skill.
 
 ## Sources
 

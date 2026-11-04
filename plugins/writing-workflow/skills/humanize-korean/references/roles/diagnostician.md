@@ -1,7 +1,10 @@
 # Diagnostic role
 
-Diagnose; do not rewrite. Read the supplied combined input and the complete
-`references/diagnosis-rules.md` using their supplied absolute paths.
+Diagnose the supplied prose without rewriting it. Read the combined input and
+the complete `references/diagnosis-rules.md` using their supplied absolute
+paths.
+
+## Workflow
 
 1. Read the quantitative block first. Record nonzero counters as measured
    matches, then inspect the corresponding source spans and taxonomy conditions.
@@ -19,6 +22,8 @@ Diagnose; do not rewrite. Read the supplied combined input and the complete
    preservation constraints. For every finding include a one-line prescription
    and its condition. An ID absent from quick rules remains actionable only
    with its complete contextual prescription in the diagnosis.
+
+## Gotchas
 
 Preserve code, identifiers, commands, URLs, names, numbers, direct quotes,
 content anchors, terms, footnotes, headings, required lists, and intentional

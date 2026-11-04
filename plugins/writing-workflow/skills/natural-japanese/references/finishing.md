@@ -6,19 +6,16 @@ skip it. Commands, `SKILL_DIR`, and `TARGET` come from [the skill](../SKILL.md).
 
 ## Disposition
 
-Lint detects phrases, calques, repeated negation, monotonous sentence lengths,
-absent noun endings, lexical reuse, and English-like syntax. A finding is
-suspicion, not a mandate. Consult its detail and hint, decide from context, and
-reading the sentence aloud can help. Record each finding's outcome in the
-response or scratch space:
+A finding is suspicion, not a mandate. Consult its detail and hint, decide
+from context, and record each outcome in the response or scratch space:
 
 ```text
 - [Fixed] translationese「〜という点で」: changed to「〜では」.
 - [Kept/product name] forbidden_phrase「多角的」: part of「多角的レビュー機能」.
 ```
 
-Use concrete reasons such as quotation, technical term, needed contrast, or
-genre convention. “Kept” without a reason is not an editorial decision.
+Give a concrete reason, such as quotation, technical term, needed contrast, or
+genre convention; “Kept” alone is not an editorial decision.
 
 ## Convergence
 
