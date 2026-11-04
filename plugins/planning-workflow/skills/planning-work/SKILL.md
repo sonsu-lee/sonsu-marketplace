@@ -10,11 +10,18 @@ description: >-
 
 # Planning work
 
-A plan is a design to agree on before building. Its value is surfacing
-tradeoffs and misunderstandings while they are cheap to fix. Planning a change
-whose solution is obvious only adds overhead: a plan that says only how to
-implement it, with no tradeoffs, should be code. Asking for a plan is not
-permission to implement.
+A plan is a design for agreement before building, exposing tradeoffs and
+misunderstandings while they are cheap to fix. When the solution is obvious
+and a plan would contain only implementation steps, write code instead.
+A plan-only request does not authorize implementation.
+
+## Workflow
+
+1. Gather evidence and clarify consequential unknowns.
+2. Share a short draft and agree on the direction.
+3. Detail the plan, including edge cases, verification, and delivery.
+4. Check the plan with a fresh reader when available, then seek approval.
+5. Keep the agreed plan and decisions current during authorized execution.
 
 ## Gather before asking
 
@@ -81,9 +88,7 @@ result will be observed to work, for example a command, screen, or output.
 
 For consequential claims, identify an external check, such as observed data,
 an executable test, or an independent measurement, and what result would
-falsify the claim. An independent reader can expose ambiguity but is not proof
-that the plan or its assumptions work. If no external check is available,
-state the limitation.
+falsify the claim. If no external check is available, state the limitation.
 
 ## Split delivery
 
@@ -108,16 +113,14 @@ do not present rereading your own work as a fresh-reader test. Fix gaps in the
 plan rather than explaining them away in the review brief.
 
 When the plan belongs in the reply, pass its text directly to the reader.
-Do not create a scratch plan file merely to arrange that review, especially
-when the request forbids writes; the reader check does not grant write permission.
 
 ## Approval and records
 
 Present the plan with its state, assumptions still open, and the decision you
 need. Return it in the reply; write a plan file only when the user or project
-specifies that destination and the request permits writes. Planning and reader
-review do not authorize temporary files. Wait for explicit approval before
-implementing, creating branches or tickets, or making other file changes.
+specifies that destination and the request permits writes. Wait for explicit
+approval before implementing, creating branches or tickets, or making other
+file changes.
 
 Build on the latest agreement; separate settled choices from open questions
 and do not reopen them without a reason. Keep a substantive plan resumable:
@@ -128,21 +131,22 @@ continuing, and update the plan. If a decision sets lasting direction or is
 costly to reverse, suggest a decision record when the project keeps them,
 following its conventions; the plan itself is not that record.
 
+## Gotchas
+
+- A fresh reader can expose ambiguity but cannot prove that the plan or its
+  assumptions work.
+- Planning and reader review do not authorize temporary files, including
+  scratch plan files created to arrange the review.
+
 ## Sources
 
-- [Design Docs at Google][google]: goals and non-goals, overview before
-  details, alternatives considered, and when a design doc is not worth writing.
-- [Oxide RFD 1][rfd1] and [Amazon's 2017 shareholder letter][amazon]: timely
-  rather than polished ideas versus memos rewritten over a week or more.
-- [Performing a Project Premortem][premortem]: imagine the failure, then list
-  plausible causes.
+- [Design Docs at Google][google]
+- [Oxide RFD 1][rfd1] and [Amazon's 2017 shareholder letter][amazon]
+- [Performing a Project Premortem][premortem]
 - [Spec Kit clarify][clarify] and [Matt Pocock's grilling skill][grilling]
-  (both MIT): recommended answers to targeted questions and questioning in
-  rounds. The wording here is original.
-- [Doc co-authoring][coauthoring]: testing a document with a reader that lacks
-  the author's context. No text is reused.
-- [How to be more ambitious][ambitious]: distinguish outcomes from means,
-  examine raw evidence, use concrete methods, and seek outside validation.
+  (both MIT; wording here is original)
+- [Doc co-authoring][coauthoring] (no text reused)
+- [How to be more ambitious][ambitious]
 
 [google]: https://www.industrialempathy.com/posts/design-docs-at-google/
 [rfd1]: https://rfd.shared.oxide.computer/rfd/0001

@@ -8,11 +8,16 @@ description: >-
 
 # Executing work
 
-Use the plan's goal, scope, authority, sequence, and verification to coordinate
-the work through a finished result. Apply host, security, repository, and user
-instructions first: this skill's defaults do not override binding constraints.
-Planning and execution are distinct: an explicit plan-only request ends with the
-plan, not implementation or other side effects.
+Coordinate authorized implementation from a proportional plan through review,
+final validation, and handoff. Host, security, repository, and user instructions
+override these defaults; a plan-only request authorizes no implementation or
+other side effects.
+
+## Workflow
+
+1. Establish the goal, scope, authority, and verification.
+2. Coordinate implementation and independent review.
+3. Integrate fixes, validate the final revision, and hand off the result.
 
 ## Establish the contract
 
