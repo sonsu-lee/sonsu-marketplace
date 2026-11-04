@@ -217,12 +217,11 @@ Install with `omp plugin install git-workflow@sonsu-marketplace`,
   The skill's default prefixes are `feat/` (not `feature/`), `bugfix/` (not
   `fix/`), `hotfix/`, `release/`, and `chore/`. See the
   [skill's validation procedure](plugins/git-workflow/skills/naming-branches/SKILL.md#required-validation).
-- **`writing-pull-requests`** writes plain, repository-aware PR descriptions
-  scaled to the change. Without a repository template, only `Summary` is required;
-  other headings follow the content. It uses Mermaid when clearer than prose and
-  keeps material constraints and evidence without copying work logs or operating
-  procedures. It labels AI assistance and prepares UI evidence. Dependent PRs
-  use GitHub stacks where available; new PRs are Draft by default. See the
+- **`writing-pull-requests`** starts PR descriptions with a concise Summary of
+  the change, adding content-specific sections, focused code explanations,
+  diagrams, and UI evidence when needed. It links ticket context instead of
+  repeating it. Dependent PRs use GitHub stacks where available; new PRs are
+  Draft by default. See the
   [PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md).
 
 Branch prefixes do not change commit types: a `bugfix/` branch can contain
@@ -561,7 +560,7 @@ the Markdown files a pull request adds or modifies.
 
 This file-lint policy and its line-length rule do not apply to PR bodies, even
 when saved to a temporary `.md` file for `--body-file`. Follow the
-[PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md#choose-the-body-format):
+[PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md#write-the-body):
 keep each prose paragraph on one source line, with blank lines between
 paragraphs and structural newlines for lists, tables, and code blocks. GitHub
 renders single newlines in PR bodies as visible line breaks, unlike repository

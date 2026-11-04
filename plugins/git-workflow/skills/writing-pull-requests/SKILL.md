@@ -9,147 +9,62 @@ compatibility: >-
 
 # Writing pull requests
 
-Write for reviewers in plain language: say what changes and why, using
-established technical terms rather than formal filler. For prose drafts/edits,
-also read the matching language skill if listed; retain these PR rules. Follow
-repository rules, templates, and AI policy first. These defaults do not
-authorize settings changes or bypassing required checks.
+A PR description tells reviewers what changed and where to focus; the linked
+ticket carries why. Repository rules and templates come first. For prose
+drafting or editing, also read the matching language skill.
 
-## Choose the requested work
+## Workflow
 
-- **Title only:** establish the change and validate the title; skip body
-  templates, labels, and media unless requested.
-- **Draft content:** apply the body rules; identify evidence and labels without
-  pushing, publishing, or mutating labels.
-- **Publish, update, or mark ready:** only when authorized; see below.
+Do only the requested part: title, description, or publishing.
 
-## Establish the change and scope
+1. **Read the change.** Base is the user's or project's target, otherwise the
+   default branch. Read the full diff and the related ticket.
+2. **Check the scope.** One purpose per PR, with its tests, callers, and docs;
+   split independent changes. The target branch must still work after it
+   lands. If it depends on an unmerged PR, read
+   [Stacked pull requests](references/stacked-prs.md).
+3. **Write the title** as the final commit subject and validate it with
+   [writing-commits](../writing-commits/SKILL.md).
+4. **Write the body** as below.
+5. **Publish only when asked**, following
+   [Publishing a pull request](references/publishing.md). New PRs start as
+   Draft; mark ready only on request and once repository requirements are met.
 
-Identify the repository and head. Choose the trunk: the user's destination or
-established project target, otherwise the discovered default branch, never an
-assumed `main`. Use that trunk as base, except when a PR depends on an unmerged
-PR and the repository supports
-[stacked PRs](references/publishing.md#stack-dependent-pull-requests): use the
-lower PR's head branch as base. Read the full diff against that base and
-relevant issue or design context, not just the last commit or agent summary.
+## Write the body
 
-A PR is one coherent, explainable change that can become a sound commit:
+Start with `## Summary`: what changed, in a few sentences. Add headings named
+for their content only when needed.
 
-- Address one purpose. Split independent topics, not just files or line counts.
-- Include related tests, callers, and required documentation; never split
-  implementation from needed usage or tests just to shrink the diff.
-- Keep the target branch working after each PR lands. A dependent PR names its
-  dependency and merge order; a later PR must not repair a broken base. Stack
-  only work that depends on an unmerged PR; independent PRs target the trunk
-  separately, because stacking them imposes a false merge order.
-- Prefer separating substantial refactoring from behavior changes; small
-  local cleanups may stay.
+Include only what helps review:
 
-A PR may be one safe step toward a larger feature and contain several commits.
-If too broad to review, propose a split before publishing instead of hiding
-scope behind a narrower description.
+- **Changed behavior,** including preserved behavior when it matters.
+- **Code to examine:** a few key points, such as a condition or processing
+  order, with a short excerpt or link.
+- **Structure or flow:** a Mermaid diagram, not repeated in prose.
+- **Constraints:** compatibility, rollout order, or known limitations.
+- **UI changes:** evidence prepared with [UI evidence](references/ui-evidence.md).
+- **Evidence** only when the repository requires it or a claim needs it, with
+  its method and environment.
+- **The problem,** briefly, only when no ticket is accessible.
 
-## Write and validate the title
+Leave out the ticket's motivation, file-by-file narration, and work logs.
 
-Prefer squash merging where permitted. Write the title as the resulting commit
-subject, following the
-[writing-commits skill](../writing-commits/SKILL.md); reuse its
-repository-first validation and defaults, not separate PR-title rules. Validate
-the exact proposed title as a one-line message before presenting it as ready or
-publishing it, and revalidate after edits. Describe the final change, not the
-work sequence. Keep draft state in GitHub's Draft field, not a `WIP` prefix.
+## Link issues
 
-To prepare a merge, read
-[Merge message](references/publishing.md#merge-message). Never merge merely to
-write or open a PR.
+For each issue, decide whether this PR completes it, advances part of it, or
+only relates to it, judging by the issue's stated outcome and the work landed
+before or with this PR. Only a completing link should close the issue on merge.
 
-## Choose the body format
+## Gotchas
 
-Read contribution instructions and find the applicable PR template, including
-template directories. On GitHub, inspect `.github/`, the repository
-root, and `docs/`, in that precedence order. If none applies, check the owner's
-public `.github` repository for an inherited default (not in the target clone).
-Offered templates live on the default branch. Use an explicitly requested
-template when applicable.
-
-Preserve required fields and markers in CLI/API bodies too. Do not add a second
-template or fill unneeded sections. Otherwise follow the principles below.
-
-Keep paragraphs on one source line, including within list items: GitHub renders
-single newlines in PR bodies as line breaks, unlike `.md` files. Preserve blank
-lines and list, table, and code structure. Do not apply file-lint or column limits
-unless required for PR bodies, even in a temporary `.md` file for `--body-file`.
-
-## Write what reviewers need
-
-- **Why:** the concrete problem or need.
-- **What changes:** the result, component relationships, relevant flow or
-  ordering, preserved behavior, and real costs.
-- **Keep:** material risks, rollout constraints, unverified behavior, and
-  repository-required details.
-- **Evidence:** measurements with their method and environment, or manual
-  checks the diff and CI cannot show.
-
-Report check types and outcomes, naming required profiles. Add settings, inputs,
-or commands only if required or needed to explain a limit. Omit routine CI test,
-lint, and build results and work logs. Do not invent rationale or imply human
-review from agent checks. Distinguish plans from observations; link evidence,
-not local paths.
-
-Without a repository template, require `## Summary` to explain what changes
-and why. Add other sections only when useful, choosing headings for their
-content rather than a fixed layout. A brief PR may use Summary alone. Avoid
-repetition and scale length to the change. Use prose or bullets, not checkboxes.
-
-Use Mermaid for structure or flow only when clearer than prose; simple changes
-need no diagram. Do not repeat it in prose. Link maintained operating docs
-instead of copying procedures.
-
-Link related issues and dependencies without copying them.
-Use closing keywords only when this PR completes the issue; GitHub ignores
-them unless it targets the default branch
-([stacks](references/publishing.md#closing-issues-from-a-stack)). Follow other
-trackers' own completion-link rules.
-
-## Provide UI evidence
-
-When preparing or verifying UI evidence, read
-[UI evidence](references/ui-evidence.md). Select marked screenshots, focused
-recordings, both, or a justified omission, so reviewers understand the
-location, difference, and behavior without running the app. Inability to
-capture, mark, or upload needed evidence is a blocker, not proof it is
-unnecessary. Keep it synchronized with the diff.
-
-## Disclose AI assistance
-
-Follow the repository's AI policy before generating or publishing content; some
-projects restrict AI-authored contributions, not just undisclosed use. Preserve
-required body disclosure. Otherwise record known AI assistance with the designated
-label, or `ai-assisted` if none is designated. For authorized publication or label
-updates, read the [label procedure](references/publishing.md#label-ai-assistance).
-For a draft, identify the intended label without creating or applying it.
-
-Do not add an AI section or checkbox to the body, or repeat a label in
-a disclosure paragraph. Explain AI use in the body only when it affects review,
-such as substantial generated code needing focused inspection, or when policy
-requires it; tool names, models, and prompts are not required. An absent label
-does not establish non-use. Do not infer unknown prior usage, remove an existing
-AI label without evidence, or claim it proves human review. AI assistance never
-transfers author responsibility. Do not add AI co-authorship or change commit
-trailers merely to record tool use.
-
-## Publish and maintain the PR
-
-When publication, an update, or a ready-for-review transition is requested, read
-the relevant sections of [Publishing a pull request](references/publishing.md).
-Drafting is not permission to publish. Create new PRs as **Draft by
-default**, even when checks pass. Mark ready only when the user explicitly asks
-and readiness requirements are met. Updating a description does not change an
-existing PR's stage.
-
-Before publication or readiness, align title, body, links, and media with the
-diff and remove repeated explanations. Preserve others' content. Keep current
-rationale in the body, code, or docs; link substantial history rather than
-appending superseded accounts.
-
-Sources: [publishing reference](references/publishing.md#design-sources).
+- Checks the author ran (local runs, staging runs, tests, lint, model or tool
+  versions) are not review content. Omit them unless the repository requires
+  them or they support a claim the body makes.
+- A repository PR template may be inherited from the owner's public `.github`
+  repository. Keep its required fields and markers, even in `--body-file` or
+  API bodies, and put the summary in its matching section.
+- GitHub renders single newlines in PR bodies as line breaks. Keep each
+  paragraph and list item on one line.
+- GitHub closing keywords work only when the PR targets the default branch;
+  otherwise read [closing issues](references/publishing.md#edge-cases).
+- Mark work in progress with GitHub's Draft state, not a title prefix.
