@@ -17,7 +17,7 @@
       "name": "skill-workflow",
       "source": "./plugins/skill-workflow",
       "description": "Create, refine, evaluate, and independently review focused agent skills, delegating mechanical work to existing tools.",
-      "version": "0.6.0"
+      "version": "0.6.1"
     },
     {
       "name": "ticket-workflow",
@@ -29,7 +29,7 @@
       "name": "decision-workflow",
       "source": "./plugins/decision-workflow",
       "description": "Select consequential design decisions and write lightweight ADRs using repository conventions first.",
-      "version": "0.3.0"
+      "version": "0.3.1"
     },
     {
       "name": "writing-workflow",
@@ -47,7 +47,7 @@
       "name": "planning-workflow",
       "source": "./plugins/planning-workflow",
       "description": "Plan non-trivial work as a reviewable design and coordinate authorized execution through independent review and final validation.",
-      "version": "0.5.0"
+      "version": "0.5.1"
     },
     {
       "name": "design-workflow",

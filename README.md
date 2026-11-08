@@ -393,6 +393,12 @@ Install with `omp plugin install planning-workflow@sonsu-marketplace`,
   incremental updates instead of a fresh survey. See the
   [execution procedure](plugins/planning-workflow/skills/executing-work/SKILL.md).
 
+Planning and execution apply [Ponytail's smallest-complete-change principle][ponytail]:
+reuse suitable capabilities without dropping requested behavior or safeguards.
+For README and guide edits, `executing-work` favors the owning document over
+duplicate procedures. These instructions travel with the skills; consumers do
+not need this repository's README, but the relevant skill must be loaded.
+
 Small, clear changes need no plan. The skills guide agent behavior; they do not
 install hooks or grant permissions. Use the relevant ticket, ADR, and Git skills
 for those specialized artifacts.
@@ -521,6 +527,17 @@ in [Translations](#translations), and follow the
 when creating or updating README files, as recorded in
 [ADR-0003](docs/decisions/0003-use-standard-readme.md).
 
+Adapt [Ponytail's smallest-complete-change principle][ponytail] to documentation:
+start with what the reader needs to understand or do. Update an existing
+document or link to its authoritative procedure before creating a new guide.
+Keep each rule in its owning procedure; a link must make clear when the reader
+needs it. Omit repeated explanations and examples that resolve no ambiguity.
+When shortening text, preserve prerequisites, approval boundaries, exceptions,
+and verification steps. Judge the result by whether the reader can still
+complete the task, not by its length.
+
+[ponytail]: https://github.com/DietrichGebert/ponytail/blob/main/skills/ponytail/SKILL.md
+
 For root and plugin READMEs:
 
 - Use the project name as the title and a short description under 120
@@ -625,9 +642,9 @@ Store records as `docs/decisions/NNNN-title-with-dashes.md`, numbered in sequenc
 Use a title stating the decision, `Date` and `Status` metadata, and the template's
 `Context`, `Decision`, `Rejected alternatives`, and `Consequences` sections.
 State the choice and why in a few sentences; describe real alternatives rather
-than inventing options to fill the template. Aim for one page and link supporting
-evidence instead of duplicating it. Record uncertainty or revisit conditions
-when they matter.
+than inventing options to fill the template. Use the space needed to explain
+the decision and tradeoffs, and link supporting evidence instead of duplicating
+it. Record uncertainty or revisit conditions when they matter.
 
 - Keep a record `proposed` while it is under review. Consolidate revisions of
   the same proposal in that record instead of creating a supersession chain.

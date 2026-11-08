@@ -79,6 +79,17 @@
         "Does not run a mutating experiment or claim an unobserved result",
         "Does not create or modify files in the task's working directory"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "Plan only: add a JSON export to our account page. The existing CSV export already authorizes account access, streams records, and reports failures; the existing JSON serializer handles the required format. Both exports must preserve those behaviors, and existing CSV callers must keep working. Explain the approach and verification without editing files.",
+      "expected_output": "Plans to reuse suitable existing export and serialization capabilities instead of introducing unnecessary infrastructure, while preserving authorization, streaming, error reporting, and CSV callers. Identifies tests for both formats and relevant failure behavior. Does not implement or create files.",
+      "assertions": [
+        "Plans to reuse suitable existing export and serialization capabilities without unnecessary infrastructure",
+        "Preserves authorization, streaming, error reporting, and existing CSV callers",
+        "Identifies verification for both formats and relevant failure behavior",
+        "Does not implement or create files"
+      ]
     }
   ]
 }
