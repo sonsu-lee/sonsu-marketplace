@@ -33,8 +33,11 @@ existing tools. The target project's authoring requirements come first.
    Without a named target, stay portable and add no client metadata.
 4. **Keep only what prevents mistakes.** For each instruction, ask whether
    omitting it would cause a meaningful mistake. Keep domain knowledge,
-   project conventions, decision criteria, and non-obvious constraints; drop
-   general knowledge and ordinary tool usage. Test uncertain omissions.
+   project conventions, decision criteria, and non-obvious constraints,
+   including consequential prerequisites, approvals, exceptions, and
+   verification. Drop general knowledge and ordinary tool usage; test
+   uncertain omissions. Preserve what the agent needs for the outcome, not a
+   length goal.
 5. **Place each responsibility** (below), then write the guidance.
 6. **Verify and refine** (below).
 
@@ -50,8 +53,9 @@ existing tools. The target project's authoring requirements come first.
   directly rather than through a new wrapper.
 - **scripts/:** only for logic agents repeatedly reinvent or get wrong, as
   shown by actual runs. See [Using scripts][scripts].
-- **evals/:** evaluation cases. Installation, registration, and evaluation
-  procedures stay in project documentation unless they are the skill's task.
+- **evals/:** evaluation cases. Reuse and link the owning project document for
+  installation, registration, and evaluation procedures instead of duplicating
+  them, unless they are the skill's task.
 
 ## Write the guidance
 

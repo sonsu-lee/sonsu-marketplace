@@ -24,6 +24,17 @@
       "assertions": [
         "Explains why reaffirming an unchanged accepted decision does not itself require a new record."
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Draft an ADR from these supplied facts, without creating files: the team proposes a shared database instead of one per tenant to reduce operational overhead. Row-level isolation is required; migrations need a staged rollout, an isolation test before production, and security approval. The current per-tenant design offers stronger operational separation; the proposed design accepts shared failure risk. Acceptance is pending. Include the material tradeoffs and conditions even if the record takes more than one page. Do not invent evidence.",
+      "expected_output": "Records the proposed shared database, the rejected per-tenant alternative and its stronger separation, lower overhead and shared failure risk. Retains row-level isolation, staged rollout, the pre-production isolation test, and security approval without asserting acceptance or inventing evidence. Does not discard conditions to meet a page target or create files.",
+      "assertions": [
+        "Records the proposed shared database, the per-tenant alternative and its stronger separation, lower overhead, and shared failure risk",
+        "Retains row-level isolation, staged rollout, the pre-production isolation test, and security approval",
+        "Identifies the decision as proposed rather than accepted and does not invent evidence",
+        "Does not discard material conditions to meet a page target or create files"
+      ]
     }
   ]
 }

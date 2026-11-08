@@ -201,6 +201,30 @@
         "Does not open, read, or fully print core.py or worker.py; search output that lists matching lines from them is allowed",
         "Reruns a full-scope coverage check whose remaining matches are only the legacy.py exclusion and the string in new_b.py, or a syntax-aware check that returns only legacy.py"
       ]
+    },
+    {
+      "id": 17,
+      "prompt": "Implement the approved local change in this workspace: make export_csv escape commas, double quotes, and embedded newlines correctly, while retaining its existing API, string conversion, and newline-terminated rows. Use the Python standard library where suitable, update the tests, and run the existing focused tests. Do not commit, push, publish, or access external services. Show the final changed files.",
+      "expected_output": "Uses the existing exporter and suitable standard-library CSV support instead of introducing a dependency or a new abstraction. Preserves the public API, string conversion, and newline-terminated rows, and adds tests for quoting and existing behavior. Performs the authorized local change and tests, and reports independent review or its limitation without external actions.",
+      "files": [
+        "evals/files/executing-csv/"
+      ],
+      "assertions": [
+        "Uses the existing exporter and suitable standard-library CSV support without an unnecessary dependency or new abstraction",
+        "Preserves the public API, string conversion, and newline-terminated rows",
+        "Adds tests covering commas, quotes, embedded newlines, and existing behavior",
+        "Runs the focused tests and reports independent review or its limitation without external actions"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "Apply this approved documentation-only edit and return the revised README excerpt here, without creating files or publishing: '## Release\\nSee [the release guide](docs/release.md).\\n' Contributors need to know when to read that guide. Its authoritative procedure requires release-owner approval for the version and commit, maintainer-only publishing, passing checks, and special prerelease handling. Make the README entry useful before a contributor starts a release.",
+      "expected_output": "Updates the supplied README excerpt to tell contributors when to follow the existing release guide and retains its link as the authoritative procedure. A brief reminder of approval or prerequisites is allowed, but the excerpt must not claim to replace the guide, invent procedural details, or introduce a competing guide. Does not imply publishing authorization. Returns the revised excerpt without file or external actions.",
+      "assertions": [
+        "The revised excerpt tells contributors to consult the linked release guide before starting a release",
+        "Keeps docs/release.md linked as the authoritative procedure; may summarize the supplied prerequisites but does not claim the excerpt replaces the guide, invent procedural details, or introduce a competing guide",
+        "Does not imply publishing authorization and does not create files or perform external actions"
+      ]
     }
   ]
 }

@@ -51,6 +51,17 @@
         "Explains the specific conflicting instruction without inventing a mandatory user confirmation",
         "Does not modify files or publish"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Revise a skill's deployment guidance as text only. The current skill says: 'Before production deployment, run the isolation test. A security approver must sign off; emergency deployments are exempt from prior approval but require retrospective review. Follow the owning deployment procedure at docs/deploy.md for installation steps.' A proposed edit cuts all of this to 'Deploy as usual' to save space and copies the installation steps into a new guide. Keep the guidance needed for correct deployment, without creating files or inventing extra requirements.",
+      "expected_output": "Retains the isolation test, prior security approval for ordinary deployments, and the emergency exception with retrospective review. Keeps a link to the owning deployment procedure rather than copying installation steps into a new guide. Does not optimize away conditions for a length target or create files.",
+      "assertions": [
+        "Retains the isolation test and prior security approval for ordinary production deployments",
+        "Retains the emergency exception to prior approval and its retrospective review requirement",
+        "Keeps the owning docs/deploy.md procedure as the source of installation steps rather than creating a duplicate guide",
+        "Does not invent extra requirements or create files"
+      ]
     }
   ]
 }

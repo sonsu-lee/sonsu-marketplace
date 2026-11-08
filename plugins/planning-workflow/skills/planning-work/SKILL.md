@@ -65,6 +65,10 @@ criterion, and its cost.
   requirement with no children is a gap. Check both directions before
   presenting.
 
+Choose the smallest complete solution. Reuse suitable code, platform
+capabilities, and tools; justify new abstractions, dependencies, or files.
+Do not sacrifice required behavior, callers, error handling, or tests.
+
 Where uncertainty warrants it, draw on concrete methods or tools from relevant
 fields to investigate the problem, not expert-role vocabulary or role-play.
 Choose methods proportionate to the decision and within the agreed scope.

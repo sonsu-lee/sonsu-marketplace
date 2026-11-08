@@ -67,9 +67,10 @@ continuing constraint or substantial reversal cost, not implementation size.
 
 ## Write the decision
 
-Make the essential decision understandable on its own, normally in about one
-page. Link supporting investigations, issues, and measurements rather than
-copying them. In the selected format:
+Make the essential decision understandable on its own to a future reader.
+Use the space needed for the decision and its tradeoffs, not a length target.
+Link supporting investigations, issues, and measurements rather than copying
+them. In the selected format:
 
 - Explain the problem and constraints that force the choice. Separate observed
   facts from assumptions; do not invent evidence or decision-maker agreement.

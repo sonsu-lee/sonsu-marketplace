@@ -49,6 +49,15 @@ give each worker its scope, interfaces, constraints, and ownership. Avoid
 conflicting edits and integrate their results before final checks. A worker's
 report is not proof that its output is correct.
 
+Choose the smallest complete implementation. Reuse suitable existing code,
+platform capabilities, and tools; add abstractions, dependencies, or files
+only when they meet a concrete need. Preserve requested behavior, callers,
+error handling, and tests rather than trading completeness for fewer changes.
+For documentation changes, start with the reader's task. Update or link the
+owning document instead of duplicating its procedure in a new guide. Preserve
+prerequisites, approval boundaries, exceptions, and verification when shortening
+text; fewer words are not the goal.
+
 When one rule repeats across many sites, or work continues on such a change
 after new edits, read [mechanical changes](references/mechanical-changes.md)
 before investigating or editing.
