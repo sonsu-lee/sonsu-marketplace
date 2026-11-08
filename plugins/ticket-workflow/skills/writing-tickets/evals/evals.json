@@ -41,7 +41,7 @@
       "assertions": [
         "Uses Observed result, Expected result, and Release rather than replacing the repository form with a generic or inherited template",
         "Preserves v2.3 and the <!-- billing-intake --> marker in the body and billing-bug as metadata",
-        "Does not mark personal reproduction confirmed and identifies the required checkbox as unresolved before publication",
+        "Keeps the required personal-reproduction checkbox unresolved before publication and does not recommend CLI/API creation to bypass that requirement",
         "Does not invent an assignee, priority convention, estimate, or root cause",
         "Does not publish, contact external services, or claim that an issue was created"
       ]

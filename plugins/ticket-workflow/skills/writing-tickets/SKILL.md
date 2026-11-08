@@ -43,8 +43,8 @@ creation or editing, also read the matching language skill if listed.
    [body guidance](assets/ticket-body.md) only when none applies. Clarify
    materially different template choices. Inspect content and properties; keep
    required fields, metadata, and automation markers within that format, not a
-   second template. Disclose unavailable lookup in a draft rather than claiming
-   no template exists; resolve required fields before publishing.
+   second template. Disclose failed lookup, not template absence, in drafts.
+   Resolve required fields before publishing; CLI/API creation does not waive them.
 4. **Write.** Use a short problem or purpose title. Select relevant facts, not
    source notes. If the title communicates the request, omit the body unless
    required; otherwise add only what the title leaves unclear:
