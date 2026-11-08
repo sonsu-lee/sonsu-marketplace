@@ -69,6 +69,17 @@
         "Identifies unresolved template requirements as a publication limitation while still supplying a useful draft or proposed update",
         "Does not publish, contact external services, create files, or claim any tracker mutation"
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "Draft a Linear issue for the Payments team in fictional workspace Acme. Use only the supplied context and do not contact services or publish. No template was explicitly selected. Payments has no team template, but the applicable workspace template 'Defect' requires the sections 'Impact' and 'Acceptance'. Invoice emails arrive 30 minutes after invoices are sent; the agreed outcome is delivery within 2 minutes. No cause, assignee, priority, estimate, project, or milestone is established. Return the draft and any justified metadata proposals; do not invent missing values.",
+      "expected_output": "Uses the applicable workspace Defect template rather than the bundled default body despite the lack of a team template or explicit template selection. Preserves Impact and Acceptance, the observed 30-minute delay, and the agreed 2-minute delivery outcome without inventing metadata or a fix. Does not contact services or publish.",
+      "assertions": [
+        "Uses the workspace template's Impact and Acceptance sections rather than replacing them with the bundled default format",
+        "States both the observed 30-minute delay and the agreed delivery outcome within 2 minutes",
+        "Does not invent a cause, implementation requirement, assignment, priority, estimate, project, or milestone",
+        "Does not contact services, publish, or claim that a ticket was created"
+      ]
     }
   ]
 }

@@ -5,7 +5,8 @@ Use these Linear differences with the workflow in [Writing tickets](../SKILL.md)
 ## Templates
 
 - Inspect workspace and team templates, including those available from parent
-  teams, and team defaults.
+  teams, and team defaults. Applicable workspace and parent-team templates count
+  alongside team templates in the shared selection order, before body guidance.
 - If creation supports a template parameter, use it and verify the result;
   otherwise incorporate required content and applicable properties explicitly.
 
