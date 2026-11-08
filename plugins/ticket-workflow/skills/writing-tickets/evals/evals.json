@@ -33,6 +33,53 @@
         "Uses plain action-and-result language rather than abstract quality claims",
         "Returns only the requested draft and does not publish or prescribe unrelated work"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Draft a GitHub issue for fictional acme/billing using the supplied repository context; do not contact any service, create files, or publish. The default branch's applicable invoice bug form requires sections 'Observed result', 'Expected result', and 'Release', the marker <!-- billing-intake -->, the existing label billing-bug, and a checkbox 'I reproduced this myself'. The owner's public .github repository has a generic template, but this repository has its own form. Since v2.3, clicking Save twice quickly creates two invoices; customer support reported it with an admin account in Chrome. I have not reproduced it personally. No assignee, priority convention, or estimate is established. Return the title, body, metadata proposals, and any publication blockers.",
+      "expected_output": "Uses the repository form rather than an inherited or generic template, preserving its required sections, release, and marker. Keeps billing-bug as metadata, does not falsely check personal reproduction, and distinguishes the reported duplicate-invoice behavior from unknown cause and unestablished metadata. Returns a draft without external effects.",
+      "assertions": [
+        "Uses Observed result, Expected result, and Release rather than replacing the repository form with a generic or inherited template",
+        "Preserves v2.3 and the <!-- billing-intake --> marker in the body and billing-bug as metadata",
+        "Keeps the required personal-reproduction checkbox unresolved before publication and does not recommend CLI/API creation to bypass that requirement",
+        "Does not invent an assignee, priority convention, estimate, or root cause",
+        "Does not publish, contact external services, or claim that an issue was created"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Draft an update to fictional Linear issue CAL-42 in the Scheduling workspace, Calendar team. Use only these supplied facts; do not contact services, create files, or publish. CAL-42 accepts February 30 in the booking form and fails only after submission; the outcome is to reject impossible dates before booking. The explicitly selected applicable team template 'Calendar defect' requires sections 'Customer effect' and 'Acceptance' and defaults to existing label calendar-bug, priority Medium, and project Booking reliability. Estimates are disabled. The current issue's assignee is Mina (user-17), it is a child of CAL-10, and it blocks CAL-50. The workspace's generic template has different headings and no team label. A suggested implementation is a new date helper, but no approach is agreed. Return the updated title/body and intended metadata and relationships.",
+      "expected_output": "Uses the selected team template and its established properties without replacing them with the workspace generic template. Preserves the current assignee and both relationships. Keeps estimates unset and states the desired behavior without making the tentative date helper a requirement. Returns an unposted update draft.",
+      "assertions": [
+        "Uses Customer effect and Acceptance and describes rejecting impossible booking dates",
+        "Retains calendar-bug, Medium, and Booking reliability as established template metadata rather than inventing replacements",
+        "Preserves Mina (user-17), parent CAL-10, and the blocking relation to CAL-50",
+        "Leaves estimates unset without enabling them or assigning zero",
+        "Does not make the tentative date helper a required implementation or publish the draft"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Prepare a GitHub issue draft for fictional acme/calendar from these supplied facts only. The booking form accepts February 30 and fails after submission; it should reject impossible dates before booking. Template lookup on the default branch failed with access denied, and no template contents or required fields are available. Existing issue search found acme/calendar#27 describing this same problem; #27 is already synchronized to Linear CAL-27. I only want a draft for now. Do not contact any service or create files. Return the draft or proposed update and explain any material limitations.",
+      "expected_output": "Proposes reusing or updating the existing issue without creating independent GitHub or Linear duplicates. Discloses that template lookup failed rather than claiming no template exists and keeps required template fields unresolved before publication. Preserves the desired outcome and does not claim to have published or changed sync.",
+      "assertions": [
+        "Proposes reusing, linking, or updating acme/calendar#27 instead of filing a duplicate",
+        "Respects the existing CAL-27 sync without proposing an independent counterpart or integration change",
+        "Discloses access-denied template lookup and does not equate it with no applicable template",
+        "Identifies unresolved template requirements as a publication limitation while still supplying a useful draft or proposed update",
+        "Does not publish, contact external services, create files, or claim any tracker mutation"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Draft a Linear issue for the Payments team in fictional workspace Acme. Use only the supplied context and do not contact services or publish. No template was explicitly selected. Payments has no team template, but the applicable workspace template 'Defect' requires the sections 'Impact' and 'Acceptance'. Invoice emails arrive 30 minutes after invoices are sent; the agreed outcome is delivery within 2 minutes. No cause, assignee, priority, estimate, project, or milestone is established. Return the draft and any justified metadata proposals; do not invent missing values.",
+      "expected_output": "Uses the applicable workspace Defect template rather than the bundled default body despite the lack of a team template or explicit template selection. Preserves Impact and Acceptance, the observed 30-minute delay, and the agreed 2-minute delivery outcome without inventing metadata or a fix. Does not contact services or publish.",
+      "assertions": [
+        "Uses the workspace template's Impact and Acceptance sections rather than replacing them with the bundled default format",
+        "States both the observed 30-minute delay and the agreed delivery outcome within 2 minutes",
+        "Does not invent a cause, implementation requirement, assignment, priority, estimate, project, or milestone",
+        "Does not contact services, publish, or claim that a ticket was created"
+      ]
     }
   ]
 }

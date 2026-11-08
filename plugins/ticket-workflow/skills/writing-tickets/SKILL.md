@@ -25,26 +25,26 @@ creation or editing, also read the matching language skill if listed.
    implementation, branches, nor PRs. When allowed to report unrelated work,
    offer a draft, not expanded scope; publish only on request. Respect
    focused-review exclusions.
-2. **Find context.** Identify the repository or Linear team and primary tracker
-   from the request and project guidance. Do not copy tickets to both platforms
-   or set up sync; respect existing sync. Read relevant tickets, discussion,
-   evidence, and guidance. Before creation, search for the problem; reuse or
-   link an existing issue instead of duplicating or rewriting someone else's.
-3. **Choose the format.** Read applicable references:
-   - [Bug](references/bug.md): behavior differs from product, documentation,
-     or contract promises, including regressions.
-   - [Parent](references/parent.md): independently completable parts share a
-     goal, or a parent, epic, or project is created or split.
-   - [GitHub Issues](references/github-issue.md) or [Linear](references/linear.md):
-     the selected platform's templates, metadata, relationships, and publishing.
+2. **Find context.** Confirm the repository or Linear workspace/team and primary
+   tracker from the request and project guidance. Read the selected platform's
+   differences: [GitHub Issues](references/github-issue.md) or
+   [Linear](references/linear.md). Read relevant tickets, discussion, evidence,
+   and guidance. Before creation, search that scope and inspect likely
+   duplicates; reuse or link existing issues without rewriting someone else's.
+   Respect existing sync; do not create independent counterparts or set up sync.
+3. **Choose the format.** Read [Bug](references/bug.md) for behavior differing
+   from product, documentation, or contract promises, including regressions.
+   Read [Parent](references/parent.md) when independently completable parts share
+   a goal, or a parent, epic, or project is created or split. Other kinds need
+   no kind reference.
 
-   Feature requests, maintenance, and investigations need no kind reference.
    Under project rules, prefer an explicitly requested applicable template,
-   then the applicable repository, team, or issue-type template; otherwise use
-   [body guidance](assets/ticket-body.md). Keep required fields and automation
-   markers; apply these principles within the format, not a second template.
-   Disclose unavailable template lookup in a draft, distinguish it from finding
-   none, and resolve required fields before publishing.
+   then the applicable repository, team, or issue-type template; use
+   [body guidance](assets/ticket-body.md) only when none applies. Clarify
+   materially different template choices. Inspect content and properties; keep
+   required fields, metadata, and automation markers within that format, not a
+   second template. Disclose failed lookup, not template absence, in drafts.
+   Resolve required fields before publishing; CLI/API creation does not waive them.
 4. **Write.** Use a short problem or purpose title. Select relevant facts, not
    source notes. If the title communicates the request, omit the body unless
    required; otherwise add only what the title leaves unclear:
@@ -66,9 +66,10 @@ creation or editing, also read the matching language skill if listed.
 5. **Scope and connect.** Aim for one problem and coherent outcome; split parts
    independently prioritized, deferred, or completed. Never split code, needed
    tests, and required docs just for size; file counts and time are not criteria.
-   Read relationships before changing them. For genuine uncertainty, name the
-   question and needed decision or deliverable; do not promise the eventual
-   feature or stop at "investigate".
+   Read and preserve existing relationships; use supported operations for
+   parent/child and dependency links, not just prose. For genuine uncertainty,
+   name the question and needed decision or deliverable; do not promise the
+   eventual feature or stop at "investigate".
 
    The normal flow is ticket, work, PR; establish the issue ID before naming a
    branch. For those tasks use `git-workflow`'s `naming-branches` and
@@ -77,18 +78,35 @@ creation or editing, also read the matching language skill if listed.
    and PRs need not be one-to-one. Reference partial work without closing; use
    completion links only when the outcome is fulfilled under actual tracker
    automation, not while deployment or verification remains.
-6. **Review metadata** with [Metadata](references/metadata.md). When publication
-   is authorized, apply established values and project-supported choices;
-   never silently promote proposals to assignments or commitments, or create
-   labels, fields, milestones, or projects merely to fill the ticket. Disclose
-   fields tools cannot read or write rather than claiming absence or success.
+6. **Review metadata.** Inspect actual fields, allowed values, template defaults,
+   and repository/team conventions. Apply explicit choices and established rules
+   before proposing grounded candidates for missing values:
+   - **Labels/type:** use existing classifications fitting the problem and area,
+     not every possible match or near-duplicates.
+   - **Assignee:** use explicit assignment or established ownership, not an
+     assumption that the reporter/current user owns it; other owners are proposals.
+   - **Priority:** use known impact, severity, and time constraints on the team's
+     scale; a bug is not automatically urgent.
+   - **Estimate:** use the actual scale and defensible scope; leave unset when
+     investigation or assignee judgment is needed. Unknown is not zero; points
+     are not hours unless the team defines them so.
+   - **Project/milestone:** use existing destinations whose goals and scope fit
+     the outcome, not just similar names; an unresolved project leaves its
+     milestone unresolved.
+
+   Keep metadata separate from the body unless the template requires it. Give
+   brief reasons for proposals; leave optional unknowns unset and batch only
+   required or consequential questions that context cannot resolve. Resolve
+   ambiguous identities before publication. Do not turn proposals into
+   assignments or commitments, or create labels, fields, milestones, or projects
+   merely to fill a ticket. Disclose fields tools cannot read or write.
 7. **Deliver.** Return a draft's title, needed body, metadata proposals,
-   relations, and material questions; omit empty categories. Do not invent an ID
-   or imply publication. For authorized creation or update, apply the template
-   and established metadata; preserve unrelated content and properties. Read back
-   the issue and separately stored project fields to confirm destination,
-   content, metadata, and relationships. Report the real ID, URL, and
-   incomplete actions; never call a draft published.
+   relations, and material questions; omit empty categories and invent no ID.
+   For authorized creation or update, apply the template and established
+   metadata; preserve unrelated content and properties. Read back the issue,
+   relationships, and separately stored fields to confirm each intended result.
+   Report the real ID, URL, incomplete actions, and unapplied recommendations
+   separately; never call a draft or failed action published.
 
 ## Gotchas
 
