@@ -87,8 +87,9 @@ changes.
   the same change if needed. Never leave an active requirement only in an ADR;
   ADRs link to current instructions rather than duplicate commands or values.
 * Write documentation in English. Korean translations of skill documents
-  are allowed only as described in
-  [Translations](CONTRIBUTING.md#translations).
+  and the root README are allowed only as described in
+  [Translations](CONTRIBUTING.md#translations); a `README.md` change updates
+  `README.ko.md` in the same pull request.
 * When creating or updating a README, follow the
   [documentation checklist](CONTRIBUTING.md#writing-documentation) and its linked
   Standard Readme specification.

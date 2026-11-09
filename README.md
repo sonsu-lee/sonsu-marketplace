@@ -1,5 +1,7 @@
 # sonsu-marketplace
 
+English | [한국어](README.ko.md)
+
 Personal plugin marketplace for omp, Codex, and Claude Code.
 
 [omp](https://github.com/can1357/oh-my-pi) reads `.omp-plugin/marketplace.json`;
