@@ -18,7 +18,7 @@ and plugin READMEs. Its recognizable section names and ordering provide familiar
 navigation while leaving room for marketplace-specific instructions. Omit
 optional sections that add no value, and keep decision rationale in ADRs.
 
-The [README's documentation guidance](../../README.md#writing-documentation)
+The [contributor guide's documentation guidance](../../CONTRIBUTING.md#writing-documentation)
 owns the authoring and review checklist, including language, required sections,
 navigation, examples, and license information. It uses the
 [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)

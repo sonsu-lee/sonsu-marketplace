@@ -36,8 +36,8 @@ Run model evaluations locally with subscription logins in dedicated test
 client homes, never in this repository's CI. Record each run's profile and
 results in the pull request. CI runs only checks that need no credentials,
 such as plugin catalogs, skill format, installation, discovery, and loading.
-The current procedure is in the README's
-[testing section](../../README.md#testing-a-plugin).
+The current procedure is in the contributor guide's
+[testing section](../../CONTRIBUTING.md#testing-a-plugin).
 
 This keeps subscription credentials on the maintainer's machine and out of
 anything public, and uses the existing subscriptions instead of paid API usage.

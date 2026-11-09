@@ -56,8 +56,8 @@ bound by the Codex test account's usage limit.
 - Manual scenario checks keep their scope, behavior across plugins, client
   settings, or installation, in each client, once per scenario by default.
 
-The current procedure is in the README's
-[Evaluating skills](../../README.md#evaluating-skills) section.
+The current procedure is in the contributor guide's
+[Evaluating skills](../../CONTRIBUTING.md#evaluating-skills) section.
 
 ## Rejected alternatives
 

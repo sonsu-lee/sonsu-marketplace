@@ -57,5 +57,5 @@ an unchanged choice does not.
 
 [fowler]: https://martinfowler.com/bliki/ArchitectureDecisionRecord.html
 [evolu]: https://github.com/evoluhq/evolu/blob/bb2644275dd99ff6dce4744db578967699045ea3/docs/adr/template.md
-[procedure]: ../../README.md#decision-records
+[procedure]: ../../CONTRIBUTING.md#decision-records
 [skill]: ../../plugins/decision-workflow/skills/writing-adrs/SKILL.md

@@ -291,8 +291,8 @@ upstream notice and revision reference when updating them.
 
 Pull requests are welcome. Report issues in the
 [marketplace issue tracker](https://github.com/sonsu-lee/sonsu-marketplace/issues).
-Follow the [plugin procedure](../../README.md#adding-a-plugin), independent
-skill review and [client verification](../../README.md#testing-a-plugin).
+Follow the [plugin procedure](../../CONTRIBUTING.md#adding-a-plugin), independent
+skill review and [client verification](../../CONTRIBUTING.md#testing-a-plugin).
 
 ### Verification
 
@@ -314,7 +314,7 @@ only operator UI choices and deterministic interruption timing. Inspect an
 actual rendered capture separately; these tests do not prove visual quality.
 
 Evaluate each skill with the repository's
-[skill evaluation procedure](../../README.md#evaluating-skills), using the
+[skill evaluation procedure](../../CONTRIBUTING.md#evaluating-skills), using the
 cases in its `evals/` directory and `--baseline without`, since these skills
 have no earlier version on `origin/main`. Review outputs as well as pass
 rates. Model runs remain local, never in CI.

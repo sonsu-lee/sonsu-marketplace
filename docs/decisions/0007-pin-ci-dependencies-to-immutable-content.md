@@ -34,8 +34,8 @@ repository root, because the marketplace itself is not a Node project.
 
 Runtime patch releases are the one deliberate exception: CI takes the latest
 patch of the pinned Node.js major so security fixes arrive without a change.
-The [README's CI section](../../README.md#running-checks-in-ci) owns the
-current files, versions, and update steps.
+The [contributor guide's CI section](../../CONTRIBUTING.md#running-checks-in-ci)
+owns the current files, versions, and update steps.
 
 ## Rejected alternatives
 

@@ -38,11 +38,11 @@ omp's marketplace location.
 
 If neither format can express a required capability, an individual plugin may
 use the omp-only format and document that exception. The
-[README's layout](../../README.md#layout) and
-[plugin-authoring procedure](../../README.md#adding-a-plugin) own component
+[contributor guide's layout](../../CONTRIBUTING.md#layout) and
+[plugin-authoring procedure](../../CONTRIBUTING.md#adding-a-plugin) own component
 locations, manifest fields, supported substitutions, and alternatives for
 omp-only features. Use the
-[plugin test procedure](../../README.md#testing-a-plugin) for new packages.
+[plugin test procedure](../../CONTRIBUTING.md#testing-a-plugin) for new packages.
 
 ## Rejected alternatives
 
