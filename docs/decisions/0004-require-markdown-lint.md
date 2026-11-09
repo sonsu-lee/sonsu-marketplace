@@ -18,7 +18,7 @@ package manifest. Require it before pushing for every added or modified
 Markdown file, across all maintained document types, rather than reformatting
 unrelated files. Do not add automatic formatting.
 
-The [README's documentation guidance](../../README.md#writing-documentation)
+The [contributor guide's documentation guidance](../../CONTRIBUTING.md#writing-documentation)
 owns the Node.js prerequisite, pinned command, file selection, and separate
 link and rendering checks. [AGENTS.md](../../AGENTS.md) makes those checks
 mandatory for agents.

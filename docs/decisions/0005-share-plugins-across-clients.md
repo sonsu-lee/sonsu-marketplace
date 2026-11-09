@@ -41,9 +41,9 @@ are the current application of the approach. Claude Code shows that client
 metadata can include a package-level manifest when a client would otherwise
 load another client's components; it is not a second package tree. Keep actual
 support scope, client procedures, and verification
-requirements in the [layout](../../README.md#layout),
-[plugin-authoring procedure](../../README.md#adding-a-plugin), and
-[test procedure](../../README.md#testing-a-plugin). This proposal extends
+requirements in the [layout](../../CONTRIBUTING.md#layout),
+[plugin-authoring procedure](../../CONTRIBUTING.md#adding-a-plugin), and
+[test procedure](../../CONTRIBUTING.md#testing-a-plugin). This proposal extends
 ADR-0002's portability direction; it does not replace its packaging choice or
 change its accepted status.
 

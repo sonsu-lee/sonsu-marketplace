@@ -70,8 +70,8 @@ The repository runners, their case format, the calibration fixtures, and the
 model profile file are removed; the README lists the evaluation models instead.
 The model-free packaging checks and ADR-0006's local runs in dedicated homes
 stay. The current procedure, including when each loop runs and what a pull
-request reports, is in the README's
-[Evaluating skills](../../README.md#evaluating-skills) section.
+request reports, is in the contributor guide's
+[Evaluating skills](../../CONTRIBUTING.md#evaluating-skills) section.
 
 ## Rejected alternatives
 

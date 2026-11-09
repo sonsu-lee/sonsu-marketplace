@@ -161,6 +161,7 @@ All clients share criteria and bounded follow-up rules, with separate execution
 references. Instructions are not permission enforcement, CI checks, or a
 replacement for required human review. Unavailable independent workers mean an
 incomplete review, not permission to silently substitute a sequential pass.
+The plugin does not install hooks.
 
 ## Guides
 
@@ -181,11 +182,12 @@ incomplete review, not permission to silently substitute a sequential pass.
 
 Pull requests are welcome. Ask questions or report problems in
 [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues).
-Follow the repository's [authoring](../../README.md#adding-a-plugin),
-[documentation](../../README.md#writing-documentation), and
-[testing](../../README.md#testing-a-plugin) procedures. Use temporary homes and
-isolated repositories for checks; do not publish fixtures to a real project.
-Report only checks actually exercised, separately from unverified behavior.
+Follow the repository's [authoring](../../CONTRIBUTING.md#adding-a-plugin),
+[documentation](../../CONTRIBUTING.md#writing-documentation), and
+[testing](../../CONTRIBUTING.md#testing-a-plugin) procedures. Use temporary
+homes and isolated repositories for checks; do not publish fixtures to a real
+project. Report only checks actually exercised, separately from unverified
+behavior.
 
 ## License
 

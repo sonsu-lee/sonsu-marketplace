@@ -1,7 +1,7 @@
 # AGENTS.md
 
 This repository is a shared omp, Codex, and Claude Code plugin marketplace.
-Use the current procedures in the README and skills below. Identify which
+Use the current procedures in `CONTRIBUTING.md` and the skills below. Identify which
 requirements apply to the task and read their linked procedures before making
 changes.
 
@@ -13,7 +13,7 @@ changes.
   to coordinate review, cleanup, and validation of the final revision.
 
 * Add or change plugins, including support for another client, using the
-  [plugin-authoring procedure](README.md#adding-a-plugin). Keep shared sources
+  [plugin-authoring procedure](CONTRIBUTING.md#adding-a-plugin). Keep shared sources
   and client-specific execution separate, and verify each added client.
 * When creating, revising, or reviewing skills, follow the
   [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md),
@@ -25,20 +25,20 @@ changes.
   along with its Claude Code catalog entry or `.claude-plugin/plugin.json`.
   Keep all client catalogs pointed at the same package directories.
 * After changing a plugin, run the model-free checks in the
-  [plugin test procedure](README.md#testing-a-plugin) for every client.
+  [plugin test procedure](CONTRIBUTING.md#testing-a-plugin) for every client.
   Require every expected skill exactly once without loading errors; omp
   discovery must have no `warning:` lines. Listing is not proof of execution.
 * When a change alters a skill's behavior or description, evaluate it in omp
-  with the [skill evaluation procedure](README.md#evaluating-skills), which
+  with the [skill evaluation procedure](CONTRIBUTING.md#evaluating-skills), which
   follows the Agent Skills guides for case counts and repetitions, and run the
-  applicable [manual scenario checks](README.md#manual-scenario-checks):
+  applicable [manual scenario checks](CONTRIBUTING.md#manual-scenario-checks):
   output evals against the previous version and trigger evals when the
   description changes, with the model listed there. Run model checks
   locally, never in CI or with credentials in repository secrets, and report
   the model, runs per configuration, and results in the pull request.
 * When changing the `evaluating-skills` scripts or any skill's `evals/` files,
   run the model-free regression tests in
-  [Evaluating skills](README.md#evaluating-skills).
+  [Evaluating skills](CONTRIBUTING.md#evaluating-skills).
 * Use dedicated test client homes: `HOME` for omp, both `HOME` and
   `CODEX_HOME` for Codex, and both `HOME` and `CLAUDE_CONFIG_DIR` for Claude
   Code. They may persist between runs to keep their test logins. Do not
@@ -64,14 +64,14 @@ changes.
   tickets. Use ticket, work, then PR as the normal development flow; follow the
   branch and PR skills for downstream work.
 * When reviewing code, a diff, or a PR, or responding to feedback, follow the
-  [review procedure](README.md#code-review) and the Code Review Rules below.
+  [review procedure](CONTRIBUTING.md#code-review) and the Code Review Rules below.
   Requested omp, Codex, and Claude Code plugin reviews use the linked common
   skill and the corresponding client execution reference; explicit native-only
   requests retain the native procedure and output. Results stay local unless
   publication is explicitly requested.
 * When deciding whether to write an ADR, or drafting, reviewing, or replacing
-  one, follow the [decision-record procedure](README.md#decision-records) and
-  its [ADR skill](plugins/decision-workflow/skills/writing-adrs/SKILL.md).
+  one, follow the [decision-record procedure](CONTRIBUTING.md#decision-records)
+  and its [ADR skill](plugins/decision-workflow/skills/writing-adrs/SKILL.md).
   Record direction-setting or consequential design choices, not every shared
   rule, implementation step, or operational change. Keep proposals together
   until the decision-maker accepts them; implementation completion is not
@@ -79,26 +79,27 @@ changes.
   decision changes, not merely when it is reconsidered.
   The procedure documents the one-time ADR-0001 consolidation and ADR-0002
   through ADR-0004 format migration; do not infer permission for further resets.
-* Keep current procedures in the README and relevant skills, and executable
-  rules in configuration files. When adding or changing a requirement, update
-  its operational source and ensure this file identifies when it applies and
-  which procedure to follow. Add or adjust that routing in the same change if
-  needed. Never leave an active requirement only in an ADR; ADRs link to current
-  instructions rather than duplicate commands or values.
+* Keep current procedures in the owning document listed in
+  [Document ownership](CONTRIBUTING.md#document-ownership) and in relevant
+  skills, and executable rules in configuration files. When adding or changing
+  a requirement, update its operational source and ensure this file identifies
+  when it applies and which procedure to follow. Add or adjust that routing in
+  the same change if needed. Never leave an active requirement only in an ADR;
+  ADRs link to current instructions rather than duplicate commands or values.
 * Write documentation in English. Korean translations of skill documents
   are allowed only as described in
-  [Translations](README.md#translations).
+  [Translations](CONTRIBUTING.md#translations).
 * When creating or updating a README, follow the
-  [documentation checklist](README.md#writing-documentation) and its linked
+  [documentation checklist](CONTRIBUTING.md#writing-documentation) and its linked
   Standard Readme specification.
 * When adding or changing a GitHub Actions workflow, follow the pinning rules
-  in [Running checks in CI](README.md#running-checks-in-ci): actions by commit
+  in [Running checks in CI](CONTRIBUTING.md#running-checks-in-ci): actions by commit
   SHA, and CLI tools from the committed lockfile in `.github/ci-clients`.
 * Before pushing Markdown changes, run the pinned Markdown lint command in
-  the [documentation procedure](README.md#writing-documentation) on every added
-  or modified Markdown file, including agent instructions and skills. Fix all
-  reported errors and check links and rendered Markdown separately. CI runs
-  the same command on changed Markdown, but does not replace the local run.
+  the [documentation procedure](CONTRIBUTING.md#writing-documentation) on every
+  added or modified Markdown file, including agent instructions and skills.
+  Fix all reported errors and check links and rendered Markdown separately. CI
+  runs the same command on changed Markdown, but does not replace the local run.
 * Before delivery, confirm that every applicable check above was completed.
   Report any verification blockers explicitly; do not describe unchecked work
   as verified.

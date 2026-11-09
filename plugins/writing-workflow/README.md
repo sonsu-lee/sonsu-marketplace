@@ -151,12 +151,12 @@ language. Source licenses are bundled with each skill.
 
 Questions and pull requests are welcome in the
 [marketplace repository](https://github.com/sonsu-lee/sonsu-marketplace/issues).
-Follow its [authoring and testing procedures](../../README.md#adding-a-plugin).
+Follow its [authoring and testing procedures](../../CONTRIBUTING.md#adding-a-plugin).
 Keep upstream notices and revision references when updating an adaptation.
 Use separate temporary homes: `HOME` for omp, `HOME` and `CODEX_HOME` for
 Codex, and `HOME` and `CLAUDE_CONFIG_DIR` for Claude Code. Never install test
 plugins into live clients or copy real settings or credentials. Follow the root
-[test procedure](../../README.md#testing-a-plugin)
+[test procedure](../../CONTRIBUTING.md#testing-a-plugin)
 for discovery, model access, and missing-resource checks. Exercise prose and
 protected-content boundaries separately from format and discovery.
 
