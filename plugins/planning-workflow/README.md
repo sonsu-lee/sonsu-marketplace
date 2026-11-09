@@ -1,5 +1,7 @@
 # planning-workflow
 
+English | [한국어](README.ko.md)
+
 Plan non-trivial work and coordinate authorized execution through independent
 review and final validation.
 

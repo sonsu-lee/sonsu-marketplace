@@ -22,7 +22,8 @@ changes.
   [omp review execution reference](plugins/review-workflow/skills/reviewing-code/references/omp.md).
 * Raise the plugin's root `plugin.json` version and matching
   `.omp-plugin/marketplace.json` version together with every plugin change,
-  along with its Claude Code catalog entry or `.claude-plugin/plugin.json`.
+  along with its Claude Code catalog entry or `.claude-plugin/plugin.json`,
+  except a change limited to the plugin's own `README.md` and `README.ko.md`.
   Keep all client catalogs pointed at the same package directories.
 * After changing a plugin, run the model-free checks in the
   [plugin test procedure](CONTRIBUTING.md#testing-a-plugin) for every client.
@@ -86,10 +87,10 @@ changes.
   when it applies and which procedure to follow. Add or adjust that routing in
   the same change if needed. Never leave an active requirement only in an ADR;
   ADRs link to current instructions rather than duplicate commands or values.
-* Write documentation in English. Korean translations of skill documents
-  and the root README are allowed only as described in
-  [Translations](CONTRIBUTING.md#translations); a `README.md` change updates
-  `README.ko.md` in the same pull request.
+* Write documentation in English. Korean translations of skill documents,
+  the root README, and plugin READMEs are allowed only as described in
+  [Translations](CONTRIBUTING.md#translations); a change to a translated
+  `README.md` updates its `README.ko.md` in the same pull request.
 * When creating or updating a README, follow the
   [documentation checklist](CONTRIBUTING.md#writing-documentation) and its linked
   Standard Readme specification.

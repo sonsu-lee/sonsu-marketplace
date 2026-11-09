@@ -1,5 +1,7 @@
 # ticket-workflow
 
+English | [한국어](README.ko.md)
+
 Write small, outcome-centered GitHub and Linear tickets while leaving
 implementation to the assignee.
 

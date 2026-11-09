@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Fail when a plugin changed since a base revision without a version bump.
 
-`AGENTS.md` requires raising a plugin's version with every change to it.
-`check_plugins.py` already checks that the manifests and catalogs agree, so
-comparing the root `plugin.json` with the base revision is enough here. A
-plugin that does not exist at the base is new and needs no bump.
+`AGENTS.md` requires raising a plugin's version with every change to it,
+except changes limited to the plugin's own `README.md` and `README.ko.md`,
+which clients do not load. `check_plugins.py` already checks that the
+manifests and catalogs agree, so comparing the root `plugin.json` with the
+base revision is enough here. A plugin that does not exist at the base is new
+and needs no bump.
 """
 
 from __future__ import annotations
@@ -47,7 +49,8 @@ def main() -> int:
     failed = False
     for plugin in plugins:
         prefix = f"plugins/{plugin}/"
-        if not any(path.startswith(prefix) for path in changed):
+        readmes = {f"{prefix}README.md", f"{prefix}README.ko.md"}
+        if not any(path.startswith(prefix) and path not in readmes for path in changed):
             continue
         old = git("show", f"{base}:{prefix}plugin.json")
         if old.returncode != 0:
