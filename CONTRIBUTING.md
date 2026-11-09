@@ -113,8 +113,8 @@ actual review results, narrowing or removing rules that produce noise.
 
 ## Writing documentation
 
-Write documentation in English, except the Korean skill translations described
-in [Translations](#translations), and follow the
+Write documentation in English, except the Korean translations described in
+[Translations](#translations), and follow the
 [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
 when creating or updating README files, as recorded in
 [ADR-0003](docs/decisions/0003-use-standard-readme.md).
@@ -232,6 +232,24 @@ templates that skills copy into output, or `evals/` files.
   Renaming or deleting a source renames or deletes its translation in the same
   change.
 - Translations follow the same Markdown lint as other files.
+
+The root `README.md` may also have a Korean translation, `README.ko.md`; no
+other README or document is translated. The rules above apply with these
+differences:
+
+- Start with the title, then the language line, then this notice without a
+  commit: same-change updates keep the files in step, and squash merges would
+  invalidate a recorded hash:
+
+  ```markdown
+  > 영문 정본: [README.md](README.md). 사람이 읽기 위한 번역본이며 내용이 다르면
+  > 영문판을 따른다.
+  ```
+
+- Both files link to each other with a language line under the title.
+- Updating the translation is required: a change to `README.md` updates
+  `README.ko.md` in the same pull request, because outdated installation steps
+  mislead users.
 
 ## Decision records
 
