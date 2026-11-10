@@ -233,8 +233,9 @@ templates that skills copy into output, or `evals/` files.
   change.
 - Translations follow the same Markdown lint as other files.
 
-The root `README.md` may also have a Korean translation, `README.ko.md`; no
-other README or document is translated. The rules above apply with these
+The root `README.md` and each plugin's `plugins/<plugin>/README.md` may also
+have a Korean translation, `README.ko.md`, in the same directory; no other
+README or document is translated. The rules above apply with these
 differences:
 
 - Start with the title, then the language line, then this notice without a
@@ -247,9 +248,9 @@ differences:
   ```
 
 - Both files link to each other with a language line under the title.
-- Updating the translation is required: a change to `README.md` updates
-  `README.ko.md` in the same pull request, because outdated installation steps
-  mislead users.
+- Updating the translation is required: a change to a translated `README.md`
+  updates its `README.ko.md` in the same pull request, because outdated
+  installation steps mislead users.
 
 ## Decision records
 
@@ -454,7 +455,9 @@ Document responsibilities, including what ADRs own, are in
    authentication dependencies nor automatic installation.
 
    Raise `version` in the root manifest, the omp catalog, and the Claude Code
-   catalog entry or manifest together on every plugin change.
+   catalog entry or manifest together on every plugin change, except a change
+   limited to the plugin's own `README.md` and `README.ko.md`: clients do not
+   load them, so a reinstall changes no behavior.
    `omp plugin upgrade` and `claude plugin update` only reinstall changed
    versions. Codex uses package metadata; do not duplicate versions, omp
    `owner`, or marketplace `metadata` in its catalog.
@@ -750,8 +753,9 @@ secrets, and enforces the agreed rules a machine can check:
 - `markdown`: the pinned Markdown lint command above on added or modified
   Markdown files.
 - `versions`: `scripts/check_version_bumps.py <base>` fails when files under a
-  plugin changed but its `plugin.json` version did not; the `catalogs` check
-  keeps the catalogs equal to that version.
+  plugin, other than its own `README.md` and `README.ko.md`, changed but its
+  `plugin.json` version did not; the `catalogs` check keeps the catalogs equal
+  to that version.
 - `writing-workflow-tests` and `git-workflow-tests`: the behavior tests below,
   when files under those plugins change.
 - `script-tests`: the model-free tests in `scripts/tests`, when files under

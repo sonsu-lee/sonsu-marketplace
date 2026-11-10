@@ -1,5 +1,7 @@
 # decision-workflow
 
+English | [한국어](README.ko.md)
+
 Select consequential design decisions and write lightweight ADRs using
 repository conventions first.
 

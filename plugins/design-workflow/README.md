@@ -1,5 +1,7 @@
 # design-workflow
 
+English | [한국어](README.ko.md)
+
 Design and review interfaces and graphics with scoped evidence and an optional
 omp verification harness.
 
