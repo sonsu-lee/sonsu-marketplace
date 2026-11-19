@@ -629,9 +629,8 @@ secrets, and enforces the agreed rules a machine can check:
   in the SDK regression are simulated; visual quality is still human judgment.
 
 The `pr-title` workflow checks the pull request title, which becomes the squash
-commit subject, with the
-[writing-commits defaults](plugins/git-workflow/skills/writing-commits/SKILL.md),
-since this repository has no commitlint configuration of its own. The rule
+commit subject, using the bundled commitlint configuration. This repository has
+no commitlint configuration of its own. The rule
 checks compare against the pull request's merge base or the pushed range, and
 skip on manual runs.
 
@@ -655,11 +654,12 @@ For changes to `git-workflow` validation, also run its behavior tests:
 
 ```sh
 node --test plugins/git-workflow/tests/commitlint.test.mjs \
+  plugins/git-workflow/tests/committed.test.mjs \
   plugins/git-workflow/tests/branch-validation.test.mjs
 ```
 
-The tests run the pinned commitlint and commit-check CLIs through `npx` and
-`uvx` in temporary Git repositories. After installing the plugin into a
+The tests run the pinned commitlint, committed, and commit-check CLIs through
+`npx` and `uvx`. After installing the plugin into a
 temporary `HOME`, also exercise both skills' validation procedures from a
 separate repository using their installed assets and reference guides. Verify
 repository-owned executables, versions, and configuration remain in use when

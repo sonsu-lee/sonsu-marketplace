@@ -1,7 +1,7 @@
 name: pr-title
 
-# The PR title becomes the squash commit subject, so it follows the
-# writing-commits defaults; this repository has no commitlint configuration.
+# The PR title becomes the squash commit subject; this repository uses the
+# bundled commitlint configuration and has no separate commitlint configuration.
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]

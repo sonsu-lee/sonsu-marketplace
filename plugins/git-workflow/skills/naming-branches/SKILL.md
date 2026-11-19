@@ -32,13 +32,13 @@ Use [Conventional Branch 1.1.0](https://conventionalbranch.org/v1.1.0/spec.json)
 
 | Type | Use for |
 | --- | --- |
-| `feat` | New features or enhancements |
+| `feature` | New features or enhancements |
 | `bugfix` | Bug fixes |
 | `hotfix` | Urgent production fixes |
 | `release` | Release preparation |
 | `chore` | Maintenance: dependencies, docs, CI, and refactoring |
 
-* **Type:** use `feat`, not `feature`, and `bugfix`, not `fix`. Choose the
+* **Type:** use `feature`, not `feat`, and `bugfix`, not `fix`. Choose the
   purpose of the whole branch, not an individual commit's type. Commit
   messages retain their own conventions, including `fix`.
 * **Description:** keep it concise and specific. Use lowercase ASCII letters,
@@ -79,7 +79,7 @@ Report blockers rather than claim an unchecked name passed.
 ## Examples
 
 ```text
-feat/eng-123-add-login-page
+feature/eng-123-add-login-page
 bugfix/issue-45-header-overflow
 hotfix/payment-outage
 release/v1.2.0
