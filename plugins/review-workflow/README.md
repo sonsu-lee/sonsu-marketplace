@@ -1,7 +1,5 @@
 # review-workflow
 
-English | [한국어](README.ko.md)
-
 Evidence-driven code review with independent general and focused reviewers and
 local-first reporting.
 
