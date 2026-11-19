@@ -80,7 +80,7 @@ creation or editing, also read the matching language skill if listed.
    automation, not while deployment or verification remains.
 6. **Review metadata.** Inspect actual fields, allowed values, template defaults,
    and repository/team conventions. Apply explicit choices and established rules
-   before proposing grounded candidates for missing values:
+   before proposing grounded candidates:
    - **Labels/type:** use existing classifications fitting the problem and area,
      not every possible match or near-duplicates.
    - **Assignee:** use explicit assignment or established ownership, not an
@@ -94,19 +94,19 @@ creation or editing, also read the matching language skill if listed.
      the outcome, not just similar names; an unresolved project leaves its
      milestone unresolved.
 
-   Keep metadata separate from the body unless the template requires it. Give
-   brief reasons for proposals; leave optional unknowns unset and batch only
-   required or consequential questions that context cannot resolve. Resolve
-   ambiguous identities before publication. Do not turn proposals into
-   assignments or commitments, or create labels, fields, milestones, or projects
-   merely to fill a ticket. Disclose fields tools cannot read or write.
-7. **Deliver.** Return a draft's title, needed body, metadata proposals,
-   relations, and material questions; omit empty categories and invent no ID.
-   For authorized creation or update, apply the template and established
-   metadata; preserve unrelated content and properties. Read back the issue,
-   relationships, and separately stored fields to confirm each intended result.
-   Report the real ID, URL, incomplete actions, and unapplied recommendations
-   separately; never call a draft or failed action published.
+   Keep metadata out of the body unless required. Explain proposals briefly;
+   leave optional unknowns unset and batch only unresolved required or
+   consequential questions. Resolve ambiguous identities before publication.
+   Don't turn proposals into commitments or create metadata to fill a ticket.
+   Never call unreadable fields unset; disclose fields tools cannot read or write.
+7. **Deliver.** Return the draft's title, needed body, metadata proposals,
+   relations, and material questions; distinguish relevant field states, omit
+   empty categories, and invent no ID. Honor title-and-body-only requests.
+   For authorized creation or update, apply template and established metadata;
+   preserve unrelated content and properties. Read back the issue, relationships,
+   and separately stored fields to confirm intended results. Report the real ID,
+   URL, incomplete actions, and unapplied recommendations separately; never
+   call a draft or failed action published.
 
 ## Gotchas
 
