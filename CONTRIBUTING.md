@@ -6,6 +6,17 @@ Pull requests are welcome. Ask questions or report problems in
 when preparing a PR. For plugin changes, follow the authoring and testing
 procedures below.
 
+## Git hooks
+
+Install [Lefthook](https://lefthook.dev/) and [uv](https://docs.astral.sh/uv/)
+and run `lefthook install` in this repository. The commit-message hook checks
+the message with `committed`; the pre-push hook checks the current branch with
+`commit-check`. The first run downloads the pinned tools. Hooks are local and
+can be bypassed; CI independently checks PR titles and source branch names.
+
+Other repositories may adopt Lefthook, but the git-workflow skills do not
+install hooks or change repository settings.
+
 ## Table of Contents
 
 - [Layout](#layout)
@@ -629,7 +640,8 @@ secrets, and enforces the agreed rules a machine can check:
   in the SDK regression are simulated; visual quality is still human judgment.
 
 The `pr-title` workflow checks the pull request title, which becomes the squash
-commit subject, using the bundled `committed` configuration.
+commit subject, using the bundled `committed` configuration, and checks the
+source branch name with `commit-check`.
 
 Model runs stay out of this repository's CI, as
 [ADR-0006](docs/decisions/0006-keep-model-evaluations-local.md) explains: its

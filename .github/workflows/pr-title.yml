@@ -17,3 +17,6 @@ jobs:
       - env:
           TITLE: ${{ github.event.pull_request.title }}
         run: printf '%s\n' "$TITLE" | uvx --from committed==1.1.12 committed --config plugins/git-workflow/skills/writing-commits/assets/committed.toml --commit-file -
+      - env:
+          BRANCH: ${{ github.head_ref }}
+        run: printf '%s\n' "$BRANCH" | uvx --from commit-check==2.19.1 commit-check --branch --config plugins/git-workflow/skills/naming-branches/assets/commit-check.toml
