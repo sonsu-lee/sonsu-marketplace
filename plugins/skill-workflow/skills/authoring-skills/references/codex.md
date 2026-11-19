@@ -30,8 +30,8 @@ and the current [Build skills guide][skills].
   `$skill-workflow:authoring-skills`; a bare `$authoring-skills` does not
   select the plugin skill on `0.163.0`.
 - File existence, `skills/list`, and format validation do not prove loading.
-- Codex ships no evaluation runner; use `evaluating-skills` or project tools.
-  A local request capture proves loading, not behavior.
+- Follow project verification procedures. A local request capture proves
+  loading, not behavior.
 - Without authorized model access, report behavior as unverified. Never claim
   Codex support from another client's run or a text-only review.
 

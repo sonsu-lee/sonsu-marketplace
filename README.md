@@ -147,8 +147,8 @@ source edits take effect at the next session without a version change.
 
 - [git-workflow][git-workflow]: Name branches, write commits, and prepare draft
   pull requests by repository conventions.
-- [skill-workflow][skill-workflow]: Create, refine, evaluate, and independently
-  review focused agent skills, delegating mechanical work to existing tools.
+- [skill-workflow][skill-workflow]: Create, refine, and independently review
+  focused agent skills, delegating mechanical work to existing tools.
 - [ticket-workflow][ticket-workflow]: Write small, outcome-centered GitHub and
   Linear tickets while leaving implementation to the assignee.
 - [decision-workflow][decision-workflow]: Select consequential design decisions
@@ -171,11 +171,7 @@ or workflow.
 
 ## License
 
-[MIT](LICENSE) © sonsu-lee, except
-`plugins/skill-workflow/skills/evaluating-skills/`, which is under the
-[Apache License 2.0](plugins/skill-workflow/skills/evaluating-skills/LICENSE.txt)
-and includes material from Anthropic's
-[skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator).
+[MIT](LICENSE) © sonsu-lee.
 
 [git-workflow]: plugins/git-workflow/README.md
 [skill-workflow]: plugins/skill-workflow/README.md

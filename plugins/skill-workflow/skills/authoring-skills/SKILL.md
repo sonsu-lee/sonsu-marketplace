@@ -53,9 +53,9 @@ existing tools. The target project's authoring requirements come first.
   directly rather than through a new wrapper.
 - **scripts/:** only for logic agents repeatedly reinvent or get wrong, as
   shown by actual runs. See [Using scripts][scripts].
-- **evals/:** evaluation cases. Reuse and link the owning project document for
-  installation, registration, and evaluation procedures instead of duplicating
-  them, unless they are the skill's task.
+- Reuse and link the owning project document for installation, registration,
+  and verification procedures instead of duplicating them, unless those
+  procedures are the skill's task.
 
 ## Write the guidance
 
@@ -90,12 +90,11 @@ existing tools. The target project's authoring requirements come first.
 
 1. **Format and loading:** run the project's checks and the official
    validator. They do not show that the skill helps.
-2. **Behavior:** run the [Agent Skills evaluation loop][evaluation] on
-   `evals/evals.json`, with and without the skill or its previous version.
-   Read [Choosing evaluation](references/evaluation.md) to pick checks and
-   runners.
-3. **Revise** from failed assertions, feedback, and transcripts. Generalize
-   recurring failures with the smallest change, including deletion.
+2. **Behavior:** select checks using
+   [Choosing evaluation](references/evaluation.md), follow project procedures,
+   and inspect actual outcomes and traces.
+3. **Revise** from failures, feedback, and transcripts. Generalize recurring
+   failures with the smallest change, including deletion.
 4. **Review:** for new skills or behavior changes, get an independent
    skill-criteria review, unless you are that reviewer. Give the purpose,
    consumers, changed files, requirements, and review question, not your
@@ -122,5 +121,4 @@ existing tools. The target project's authoring requirements come first.
 [specification]: https://agentskills.io/specification
 [practices]: https://agentskills.io/skill-creation/best-practices
 [descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions
-[evaluation]: https://agentskills.io/skill-creation/evaluating-skills
 [scripts]: https://agentskills.io/skill-creation/using-scripts

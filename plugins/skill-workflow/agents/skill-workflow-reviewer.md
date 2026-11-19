@@ -34,8 +34,8 @@ deletion or the smallest change. Zero findings is valid.
 
 - Scope and assigned question.
 - Findings with evidence.
-- Suggested eval cases for separate execution: a prompt for
-  `evals/evals.json` and a near-miss query for `evals/eval_queries.json`.
+- Suggested cases for separate execution: a representative task and a
+  near-miss request to check behavior and activation.
 - Limitations, separating static reasoning from observed execution and
   incomplete coverage from success.
 

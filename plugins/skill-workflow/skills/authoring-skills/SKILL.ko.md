@@ -41,9 +41,8 @@
 - **기존 도구:** 기계적 실행과 결정론적 검사. 새 래퍼 없이 직접 호출한다.
 - **scripts/:** 실제 실행에서 에이전트가 반복해서 다시 만들거나 틀리는 로직만.
   [스크립트 사용][scripts] 참고.
-- **evals/:** 평가 케이스. 설치, 등록, 평가 절차는 복제하는 대신 해당 절차의
-  기준이 되는 프로젝트 문서를 재사용하고 링크한다. 단, 그 절차 자체가 스킬의
-  작업인 경우는 예외다.
+- 설치, 등록, 검증 절차는 복제하는 대신 해당 절차의 기준이 되는 프로젝트 문서를
+  재사용하고 링크한다. 단, 그 절차 자체가 스킬의 작업인 경우는 예외다.
 
 ## 지침 작성
 
@@ -75,11 +74,10 @@
 
 1. **형식과 로딩:** 프로젝트 검사와 공식 검증기를 실행한다. 스킬이 도움이 되는지는
    보여 주지 않는다.
-2. **동작:** `evals/evals.json`으로 [Agent Skills 평가 루프][evaluation]를 스킬
-   유무 또는 이전 버전과 비교해 실행한다. 검사와 실행기는
-   [평가 선택](references/evaluation.md)을 읽고 고른다.
-3. **개선:** 실패한 assertion, 피드백, transcript로 고친다. 반복되는 실패는 삭제를
-   포함한 가장 작은 변경으로 일반화한다.
+2. **동작:** [평가 선택](references/evaluation.md)을 참고해 검사를 고르고 프로젝트
+   절차를 따라 실제 결과와 trace를 확인한다.
+3. **개선:** 실패, 피드백, transcript로 고친다. 반복되는 실패는 삭제를 포함한
+   가장 작은 변경으로 일반화한다.
 4. **리뷰:** 새 스킬이나 동작 변경은 독립적인 스킬 기준 리뷰를 받는다. 자신이 그
    리뷰어라면 제외한다. 목적, 사용 클라이언트, 바뀐 파일, 요구사항, 리뷰 질문을
    주고 작성자의 근거는 주지 않는다. 디스패치는 한 컨트롤러만 맡는다. omp는
@@ -105,5 +103,4 @@
 [specification]: https://agentskills.io/specification
 [practices]: https://agentskills.io/skill-creation/best-practices
 [descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions
-[evaluation]: https://agentskills.io/skill-creation/evaluating-skills
 [scripts]: https://agentskills.io/skill-creation/using-scripts

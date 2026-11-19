@@ -16,7 +16,6 @@ procedures below.
 - [Decision records](#decision-records)
 - [Adding a plugin](#adding-a-plugin)
 - [Testing a plugin](#testing-a-plugin)
-  - [Evaluating skills](#evaluating-skills)
   - [Manual scenario checks](#manual-scenario-checks)
   - [Running checks in CI](#running-checks-in-ci)
 
@@ -39,8 +38,6 @@ plugins/
     plugin.json               # shared identity, version, standard metadata
     README.md                 # user guide: install, usage, limits
     skills/<skill>/SKILL.md   # Agent Plugins: skills
-    skills/<skill>/evals/     # Agent Skills evals: evals.json,
-                              #   eval_queries.json, files/
     mcp.json                  # Agent Plugins: MCP servers
     commands/<command>.md     # omp: slash commands, run as /<name>:<command>
     agents/<agent>.md         # omp: task subagents
@@ -50,8 +47,7 @@ plugins/
 scripts/
   check_plugins.py            # model-free checks for omp, Codex, Claude Code
   check_version_bumps.py      # changed plugins raised their version
-  tests/                      # model-free tests for check_plugins and
-                              #   evaluating-skills
+  tests/                      # model-free tests for plugin loading
 ```
 
 Each plugin is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package.
@@ -208,8 +204,8 @@ the English source as `<name>.ko.md`, for example `SKILL.ko.md` or
 `references/craft.ko.md`. Translations cover only files inside a skill
 directory, `plugins/<plugin>/skills/<skill>/`: its `SKILL.md`, `references/`,
 and `agents/` files. Never translate plugin-level component directories such
-as `plugins/<plugin>/agents/`, which omp loads as task agents, `assets/`
-templates that skills copy into output, or `evals/` files.
+as `plugins/<plugin>/agents/`, which omp loads as task agents, or `assets/`
+templates that skills copy into output.
 
 - The English file is authoritative. Clients discover and load only the
   English files; a translation never adds or changes instructions.
@@ -357,9 +353,7 @@ Document responsibilities, including what ADRs own, are in
      tools, and say when supporting files should be read. Use its
      [evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md)
      when selecting checks; the packaging and execution procedures below remain
-     the source for this marketplace's validation commands. Keep each skill's
-     evaluation files in `skills/<skill>/evals/` as
-     [Evaluating skills](#evaluating-skills) describes.
+     the source for this marketplace's validation commands.
 
    - **MCP servers**: `mcp.json` with the
      `https://agent-plugins.org/schemas/1.0.0/mcp.schema.json` `$schema` and an
@@ -518,50 +512,11 @@ For `design-workflow` runtime changes, also follow its
 exercise actual browser and process execution and SDK lifecycle gates. Discovery
 and prompt loading do not establish that extension behavior works.
 
-### Evaluating skills
+### Manual scenario checks
 
-The model-free checks above do not show whether a skill helps or when it
-triggers. That takes the two Agent Skills loops:
-[output quality][eval-outputs] and [description triggering][eval-descriptions].
-Every skill keeps their files in its own `evals/` directory, in the
-[formats](plugins/skill-workflow/skills/evaluating-skills/references/formats.md)
-that skill-creator also reads. Behavior that one skill shows belongs in that
-skill's evals; behavior across plugins, client settings, or installation
-belongs in the [manual scenario checks](#manual-scenario-checks).
-
-```mermaid
-flowchart LR
-  F["Skill evals/<br/>evals.json<br/>eval_queries.json<br/>files/"]
-  C["evaluating-skills scripts<br/>run_evals, grade,<br/>aggregate, run_trigger_eval"]
-  W["omp workspace<br/>runs, grading, timing"]
-  V["benchmark.json<br/>review viewer and feedback"]
-  F --> C --> W --> V
-```
-
-Follow the Agent Skills guides for case counts and repetitions; this
-repository adds only the client, the model, and what a pull request reports.
-
-**1. When to evaluate.**
-
-- A change to a skill's behavior: run the output loop against the previous
-  version from `origin/main` (or without the skill, for a new skill). Start
-  with two or three cases that exercise the changed behavior, including one
-  boundary case, and run each once per configuration. Keep earlier cases and
-  add cases for a revised behavior or a gap the results reveal. Before
-  claiming a delta that rests on one assertion in one run, repeat the
-  evaluation in a new iteration with `--runs 3`.
-- A change to a description: run each query in `eval_queries.json` three
-  times; the full set must pass no fewer queries than before.
-- Formatting-only edits need no evaluation.
-
-**2. Client and model.** Evaluate in omp with the
-[`evaluating-skills`](plugins/skill-workflow/skills/evaluating-skills/SKILL.md)
-skill and the model most users run, `anthropic/claude-opus-5-5` with effort
-`high`. Update the model when that changes.
-
-**3. Prepare the evaluation home once.** Log in with a separate test account
-and install nothing from this marketplace, since an installed skill also loads
-in the baseline runs. Never copy a live home or its credentials:
+Behavior that spans plugins, client settings, or installation is checked by
+hand when a change affects it. Prepare the omp home with a separate test
+account; never copy a live home or credentials or install this marketplace:
 
 ```sh
 HOMES="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
@@ -569,52 +524,7 @@ mkdir -p "$HOMES/omp-home"
 HOME="$HOMES/omp-home" omp login
 ```
 
-**4. Run** from the marketplace root. This example compares `writing-adrs`
-with its version on `origin/main`:
-
-```sh
-HOMES="${XDG_CACHE_HOME:-$HOME/.cache}/sonsu-marketplace/client-homes"
-EVAL=plugins/skill-workflow/skills/evaluating-skills
-SKILL=plugins/decision-workflow/skills/writing-adrs
-WS="${XDG_CACHE_HOME:-$HOME/.cache}/skill-evals/writing-adrs-workspace"
-IT="$WS/omp/iteration-1"
-RUN=(--skill-path "$SKILL" --client omp --model anthropic/claude-opus-5-5
-  --effort high --home "$HOMES/omp-home")
-
-rm -rf "$WS/skill-snapshot" && mkdir -p "$WS/skill-snapshot"
-git archive origin/main "$SKILL" |
-  tar -x --strip-components=4 -C "$WS/skill-snapshot"
-
-python3 "$EVAL/scripts/run_evals.py" "${RUN[@]}" --iteration 1 --baseline old
-python3 "$EVAL/scripts/grade.py" "$IT"
-python3 "$EVAL/scripts/aggregate_benchmark.py" "$IT" --skill-name writing-adrs
-python3 "$EVAL/eval-viewer/generate_review.py" "$IT" \
-  --skill-name writing-adrs --benchmark "$IT/benchmark.json"
-
-python3 "$EVAL/scripts/run_trigger_eval.py" "${RUN[@]}"
-python3 "$EVAL/scripts/run_trigger_eval.py" "${RUN[@]}" \
-  --description "<previous description>"
-```
-
-**5. Report** in the pull request: model and effort, runs per configuration,
-pass rates with the skill and the baseline and their delta, time and tokens,
-trigger pass counts, runs not measured, and the gist of the review feedback.
-Do not commit workspaces.
-
-**6. Regression tests.** After changing the `evaluating-skills` scripts or any
-skill's `evals/` files, run the model-free tests, which also check every
-skill's evaluation files:
-
-```sh
-python3 -B -m unittest discover -s scripts/tests -v
-```
-
-### Manual scenario checks
-
-Behavior that spans plugins, client settings, or installation cannot be
-expressed as one skill's evals. Check it by hand when a change affects it.
-
-- **omp:** use the evaluation home. **Claude Code:** use a test home with a
+- **omp:** use this test home. **Claude Code:** use a test home with a
   saved token, created once as below. In both, load the working tree's plugins
   only for that session with `--plugin-dir "$REPO/plugins/<name>"`, repeated
   as needed, and do not install them into the homes.
@@ -702,14 +612,24 @@ implementation controller's skill-review assignment also triggers it without
 another approval; the worker must read the loaded `authoring-skills`.
 
 For execution, copy the contents of
-`plugins/planning-workflow/skills/executing-work/evals/files/executing-csv/`
-into a disposable Git target with one initial commit, load `planning-workflow`
-and `review-workflow`, and send the prompt of eval 1 in that skill's
-`evals/evals.json`. The client must load `executing-work`, change and test the
-exporter, then load `reviewing-code` and complete its general and focused
-workers on the final revision before reporting completion, without
-committing, pushing, or publishing. Run omp with `--approval-mode yolo` only
-in such disposable targets, as `run_evals.py` does, and report that choice.
+`scripts/fixtures/manual-scenarios/executing-csv/` into a disposable Git
+target and create one initial commit. Load `planning-workflow` and
+`review-workflow`, then send this prompt:
+
+> Execute this already approved plan in the workspace: change the existing
+> CSV exporter so commas and quotes in fields are escaped according to the
+> exporter’s existing format, and update its tests. Keep the public API
+> unchanged. Verify using the existing focused test command. Local edits and
+> tests are authorized; do not commit, push, open a PR, merge, or deploy. Do
+> not ask me to approve this plan again. When you finish, show me the final
+> contents of the files you changed.
+
+The focused test command is `python3 -m unittest test_exporter`. The client
+must load `executing-work`, change and test the exporter, then load
+`reviewing-code` and complete its general and focused workers on the final
+revision before reporting completion, without committing, pushing, or
+publishing. Run omp with `--approval-mode yolo` only in such disposable
+targets, and report that choice.
 
 Exercise the writing-workflow helpers from the directory each client loaded
 them from, preserving identifiers, numbers, URLs, and fenced code. Then remove
@@ -720,9 +640,9 @@ scenario home, restored afterwards with `codex plugin remove` and
 guessed cache path or false pass. Do not change the working tree's helpers.
 
 Run each model scenario once by default from a fresh target, and repeat it
-when results are inconsistent. Use the model in
-[Evaluating skills](#evaluating-skills) for omp, `gpt-6-astra` for Codex, and
-`claude-opus-5-5` for Claude Code, each with effort `high` passed explicitly
+when results are inconsistent. Use `anthropic/claude-opus-5-5` for omp,
+`gpt-6-astra` for Codex, and `claude-opus-5-5` for Claude Code, each with
+effort `high` passed explicitly
 (`--model` and `--thinking` in omp, `-m` and `-c model_reasoning_effort` in
 Codex, `--model` and `--effort` in Claude Code), and
 report every run's outcome rather than only the best one. Report actual CLI
@@ -758,9 +678,9 @@ secrets, and enforces the agreed rules a machine can check:
   to that version.
 - `writing-workflow-tests` and `git-workflow-tests`: the behavior tests below,
   when files under those plugins change.
-- `script-tests`: the model-free tests in `scripts/tests`, when files under
-  `plugins/` or `scripts/` change. They cover the `evaluating-skills` runner,
-  every skill's evaluation files, and the plugin-loading receiver.
+- `script-tests`: the model-free plugin-loading tests in `scripts/tests`, when
+  files under `plugins/` or `scripts/` change:
+  `python3 -B -m unittest discover -s scripts/tests -v`.
 - `design-workflow-tests`: the plugin's TypeScript check and model-free engine,
   real Chromium/process and SDK lifecycle regressions when its package changes.
   TypeScript and the browser installation CLI are locked in `.github/ci-clients`;
@@ -777,8 +697,8 @@ skip on manual runs.
 Model runs stay out of this repository's CI, as
 [ADR-0006](docs/decisions/0006-keep-model-evaluations-local.md) explains: its
 workflow logs are public, and an agent under test can read the credentials it
-runs with. Run the [skill evaluations](#evaluating-skills) locally in the
-dedicated test homes and report the models and results in the pull request.
+runs with. Run the [manual scenario checks](#manual-scenario-checks) locally
+in dedicated test homes and report the models and results in the pull request.
 
 For changes to `writing-workflow` runtime helpers, also run its behavior tests:
 
@@ -806,5 +726,3 @@ present, and failures are not bypassed with a fallback.
 
 [skill-practices]: https://agentskills.io/skill-creation/best-practices
 [skills-ref]: https://github.com/agentskills/agentskills/tree/69ef37e9424c0a7ea9dd2293b559e43ec8176379/skills-ref
-[eval-outputs]: https://agentskills.io/skill-creation/evaluating-skills
-[eval-descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions
