@@ -53,7 +53,15 @@ Leave out the ticket's motivation, file-by-file narration, and work logs.
 
 For each issue, decide whether this PR completes it, advances part of it, or
 only relates to it, judging by the issue's stated outcome and the work landed
-before or with this PR. Only a completing link should close the issue on merge.
+before or with this PR. Take the linking form for that relation from repository
+guidance or the tracker's integration; if none is established, reference the
+issue plainly and state the relation in words. Only a completing link should
+close the issue on merge.
+
+Do not assume that merging closes the issue or that only a completing link
+changes its status: the target branch, tracker settings, branch names, and
+commit messages can each decide. State any check the issue needs after merge,
+as in [closing issues](references/publishing.md#edge-cases).
 
 ## Gotchas
 
@@ -65,6 +73,4 @@ before or with this PR. Only a completing link should close the issue on merge.
   API bodies, and put the summary in its matching section.
 - GitHub renders single newlines in PR bodies as line breaks. Keep each
   paragraph and list item on one line.
-- GitHub closing keywords work only when the PR targets the default branch;
-  otherwise read [closing issues](references/publishing.md#edge-cases).
 - Mark work in progress with GitHub's Draft state, not a title prefix.

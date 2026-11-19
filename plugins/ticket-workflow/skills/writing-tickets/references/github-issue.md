@@ -50,15 +50,12 @@ Use these GitHub differences with the workflow in [Writing tickets](../SKILL.md)
   mapping. Creating the issue does not also set its Projects fields.
 - Public repository issues are visible to anyone, and their attachments are
   accessible without authentication. A partial upload still creates the issue.
-- `#123` is scoped to its repository. GitHub closing keywords in a PR
-  description apply when the PR targets the default branch, and merging it
-  closes the referenced issue; do not assume a non-default-branch merge does.
+- `#123` is scoped to its repository.
 
 ## Sources
 
 - [Configuring issue templates][templates]
 - [Default community health files][defaults]
-- [Linking pull requests to issues][linking]
 - [Setting organization issue field values][issue-fields]
 - [Projects priority and estimate fields][project-fields]
 - [Adding sub-issues][sub-issues]
@@ -68,7 +65,6 @@ Use these GitHub differences with the workflow in [Writing tickets](../SKILL.md)
 
 [templates]: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository
 [defaults]: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file
-[linking]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue
 [issue-fields]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-and-managing-issue-fields
 [project-fields]: https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects
 [sub-issues]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-sub-issues

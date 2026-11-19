@@ -1,6 +1,6 @@
 # GitHub Issues
 
-> 영문 정본: [github-issue.md](github-issue.md) (`4f07d42` 기준 번역).
+> 영문 정본: [github-issue.md](github-issue.md) (`2b5bad2` 기준 번역).
 > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
 
 [티켓 작성](../SKILL.md)의 절차와 함께 아래 GitHub 차이를 적용한다.
@@ -50,15 +50,12 @@
   만들었다고 Projects 필드도 설정되는 것은 아니다.
 - 공개 저장소의 이슈는 누구나 볼 수 있고 첨부 파일도 인증 없이 접근할 수
   있다. 일부 첨부만 업로드되어도 이슈는 생성된다.
-- `#123`은 해당 저장소 안에서만 유효하다. PR 설명의 GitHub 닫기 키워드는
-  PR이 기본 브랜치를 대상으로 할 때 적용되며 머지하면 참조 이슈가 닫힌다.
-  기본 브랜치가 아닌 곳으로 머지해도 닫힌다고 가정하지 않는다.
+- `#123`은 해당 저장소 안에서만 유효하다.
 
 ## 출처
 
 - [Configuring issue templates][templates]
 - [Default community health files][defaults]
-- [Linking pull requests to issues][linking]
 - [Setting organization issue field values][issue-fields]
 - [Projects priority and estimate fields][project-fields]
 - [Adding sub-issues][sub-issues]
@@ -68,7 +65,6 @@
 
 [templates]: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository
 [defaults]: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file
-[linking]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue
 [issue-fields]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-and-managing-issue-fields
 [project-fields]: https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects
 [sub-issues]: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-sub-issues

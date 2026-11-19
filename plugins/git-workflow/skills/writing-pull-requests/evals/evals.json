@@ -182,6 +182,17 @@
         "Does not state or imply that merging this PR into develop closes #41",
         "States in the body or the reply that #41 must be checked or closed after merge because the PR does not target the default branch"
       ]
+    },
+    {
+      "id": 17,
+      "prompt": "Draft only the PR description for fictional acme/ledger on GitHub; it has no PR template. The team tracks work in Orbit, the company's internal issue tracker, at orbit.acme.internal; the repository does not use GitHub issues, and neither the repository nor the team documents any Orbit integration with GitHub. Orbit issue ORB-88, \"Ledger export drops the currency column\", asks that every exported row include its currency code. Complete diff: the ledger CSV export now writes a currency column for every row, and an existing export test now checks it. No UI changed. Use only these facts; do not publish, create files, or access the fictional repository or tracker.",
+      "expected_output": "Explains that every exported ledger row now includes its currency code. References ORB-88 plainly and states in words that this PR completes it, without a GitHub or Linear closing word, and says in the body or the reply that nothing establishes that merging will close ORB-88, so it needs a check or manual close afterward.",
+      "assertions": [
+        "Explains that the ledger CSV export now writes a currency column for every row",
+        "References ORB-88 and states in words that this PR completes it",
+        "Does not write a closing keyword such as Fixes, Closes, or Resolves before ORB-88",
+        "States in the body or the reply that merging is not known to close ORB-88, so it must be checked or closed after merge"
+      ]
     }
   ]
 }
