@@ -61,8 +61,9 @@ changes.
   [review procedure](CONTRIBUTING.md#code-review) and the Code Review Rules below.
   Requested omp, Codex, and Claude Code plugin reviews use the linked common
   skill and the corresponding client execution reference; explicit native-only
-  requests retain the native procedure and output. Results stay local unless
-  publication is explicitly requested.
+  requests retain the native procedure and output. Write review feedback in
+  Korean while preserving required output formats and priority labels. Results
+  stay local unless publication is explicitly requested.
 * When deciding whether to write an ADR, or drafting, reviewing, or replacing
   one, follow the [decision-record procedure](CONTRIBUTING.md#decision-records)
   and its [ADR skill](plugins/decision-workflow/skills/writing-adrs/SKILL.md).
