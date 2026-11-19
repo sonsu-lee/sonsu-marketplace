@@ -67,6 +67,10 @@ The packaging rationale remains [ADR-0002](docs/decisions/0002-plugin-format.md)
 the proposed cross-client design is
 [ADR-0005](docs/decisions/0005-share-plugins-across-clients.md).
 
+General agent baseline instructions are maintained outside this marketplace
+in a [standalone Gist](https://gist.github.com/sonsu-lee/ecd74e9c41ff2d3bcf36d6b24be30a9e);
+the marketplace does not distribute, load, or require them.
+
 ## Code review
 
 Apply [Code Review Rules](AGENTS.md#code-review-rules) when reviewing changes
@@ -112,8 +116,7 @@ actual review results, narrowing or removing rules that produce noise.
 Write documentation in English, except the Korean translations described in
 [Translations](#translations), and follow the
 [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
-when creating or updating README files, as recorded in
-[ADR-0003](docs/decisions/0003-use-standard-readme.md).
+when creating or updating README files.
 
 Adapt [Ponytail's smallest-complete-change principle][ponytail] to documentation:
 start with what the reader needs to understand or do. Update an existing
@@ -147,9 +150,8 @@ For root and plugin READMEs:
   and follow the plugin test procedure below, including Codex's `CODEX_HOME`
   and Claude Code's `CLAUDE_CONFIG_DIR`.
 
-Repository Markdown files follow the lint policy in
-[ADR-0004](docs/decisions/0004-require-markdown-lint.md), including READMEs, ADRs,
-agent instructions, skills, commands, and rules. Before pushing, use Node.js 22
+Repository Markdown files, including READMEs, ADRs, agent instructions, skills,
+commands, and rules, require lint checks. Before pushing, use Node.js 22
 or newer and npm to check the files added or modified by your change, using the
 pinned CLI's default rules:
 
@@ -291,24 +293,10 @@ it. Record uncertainty or revisit conditions when they matter.
   that would not meet today's narrower scope. Change only errors, links, or
   status, not their original decision and rationale.
 
-The rationale is in
-[ADR-0001](docs/decisions/0001-use-lightweight-directional-decision-records.md).
-During initial setup on 2026-10-20, the maintainer authorized a one-time
-consolidation of ADR-0001 rather than a separate supersession chain, and
-reformatting ADR-0002 through ADR-0004 without changing their choices,
-decision dates, or rationale. Git retains the earlier MADR policy and document
-forms. This exception is limited to that initialization cleanup; it does not
-authorize further rewrites or resets. Subsequent decisions follow the lifecycle
-above.
-
-On 2026-10-23 the maintainer separately authorized one correction to
-ADR-0004: its Decision ended with "Do not add … a new CI integration", an
-operational constraint that, under the scope above, belongs in the contributor
-procedures rather than a decision record. The clause was removed, so
-[Writing documentation](#writing-documentation) now owns
-where the lint runs, including the `checks` workflow. The choice to require the
-pinned lint and its rationale are unchanged. This does not authorize other
-rewrites.
+The maintainer authorized removing selected historical records on 2026-11-20
+when their choices were operational rules rather than direction-setting
+decisions. Their history remains in Git. This exception does not authorize
+further removals or rewrites.
 
 Document responsibilities, including what ADRs own, are in
 [Document ownership](#document-ownership).
@@ -653,9 +641,8 @@ does not prove review quality, automatic selection, or app/IDE behavior.
 
 ### Running checks in CI
 
-When changing a workflow, pin what it runs, as
-[ADR-0007](docs/decisions/0007-pin-ci-dependencies-to-immutable-content.md)
-explains: reference each action by full commit SHA with its release tag in a
+When changing a workflow, pin what it runs to limit supply-chain exposure:
+reference each action by full commit SHA with its release tag in a
 comment, and install CLI tools from `.github/ci-clients` with the frozen
 lockfile rather than `npm install -g` or `bun install -g`. Node.js stays on
 the latest 24.x patch through `check-latest`.

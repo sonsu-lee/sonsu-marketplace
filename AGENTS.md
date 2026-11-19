@@ -70,8 +70,6 @@ changes.
   until the decision-maker accepts them; implementation completion is not
   acceptance. Preserve accepted records and link a new record when the
   decision changes, not merely when it is reconsidered.
-  The procedure documents the one-time ADR-0001 consolidation and ADR-0002
-  through ADR-0004 format migration; do not infer permission for further resets.
 * Keep current procedures in the owning document listed in
   [Document ownership](CONTRIBUTING.md#document-ownership) and in relevant
   skills, and executable rules in configuration files. When adding or changing
