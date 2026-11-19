@@ -53,8 +53,10 @@ Leave out the ticket's motivation, file-by-file narration, and work logs.
 
 For each issue, decide whether this PR completes it, advances part of it, or
 only relates to it, judging by the issue's stated outcome and the work landed
-before or with this PR. Link it in the form its tracker recognizes for that
-relation. Only a completing link should close the issue on merge.
+before or with this PR. Take the linking form for that relation from repository
+guidance or the tracker's integration; if none is established, reference the
+issue plainly and state the relation in words. Only a completing link should
+close the issue on merge.
 
 Do not assume that merging closes the issue or that only a completing link
 changes its status: the target branch, tracker settings, branch names, and
