@@ -55,14 +55,14 @@ Claude Code. Listing a plugin does not prove that its skills run.
 
 - **`writing-commits`** writes Conventional Commit messages and validates them
   before use. It reuses repository commands, tools, versions, and configuration.
-  Only without an existing execution setup does it run pinned commitlint through
-  `npx`; only without configuration does it use bundled ESM defaults. See the
-  [skill's validation procedure](skills/writing-commits/SKILL.md#required-validation).
+  Only without an existing execution setup does it run pinned `committed` through
+  `uvx`; only without repository configuration does it use bundled defaults.
+  See the [skill's validation procedure](skills/writing-commits/SKILL.md#required-validation).
 - **`naming-branches`** names and validates branches with Conventional Branch
   1.1.0, reusing repository validation first. Without an execution setup it runs
   pinned `commit-check` through `uvx`; repository configuration still takes
   precedence over bundled defaults. This is a Python CLI, not an npm package.
-  The skill's default prefixes are `feat/` (not `feature/`), `bugfix/` (not
+  The skill's default prefixes are `feature/` (not `feat/`), `bugfix/` (not
   `fix/`), `hotfix/`, `release/`, and `chore/`. See the
   [skill's validation procedure](skills/naming-branches/SKILL.md#required-validation).
 - **`writing-pull-requests`** starts PR descriptions with a concise Summary of

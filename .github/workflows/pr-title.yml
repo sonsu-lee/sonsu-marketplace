@@ -1,7 +1,6 @@
 name: pr-title
 
-# The PR title becomes the squash commit subject, so it follows the
-# writing-commits defaults; this repository has no commitlint configuration.
+# The PR title becomes the squash commit subject and follows committed defaults.
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
@@ -14,10 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24"
-          check-latest: true
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
       - env:
           TITLE: ${{ github.event.pull_request.title }}
-        run: printf '%s\n' "$TITLE" | npx --yes --package @commitlint/cli@21.2.4 commitlint --strict --config plugins/git-workflow/skills/writing-commits/assets/commitlint.config.mjs
+        run: printf '%s\n' "$TITLE" | uvx --from committed==1.1.12 committed --config plugins/git-workflow/skills/writing-commits/assets/committed.toml --commit-file -

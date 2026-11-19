@@ -1,94 +1,44 @@
 # Commit validation
 
-Validate the exact proposed commit message without replacing an established
-repository validator or configuration. Select execution setup and configuration
-independently; run from the target repository root.
+Use the target repository's documented validator, version, configuration, and
+acceptance criteria first, including validators other than `committed`. A missing
+or failing configured tool is a blocker, not permission to replace it. A
+configuration alone does not establish a runner.
 
-## Workflow
+Write the exact complete message to a temporary UTF-8 file, set `message_file`
+to its absolute path, and read it back. Validate that file using the existing
+repository procedure. Never validate HEAD in place of a proposed message.
 
-### Reuse the repository's execution setup
+## Fallback
 
-Inspect contributor instructions, package scripts, dependency declarations and
-lockfiles, and relevant hook or CI configuration. Use the documented validator
-and version, even if it is not commitlint. Do not invoke a hook wholesale when
-it performs unrelated work; run its documented message check with the proposed
-message as input.
+Without a repository runner, use the Rust-based
+[`committed`](https://github.com/crate-ci/committed), packaged as a Python CLI.
+The pinned fallback requires `uvx`, a supported Python environment, and registry
+access on the first run. It does not install dependencies in the target project.
 
-A declared dependency or managed tool that is not installed is an existing
-setup needing its documented installation procedure, not an absent setup.
-If it cannot run, report the blocker. Do not upgrade it or switch to the pinned
-fallback after a failure. A configuration file alone does not establish a runner
-or a version; the fallback may load that file if no execution setup exists.
-
-Save the exact complete message in a temporary UTF-8 file and set `message_file`
-to its absolute path. Read it back to verify the nonempty header and intended
-body and footers: commitlint can skip empty files. Use the input mechanism the
-repository's validator supports, and verify it checks this message rather than
-an earlier commit. A hook that has not run is not proof of validation.
-
-For a repository with a directly installed commitlint binary and no wrapper
-command, for example:
+If the repository has `committed.toml`, preserve it:
 
 ```sh
-./node_modules/.bin/commitlint --verbose --edit "$message_file"
+uvx --from committed==1.1.12 committed --commit-file "$message_file"
 ```
 
-Use the repository's package-manager command instead when appropriate, such as
-for Yarn Plug'n'Play. Preserve its flags and warning policy; do not blindly add
-`--strict` to an existing command.
-
-### Use npx only without an existing execution setup
-
-The fallback requires Node.js 22.12.0 or newer and npm. Its first run requires
-npm registry access. It does not add a dependency to the target repository.
-
-When a repository commitlint configuration exists, preserve it:
+Otherwise, if no repository commit configuration exists, set `skill_dir` to the
+absolute directory containing this skill's loaded `SKILL.md` and run:
 
 ```sh
-npx --yes --package @commitlint/cli@21.2.4 commitlint \
-  --verbose --edit "$message_file"
+uvx --from committed==1.1.12 committed \
+  --config "$skill_dir/assets/committed.toml" --commit-file "$message_file"
 ```
 
-Honor an explicitly selected config path with `--config`. Preserve its required
-presets and plugins and follow their documented setup. A missing explicitly
-selected config, invalid config, or incompatible dependency is a blocker; do
-not replace it with the bundled defaults. Do not use `--default-config` to hide
-configuration problems.
+The bundled configuration enables Conventional Commits; other settings use
+[committed's defaults](https://github.com/crate-ci/committed/blob/main/docs/reference.md).
+In particular, the default subject limit is 50 characters, body lines 72, and
+the subject must be capitalized, imperative, and not punctuated. Its default
+Conventional Commit types are `fix`, `feat`, `chore`, `docs`, `style`,
+`refactor`, `perf`, and `test`. Do not replace an established non-committed
+configuration with bundled defaults; report a missing compatible runner instead.
 
-### Select defaults only when configuration is absent
-
-Only if no repository commitlint configuration is established, set `skill_dir`
-to the absolute directory containing the loaded `SKILL.md` and use its
-`assets/commitlint.config.mjs`. Do not guess a plugin cache path or copy the asset
-into the repository. If the loaded location or asset cannot be resolved, report
-the installation or lookup error rather than bypassing validation.
-
-With an existing commitlint installation, keep that executable and add
-`--config "$skill_dir/assets/commitlint.config.mjs" --strict` to its supported
-message-check invocation. Do not replace its version just to load this asset;
-report incompatibility if it cannot load it. For a different validator, keep
-its documented behavior and review skill defaults it does not check manually.
-
-With neither an execution setup nor configuration:
-
-```sh
-npx --yes --package @commitlint/cli@21.2.4 commitlint \
-  --config "$skill_dir/assets/commitlint.config.mjs" \
-  --strict --verbose --edit "$message_file"
-```
-
-The bundled configuration is self-contained ESM with no external presets or
-imports. It accepts `!`, a breaking-change footer, or both. It does not determine
-whether the message accurately describes the change.
-
-### Finish the check
-
-Require a successful exit and evidence that the intended message was checked.
-Respect existing repository warning levels; the bundled defaults require no
-errors or warnings. Do not treat a failed execution as validation success or
-silently fall back to a different tool. Recheck after every message edit and
-remove the temporary message file afterward.
-
-Do not install a new project manifest, configuration, hook, or CI job just to
-run the fallback. Tool installation and configuration changes are separate from
-writing a commit message.
+Require a successful exit for the intended nonempty message. Review meaning,
+accuracy, rationale, and breaking-change explanations separately. Revalidate
+after every edit and remove the temporary file. Do not install hooks, CI, or
+project dependencies merely to validate a message.
