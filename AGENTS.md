@@ -29,22 +29,14 @@ changes.
   [plugin test procedure](CONTRIBUTING.md#testing-a-plugin) for every client.
   Require every expected skill exactly once without loading errors; omp
   discovery must have no `warning:` lines. Listing is not proof of execution.
-* When a change alters a skill's behavior or description, evaluate it in omp
-  with the [skill evaluation procedure](CONTRIBUTING.md#evaluating-skills), which
-  follows the Agent Skills guides for case counts and repetitions, and run the
-  applicable [manual scenario checks](CONTRIBUTING.md#manual-scenario-checks):
-  output evals against the previous version and trigger evals when the
-  description changes, with the model listed there. Run model checks
+* Run applicable [manual scenario checks](CONTRIBUTING.md#manual-scenario-checks)
   locally, never in CI or with credentials in repository secrets, and report
-  the model, runs per configuration, and results in the pull request.
-* When changing the `evaluating-skills` scripts or any skill's `evals/` files,
-  run the model-free regression tests in
-  [Evaluating skills](CONTRIBUTING.md#evaluating-skills).
+  the model, runs, and results in the pull request.
 * Use dedicated test client homes: `HOME` for omp, both `HOME` and
   `CODEX_HOME` for Codex, and both `HOME` and `CLAUDE_CONFIG_DIR` for Claude
   Code. They may persist between runs to keep their test logins. Do not
   install into live clients, copy real settings or credentials into the test
-  homes, or install this marketplace into the evaluation homes. Use
+  homes, or install this marketplace into the omp and Claude test homes. Use
   `--no-daemon` for Codex model smoke runs and report unavailable authorized
   authentication as an execution blocker.
 * Follow the [commit skill](plugins/git-workflow/skills/writing-commits/SKILL.md)

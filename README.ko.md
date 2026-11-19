@@ -152,7 +152,7 @@ Claude Code는 로컬 경로 마켓플레이스의 플러그인을 그 자리에
 - [git-workflow][git-workflow]: 저장소 규칙에 따라 branch 이름을 정하고 commit을
   쓰고 draft pull request를 준비한다.
 - [skill-workflow][skill-workflow]: 초점이 분명한 에이전트 skill을 만들고 다듬고
-  평가하고 독립적으로 리뷰하며, 기계적인 작업은 기존 도구에 맡긴다.
+  독립적으로 리뷰하며, 기계적인 작업은 기존 도구에 맡긴다.
 - [ticket-workflow][ticket-workflow]: 작고 결과 중심적인 GitHub·Linear 티켓을
   쓰고, 구현 방법은 담당자에게 맡긴다.
 - [decision-workflow][decision-workflow]: 중요한 설계 결정을 골라 저장소 규칙을
@@ -175,12 +175,7 @@ Pull request를 환영한다. 질문이나 문제 보고는
 
 ## 라이선스
 
-[MIT](LICENSE) © sonsu-lee. 단,
-`plugins/skill-workflow/skills/evaluating-skills/`는
-[Apache License 2.0](plugins/skill-workflow/skills/evaluating-skills/LICENSE.txt)을
-따르며 Anthropic의
-[skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator)
-자료를 포함한다.
+[MIT](LICENSE) © sonsu-lee.
 
 [git-workflow]: plugins/git-workflow/README.md
 [skill-workflow]: plugins/skill-workflow/README.md

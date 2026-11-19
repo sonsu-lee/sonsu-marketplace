@@ -9,26 +9,18 @@ the behavior the change affects.
 - **Metadata or packaging:** the official format validator and the client's
   discovery check, then invoke the installed skill and inspect the injected
   content for complete loading without warnings.
-- **Task guidance:** the output-quality loop on `evals/evals.json`, with and
-  without the skill or against its previous version. Read transcripts, not
-  just answers.
+- **Task guidance:** exercise representative tasks and inspect transcripts as
+  well as outcomes; follow the project's verification procedure.
 - **Tool or configuration:** run the actual tool with valid and invalid
   inputs. Use deterministic checks, not model opinion.
-- **Description or scope:** a trigger eval on `evals/eval_queries.json` for
-  the old and new descriptions, and observe actual loading.
+- **Description or scope:** try relevant requests and near misses, observing
+  whether the skill actually loads.
 - **Formatting only:** no behavioral benchmark.
 
-When moving content to a reference to fit a loader, add an eval whose task
-needs the moved content and assert that the reference is read.
+When moving content to a reference to fit a loader, exercise a task that needs
+the moved content and check that the reference is read.
 
-## Pick the runner
-
-Use the project's existing setup first; otherwise:
-
-- **Claude Code:** Anthropic's [skill-creator plugin][creator].
-- **omp and Codex:** the `evaluating-skills` skill.
-- **Other clients:** the [output][outputs] and [description][descriptions]
-  guides with the client's own tools.
+Use the project's existing verification setup and requirements.
 
 ## Feed results back
 
@@ -40,15 +32,9 @@ report smoke observations separately from repeated measurements.
 
 - Discovery may read only metadata and miss body truncation.
 - A model saying it would use a skill is not evidence of activation.
-- Never name a file `SKILL.md` under `evals/`; some clients register it.
 - Run manual checks in isolated workspaces kept outside installed packages,
   and never publish test artifacts such as tickets, PRs, or messages to real
   projects.
-- Results hold only for the client, model, and effort that ran. A shared
-  description must not lose passing trigger queries in any client.
+- Results hold only for the client, model, and effort that ran.
 - Keep evaluation out of the skill's everyday path; users of the skill do not
   run authoring benchmarks.
-
-[outputs]: https://agentskills.io/skill-creation/evaluating-skills
-[descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions
-[creator]: https://github.com/anthropics/claude-plugins-official/tree/main/plugins/skill-creator

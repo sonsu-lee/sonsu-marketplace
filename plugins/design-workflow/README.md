@@ -315,12 +315,6 @@ the production `AgentSession`, tool wrappers and full-session fork, substituting
 only operator UI choices and deterministic interruption timing. Inspect an
 actual rendered capture separately; these tests do not prove visual quality.
 
-Evaluate each skill with the repository's
-[skill evaluation procedure](../../CONTRIBUTING.md#evaluating-skills), using the
-cases in its `evals/` directory and `--baseline without`, since these skills
-have no earlier version on `origin/main`. Review outputs as well as pass
-rates. Model runs remain local, never in CI.
-
 ## License
 
 [MIT](../../LICENSE) for marketplace content, copyright sonsu-lee. Upstream
