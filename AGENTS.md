@@ -49,8 +49,9 @@ changes.
   [PR skill](plugins/git-workflow/skills/writing-pull-requests/SKILL.md)
   when drafting, creating, updating, or marking a pull request ready, including
   title validation, repository templates, reviewer-needed evidence, and UI
-  evidence. Create new PRs as Draft by default; mark ready only on an explicit
-  request.
+  evidence. Write PR titles and descriptions in Korean while preserving required
+  title syntax and template markers. Create new PRs as Draft by default; mark
+  ready only on an explicit request.
 * Follow the
   [ticket-writing procedure](plugins/ticket-workflow/skills/writing-tickets/SKILL.md)
   when drafting, creating, updating, or splitting GitHub Issues or Linear
@@ -77,8 +78,11 @@ changes.
   when it applies and which procedure to follow. Add or adjust that routing in
   the same change if needed. Never leave an active requirement only in an ADR;
   ADRs link to current instructions rather than duplicate commands or values.
-* Write repository documentation in English. Korean translations are local-only
-  as described in [Translations](CONTRIBUTING.md#translations).
+* Write repository documentation in English. For each English document created
+  or updated, create or update its corresponding Korean translation alongside it
+  as `<name>.ko.md`. Keep translations local-only and exclude them with
+  `.git/info/exclude`, as described in
+  [Translations](CONTRIBUTING.md#translations). The English source is authoritative.
 * When creating or updating a README, follow the
   [documentation checklist](CONTRIBUTING.md#writing-documentation) and its linked
   Standard Readme specification.
