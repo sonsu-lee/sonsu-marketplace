@@ -2,17 +2,6 @@
   "skill_name": "writing-tickets",
   "evals": [
     {
-      "id": 1,
-      "prompt": "Draft a GitHub issue for acme/billing: since v2.3, clicking Save twice quickly on the invoice form creates two invoices. A customer support ticket showed it happening with an admin account in Chrome. We don't know the cause.",
-      "expected_output": "Separates the actual result from the expected result. Does not invent reproduction steps, versions, frequency, or impact. States the desired outcome as restored behavior, not as a specific fix. Does not publish the issue or claim that it was published.",
-      "assertions": [
-        "Separates the actual result from the expected result",
-        "Does not invent reproduction steps, versions, frequency, or impact",
-        "States the desired outcome as restored behavior, not as a specific fix",
-        "Does not publish the issue or claim that it was published"
-      ]
-    },
-    {
       "id": 2,
       "prompt": "Open a GitHub issue in acme/billing (public repo): GET /api/invoices/{id} returns invoices belonging to other tenants if you change the id. Steps: log in as tenant A, request /api/invoices/1042 which belongs to tenant B, the full invoice is returned.",
       "expected_output": "Does not create or propose a public issue containing the reproduction steps. Directs the report to a private security channel. Does not publish anything or claim that it was published.",
@@ -37,10 +26,11 @@
     {
       "id": 4,
       "prompt": "Draft a GitHub issue for fictional acme/billing using the supplied repository context; do not contact any service, create files, or publish. The default branch's applicable invoice bug form requires sections 'Observed result', 'Expected result', and 'Release', the marker <!-- billing-intake -->, the existing label billing-bug, and a checkbox 'I reproduced this myself'. The owner's public .github repository has a generic template, but this repository has its own form. Since v2.3, clicking Save twice quickly creates two invoices; customer support reported it with an admin account in Chrome. I have not reproduced it personally. No assignee, priority convention, or estimate is established. Return the title, body, metadata proposals, and any publication blockers.",
-      "expected_output": "Uses the repository form rather than an inherited or generic template, preserving its required sections, release, and marker. Keeps billing-bug as metadata, does not falsely check personal reproduction, and distinguishes the reported duplicate-invoice behavior from unknown cause and unestablished metadata. Returns a draft without external effects.",
+      "expected_output": "Uses the repository form rather than an inherited or generic template, preserving its required sections, release, and marker. Separates the observed and expected results and describes the desired outcome without prescribing a fix or inventing facts. Keeps billing-bug as metadata, does not falsely check personal reproduction, and distinguishes the reported duplicate-invoice behavior from unknown cause and unestablished metadata. Returns a draft without external effects.",
       "assertions": [
         "Uses Observed result, Expected result, and Release rather than replacing the repository form with a generic or inherited template",
         "Preserves v2.3 and the <!-- billing-intake --> marker in the body and billing-bug as metadata",
+        "Separates the observed and expected results and describes the desired outcome without prescribing a fix or inventing facts",
         "Keeps the required personal-reproduction checkbox unresolved before publication and does not recommend CLI/API creation to bypass that requirement",
         "Does not invent an assignee, priority convention, estimate, or root cause",
         "Does not publish, contact external services, or claim that an issue was created"
@@ -79,6 +69,40 @@
         "States both the observed 30-minute delay and the agreed delivery outcome within 2 minutes",
         "Does not invent a cause, implementation requirement, assignment, priority, estimate, project, or milestone",
         "Does not contact services, publish, or claim that a ticket was created"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Draft a GitHub issue for fictional acme/billing using only the already investigated context below. Do not contact any service, create files, or publish. The invoice form creates duplicate invoices when Save is clicked twice; it should create one. The repository has an existing billing-bug label. Its linked project has a Priority field with High and Medium options; the team normally uses Medium for this kind of defect. No assignee has been decided. Access to the project's estimate field was denied, so its settings and value are unknown. Return the draft and the status of these investigated metadata fields only.",
+      "expected_output": "Proposes billing-bug and the linked project's Medium Priority with the supplied rationale; identifies assignee as unset and estimate as unavailable due to denied access. Does not treat Priority as a built-in GitHub issue field or claim publication. The supplied context simulates investigation and does not verify actual lookup.",
+      "assertions": [
+        "Does not invent reproduction steps, versions, frequency, or impact",
+        "Proposes the existing billing-bug label rather than claiming it is applied",
+        "Proposes Medium for the linked project's Priority with the supplied team convention as rationale, without treating Priority as a built-in GitHub issue field",
+        "Identifies assignee as unset and estimate as unavailable because access was denied; fails if it calls the estimate unset or left unset, even alongside unknown",
+        "Does not invent other metadata, contact services, publish, or claim the draft was published"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Draft a Linear issue for fictional Acme's Payments team using only the already investigated context below. Do not contact services, create files, or publish. Invoice emails arrive 30 minutes after sending; the agreed outcome is delivery within 2 minutes. The existing payments-bug label fits this defect. The applicable team template defaults to priority Medium and project Invoice reliability. Estimates are disabled and no assignee has been decided. Return the draft and the status of these investigated metadata fields only.",
+      "expected_output": "Identifies Medium priority and Invoice reliability project as existing template defaults to apply, proposes payments-bug, and identifies estimate and assignee as unset. Does not enable estimates, guess zero, or claim publication. The supplied context simulates investigation and does not verify actual lookup.",
+      "assertions": [
+        "Identifies Medium priority and Invoice reliability project as applicable template defaults to apply, not as already published",
+        "Proposes the existing payments-bug label rather than claiming it is applied",
+        "Identifies estimate and assignee as unset without enabling estimates or assigning zero",
+        "Does not invent other metadata, contact services, publish, or claim the draft was published"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Report the result of an already completed operation on fictional GitHub issue https://github.com/acme/billing/issues/42. Use only these already verified results: the billing-bug label was applied; writing Medium to the linked project's Priority field failed; no assignee was set; access to the project's estimate field was denied. Do not contact services, make any new writes, or retry. Report the URL and the status of these investigated metadata fields only.",
+      "expected_output": "Returns the supplied URL and distinguishes the applied billing-bug label, failed or unapplied Medium Priority proposal, unset assignee, and estimate unavailable due to denied access. Makes no new writes or retries and does not imply the failed Priority was applied. This tests reporting, not actual creation or lookup.",
+      "assertions": [
+        "Returns https://github.com/acme/billing/issues/42 and identifies billing-bug as applied",
+        "Reports the linked project's Medium Priority write as failed or unapplied, not as successfully applied",
+        "Identifies assignee as unset and estimate as unavailable because access was denied, not as absent or unset",
+        "Does not invent other metadata, contact services, make new writes, or retry"
       ]
     }
   ]
