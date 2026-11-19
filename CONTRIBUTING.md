@@ -109,8 +109,7 @@ actual review results, narrowing or removing rules that produce noise.
 
 ## Writing documentation
 
-Write documentation in English, except the Korean translations described in
-[Translations](#translations), and follow the
+Write repository documentation in English and follow the
 [Standard Readme specification](https://github.com/RichardLitt/standard-readme/blob/main/spec.md)
 when creating or updating README files, as recorded in
 [ADR-0003](docs/decisions/0003-use-standard-readme.md).
@@ -199,54 +198,9 @@ revisions.
 
 ### Translations
 
-Skill documents may have a Korean translation for human readers, stored next to
-the English source as `<name>.ko.md`, for example `SKILL.ko.md` or
-`references/craft.ko.md`. Translations cover only files inside a skill
-directory, `plugins/<plugin>/skills/<skill>/`: its `SKILL.md`, `references/`,
-and `agents/` files. Never translate plugin-level component directories such
-as `plugins/<plugin>/agents/`, which omp loads as task agents, or `assets/`
-templates that skills copy into output.
-
-- The English file is authoritative. Clients discover and load only the
-  English files; a translation never adds or changes instructions.
-- Omit frontmatter so no loader can mistake a translation for a skill. Start
-  with the translated title, then this notice naming the source file and the
-  last commit that changed it:
-
-  ```markdown
-  > 영문 정본: [SKILL.md](SKILL.md) (`5b362ef` 기준 번역).
-  > 사람이 읽기 위한 번역본이며 에이전트는 이 파일을 읽지 않는다.
-  ```
-
-- Translate prose only. Keep code, commands, paths, identifiers, and example
-  text whose language matters unchanged. Links into other files keep their
-  English targets; a link to a heading in the same file uses the translated
-  heading's anchor.
-- Updating a translation when its source changes is optional. Compare the
-  noted commit with `git log -1 --format=%h -- <source>` to see whether a
-  translation is behind, and refresh the notice whenever you update one.
-  Renaming or deleting a source renames or deletes its translation in the same
-  change.
-- Translations follow the same Markdown lint as other files.
-
-The root `README.md` and each plugin's `plugins/<plugin>/README.md` may also
-have a Korean translation, `README.ko.md`, in the same directory; no other
-README or document is translated. The rules above apply with these
-differences:
-
-- Start with the title, then the language line, then this notice without a
-  commit: same-change updates keep the files in step, and squash merges would
-  invalidate a recorded hash:
-
-  ```markdown
-  > 영문 정본: [README.md](README.md). 사람이 읽기 위한 번역본이며 내용이 다르면
-  > 영문판을 따른다.
-  ```
-
-- Both files link to each other with a language line under the title.
-- Updating the translation is required: a change to a translated `README.md`
-  updates its `README.ko.md` in the same pull request, because outdated
-  installation steps mislead users.
+Korean translations are local-only and are not committed. Store them next to
+their English sources as `<name>.ko.md` and exclude them locally with
+`.git/info/exclude`. The English source remains authoritative.
 
 ## Decision records
 
@@ -450,8 +404,8 @@ Document responsibilities, including what ADRs own, are in
 
    Raise `version` in the root manifest, the omp catalog, and the Claude Code
    catalog entry or manifest together on every plugin change, except a change
-   limited to the plugin's own `README.md` and `README.ko.md`: clients do not
-   load them, so a reinstall changes no behavior.
+   limited to the plugin's own `README.md`: clients do not load it, so a
+   reinstall changes no behavior.
    `omp plugin upgrade` and `claude plugin update` only reinstall changed
    versions. Codex uses package metadata; do not duplicate versions, omp
    `owner`, or marketplace `metadata` in its catalog.
@@ -673,7 +627,7 @@ secrets, and enforces the agreed rules a machine can check:
 - `markdown`: the pinned Markdown lint command above on added or modified
   Markdown files.
 - `versions`: `scripts/check_version_bumps.py <base>` fails when files under a
-  plugin, other than its own `README.md` and `README.ko.md`, changed but its
+  plugin, other than its own `README.md`, changed but its
   `plugin.json` version did not; the `catalogs` check keeps the catalogs equal
   to that version.
 - `writing-workflow-tests` and `git-workflow-tests`: the behavior tests below,
