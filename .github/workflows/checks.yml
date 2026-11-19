@@ -107,7 +107,7 @@ jobs:
           node-version: "24"
           check-latest: true
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
-      - run: node --test plugins/git-workflow/tests/commitlint.test.mjs plugins/git-workflow/tests/committed.test.mjs plugins/git-workflow/tests/branch-validation.test.mjs
+      - run: node --test plugins/git-workflow/tests/committed.test.mjs plugins/git-workflow/tests/branch-validation.test.mjs
 
   script-tests:
     needs: changes

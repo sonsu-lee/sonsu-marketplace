@@ -629,10 +629,7 @@ secrets, and enforces the agreed rules a machine can check:
   in the SDK regression are simulated; visual quality is still human judgment.
 
 The `pr-title` workflow checks the pull request title, which becomes the squash
-commit subject, using the bundled commitlint configuration. This repository has
-no commitlint configuration of its own. The rule
-checks compare against the pull request's merge base or the pushed range, and
-skip on manual runs.
+commit subject, using the bundled `committed` configuration.
 
 Model runs stay out of this repository's CI, as
 [ADR-0006](docs/decisions/0006-keep-model-evaluations-local.md) explains: its
@@ -653,13 +650,12 @@ and baseline transitions, using the Japanese runtime's existing dependencies.
 For changes to `git-workflow` validation, also run its behavior tests:
 
 ```sh
-node --test plugins/git-workflow/tests/commitlint.test.mjs \
-  plugins/git-workflow/tests/committed.test.mjs \
+node --test plugins/git-workflow/tests/committed.test.mjs \
   plugins/git-workflow/tests/branch-validation.test.mjs
 ```
 
-The tests run the pinned commitlint, committed, and commit-check CLIs through
-`npx` and `uvx`. After installing the plugin into a
+The tests run the pinned `committed` and `commit-check` CLIs through `uvx`.
+After installing the plugin into a
 temporary `HOME`, also exercise both skills' validation procedures from a
 separate repository using their installed assets and reference guides. Verify
 repository-owned executables, versions, and configuration remain in use when
