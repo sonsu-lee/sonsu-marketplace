@@ -38,16 +38,6 @@ Use these Linear differences with the workflow in [Writing tickets](../SKILL.md)
 - Sub-issues inherit the parent's team, priority and project, not its labels.
   Teams can configure the parent to close automatically when all sub-issues
   are done.
-- In PR descriptions, `Fixes ENG-123` applies the configured merge status;
-  `Refs ENG-123` links partial work without that status but can trigger other
-  configured transitions; `Related to ENG-123` links context without status
-  changes. PR comments do not create these links. A branch containing an issue
-  ID can also link work automatically, so omitting closing keywords alone
-  does not disable all automation.
-- Linear supports multiple PRs per issue and multiple issues per PR. Its
-  documented multi-PR behavior waits for the final linked PR to reach the
-  configured state, but cannot account for future unlinked PRs or prove the
-  ticket outcome is met.
 
 ## Sources
 

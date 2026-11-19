@@ -182,6 +182,17 @@
         "Does not state or imply that merging this PR into develop closes #41",
         "States in the body or the reply that #41 must be checked or closed after merge because the PR does not target the default branch"
       ]
+    },
+    {
+      "id": 17,
+      "prompt": "Draft only the PR description for fictional acme/billing on GitHub; it has no PR template. The team tracks work in Linear; the repository does not use GitHub issues. The team's Linear GitHub integration links a pull request to an issue whose ID appears in the branch name, and moves a linked issue to Done when the pull request merges. This PR's branch is `eng-240-retry-uploads`. Linear issue ENG-240, \"Make the nightly invoice export resilient\", has two outcomes: a failed upload is retried before the run is marked failed, and on-call is alerted when the run finally fails. Complete diff: the export now retries a failed upload up to three times, 30 seconds apart, before marking the run failed. Alerting is not part of this PR. No UI changed. Use only these facts; do not publish, create files, or access the fictional repository.",
+      "expected_output": "Explains the retry behavior. Links ENG-240 as partial work without a closing word, and says in the body or the reply that the branch name still links the PR, so merging may move ENG-240 to Done even though alerting remains; its status needs a check after merge, or the link must be changed before merge.",
+      "assertions": [
+        "Explains that a failed upload is retried up to three times, 30 seconds apart, before the run is marked failed",
+        "Presents the PR as advancing only part of ENG-240, with alerting remaining, not as completing it",
+        "Does not link ENG-240 with a closing word such as Fixes, Closes, or Resolves",
+        "States in the body or the reply that the branch name can still move ENG-240 to Done on merge, so its status must be checked after merge or the linking changed before it"
+      ]
     }
   ]
 }
