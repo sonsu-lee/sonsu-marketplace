@@ -56,8 +56,8 @@ Claude Code. Listing a plugin does not prove that its skills run.
 - **`writing-commits`** writes Conventional Commit messages and validates them
   before use. It reuses repository commands, tools, versions, and configuration.
   Only without an existing execution setup does it run pinned `committed` through
-  `uvx`; only without repository configuration does it use bundled defaults. See the
-  [skill's validation procedure](skills/writing-commits/SKILL.md#required-validation).
+  `uvx`; only without repository configuration does it use bundled defaults.
+  See the [skill's validation procedure](skills/writing-commits/SKILL.md#required-validation).
 - **`naming-branches`** names and validates branches with Conventional Branch
   1.1.0, reusing repository validation first. Without an execution setup it runs
   pinned `commit-check` through `uvx`; repository configuration still takes
