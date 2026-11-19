@@ -79,6 +79,9 @@ Branch prefixes do not change commit types: a `bugfix/` branch can contain
 `fix`, `test`, and other commits. A missing dependency or failed configured
 validator is not an absent setup and must not trigger a fallback. These skills
 provide agent workflow instructions, not Git hooks or CI enforcement.
+Repositories that want local checks may use [Lefthook](https://lefthook.dev/)
+to run their validators as Git hooks, alongside CI for enforcement. This
+plugin does not install or configure those hooks.
 
 ## Contributing
 
