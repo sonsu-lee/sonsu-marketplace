@@ -104,9 +104,16 @@ class Receiver:
         with self.lock:
             bodies = list(self.bodies)
         for body in bodies:
-            strings = decoded_strings(body)
-            if any(marker in s for s in strings) and any(wanted in squash(s) for s in strings):
-                return True
+            try:
+                messages = json.loads(body).get("messages", [])
+            except (ValueError, AttributeError):
+                continue
+            for message in messages:
+                if not isinstance(message, dict) or message.get("role") != "user":
+                    continue
+                content = json.dumps(message.get("content"), ensure_ascii=False)
+                if any(marker in s and wanted in squash(s) for s in decoded_strings(content)):
+                    return True
         return False
 
     def count(self) -> int:
@@ -522,10 +529,11 @@ def check_claude(root: Path, market: str, plugins: list[str], skills: list[Skill
         missing = []
         for skill in skills:
             receiver.reset()
-            run(["claude", "-p", f"/{skill.plugin}:{skill.name} check",
+            marker = f"check-{uuid.uuid4().hex}"
+            run(["claude", "-p", f"/{skill.plugin}:{skill.name} {marker}",
                  "--output-format", "stream-json", "--verbose"],
                 run_env, target, timeout=REQUEST_TIMEOUT)
-            if not receiver.contains(skill.body):
+            if not receiver.request_contains(marker, skill.body):
                 missing.append(f"{skill.plugin}:{skill.name}"
                                + ("" if receiver.count() else " (no request)"))
         results.append(Result("claude", "loading", not missing,

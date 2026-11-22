@@ -19,7 +19,7 @@ class PluginLoadingTests(unittest.TestCase):
         self.addCleanup(self.receiver.close)
 
     def post(self, *messages):
-        payload = json.dumps({"messages": [{"content": msg} for msg in messages]}).encode()
+        payload = json.dumps({"messages": [{"role": "user", "content": "\n".join(messages)}]}).encode()
         request = Request(f"http://127.0.0.1:{self.receiver.port}/v1", data=payload)
         with self.assertRaises(HTTPError) as error:
             urlopen(request, timeout=5)
@@ -37,6 +37,28 @@ class PluginLoadingTests(unittest.TestCase):
         self.post("check-unique", "Complete skill")
         self.assertFalse(self.receiver.request_contains("check-unique", "Complete skill body"))
         self.assertFalse(self.receiver.request_contains("missing-marker", "Complete skill body"))
+
+    def test_bootstrap_body_does_not_prove_invocation(self):
+        payload = json.dumps({"messages": [
+            {"role": "system", "content": "Complete skill body"},
+            {"role": "user", "content": [{"type": "text", "text": "check-unique"}]},
+        ]}).encode()
+        request = Request(f"http://127.0.0.1:{self.receiver.port}/v1", data=payload)
+        with self.assertRaises(HTTPError) as error:
+            urlopen(request, timeout=5)
+        error.exception.close()
+        self.assertFalse(self.receiver.request_contains("check-unique", "Complete skill body"))
+
+    def test_body_and_marker_in_separate_user_blocks_do_not_prove_invocation(self):
+        payload = json.dumps({"messages": [{"role": "user", "content": [
+            {"type": "text", "text": "Complete skill body"},
+            {"type": "text", "text": "check-unique"},
+        ]}]}).encode()
+        request = Request(f"http://127.0.0.1:{self.receiver.port}/v1", data=payload)
+        with self.assertRaises(HTTPError) as error:
+            urlopen(request, timeout=5)
+        error.exception.close()
+        self.assertFalse(self.receiver.request_contains("check-unique", "Complete skill body"))
 
     def test_renderer_table_separator_compaction_preserves_complete_loading(self):
         expected = "# Guide\n| Name | Purpose |\n| -------- | ------------ |\n| Read | Inspect |\nEnd."
