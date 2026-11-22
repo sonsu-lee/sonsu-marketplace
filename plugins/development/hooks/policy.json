@@ -1,0 +1,12 @@
+{
+  "shellPatterns": [
+    "\\bgit\\s+(?:(?:--no-pager\\s+)|(?:(?:-C|-c|--git-dir|--work-tree)(?:\\s+|=)(?:\"[^\"]*\"|'[^']*'|\\S+)\\s+))*(?:commit|push|merge(?!-base\\b)|tag)\\b",
+    "\\bgit\\s+(?:(?:-C|-c|--git-dir|--work-tree)(?:\\s+|=)(?:\"[^\"]*\"|'[^']*'|\\S+)\\s+)*(?:branch|worktree)\\s+(?:-[dD]|--delete|remove|prune)\\b",
+    "\\bgh\\s+(?:pr|issue|release)\\s+(?:create|edit|comment|merge|close|delete|review|ready)\\b",
+    "\\bgh\\s+api\\b[^\\n]*(?:(?:-X|--method)(?:\\s+|=)(?:POST|PUT|PATCH|DELETE)\\b|(?:-f|-F|--field|--raw-field)(?:\\s+|=))",
+    "\\bcurl\\b[^\\n]*(?:-X|--request)(?:\\s+|=)(?:POST|PUT|PATCH|DELETE)\\b",
+    "\\brm\\s+(?:-[A-Za-z]*[rR][A-Za-z]*\\s+|--recursive\\s+)",
+    "\\b(?:kubectl|helm|terraform)\\s+(?:apply|delete|destroy|upgrade)\\b"
+  ],
+  "remoteMutationPattern": "^(?:xd://)?mcp__.*(?:create|update|delete|remove|send|publish|submit|merge|modify|save|set_|move|restore|retire|resolve|share|unshare|push|cancel|insert|import|write|add_|request_|reply|upload|archive|duplicate)"
+}

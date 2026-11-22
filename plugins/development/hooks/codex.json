@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {"type": "command", "command": "python3 \"${PLUGIN_ROOT}/hooks/session_start.py\""}
+        ]
+      },
+      {
+        "hooks": [{"type": "command", "command": "python3 \"${PLUGIN_ROOT}/hooks/work_log.py\" codex || printf '{}'"}]
+      }
+    ],
+    "SessionEnd": [{"hooks": [{"type": "command", "command": "python3 \"${PLUGIN_ROOT}/hooks/work_log.py\" codex || printf '{}'"}]}],
+    "SubagentStart": [{"hooks": [{"type": "command", "command": "python3 \"${PLUGIN_ROOT}/hooks/work_log.py\" codex || printf '{}'"}]}],
+    "SubagentStop": [{"hooks": [{"type": "command", "command": "python3 \"${PLUGIN_ROOT}/hooks/work_log.py\" codex || printf '{}'"}]}],
+    "Interrupt": [{"hooks": [{"type": "command", "command": "python3 \"${PLUGIN_ROOT}/hooks/work_log.py\" codex || printf '{}'"}]}],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|apply_patch|mcp__.*",
+        "hooks": [
+          {"type": "command", "command": "python3 \"${PLUGIN_ROOT}/hooks/pre_tool_use.py\" --client codex"}
+        ]
+      }
+    ]
+  }
+}

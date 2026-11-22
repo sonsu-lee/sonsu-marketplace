@@ -1,54 +1,13 @@
 {
   "name": "sonsu-marketplace",
   "description": "Personal plugin marketplace for omp, Codex, and Claude Code.",
-  "owner": {
-    "name": "sonsu-lee",
-    "url": "https://github.com/sonsu-lee"
-  },
+  "owner": {"name": "sonsu-lee", "url": "https://github.com/sonsu-lee"},
   "plugins": [
-    {
-      "name": "git-workflow",
-      "source": "./plugins/git-workflow",
-      "description": "Name branches, write commits, and prepare draft pull requests by repository conventions.",
-      "version": "0.7.6"
-    },
-    {
-      "name": "skill-workflow",
-      "source": "./plugins/skill-workflow"
-    },
-    {
-      "name": "ticket-workflow",
-      "source": "./plugins/ticket-workflow",
-      "description": "Write small, outcome-centered GitHub and Linear tickets while leaving implementation to the assignee.",
-      "version": "0.4.6"
-    },
-    {
-      "name": "decision-workflow",
-      "source": "./plugins/decision-workflow",
-      "description": "Select consequential design decisions and write lightweight ADRs using repository conventions first.",
-      "version": "0.3.4"
-    },
-    {
-      "name": "writing-workflow",
-      "source": "./plugins/writing-workflow",
-      "description": "Write and refine natural Korean, English, and Japanese prose while preserving meaning and author voice.",
-      "version": "0.3.3"
-    },
-    {
-      "name": "review-workflow",
-      "source": "./plugins/review-workflow"
-    },
-    {
-      "name": "planning-workflow",
-      "source": "./plugins/planning-workflow",
-      "description": "Plan non-trivial work and coordinate authorized execution through independent review and final validation.",
-      "version": "0.5.4"
-    },
-    {
-      "name": "design-workflow",
-      "source": "./plugins/design-workflow",
-      "description": "Design and review interfaces and graphics with scoped evidence and an optional omp verification harness.",
-      "version": "0.3.3"
-    }
+    {"name": "development", "source": "./plugins/development"},
+    {"name": "review", "source": "./plugins/review"},
+    {"name": "product", "source": "./plugins/product", "description": "Product requirements, decisions, and tickets.", "version": "0.1.2"},
+    {"name": "design", "source": "./plugins/design", "description": "Interface and graphic design with scoped verification.", "version": "0.1.0"},
+    {"name": "writing", "source": "./plugins/writing", "description": "Natural Korean, English, and Japanese prose.", "version": "0.1.0"},
+    {"name": "git", "source": "./plugins/git", "description": "Git branches, worktrees, commits, and pull requests.", "version": "0.1.3"}
   ]
 }

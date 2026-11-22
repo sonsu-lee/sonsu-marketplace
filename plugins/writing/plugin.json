@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "writing",
+  "version": "0.1.0",
+  "description": "Write and refine natural Korean, English, and Japanese prose while preserving meaning and author voice.",
+  "author": {
+    "name": "sonsu-lee",
+    "url": "https://github.com/sonsu-lee"
+  },
+  "repository": "https://github.com/sonsu-lee/sonsu-marketplace",
+  "license": "MIT",
+  "keywords": ["writing", "editing", "korean", "english", "japanese"]
+}

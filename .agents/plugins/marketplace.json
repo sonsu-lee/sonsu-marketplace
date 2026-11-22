@@ -1,104 +1,12 @@
 {
   "name": "sonsu-marketplace",
-  "interface": {
-    "displayName": "sonsu-marketplace"
-  },
+  "interface": {"displayName": "sonsu-marketplace"},
   "plugins": [
-    {
-      "name": "git-workflow",
-      "source": {
-        "source": "local",
-        "path": "./plugins/git-workflow"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "skill-workflow",
-      "source": {
-        "source": "local",
-        "path": "./plugins/skill-workflow"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "ticket-workflow",
-      "source": {
-        "source": "local",
-        "path": "./plugins/ticket-workflow"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "decision-workflow",
-      "source": {
-        "source": "local",
-        "path": "./plugins/decision-workflow"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "writing-workflow",
-      "source": {
-        "source": "local",
-        "path": "./plugins/writing-workflow"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "review-workflow",
-      "source": {
-        "source": "local",
-        "path": "./plugins/review-workflow"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "planning-workflow",
-      "source": {
-        "source": "local",
-        "path": "./plugins/planning-workflow"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "design-workflow",
-      "source": {
-        "source": "local",
-        "path": "./plugins/design-workflow"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    }
+    {"name": "development", "source": {"source": "local", "path": "./plugins/development"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
+    {"name": "review", "source": {"source": "local", "path": "./plugins/review"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
+    {"name": "product", "source": {"source": "local", "path": "./plugins/product"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
+    {"name": "design", "source": {"source": "local", "path": "./plugins/design"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
+    {"name": "writing", "source": {"source": "local", "path": "./plugins/writing"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
+    {"name": "git", "source": {"source": "local", "path": "./plugins/git"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"}
   ]
 }
