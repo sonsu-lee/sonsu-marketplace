@@ -51,6 +51,15 @@ when the page is busy. Changing an inherited CSS variable restyles every
 descendant. Confirm smoothness on a real mid-range device; a fast desktop
 proves little.
 
+Blur combines many neighboring pixels for each output pixel, so its cost grows
+with the blurred area and radius, and animating it repeats that work every
+frame. Engines differ: check blur in each target browser on real hardware and
+name a cheaper treatment with a similar impression, such as reduced opacity or
+a pre-blurred image, for engines where it stutters. Sources: Chrome's
+[animated blur note](https://developer.chrome.com/blog/animated-blur) and a
+[conference site](https://toss.tech/article/simplicity4-frontend-engineering)
+that found blur slow in Safari and lowered a background's opacity there.
+
 ## Removing motion
 
 Check for elements whose start state is hidden until an animation runs, code

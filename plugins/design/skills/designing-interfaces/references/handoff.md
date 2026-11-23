@@ -149,3 +149,29 @@ advice, not independently established feasibility evidence.
   background. It is the existing presentation, not an implemented all-white
   revision, manufacture test or proof that gradients are unsuitable for every
   physical application.
+
+## W07: Order a component specification for the people who build it
+
+When a component specification guides implementation, arrange it to read in
+one direction: an example with every option enabled first, then structure and
+types, the elements of each type, and then the details of each state. Keep
+accessibility conditions in the same fixed section of every specification,
+state where overlays sit on screen, and pair each example with its exact
+values. When motion intent is the hard part, a working prototype or code
+reference with a short flow can carry it better than a timing document.
+
+Limits: Omit sections that do not apply, such as types for a simple atomic
+component; the order is a reading aid, not a mandatory template. A prototype
+handed over as reference must say which parts are specification and which are
+disposable, and the implementing team decides whether to build from it; it
+does not replace written state, accessibility or platform coverage. Sources
+are one design-system team's guide format and one component handoff on a
+single platform, not measured gains in speed or accuracy. The procedure
+remains unperformed on a real supplied deliverable; do not infer success or
+invent missing project facts.
+
+- <https://toss.tech/article/toss-design-system-guide> — reading order,
+  everything-enabled example first, fixed accessibility section and example
+  beside values.
+- <https://toss.tech/article/deadend> — a working repository and brief flow
+  handed over in place of an interaction timing document.
