@@ -21,11 +21,13 @@ and reporting what was actually verified.
    including errors, empty states and recovery. Do not remove features or invent
    policy to clean up the composition. Identify consequential unknowns.
 2. **Design the interface.** Choose hierarchy from user tasks and compose
-   readable groups, controls and responsive layouts around real content. Specify
-   what stays fixed, resizes or rearranges, including at intermediate widths.
-   Match state and action labels to actual behavior; do not claim success before
-   confirmation. Consider keyboard access, accessible names and contrast using
-   applicable requirements and appropriate tools, not visual guesses.
+   readable groups, controls and responsive layouts around real content. Settle
+   the order and grouping of content before visual styling, and note the reason
+   for each structural choice. Specify what stays fixed, resizes or rearranges,
+   including at intermediate widths. Match state and action labels to actual
+   behavior; do not claim success before confirmation. Consider keyboard
+   access, accessible names and contrast using applicable requirements and
+   appropriate tools, not visual guesses.
 3. **Inspect and report.** Inspect relevant target sizes and states with actual
    assets. If a browser or state is unavailable, report the limitation rather
    than claiming visual verification. Distinguish observations from proposals,
@@ -66,10 +68,13 @@ Read only the references that fit the design decision:
 - [Visual judgments](references/visual.md): typography, spacing, imagery,
   icons or visual encoding.
 - [Input and navigation](references/input-and-navigation.md): hit areas,
-  icon labels, navigation, selection and input controls.
+  icon labels, navigation, selection and input controls, which questions to
+  ask, value before a costly verification, data or consent request, and
+  pressable or scrollable cues.
 - [States and feedback](references/states-and-feedback.md): selection and
-  status, composing, message order across turns, overlays, progress,
-  suggestions and empty history.
+  status, composing, message order across turns, overlays, progress and long
+  processing, AI answers, suggestions, errors and lockout, screen-reader state
+  and reading order, and empty history.
 - [Actions, policy and commitments](references/commitments-and-policy.md):
   action labels, operational counterparts, policy branches, money and exit
   friction.

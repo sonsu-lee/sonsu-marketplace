@@ -285,7 +285,12 @@ only relevant design reasoning. The worst-case data, touch web and motion
 references are local adaptations of Emil Kowalski's
 [skills](https://github.com/emilkowalski/skills/tree/a81dbca07f2217b7103e510c0f13f8d5b017afc9)
 at `a81dbca07f2217b7103e510c0f13f8d5b017afc9`, not automatic mirrors. Keep the
-upstream notice and revision reference when updating them.
+upstream notice and revision reference when updating them. Some items also
+link toss.tech design articles, some of which redirect to conference session
+pages whose transcript or video captions were the source. They are rewritten
+as conditional judgments; the package reproduces no article or session text,
+images or reported results, and the cases illustrate decisions rather than
+establish outcomes for other products.
 
 ## Contributing
 

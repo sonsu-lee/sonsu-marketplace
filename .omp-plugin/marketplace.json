@@ -6,7 +6,7 @@
     {"name": "development", "source": "./plugins/development", "description": "Development planning, execution, debugging, and skill authoring.", "version": "0.1.5"},
     {"name": "review", "source": "./plugins/review", "description": "Independent evidence-driven code review.", "version": "0.1.3"},
     {"name": "product", "source": "./plugins/product", "description": "Product requirements, decisions, and tickets.", "version": "0.1.2"},
-    {"name": "design", "source": "./plugins/design", "description": "Interface and graphic design with scoped verification.", "version": "0.1.1"},
+    {"name": "design", "source": "./plugins/design", "description": "Interface and graphic design with scoped verification.", "version": "0.1.2"},
     {"name": "writing", "source": "./plugins/writing", "description": "Natural Korean, English, and Japanese prose.", "version": "0.1.0"},
     {"name": "git", "source": "./plugins/git", "description": "Git branches, worktrees, commits, and pull requests.", "version": "0.1.4"}
   ]
