@@ -58,6 +58,7 @@ omp plugin install git@sonsu-marketplace
 To migrate registered packages under their previous names, run the
 [migration script](scripts/migrate-omp-plugins.sh) from a checkout of this
 repository. It defaults to user scope and skips packages that are not installed.
+Before installing the first missing replacement, it refreshes the catalog once.
 
 ```sh
 ./scripts/migrate-omp-plugins.sh
