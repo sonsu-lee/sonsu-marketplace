@@ -455,6 +455,14 @@ prints one line per check:
   receiver that records and rejects model requests, and Codex reports no
   truncation. The omp check waits for the invocation request rather than
   stopping on an earlier routing-hint request.
+- `hooks`: the Codex `app-server` session that answers `skills/list` also
+  answers `hooks/list`. The line names each package that declares Codex hooks
+  in `plugin.json` or has hooks listed, and the hooks Codex lists with plugin
+  source and that package's plugin ID, with event, enabled state, and trust.
+  User hooks and other plugins' hooks are not counted. Any hook count passes,
+  including none, because packaged-hook loading depends on the Codex version;
+  hook warnings or errors naming a package's installed path fail. A listed hook
+  is discovered, not trusted or run.
 
 Skills come from `skills/*/SKILL.md` in each catalog package, so a new skill
 needs no script change. Any `FAIL` line names the client and check and makes
