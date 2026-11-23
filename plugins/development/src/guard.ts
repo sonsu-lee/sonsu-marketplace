@@ -55,13 +55,13 @@ function unquotePath(path: string): string {
   return path.replace(/^['"]|['"]$/g, '');
 }
 
-export function actionReason(name: string, input: Record<string, unknown>, cwd: string): string | undefined {
-  if (remoteMutation.test(name)) return 'Remote mutation requires explicit approval.';
+export function needsEvidenceGate(name: string, input: Record<string, unknown>, cwd: string): boolean {
+  if (remoteMutation.test(name)) return true;
   const lower = name.toLowerCase();
   if (lower === 'bash' && typeof input.command === 'string' && shellPatterns.some(pattern => pattern.test(input.command as string))) {
-    return 'Commit, publication, merge, deployment, or destructive action requires explicit approval.';
+    return true;
   }
-  if (lower !== 'write' && lower !== 'edit') return;
+  if (lower !== 'write' && lower !== 'edit') return false;
   const paths: string[] = [];
   if (typeof input.path === 'string') paths.push(unwrapHeader(input.path));
   if (lower === 'edit') {
@@ -82,7 +82,8 @@ export function actionReason(name: string, input: Record<string, unknown>, cwd: 
     }
   }
   for (const path of paths) {
-    if (remoteMutation.test(path) || /^(ssh|cfg|issue|pr):\/\//i.test(path)) return 'Remote mutation requires explicit approval.';
-    if (!path.includes('://') && outside(cwd, path)) return 'A write outside the current workspace requires explicit approval.';
+    if (remoteMutation.test(path) || /^(ssh|cfg|issue|pr):\/\//i.test(path)) return true;
+    if (!path.includes('://') && outside(cwd, path)) return true;
   }
+  return false;
 }
