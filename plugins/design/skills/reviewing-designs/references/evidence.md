@@ -1,10 +1,11 @@
 # Conditional critique evidence
 
-Use the relevant section when a visual, flow or handoff judgment needs research
-context. Sources illustrate judgments; findings must be supported by the
-artifact itself, not assumed from source observations. A toss.tech link marked
-"(session transcript)" or "(session video)" redirects to a conference session
-page; the talk's transcript or its linked video's captions were the source.
+Use the relevant section when a visual, flow, research-evidence or handoff
+judgment needs research context. Sources illustrate judgments; findings must be
+supported by the artifact itself, not assumed from source observations. A
+toss.tech link marked "(session transcript)" or "(session video)" redirects to
+a conference session page; the talk's transcript or its linked video's
+captions were the source.
 
 ## Gotchas
 
@@ -131,6 +132,34 @@ context: [staged rebuild](https://toss.tech/article/27186) (session
 transcript), [per-state removal](https://toss.tech/article/27374) (session
 video) and [regrouping by action](https://toss.tech/article/mydoc).
 
+## Research and feedback evidence
+
+Treat feedback from an AI model or a simulated persona as a check that can
+raise hypotheses, not as validation with users or an observation of them.
+Label it that way in the report, keep a point only where the artifact itself
+supports it, and do not let it replace research with the intended users.
+Source context: <https://toss.tech/article/research-platform-ai>.
+
+When user reactions are offered as evidence, ask who gave each reaction, such
+as whether respondents already used the affected feature, before reading the
+split between favorable and unfavorable answers. A mixed share can separate into
+groups with different reasons, so do not report the ratio alone as the finding;
+if the respondents' makeup is unknown, say so. Source context:
+<https://toss.tech/article/27380> (session video).
+
+Note when usability evidence comes only from people who built the design or
+already know the product well. Judge participants by role, prior product
+experience and involvement in the design, not by affiliation: colleagues who
+are the intended users of an internal tool can be the right participants, but
+note how any part they had in the design may shape what they find easy.
+Someone familiar with the product moving easily past a hidden entry point or
+an unfamiliar term does not show that intended users will find or understand
+it. Recommend checking with intended
+users rather than calling the design defective on that basis alone. Treat a
+rationale that assumes people will already understand a control, term or
+purpose as a maker assumption to verify, not as evidence. Source context:
+<https://toss.tech/article/thinking-user-perspective>.
+
 ## Conflicting references and handoff
 
 If revisions leave references inconsistent, establish the approved change and
@@ -145,4 +174,8 @@ Trace a claimed improvement from the stated problem to the actual design choice
 and available evidence. P46 context:
 [966.36–1017.91 seconds](https://www.youtube.com/watch?v=-Jzn4PnTmoU&t=966s). Do
 not claim improved conversion, usability or collaboration from the narrative
-alone, and do not turn this into a hiring or career-assessment rubric.
+alone, and do not turn this into a hiring or career-assessment rubric. Check
+whether the intended outcome and the way it will be measured are stated; if not,
+recommend stating both and measuring the same way before and after release.
+Until that measurement exists, report the improvement as intended, not
+achieved. Source context: <https://toss.tech/article/tablecenter>.

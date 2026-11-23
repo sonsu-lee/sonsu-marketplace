@@ -26,7 +26,9 @@ available evidence and requested task.
    accessibility requirements. Do not prescribe arbitrary font or spacing
    numbers or assert conformance from appearance alone.
 3. **Report.** Rank actionable findings by impact, propose proportionate
-   remedies and report scope and limitations. If no issue is supported, say so.
+   remedies and report scope and limitations. Removing a field, feature or
+   limit and changing a default, consent or policy are owner decisions;
+   recommend them as questions with evidence. If no issue is supported, say so.
 
 For a motion review, inspect purpose, frequency, interruption, origin, reduced
 motion, input capability and runtime cost. Observe actual motion when possible;
@@ -55,10 +57,16 @@ replace an actual screen check or required independent review.
   call a blockage permanent from one state. Describe impact conditionally: a
   closing caveat does not correct an earlier unqualified verdict.
 
-Read [critique evidence](references/evidence.md) when a specific visual or flow
-judgment, conflicting reference, or handoff question needs research context.
-Read [worst-case data](references/worst-case-data.md) when the design renders
-user- or system-supplied values such as names, counts, dates or lists. These
+Read [critique evidence](references/evidence.md) when the review covers
+questions or fields, errors and lockout, long processing or AI answers,
+screen-reader claims, defaults and consent, copy across screens, risk
+warnings, redesign transitions, user-research or simulated feedback, a
+claimed improvement, conflicting references or handoff, or another visual or
+flow judgment that needs research context. Read
+[worst-case data](references/worst-case-data.md) when the design renders user-
+or system-supplied values such as names, counts, dates or lists, or when the
+on-screen keyboard, OS banners or graphics that change by stage can affect what
+is visible. These
 source-derived suggestions are not independent validation of the reviewed
 product or a substitute for applicable standards and tests.
 
