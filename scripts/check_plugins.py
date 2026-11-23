@@ -4,7 +4,8 @@
 Every client runs in fresh temporary homes with a minimal environment, so live
 settings and credentials are never read. Model requests go to a local receiver
 that records and rejects them; a skill passes prompt loading only when its
-complete SKILL.md body appears in a recorded request.
+complete SKILL.md body appears in a recorded request. The Codex check also
+reports which hooks Codex lists for each marketplace package.
 """
 
 from __future__ import annotations
@@ -23,6 +24,7 @@ import threading
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -301,17 +303,26 @@ def install_omp(root: Path, market: str, plugins: list[str], home: Path,
 
 
 def install_codex(root: Path, market: str, plugins: list[str], home: Path,
-                  target: Path) -> tuple[dict[str, str], list[str]]:
+                  target: Path) -> tuple[dict[str, str], list[str], dict[str, dict]]:
+    """Install the catalog; return the env, failures, and each `plugin add` record."""
     codex_home = home / ".codex"
     codex_home.mkdir(parents=True, exist_ok=True)
     target.mkdir(parents=True, exist_ok=True)
     env = base_env(home, CODEX_HOME=str(codex_home))
     proc = run(["codex", "plugin", "marketplace", "add", str(root), "--json"], env, target)
     failures = [] if proc.returncode == 0 else [f"marketplace add: {tail(proc)}"]
+    added: dict[str, dict] = {}
     for plugin in plugins:
         proc = run(["codex", "plugin", "add", f"{plugin}@{market}", "--json"], env, target)
         if proc.returncode != 0:
             failures.append(f"{plugin}: {tail(proc)}")
+            continue
+        try:
+            record = json.loads(proc.stdout)
+            added[plugin] = {"pluginId": record["pluginId"],
+                             "installedPath": record["installedPath"]}
+        except (ValueError, KeyError, TypeError):
+            failures.append(f"{plugin}: unexpected plugin add output")
     proc = run(["codex", "plugin", "list", "--marketplace", market, "--json"], env, target)
     try:
         installed = {p["name"]: p for p in json.loads(proc.stdout)["installed"]}
@@ -322,7 +333,7 @@ def install_codex(root: Path, market: str, plugins: list[str], home: Path,
         entry = installed.get(plugin)
         if not entry or not entry.get("installed") or not entry.get("enabled"):
             failures.append(f"{plugin} not installed and enabled")
-    return env, failures
+    return env, failures, added
 
 
 def install_claude(root: Path, market: str, plugins: list[str], home: Path,
@@ -398,18 +409,22 @@ def check_omp(root: Path, market: str, plugins: list[str], skills: list[Skill],
     return results
 
 
-def codex_skills_list(env: dict[str, str], target: Path) -> dict:
+def codex_app_server(env: dict[str, str], target: Path,
+                     requests: list[tuple[str, dict]]) -> list[dict]:
+    """Send requests in order to one `codex app-server` session; return the replies."""
     child = subprocess.Popen(["codex", "app-server"], env=env, cwd=target,
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                              stderr=subprocess.DEVNULL, text=True)
     lines: queue.Queue[str] = queue.Queue()
 
     def pump() -> None:
-        for line in child.stdout:
-            lines.put(line)
+        with child.stdout:
+            for line in child.stdout:
+                lines.put(line)
         lines.put("")
 
-    threading.Thread(target=pump, daemon=True).start()
+    reader = threading.Thread(target=pump, daemon=True)
+    reader.start()
 
     def send(message: dict) -> None:
         child.stdin.write(json.dumps(message) + "\n")
@@ -434,23 +449,84 @@ def codex_skills_list(env: dict[str, str], target: Path) -> dict:
               "params": {"clientInfo": {"name": "check_plugins", "version": "0.1.0"}}})
         receive(1)
         send({"method": "initialized", "params": {}})
-        send({"id": 2, "method": "skills/list",
-              "params": {"cwds": [str(target)], "forceReload": True}})
-        return receive(2)
+        replies = []
+        for request_id, (method, params) in enumerate(requests, start=2):
+            try:
+                send({"id": request_id, "method": method, "params": params})
+                replies.append(receive(request_id))
+            except (OSError, ValueError) as exc:
+                replies.append({"error": f"{method}: {exc}"})
+        return replies
     finally:
+        with suppress(BrokenPipeError):
+            child.stdin.close()
         child.kill()
         child.wait()
+        reader.join(timeout=1)
+
+
+def declares_codex_hooks(package: Path) -> bool:
+    manifest = json.loads((package / "plugin.json").read_text())
+    return bool(manifest.get("extensions", {}).get("com.openai", {}).get("hooks"))
+
+
+def describe_hooks(hooks: list[dict]) -> str:
+    if not hooks:
+        return "no hooks listed"
+    groups: dict[str, int] = {}
+    for hook in sorted(hooks, key=lambda h: h.get("displayOrder", 0)):
+        state = "enabled" if hook.get("enabled") else "disabled"
+        label = f"{hook.get('eventName')} ({state}, {hook.get('trustStatus')})"
+        groups[label] = groups.get(label, 0) + 1
+    noun = "hook" if len(hooks) == 1 else "hooks"
+    return f"{len(hooks)} {noun} listed: " + ", ".join(
+        label if count == 1 else f"{label} x{count}" for label, count in groups.items())
+
+
+def codex_hooks_result(reply: dict, added: dict[str, dict], declared: set[str]) -> Result:
+    """Report the hooks/list hooks each added package owns, ignoring all others.
+
+    A hook belongs to a package only when Codex reports it with source "plugin"
+    and that package's plugin ID. Warnings and errors count only when they name
+    the package's installed path. Listing no hooks is reported, not judged:
+    whether Codex loads packaged hooks depends on the client version.
+    """
+    if "result" not in reply:
+        return Result("codex", "hooks", False, f"hooks/list failed: {reply.get('error')}")
+    data = reply["result"]["data"]
+    if not data:
+        return Result("codex", "hooks", False, "hooks/list returned no workspace")
+    reports, problems = [], []
+    problems.extend(f"{p}: installation unavailable" for p in sorted(declared - added.keys()))
+    for plugin, record in added.items():
+        plugin_id, path = record["pluginId"], record["installedPath"]
+        owned = [h for entry in data for h in entry["hooks"]
+                 if h.get("source") == "plugin" and h.get("pluginId") == plugin_id]
+        problems += [f"{plugin_id}: {w}" for entry in data for w in entry["warnings"]
+                     if re.search(re.escape(path) + r"(?=[/\\:\s'\"]|$)", w)]
+        problems += [f"{plugin_id}: {e['path']}: {e['message']}" for entry in data
+                     for e in entry["errors"] if Path(e["path"]).is_relative_to(path)]
+        if owned or plugin in declared:
+            reports.append(f"{plugin_id} {describe_hooks(owned)}")
+    detail = "; ".join(problems + reports) or "no package declares or lists hooks"
+    return Result("codex", "hooks", not problems, detail)
 
 
 def check_codex(root: Path, market: str, plugins: list[str], skills: list[Skill],
                 tmp: Path) -> list[Result]:
     codex_home = tmp / "codex-home/.codex"
     target = tmp / "codex-target"
-    env, failures = install_codex(root, market, plugins, tmp / "codex-home", target)
+    env, failures, added = install_codex(root, market, plugins, tmp / "codex-home", target)
     results = [Result("codex", "install", not failures, "; ".join(failures))]
 
     try:
-        listing = codex_skills_list(env, target)
+        listing, hook_listing = codex_app_server(env, target, [
+            ("skills/list", {"cwds": [str(target)], "forceReload": True}),
+            ("hooks/list", {"cwds": [str(target)]}),
+        ])
+    except (OSError, ValueError) as exc:
+        listing = hook_listing = {"error": f"app-server: {exc}"}
+    try:
         data = listing["result"]["data"]
         errors = [str(e) for entry in data for e in entry.get("errors", [])]
         found = [s["name"] for entry in data for s in entry.get("skills", [])
@@ -458,9 +534,14 @@ def check_codex(root: Path, market: str, plugins: list[str], skills: list[Skill]
         problem = "; ".join(filter(None, [
             expect_once(found, [f"{s.plugin}:{s.name}" for s in skills]),
             "; ".join(errors)]))
-    except (TimeoutError, KeyError, ValueError) as exc:
-        problem = f"skills/list failed: {exc}"
+    except (KeyError, TypeError) as exc:
+        problem = f"skills/list failed: {listing.get('error', exc)}"
     results.append(Result("codex", "discovery", not problem, problem))
+    try:
+        declared = {p for p in plugins if declares_codex_hooks(root / "plugins" / p)}
+        results.append(codex_hooks_result(hook_listing, added, declared))
+    except (KeyError, TypeError, ValueError, OSError) as exc:
+        results.append(Result("codex", "hooks", False, f"hooks/list failed: {exc!r}"))
 
     receiver = Receiver()
     try:
