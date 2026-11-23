@@ -100,6 +100,37 @@ actually inspected (P53). Source context:
 [reading order](https://toss.tech/article/voiceover_usability) and
 [pressable and scroll cues](https://toss.tech/article/senior-usability-research).
 
+Check defaults and steering against the user's interest. A preselected
+consent-like choice, a costly-to-reverse default that does not fit the
+reviewed context, a decline path harder than accepting, or a limit people set
+on their own money or resources that leaves them no way to reach what is
+theirs, gets harder to release with lower ability or frames release as
+failure, can support a finding (P55, P41). Report it with the observed
+element; which default, consent text or release condition is acceptable stays
+with the policy owner. Source
+context: [default that did not fit one merchant](https://toss.tech/article/27400)
+and [nudge conditions](https://toss.tech/article/27190) (session transcripts)
+and [self-chosen lock](https://toss.tech/article/lockbank).
+
+Read labels and copy as a sequence. Ask whether each label or entry point lets
+users predict the next screen and its effort, whether the landing screen
+continues what the entry promised and offers the action it was used for, and
+whether copy breaks or repeats within a screen or across the flow (P37). For a
+risk warning, check that it appears before the committing step, names its
+source and does not rely on color alone (P28). Source context:
+[next-screen hint](https://toss.tech/article/8-writing-principles-of-toss),
+[preview and landing](https://toss.tech/article/27184) (session transcript) and
+[warning with source](https://toss.tech/article/27370) (session video).
+
+For a redesign, list which learned locations or triggers move, whether the
+previous path stays during the transition and whether existing user states
+have a planned path (P56). When a proposal iterates surface variants on one
+persistent problem, ask whether grouping or the product unit is the cause and
+whether structural alternatives were offered to the owner (P44, P09). Source
+context: [staged rebuild](https://toss.tech/article/27186) (session
+transcript), [per-state removal](https://toss.tech/article/27374) (session
+video) and [regrouping by action](https://toss.tech/article/mydoc).
+
 ## Conflicting references and handoff
 
 If revisions leave references inconsistent, establish the approved change and
