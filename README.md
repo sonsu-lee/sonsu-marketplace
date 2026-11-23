@@ -218,6 +218,17 @@ source edits take effect at the next session without a version change.
 For integrated code work, install `development` and `review`. Add the other
 packages for product, design, prose, or Git work; each is independently usable.
 
+Skills install in all three clients. Client-specific parts differ:
+
+- `review` dispatches its review workers through each client's subagents; see
+  [Defaults and limits](plugins/review/README.md#defaults-and-limits).
+- `design` strict runs and capture tools are omp only; see
+  [Start an omp strict run](plugins/design/README.md#start-an-omp-strict-run).
+- For recognized sensitive actions, `development` applies the evidence gate
+  without a second omp prompt. Claude Code denies a blocked action or requests
+  confirmation; the separately registered Codex user hook denies it.
+  See [Usage](plugins/development/README.md#usage).
+
 ## Contributing
 
 Pull requests are welcome. Ask questions or report problems in
