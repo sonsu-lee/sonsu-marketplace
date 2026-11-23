@@ -26,7 +26,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/pre_tool_use.py\" --client claude"
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/pre_tool_use.py\" --client claude",
+            "onFailure": "block"
           }
         ]
       }

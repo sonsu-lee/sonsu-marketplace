@@ -69,7 +69,9 @@ file actions it runs the evidence gate and blocks the call when the gate reports
 a block; otherwise the call continues under omp's own permission settings. If
 the omp evidence gate cannot run or returns unreadable output, recognized
 actions are blocked. Claude Code's PreToolUse hook asks for confirmation; its
-non-interactive host may deny the call. The separately registered Codex user
+non-interactive host may deny the call. The Claude guard hook is registered
+with `onFailure: block`, so Claude Code blocks the call if the hook cannot run
+or fails; its log hooks stay non-blocking. The separately registered Codex user
 hook denies recognized actions because Codex does not support the PreToolUse
 `ask` decision.
 
@@ -82,8 +84,8 @@ identical.
 MCP name matching can both block read-only tools and miss mutations.
 In-workspace paths are not compared with a natural-language plan's narrower
 file scope. Pattern matching also sees comments and quoted text, so harmless
-commands may be asked about or denied. A failed or missing Claude command hook
-can allow the call to continue.
+commands may be asked about or denied. A Claude guard that is not loaded
+cannot block a call.
 This is not a security sandbox. Never infer approval from skill selection.
 
 ### Codex user hook
