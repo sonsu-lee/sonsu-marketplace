@@ -12,7 +12,9 @@ packages.
 
 - [Install](#install)
   - [Dependencies](#dependencies)
-  - [Marketplace](#marketplace)
+  - [omp](#omp)
+  - [Codex](#codex)
+  - [Claude Code](#claude-code)
 - [Usage](#usage)
   - [CLI](#cli)
 - [Available plugins](#available-plugins)
@@ -38,65 +40,79 @@ Some plugins need additional tools or authenticated services; see the
 `Dependencies` section of each plugin's guide in
 [Available plugins](#available-plugins).
 
-### Marketplace
+### omp
 
-For omp, add the marketplace:
+Register the marketplace once:
 
 ```sh
 omp plugin marketplace add sonsu-lee/sonsu-marketplace
 ```
 
-List its plugins and install one:
+Install the package you need. The default scope is `user`; add `--scope project`
+to install only in the current project.
 
 ```sh
-omp plugin discover sonsu-marketplace
-omp plugin install <plugin>@sonsu-marketplace
+omp plugin install git@sonsu-marketplace
 ```
 
-Add `--scope project` to install a plugin for the current project only.
+To migrate registered packages under their previous names, run the
+[migration script](scripts/migrate-omp-plugins.sh) from a checkout of this
+repository. It defaults to user scope and skips packages that are not installed.
+Before installing the first missing replacement, it refreshes the catalog once.
 
-For Codex:
+```sh
+./scripts/migrate-omp-plugins.sh
+```
+
+For project scope, run the script by its absolute path from the target
+project and pass `project` as the argument.
+
+The `design` skills need no browser. To use the optional omp capture tools,
+follow the [design dependencies](plugins/design/README.md#dependencies).
+Install missing JavaScript dependencies in `design`'s `installPath`, not
+globally or in your project.
+
+### Codex
 
 ```sh
 codex plugin marketplace add sonsu-lee/sonsu-marketplace
 codex plugin list --marketplace sonsu-marketplace --available --json
+```
+
+Check the installed entries (without `--available`):
+
+```sh
+codex plugin list --marketplace sonsu-marketplace --json
+```
+
+For any installed `*-workflow` package you are replacing, run
+`codex plugin remove` with its full marketplace ID. If none is listed,
+skip removal. Install the package you need:
+
+```sh
 codex plugin add git@sonsu-marketplace
 ```
 
-If this Codex home previously installed the old `*-workflow` packages from
-this marketplace, remove them before installing their replacements. Otherwise
-duplicate skill names can cause a natural-language request to load older guidance:
-
-```sh
-for plugin in git skill ticket decision writing review planning design; do
-  codex plugin remove "$plugin-workflow@sonsu-marketplace"
-done
-```
-
-Ignore a not-installed error for a package absent from that home, but investigate
-other errors. The new packages have different names and must be installed
-separately.
-
-For Claude Code:
+### Claude Code
 
 ```sh
 claude plugin marketplace add sonsu-lee/sonsu-marketplace
-claude plugin install git@sonsu-marketplace
+claude plugin list
 ```
 
-For omp or Claude Code, inspect installed packages and remove any of the same
-old `*-workflow` names before installing their replacements. Select the scope
-where each package is installed. The Claude Code example keeps its plugin data:
+If the list shows a `*-workflow@sonsu-marketplace` package you are replacing,
+remove it from its listed scope (`user`, `project`, or `local`). For example,
+only for a user-scoped `git-workflow`, keep its data with:
 
 ```sh
-omp plugin uninstall <old-name>@sonsu-marketplace --dry-run
-omp plugin uninstall <old-name>@sonsu-marketplace
-claude plugin uninstall <old-name>@sonsu-marketplace --keep-data
+claude plugin uninstall git-workflow@sonsu-marketplace --scope user --keep-data
 ```
 
-The omp dry run previews removal; it does not remove the package. Use
-`--scope project` for omp project installations. Claude Code also supports
-`--scope project` and `--scope local`.
+Then install the package you need:
+
+```sh
+claude plugin install git@sonsu-marketplace
+```
 
 Use `codex plugin add <name>@sonsu-marketplace` or
 `claude plugin install <name>@sonsu-marketplace` for another package; Claude
@@ -109,11 +125,26 @@ and CLI checks do not verify those UIs.
 
 ### CLI
 
-In omp, check available skills after installation:
+In omp, check the registered packages, scopes, and install paths, then check
+plugin health and skill discovery:
 
 ```sh
+omp plugin list --json
+omp plugin doctor
 omp skill list
 ```
+
+If `doctor` still reports `Missing package.json` or `orphan` for an old name
+absent from `omp plugin list --json`, uninstall cannot remove it by ID.
+For a user installation, inspect `~/.omp/plugins/node_modules/<old-name>`
+and `~/.omp/plugins/omp-plugins.lock.json`. Move only a confirmed stale
+symlink outside `node_modules`; back up the lock file before removing only
+the matching orphan entry under `plugins`. Run `omp plugin doctor` again.
+Do not delete the cache or plugin data. For skill name collisions, check
+the source paths printed by `omp skill list`. If the only warning is
+`package_manifest: Not created yet`, it refers to `~/.omp/plugins/package.json`,
+not to `design`'s dependencies. In a marketplace-only setup you can leave
+that file absent; there is no need to reinstall the plugin.
 
 In Codex, check catalog and installed state:
 
@@ -186,8 +217,6 @@ source edits take effect at the next session without a version change.
 
 For integrated code work, install `development` and `review`. Add the other
 packages for product, design, prose, or Git work; each is independently usable.
-To migrate an existing installation, remove the old workflow packages and
-install the new names. The old names are not aliases.
 
 ## Contributing
 
