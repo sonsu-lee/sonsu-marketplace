@@ -63,19 +63,22 @@ Hook context is guidance, not permission or a security boundary. An installed
 hook does not establish automatic skill selection. Commit, publication, tracker
 changes and deployment require their own authority.
 
-The omp extension asks the operator before recognized commit, publication,
-deployment, destructive, remote mutation, and outside-workspace file actions.
-Without an interactive operator it blocks those actions. Claude Code's
-PreToolUse hook asks for confirmation; its non-interactive host may deny the
-call. The separately registered Codex user hook denies recognized actions
-because Codex does not support the PreToolUse `ask` decision.
-If the omp evidence gate cannot run, recognized actions are blocked.
+The omp extension does not ask its own confirmation. Before recognized commit,
+publication, deployment, destructive, remote mutation, and outside-workspace
+file actions it runs the evidence gate and blocks the call when the gate reports
+a block; otherwise the call continues under omp's own permission settings. If
+the omp evidence gate cannot run or returns unreadable output, recognized
+actions are blocked. Claude Code's PreToolUse hook asks for confirmation; its
+non-interactive host may deny the call. The separately registered Codex user
+hook denies recognized actions because Codex does not support the PreToolUse
+`ask` decision.
 
 Shell and MCP name patterns are in `hooks/policy.json`; file-tool path rules
 are in the extension and hooks. Shell indirection, unrecognized commands,
 external processes, disabled hooks, and other host paths can bypass recognition.
 The omp extension checks the paths in the tool call before the editor resolves
-its final targets. Approval does not guarantee that those targets are identical.
+its final targets. Passing the gate does not guarantee that those targets are
+identical.
 MCP name matching can both block read-only tools and miss mutations.
 In-workspace paths are not compared with a natural-language plan's narrower
 file scope. Pattern matching also sees comments and quoted text, so harmless
@@ -186,8 +189,9 @@ is **unverified**, not passed. A recognized command that cannot be parsed is
 blocked even without a declaration. The registered Codex user hook denies
 recognized actions before evidence inspection; an unregistered hook enforces
 nothing.
-omp rechecks the target after operator confirmation;
-Claude Code's hook cannot recheck after its permission dialog. Receipts capture
+The omp extension checks the target when it receives `tool_call`. It does not
+prompt or recheck if the target changes before execution. Claude Code's hook
+cannot recheck after its permission dialog. Receipts capture
 the declared command's exit status, declaration hash and tree, not a quality
 score or test adequacy. Ignored files, uncommitted submodule contents,
 dependencies, environment, external services, and Git hooks that change the
