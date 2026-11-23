@@ -6,20 +6,20 @@ requirements apply to the task and read their linked procedures before making
 changes.
 
 * For non-trivial work, use the
-  [planning procedure](plugins/planning-workflow/skills/planning-work/SKILL.md)
+  [planning procedure](plugins/development/skills/planning-work/SKILL.md)
   before implementation; a plan-only request does not authorize
   implementation. For authorized work, follow the
-  [execution procedure](plugins/planning-workflow/skills/executing-work/SKILL.md)
+  [execution procedure](plugins/development/skills/executing-work/SKILL.md)
   to coordinate review, cleanup, and validation of the final revision.
 
 * Add or change plugins, including support for another client, using the
   [plugin-authoring procedure](CONTRIBUTING.md#adding-a-plugin). Keep shared sources
   and client-specific execution separate, and verify each added client.
 * When creating, revising, or reviewing skills, follow the
-  [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md),
+  [skill-authoring procedure](plugins/development/skills/authoring-skills/SKILL.md),
   including its independent review step in omp. In omp, reviews of changes
   that touch skills also dispatch `skill-workflow-reviewer` as described in the
-  [omp review execution reference](plugins/review-workflow/skills/reviewing-code/references/omp.md).
+  [omp review execution reference](plugins/review/skills/reviewing-code/references/omp.md).
 * Raise the plugin's root `plugin.json` version and matching
   `.omp-plugin/marketplace.json` version together with every plugin change,
   along with its Claude Code catalog entry or `.claude-plugin/plugin.json`,
@@ -39,21 +39,21 @@ changes.
   homes, or install this marketplace into the omp and Claude test homes. Use
   `--no-daemon` for Codex model smoke runs and report unavailable authorized
   authentication as an execution blocker.
-* Follow the [commit skill](plugins/git-workflow/skills/writing-commits/SKILL.md)
+* Follow the [commit skill](plugins/git/skills/writing-commits/SKILL.md)
   when writing commit messages and the
-  [branch skill](plugins/git-workflow/skills/naming-branches/SKILL.md)
+  [branch skill](plugins/git/skills/naming-branches/SKILL.md)
   when choosing branch names, including their required validation procedures.
   Reuse repository tools and versions first; use the documented fallback only
   when no execution setup exists, never to bypass a broken setup.
 * Follow the
-  [PR skill](plugins/git-workflow/skills/writing-pull-requests/SKILL.md)
+  [PR skill](plugins/git/skills/writing-pull-requests/SKILL.md)
   when drafting, creating, updating, or marking a pull request ready, including
   title validation, repository templates, reviewer-needed evidence, and UI
   evidence. Write PR titles and descriptions in Korean while preserving required
   title syntax and template markers. Create new PRs as Draft by default; mark
   ready only on an explicit request.
 * Follow the
-  [ticket-writing procedure](plugins/ticket-workflow/skills/writing-tickets/SKILL.md)
+  [ticket-writing procedure](plugins/product/skills/writing-tickets/SKILL.md)
   when drafting, creating, updating, or splitting GitHub Issues or Linear
   tickets. Use ticket, work, then PR as the normal development flow; follow the
   branch and PR skills for downstream work.
@@ -66,7 +66,7 @@ changes.
   stay local unless publication is explicitly requested.
 * When deciding whether to write an ADR, or drafting, reviewing, or replacing
   one, follow the [decision-record procedure](CONTRIBUTING.md#decision-records)
-  and its [ADR skill](plugins/decision-workflow/skills/writing-adrs/SKILL.md).
+  and its [ADR skill](plugins/product/skills/writing-adrs/SKILL.md).
   Record direction-setting or consequential design choices, not every shared
   rule, implementation step, or operational change. Keep proposals together
   until the decision-maker accepts them; implementation completion is not

@@ -31,7 +31,7 @@ SKILLS_REF = (
     "@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref"
 )
 # Codex CLI 0.163.0 truncates a plugin skill's SKILL.md after 8,000 UTF-8 bytes;
-# see plugins/skill-workflow/skills/authoring-skills/references/codex.md.
+# see plugins/development/skills/authoring-skills/references/codex.md.
 CODEX_SKILL_BYTES = 8000
 CLIENTS = ("omp", "codex", "claude")
 COMMAND_TIMEOUT = 180

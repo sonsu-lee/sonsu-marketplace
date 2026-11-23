@@ -2,7 +2,7 @@
 
 Pull requests are welcome. Ask questions or report problems in
 [GitHub Issues](https://github.com/sonsu-lee/sonsu-marketplace/issues). Follow the
-[PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md)
+[PR writing procedure](plugins/git/skills/writing-pull-requests/SKILL.md)
 when preparing a PR. For plugin changes, follow the authoring and testing
 procedures below.
 
@@ -14,7 +14,7 @@ the message with `committed`; the pre-push hook checks the current branch with
 `commit-check`. The first run downloads the pinned tools. Hooks are local and
 can be bypassed; CI independently checks PR titles and source branch names.
 
-Other repositories may adopt Lefthook, but the git-workflow skills do not
+Other repositories may adopt Lefthook, but the git skills do not
 install hooks or change repository settings.
 
 ## Table of Contents
@@ -86,10 +86,10 @@ the marketplace does not distribute, load, or require them.
 
 Apply [Code Review Rules](AGENTS.md#code-review-rules) when reviewing changes
 and interpreting feedback. Requested plugin reviews use the
-[reviewing-code procedure](plugins/review-workflow/skills/reviewing-code/SKILL.md)
-and the matching [omp execution reference](plugins/review-workflow/skills/reviewing-code/references/omp.md),
-[Codex execution reference](plugins/review-workflow/skills/reviewing-code/references/codex.md),
-or [Claude Code execution reference](plugins/review-workflow/skills/reviewing-code/references/claude-code.md).
+[reviewing-code procedure](plugins/review/skills/reviewing-code/SKILL.md)
+and the matching [omp execution reference](plugins/review/skills/reviewing-code/references/omp.md),
+[Codex execution reference](plugins/review/skills/reviewing-code/references/codex.md),
+or [Claude Code execution reference](plugins/review/skills/reviewing-code/references/claude-code.md).
 omp dispatches native and focused reviewers, plus `skill-workflow-reviewer` when
 the change touches a skill; Codex and Claude Code dispatch independent custom
 general and focused reviewers. Explicit native-only requests retain `/review`,
@@ -178,7 +178,7 @@ the Markdown files a pull request adds or modifies.
 
 This file-lint policy and its line-length rule do not apply to PR bodies, even
 when saved to a temporary `.md` file for `--body-file`. Follow the
-[PR writing procedure](plugins/git-workflow/skills/writing-pull-requests/SKILL.md#write-the-body):
+[PR writing procedure](plugins/git/skills/writing-pull-requests/SKILL.md#write-the-body):
 keep each prose paragraph on one source line, with blank lines between
 paragraphs and structural newlines for lists, tables, and code blocks. GitHub
 renders single newlines in PR bodies as visible line breaks, unlike repository
@@ -218,10 +218,9 @@ their English sources as `<name>.ko.md` and exclude them locally with
 ## Decision records
 
 Follow [Martin Fowler's ADR writing and lifecycle guidance][adr-fowler].
-Use the [ADR writing procedure][adr-skill] and the
-[lightweight template][adr-template], adapted from [Evolu][adr-evolu-template].
-The repository's scope below deliberately narrows the broader ADR practice;
-Fowler does not prescribe this template or our selection threshold.
+Use the [ADR writing procedure][adr-skill] with the repository-specific format
+and scope below, originally adapted from [Evolu][adr-evolu-template]. Fowler
+does not prescribe this format or selection threshold.
 
 Write an ADR only for a coherent choice that sets the marketplace's or a
 plugin's direction or consequential design constraints: purpose and supported
@@ -240,7 +239,7 @@ cost. Affecting many files or future tasks is not enough.
   command reference. Search existing records before starting another.
 
 Store records as `docs/decisions/NNNN-title-with-dashes.md`, numbered in sequence.
-Use a title stating the decision, `Date` and `Status` metadata, and the template's
+Use a title stating the decision, `Date` and `Status` metadata, and the
 `Context`, `Decision`, `Rejected alternatives`, and `Consequences` sections.
 State the choice and why in a few sentences; describe real alternatives rather
 than inventing options to fill the template. Use the space needed to explain
@@ -267,8 +266,7 @@ Document responsibilities, including what ADRs own, are in
 [Document ownership](#document-ownership).
 
 [adr-fowler]: https://martinfowler.com/bliki/ArchitectureDecisionRecord.html
-[adr-skill]: plugins/decision-workflow/skills/writing-adrs/SKILL.md
-[adr-template]: plugins/decision-workflow/skills/writing-adrs/assets/adr.md
+[adr-skill]: plugins/product/skills/writing-adrs/SKILL.md
 [adr-evolu-template]: https://github.com/evoluhq/evolu/blob/bb2644275dd99ff6dce4744db578967699045ea3/docs/adr/template.md
 
 ## Adding a plugin
@@ -300,11 +298,11 @@ Document responsibilities, including what ADRs own, are in
      `hide` or Claude Code's `argument-hint`.
 
      When creating, revising, or reviewing a skill, follow the
-     [skill-authoring procedure](plugins/skill-workflow/skills/authoring-skills/SKILL.md),
+     [skill-authoring procedure](plugins/development/skills/authoring-skills/SKILL.md),
      grounded in the [creator best practices][skill-practices]. Keep judgment
      and the minimum workflow in the skill, delegate mechanical work to existing
      tools, and say when supporting files should be read. Use its
-     [evaluation guidance](plugins/skill-workflow/skills/authoring-skills/references/evaluation.md)
+     [evaluation guidance](plugins/development/skills/authoring-skills/references/evaluation.md)
      when selecting checks; the packaging and execution procedures below remain
      the source for this marketplace's validation commands.
 
@@ -333,7 +331,7 @@ Document responsibilities, including what ADRs own, are in
      also loads `agents/` as its own plugin subagents and cannot exclude them
      from a catalog entry. A package with omp agents therefore adds
      `.claude-plugin/plugin.json` with `"agents": []` and its Claude Code
-     metadata, as `review-workflow` does. omp still loads `agents/`, but reads
+     metadata, as `review` does. omp still loads `agents/`, but reads
      that manifest's `version` before the root `plugin.json`.
 
    - **Rules**: `rules/<rule>.md` with a `description`. Use a rule for guidance
@@ -429,6 +427,12 @@ omp, Codex, and Claude Code CLIs on `PATH`:
 python3 scripts/check_plugins.py
 ```
 
+When changing the model-free checker, also run its regression tests:
+
+```sh
+python3 -B -m unittest discover -s scripts/tests -p 'test_*.py'
+```
+
 The script installs the catalog into fresh temporary homes for each client and
 runs every client command from a temporary directory with a minimal
 environment, so clients never read live settings or credentials. Only the
@@ -460,8 +464,8 @@ the exit status nonzero. A missing CLI is a failure, not a skip;
 a local path, which loads packages in place; to inspect the cached copies a
 Git-backed marketplace installs, add a committed clone over Git instead.
 
-For `design-workflow` runtime changes, also follow its
-[runtime verification procedure](plugins/design-workflow/README.md#verification):
+For `design` runtime changes, also follow its
+[runtime verification procedure](plugins/design/README.md#verification):
 exercise actual browser and process execution and SDK lifecycle gates. Discovery
 and prompt loading do not establish that extension behavior works.
 
@@ -481,6 +485,21 @@ HOME="$HOMES/omp-home" omp login
   saved token, created once as below. In both, load the working tree's plugins
   only for that session with `--plugin-dir "$REPO/plugins/<name>"`, repeated
   as needed, and do not install them into the homes.
+  For `development` bootstrap or guard scenarios, also pass
+  `--extension "$REPO/plugins/development/src/index.ts"`: on the checked omp
+  CLI, `--plugin-dir` alone discovers skills but does not load the extension.
+  For skill-change reviews load both `development` and `review`; the example
+  below loads only `review` and is not a complete skill-review scenario.
+  Record which extension and hooks are active. In Codex, separately registered
+  user hooks persist in the test home across scenarios; disable them when a
+  scenario requires their absence and restore them before a scenario needing
+  them. Neither the user hook nor skill discovery proves bundled-hook support.
+  In Claude Code's default permission mode, reference reads from a working-tree
+  plugin outside the target can be denied. For a non-interactive read-only
+  scenario, load disposable plugin copies and grant their directory with
+  `--add-dir`; this also grants write access there, so do not expose the live
+  checkout solely to avoid a prompt. Record permission denials and check the
+  target and plugin copies for unintended writes.
 
   ```sh
   C="$HOMES/claude-home"
@@ -499,6 +518,13 @@ HOME="$HOMES/omp-home" omp login
   error) and `codex plugin add <plugin>@sonsu-marketplace --json` for each
   plugin the scenario uses, so the installation matches the working tree. Run
   these commands from an empty temporary directory with the same variables.
+  Remove obsolete `*-workflow@sonsu-marketplace` packages from the scenario
+  home if present; duplicate skill names can select stale guidance instead of
+  this revision. The root README lists the previous package names.
+  For development hook scenarios, register the
+  [Codex user hook](plugins/development/README.md#codex-user-hook) in this
+  test `CODEX_HOME`, point `DEVELOPMENT_PLUGIN_ROOT` at the working-tree package,
+  and review and trust it in `/hooks`. Do not register it in a live home.
 
 ```sh
 REPO="$(git rev-parse --show-toplevel)"
@@ -508,22 +534,23 @@ TARGET="$WORK/target"
 mkdir -p "$TARGET"
 
 (cd "$TARGET" && HOME="$HOMES/omp-home" omp -p --mode json \
-  --plugin-dir "$REPO/plugins/review-workflow" \
+  --plugin-dir "$REPO/plugins/review" \
   "Review the working changes in this repository.")
 
 HOME="$HOMES/codex-scenario-home" \
   CODEX_HOME="$HOMES/codex-scenario-home/.codex" \
   codex --no-daemon exec --json --sandbox workspace-write \
   --add-dir "$WORK" -C "$TARGET" \
-  '$review-workflow:reviewing-code Review working changes locally.'
+  '$review:reviewing-code Review working changes locally.'
 
 (
   cd "$TARGET"
+  cp -R "$REPO/plugins/review" "$WORK/review" || exit 1
   HOME="$HOMES/claude-home" CLAUDE_CONFIG_DIR="$HOMES/claude-home/.claude" \
     CLAUDE_CODE_OAUTH_TOKEN="$(cat "$HOMES/claude-home/oauth-token")" \
-    claude -p '/review-workflow:reviewing-code Review working changes.' \
+    claude -p '/review:reviewing-code Review working changes.' \
     --output-format stream-json --verbose --add-dir "$WORK" \
-    --plugin-dir "$REPO/plugins/review-workflow" \
+    --plugin-dir "$WORK/review" \
     --permission-mode bypassPermissions
 )
 ```
@@ -546,10 +573,12 @@ deduplicated findings, and controller-only runtime checks in another disposable
 copy. Confirm original source, index, and untracked content remain unchanged.
 omp must retain native `reviewer` plus a focused worker:
 `review-workflow-focused`, or `skill-workflow-reviewer` for a skill-only
-change. Codex must
-not call native review or a recursive CLI; Claude Code must start non-fork
-`general-purpose` subagents without `/code-review`, `/security-review`,
-ultrareview, or a nested CLI. Check a clean baseline, implicit skill selection,
+change. Codex must not use native review or another CLI as a review worker;
+Claude Code must start non-fork `general-purpose` subagents without
+`/code-review`, `/security-review`, ultrareview, or another CLI as a worker.
+For skill runtime, a separate session may exercise the frozen revision in a
+disposable target and dedicated test home; record its identity and outcome.
+Check a clean baseline, implicit skill selection,
 explicit native-only review, comment-only drafting, and unavailable subagents
 (`-c agents.enabled=false` in Codex, `--disallowedTools Agent` in Claude Code).
 Missing or failed workers must remain incomplete, not a sequential or
@@ -557,7 +586,7 @@ native-only fallback.
 
 For skill reviews, use a disposable target whose skill change moves a safety
 instruction into a reference without a loading condition. In omp with both
-`review-workflow` and `skill-workflow` loaded, the review batch must include
+`review` and `development` loaded, the review batch must include
 `skill-workflow-reviewer`, and a code-only change must not. Creating or
 changing a behavioral skill must also obtain this review. For standalone
 Codex and Claude Code reviews, the extra worker remains user opt-in. An
@@ -566,8 +595,8 @@ another approval; the worker must read the loaded `authoring-skills`.
 
 For execution, copy the contents of
 `scripts/fixtures/manual-scenarios/executing-csv/` into a disposable Git
-target and create one initial commit. Load `planning-workflow` and
-`review-workflow`, then send this prompt:
+target and create one initial commit. Load `development` and
+`review`, then send this prompt:
 
 > Execute this already approved plan in the workspace: change the existing
 > CSV exporter so commas and quotes in fields are escaped according to the
@@ -584,9 +613,9 @@ revision before reporting completion, without committing, pushing, or
 publishing. Run omp with `--approval-mode yolo` only in such disposable
 targets, and report that choice.
 
-Exercise the writing-workflow helpers from the directory each client loaded
+Exercise the writing helpers from the directory each client loaded
 them from, preserving identifiers, numbers, URLs, and fenced code. Then remove
-one helper from a disposable copy (a copy of `plugins/writing-workflow` passed
+one helper from a disposable copy (a copy of `plugins/writing` passed
 to `--plugin-dir` in omp and Claude Code, or the installed copy in the Codex
 scenario home, restored afterwards with `codex plugin remove` and
 `codex plugin add`) and verify an explicit missing-resource result, not a
@@ -628,12 +657,14 @@ secrets, and enforces the agreed rules a machine can check:
   plugin, other than its own `README.md`, changed but its
   `plugin.json` version did not; the `catalogs` check keeps the catalogs equal
   to that version.
-- `writing-workflow-tests` and `git-workflow-tests`: the behavior tests below,
+- `writing-tests` and `git-tests`: the behavior tests below,
   when files under those plugins change.
 - `script-tests`: the model-free plugin-loading tests in `scripts/tests`, when
   files under `plugins/` or `scripts/` change:
   `python3 -B -m unittest discover -s scripts/tests -v`.
-- `design-workflow-tests`: the plugin's TypeScript check and model-free engine,
+- `development-tests`: the plugin's Python hook tests and Bun guard tests when
+  its package changes.
+- `design-tests`: the plugin's TypeScript check and model-free engine,
   real Chromium/process and SDK lifecycle regressions when its package changes.
   TypeScript and the browser installation CLI are locked in `.github/ci-clients`;
   the pinned browser package selects its Chromium revision. Operator UI choices
@@ -649,21 +680,21 @@ workflow logs are public, and an agent under test can read the credentials it
 runs with. Run the [manual scenario checks](#manual-scenario-checks) locally
 in dedicated test homes and report the models and results in the pull request.
 
-For changes to `writing-workflow` runtime helpers, also run its behavior tests:
+For changes to `writing` runtime helpers, also run its behavior tests:
 
 ```sh
 uv run --with 'sudachipy>=0.6.8' --with 'sudachidict-core>=20240409' \
-  python -B -m unittest discover -s plugins/writing-workflow/tests -v
+  python -B -m unittest discover -s plugins/writing/tests -v
 ```
 
 The tests cover Korean protected-content fidelity and Japanese structural lint
 and baseline transitions, using the Japanese runtime's existing dependencies.
 
-For changes to `git-workflow` validation, also run its behavior tests:
+For changes to `git` validation, also run its behavior tests:
 
 ```sh
-node --test plugins/git-workflow/tests/committed.test.mjs \
-  plugins/git-workflow/tests/branch-validation.test.mjs
+node --test plugins/git/tests/committed.test.mjs \
+  plugins/git/tests/branch-validation.test.mjs
 ```
 
 The tests run the pinned `committed` and `commit-check` CLIs through `uvx`.

@@ -37,6 +37,7 @@ jobs:
       git: ${{ steps.diff.outputs.git }}
       scripts: ${{ steps.diff.outputs.scripts }}
       design: ${{ steps.diff.outputs.design }}
+      development: ${{ steps.diff.outputs.development }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -53,10 +54,11 @@ jobs:
           { echo "base=$base"
             echo "markdown=$(grep -qE '\.md$' <<< "$files" && echo true)"
             echo "plugins=$(grep -q '^plugins/' <<< "$files" && echo true)"
-            echo "writing=$(grep -q '^plugins/writing-workflow/' <<< "$files" && echo true)"
-            echo "git=$(grep -q '^plugins/git-workflow/' <<< "$files" && echo true)"
+            echo "writing=$(grep -q '^plugins/writing/' <<< "$files" && echo true)"
+            echo "git=$(grep -q '^plugins/git/' <<< "$files" && echo true)"
             echo "scripts=$(grep -qE '^(plugins|scripts)/' <<< "$files" && echo true)"
-            echo "design=$(grep -q '^plugins/design-workflow/' <<< "$files" && echo true)"; } >> "$GITHUB_OUTPUT"
+            echo "design=$(grep -q '^plugins/design/' <<< "$files" && echo true)"
+            echo "development=$(grep -q '^plugins/development/' <<< "$files" && echo true)"; } >> "$GITHUB_OUTPUT"
 
   markdown:
     needs: changes
@@ -87,16 +89,16 @@ jobs:
           BASE: ${{ needs.changes.outputs.base }}
         run: python3 scripts/check_version_bumps.py "$BASE"
 
-  writing-workflow-tests:
+  writing-tests:
     needs: changes
     if: needs.changes.outputs.writing == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
-      - run: uv run --with 'sudachipy>=0.6.8' --with 'sudachidict-core>=20240409' python -B -m unittest discover -s plugins/writing-workflow/tests -v
+      - run: uv run --with 'sudachipy>=0.6.8' --with 'sudachidict-core>=20240409' python -B -m unittest discover -s plugins/writing/tests -v
 
-  git-workflow-tests:
+  git-tests:
     needs: changes
     if: needs.changes.outputs.git == 'true'
     runs-on: ubuntu-latest
@@ -107,7 +109,7 @@ jobs:
           node-version: "24"
           check-latest: true
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
-      - run: node --test plugins/git-workflow/tests/committed.test.mjs plugins/git-workflow/tests/branch-validation.test.mjs
+      - run: node --test plugins/git/tests/committed.test.mjs plugins/git/tests/branch-validation.test.mjs
 
   script-tests:
     needs: changes
@@ -117,7 +119,17 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: python3 -B -m unittest discover -s scripts/tests -v
 
-  design-workflow-tests:
+  development-tests:
+    needs: changes
+    if: needs.changes.outputs.development == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-clients
+      - run: python3 -B -m unittest discover -s plugins/development/tests -p 'test_*.py'
+      - run: bun test plugins/development/tests/guard.test.ts
+
+  design-tests:
     needs: changes
     if: needs.changes.outputs.design == 'true'
     runs-on: ubuntu-latest
@@ -125,10 +137,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-clients
-      - run: bun install --frozen-lockfile --cwd plugins/design-workflow
+      - run: bun install --frozen-lockfile --cwd plugins/design
       - run: playwright-core install --with-deps chromium
       - run: |
           browser="$(node -e 'console.log(require("./.github/ci-clients/node_modules/playwright-core").chromium.executablePath())')"
           echo "DESIGN_WORKFLOW_CHROME=$browser" >> "$GITHUB_ENV"
-      - run: tsc --noEmit -p plugins/design-workflow/tsconfig.json
-      - run: bun test --timeout 150000 plugins/design-workflow/tests
+      - run: tsc --noEmit -p plugins/design/tsconfig.json
+      - run: bun test --timeout 150000 plugins/design/tests

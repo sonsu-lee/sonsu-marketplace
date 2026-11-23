@@ -1,9 +1,9 @@
 commit-msg:
   jobs:
     - name: committed
-      run: uvx --from committed==1.1.12 committed --config plugins/git-workflow/skills/writing-commits/assets/committed.toml --commit-file {1}
+      run: uvx --from committed==1.1.12 committed --config plugins/git/skills/writing-commits/assets/committed.toml --commit-file {1}
 
 pre-push:
   jobs:
     - name: branch-name
-      run: git branch --show-current | uvx --from commit-check==2.19.1 commit-check --branch --config plugins/git-workflow/skills/naming-branches/assets/commit-check.toml
+      run: git branch --show-current | uvx --from commit-check==2.19.1 commit-check --branch --config plugins/git/skills/naming-branches/assets/commit-check.toml

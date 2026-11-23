@@ -53,7 +53,7 @@ a process check grants real process access. A screenshot and successful
 assertions establish an observed state, not general visual quality or usability.
 Codex and Claude Code receive the shared skills without a claim of equivalent
 runtime enforcement. Current commands, supported targets, limitations and checks
-belong in the [plugin guide](../../plugins/design-workflow/README.md), not here.
+belong in the [plugin guide](../../plugins/design/README.md), not here.
 
 ## Rejected alternatives
 
