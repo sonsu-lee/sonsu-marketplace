@@ -24,10 +24,8 @@ gh pr create --draft --repo "$repo" --base "$base" --head "$head" \
 
 - An API call must set `draft: true` explicitly.
 - `--fill` does not replace a written body, and `--dry-run` can still push.
-- `--body-file` on `gh pr edit` replaces the whole body. Keep existing content
-  and the PR's Draft or ready state when updating.
-- Mark ready only on request and once the repository's readiness requirements
-  are met.
+- `--body-file` on `gh pr edit` replaces the whole body. Carry over the content
+  you are not revising, and keep the PR's Draft or ready state.
 - Media upload with `--attach` needs CLI support and push access. Otherwise use
   an authorized browser upload or report the blocker; never invent URLs. See
   [GitHub CLI attachments][attachments] for formats and limits.

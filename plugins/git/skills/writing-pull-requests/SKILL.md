@@ -10,15 +10,19 @@ compatibility: >-
 # Writing pull requests
 
 A PR description tells reviewers what changed and where to focus; the linked
-ticket carries why. Repository rules and templates come first. For prose
-drafting or editing, also read the matching language skill.
+ticket carries the motivation. Reviewers act on its statements and cannot tell
+a guess from a fact, so write only what the diff, the ticket, or the author
+supports. Repository rules and templates come first. For prose drafting or
+editing, also read the matching language skill.
 
 ## Workflow
 
 Do only the requested part: title, description, or publishing.
 
 1. **Read the change.** Base is the user's or project's target, otherwise the
-   default branch. Read the full diff and the related ticket.
+   default branch. Read the full diff and the related ticket. Commit messages
+   and an existing title or body may be stale; check them against the diff
+   before reusing them.
 2. **Check the scope.** One purpose per PR, with its tests, callers, and docs;
    split independent changes. The target branch must still work after it
    lands. If it depends on an unmerged PR, read
@@ -36,22 +40,37 @@ Do only the requested part: title, description, or publishing.
 
 ## Write the body
 
-Start with `## Summary`: what changed, in a few sentences. Add headings named
-for their content only when needed.
+Start with `## Summary`: what changed, in a few sentences. Name the condition
+and the resulting behavior ("status lookups retry once after a timeout"), not
+a quality ("improves reliability"). Add headings named for their content only
+when needed.
 
 Include only what helps review:
 
 - **Changed behavior,** including preserved behavior when it matters.
+- **Design choices the diff does not explain:** why this approach over the
+  obvious alternative.
 - **Code to examine:** a few key points, such as a condition or processing
   order, with a short excerpt or link.
 - **Structure or flow:** a Mermaid diagram, not repeated in prose.
 - **Constraints:** compatibility, rollout order, or known limitations.
 - **UI changes:** evidence prepared with [UI evidence](references/ui-evidence.md).
-- **Evidence** only when the repository requires it or a claim needs it, with
-  its method and environment.
+- **Evidence** only when the repository requires it or a claim needs it: the
+  observation itself with its method and environment, such as a request and
+  response, command output, or a measurement. A bare report that routine
+  checks ran or passed (tests, lint, local or staging runs, model or tool
+  versions) is not evidence; omit it unless the repository requires it.
 - **The problem,** briefly, only when no ticket is accessible.
 
-Leave out the ticket's motivation, file-by-file narration, and work logs.
+Leave out the ticket's motivation, file-by-file narration, work logs, and
+repetition of a point already made.
+
+Do not infer a motivation, a consequence, or a result, and do not call a
+change safe or verified without a check that shows it. When a reason reviewers
+need is unknown, leave it out and tell the user what is missing.
+
+When updating a PR, correct every statement that later commits made false.
+Rewrite it in place; do not append a revision history.
 
 ## Link issues
 
@@ -78,9 +97,6 @@ and blockers. Wait for required decisions, permission, or access.
 
 ## Gotchas
 
-- Checks the author ran (local runs, staging runs, tests, lint, model or tool
-  versions) are not review content. Omit them unless the repository requires
-  them or they support a claim the body makes.
 - A repository PR template may be inherited from the owner's public `.github`
   repository. Keep its required fields and markers, even in `--body-file` or
   API bodies, and put the summary in its matching section.

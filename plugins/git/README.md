@@ -67,15 +67,15 @@ Claude Code. Listing a plugin does not prove that its skills run.
 - **`managing-worktrees`** sets up an explicitly requested isolated workspace
   or assesses integration choices. Creation, merge, push, and cleanup require
   their own authority. See the [worktree procedure](skills/managing-worktrees/SKILL.md).
-- **`writing-pull-requests`** starts PR descriptions with a concise Summary of
-  the change, adding content-specific sections, focused code explanations,
-  diagrams, and UI evidence when needed. It links ticket context instead of
-  repeating it. Dependent PRs use GitHub stacks where available; new PRs are
-  Draft by default. See the
+- **`writing-pull-requests`** writes PR descriptions from what the diff, the
+  ticket, and the author support: a Summary of the changed behavior, then only
+  what helps review, such as design choices the diff does not explain, code to
+  examine, constraints, and evidence a claim needs. It links ticket motivation
+  instead of repeating it. Dependent PRs use GitHub stacks where available; new
+  PRs are Draft by default. See the
   [PR writing procedure](skills/writing-pull-requests/SKILL.md).
 
 Ask to draft, create, or update a pull request to use `writing-pull-requests`.
-New PRs are Draft by default.
 
 Branch prefixes do not change commit types: a `bugfix/` branch can contain
 `fix`, `test`, and other commits. A missing dependency or failed configured
