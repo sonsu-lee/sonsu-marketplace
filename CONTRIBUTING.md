@@ -529,6 +529,9 @@ HOME="$HOMES/omp-home" omp login
   Remove obsolete `product@sonsu-marketplace` and `*-workflow@sonsu-marketplace`
   installations from the scenario home if present; duplicate skill names can
   select stale guidance. See [package migration](README.md#migrating-existing-installations).
+  For a standalone `grill` scenario, remove `development` from the test home
+  first: older versions contain the same interview skills. Check that the
+  execution trace reads the skill from `grill`, not `development`.
   For development hook scenarios, register the
   [Codex user hook](plugins/development/README.md#codex-user-hook) in this
   test `CODEX_HOME`, point `DEVELOPMENT_PLUGIN_ROOT` at the working-tree package,
