@@ -21,7 +21,7 @@ resolution or scanning fails, report the error, not a clean ledger. For
 Grep the repo for comment markers, skipping `.git` and everything the
 `.gitignore` files ignore (dependencies, build output, caches, in any stack):
 
-`git grep --no-index --exclude-standard -nE '(#|//|/[*]) ?(shortcut|ponytail):'`
+`git grep --no-index --exclude-standard -nE '(#|//|/[*]|^[[:blank:]]*[*])[[:blank:]]*(shortcut|ponytail):'`
 (add other comment prefixes if your stack uses them)
 
 If the user names their own marker word (`/ponytail-debt TODO`), grep for that

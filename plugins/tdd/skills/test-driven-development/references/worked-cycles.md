@@ -31,7 +31,7 @@ digraph tdd_cycle {
 ```typescript
 test('succeeds on the third attempt after two failures', async () => {
   let attempts = 0;
-  const operation = () => {
+  const operation = async () => {
     attempts++;
     if (attempts < 3) throw new Error('fail');
     return 'success';

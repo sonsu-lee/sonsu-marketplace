@@ -15,8 +15,9 @@ The figures are the published agentic benchmark of Ponytail 5: headless Claude
 Code (Opus 5.5, default effort) on 39 tasks (feature tickets in a real FastAPI +
 React repo, bug fixes, security and privacy cases, small apps), 5 runs each,
 against the same agent without the skill. 18 of the tasks have hidden checks
-for correctness and safety. Each figure is the geometric mean of the per-task
-medians. They are measured, not computed from the current repo.
+for correctness and safety. For code, tokens, cost, and time the report uses the
+geometric mean of per-task median ratios. Pass and test-presence rates are
+counts of qualifying runs, not savings measured in the current repo.
 Read the [published benchmark report](references/benchmark.md) before
 displaying the scoreboard. Attribute the figures to that upstream run,
 not this marketplace adaptation, host, or session.

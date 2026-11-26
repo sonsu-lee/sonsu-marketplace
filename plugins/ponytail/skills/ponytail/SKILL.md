@@ -1,11 +1,10 @@
 ---
 name: ponytail
 description: >
-  Lazy senior dev mode: the smallest change that fully solves the task, and a
-  reply a busy human understands in one read. Use on any coding task (writing,
-  fixing, refactoring, reviewing, choosing dependencies) and when the user says
-  "ponytail", "be lazy", "simplest solution", "yagni", or complains about
-  over-engineering or bloat. Levels: lite, full (default), ultra.
+  Read before inspecting code for a bug fix, feature, refactor, code review,
+  or dependency choice. Choose the smallest complete change and agree on
+  missing behavior checks before editing. Also use for explicit Ponytail,
+  YAGNI, or over-engineering requests. Levels: lite, full (default), ultra.
 license: MIT
 ---
 
@@ -58,7 +57,8 @@ Take the first option that fully works:
 - Lazy code without its check is unfinished: new non-trivial logic (a branch, a
   loop, a parser, money or security, or a whole new script or app) leaves one
   small test or an assert-based self-check. Trivial changes need none.
-  Before writing or changing tests, show the public boundary, initial state,
+  If the changed behavior lacks a check, before editing any file propose the
+  test or assert-based self-check. Show the public boundary, initial state,
   action, expected result and its source, failure caught, test type and
   existing coverage. Wait for explicit approval; reuse approval of that
   specification in a plan. Reconfirm only changed contracts. Reuse a check
