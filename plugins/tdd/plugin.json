@@ -1,0 +1,6 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tdd",
+  "version": "0.1.0",
+  "description": "Confirm the test contract, then implement one behavior at a time with red-green-refactor."
+}
