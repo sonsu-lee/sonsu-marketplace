@@ -4,7 +4,10 @@
   "plugins": [
     {"name": "development", "source": {"source": "local", "path": "./plugins/development"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
     {"name": "review", "source": {"source": "local", "path": "./plugins/review"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
-    {"name": "product", "source": {"source": "local", "path": "./plugins/product"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
+    {"name": "prd", "source": {"source": "local", "path": "./plugins/prd"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
+    {"name": "decisions", "source": {"source": "local", "path": "./plugins/decisions"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
+    {"name": "tickets", "source": {"source": "local", "path": "./plugins/tickets"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
+    {"name": "grill", "source": {"source": "local", "path": "./plugins/grill"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
     {"name": "design", "source": {"source": "local", "path": "./plugins/design"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
     {"name": "writing", "source": {"source": "local", "path": "./plugins/writing"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"},
     {"name": "git", "source": {"source": "local", "path": "./plugins/git"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"}

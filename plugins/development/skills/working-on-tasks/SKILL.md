@@ -54,10 +54,10 @@ commit, push, publish, modify a tracker, or deploy. Obtain applicable separate
 approval for those actions. Follow stricter project rules.
 
 Use `development` and `review` together for integrated code work, adding
-`product`, `design`, `writing`, or `git` as needed. Each package is independently
-installable. If a package is absent, do not claim to invoke it; continue only
-independent authorized work. If required independent review is unavailable,
-report the work incomplete.
+`prd`, `decisions`, `tickets`, `grill`, `design`, `writing`, or `git` as
+needed. Each package is independently installable. If a package is absent, do
+not claim to invoke it; continue only independent authorized work. If required
+independent review is unavailable, report the work incomplete.
 
 ## Implement the smallest complete change
 

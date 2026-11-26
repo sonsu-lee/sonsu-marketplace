@@ -266,7 +266,7 @@ Document responsibilities, including what ADRs own, are in
 [Document ownership](#document-ownership).
 
 [adr-fowler]: https://martinfowler.com/bliki/ArchitectureDecisionRecord.html
-[adr-skill]: plugins/product/skills/writing-adrs/SKILL.md
+[adr-skill]: plugins/decisions/skills/writing-adrs/SKILL.md
 [adr-evolu-template]: https://github.com/evoluhq/evolu/blob/bb2644275dd99ff6dce4744db578967699045ea3/docs/adr/template.md
 
 ## Adding a plugin
@@ -526,9 +526,9 @@ HOME="$HOMES/omp-home" omp login
   error) and `codex plugin add <plugin>@sonsu-marketplace --json` for each
   plugin the scenario uses, so the installation matches the working tree. Run
   these commands from an empty temporary directory with the same variables.
-  Remove obsolete `*-workflow@sonsu-marketplace` packages from the scenario
-  home if present; duplicate skill names can select stale guidance instead of
-  this revision. The root README lists the previous package names.
+  Remove obsolete `product@sonsu-marketplace` and `*-workflow@sonsu-marketplace`
+  installations from the scenario home if present; duplicate skill names can
+  select stale guidance. See [package migration](README.md#migrating-existing-installations).
   For development hook scenarios, register the
   [Codex user hook](plugins/development/README.md#codex-user-hook) in this
   test `CODEX_HOME`, point `DEVELOPMENT_PLUGIN_ROOT` at the working-tree package,

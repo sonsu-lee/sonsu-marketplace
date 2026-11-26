@@ -48,8 +48,8 @@ and authority. [Planning](skills/planning-work/SKILL.md),
 [execution](skills/executing-work/SKILL.md),
 [debugging](skills/debugging-code/SKILL.md), and
 [skill authoring](skills/authoring-skills/SKILL.md) can also be used directly.
-The package includes `grill-me`, `grilling`, `grill-with-docs`,
-`domain-modeling`, and `improving-codebase-architecture` for their named tasks.
+The [grill package](../grill/README.md) owns the three interview skills.
+Development retains `domain-modeling` and `improving-codebase-architecture`.
 
 Installed omp packages load the extension, which adds the router to main-session
 prompts. On the checked omp CLI, `--plugin-dir` alone discovers skills but does

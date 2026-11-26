@@ -15,6 +15,7 @@ packages.
   - [omp](#omp)
   - [Codex](#codex)
   - [Claude Code](#claude-code)
+  - [Migrating existing installations](#migrating-existing-installations)
 - [Usage](#usage)
   - [CLI](#cli)
 - [Available plugins](#available-plugins)
@@ -85,9 +86,7 @@ Check the installed entries (without `--available`):
 codex plugin list --marketplace sonsu-marketplace --json
 ```
 
-For any installed `*-workflow` package you are replacing, run
-`codex plugin remove` with its full marketplace ID. If none is listed,
-skip removal. Install the package you need:
+Install the package you need:
 
 ```sh
 codex plugin add git@sonsu-marketplace
@@ -100,15 +99,7 @@ claude plugin marketplace add sonsu-lee/sonsu-marketplace
 claude plugin list
 ```
 
-If the list shows a `*-workflow@sonsu-marketplace` package you are replacing,
-remove it from its listed scope (`user`, `project`, or `local`). For example,
-only for a user-scoped `git-workflow`, keep its data with:
-
-```sh
-claude plugin uninstall git-workflow@sonsu-marketplace --scope user --keep-data
-```
-
-Then install the package you need:
+Install the package you need:
 
 ```sh
 claude plugin install git@sonsu-marketplace
@@ -120,6 +111,39 @@ Code also accepts `--scope project`. This is a repository marketplace, not a
 submission to a public plugin directory. The common local marketplace format
 also applies to supporting app and IDE surfaces; their availability varies,
 and CLI checks do not verify those UIs.
+
+### Migrating existing installations
+
+Refresh your Git-backed catalog before installing replacements; see the
+[update commands](#cli). The package IDs below all use `@sonsu-marketplace`.
+
+| Previous package | Replacement |
+| --- | --- |
+| `product` | `prd`, `decisions`, and `tickets` |
+| `skill-workflow`, `planning-workflow` | `development` |
+| `decision-workflow` | `decisions` |
+| `ticket-workflow` | `tickets` |
+| `git-workflow` | `git` |
+| `design-workflow` | `design` |
+| `review-workflow` | `review` |
+| `writing-workflow` | `writing` |
+
+In omp, the [migration script](scripts/migrate-omp-plugins.sh) installs all
+replacements in the selected scope before removing the old ID. In Codex and
+Claude Code, install the replacements you use, then remove only an installed
+old ID. For example, after replacing `product`:
+
+```sh
+codex plugin remove product@sonsu-marketplace
+claude plugin uninstall product@sonsu-marketplace --scope user --keep-data
+```
+
+For Claude Code, use the old package's listed scope (`user`, `project`, or
+`local`) for installation and removal. `development` keeps its ID; update it
+and install `grill` to keep its former interview skills. For an integrated
+code workflow, see the package list below. Update saved invocations too:
+`$product:writing-prd` becomes `$prd:writing-prd`, for example, and
+`/development:grill-me` becomes `/grill:grill-me`.
 
 ## Usage
 
@@ -208,8 +232,14 @@ source edits take effect at the next session without a version change.
 
 - [development][development]: Route tasks, plan and execute work, investigate
   bugs, and author skills.
+- [grill][grill]: `grill-me` interviews you about a plan or draft; `grilling`
+  works through dependent decisions one question at a time; `grill-with-docs`
+  checks terminology and decisions against project documents.
 - [review][review]: Review code independently and report evidence locally.
-- [product][product]: Draft product requirements, ADRs, and tracker tickets.
+- [prd][prd]: Turn agreed requirements into a PRD without another interview.
+- [decisions][decisions]: Assess and record consequential architecture decisions.
+- [tickets][tickets]: Draft GitHub Issues or Linear tickets; publish only when
+  requested.
 - [design][design]: Design and review interfaces and graphics with scoped
   evidence and an optional omp verification harness.
 - [writing][writing]: Write and refine Korean, English, and Japanese prose.
@@ -242,7 +272,10 @@ or workflow.
 
 [development]: plugins/development/README.md
 [review]: plugins/review/README.md
-[product]: plugins/product/README.md
+[grill]: plugins/grill/README.md
+[prd]: plugins/prd/README.md
+[decisions]: plugins/decisions/README.md
+[tickets]: plugins/tickets/README.md
 [design]: plugins/design/README.md
 [writing]: plugins/writing/README.md
 [git]: plugins/git/README.md
