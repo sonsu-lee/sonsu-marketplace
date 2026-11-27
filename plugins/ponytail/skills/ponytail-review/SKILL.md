@@ -68,6 +68,9 @@ This is a report the user asked for, so give it in full.
 - Propose the smallest fix that works. Prefer fixes that delete code. Never
   add layers, frameworks or config the problem does not need.
 - No style taste, no "consider", no vague worries.
+- For a candidate about a test, guard, name, repeated rule, or lint
+  diagnostic, apply [judgment calls](../ponytail/references/judgment.md)
+  before reporting it.
 
 ## 4. Output
 

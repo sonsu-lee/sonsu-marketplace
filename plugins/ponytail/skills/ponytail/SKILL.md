@@ -72,6 +72,11 @@ Never cut: validation at trust boundaries, error handling that prevents data
 loss, security, accessibility, the calibration real hardware needs, anything the
 user asked for.
 
+For a lint diagnostic, a guard, a test's value, a name, or a repeated rule
+that needs a judgment call, read [judgment calls](references/judgment.md).
+For a React Effect or props passed through components, also read
+[React judgment calls](references/judgment-react.md).
+
 ## Levels
 
 - **lite**: Build what was asked. Name the smaller option in one line and let
