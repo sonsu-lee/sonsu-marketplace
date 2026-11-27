@@ -232,9 +232,17 @@ source edits take effect at the next session without a version change.
 
 - [development][development]: Route tasks, plan and execute work, investigate
   bugs, and author skills.
+- [ponytail][ponytail]: Apply `ponytail` to code changes: reuse existing code
+  and remove code the change makes unnecessary. `ponytail-review` examines a
+  diff and its callers; `ponytail-audit` inspects a whole repository on request.
+  `ponytail-debt` lists shortcut annotations, `ponytail-gain` displays upstream
+  benchmark results (not measurements of your changes), and `ponytail-help`
+  explains usage.
 - [grill][grill]: `grill-me` interviews you about a plan or draft; `grilling`
   works through dependent decisions one question at a time; `grill-with-docs`
   checks terminology and decisions against project documents.
+- [tdd][tdd]: `test-driven-development` takes an explicitly approved test
+  specification through red, green, and refactor, one behavior at a time.
 - [review][review]: Review code independently and report evidence locally.
 - [prd][prd]: Turn agreed requirements into a PRD without another interview.
 - [decisions][decisions]: Assess and record consequential architecture decisions.
@@ -272,7 +280,9 @@ or workflow.
 
 [development]: plugins/development/README.md
 [review]: plugins/review/README.md
+[ponytail]: plugins/ponytail/README.md
 [grill]: plugins/grill/README.md
+[tdd]: plugins/tdd/README.md
 [prd]: plugins/prd/README.md
 [decisions]: plugins/decisions/README.md
 [tickets]: plugins/tickets/README.md
