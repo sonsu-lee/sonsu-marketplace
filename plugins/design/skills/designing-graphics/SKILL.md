@@ -44,8 +44,10 @@ replace actual rendering or required independent review.
 ## Conditional research
 
 Read [graphic craft and handoff](references/craft.md) when icon construction,
-rendering, graphic encoding, editable stages, reproduction variants, or
-master/preview delivery need the corresponding research context.
+set criteria, rendering at small or large sizes, identity candidates, people
+illustrations, graphic encoding, editable stages, reproduction variants,
+physical samples, or master/preview delivery need the corresponding research
+context.
 The research is conditional guidance, not a universal recipe or measured outcome.
 
 ## Gotchas

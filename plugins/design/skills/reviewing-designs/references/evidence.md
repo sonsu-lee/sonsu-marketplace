@@ -1,8 +1,11 @@
 # Conditional critique evidence
 
-Use the relevant section when a visual, flow or handoff judgment needs research
-context. Sources illustrate judgments; findings must be supported by the
-artifact itself, not assumed from source observations.
+Use the relevant section when a visual, flow, research-evidence or handoff
+judgment needs research context. Sources illustrate judgments; findings must be
+supported by the artifact itself, not assumed from source observations. A
+toss.tech link marked "(session transcript)" or "(session video)" redirects to
+a conference session page; the talk's transcript or its linked video's
+captions were the source.
 
 ## Gotchas
 
@@ -56,6 +59,107 @@ P48
 and 496-second sample show explanatory retention/deletion copy, not enforcement
 or measured comprehension.
 
+For each question or field, ask whether the system already holds the value and
+whether the data's consumer requires it (P49). A seemingly unnecessary field is
+an open question to report with its owner, not proof that it can be removed.
+Before a costly verification or data request, check whether the screen states
+what the user gains and why the data is needed, and whether a sample preview
+reads as an example rather than the user's own data (P50). Source context:
+[fields the data's consumer needs](https://toss.tech/article/real-reason),
+[value before cost](https://toss.tech/article/value-first-cost-later) and
+[a demo read as one's own data](https://toss.tech/article/senior-usability-research).
+
+For an error state, check whether it says what happened, whether the user can
+fix it and a reachable next action, and whether a needed explanation sits in a
+message that disappears (P51). Where attempts are limited, look for remaining
+attempts and alternatives before lockout; a vague cause can be a deliberate
+security choice, so raise it as a question rather than a defect. Inspect
+lockout from supplied screens or an authorized fixture, never by failing on a
+real account. Wording alone does not show that the stated fix works; report
+the fix as unverified unless it was confirmed. Source context:
+[error message practice](https://toss.tech/article/how-to-write-error-message)
+and [attempts before lockout](https://toss.tech/article/27366) (session
+video).
+
+For long processing, check whether grouped states still expose failures that
+need user action, whether one label could mean both in progress and done, and
+whether a message saying the user can leave is backed by confirmed background
+processing and notification (P32). Progress not tied to real results, or an AI
+answer that hides its limits, is a concern to report; a missing human handoff
+is one only where a human channel exists or is required. Source context:
+[user-meaningful transfer states](https://toss.tech/article/remittance_transfer)
+and [AI answer limits](https://toss.tech/article/chatbot).
+
+Static screens do not show what a screen reader announces or in what order;
+report announcement order, readable state and focus grouping as unverified
+unless exercised with assistive technology (P52). A sound alone does not
+expose state to someone reading with sound off or on a braille display. Check
+whether pressable and informational elements look different and whether a cue
+shows content beyond the visible edge, naming the sizes and text settings
+actually inspected (P53). Source context:
+[non-visual progress](https://toss.tech/article/accessibility_face),
+[reading order](https://toss.tech/article/voiceover_usability) and
+[pressable and scroll cues](https://toss.tech/article/senior-usability-research).
+
+Check defaults and steering against the user's interest. A preselected
+consent-like choice, a costly-to-reverse default that does not fit the
+reviewed context, a decline path harder than accepting, or a limit people set
+on their own money or resources that leaves them no way to reach what is
+theirs, gets harder to release with lower ability or frames release as
+failure, can support a finding (P55, P41). Report it with the observed
+element; which default, consent text or release condition is acceptable stays
+with the policy owner. Source
+context: [default that did not fit one merchant](https://toss.tech/article/27400)
+and [nudge conditions](https://toss.tech/article/27190) (session transcripts)
+and [self-chosen lock](https://toss.tech/article/lockbank).
+
+Read labels and copy as a sequence. Ask whether each label or entry point lets
+users predict the next screen and its effort, whether the landing screen
+continues what the entry promised and offers the action it was used for, and
+whether copy breaks or repeats within a screen or across the flow (P37). For a
+risk warning, check that it appears before the committing step, names its
+source and does not rely on color alone (P28). Source context:
+[next-screen hint](https://toss.tech/article/8-writing-principles-of-toss),
+[preview and landing](https://toss.tech/article/27184) (session transcript) and
+[warning with source](https://toss.tech/article/27370) (session video).
+
+For a redesign, list which learned locations or triggers move, whether the
+previous path stays during the transition and whether existing user states
+have a planned path (P56). When a proposal iterates surface variants on one
+persistent problem, ask whether grouping or the product unit is the cause and
+whether structural alternatives were offered to the owner (P44, P09). Source
+context: [staged rebuild](https://toss.tech/article/27186) (session
+transcript), [per-state removal](https://toss.tech/article/27374) (session
+video) and [regrouping by action](https://toss.tech/article/mydoc).
+
+## Research and feedback evidence
+
+Treat feedback from an AI model or a simulated persona as a check that can
+raise hypotheses, not as validation with users or an observation of them.
+Label it that way in the report, keep a point only where the artifact itself
+supports it, and do not let it replace research with the intended users.
+Source context: <https://toss.tech/article/research-platform-ai>.
+
+When user reactions are offered as evidence, ask who gave each reaction, such
+as whether respondents already used the affected feature, before reading the
+split between favorable and unfavorable answers. A mixed share can separate into
+groups with different reasons, so do not report the ratio alone as the finding;
+if the respondents' makeup is unknown, say so. Source context:
+<https://toss.tech/article/27380> (session video).
+
+Note when usability evidence comes only from people who built the design or
+already know the product well. Judge participants by role, prior product
+experience and involvement in the design, not by affiliation: colleagues who
+are the intended users of an internal tool can be the right participants, but
+note how any part they had in the design may shape what they find easy.
+Someone familiar with the product moving easily past a hidden entry point or
+an unfamiliar term does not show that intended users will find or understand
+it. Recommend checking with intended
+users rather than calling the design defective on that basis alone. Treat a
+rationale that assumes people will already understand a control, term or
+purpose as a maker assumption to verify, not as evidence. Source context:
+<https://toss.tech/article/thinking-user-perspective>.
+
 ## Conflicting references and handoff
 
 If revisions leave references inconsistent, establish the approved change and
@@ -70,4 +174,8 @@ Trace a claimed improvement from the stated problem to the actual design choice
 and available evidence. P46 context:
 [966.36–1017.91 seconds](https://www.youtube.com/watch?v=-Jzn4PnTmoU&t=966s). Do
 not claim improved conversion, usability or collaboration from the narrative
-alone, and do not turn this into a hiring or career-assessment rubric.
+alone, and do not turn this into a hiring or career-assessment rubric. Check
+whether the intended outcome and the way it will be measured are stated; if not,
+recommend stating both and measuring the same way before and after release.
+Until that measurement exists, report the improvement as intended, not
+achieved. Source context: <https://toss.tech/article/tablecenter>.
