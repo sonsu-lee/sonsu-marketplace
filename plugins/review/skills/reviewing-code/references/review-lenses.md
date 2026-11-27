@@ -60,14 +60,17 @@ places, and an extension point no caller uses. Two validations at two entry
 boundaries are not duplicates. Shorter code with no stated defect or cost is
 a preference, not a finding.
 
-A diagnostic that fails the project's lint check is a failed check. A
-warning the change caused is fixed or kept with a stated reason. Warnings
-that existed before the change are not part of this review. With Ponytail
-installed, see the `ponytail:ponytail` skill's `references/judgment.md`.
+A failed lint check is a failure, regardless of diagnostic labels. Report a
+pre-existing failure separately; it is not a fix request for this diff. For
+warnings that do not fail the check, address only those the change caused:
+fix them or explain why they stay. With Ponytail installed, see the
+`ponytail:ponytail` skill's `references/judgment.md`.
 
-For a completion decision, the controller uses the review and the observed
-check results under the `executing-work` skill's
-`references/completion-gate.md`. Do not run another review for that decision.
+For a completion decision with `development` installed, the controller uses
+the review and observed checks under the `development:executing-work`
+skill's `references/completion-gate.md`. Do not run another review. Without
+`development`, provide the ordinary review and its verification limits; do
+not claim the completion gate ran.
 
 ## Sources
 

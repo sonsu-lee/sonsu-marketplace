@@ -45,7 +45,9 @@ reachable situation, why existing guarantees or checks do not cover it, and
 what the user or caller would observe. A missing guard, test, section, or
 detail is not a finding by itself. Judge each finding against the whole
 request: a later stage or an existing check may already cover it, and results
-that each look right may still not connect.
+that each look right may still not connect. For unneeded code or tests, use
+the completion gate's rule instead: show that the guarantee holds without
+them on every real path and what keeping them costs now.
 
 ## Who evaluates
 

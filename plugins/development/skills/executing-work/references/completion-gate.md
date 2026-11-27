@@ -14,9 +14,10 @@ observed on its real path, and is nothing left that the change does not need?
   those.
 - Each approved behavior was observed at its consumer boundary, not inferred
   from a build or a test of an internal helper.
-- A diagnostic that fails the project's lint check is a failed check. A
-  warning the change caused is fixed or kept with a stated reason. Warnings
-  that existed before the change are not part of this gate.
+- A failed lint check blocks completion regardless of diagnostic labels. If
+  the failure is pre-existing, report it without fixing unrelated code. For
+  warnings that do not fail the check, address only those caused by this
+  change: fix them or explain why they stay.
 - Blocking review findings are resolved, or declined with a reason the
   reviewer's evidence does not contradict.
 
@@ -53,7 +54,7 @@ deployment.
   `pass`. They guard different boundaries.
 - A save handler logs the error and the success notice still runs: `revise`.
   A handler that shows the failure state and stops: `pass`.
-- A complexity warning on `price >= min && price <= max`: `pass`, with the
-  reason stated.
+- A complexity warning on `price >= min && price <= max` that does not fail
+  lint: `pass`, with the reason stated.
 - A client scenario could not run because the test home has no model login:
   `unverified`, never `pass`.
