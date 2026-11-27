@@ -66,12 +66,6 @@ warnings that do not fail the check, address only those the change caused:
 fix them or explain why they stay. With Ponytail installed, see the
 `ponytail:ponytail` skill's `references/judgment.md`.
 
-For a completion decision with `development` installed, the controller uses
-the review and observed checks under the `development:executing-work`
-skill's `references/completion-gate.md`. Do not run another review. Without
-`development`, provide the ordinary review and its verification limits; do
-not claim the completion gate ran.
-
 ## Sources
 
 - [Google review criteria][criteria]: design, functionality, complexity, tests,
