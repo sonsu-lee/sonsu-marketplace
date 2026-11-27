@@ -32,9 +32,9 @@ review independence, or a successful run from the requested role.
   apply changes, and branch merge mode may
   create commits; use them only when those effects and the baseline are
   authorized. For code and skill changes, follow `reviewing-code`'s omp
-  execution reference: use its native reviewer with a focused worker, and add
-  the skill reviewer for skill changes. Collect completed results, not spawn
-  acknowledgments.
+  execution reference: use its native reviewer with a focused worker. For a
+  skill change add the skill reviewer, which is the focused worker when only
+  skills changed. Collect completed results, not spawn acknowledgments.
 - **Codex:** Select installed qualified plugin skills (`$<plugin>:<skill>`).
   Use the exposed subagent interface and its actual schema. For code
   review, the `reviewing-code` Codex reference describes fresh generic workers,
