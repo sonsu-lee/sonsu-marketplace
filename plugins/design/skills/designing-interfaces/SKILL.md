@@ -61,15 +61,30 @@ replace an actual screen check or required independent review.
 
 ## Conditional research
 
-Read only what fits the design decision: [visual judgments](references/visual.md)
-for typography, spacing, imagery, icons or visual encoding; [flow judgments](references/flows.md)
-for responsive behavior, controls, state, service policy or design rationale;
-[handoff workflows](references/handoff.md) when editable deliverables, conflicting
-references, destructive edits or production handoff are relevant;
-[motion](references/motion.md) when adding, changing or removing animation;
-[web on touch devices](references/web-touch-platform.md) when a web interface
-will be used on phones or tablets. These are contextual heuristics, not
-universal rules or evidence of user outcomes.
+Read only the references that fit the design decision:
+
+- [Visual judgments](references/visual.md): typography, spacing, imagery,
+  icons or visual encoding.
+- [Input and navigation](references/input-and-navigation.md): hit areas,
+  icon labels, navigation, selection and input controls.
+- [States and feedback](references/states-and-feedback.md): selection and
+  status, composing, message order across turns, overlays, progress,
+  suggestions and empty history.
+- [Actions, policy and commitments](references/commitments-and-policy.md):
+  action labels, operational counterparts, policy branches, money and exit
+  friction.
+- [Direction and rationale](references/direction-and-rationale.md): studying
+  references, comparing alternatives, open directions and design rationale.
+- [Responsive layout](references/responsive.md): fixed, fluid and changing
+  elements across widths.
+- [Handoff workflows](references/handoff.md): editable deliverables,
+  conflicting references, destructive edits or production handoff.
+- [Motion](references/motion.md): adding, changing or removing animation.
+- [Web on touch devices](references/web-touch-platform.md): a web interface
+  used on phones or tablets.
+
+These are contextual heuristics, not universal rules or evidence of user
+outcomes.
 
 ## Optional omp strict run
 
