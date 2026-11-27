@@ -50,8 +50,10 @@ reasonable person would expect, most likely first. The spec is a vision
 document: it says what the software must do, not everything it will
 meet, and its silence on an input is not permission for that input to
 break the program. Write the list here, once, with the spec in front of
-you. Then, for each line, add the test that pins it to the task that
-owns the code, in that task's own step style.]
+you. When the spec or an existing contract settles a line's result, add
+the test that pins it to the task that owns the code, in that task's own
+step style, and show it under You will see. When it would change a product
+result nobody agreed, pin no guess: list it under Needs your decision.]
 
 ---
 ```

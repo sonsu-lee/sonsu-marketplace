@@ -46,14 +46,13 @@ that each look right may still not connect.
 
 ## Who evaluates
 
-- A PRD that feeds a plan, and a plan with two or more tasks handed to
-  execution:
+- A PRD that feeds a plan, and a plan with two or more tasks:
   a fresh worker that has not seen the drafting conversation evaluates once,
   from the gate's inputs only. A fork or a spawn that copies this history is
   not independent. Use the host's native worker as the `executing-work`
   skill's `references/clients.md` describes. If none can run, the verdict is
   `unverified`.
-- A smaller plan: its author applies the same criteria.
+- A one-task plan: its author applies the same criteria.
 - Implementation: the existing independent review evaluates. Do not add a
   second pass.
 

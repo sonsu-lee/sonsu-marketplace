@@ -38,7 +38,10 @@ A design or plan alone does not authorize implementation.
    its argument. If a consequential design choice remains, load
    `development:brainstorming` before exploring that choice. For a requested
    plan based on settled requirements, load `development:writing-plans`.
-   Execute an already approved plan without asking for approval again.
+   Execute an already approved plan without asking for approval again. A
+   plan with two or more tasks needs a plan gate `pass` for this version
+   (the `writing-plans` skill's `references/plan-gate.md`); apply it before
+   editing if none is recorded.
 3. **Scan for conflicts between tasks.** For every task that consumes what an
    earlier task produces, compare their interfaces and the global constraints.
    Resolve discrepancies against the approved requirements. Stop for approval
@@ -63,9 +66,9 @@ A design or plan alone does not authorize implementation.
 ### Create the failing test case
 
 Before writing or changing a test, get the user's explicit approval of its
-**test specification**: observable interface, initial state and action,
-expected result and its independent basis, failure to catch, test type, and
-whether an existing check already covers it. An explicitly approved plan
+**test specification**: situation, action, and expected result with its
+independent basis. Test type and reuse of an existing check are your choice
+unless they change that decision. An explicitly approved plan
 containing that specification counts. Do not ask again for each test.
 Reconfirm only the affected specification if the interface or expected
 behavior changes. Do not infer approval from a general request to implement.

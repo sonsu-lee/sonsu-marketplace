@@ -125,7 +125,7 @@ opposite failure, and the self-review catches both.
 After writing the complete plan, look at the spec with fresh eyes and check
 the plan against it. Run this checklist yourself, then apply the
 [plan gate](references/plan-gate.md): yourself for a one-task plan, a fresh
-worker for a larger plan handed to execution.
+worker otherwise.
 
 1. **Spec coverage:** skim each requirement. Can you point to a task that
    implements it? List any gaps.
@@ -136,7 +136,8 @@ worker for a larger plan handed to execution.
    called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 4. **Review Focus:** for each reachable input class or failure mode the spec
    implies, is there a task whose tests exercise it? Put the most important
-   uncovered cases in Review Focus and add each test to the owning task.
+   uncovered cases in Review Focus; add each test the spec settles to the
+   owning task.
    An empty section means you checked and found none.
 5. **Proportion:** if code blocks are most of the plan, replace bodies with
    signatures, test names and assertions. Check that each step is still
