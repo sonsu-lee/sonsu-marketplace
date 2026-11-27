@@ -1,0 +1,6 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "grill",
+  "version": "0.1.0",
+  "description": "Interview in decision rounds, with or without repository domain documents."
+}

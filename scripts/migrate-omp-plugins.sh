@@ -12,20 +12,29 @@ listed() {
 }
 
 refreshed=no
-for pair in skill:development planning:development ticket:product \
-  decision:product git:git design:design review:review writing:writing; do
-  old=${pair%%:*}-workflow@sonsu-marketplace
-  new=${pair#*:}@sonsu-marketplace
-  # 1. 統合先が同じ場合もあるため、直前の移行結果を含む一覧を取得する。
+migrate() {
+  old=$1@sonsu-marketplace
+  shift
   installed=$(omp plugin list)
-  listed "$old" || continue
-  # 2. 新パッケージのインストールに失敗した場合は旧パッケージを残す。
-  if ! listed "$new"; then
+  listed "$old" || return 0
+  for package do
+    new=$package@sonsu-marketplace
+    listed "$new" && continue
     if [ "$refreshed" = no ]; then
       omp plugin marketplace update sonsu-marketplace
       refreshed=yes
     fi
     omp plugin install "$new" --scope "$scope"
-  fi
+  done
+  # Keep the old package if any replacement fails to install.
   omp plugin uninstall "$old" --scope "$scope"
+}
+
+migrate product prd decisions tickets
+migrate skill-workflow development
+migrate planning-workflow development
+migrate ticket-workflow tickets
+migrate decision-workflow decisions
+for name in git design review writing; do
+  migrate "$name-workflow" "$name"
 done

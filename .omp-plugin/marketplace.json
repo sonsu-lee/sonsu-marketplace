@@ -3,9 +3,12 @@
   "owner": {"name": "sonsu-lee"},
   "metadata": {"description": "Personal plugin marketplace for omp and Codex."},
   "plugins": [
-    {"name": "development", "source": "./plugins/development", "description": "Development planning, execution, debugging, and skill authoring.", "version": "0.1.5"},
+    {"name": "development", "source": "./plugins/development", "description": "Development planning, execution, debugging, and skill authoring.", "version": "0.2.0"},
     {"name": "review", "source": "./plugins/review", "description": "Independent evidence-driven code review.", "version": "0.1.3"},
-    {"name": "product", "source": "./plugins/product", "description": "Product requirements, decisions, and tickets.", "version": "0.1.2"},
+    {"name": "prd", "source": "./plugins/prd", "description": "Product requirements.", "version": "0.1.0"},
+    {"name": "decisions", "source": "./plugins/decisions", "description": "Architecture decision records.", "version": "0.1.0"},
+    {"name": "tickets", "source": "./plugins/tickets", "description": "Issue and ticket writing.", "version": "0.1.0"},
+    {"name": "grill", "source": "./plugins/grill", "description": "Design and document interviews.", "version": "0.1.0"},
     {"name": "design", "source": "./plugins/design", "description": "Interface and graphic design with scoped verification.", "version": "0.1.5"},
     {"name": "writing", "source": "./plugins/writing", "description": "Natural Korean, English, and Japanese prose.", "version": "0.1.0"},
     {"name": "git", "source": "./plugins/git", "description": "Git branches, worktrees, commits, and pull requests.", "version": "0.1.4"}

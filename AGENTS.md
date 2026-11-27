@@ -53,7 +53,7 @@ changes.
   title syntax and template markers. Create new PRs as Draft by default; mark
   ready only on an explicit request.
 * Follow the
-  [ticket-writing procedure](plugins/product/skills/writing-tickets/SKILL.md)
+  [ticket-writing procedure](plugins/tickets/skills/writing-tickets/SKILL.md)
   when drafting, creating, updating, or splitting GitHub Issues or Linear
   tickets. Use ticket, work, then PR as the normal development flow; follow the
   branch and PR skills for downstream work.
@@ -66,7 +66,7 @@ changes.
   stay local unless publication is explicitly requested.
 * When deciding whether to write an ADR, or drafting, reviewing, or replacing
   one, follow the [decision-record procedure](CONTRIBUTING.md#decision-records)
-  and its [ADR skill](plugins/product/skills/writing-adrs/SKILL.md).
+  and its [ADR skill](plugins/decisions/skills/writing-adrs/SKILL.md).
   Record direction-setting or consequential design choices, not every shared
   rule, implementation step, or operational change. Keep proposals together
   until the decision-maker accepts them; implementation completion is not

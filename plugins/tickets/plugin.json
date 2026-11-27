@@ -1,0 +1,6 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tickets",
+  "version": "0.1.0",
+  "description": "Draft outcome-centered GitHub Issues and Linear tickets."
+}
