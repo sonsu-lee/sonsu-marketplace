@@ -13,6 +13,8 @@ requests take precedence. Follow the applicable procedures in `CONTRIBUTING.md`.
   implementation. Start there if the design is already approved. A plan-only
   request ends with the plan. For a standalone PRD, use
   [writing-prd](plugins/prd/skills/writing-prd/SKILL.md) directly.
+  A stage's result becomes the next stage's input only through its
+  [quality gate](plugins/development/skills/working-on-tasks/references/quality-gates.md).
 * For authorized implementation, follow the
   [execution procedure](plugins/development/skills/executing-work/SKILL.md)
   to coordinate review, cleanup, and validation of the final revision. Load

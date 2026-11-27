@@ -35,6 +35,10 @@ Use `writing-tickets` for ticket format and tracker work if installed and
 requested; absent that package, report the dependency rather than claiming it
 was invoked. Neither a PRD request nor a skill invocation authorizes publishing.
 
+Before a PRD becomes the input to an implementation plan, apply the
+[plan readiness](references/plan-readiness.md) gate. A standalone draft may
+list open questions; it is not plan input until that gate passes.
+
 Assess user problem, requirements accuracy, scope, open questions and evidence,
 and acceptance. Score applicable items 0, 1, or 2; record exclusions and reasons
 and normalize to 10. Require 8/10 and verified requirements, authorization,
