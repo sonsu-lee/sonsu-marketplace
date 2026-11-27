@@ -68,9 +68,13 @@ This is a report the user asked for, so give it in full.
 - Propose the smallest fix that works. Prefer fixes that delete code. Never
   add layers, frameworks or config the problem does not need.
 - No style taste, no "consider", no vague worries.
-- For a candidate about a test, guard, name, repeated rule, or lint
-  diagnostic, apply [judgment calls](../ponytail/references/judgment.md)
-  before reporting it.
+- For a candidate about a test, guard, name, repeated rule, lint diagnostic,
+  failure handler, or abstraction, option, or fallback, first apply the
+  `ponytail` skill's `references/judgment.md`
+  ([judgment calls](../ponytail/references/judgment.md)). For a React Effect
+  or props passed through components, also apply its
+  `references/judgment-react.md`
+  ([React judgment calls](../ponytail/references/judgment-react.md)).
 
 ## 4. Output
 

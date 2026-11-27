@@ -17,13 +17,13 @@ nothing.
 
 ## Lint diagnostics
 
-- An `error` is a failed check. Fix it, or use the exception the project's
-  policy allows.
-- A `warn` raised by your change: fix it when the fix keeps behavior and
-  reads better. Otherwise keep the code and give the reason in the change
-  summary, such as "both comparisons express one price range". Do not add a
-  disable comment or a helper only to silence it.
-- A warning in code you did not change is not yours to fix.
+- A diagnostic that fails the project's lint check, whatever its label, is a
+  failed check. Fix it, or use the exception the project's policy allows.
+- A warning your change caused, wherever it appears: fix it when the fix
+  keeps behavior and reads better. Otherwise keep the code and give the
+  reason in the change summary, such as "both comparisons express one price
+  range". Do not add a disable comment or a helper only to silence it.
+- A warning that existed before your change is not yours to fix.
 
 ## Unneeded tests
 
@@ -65,8 +65,9 @@ on every path that reaches it.
 - A second entry path, such as a batch job or a data restore, is a separate
   boundary. Guard it where it first reads the untrusted value.
 
-When a cast or a mutated internal state is the only way to reach a branch,
-delete the branch and the test that exists for it.
+When a branch is reachable only through a cast, or through a test that sets
+internal state no real caller or concurrent operation produces, delete the
+branch and the test that exists for it.
 
 ## Names and validation results
 
