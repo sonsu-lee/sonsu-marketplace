@@ -37,6 +37,12 @@ outcome.
 ## P09: Simplify primary navigation without hiding other destinations
 
 Prioritize primary navigation while keeping other destinations discoverable.
+Group destinations by the action users come to take rather than by the team,
+business line or data source behind them. Offer a secondary function in the
+situation that calls for it, such as just before the step it supports or after
+a failure, while keeping another stable path to it. Moving or removing an
+existing entry point is the owner's decision; state which users would lose
+which path.
 
 Limit: Supported as source guidance, not a measured usability or conversion
 outcome.
@@ -44,6 +50,10 @@ outcome.
 - <https://www.youtube.com/watch?v=ZT1UZQCTj_U&t=352s> — 352–403 seconds. The
   cited source illustrates or discusses this decision; it does not establish an
   outcome for the current artifact.
+- <https://toss.tech/article/mydoc> — a team-based document hub regrouped into
+  issuing, paying and receiving notices.
+- <https://toss.tech/article/bad-reference-uses> — license check and support
+  moved to the moments they are needed, with a second path for the check.
 
 ## P42: Match selection controls to the allowed choice combinations
 
@@ -106,13 +116,14 @@ not, and keep a final review before submission. When a value the user may
 decide is inferred with uncertainty, offer candidates and leave the choice
 with the user. Never reuse a choice that amounts to consent, and do not carry
 a previous answer to a costly-to-reverse choice into a new transaction
-automatically; whether such a choice may have a default at all is a separate
-check. Whether a field can go is decided by whoever consumes the data, such as
-operations, finance or legal, so propose a removal with their answer rather
-than deleting on design judgment. When a question must stay, rephrase it into
-one users can answer at once from their own situation, such as whether they
-already hold a document, instead of a choice between processes whose
-consequences they cannot foresee, and keep the existing paths reachable.
+automatically; whether such a choice may have a default at all follows P55 in
+`commitments-and-policy.md`. Whether a field can go is decided by whoever
+consumes the data, such as operations, finance or legal, so propose a removal
+with their answer rather than deleting on design judgment. When a question
+must stay, rephrase it into one users can answer at once from their own
+situation, such as whether they already hold a document, instead of a choice
+between processes whose consequences they cannot foresee, and keep the
+existing paths reachable.
 
 Limit: Article cases from internal tools, applications and claim flows; they
 do not show that dropping any particular question is safe or effective here.

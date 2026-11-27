@@ -72,14 +72,15 @@ Read only the references that fit the design decision:
   ask, value before a costly verification, data or consent request, and
   pressable or scrollable cues.
 - [States and feedback](references/states-and-feedback.md): selection and
-  status, composing, message order across turns, overlays, progress and long
-  processing, AI answers, suggestions, errors and lockout, screen-reader state
-  and reading order, and empty history.
+  status, risk warnings, composing, message order across turns, overlays,
+  progress and long processing, AI answers, suggestions, errors and lockout,
+  screen-reader state and reading order, and empty history.
 - [Actions, policy and commitments](references/commitments-and-policy.md):
-  action labels, operational counterparts, policy branches, money and exit
-  friction.
+  action labels and copy across a flow, operational counterparts, policy
+  branches, money, exit friction, defaults and consent.
 - [Direction and rationale](references/direction-and-rationale.md): studying
-  references, comparing alternatives, open directions and design rationale.
+  references, comparing alternatives, open or structural directions, design
+  rationale and redesign transitions.
 - [Responsive layout](references/responsive.md): fixed, fluid and changing
   elements across widths.
 - [Handoff workflows](references/handoff.md): editable deliverables,

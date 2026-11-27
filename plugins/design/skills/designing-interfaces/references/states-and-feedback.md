@@ -12,7 +12,12 @@ captions were the source. Check applicable standards separately.
 ## P28: Differentiate selected state, current status, and available action
 
 Distinguish selection, status and available action; reconcile dependent choices
-without discarding compatible ones.
+without discarding compatible ones. When the system knows that a target or item
+carries a risk, show the warning before the step that commits the user, not
+after it, together with the source the warning relies on and what the user can
+do next; a final confirmation may follow. Whether to block the action is a
+policy decision. Carry the risk in text or a labelled icon as well as color,
+and verify that cue in the artifact before calling it accessible.
 
 Limit: Source-grounded design guidance, not measured user outcomes or runtime
 validation.
@@ -35,6 +40,10 @@ validation.
 - <https://www.youtube.com/watch?v=Xji7nZLcfOQ&t=561s> — 561–632.85 seconds. The
   cited source illustrates or discusses this decision; it does not establish an
   outcome for the current artifact.
+- <https://toss.tech/article/27370> — a reported-account warning shown while
+  the recipient is entered, with the number of police reports (session video).
+- <https://toss.tech/article/27348> — a risk area on an item's detail screen
+  and one more confirmation before the final trade (session video).
 
 ## P29: Design a coherent composing and submission state
 
