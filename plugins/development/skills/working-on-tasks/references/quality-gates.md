@@ -19,6 +19,9 @@ It is not the stage owner's self-assessment, and it never grants authority.
   [plan gate](../../writing-plans/references/plan-gate.md)
   (`references/plan-gate.md`) passes, the user approved the test
   specification, and implementation is authorized.
+- **Implementation to completion.** The `executing-work` skill's
+  [completion gate](../../executing-work/references/completion-gate.md)
+  (`references/completion-gate.md`) passes on the revision being delivered.
 
 ## Verdicts
 

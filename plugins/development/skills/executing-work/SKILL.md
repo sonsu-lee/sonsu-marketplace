@@ -108,12 +108,19 @@ Do not present review or evidence for an older revision as final.
 
 ## Finish
 
+Before reporting completion, apply the
+[completion gate](references/completion-gate.md). Return failed gates to
+the owning stage; see the `working-on-tasks` skill's
+[quality gates](../working-on-tasks/references/quality-gates.md).
+
 Before calling the work complete, check for returned reports from every
 required reviewer on the frozen change. A dispatch is not a report. Wait for
 pending workers. If a required role was skipped and is available, dispatch
 that role on the same target and collect its result; do not repeat completed
 reviews. If cancellation or lost access prevents recovery, preserve the work,
 report the missing role as blocked, and report passing tests separately.
+Lead with "Work incomplete" unless the user explicitly waives the missing
+review; then lead with "Unverified items", not completion.
 
 Report changes, decisions, commands, observed outcomes and missing coverage.
 Distinguish failed, blocked and unrun checks from passes. Leave the workspace
