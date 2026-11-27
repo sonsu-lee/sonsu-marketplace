@@ -41,7 +41,7 @@ A design or plan alone does not authorize implementation.
    Execute an already approved plan without asking for approval again. A
    plan with two or more tasks needs a plan gate `pass` for this version
    (the `writing-plans` skill's `references/plan-gate.md`); apply it before
-   editing if none is recorded.
+   editing if none is recorded. A delegated implementation worker skips this.
 3. **Scan for conflicts between tasks.** For every task that consumes what an
    earlier task produces, compare their interfaces and the global constraints.
    Resolve discrepancies against the approved requirements. Stop for approval
