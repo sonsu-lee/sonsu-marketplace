@@ -19,10 +19,11 @@ nothing.
 
 - A diagnostic that fails the project's lint check, whatever its label, is a
   failed check. Fix it, or use the exception the project's policy allows.
-- A warning your change caused, wherever it appears: fix it when the fix
-  keeps behavior and reads better. Otherwise keep the code and give the
-  reason in the change summary, such as "both comparisons express one price
-  range". Do not add a disable comment or a helper only to silence it.
+- A warning your change caused that does not fail the lint check, wherever
+  it appears: fix it when the fix keeps behavior and reads better. Otherwise
+  keep the code and give the reason in the change summary, such as "both
+  comparisons express one price range". Do not add a disable comment or a
+  helper only to silence it.
 - A warning that existed before your change is not yours to fix.
 
 ## Unneeded tests
