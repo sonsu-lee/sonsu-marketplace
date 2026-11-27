@@ -1,16 +1,26 @@
 # AGENTS.md
 
 This repository is a shared omp, Codex, and Claude Code plugin marketplace.
-Use the current procedures in `CONTRIBUTING.md` and the skills below. Identify which
-requirements apply to the task and read their linked procedures before making
-changes.
+Before responding or acting, load and follow the skill that matches the task.
+Use the [request router](plugins/development/skills/working-on-tasks/SKILL.md)
+for general work. Higher-priority instructions and explicit native-only
+requests take precedence. Follow the applicable procedures in `CONTRIBUTING.md`.
 
-* For non-trivial work, use the
-  [planning procedure](plugins/development/skills/planning-work/SKILL.md)
-  before implementation; a plan-only request does not authorize
-  implementation. For authorized work, follow the
+* For unresolved design choices, use
+  [brainstorming](plugins/development/skills/brainstorming/SKILL.md).
+  Once the decision-maker approves the design, use
+  [writing-plans](plugins/development/skills/writing-plans/SKILL.md) to plan
+  implementation. Start there if the design is already approved. A plan-only
+  request ends with the plan. For a standalone PRD, use
+  [writing-prd](plugins/prd/skills/writing-prd/SKILL.md) directly.
+* For authorized implementation, follow the
   [execution procedure](plugins/development/skills/executing-work/SKILL.md)
-  to coordinate review, cleanup, and validation of the final revision.
+  to coordinate review, cleanup, and validation of the final revision. Load
+  [Ponytail](plugins/ponytail/skills/ponytail/SKILL.md) before reading code;
+  for features, behavior fixes, or test changes, load
+  [TDD](plugins/tdd/skills/test-driven-development/SKILL.md)
+  and obtain approval of the test specification before writing tests. Approval
+  in the plan suffices until the contract changes.
 
 * Add or change plugins, including support for another client, using the
   [plugin-authoring procedure](CONTRIBUTING.md#adding-a-plugin). Keep shared sources

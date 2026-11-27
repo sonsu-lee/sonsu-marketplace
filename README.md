@@ -230,8 +230,8 @@ source edits take effect at the next session without a version change.
 
 ## Available plugins
 
-- [development][development]: Route tasks, plan and execute work, investigate
-  bugs, and author skills.
+- [development][development]: Route tasks, agree on a design, plan, implement,
+  debug, verify, and hand off work. Also includes skill authoring.
 - [ponytail][ponytail]: Apply `ponytail` to code changes: reuse existing code
   and remove code the change makes unnecessary. `ponytail-review` examines a
   diff and its callers; `ponytail-audit` inspects a whole repository on request.
@@ -243,7 +243,7 @@ source edits take effect at the next session without a version change.
   checks terminology and decisions against project documents.
 - [tdd][tdd]: `test-driven-development` takes an explicitly approved test
   specification through red, green, and refactor, one behavior at a time.
-- [review][review]: Review code independently and report evidence locally.
+- [review][review]: Dispatch independent reviewers and report evidence locally.
 - [prd][prd]: Turn agreed requirements into a PRD without another interview.
 - [decisions][decisions]: Assess and record consequential architecture decisions.
 - [tickets][tickets]: Draft GitHub Issues or Linear tickets; publish only when
@@ -253,8 +253,12 @@ source edits take effect at the next session without a version change.
 - [writing][writing]: Write and refine Korean, English, and Japanese prose.
 - [git][git]: Manage worktrees, branches, commits, and pull requests.
 
-For integrated code work, install `development` and `review`. Add the other
-packages for product, design, prose, or Git work; each is independently usable.
+Install `development`, `ponytail`, and `review` for integrated code work;
+add `tdd` for features, behavior fixes, or test changes. Approval of the test
+specification in the plan suffices until the contract changes. Use Ponytail's
+criteria in the existing review pass. Each package also works independently:
+a standalone PRD, for example, needs only `prd`. A missing required package
+leaves its integrated stage incomplete.
 
 Skills install in all three clients. Client-specific parts differ:
 

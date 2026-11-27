@@ -1,6 +1,6 @@
 {
   "name": "development",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Coordinate development tasks, planning, execution, and skill authoring.",
   "author": {"name": "sonsu-lee", "url": "https://github.com/sonsu-lee"},
   "agents": []
