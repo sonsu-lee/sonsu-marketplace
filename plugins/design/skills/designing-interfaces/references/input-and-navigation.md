@@ -1,9 +1,13 @@
 # Input and navigation judgments
 
 These are contextual research-derived heuristics, not validated product outcomes
-or proof of accessibility conformance. Source intervals are seconds; stills and
-captions are sampled, not continuous independent validation. Check applicable
-standards separately.
+or proof of accessibility conformance. Video sources give intervals in seconds;
+their stills and captions are sampled, not continuous independent validation.
+Article sources are linked by URL; results they report belong to their own
+product and context, not to the current artifact. Some article links redirect
+to a conference session page: "(session transcript)" marks a page that carries
+the talk's transcript, and "(session video)" one whose linked talk video's
+captions were the source. Check applicable standards separately.
 
 ## P06: Design the full hit area, not just the visible text or icon
 
@@ -91,3 +95,91 @@ conformance. Suggested checks remain unperformed.
   1000-second target shows an original/revised canvas comparison with an
   All/brand strip and separate brand-headed product rows. None establishes
   working filtering or correct brand/product data.
+
+## P49: Ask only the questions the task needs
+
+Before polishing a form or branching step, check each question against what
+the task actually needs. Reuse values the system already holds or can derive
+and may use for this purpose: prefill them where the user may change them, or
+show them for confirmation with the existing correction path where they may
+not, and keep a final review before submission. When a value the user may
+decide is inferred with uncertainty, offer candidates and leave the choice
+with the user. Never reuse a choice that amounts to consent, and do not carry
+a previous answer to a costly-to-reverse choice into a new transaction
+automatically; whether such a choice may have a default at all is a separate
+check. Whether a field can go is decided by whoever consumes the data, such as
+operations, finance or legal, so propose a removal with their answer rather
+than deleting on design judgment. When a question must stay, rephrase it into
+one users can answer at once from their own situation, such as whether they
+already hold a document, instead of a choice between processes whose
+consequences they cannot foresee, and keep the existing paths reachable.
+
+Limit: Article cases from internal tools, applications and claim flows; they
+do not show that dropping any particular question is safe or effective here.
+
+- <https://toss.tech/article/real-reason> — the data's consumer named the one
+  detail it needed; defaults came from merchant type and time, and a final
+  confirmation stayed.
+- <https://toss.tech/article/insurance-claim-process> — a choice between help
+  and self-service became a question about having documents; the provider list
+  narrowed to linked data, with another path for users without it.
+- <https://toss.tech/article/rebuild-legacy-cs-products> — agents stopped
+  retyping values the support tool already knew.
+- <https://toss.tech/article/4-ways-for-minimum-input> — asks whether input
+  can be avoided by filling known or previously entered information.
+- <https://toss.tech/article/27378> — a request form dropped fields the system
+  already knew and pre-checked access by job role (session video).
+- <https://toss.tech/article/27368> — application steps were skipped where
+  stored data existed, so each user saw different questions (session video).
+- <https://toss.tech/article/27346> — legal confirmed a question had to stay,
+  so it became a simple two-way choice; derivable fields were dropped (session
+  video).
+- <https://toss.tech/article/toss-money-transfer-bank-recommendation> — the
+  bank was inferred from the account number, with several candidates and the
+  final choice left to the user.
+
+## P50: Show the concrete value before asking for an unavoidable cost
+
+When a step that costs effort, verification or personal data cannot be
+shortened, show before it what the user concretely gains and why the
+information is needed, not only the action to take. Make the value specific
+enough to imagine, for example a preview of the result. A preview built from
+sample data must read as an example wherever attention lands: label it
+visibly, and avoid the user's own name or changing figures that make it look
+like their account. When and how consent or permissions are requested, and
+their scope, remain the owner's policy decision; the design proposes the
+explanation, not a new consent order.
+
+Limit: Article cases of a lookup funnel, a sign-up flow and an observational
+study; not evidence that a preview or explanation raises completion here.
+
+- <https://toss.tech/article/value-first-cost-later> — a sample-data preview
+  of the result placed before an external verification funnel the team could
+  not shorten.
+- <https://toss.tech/article/signup> — one platform asked for identity details
+  without saying why; the article presents that as its hypothesis for the drop.
+- <https://toss.tech/article/launching-product-in-one-day> — a satisfaction
+  question folded into a dialog users were already using.
+- <https://toss.tech/article/senior-usability-research> — older participants
+  missed a small example tag and read a demo with their name and moving
+  amounts as their own data.
+
+## P53: Make pressable elements and content beyond the visible edge recognizable
+
+Let each element's form show whether it can be pressed, and keep informational
+elements from looking like controls. A tag styled like a button, a list that
+mixes entry styles or an entry cue made only of bare text or a small arrow can
+lead some users to the wrong target. When content continues below the fold or
+inside a scrolling menu, show that more exists; some users do not scroll unless
+something on screen suggests there is more. Check this at the device sizes and
+large-text settings you support, where the cut moves, and treat a cue as a
+proposal to verify on the rendered screen, not a property of a static mockup.
+
+Limit: Moderated sessions with older users and a component's support feedback;
+not a measurement for other audiences or of any particular cue.
+
+- <https://toss.tech/article/senior-usability-research> — most participants
+  missed text and arrow entry points; tags were taken for buttons, and some
+  participants did not scroll without a visible cue.
+- <https://toss.tech/article/toss-design-system> — a long menu at large text
+  gave no sign of more items until a fade at its edges was specified.
