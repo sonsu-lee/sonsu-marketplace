@@ -84,8 +84,10 @@ Read only the references that fit the design decision:
 - [Responsive layout](references/responsive.md): fixed, fluid and changing
   elements across widths.
 - [Handoff workflows](references/handoff.md): editable deliverables,
-  conflicting references, destructive edits or production handoff.
-- [Motion](references/motion.md): adding, changing or removing animation.
+  component specifications, conflicting references, destructive edits or
+  production handoff.
+- [Motion](references/motion.md): adding, changing or removing animation, or
+  the rendering cost of effects such as blur.
 - [Web on touch devices](references/web-touch-platform.md): a web interface
   used on phones or tablets.
 

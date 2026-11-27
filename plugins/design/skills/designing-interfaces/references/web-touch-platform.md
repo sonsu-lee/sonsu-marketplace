@@ -31,6 +31,14 @@ before relying on a specific behavior.
 - **Browser color.** Where the browser honors `theme-color`, set it per color
   scheme to match the top of the page. Some browsers derive the tint from the
   page background instead.
+- **Media with sound waits for a gesture.** Browsers generally refuse to start
+  video or audio with sound until the person has interacted with the page, and
+  the details vary by browser and setting. Muted or silent video may autoplay,
+  but unmuting without a gesture can pause it, and settings can block even
+  silent autoplay. When an experience depends on playback, design a
+  tap-to-start state and show it when `play()` rejects with `NotAllowedError`;
+  a source the browser cannot play needs an error state or alternative content
+  instead. Do not try to route around the policy.
 
 Match each intervention to an observed need. Preserve text selection where
 content must be copied and retain clear press feedback if changing tap
@@ -39,6 +47,16 @@ when available instead of treating desktop emulation as device evidence.
 These additions also draw from Emil Kowalski's
 [`mobile-native`](https://github.com/emilkowalski/skills/tree/64eb3deb9a5fbfa041faf783e0bc3fd635872e9c/skills/mobile-native)
 (MIT).
+
+The media item follows WebKit's
+[iOS video policies](https://webkit.org/blog/6784/new-video-policies-for-ios/)
+and
+[autoplay policy changes](https://webkit.org/blog/7734/auto-play-policy-changes-for-macos/),
+MDN's
+[autoplay guide](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay)
+and a
+[conference site's mobile build](https://toss.tech/article/simplicity4-frontend-engineering),
+which added a tap-to-start control where playback was refused.
 
 ## Gotchas
 

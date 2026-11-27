@@ -6,7 +6,7 @@
     {"name": "development", "source": "./plugins/development"},
     {"name": "review", "source": "./plugins/review"},
     {"name": "product", "source": "./plugins/product", "description": "Product requirements, decisions, and tickets.", "version": "0.1.2"},
-    {"name": "design", "source": "./plugins/design", "description": "Interface and graphic design with scoped verification.", "version": "0.1.4"},
+    {"name": "design", "source": "./plugins/design", "description": "Interface and graphic design with scoped verification.", "version": "0.1.5"},
     {"name": "writing", "source": "./plugins/writing", "description": "Natural Korean, English, and Japanese prose.", "version": "0.1.0"},
     {"name": "git", "source": "./plugins/git", "description": "Git branches, worktrees, commits, and pull requests.", "version": "0.1.4"}
   ]
