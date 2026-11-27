@@ -76,12 +76,14 @@ code; preserve error handling and accessibility.
    results, and limits; clean up owned processes and state. If safe execution is
    unavailable, name the blocker and mark runtime unverified; explain
    non-applicability for non-executable changes.
-8. **Finish one round.** Allow one focused follow-up of unresolved candidates.
-   Redteam only at high risk or on request, on a named claim, not a full scan.
-   Do not resume stopped runs or fix source. If asked whether work is complete,
-   apply `development:executing-work`'s `references/completion-gate.md` to this
-   round when `development` is installed. Otherwise report verification limits
-   without a gate verdict. Return the local report below.
+8. **Finish one round.** After checks or a blocker, allow one focused
+   follow-up on unresolved candidates. For high risk or on request, a
+   focused worker may redteam a named claim with reachable evidence. Do not
+   rescan, auto-resume stopped runs, fix source, or enter fix/review loops.
+   If asked whether work is complete and `development` is installed, read
+   `development:executing-work`'s `references/completion-gate.md`. Report
+   its verdict; do not act on it. Otherwise report verification limits.
+   Missing required checks or review reports block completion.
 
 ## Roles and reports
 
