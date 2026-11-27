@@ -647,7 +647,8 @@ intended enabled set before each run and restore the test home afterwards.
 
 For a quality gate change, run the paired cases in that gate's reference,
 each in a fresh session: one that must pass and one that must block. Give
-the client only the case's agreement and artifact. A gate fails the check
+the client only the request that reaches the gate, the case's agreement, and
+its artifact. A gate fails the check
 when it blocks the passing case, asks a question the agreement already
 answers, or passes the blocking case. Record the verdict, the evidence the
 client cited, and any file change; none is expected.

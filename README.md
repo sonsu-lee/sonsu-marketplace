@@ -257,7 +257,8 @@ Install `development`, `ponytail`, and `review` for integrated code work;
 add `tdd` for features, behavior fixes, or test changes. Approval of the test
 specification in the plan suffices until the contract changes. Use Ponytail's
 criteria in the existing review pass. Each package also works independently:
-a standalone PRD, for example, needs only `prd`. A missing required package
+a standalone PRD, for example, needs only `prd`. Planning from a PRD also
+needs `prd`. A missing required package
 leaves its integrated stage incomplete.
 
 Skills install in all three clients. Client-specific parts differ:

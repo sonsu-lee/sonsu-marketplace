@@ -17,8 +17,11 @@ external consumer can rely on.
 Give the evaluator the source request and the agreed answers in their own
 words, the whole PRD as it would be handed to planning, and each explicit
 exclusion, delegation, or deferral with where it was agreed. "Agreed" written
-in the PRD is not evidence of agreement. When the host can start a fresh
-worker, the evaluator is one that has not seen the drafting conversation.
+in the PRD is not evidence of agreement. The evaluator is a fresh worker that
+has not seen the drafting conversation; a fork or a spawn that copies this
+history does not count. When the decision-maker hands over a PRD they
+approved without the drafting discussion, that PRD is the agreement: apply
+checks 3 and 4 only.
 
 ## Checks
 
@@ -49,13 +52,18 @@ rewritten PRD, and no product decision.
   the decision-maker a question already answered.
 - `needs_decision`: the sources do not settle it and the answer changes
   product behavior or acceptance. Ask the decision-maker only that decision,
-  with a `grill` interview when that package is installed. No part of the
-  PRD goes to planning meanwhile.
+  with `grill:grilling` when that skill is installed. No part of the PRD goes
+  to planning meanwhile.
 
-If the source agreement is unavailable or no evaluator can run, report
-`unverified` and the reason instead of a verdict. Findings of both kinds can
-coexist: fix the `revise_prd` items yourself and ask only about the
-`needs_decision` items.
+If the source agreement is unavailable or no fresh evaluator can run, report
+`unverified` and the reason instead of a verdict, and plan nothing until the
+user explicitly waives the gate. Never substitute your own evaluation.
+Findings of both kinds can coexist: fix the `revise_prd` items yourself and
+ask only about the `needs_decision` items.
+
+Before any plan, report the verdict and each finding to the user, quoting the
+PRD passage and the agreed passage, including `revise_prd` items you fixed.
+Then have a fresh evaluator check the revised PRD. Never revise silently.
 
 A PRD that only restates settled answers needs no second approval. Confirm
 again when a decision, a scope change, or an explicit deferral was added

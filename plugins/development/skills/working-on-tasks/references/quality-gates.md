@@ -42,12 +42,12 @@ that each look right may still not connect.
 
 ## Who evaluates
 
-- A PRD that feeds a plan, and a plan with two or more tasks handed to
-  execution: a fresh worker that has not seen the drafting conversation
-  evaluates once, from the gate's inputs only. Use the host's native worker
-  as `executing-work`'s client execution reference describes. If none can
-  run, the verdict is `unverified`.
-- A smaller plan: its author applies the same criteria.
+- A PRD that feeds a plan:
+  a fresh worker that has not seen the drafting conversation evaluates once,
+  from the gate's inputs only. A fork or a spawn that copies this history is
+  not independent. Use the host's native worker as the `executing-work`
+  skill's `references/clients.md` describes. If none can run, the verdict is
+  `unverified`.
 - Implementation: the existing independent review evaluates. Do not add a
   second pass.
 
@@ -56,8 +56,8 @@ that each look right may still not connect.
 Return to the stage that made the defect, not to the start:
 
 - wording or an omission against settled answers: the stage that wrote it;
-- a missing or changed product decision: brainstorming with the
-  decision-maker;
+- a missing or changed product decision: the decision-maker, asked only
+  that decision (with `grill:grilling` when installed);
 - a plan defect: planning;
 - a code defect: implementation, or debugging when the cause is unknown.
 
@@ -69,7 +69,8 @@ same gate, stop and report the findings and evidence.
 
 ## Unverified results
 
-`unverified` blocks the claim that the stage passed. Say what could not run
-and why. Proceed only when the check is impossible or the user explicitly
-waives it, and report the item as unverified from then on, including in a
-completion report or pull request.
+`unverified` blocks the claim that the stage passed and stops every handoff
+that depends on it; continue only work that does not. Say what could not run
+and why. Go past the gate only when the user explicitly waives the check, and
+report the item as unverified from then on, including in a completion report
+or pull request.

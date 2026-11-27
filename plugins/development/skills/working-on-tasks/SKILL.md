@@ -96,6 +96,7 @@ authorized work. Never claim that a missing skill or reviewer ran.
 ## Quality gates
 
 A stage's result becomes the next stage's input only through its gate. Read
+the `working-on-tasks` skill's
 [quality gates](references/quality-gates.md) at a handoff or when a gate
 fails. A failed gate returns the work to the stage that owns the defect;
 files are never reset to roll back. `unverified` is not a pass.
