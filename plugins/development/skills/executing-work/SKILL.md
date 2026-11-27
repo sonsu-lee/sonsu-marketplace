@@ -29,9 +29,11 @@ A design or plan alone does not authorize implementation.
    unavailable, block both the missing stage and any code change depending
    on it. Do not offer native-only as a workaround. Continue only independent
    authorized work.
-   Before the first implementation or test edit, check that the host exposes
-   the independent reviewers this change requires. If they cannot run, stop
-   before editing. Installing the review skill does not enable worker tools.
+   Before the first implementation or test edit, check that
+   `review:reviewing-code` is installed and the host exposes the independent
+   reviewers this change requires. If either is missing, stop before editing.
+   Installing the review skill does not enable worker tools. A delegated
+   implementation worker skips this check; its controller owns review.
 2. **Read the plan and spec.** The spec is the binding authority, the plan is
    its argument. If a consequential design choice remains, load
    `development:brainstorming` before exploring that choice. For a requested

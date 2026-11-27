@@ -6,10 +6,10 @@ whole change at the end.
 
 **Why inline:** Subagent-driven development pays for a fresh implementer
 and a fresh reviewer on every task, each re-reading the codebase from zero.
-Inline execution pays for one context (yours) plus one reviewer at the end.
+Inline execution pays for one context (yours) plus one final review round.
 What it gives up is a fresh context per task and a second pair of eyes per
 task. The brief is the specification, the approved test behavior is the
-per-task gate, and the final reviewer is the second pair of eyes.
+per-task gate, and the final review is the second pair of eyes.
 
 ## When to Use
 

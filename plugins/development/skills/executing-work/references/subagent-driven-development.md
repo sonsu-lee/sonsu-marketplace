@@ -92,7 +92,7 @@ unresolved required behavior.
 ## Final Review
 
 After integrating all slices, follow [Final Review](../SKILL.md#final-review).
-Review their interactions, not just each task again. The final reviewer gets
+Review their interactions, not just each task again. The final review gets
 the full change, original requirements, review focus, evidence and unresolved
 concerns. Make corrections, verify and re-review the changed portion before
 finishing.

@@ -7,7 +7,7 @@
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use development:executing-work
+> **For the executing controller:** REQUIRED SUB-SKILL: Use development:executing-work
 > to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for
 > tracking.
 
