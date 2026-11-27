@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "development",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Coordinate development tasks, planning, execution, and skill authoring.",
   "author": {"name": "sonsu-lee", "url": "https://github.com/sonsu-lee"},
   "extensions": {"com.openai": {"hooks": "./hooks/codex.json"}}

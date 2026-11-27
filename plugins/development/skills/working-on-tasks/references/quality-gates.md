@@ -15,6 +15,10 @@ It is not the stage owner's self-assessment, and it never grants authority.
   the whole PRD.
 - **Diagnosis to fix.** The cause is confirmed by reproduction or recorded
   evidence before a fix, as `debugging-code` requires.
+- **Plan to execution.** The `writing-plans` skill's
+  [plan gate](../../writing-plans/references/plan-gate.md)
+  (`references/plan-gate.md`) passes, the user approved the test
+  specification, and implementation is authorized.
 
 ## Verdicts
 
@@ -42,12 +46,14 @@ that each look right may still not connect.
 
 ## Who evaluates
 
-- A PRD that feeds a plan:
+- A PRD that feeds a plan, and a plan with two or more tasks handed to
+  execution:
   a fresh worker that has not seen the drafting conversation evaluates once,
   from the gate's inputs only. A fork or a spawn that copies this history is
   not independent. Use the host's native worker as the `executing-work`
   skill's `references/clients.md` describes. If none can run, the verdict is
   `unverified`.
+- A smaller plan: its author applies the same criteria.
 - Implementation: the existing independent review evaluates. Do not add a
   second pass.
 

@@ -10,7 +10,7 @@
     {"name": "tickets", "source": "./plugins/tickets", "description": "Issue and ticket writing.", "version": "0.1.0"},
     {"name": "ponytail", "source": "./plugins/ponytail", "description": "Minimal code changes, review, and audit.", "version": "0.2.0"},
     {"name": "grill", "source": "./plugins/grill", "description": "Design and document interviews.", "version": "0.1.0"},
-    {"name": "tdd", "source": "./plugins/tdd", "description": "Test-driven development against an approved specification.", "version": "0.1.0"},
+    {"name": "tdd", "source": "./plugins/tdd", "description": "Test-driven development against an approved specification.", "version": "0.2.0"},
     {"name": "design", "source": "./plugins/design", "description": "Interface and graphic design with scoped verification.", "version": "0.1.5"},
     {"name": "writing", "source": "./plugins/writing", "description": "Natural Korean, English, and Japanese prose.", "version": "0.1.0"},
     {"name": "git", "source": "./plugins/git", "description": "Git branches, worktrees, commits, and pull requests.", "version": "0.1.4"}
