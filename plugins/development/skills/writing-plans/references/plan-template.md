@@ -7,6 +7,20 @@
 ```markdown
 # [Feature Name] Implementation Plan
 
+## For approval
+
+**Approach:** [What changes and why this way, in two or three sentences]
+
+**You will see:** [One sentence per changed behavior: in this situation, this
+action gives this result. Cite the PRD's case when it already states it.]
+
+**Needs your decision:** [A choice that changes behavior, scope, or a
+material risk, with what each answer changes; or "None"]
+
+Approving this section approves the test specification. Everything below is
+for the executor: file names, test levels, and commands are implementation
+choices.
+
 > **For the executing controller:** REQUIRED SUB-SKILL: Use development:executing-work
 > to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for
 > tracking.
@@ -36,8 +50,10 @@ reasonable person would expect, most likely first. The spec is a vision
 document: it says what the software must do, not everything it will
 meet, and its silence on an input is not permission for that input to
 break the program. Write the list here, once, with the spec in front of
-you. Then, for each line, add the test that pins it to the task that
-owns the code, in that task's own step style.]
+you. When the spec or an existing contract settles a line's result, add
+the test that pins it to the task that owns the code, in that task's own
+step style, and show it under You will see. When it would change a product
+result nobody agreed, pin no guess: list it under Needs your decision.]
 
 ---
 ```
@@ -57,7 +73,7 @@ owns the code, in that task's own step style.]
   and return types. A task's implementer sees only their own task; this
   block is how they learn the names and types neighboring tasks use.]
 
-**Test specification for approval:**
+**Test specification:**
 - Observable interface: `quantity_for(sku: str) -> int` on the cart.
 - Initial state and action: a cart has two units of `tea`; add one more.
 - Expected result and basis: `quantity_for("tea") == 3`; the design says

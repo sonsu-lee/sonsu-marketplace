@@ -22,9 +22,6 @@ is what you decided: which files, which names and signatures, which values
 from the spec, which tests prove each task. Document those. Give them the
 whole plan as bite-sized tasks. DRY. YAGNI. TDD.
 
-**Announce at start:** "I'm using the writing-plans skill to create the
-implementation plan."
-
 **Context:** start from the approved design, PRD, or settled requirements,
 including decisions made in chat. If a material design choice remains open,
 load `development:brainstorming` before further design work. Do not reopen
@@ -86,13 +83,13 @@ Each step is one action with a checkable result. For one approved behavior:
 ## Plan Document Header
 
 Before writing the plan, read the [plan and task template](references/plan-template.md).
-Start with its header, global constraints, and review focus. Include the spec
-or design from chat so the executor has both.
+Start with its approval section, header, global constraints, and review
+focus. Include the spec or design from chat so the executor has both.
 
 ## Task Structure
 
 Use the template's Files and Interfaces blocks. Order tasks by their real
-dependencies. Include the **test specification for approval** for each
+dependencies. Include the **test specification** for each
 changed behavior: observable interface, initial state and action, expected
 result and its basis, failure the test must catch, test type, and whether an
 existing check already covers it. Derive expectations from the contract,
@@ -126,8 +123,9 @@ opposite failure, and the self-review catches both.
 ## Self-Review
 
 After writing the complete plan, look at the spec with fresh eyes and check
-the plan against it. This is a checklist you run yourself — not a subagent
-dispatch.
+the plan against it. Run this checklist yourself, then apply the
+[plan gate](references/plan-gate.md): yourself for a one-task plan, a fresh
+worker otherwise.
 
 1. **Spec coverage:** skim each requirement. Can you point to a task that
    implements it? List any gaps.
@@ -138,7 +136,8 @@ dispatch.
    called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 4. **Review Focus:** for each reachable input class or failure mode the spec
    implies, is there a task whose tests exercise it? Put the most important
-   uncovered cases in Review Focus and add each test to the owning task.
+   uncovered cases in Review Focus; add each test the spec settles to the
+   owning task.
    An empty section means you checked and found none.
 5. **Proportion:** if code blocks are most of the plan, replace bodies with
    signatures, test names and assertions. Check that each step is still

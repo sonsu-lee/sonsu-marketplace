@@ -31,8 +31,8 @@ This workflow grants no permission to edit, run a command, or commit.
 
 ## Agree on the test contract before writing tests
 
-Inspect the requirement, callers, and existing tests. For each changed behavior,
-show the decision-maker:
+Read [Test Selection][selection] first. Inspect the requirement, callers, and
+existing tests. For each changed behavior, work out:
 
 - The observable interface: who calls it and where the result can be seen.
 - A concrete example: given this initial state, when this action occurs, then
@@ -47,6 +47,9 @@ For example: “Given a blank email, submitting the form returns `Email required
 under the agreed validation rule. This catches accepting an empty address.
 Extend the existing form-submission cases with this input; no browser test is
 needed for the returned error.”
+
+Show the decision-maker the concrete example for each behavior. Mention the
+test type, files, or reuse only when it changes their decision.
 
 Get explicit user approval **before writing or changing a test**. An approved
 plan that includes this contract is sufficient; don't ask again for each test.
@@ -179,3 +182,4 @@ Otherwise → not TDD
 [good-tests]: writing-good-tests.md
 [cycles]: references/worked-cycles.md
 [red-flags]: references/rationalizations.md
+[selection]: references/test-selection.md
