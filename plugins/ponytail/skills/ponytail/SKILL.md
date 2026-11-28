@@ -2,9 +2,10 @@
 name: ponytail
 description: >
   Read before inspecting code for a bug fix, feature, refactor, code review,
-  or dependency choice. Choose the smallest complete change and agree on
-  missing behavior checks before editing. Also use for explicit Ponytail,
-  YAGNI, or over-engineering requests. Levels: lite, full (default), ultra.
+  lint warning, or dependency choice. Choose the smallest complete change
+  and agree on missing behavior checks before editing. Also use for explicit
+  Ponytail, YAGNI, or over-engineering requests. Levels: lite, full (default),
+  ultra.
 license: MIT
 ---
 
@@ -71,6 +72,12 @@ Take the first option that fully works:
 Never cut: validation at trust boundaries, error handling that prevents data
 loss, security, accessibility, the calibration real hardware needs, anything the
 user asked for.
+
+For a lint diagnostic, a guard, a test's value, a name, a repeated rule, a
+failure handler, or an added abstraction, option, or fallback that needs a
+judgment call, read [judgment calls](references/judgment.md). For a React
+Effect or props passed through components, also read
+[React judgment calls](references/judgment-react.md).
 
 ## Levels
 
