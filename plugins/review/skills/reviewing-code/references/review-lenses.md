@@ -50,6 +50,22 @@ not proof of execution.
 The common skill owns finding thresholds, worker boundaries, verification,
 and reporting. These lenses do not authorize runtime execution by reviewers.
 
+## Removal candidates and lint diagnostics
+
+Report code or a test as unneeded only with both: evidence that the guarantee
+still holds without it on every real path, and what keeping it costs now.
+Candidates are a test that catches no reachable contract violation, a guard
+that re-proves an entry boundary's guarantee, one product rule owned in two
+places, and an extension point no caller uses. Two validations at two entry
+boundaries are not duplicates. Shorter code with no stated defect or cost is
+a preference, not a finding.
+
+A failed lint check is a failure, regardless of diagnostic labels. Report a
+pre-existing failure separately; it is not a fix request for this diff. For
+warnings that do not fail the check, address only those the change caused:
+fix them or explain why they stay. With Ponytail installed, see the
+`ponytail:ponytail` skill's `references/judgment.md`.
+
 ## Sources
 
 - [Google review criteria][criteria]: design, functionality, complexity, tests,
