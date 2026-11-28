@@ -14,18 +14,37 @@ have precedence. Reclassify the work when new evidence changes its needs.
 Skill selection is model-dependent, not an authorization or a security gate.
 Each workflow may also be invoked directly.
 
-## Route the request
+## The Rule
 
-Before starting a routed workflow, load its installed skill rather than relying
-on this routing summary. Use the host's skill interface: in Claude Code invoke
-the Skill tool with the qualified name, such as `development:executing-work`;
-in Codex use `$<plugin>:<skill>` when available; in omp read `skill://<skill>`.
-If nested invocation is unavailable, read the installed `SKILL.md` and report
-reading, not invocation. Report an unavailable required skill.
+**Invoke relevant or requested skills BEFORE any response or action**,
+including clarifying questions, exploring the codebase, or checking files.
+Process skills come first: they set the approach. Load each applicable
+skill before reading the code, ticket, PRD, or draft it governs. If none
+applies, answer directly. Otherwise announce "Using [skill] to [purpose]"
+after loading it. Knowing the concept is not a substitute for reading the skill.
 
-- Implementation: `executing-work`; use `planning-work` first for a requested
-  plan or material unresolved design choices. A plan-only request ends with
-  the plan; an approved implementation does not need repeated approval.
+## Platform adaptation
+
+In Claude Code invoke the Skill tool with the qualified name, such as
+`development:executing-work`; in Codex use `$<plugin>:<skill>` when available;
+in omp read `skill://<skill>` before acting. Use native delegation, not a
+second CLI, for workers. A worker uses its assigned workflow, not this router.
+If nested invocation is unavailable, read only the installed skill path
+reported by this client. Report reading rather than invocation. Do not
+search other client homes for a missing skill or offer to bypass approval.
+
+## Skill priority
+
+When multiple skills apply, process skills come first: they set the approach;
+implementation skills carry it out. "Let's build X" starts with brainstorming
+if it needs a design. "Fix this bug" starts with debugging.
+
+- New development designs: use `brainstorming` first. When a PRD is needed,
+  use `prd:writing-prd` to capture agreed requirements before planning. Load
+  `writing-plans` for the agreed spec and design; start there if they already
+  exist. A standalone design, PRD, or plan ends at the requested deliverable.
+- Implementation: use `executing-work` for authorized work when no material
+  design or planning decisions remain. Do not seek approval of an accepted plan.
 - Bug investigation: `debugging-code`; implement a fix only if authorized.
   Do not reproduce a reported failure where the user or host forbids it.
 - Architecture improvement: `improving-codebase-architecture`; distinguish it
@@ -34,11 +53,13 @@ reading, not invocation. Report an unavailable required skill.
   For authorized skill changes, also use `executing-work` for implementation
   and independent review. A change, diff, or PR review uses `reviewing-code`
   even when it changes a skill; include skill criteria as that procedure requires.
-- Interview: `grill-me`, or `grill-with-docs` when repository domain documents
-  are needed. Domain terminology: `domain-modeling`.
-- Product requirements, decisions, or tickets: `writing-prd`, `writing-adrs`,
-  or `writing-tickets` respectively. Do not create or publish them merely
-  because a related workflow ran.
+- For refining documents or ideas, load the applicable `grill` skill before
+  reading the draft: `grill-me` for an interview, `grilling` for decision
+  dependencies, `grill-with-docs` for project terminology and constraints.
+  Use the language skill for copy editing. Do not reopen settled PRD decisions.
+- Product requirements, decisions, or tickets: `prd:writing-prd`,
+  `decisions:writing-adrs`, or `tickets:writing-tickets`. Drafting a document
+  does not authorize publishing it.
 - Code review or explicitly requested audit: `reviewing-code`. Respect a
   native-only request and keep a review read-only unless edits are authorized.
 - Interface work, design review, or graphics: `designing-interfaces`,
@@ -53,21 +74,24 @@ that file. Loading a skill grants no permission to edit a glossary, migrate,
 commit, push, publish, modify a tracker, or deploy. Obtain applicable separate
 approval for those actions. Follow stricter project rules.
 
-Use `development` and `review` together for integrated code work, adding
-`prd`, `decisions`, `tickets`, `grill`, `design`, `writing`, or `git` as
-needed. Each package is independently installable. If a package is absent, do
-not claim to invoke it; continue only independent authorized work. If required
-independent review is unavailable, report the work incomplete.
+For code changes and investigations, load `ponytail:ponytail` and the process
+skill before reading code. If Ponytail is missing, stop before code exploration,
+even for read-only diagnosis. Standalone review does not require Ponytail.
+For integrated change review, use `ponytail-review`
+as criteria inside `review:reviewing-code`, not as a second review. Use
+`ponytail-audit` only for a requested repository audit. For a feature,
+behavior fix or new or changed test, load `tdd:test-driven-development`
+before inspecting the target. Block dependent implementation if it is missing.
+Obtain explicit approval of the observable test specification before
+writing tests; approval in the plan suffices unless the contract changes.
+Once the tests are approved and implementation is authorized, route the
+implementation turn to `development:executing-work` before the first edit. If already
+loaded, continue its workflow. TDD governs the test cycle; GREEN hands the
+change to independent review, not directly to a completion report.
 
-## Implement the smallest complete change
-
-Inspect existing code, callers, contracts, and consequences first. Reuse the
-project's implementation and conventions, then suitable platform or installed
-facilities. Avoid unrequested options, abstractions, dependencies, and future
-features. Complete all affected callers and preserve security, validation,
-error handling, accessibility, and requested behavior. Exercise the actual
-changed path and arrange the required independent review; do not substitute a
-skill invocation or an evaluation score for execution.
+Each package is independently installable. If an integrated stage requires
+a missing package, identify it and stop that stage; continue only independent
+authorized work. Never claim that a missing skill or reviewer ran.
 
 ## Evaluate each performed stage
 

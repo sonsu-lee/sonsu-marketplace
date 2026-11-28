@@ -23,8 +23,9 @@ codex plugin add development@sonsu-marketplace
 claude plugin install development@sonsu-marketplace
 ```
 
-Install [review](../review/README.md) when independent code review is required.
-A missing required review is incomplete, not a pass.
+For integrated code work install [Ponytail](../ponytail/README.md) and
+independent [review](../review/README.md). Install [TDD](../tdd/README.md)
+for features, behavior fixes, or test changes. Report missing required stages.
 
 The hook scripts and declared-check runner require Python 3.9 or newer.
 
@@ -38,15 +39,23 @@ codex plugin list --marketplace sonsu-marketplace --json
 claude plugin details development
 ```
 
-Ask for a plan, implementation, bug investigation, domain interview, or skill
-revision. In Codex explicitly select `$development:planning-work`; Claude Code
-uses `/development:planning-work`. Skill discovery does not prove activation or
-complete loading. Natural-language routing depends on the model.
+For general requests, the [request router](skills/working-on-tasks/SKILL.md)
+directs the agent to load the applicable skill before responding or acting.
+Higher-priority instructions and explicit native-only requests take precedence.
 
-The [request router](skills/working-on-tasks/SKILL.md) separates user intent
-and authority. [Planning](skills/planning-work/SKILL.md),
-[execution](skills/executing-work/SKILL.md),
-[debugging](skills/debugging-code/SKILL.md), and
+- For unresolved design choices, use [brainstorming](skills/brainstorming/SKILL.md):
+  `$development:brainstorming` in Codex or `/development:brainstorming` in
+  Claude Code.
+- After design approval, use [writing-plans](skills/writing-plans/SKILL.md):
+  `$development:writing-plans` in Codex or `/development:writing-plans` in
+  Claude Code. Start here for an already approved design. A plan-only request
+  stops at the plan; use [execution](skills/executing-work/SKILL.md) only when
+  implementation is authorized.
+- For a standalone PRD, use [writing-prd](../prd/skills/writing-prd/SKILL.md)
+  directly. When a design needs a PRD, use it before writing the plan.
+
+Skill discovery does not prove activation or complete loading. Natural-language
+routing depends on the model. [Debugging](skills/debugging-code/SKILL.md) and
 [skill authoring](skills/authoring-skills/SKILL.md) can also be used directly.
 The [grill package](../grill/README.md) owns the three interview skills.
 Development retains `domain-modeling` and `improving-codebase-architecture`.

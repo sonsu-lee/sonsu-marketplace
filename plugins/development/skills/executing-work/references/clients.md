@@ -26,18 +26,23 @@ These are assignment contracts, not new always-on agents or permission
 boundaries. A prompt cannot create a sandbox. Do not infer model identity,
 review independence, or a successful run from the requested role.
 
-- **omp:** Use the exposed `task` interface and effective agent profiles.
-  Isolated workers may automatically apply changes, and branch merge mode may
+- **omp:** Read installed skills using `skill://<name>`. Use exposed native
+  task, todo and session facilities; an extension gate is not evidence of
+  skill loading, verification or approval. Isolated workers may automatically
+  apply changes, and branch merge mode may
   create commits; use them only when those effects and the baseline are
   authorized. For code and skill changes, follow `reviewing-code`'s omp
-  execution reference: use its native reviewer and add the skill reviewer for
-  skill changes. Collect completed results, not spawn acknowledgments.
-- **Codex:** Use the exposed subagent interface and its actual schema. For code
+  execution reference: use its native reviewer with a focused worker. For a
+  skill change add the skill reviewer, which is the focused worker when only
+  skills changed. Collect completed results, not spawn acknowledgments.
+- **Codex:** Select installed qualified plugin skills (`$<plugin>:<skill>`).
+  Use the exposed subagent interface and its actual schema. For code
   review, the `reviewing-code` Codex reference describes fresh generic workers,
   independent context, and result collection. For skill changes, assign
   `authoring-skills` criteria through that controller. Do not assume omp
   profile names or fields exist.
-- **Claude Code:** Use the exposed Agent tool with appropriate generic workers.
+- **Claude Code:** Invoke the Skill tool with the qualified plugin skill
+  name. Use the exposed Agent tool with appropriate generic workers.
   Subagent worktrees normally start from the default branch and omit uncommitted
   files; their branch creation and cleanup need applicable authority. Verify
   baseline and effects before using them. For code review, follow the
@@ -53,3 +58,9 @@ specific skill-guidance question. In authorized execution, instruct the review
 controller to include it once; a separate assignment cannot replace a missing
 required controller. Reviewers do not edit or run authoring checks. If required
 delegation or independence is unavailable, report the review as incomplete.
+
+If nested invocation is unsupported, read the installed skill file before
+its materials; distinguish reading from invocation. If the file cannot be
+loaded or a required worker cannot run, report that stage as incomplete.
+Native-only means the requested native procedure and output, without plugin
+workers, criteria, or claims that an integrated skill ran.

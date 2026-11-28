@@ -1,97 +1,129 @@
 ---
 name: executing-work
 description: >-
-  Coordinate authorized implementation, test design, real-path verification,
-  and independent review. Not for a plan-only request or review-only work.
+  Use when executing authorized implementation work inline or with independent
+  workers, through verification and final review. Not for plan-only or
+  review-only requests.
+license: MIT
+metadata:
+  source: https://github.com/obra/superpowers
+  source-commit: 22f0b463e7a5e579904dd6211a520321035526f7
 ---
 
-# Executing work
+# Executing Plans
 
-Establish the requested outcome, scope, authority, and verification. Use
-`planning-work` for a requested plan or consequential unresolved choices when
-available. An approved plan does not require approval again, but does not decide
-material choices left open by that plan. Obtain the decision-maker's approval
-for a consequential unresolved design choice or scope expansion before
-implementing it.
-Host, user, and repository rules override these defaults.
-An implementation request permits in-scope local changes, not commit, push,
-publication, tracker changes, merge, deployment, or destructive work without
-applicable approval. If evidence invalidates a consequential decision, obtain
-the needed decision without silently changing scope.
+Execute the plan task by task. **Continuous execution:** Do not pause to check
+in with your human partner between tasks. Continue through the approved work;
+pause the affected task for a missing decision, permission or prerequisite.
+A design or plan alone does not authorize implementation.
 
-Inspect existing code, contracts, callers, tests, and conventions. Reuse
-suitable existing code or platform capabilities and make the smallest complete
-change, preserving needed validation, error handling, accessibility, security,
-and all requested behavior. Migrate affected callers and remove only code made
-obsolete by the change. Do not add options, abstractions or features merely for
-possible future use.
+## Setup
 
-For an authorized repeated change, read
-[mechanical changes](references/mechanical-changes.md) to establish and verify
-its target set.
+1. **Load the skills before the material.** For code work, load
+   `ponytail:ponytail` before reading code, tests, the plan or other task
+   artifacts. For a feature, behavior fix, or new or changed test, load
+   `tdd:test-driven-development` before reading its materials or asking for
+   their specification. Use the host's installed skill mechanism. An explicit
+   native-only request takes precedence: follow its native procedure and
+   output without plugin orchestration. Otherwise, if a required skill is
+   unavailable, block both the missing stage and any code change depending
+   on it. Do not offer native-only as a workaround. Continue only independent
+   authorized work.
+   Before the first implementation or test edit, check that
+   `review:reviewing-code` is installed and the host exposes the independent
+   reviewers this change requires. If either is missing, stop before editing.
+   Installing the review skill does not enable worker tools. A delegated
+   implementation worker skips this check; its controller owns review.
+2. **Read the plan and spec.** The spec is the binding authority, the plan is
+   its argument. If a consequential design choice remains, load
+   `development:brainstorming` before exploring that choice. For a requested
+   plan based on settled requirements, load `development:writing-plans`.
+   Execute an already approved plan without asking for approval again.
+3. **Scan for conflicts between tasks.** For every task that consumes what an
+   earlier task produces, compare their interfaces and the global constraints.
+   Resolve discrepancies against the approved requirements. Stop for approval
+   if the resolution changes a confirmed contract or expands scope.
+4. **Work in the authorized workspace.** Use native task or session state
+   where available. Do not create auxiliary workspaces, ledgers or commits
+   to track progress. An implementation request does not authorize a branch,
+   commit, push, PR, tracker update, merge, deployment or destructive action.
 
-For a specification with tasks, identify true blocking dependencies and the
-frontier of ready work. Work through the entire approved scope; after blockers
-clear, continue the newly ready work. Delegate only useful independent slices
-with explicit inputs, outputs, constraints, and ownership. Use isolation only
-when its baseline contains the required staged, unstaged, and untracked work,
-and its creation, application, branch, and cleanup effects are authorized.
-Otherwise do not delegate edits that require it; work serially within the
-authorized workspace. If a subagent-driven method is chosen, independently
-review each task for spec compliance and quality, then review integration. Do
-not automatically commit, merge, delete, change trackers, or create branches.
+## The Process
 
-When coordinating delegation or independent review, read
-[client execution](references/clients.md) for the current client.
+- **Inline:** After the review preflight, execute the steps yourself if the
+  tasks are coupled, the user chose inline work, or delegation is unavailable
+  or inappropriate. Follow [Executing Plans](references/executing-plans.md).
+- **Delegated:** For independently runnable slices, read
+  [Subagent-Driven Development](references/subagent-driven-development.md)
+  and [client execution](references/clients.md) before dispatch. Use one
+  controller; a worker does not schedule its own review.
+- **Small same-shape work:** When an authorized change repeats one rule across
+  files, read [mechanical changes](references/mechanical-changes.md).
 
-## Design verification before writing tests
+### Create the failing test case
 
-Identify the changed contract, caller-visible outcome, and happy path first.
-Select only reachable input and state boundaries where behavior differs. Name
-the plausible bug each test catches and the smallest appropriate test scope.
-Set expected results from the requirement, external contract, or independently
-worked example, never by copying the implementation. Avoid internal call order,
-mock echoes, wiring, source text, non-emptiness, and tautological checks. For a
-simple change where a test adds no value, state why and how it was checked.
-Keep meaningful regression coverage when appropriate. Test-first is optional
-unless explicitly requested or required by the project.
+Before writing or changing a test, get the user's explicit approval of its
+**test specification**: observable interface, initial state and action,
+expected result and its independent basis, failure to catch, test type, and
+whether an existing check already covers it. An explicitly approved plan
+containing that specification counts. Do not ask again for each test.
+Reconfirm only the affected specification if the interface or expected
+behavior changes. Do not infer approval from a general request to implement.
 
-Run the real changed entry point or consumer path and observe the result;
-tests, a build, or a self-assessment alone do not prove behavior. For bugs,
-reproduce and retest the same path when safe and allowed; do not repeat a
-reported failure where the user or host forbids it. Preserve evidence and
-report unverified conditions.
-If a declared verification gate blocks an action, inspect the declaration and
-use the exact runner command it reports only when that check is authorized.
-A receipt records execution on a tree, not test adequacy or action approval.
+For approved new behavior, use `tdd:test-driven-development` one behavior at
+a time: RED → GREEN → REFACTOR. Reuse an existing check that catches the same
+failure. If the host reserves checks for another role, arrange the approved
+RED and GREEN observations with that verifier; do not silently skip RED,
+claim an unobserved cycle, or implement past a required RED gate.
 
-## Review and finish
+### Verification Before Completion
 
-Code and behavioral skill changes require independent review, even for a small
-diff. Load the installed `reviewing-code` workflow before arranging review:
-Claude Code uses the Skill tool with `review:reviewing-code`, Codex uses
-`$review:reviewing-code` when available, and omp reads `skill://reviewing-code`.
-If nested invocation is unavailable, read the installed `SKILL.md` and
-distinguish reading from invocation. Include `authoring-skills` criteria for
-skill changes, and follow the loaded review workflow's client reference for
-independent workers. Respect native-only requests and client-specific worker
-requirements. If a required skill, reviewer, or package is unavailable, report
-incomplete coverage; do not claim review succeeded. The review's read-only,
-single-round limits apply during that review. After it ends, verify findings
-and make authorized corrections as the implementation owner. For any source
-or test changes, freeze the final target and obtain an independent re-review
-of the changed portion. Repeat affected checks when later changes invalidate
-their evidence; never present a previous revision's review as final.
-Update affected documentation and remove owned scaffolding. Report commands,
-observed results, limitations, and remaining risks; distinguish unrun, failed,
-and blocked checks from passes.
+**Core principle:** Evidence before claims, always. Before claiming work is
+complete, fixed, or passing, read
+[Verification Before Completion](references/verification-before-completion.md).
+Unless the host or user assigns a different verifier, the inline executor
+or delegation controller runs the existing local checks for the authorized
+change. Otherwise hand the verifier the entry point and expected result.
 
-Assess contract and happy path, reachable boundaries, test design and expected
-values, execution evidence, and unnecessary code removal. Score applicable
-items 0, 1, or 2, record exclusions and reasons, and normalize to 10. Require
-8/10 and verified requirements, authorization, security, data safety, confirmed
-contracts, and stage evidence. Correct failures and reevaluate up to three times,
-never without changes. If still unsuccessful, report each score, mandatory
-conditions, evidence, and blockers. Wait for user decisions, permission, or
-access instead of automatic retries; scores cannot replace real verification
-or required independent review.
+## Final Review
+
+Code and behavioral skill changes require independent review, even for a
+small diff. For integrated review, load `review:reviewing-code` before
+reading review material or dispatching. Its controller applies
+`ponytail:ponytail-review` to code and `development:authoring-skills` to
+skill changes in the same review. Read [client execution](references/clients.md)
+for the current host. Use the requested native review alone for native-only
+work. Do not replace a missing independent reviewer with self-review.
+
+Freeze the integrated target. Give the reviewer the approved spec, plan,
+actual changes (including uncommitted work), evidence, and review focus.
+The review is read-only. After it ends, verify each finding against the
+source and contract. Correct in-scope defects; explain declined or deferred
+findings. Freeze any changed source or tests and obtain independent re-review
+of the changed portion. Repeat only checks whose evidence was invalidated.
+Do not present review or evidence for an older revision as final.
+
+## Finish
+
+Before calling the work complete, check for returned reports from every
+required reviewer on the frozen change. A dispatch is not a report. Wait for
+pending workers. If a required role was skipped and is available, dispatch
+that role on the same target and collect its result; do not repeat completed
+reviews. If cancellation or lost access prevents recovery, preserve the work,
+report the missing role as blocked, and report passing tests separately.
+
+Report changes, decisions, commands, observed outcomes and missing coverage.
+Distinguish failed, blocked and unrun checks from passes. Leave the workspace
+as-is. If the user requests a branch disposition, read
+[Finishing a Development Branch](references/finishing-a-development-branch.md)
+and load the applicable Git skill before reading Git artifacts or acting.
+Integration and cleanup are the user's decisions, not side effects of
+completing the plan.
+
+For a fix or implementation, assess contract and happy path, reachable
+boundaries, test design and expected values, execution evidence, and
+unnecessary code removal. Score applicable items 0, 1 or 2, explain exclusions
+and normalize to 10. Require 8/10 and verified requirements, authority,
+security, data safety, contracts and stage evidence. Correct and reevaluate
+at most three times, never unchanged; report remaining blockers and scores.
+Scores cannot replace actual verification or independent review.

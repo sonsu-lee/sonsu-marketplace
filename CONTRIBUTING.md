@@ -604,25 +604,46 @@ Codex and Claude Code reviews, the extra worker remains user opt-in. An
 implementation controller's skill-review assignment also triggers it without
 another approval; the worker must read the loaded `authoring-skills`.
 
-For execution, copy the contents of
-`scripts/fixtures/manual-scenarios/executing-csv/` into a disposable Git
-target and create one initial commit. Load `development` and
-`review`, then send this prompt:
+For execution, copy `scripts/fixtures/manual-scenarios/executing-csv/` into
+a remote-free disposable Git target with one baseline commit. The fixture
+requires Python 3; run `python3 -m unittest test_exporter` from its directory.
+Load `development`, `ponytail`, `tdd`, and `review` from the same revision:
+pass all four `--plugin-dir` paths to omp and Claude Code (and the development
+extension to omp); reinstall all four in the dedicated Codex scenario home.
+Use `--approval-mode yolo` in omp only for disposable targets, and report it.
 
-> Execute this already approved plan in the workspace: change the existing
-> CSV exporter so commas and quotes in fields are escaped according to the
-> exporter’s existing format, and update its tests. Keep the public API
-> unchanged. Verify using the existing focused test command. Local edits and
-> tests are authorized; do not commit, push, open a PR, merge, or deploy. Do
-> not ask me to approve this plan again. When you finish, show me the final
-> contents of the files you changed.
+Start a session with a plain-language request:
 
-The focused test command is `python3 -m unittest test_exporter`. The client
-must load `executing-work`, change and test the exporter, then load
-`reviewing-code` and complete its general and focused workers on the final
-revision before reporting completion, without committing, pushing, or
-publishing. Run omp with `--approval-mode yolo` only in such disposable
-targets, and report that choice.
+> Fix CSV escaping for commas and quotes. Keep the API and simple rows
+> unchanged. Propose the tests before writing them. No commits or publication.
+
+Observe the native skill loads before file exploration. Without approval the
+client may inspect and propose tests; it must not write tests or change the
+exporter. Then explicitly approve the specification in the **same session**.
+For this fixture, use the following agreement:
+
+> I approve these unit tests and local implementation. In a fresh call to
+> `export_csv`, `[["a,b"]]` must return `'"a,b"\n'` and `[['a"b']]` must
+> return `'"a""b"\n'`: comma-containing fields need surrounding quotes and an
+> embedded quote is doubled inside surrounding quotes. An unquoted comma
+> creates another column; an unescaped quote changes the field value. Keep
+> the existing simple-row test. Use `python3 -m unittest test_exporter`.
+> No commits, push, PR, merge, or deployment.
+
+Observe the quoting rule fail before the fix and pass afterwards. Both
+approved cases may share one RED run. If a single fix already satisfies the
+second case, show it passing rather than manufacturing another failure. Check
+the exporter output, reuse of the existing
+test, and the independent review on the final revision. Ponytail supplies
+criteria, not another review round. Record any missing worker or package as
+incomplete. In a fresh target omit `tdd` to exercise that branch; an absent
+package is not permission to silently skip TDD. Also run `prd:writing-prd`
+with only `prd` on an agreed specification, and a `grill` interview with only
+`grill`: neither standalone request should edit files or require the whole
+development workflow.
+In Codex remove excluded packages from the dedicated scenario home first.
+Check `codex plugin list --marketplace sonsu-marketplace --json` for the
+intended enabled set before each run and restore the test home afterwards.
 
 Exercise the writing helpers from the directory each client loaded
 them from, preserving identifiers, numbers, URLs, and fenced code. Then remove

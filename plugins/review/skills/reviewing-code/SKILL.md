@@ -18,14 +18,18 @@ code; preserve error handling and accessibility.
 
 ## Workflow
 
-1. **Select work.** For comments based only on existing findings, read
-   [review comments](references/review-comments.md); start no reviewers or
-   runtime checks. Preserve verification status; ask for missing consequential
-   facts rather than inventing them. Posting requires explicit permission and
-   the reference's revision and readback checks. Then stop.
-2. **Choose roles.** The controller freezes the target, assigns independent
-   complementary reviews, verifies evidence, and consolidates without a third
-   scan. Controllers read their client's [omp](references/omp.md),
+1. **Select work.** Before drafting or posting comments on new or existing
+   findings, read [review comments](references/review-comments.md). Posting
+   requires explicit permission and the revision and readback checks there.
+   For existing findings only, preserve their verification status, ask for
+   missing material facts, and stop without new reviewers or runtime checks.
+   For integrated code work, load Ponytail's `ponytail-review` (or
+   `ponytail-audit` for a requested audit) before reading the target. Pass its
+   criteria to the general reviewer in the brief. Keep this review's scope,
+   language and report format; no second scan. Report missing criteria.
+2. **Choose roles.** The controller assigns separate general and focused reviewers,
+   even for a small diff. Before dispatch, read the host's
+   [omp](references/omp.md),
    [Codex](references/codex.md), or [Claude Code](references/claude-code.md)
    guidance. Explicit native-only requests keep the native workflow.
 3. **Freeze and brief.** Record purpose, requirements, repository/user
@@ -56,10 +60,11 @@ code; preserve error handling and accessibility.
    Distinguish observation, obligation, and solution: suggestions are not
    requirements. Prefer the smallest sufficient fix or deletion. Zero findings
    is valid.
-6. **Verify candidates.** Check source, callers, requirements, and evidence.
-   Deduplicate root causes, not independently actionable problems. Resolve
-   disagreements by evidence, not votes or confidence; native correctness
-   judgments are not runtime verification.
+6. **Collect and verify.** Match each required role to its returned report on
+   the frozen target. Wait for pending roles. If a role never started and
+   capacity is available, dispatch only that role with the original brief.
+   Never retry a refusal, cancellation or returned verdict. Verify findings
+   against source and requirements; consolidate by root cause.
 7. **Exercise changed behavior.** The controller or a narrowly assigned runtime
    worker performs one meaningful safe execution in a separate disposable copy
    of the frozen target; reviewers do not execute. For skill guidance, exercise
@@ -106,9 +111,6 @@ The controller's concise local report includes:
   evidence, and remaining risks. Native correct/incorrect verdicts are judgments,
   not runtime success or complete coverage.
 
-Read [review comments](references/review-comments.md) for comment drafting or
-explicit posting, not ordinary local reports.
-
 ## Evaluate the review
 
 Score scope, paths, impact, evidence/deduplication, and unverified areas:
@@ -123,8 +125,7 @@ or access. Scores do not replace independent workers.
 - A draft is not a pending remote review. Skill selection is model behavior,
   not a hook.
 - Tests express intent, not execution.
-- To check an unreachable-code or test-value candidate, the controller may also
-  run a dead-code detector or mutation-testing command already configured by
-  the repository in the disposable copy, on changed paths where supported.
-  This supplements, not replaces, entry-point execution. Workers do not run it;
-  never install tools or change configuration for it.
+- To check dead code or test value, the controller alone may use an existing
+  repository detector or mutation test in the disposable copy. Limit it to
+  changed paths when supported. Never install or configure tools for this
+  check, or use it instead of entry-point execution.
