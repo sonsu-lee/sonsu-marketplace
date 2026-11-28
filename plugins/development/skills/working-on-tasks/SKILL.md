@@ -93,6 +93,14 @@ Each package is independently installable. If an integrated stage requires
 a missing package, identify it and stop that stage; continue only independent
 authorized work. Never claim that a missing skill or reviewer ran.
 
+## Quality gates
+
+A stage's result becomes the next stage's input only through its gate. Read
+the `working-on-tasks` skill's
+[quality gates](references/quality-gates.md) at a handoff or when a gate
+fails. A failed gate returns the work to the stage that owns the defect;
+files are never reset to roll back. `unverified` is not a pass.
+
 ## Evaluate each performed stage
 
 The stage owner records evidence and evaluates only stages actually performed.

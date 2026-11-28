@@ -28,7 +28,9 @@ implementation plan."
 **Context:** start from the approved design, PRD, or settled requirements,
 including decisions made in chat. If a material design choice remains open,
 load `development:brainstorming` before further design work. Do not reopen
-what they already decided.
+what they already decided. When a PRD is the input, load `prd:writing-prd`
+and apply its `references/plan-readiness.md` gate first; until it passes,
+plan no part of that PRD.
 
 **Where it goes:** return the plan in chat unless they authorized a file
 and destination. Use an undated name. Do not create a worktree or commit.

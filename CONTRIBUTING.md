@@ -645,6 +645,14 @@ In Codex remove excluded packages from the dedicated scenario home first.
 Check `codex plugin list --marketplace sonsu-marketplace --json` for the
 intended enabled set before each run and restore the test home afterwards.
 
+For a quality gate change, run the paired cases in that gate's reference,
+each in a fresh session: one that must pass and one that must block. Give
+the client only the request that reaches the gate, the case's agreement, and
+its artifact. A gate fails the check
+when it blocks the passing case, asks a question the agreement already
+answers, or passes the blocking case. Record the verdict, the evidence the
+client cited, and any file change; none is expected.
+
 Exercise the writing helpers from the directory each client loaded
 them from, preserving identifiers, numbers, URLs, and fenced code. Then remove
 one helper from a disposable copy (a copy of `plugins/writing` passed
